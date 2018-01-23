@@ -64,6 +64,9 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     @Override
     public SecurityAccessorType add() {
         if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
+            if (underConstruction.isManagedCentrally()) {
+                throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
+            }
             underConstruction.addUserAction(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_1);
             underConstruction.addUserAction(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_2);
             underConstruction.addUserAction(SecurityAccessorUserAction.VIEW_SECURITY_PROPERTIES_1);

@@ -843,7 +843,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType) {
         if (securityAccessorType.isManagedCentrally()) {
-            return dataModel.mapper(SecurityAccessor.class).getOptional(securityAccessorType)
+            return dataModel.mapper(SecurityAccessor.class).getOptional(securityAccessorType.getId())
                     .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
         }
         return Optional.empty();
@@ -888,7 +888,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version) {
         return dataModel.mapper(SecurityAccessor.class)
-                .lockObjectIfVersion(version, securityAccessorType)
+                .lockObjectIfVersion(version, securityAccessorType.getId())
                 .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
     }
 

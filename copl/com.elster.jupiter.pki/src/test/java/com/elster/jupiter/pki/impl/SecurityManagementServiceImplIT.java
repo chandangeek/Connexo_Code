@@ -86,9 +86,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -117,21 +115,12 @@ public class SecurityManagementServiceImplIT {
     public TestRule expectedRule = new ExpectedExceptionRule();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
-    private CertificateFactory certificateFactory;
+    private static CertificateFactory certificateFactory;
 
     @BeforeClass
-    public static void initialize() {
+    public static void initialize() throws Exception {
         inMemoryPersistence.activate();
         securityManagementService = inMemoryPersistence.getSecurityManagementService();
-    }
-
-    @AfterClass
-    public static void uninstall() {
-        inMemoryPersistence.deactivate();
-    }
-
-    @Before
-    public void setUp() throws Exception {
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
@@ -139,11 +128,12 @@ public class SecurityManagementServiceImplIT {
         certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void uninstall() {
         ((SecurityManagementServiceImpl) securityManagementService).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        inMemoryPersistence.deactivate();
     }
 
     @Test
@@ -1395,7 +1385,7 @@ public class SecurityManagementServiceImplIT {
     @Test
     @Transactional
     public void addKeyAccessorType() throws Exception {
-        cleanupSecurityAccessors();
+        cleanupSecurityAccessorTypes();
         KeyType aes128 = getOrCreateKeyType("AES128", "AES", 128);
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
         securityManagementService.addSecurityAccessorType("addKeyAccessorType", aes128)
@@ -1465,7 +1455,7 @@ public class SecurityManagementServiceImplIT {
     @Test
     @Transactional
     public void addCertificateAccessorType() throws Exception {
-        cleanupSecurityAccessors();
+        cleanupSecurityAccessorTypes();
         KeyType certs = securityManagementService.newCertificateType("Fiends").add();
         TrustStore main = securityManagementService.newTrustStore("MAIN").add();
 
@@ -1475,10 +1465,12 @@ public class SecurityManagementServiceImplIT {
                 .trustStore(main)
                 .add();
         assertThat(securityManagementService.getSecurityAccessorTypes()).hasSize(1);
-        assertThat(securityManagementService.getSecurityAccessorTypes().get(0).getName()).isEqualTo("addCertificateAccessorType");
-        assertThat(securityManagementService.getSecurityAccessorTypes().get(0).getKeyEncryptionMethod()).isNull();
-        assertThat(securityManagementService.getSecurityAccessorTypes().get(0).getKeyType().getName()).isEqualTo("Fiends");
-        assertThat(securityManagementService.getSecurityAccessorTypes().get(0).getTrustStore().map(TrustStore::getName)).contains("MAIN");
+        SecurityAccessorType sat = securityManagementService.getSecurityAccessorTypes().get(0);
+        assertThat(sat.getName()).isEqualTo("addCertificateAccessorType");
+        assertThat(sat.getKeyEncryptionMethod()).isNull();
+        assertThat(sat.getKeyType().getName()).isEqualTo("Fiends");
+        assertThat(sat.getTrustStore().map(TrustStore::getName)).contains("MAIN");
+        assertThat(sat.isManagedCentrally()).isFalse();
     }
 
     @Test
@@ -1502,8 +1494,8 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    public void securityAccessorGetters() throws SQLException {
-        cleanupSecurityAccessors();
+    public void securityAccessorTypeGetters() throws SQLException {
+        cleanupSecurityAccessorTypes();
         KeyType aes256 = getOrCreateKeyType("AES256", "AES", 256);
 
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
@@ -1530,7 +1522,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    public void updateSecurityAccessor() throws SQLException {
+    public void updateSecurityAccessorType() throws SQLException {
         KeyType aes128 = getOrCreateKeyType("AES128", "AES", 128);
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("updateSecurityAccessor", aes128)
                 .keyEncryptionMethod("SSM")
@@ -1572,7 +1564,7 @@ public class SecurityManagementServiceImplIT {
                 .orElseGet(() -> securityManagementService.newSymmetricKeyType(name, algorithmName, size).add());
     }
 
-    private void cleanupSecurityAccessors() throws SQLException {
+    private void cleanupSecurityAccessorTypes() throws SQLException {
         try (Connection connection = ((SecurityManagementServiceImpl) securityManagementService).getDataModel().getConnection(true)) {
             try (Statement statement = connection.createStatement()) {
                 statement.execute("delete from " + TableSpecs.PKI_SECACCTYPEUSRACTN.name());
