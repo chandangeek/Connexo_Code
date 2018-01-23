@@ -32,7 +32,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -512,7 +511,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "meter.role.default", messageId = "MTR7003S This meter does not provide reading types matching [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
+    @ExpectedConstraintViolation(property = "meter.role.default", messageId = "MTR7003S This meter does not provide reading types matching [15-minutes] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
     public void testMeterDoesNotSatisfyMetrologyRequirements() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
