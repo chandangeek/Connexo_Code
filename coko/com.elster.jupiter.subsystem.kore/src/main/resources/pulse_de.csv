@@ -3380,7 +3380,7 @@ MTR;DOMAIN;readingType.accumulation.sum;Sum;Summe;;;;;
 MTR;DOMAIN;readingType.aggregate.EXCESS;Excess;Überschuss;;;;;
 MTR;DOMAIN;readingType.aggregate.NORMAL;Normal;Normalwert;;;;;
 MTR;DOMAIN;readingType.commodity.CARBON;Carbon;CO2;;;;;
-MTR;DOMAIN;readingType.commodity.DEVICE;End device condition;Endgeräte-Bedingung;;;;;
+MTR;DOMAIN;readingType.commodity.DEVICE;Device;Endgeräte-Bedingung;;;;;
 MTR;DOMAIN;readingType.commodity.REFUSE;Trash;Abfall;;;;;
 MTR;DOMAIN;readingType.flowDirection.Q1;Q1;Q1;;;;;
 MTR;DOMAIN;readingType.flowDirection.Q2;Q2;Q2;;;;;
