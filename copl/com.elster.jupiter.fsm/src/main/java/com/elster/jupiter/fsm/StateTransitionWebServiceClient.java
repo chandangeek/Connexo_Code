@@ -8,6 +8,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.time.Instant;
+import java.util.List;
+
 @ConsumerType
 public interface StateTransitionWebServiceClient {
 
@@ -24,7 +27,7 @@ public interface StateTransitionWebServiceClient {
      * Invoked by the fsm framework when a state was changed
      *
      * @param id - business object id
-     * @param endPointConfiguration - end point configuration
+     * @param endPointConfigurations - end point configuration list
      */
-    void call(long id, EndPointConfiguration endPointConfiguration);
+    void call(long id, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate);
 }

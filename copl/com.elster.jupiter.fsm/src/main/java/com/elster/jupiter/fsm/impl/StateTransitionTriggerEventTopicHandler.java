@@ -21,6 +21,7 @@ import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.properties.HasIdAndName;
 
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.github.oxo42.stateless4j.StateConfiguration;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
@@ -39,6 +40,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Handles {@link StateTransitionTriggerEvent}s by building the computational
@@ -146,6 +148,13 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                 this.logger.fine(() -> "Event '" + triggerEvent.getType().getSymbol() + "' did not cause a state change for source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "'. The latter will remain in state '" + currentState.getName() + "'.");
             } else {
                 this.publishChange(currentState, newState, triggerEvent);
+                if (triggerEvent.getSourceType().equals("com.energyict.mdc.device.data.Device")) {
+                    List<EndPointConfiguration> endPointConfigurations = currentState.getOnExitEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration).collect(Collectors.toList());
+                    endPointConfigurations.addAll(newState.getOnEntryEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration).collect(Collectors.toList()));
+                    stateTransitionWebServiceClients.forEach(stateTransitionWebServiceClient -> {
+                        stateTransitionWebServiceClient.call(Long.valueOf(triggerEvent.getSourceId()), endPointConfigurations, newState.getName(), triggerEvent.getEffectiveTimestamp());
+                    });
+                }
             }
         } catch (IllegalStateException e) {
             this.logger.fine(() -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because it is not allowed for current state '" + triggerEvent.getSourceCurrentStateName());
@@ -293,13 +302,6 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
 
         private void callWebServiceClient(EndPointConfigurationReference endPointConfigurationReference) {
-            if (sourceType.equals(DEVICE)) {
-                stateTransitionWebServiceClients.stream()
-                        .filter(client -> client.getWebServiceName().equals(endPointConfigurationReference.getStateChangeEndPointConfiguration().getWebServiceName()))
-                        .forEach(stateTransitionWebServiceClient -> {
-                            stateTransitionWebServiceClient.call(Long.valueOf(sourceId), endPointConfigurationReference.getStateChangeEndPointConfiguration());
-                        });
-            }
         }
     }
 
