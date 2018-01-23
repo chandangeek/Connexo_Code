@@ -119,6 +119,11 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .since(Version.version(10, 4))
                     .add();
+            table.column("OBSOLETE")
+                    .bool()
+                    .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
+                    .since(Version.version(10, 4))
+                    .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();
@@ -178,7 +183,7 @@ public enum TableSpecs {
         }
     },
 
-    
+
     PKI_DIRECTORY_CERTIFICATE {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {

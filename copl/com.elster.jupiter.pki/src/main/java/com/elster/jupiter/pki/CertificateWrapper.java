@@ -1,14 +1,12 @@
 package com.elster.jupiter.pki;
 
-import aQute.bnd.annotation.ProviderType;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -138,4 +136,16 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     String stringifyKeyUsages(Set<KeyUsage> keyUsages, Set<ExtendedKeyUsage> extendedKeyUsages);
 
     Optional<String> getStringifiedKeyUsages();
+
+    /**
+     * Set or remove obsolete flag for certificate
+     *
+     * @param obsolete bool value to be set as obsolete flag
+     */
+    void setObsoleteFlagAndSave(boolean obsolete);
+
+    /**
+     * @return boolean value that specifies obsolete status for this certificate
+     */
+    boolean isObsolete();
 }

@@ -7,9 +7,9 @@ import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -380,6 +380,14 @@ public interface SecurityManagementService {
     DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory);
 
     Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory);
+
+
+    /**
+     * Checks if given certificate is being used by other system objects. May throw an exception in this case
+     *
+     * @param certificateWrapper Certificate to be checked
+     */
+    void checkCertificateUsages(CertificateWrapper certificateWrapper);
 
     class DataSearchFilter {
         public Optional<TrustStore> trustStore;
