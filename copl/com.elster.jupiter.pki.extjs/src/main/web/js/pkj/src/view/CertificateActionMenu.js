@@ -44,7 +44,28 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'removeCertificate',
                 section: this.SECTION_REMOVE
+            },
+            {
+                text: Uni.I18n.translate('general.obsolete', 'PKJ', 'Mark as obsolete'),
+                itemId: 'pkj-obsolete-certificate-menu-item',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                action: 'obsoleteCertificate',
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && record.get('status') === 'Available';
+                },
+                section: this.SECTION_REMOVE
+            },
+            {
+                text: Uni.I18n.translate('general.unmarkObsolete', 'PKJ', 'Unmark obsolete'),
+                itemId: 'pkj-cancel-obsolete-certificate-menu-item',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                action: 'cancelObsoleteCertificate',
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
+                },
+                section: this.SECTION_REMOVE
             }
+
         ];
         me.callParent(arguments);
     },

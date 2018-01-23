@@ -46,7 +46,7 @@ Ext.define('Pkj.view.TrustedCertificatePreviewForm', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('general.key usage', 'PKJ', 'Key usage'),
+                            fieldLabel: Uni.I18n.translate('general.keyUsage', 'PKJ', 'Key usage'),
                             name: 'type'
                         },
                         {
