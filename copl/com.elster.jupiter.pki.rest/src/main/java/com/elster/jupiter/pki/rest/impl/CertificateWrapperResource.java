@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -208,6 +209,43 @@ public class CertificateWrapperResource {
             throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
         }
         certificateWrapper.delete();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/markObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response markCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper wrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+
+        //TODO tbd check results structure to be able to aggregate it with other 'already used by' constraint sources (MDC events for instance)
+        securityManagementService.checkCertificateUsages(wrapper);
+
+        Exception earlierCaughtException = new Exception("Blah blah already used by that guy over there");
+
+        try{
+            wrapper.setObsoleteFlagAndSave(true);
+        } catch (LocalizedException e){
+            if (e.getMessageSeed().getKey().equals("VetoCertificateMarkObsolete")){
+                throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_IN_USE, "["+earlierCaughtException.getLocalizedMessage() + "], [" + e.getLocalizedMessage() + "]");
+            }
+            throw e;
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/unmarkObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response unMarkCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper wrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        wrapper.setObsoleteFlagAndSave(false);
         return Response.status(Response.Status.OK).build();
     }
 

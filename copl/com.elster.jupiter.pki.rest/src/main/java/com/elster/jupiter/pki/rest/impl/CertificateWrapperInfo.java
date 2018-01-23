@@ -14,6 +14,7 @@ public class CertificateWrapperInfo {
     public boolean hasCSR;
     public boolean hasCertificate;
     public boolean hasPrivateKey;
+    public boolean isObsolete;
 
     public String status;
     public String alias;
