@@ -55,7 +55,7 @@ public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWe
 
     @Override
     public Service get() {
-        return new ReplyEndDeviceEvents();
+        return new ReplyEndDeviceEvents(this.getClass().getResource("/enddeviceevents/ReplyEndDeviceEvents.wsdl"));
     }
 
     @Override
