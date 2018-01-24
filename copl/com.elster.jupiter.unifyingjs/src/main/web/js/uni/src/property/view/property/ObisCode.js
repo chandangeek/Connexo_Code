@@ -32,26 +32,25 @@ Ext.define('Uni.property.view.property.ObisCode', {
     },
 
     checkValidObisCode: function () {
-        return true;
-        //var me = this,
-        //    field = me.getField(),
-        //    obisCode = field.getValue(),
-        //    split,
-        //    valid = true;
-        //
-        //split = obisCode.split('.');
-        //
-        //if(split.length !== 6) {
-        //   valid = false;
-        //} else {
-        //    Ext.each(split, function(obisPart) {
-        //            valid = !!(!Ext.isEmpty(obisPart) && !isNaN(obisPart) && obisPart >= 0 && obisPart <= 255 && valid);
-        //    });
-        //}
-        //
-        //if(valid === false) {
-        //    me.getField().setValue(null);
-        //}
+        var me = this,
+           field = me.getField(),
+           obisCode = field.getValue(),
+           split,
+           valid = true;
+
+        split = obisCode.split('.');
+
+        if(split.length !== 6) {
+          valid = false;
+        } else {
+           Ext.each(split, function(obisPart) {
+                   valid = !!(!Ext.isEmpty(obisPart) && !isNaN(obisPart) && obisPart >= 0 && obisPart <= 255 && valid);
+           });
+        }
+
+        if(valid === false) {
+           me.getField().setValue(null);
+        }
     },
 
     getField: function () {
