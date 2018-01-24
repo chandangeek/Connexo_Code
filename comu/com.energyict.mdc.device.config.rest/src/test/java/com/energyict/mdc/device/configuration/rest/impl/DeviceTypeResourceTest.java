@@ -1347,8 +1347,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask(connectionMethodId, deviceConfiguration);
 
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.<PartialConnectionTask>singletonList(partialConnectionTask));
-        PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2);
         assertThat(response.get("total")).isEqualTo(1);
@@ -1461,8 +1459,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.protocolDialectConfigurationProperties.name = "Dialectje";
 
         Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
-        PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods/71").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -1585,8 +1581,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PartialConnectionTask partialConnectionTask2 = mockPartialScheduledConnectionTask(102L, deviceConfiguration);
         PartialConnectionTask partialConnectionTask3 = mockPartialScheduledConnectionTask(103L, deviceConfiguration);
         PartialConnectionTask partialConnectionTask4 = mockPartialScheduledConnectionTask(104L, deviceConfiguration);
-        PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Map<String, Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true")
                 .queryParam("deviceId", "13")
                 .request()
@@ -1886,7 +1880,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {
         ConnectionTask<?, ?> mock = mock(ConnectionTask.class);
         PartialInboundConnectionTask partialInboundConnectionTask = mockPartialConnectionTask(partialConnectionTaskId);
-        Mockito.when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
+        when(mock.getPartialConnectionTask()).thenReturn(partialInboundConnectionTask);
         return mock;
     }
 

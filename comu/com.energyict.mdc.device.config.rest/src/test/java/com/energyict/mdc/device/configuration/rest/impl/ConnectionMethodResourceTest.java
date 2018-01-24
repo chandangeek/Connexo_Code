@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.TemporalAmountValueFactory;
@@ -12,7 +11,6 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.time.impl.MessageSeeds;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -46,8 +44,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -222,14 +218,13 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         propertyInfo.name = "connectionTimeOut";
         propertyInfo.required = false;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
-        timeDurationInfo.timeUnit = "1"; // INVALID
+        timeDurationInfo.timeUnit = "0"; // INVALID
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>(timeDurationInfo, null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType = com.elster.jupiter.properties.rest.SimplePropertyType.DURATION;
         info.properties.add(propertyInfo);
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
-        doThrow(new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "properties.id", timeDurationInfo.timeUnit)).when(propertyValueInfoService).findPropertyValue(any(), any());
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -384,11 +379,6 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
 
         PropertyTypeInfo typeInfo = new PropertyTypeInfo();
         typeInfo.simplePropertyType = com.elster.jupiter.properties.rest.SimplePropertyType.TEXT;
-
-        PropertyInfo propertyInfoYes = new PropertyInfo("yes", "yes", new PropertyValueInfo<>("joa't", null, null, true), typeInfo, false);
-
-        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(java.util.function.Function.class))).thenReturn(propertyInfoYes);
-
 
         DeviceProtocolDialect dialect = mockDeviceProtocolDialect();
 

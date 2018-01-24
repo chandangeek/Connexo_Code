@@ -11,14 +11,14 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -27,8 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,11 +43,6 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     public void testGetDeviceProtocolProperties() {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         mockDeviceConfiguration(properties);
-        PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.key = LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
-        propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x7", null, null, true);
-        propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devicetypes/11/deviceconfigurations/12/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(7);
@@ -71,7 +67,6 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         protocolInfo.deviceConfiguration.id = deviceConfigurationId;
         protocolInfo.deviceConfiguration.version = OK_VERSION;
         protocolInfo.deviceConfiguration.parent = new VersionInfo<>(deviceTypeId, 1L);
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("/devicetypes/11/deviceconfigurations/12/protocols/7").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(properties).setProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "0x99");

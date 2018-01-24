@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
@@ -28,6 +29,7 @@ import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
+import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.HttpMethod;
@@ -35,19 +37,15 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -63,9 +61,33 @@ import static org.mockito.Mockito.withSettings;
  * Created by bvn on 9/12/14.
  */
 public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicationJerseyTest {
+    private static final long OK_VERSION = 24L;
+    private static final long BAD_VERSION = 17L;
+    private static final String SECURITY_ACCESSOR_NAME = "SecurityAccessorType";
 
-    public static final long OK_VERSION = 24L;
-    public static final long BAD_VERSION = 17L;
+    @Mock
+    private SecurityAccessorType securityAccessorType;
+    @Mock
+    private ValueFactory<SecurityAccessorType> securityAccessorTypeValueFactory;
+    @Mock
+    private com.energyict.mdc.upl.properties.ValueFactory uplStringValueFactory;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        when(securityAccessorTypeValueFactory.getValueType()).thenReturn(SecurityAccessorType.class);
+        when(securityAccessorType.getId()).thenReturn(11L);
+        when(securityAccessorType.getName()).thenReturn(SECURITY_ACCESSOR_NAME);
+        when(securityAccessorTypeValueFactory.fromStringValue(anyString()))
+                .thenAnswer(invocation -> SECURITY_ACCESSOR_NAME.equals(invocation.getArgumentAt(0, String.class)) ? securityAccessorType : null);
+        when(securityAccessorTypeValueFactory.toStringValue(any()))
+                .thenAnswer(invocation -> invocation.getArgumentAt(0, SecurityAccessorType.class).getName());
+
+        when(uplStringValueFactory.getValueTypeName()).thenReturn(String.class.getName());
+        when(uplStringValueFactory.fromStringValue(anyString())).thenAnswer(invocation -> invocation.getArgumentAt(0, String.class));
+        when(uplStringValueFactory.toStringValue(any())).thenAnswer(invocation -> String.valueOf(invocation.getArgumentAt(0, Object.class)));
+
+    }
 
     @Override
     protected void setupThesaurus() {
@@ -77,14 +99,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translationKey.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
-    }
-
-    @Before
-    public void initialiseMocks() throws Exception {
-        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenAnswer(invocation -> {
-            String propertyValue = invocation.getArguments()[1] != null ? (String) ((Function) invocation.getArguments()[1]).apply("Client") : null;
-            return new PropertyInfo("Property", "Property", new PropertyValueInfo<>(propertyValue, null), new PropertyTypeInfo(), false);
-        });
     }
 
     @Test
@@ -422,7 +436,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
         SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1");
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(sps1.getPropertySpecs()).thenReturn(new HashSet<>(Arrays.asList(mock(PropertySpec.class), mock(PropertySpec.class))));
+        Set<PropertySpec> propertySpecs = ImmutableSet.of(mockPropertySpec("Prop1", securityAccessorTypeValueFactory), mockPropertySpec("Prop2", securityAccessorTypeValueFactory));
+        when(sps1.getPropertySpecs()).thenReturn(propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(sps1));
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
@@ -497,6 +512,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
         when(clientPropertySpec.getName()).thenReturn("Client");
+        when(clientPropertySpec.getValueFactory()).thenReturn(uplStringValueFactory);
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -523,29 +539,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(101, OK_VERSION)).thenReturn(Optional.of(sps1));
 
-        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
-        PropertyInfo propertyInfo = new PropertyInfo("EncryptionKey", "", new PropertyValueInfo<>("AABBCCDDEEFF", ""), new PropertyTypeInfo(), true);
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn("EncryptionKey");
-        HashSet<PropertySpec> propertySpecs = new HashSet<>(Collections.singletonList(propertySpec));
-        when(sps1.getPropertySpecs()).thenReturn(propertySpecs);
-
-        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
-            Object[] arguments = invocationOnMock.getArguments();
-            PropertySpec spec = (PropertySpec) arguments[0];
-            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
-            if (spec.getName().equals("Client")) {
-                return infos.stream()
-                        .filter(info -> info.name.equals(spec.getName()))
-                        .map(info -> info.propertyValueInfo.value)
-                        .filter(Objects::nonNull)
-                        .findAny()
-                        .orElse(null);
-            } else {
-                return securityAccessorType;
-            }
-        });
+        PropertyInfo propertyInfo = new PropertyInfo("EncryptionKey", "EncryptionKey", new PropertyValueInfo<>(SECURITY_ACCESSOR_NAME, ""), new PropertyTypeInfo(), true);
+        PropertySpec propertySpec = mockPropertySpec("EncryptionKey", securityAccessorTypeValueFactory);
+        when(sps1.getPropertySpecs()).thenReturn(Collections.singleton(propertySpec));
 
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
@@ -579,6 +575,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
         when(clientPropertySpec.getName()).thenReturn("Client");
+        when(clientPropertySpec.getValueFactory()).thenReturn(uplStringValueFactory);
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -605,21 +602,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(101, OK_VERSION)).thenReturn(Optional.of(sps1));
 
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
-            Object[] arguments = invocationOnMock.getArguments();
-            PropertySpec spec = (PropertySpec) arguments[0];
-            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
-            return infos.stream()
-                    .filter(info -> info.name.equals(spec.getName()))
-                    .map(info -> info.propertyValueInfo.value)
-                    .filter(Objects::nonNull)
-                    .findAny()
-                    .orElse(null);
-        });
-
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
-        info.client = new PropertyInfo("Client", "", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
+        info.client = new PropertyInfo("Client", "Client", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
         info.authenticationLevelId = 1002;
         info.encryptionLevelId = 2001;
         info.securitySuiteId = 3002;
@@ -663,18 +648,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getClient()).thenReturn(client);
-        PropertySpec clientPropertySpec = mock(PropertySpec.class);
-        ValueFactory valueFactory = mock(ValueFactory.class);
-        when(valueFactory.fromStringValue(Mockito.any(String.class)))
-                .thenAnswer(invocation -> {
-                    Object[] args = invocation.getArguments();
-                    return args[0];
-                });
-        when(valueFactory.toStringValue(any(String.class))).thenAnswer(invocation -> invocation.getArgumentAt(0, String.class));
-        when(clientPropertySpec.getName()).thenReturn("Client");
-        when(clientPropertySpec.getValueFactory()).thenReturn(valueFactory);
-        Optional<PropertySpec> clientPropertySpecOptional = Optional.of(clientPropertySpec);
-        when(mock.getClientSecurityPropertySpec()).thenReturn(clientPropertySpecOptional);
+        PropertySpec clientPropertySpec = mockPropertySpec("Client", new StringFactory());
+        when(mock.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(authenticationAccessLevelId);
         when(authenticationAccessLevel.getTranslation()).thenReturn(authenticationAccessLevelName);
@@ -750,9 +725,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         @Override
         public Set<PropertySpec> getPropertySpecs() {
             if (authenticationLevel == 1 && encryptionLevel == 2 && securitySuite == 3 && requestSecurityLevel == 4 && responseSecurityLevel == 5) {
-                return new HashSet<>(Arrays.asList(mock(PropertySpec.class), mock(PropertySpec.class)));
+                return ImmutableSet.of(mockPropertySpec("Prop1", securityAccessorTypeValueFactory), mockPropertySpec("Prop2", securityAccessorTypeValueFactory));
             } else if (authenticationLevel == 10 && encryptionLevel == 20 && securitySuite == 30 && requestSecurityLevel == 40 && responseSecurityLevel == 50) {
-                return new HashSet<>(Collections.singletonList(mock(PropertySpec.class)));
+                return Collections.singleton(mockPropertySpec("Prop1", securityAccessorTypeValueFactory));
             } else {
                 return Collections.emptySet();
             }

@@ -37,6 +37,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -45,6 +46,9 @@ import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -126,14 +130,16 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     CalendarService calendarService;
     @Mock
-    PropertyValueInfoService propertyValueInfoService;
-    @Mock
     ObisCodeDescriptor obisCodeDescriptor;
     @Mock
     MeteringGroupsService meteringGroupsService;
     @Mock
     SecurityManagementService securityManagementService;
+    PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
+    SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    TrustStoreValuesProvider trustStoreValuesProvider;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
@@ -218,12 +224,25 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setCustomPropertySetService(customPropertySetService);
         application.setCalendarInfoFactory(new CalendarInfoFactoryImpl(thesaurus));
         application.setCalendarService(calendarService);
+        propertyValueInfoService = createPropertyValueInfoService();
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setSecurityManagementService(securityManagementService);
         mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
+        securityAccessorResourceHelper = new SecurityAccessorResourceHelperImpl(securityManagementService, propertyValueInfoService);
+        application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
+        securityAccessorInfoFactory = new SecurityAccessorInfoFactoryImpl(mdcPropertyUtils, securityManagementService);
+        application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
+        trustStoreValuesProvider = new TrustStoreValuesProviderImpl(securityManagementService);
+        application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         return application;
+    }
+
+    static PropertyValueInfoService createPropertyValueInfoService() {
+        PropertyValueInfoServiceImpl propertyValueInfoService = new PropertyValueInfoServiceImpl();
+        propertyValueInfoService.activate();
+        return propertyValueInfoService;
     }
 
     static ReadingType mockReadingType(String mrid) {
@@ -261,6 +280,14 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
         when(propertySpec.isRequired()).thenReturn(true);
         when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    PropertySpec mockPropertySpec(String name, ValueFactory valueFactory) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.getDisplayName()).thenReturn(name);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         return propertySpec;
     }
 
