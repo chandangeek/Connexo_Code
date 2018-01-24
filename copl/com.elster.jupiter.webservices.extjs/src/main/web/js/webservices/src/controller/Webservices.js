@@ -88,35 +88,42 @@ Ext.define('Wss.controller.Webservices', {
     },
 
     showAddEditView: function (record, type) {
-        var me = this;
-        var authenticationMethodStore = me.getStore('Wss.store.AuthenticationMethods');
-        var logLevelsStore = me.getStore('Wss.store.LogLevels');
-        var rolesStore = me.getStore('Wss.store.Roles');
+        var me = this,
+            authenticationMethodStore = me.getStore('Wss.store.AuthenticationMethods'),
+            logLevelsStore = me.getStore('Wss.store.LogLevels'),
+            rolesStore = me.getStore('Wss.store.Roles'),
+            webservicesStore = me.getStore('Wss.store.Webservices'),
+            dependenciesCounter = 4,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if(!dependenciesCounter){
+                    rolesStore.insert(0,{
+                        id: 'all',
+                        name: Uni.I18n.translate('endPointAdd.all', 'WSS', 'All')
+                    });
+                    var previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
+                    var view = Ext.widget('endpoint-add', {
+                        action: type,
+                        record: record,
+                        returnLink: previousPath ? '#' + previousPath : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
+                        authenticationMethodStore: authenticationMethodStore,
+                        rolesStore: rolesStore,
+                        logLevelsStore: logLevelsStore
+                    });
+                    me.getApplication().fireEvent('changecontentevent', view);
+                }
+        };
         authenticationMethodStore.load({
-            callback: function () {
-                logLevelsStore.load({
-                    callback: function () {
-                        rolesStore.load({
-                            callback: function () {
-                                rolesStore.insert(0,{
-                                    id: 'all',
-                                    name: Uni.I18n.translate('endPointAdd.all', 'WSS', 'All')
-                                });
-                                var previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
-                                var view = Ext.widget('endpoint-add', {
-                                    action: type,
-                                    record: record,
-                                    returnLink: previousPath ? '#' + previousPath : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
-                                    authenticationMethodStore: authenticationMethodStore,
-                                    rolesStore: rolesStore,
-                                    logLevelsStore: logLevelsStore
-                                });
-                                me.getApplication().fireEvent('changecontentevent', view);
-                            }
-                        });
-                    }
-                });
-            }
+            callback: onDependenciesLoaded
+        });
+        logLevelsStore.load({
+            callback: onDependenciesLoaded
+        });
+        rolesStore.load({
+            callback: onDependenciesLoaded
+        });
+        webservicesStore.load({
+            callback: onDependenciesLoaded
         });
     },
 
