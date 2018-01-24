@@ -9,8 +9,6 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.impl.IdWithNamePropertyValueConverter;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -44,7 +42,6 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/30/14.
  */
 public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private PropertyValueConverter converter;
     @Mock
     private ValueFactory<SecurityAccessorType> securityAccessorTypeValueFactory;
     @Mock
@@ -53,16 +50,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        converter = new IdWithNamePropertyValueConverter();
-        propertyValueInfoService.addPropertyValueInfoConverter(converter);
         when(securityAccessorTypeValueFactory.getValueType()).thenReturn(SecurityAccessorType.class);
         when(securityAccessorType.getId()).thenReturn(6378L);
         when(securityAccessorType.getName()).thenReturn("KeyAccessorType for password");
-    }
-
-    @Override
-    public void tearDown() {
-        propertyValueInfoService.removePropertyValueInfoConverter(converter);
     }
 
     @Override

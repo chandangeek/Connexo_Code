@@ -84,8 +84,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        symmetricKeyPropertySpecs = Arrays.asList(mockPropertySpec("key"));
-        certificatePropertySpecs = Arrays.asList(mockPropertySpec("alias"));
+        symmetricKeyPropertySpecs = Collections.singletonList(mockPropertySpec("key"));
+        certificatePropertySpecs = Collections.singletonList(mockPropertySpec("alias"));
 
         symmetricKeyAccessorType = mockSymmetricKeyAccessorType(111L, "aes");
         certificateKeyAccessorType = mockCertificateKeyAccessorType(222L, "tls1");

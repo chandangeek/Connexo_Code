@@ -459,6 +459,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     PropertySpec mockPropertySpec(String name, ValueFactory valueFactory) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.getDisplayName()).thenReturn(name);
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         return propertySpec;
     }
