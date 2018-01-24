@@ -142,6 +142,7 @@ public class EndDeviceEventsBuilder {
                             endDeviceEvent.setIssuerTrackingID(deviceEvent.getIssuerTrackingID());
                             endDeviceEvent.setSeverity(deviceEvent.getSeverity());
                             endDeviceEvent.setStatus(toStatus(deviceEvent.getStatus()));
+                            endDeviceEvent.setReason(deviceEvent.getDescription());
 
                             deviceEvent.getProperties().entrySet().stream().forEach(property -> {
                                         EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
