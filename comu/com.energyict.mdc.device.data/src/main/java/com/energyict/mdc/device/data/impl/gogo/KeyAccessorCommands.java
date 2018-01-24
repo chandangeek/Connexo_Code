@@ -8,12 +8,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseWrapper;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -21,8 +21,10 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 import com.energyict.mdc.device.data.CertificateAccessor;
+import com.energyict.mdc.device.data.CertificateRenewalService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyRenewalService;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 
@@ -71,8 +73,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=swap",
                 "osgi.command.function=clearTemp",
                 "osgi.command.function=createEventType",
-                "osgi.command.function=setAccessorPassword"
-
+                "osgi.command.function=setAccessorPassword",
+                "osgi.command.function=runCertificateRenewalTask",
+                "osgi.command.function=runKeyRenewalTask"
         },
         immediate = true)
 public class KeyAccessorCommands {
@@ -83,6 +86,8 @@ public class KeyAccessorCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
+    private volatile CertificateRenewalService certificateRenewalService;
+    private volatile KeyRenewalService keyRenewalService;
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -107,6 +112,16 @@ public class KeyAccessorCommands {
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setCertificateRenewalService(CertificateRenewalService certificateRenewalService) {
+        this.certificateRenewalService = certificateRenewalService;
+    }
+
+    @Reference
+    public void setKeyRenewalService(KeyRenewalService keyRenewalService) {
+        this.keyRenewalService = keyRenewalService;
     }
 
     public void keyAccessors() {
@@ -514,5 +529,35 @@ public class KeyAccessorCommands {
                     .create();
             context.commit();
         }
+    }
+
+    public void runCertificateRenewalTask() {
+        threadPrincipalService.set(() -> "Console");
+        try {
+            transactionService.execute(() -> {
+                certificateRenewalService.runNow();
+                return null;
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+        System.out.println("Device certificate renewal task has been started.");
+    }
+
+    public void runKeyRenewalTask() {
+        threadPrincipalService.set(() -> "Console");
+        try {
+            transactionService.execute(() -> {
+                keyRenewalService.runNow();
+                return null;
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+        System.out.println("Device key renewal task has been started.");
     }
 }
