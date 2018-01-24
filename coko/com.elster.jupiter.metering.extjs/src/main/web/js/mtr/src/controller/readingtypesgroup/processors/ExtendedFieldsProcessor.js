@@ -11,8 +11,8 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.ExtendedFieldsProcessor'
         var me = this,
             combo = me.getCombo();
 
-        //combo.setDisabled(this.disabledForLoad);
-        combo.setReadOnly(this.disabledForLoad);
+        combo.setDisabled(this.disabledForLoad);
+        //combo.setReadOnly(this.disabledForLoad);
         me.resetComboValue();
         me.setComboValue();
     }

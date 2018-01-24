@@ -20,7 +20,8 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
         this.addBasicCount = count;
         this.down('#add-reading-types-count').setValue(Uni.I18n.translatePlural('readingTypesManagement.addreadingtypes',
             count, 'MTR', 'No reading types will be added',
-            'You are going to add {0} reading type. 1000 is the limit', 'You are going to add {0} reading types. 1000 is the limit')
+            'You are going to add {0} reading type. 1000 is the limit.',
+            'You are going to add {0} reading types. 1000 is the limit.')
         );
     },
 
@@ -36,17 +37,20 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
 
         for (key in data) {
             if (!Ext.isEmpty(data[key])) {
-                var length = 1;
-                !count && (count = 1);
                 if (data[key] instanceof Array) {
-                    if (Ext.isEmpty(data[key][0])) {
-                        continue;
+                    if (!Ext.isEmpty(data[key][0])) {
+                        !count && (count = 1);
+                        count = count * data[key].length; // old count * selected items
                     }
-                    length = data[key].length;
-                } else if (key == 'basicCommodity' && data[key] == 2) {
-                    length = 2;
                 }
-                count = count * length;
+                else if (key == 'basicCommodity' && data[key] == 2) {
+                    !count && (count = 1);
+                    count = count * 2; // old count * * 2 per electricity
+                }
+                else if (data[key] != 0) {
+                    !count && (count = 1);
+                    count = count * 1; // old count * single selection
+                }
             }
         }
         me.setBasicAddCount(count);
@@ -56,7 +60,8 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
         this.addExtendedCount = count;
         this.down('#add-reading-types-count').setValue(Uni.I18n.translatePlural('readingTypesManagement.addreadingtypes',
             count, 'MTR', 'No reading types will be added',
-            'You are going to add {0} reading type. 1000 is the limit', 'You are going to add {0} reading types. 1000 is the limit')
+            'You are going to add {0} reading type. 1000 is the limit.',
+            'You are going to add {0} reading types. 1000 is the limit.')
         );
     },
 
@@ -84,10 +89,17 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
         var record = this.updateRecord().getRecord();
         var basicRecord = Ext.create('Mtr.model.AddBasicReadingTypeGroup');
 
-        var fields = basicRecord.self.getFields()
+        var fields = basicRecord.self.getFields();
         for (var i = 0; i < fields.length; i++) {
             var field = fields[i];
-            basicRecord.set(field.name, record.get(field.name));
+            var formField = this.getForm().findField(field.name);
+            if (formField) {
+                basicRecord.set(field.name, formField.getValue());
+            }
+            else {
+                basicRecord.set(field.name, record.get(field.name));
+            }
+
         }
         basicRecord.set('specifyBy', record.get('specifyBy'));
         return basicRecord;
@@ -97,10 +109,16 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
         var record = this.updateRecord().getRecord();
         var extendedRecord = Ext.create('Mtr.model.AddExtendedReadingTypeGroup');
 
-        var fields = extendedRecord.self.getFields()
+        var fields = extendedRecord.self.getFields();
         for (var i = 0; i < fields.length; i++) {
             var field = fields[i];
-            extendedRecord.set(field.name, record.get(field.name));
+            var formField = this.getForm().findField(field.name);
+            if (formField) {
+                extendedRecord.set(field.name, formField.getValue());
+            }
+            else {
+                extendedRecord.set(field.name, record.get(field.name));
+            }
         }
         extendedRecord.set('specifyBy', record.get('specifyBy'));
         return extendedRecord;
@@ -352,7 +370,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                             cimField: 'code',
                                             listeners: {
                                                 change: function () {
-                                                    me.fireEvent('change', me)
+                                                    me.fireEvent('change', me);
                                                     me.updateBasicAddCount();
                                                 }
                                             }

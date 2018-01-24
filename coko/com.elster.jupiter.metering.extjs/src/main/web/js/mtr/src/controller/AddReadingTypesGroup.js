@@ -339,8 +339,28 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         me.comboProcessors.forEach(function (item){
             item.process(commodity);
         });
-    },
 
+        // if(commodity === 0){
+        //     me.resetBasicValues();
+        // }
+    },
+    // resetBasicValues : function(){
+    //     var me = this;
+    //     me.getBasicMeasurementKind().setValue(null);;
+    //     me.getBasicUnit().setValue(null);;
+    //     me.getBasicFlowDirection().setValue(null);;
+    //     me.getBasicMacroPeriod().setValue(null);;
+    //     me.getBasicAccumulation().setValue(null);;
+    //     me.getBasicMeasuringPeriod().setValue(null);;
+    //     me.getBasicAggregate().setValue(null);;
+    //     me.getBasicMetricMultiplier().setValue(null);;
+    //     me.getBasicPhases().setValue(null);
+    //     me.getBasicTimeOfUse().setValue(null);
+    //     me.getBasicCriticalPeakPeriod().setValue(null);;
+    //     me.getBasicConsumptionTier().setValue(null);;
+    //
+    // },
+    
     basicMeasurementKindChange: function () {
         this.factory.getProcessor(this.getBasicUnit()).process();
     },
@@ -464,7 +484,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                                     me.addReadingTypesRequest(record, isBasic);
                                 }
                             },
-                            msg: Uni.I18n.translate('readingtypesmanagment.addReadingType.addMsg', 'MTR', "This could produce reading types that won't be used"),
+                            msg: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addMsg', addCount - count, 'MTR', 'This could produce reading types that won\'t be used.', 'This could produce reading types that won\'t be used. {0} reading type already exists.', 'This could produce reading types that won\'t be used. {0} reading types already exist.'),
                             title: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmation', count, 'MTR', 'Add {0} reading types?', 'Add {0} reading type?', 'Add {0} reading types?')
                         });
                     } else if (count == 0) {

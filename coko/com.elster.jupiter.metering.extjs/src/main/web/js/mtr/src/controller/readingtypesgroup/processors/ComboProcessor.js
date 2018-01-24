@@ -53,7 +53,8 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.ComboProcessor', {
         var me = this,
             storeSize = me.getCombo().getStore().data.length;
         if (storeSize > 0) {
-            this.getCombo().select(this.NOT_APPLICABLE);
+            //this.getCombo().select(this.NOT_APPLICABLE);
+            this.getCombo().reset();
         }
     },
 
