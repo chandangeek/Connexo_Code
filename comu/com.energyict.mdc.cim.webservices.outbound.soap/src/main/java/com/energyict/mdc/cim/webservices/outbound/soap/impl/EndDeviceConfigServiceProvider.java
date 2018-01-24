@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -41,6 +40,8 @@ import java.util.List;
         immediate = true,
         property = {"name=" + StateTransitionWebServiceClient.NAME})
 public class EndDeviceConfigServiceProvider implements StateTransitionWebServiceClient, OutboundSoapEndPointProvider {
+
+    private final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -79,7 +80,7 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
 
     @Override
     public Service get() {
-        return new ReplyMeterConfig();
+        return new ReplyMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
     }
 
     @Override
