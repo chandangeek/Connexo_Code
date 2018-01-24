@@ -44,9 +44,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -60,6 +62,12 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.configuration.rest.impl.SecurityAccessorInfoFactoryImpl;
+import com.energyict.mdc.device.configuration.rest.impl.SecurityAccessorResourceHelperImpl;
+import com.energyict.mdc.device.configuration.rest.impl.TrustStoreValuesProviderImpl;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -107,12 +115,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -223,8 +229,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     CalendarService calendarService;
     @Mock
-    PropertyValueInfoService propertyValueInfoService;
-    @Mock
     DeviceAlarmService deviceAlarmService;
     @Mock
     UserService userService;
@@ -232,10 +236,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     ObisCodeDescriptor obisCodeDescriptor;
     @Mock
     SecurityManagementService securityManagementService;
-    MdcPropertyUtils mdcPropertyUtils;
     @Mock
     protected RegisteredDevicesKpiService registeredDevicesKpiService;
-
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
     @Mock
@@ -252,6 +254,11 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     IssueActionService issueActionService;
     @Mock
     com.elster.jupiter.tasks.TaskService tskService;
+    PropertyValueInfoService propertyValueInfoService;
+    MdcPropertyUtils mdcPropertyUtils;
+    SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    TrustStoreValuesProvider trustStoreValuesProvider;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -354,6 +361,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setLocationService(locationService);
         application.setMeteringTranslationService(meteringTranslationService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        propertyValueInfoService = createPropertyValueInfoService();
         application.setPropertyValueInfoService(propertyValueInfoService);
         mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
@@ -365,6 +373,12 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         application.setTskService(tskService);
+        securityAccessorResourceHelper = new SecurityAccessorResourceHelperImpl(securityManagementService, propertyValueInfoService);;
+        application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
+        securityAccessorInfoFactory = new SecurityAccessorInfoFactoryImpl(mdcPropertyUtils, securityManagementService);
+        application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
+        trustStoreValuesProvider = new TrustStoreValuesProviderImpl(securityManagementService);
+        application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         return application;
     }
 
@@ -425,31 +439,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         return finder;
     }
 
-    void mockPropertyValueInfoService() {
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
-            Object[] arguments = invocationOnMock.getArguments();
-            PropertySpec propertySpec = (PropertySpec) arguments[0];
-            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
-            return infos.stream()
-                    .filter(info -> info.key.equals(propertySpec.getName()))
-                    .map(info -> info.propertyValueInfo.value)
-                    .filter(Objects::nonNull)
-                    .findAny()
-                    .orElse(null);
-        });
-        when(propertyValueInfoService.getPropertyInfos(any(), any(), any())).thenAnswer(invocationOnMock -> {
-            Object[] arguments = invocationOnMock.getArguments();
-            List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
-            Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
-            Map<String, Object> inheritedProps = (Map<String, Object>) arguments[2];
-            return getPropertyInfo(propertySpecs, actualProps, inheritedProps);
-        });
-        when(propertyValueInfoService.getPropertyInfos(any(), any())).thenAnswer(invocationOnMock -> {
-            Object[] arguments = invocationOnMock.getArguments();
-            List<PropertySpec> propertySpecs = (List<PropertySpec>) arguments[0];
-            Map<String, Object> actualProps = (Map<String, Object>) arguments[1];
-            return getPropertyInfo(propertySpecs, actualProps, Collections.emptyMap());
-        });
+    static PropertyValueInfoService createPropertyValueInfoService() {
+        PropertyValueInfoServiceImpl propertyValueInfoService = new PropertyValueInfoServiceImpl();
+        propertyValueInfoService.activate();
+        return propertyValueInfoService;
     }
 
     private Object getPropertyInfo(List<PropertySpec> propertySpecs, Map<String, Object> actualProps, Map<String, Object> inheritedProps) {
@@ -463,9 +456,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
                 .collect(Collectors.toList());
     }
 
-    PropertySpec mockPropertySpec(String name) {
+    PropertySpec mockPropertySpec(String name, ValueFactory valueFactory) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(name);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         return propertySpec;
     }
 }

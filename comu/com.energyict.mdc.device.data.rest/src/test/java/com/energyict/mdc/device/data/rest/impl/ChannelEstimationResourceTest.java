@@ -11,6 +11,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -19,11 +20,10 @@ import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.IntegerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -31,6 +31,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -98,7 +102,6 @@ public class ChannelEstimationResourceTest extends DeviceDataRestApplicationJers
         doReturn(Optional.of(estimationRule)).when(estimationService).getEstimationRule(ESTIMATION_RULE_ID);
         when(deviceEstimation.overridePropertiesFor(eq(estimationRule), any())).thenReturn(propertyOverrider);
 
-        mockPropertyValueInfoService();
         mockEstimationRule();
     }
 
@@ -108,7 +111,8 @@ public class ChannelEstimationResourceTest extends DeviceDataRestApplicationJers
         when(estimationRule.getReadingTypes()).thenReturn(Collections.singleton(collectedReadingType));
         when(estimationRule.getImplementation()).thenReturn("com...estimator");
         when(estimationService.getEstimator("com...estimator")).thenReturn(Optional.of(estimator));
-        List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));
+        ValueFactory valueFactory = new IntegerFactory();
+        List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY, valueFactory), mockPropertySpec(OPTIONAL_PROPERTY, valueFactory));
         when(estimationRule.getPropertySpecs(EstimationPropertyDefinitionLevel.TARGET_OBJECT)).thenReturn(rulePropertySpecs);
         when(estimationRule.getPropertySpecs()).thenReturn(rulePropertySpecs);
         when(estimationRule.getProps()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, RULE_REQUIRED_PROP_VALUE, OPTIONAL_PROPERTY, RULE_OPT_PROP_VALUE));

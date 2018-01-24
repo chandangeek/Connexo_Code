@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -56,9 +55,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -236,7 +233,6 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
-        doThrow(new LocalizedFieldValidationException(MessageSeeds.BAD_REQUEST, "properties.connectionTimeout", null)).when(propertyValueInfoService).findPropertyValue(any(), any());
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());

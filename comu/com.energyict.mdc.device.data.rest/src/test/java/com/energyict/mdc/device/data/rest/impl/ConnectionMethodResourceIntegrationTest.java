@@ -48,6 +48,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -171,6 +174,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static IssueInfoFactoryService issueInfoFactoryService;
     private static RegisteredDevicesKpiService registeredDevicesKpiService;
     private static TaskService tskService;
+    private static SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private static SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private static TrustStoreValuesProvider trustStoreValuesProvider;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -203,6 +209,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         issueInfoFactoryService = mock(IssueInfoFactoryService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
         tskService = mock(TaskService.class);
+        securityAccessorResourceHelper = mock(SecurityAccessorResourceHelper.class);
+        securityAccessorInfoFactory = mock(SecurityAccessorInfoFactory.class);
+        trustStoreValuesProvider = mock(TrustStoreValuesProvider.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -427,6 +436,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         application.setTskService(tskService);
+        application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
+        application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
+        application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         return application;
     }
 

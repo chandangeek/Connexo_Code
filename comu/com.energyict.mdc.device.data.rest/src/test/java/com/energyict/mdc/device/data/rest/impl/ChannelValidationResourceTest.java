@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
@@ -22,13 +23,10 @@ import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.IntegerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -37,6 +35,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -127,7 +131,6 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         doReturn(Optional.of(validationRule)).when(validationService).findValidationRule(VALIDATION_RULE_ID);
         when(deviceValidation.overridePropertiesFor(eq(validationRule), any())).thenReturn(propertyOverrider);
 
-        mockPropertyValueInfoService();
         mockValidationRule();
     }
 
@@ -137,7 +140,8 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(validationRule.getReadingTypes()).thenReturn(Collections.singleton(collectedReadingType));
         when(validationRule.getImplementation()).thenReturn("com...validator");
         when(validationService.getValidator("com...validator")).thenReturn(validator);
-        List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY), mockPropertySpec(OPTIONAL_PROPERTY));
+        ValueFactory valueFactory = new IntegerFactory();
+        List<PropertySpec> rulePropertySpecs = Arrays.asList(mockPropertySpec(REQUIRED_PROPERTY, valueFactory), mockPropertySpec(OPTIONAL_PROPERTY, valueFactory));
         when(validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.TARGET_OBJECT)).thenReturn(rulePropertySpecs);
         when(validationRule.getPropertySpecs()).thenReturn(rulePropertySpecs);
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);

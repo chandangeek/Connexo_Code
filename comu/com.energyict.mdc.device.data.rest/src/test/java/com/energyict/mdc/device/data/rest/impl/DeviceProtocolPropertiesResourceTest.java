@@ -9,9 +9,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.impl.IdWithNamePropertyValueConverter;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
@@ -19,6 +17,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -35,7 +34,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,14 +86,10 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         when(device.getVersion()).thenReturn(1L);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByNameAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
-
     }
 
     @Test
     public void testGetDeviceProtocolProperties() {
-        PropertyInfo propertyInfo = new PropertyInfo(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, new PropertyValueInfo<>("0x7", null), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
-        when(propertyValueInfoService.getConverter(any(PropertySpec.class))).thenReturn(new IdWithNamePropertyValueConverter());
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.emptyList());
         String response = target("/devices/ZABF010000080004/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
@@ -124,7 +118,6 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         protocolInfo.version = 1L;
         protocolInfo.properties = Arrays.asList(propertyInfo);
         protocolInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("devices/ZABF010000080004/protocols/17").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).setProtocolProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "0x99");

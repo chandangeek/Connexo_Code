@@ -9,8 +9,6 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -47,7 +45,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -137,10 +134,6 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
-        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
-        PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
-        when(propertyValueInfoService.getConverter(any())).thenReturn(propertyValueConverter);
         String response = target("/devices/" + MAIN_DEVICE_NAME + "/transitions/1").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);

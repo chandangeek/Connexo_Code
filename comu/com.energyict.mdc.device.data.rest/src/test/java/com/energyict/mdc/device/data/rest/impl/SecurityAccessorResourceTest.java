@@ -19,19 +19,16 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.net.URI;
@@ -84,16 +81,6 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private Device device;
 
     @Override
-    protected Application getApplication() {
-        DeviceApplication application = (DeviceApplication) super.getApplication();
-        PropertyValueInfoServiceImpl propertyValueInfoService = new PropertyValueInfoServiceImpl();
-        propertyValueInfoService.activate();
-        application.setPropertyValueInfoService(propertyValueInfoService); // use the real thing
-        application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupService)); // use the real thing
-        return application;
-    }
-
-    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -105,6 +92,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver", "myAlias");
         clientCertificateAccessor = mockClientCertificateAccessor(certificatePropertySpecs, actualClientCertificateWrapper);
+        when(clientCertificateAccessor.isEditable()).thenReturn(true);
 
         actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, null);
@@ -135,6 +123,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetCertificatesWithoutTempValue() throws Exception {
+        when(clientCertificateAccessor.isEditable()).thenReturn(false);
+
         Response response = target("/devices/BVN001/securityaccessors/certificates").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.certificates")).hasSize(1);
@@ -146,6 +136,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[0].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[0].editable")).isFalse();
     }
 
     @Test
@@ -239,6 +230,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[0].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[0].editable")).isTrue();
 
         assertThat(jsonModel.<String>get("$.certificates[1].name")).isEqualTo("tls2");
         assertThat(jsonModel.<List>get("$.certificates[1].currentProperties")).hasSize(1);
@@ -247,6 +239,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[1].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[1].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[1].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[1].editable")).isTrue();
     }
 
     @Test
@@ -261,6 +254,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<Boolean>get("$.keys[0].editable")).isTrue();
     }
 
     @Test
