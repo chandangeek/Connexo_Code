@@ -34,7 +34,7 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
             case Certificate:
             case ClientCertificate:
             case TrustedCertificate:
-                return (SecurityAccessor<T>) new CentrallyManagedCertificateAccessor(thesaurus, device, (SecurityAccessor<CertificateWrapper>) defaultValue);
+                return (SecurityAccessor<T>) new CentrallyManagedCertificateAccessor(thesaurus, device, (com.elster.jupiter.pki.SecurityAccessor<CertificateWrapper>) defaultValue);
             default:
                 throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
         }
