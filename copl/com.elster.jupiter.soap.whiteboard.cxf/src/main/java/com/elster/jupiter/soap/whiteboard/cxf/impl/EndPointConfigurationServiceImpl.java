@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,6 +58,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile HttpService httpService;
+    private volatile WebServicesService webServicesService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
@@ -65,13 +67,14 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Inject // Test purposes only
     public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService,
                                             UserService userService, TransactionService transactionService,
-                                            HttpService httpService) {
+                                            HttpService httpService, WebServicesService webServicesService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setUserService(userService);
         setTransactionService(transactionService);
         setHttpService(httpService);
+        setWebServicesService(webServicesService);
         activate();
     }
 
@@ -131,6 +134,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -143,6 +151,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(HttpService.class).toInstance(httpService);
+                bind(WebServicesService.class).toInstance(webServicesService);
             }
         };
     }
@@ -260,6 +269,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         @Override
         public InboundEndPointConfigBuilder group(Group group) {
             instance.setGroup(group);
+            return this;
+        }
+
+        @Override
+        public InboundEndPointConfigBuilder withProperties(Map<String, Object> properties) {
+            instance.setProperties(properties);
             return this;
         }
 
