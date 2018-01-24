@@ -88,6 +88,14 @@
             <artifactId>metering</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
         </dependency>
@@ -205,6 +213,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>enddeviceevents/ReplyEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
