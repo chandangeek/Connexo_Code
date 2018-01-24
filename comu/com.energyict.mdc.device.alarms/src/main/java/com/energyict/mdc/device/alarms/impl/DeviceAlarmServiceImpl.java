@@ -39,7 +39,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -52,6 +51,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
@@ -299,6 +299,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         return DefaultFinder.of((Class<DeviceAlarm>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
                 .size()]));
+    }
+
+    @Override
+    public Finder<OpenDeviceAlarm> findOpenDeviceAlarms(Condition condition) {
+        return DefaultFinder.of(OpenDeviceAlarm.class, condition, dataModel, OpenDeviceAlarmRelatedEvent.class);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
