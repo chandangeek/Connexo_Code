@@ -17,9 +17,12 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface DeviceAlarmService {
 
     String COMPONENT_NAME = "DAL";
