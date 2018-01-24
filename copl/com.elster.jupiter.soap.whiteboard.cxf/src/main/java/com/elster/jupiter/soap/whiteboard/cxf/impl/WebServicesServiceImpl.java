@@ -344,9 +344,10 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
         final EndPointFactory endPointFactory = webServices.get(webServiceName);
         if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
             InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
-            return ((EndPointProp) provider.get()).getPropertySpecs();
-        } else {
-            return new ArrayList<>();
+            if (provider.get() instanceof EndPointProp) {
+                return ((EndPointProp) provider.get()).getPropertySpecs();
+            }
         }
+        return new ArrayList<>();
     }
 }
