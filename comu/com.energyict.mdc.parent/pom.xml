@@ -157,7 +157,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.alarms</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>1.2.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
