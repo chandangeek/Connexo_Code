@@ -2973,7 +2973,7 @@ MTR;REST;failed.to.save.metrology.config.version.body;Failed to save metrology c
 MTR;REST;readingtypesmanagment.attribute.accumulation;Accumulation;Kumulierung;;;;;
 MTR;REST;readingtypesmanagment.bulk.editereadingtypes;Edit reading types;Ablesetypen bearbeiten.;;;;;
 MTR;REST;readingtypesmanagment.bulk.step4activateMsgx;The reading types will become available;Die Ablesetypen werden verfügbar gemacht;;;;;
-MTR;REST;readingtypesmanagment.bulk.step5activateMsg1;{0} reading types have been queued to activate;{0} Ablesetypen wurden in die Warteschlange für die Aktivierung gestellt;;;;;
+MTR;REST;readingtypesmanagment.bulk.step5activateMsg;{0} reading types have been queued to activate;{0} Ablesetypen wurden in die Warteschlange für die Aktivierung gestellt;;;;;
 MTR;REST;failed.to.save.metrology.config.version.title;Usage point ''{0}'' has been modified since the page was last updated.;Diese Version der Metrologie-Konfiguration an ''{0}'' hat sich seit der letzten Aktualisierung der Seite geändert.;;;;;
 MTR;REST;readingTypes.attribute.interharmonicNumerator;Interharmonic numerator;Interharmonischer Zähler;;;;;
 MTR;REST;readingtypesmanagment.addreadingtypes.cimCode;CIM code;CIM-Code;;;;;
@@ -2983,7 +2983,7 @@ MTR;REST;readingtypesmanagment.bulk.allreadingtypesMsg;Select all reading types 
 MTR;REST;readingtypesmanagment.interharmonicnumeration;Interharmonic numerator;Interharmonischer Zähler;;;;;
 MTR;REST;readingtypesmanagment.bulk.step4applyActivatex;Activate {0}?;{0} aktivieren?;;;;;
 MTR;REST;readingtypesmanagment.bulk.step4deactivateMsgx;The reading types will become unavailable;Die Ablesetypen werden nicht mehr verfügbar sein;;;;;
-MTR;REST;readingtypesmanagment.bulk.step5deactivateMsg1;{0} have been queued to deactivate;{0} wurden in die Warteschlange für die Deaktivierung gestellt;;;;;
+MTR;REST;readingtypesmanagment.bulk.step5deactivateMsg;{0} have been queued to deactivate;{0} wurden in die Warteschlange für die Deaktivierung gestellt;;;;;
 MTR;REST;readingtypesmanagment.bulk.step5erroroperation;There was an error during the operation;Während des Vorgangs ist ein Fehler aufgetreten.;;;;;
 MTR;REST;readingtypesmanagment.bulk.thisfieldisrequired;This field is required;Dieses Feld muss ausgefüllt werden.;;;;;
 MTR;REST;readingTypes.attribute.interharmonicDenominator;Interharmonic denominator;Interharmonischer Nenner;;;;;
