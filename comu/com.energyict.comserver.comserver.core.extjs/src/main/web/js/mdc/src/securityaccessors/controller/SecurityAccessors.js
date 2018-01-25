@@ -58,7 +58,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'availableSecurityAccessorsGrid',
             selector: 'security-accessor-add-to-device-type-form #available-security-accessors-grd'
-        }
+        },
+        {
+            ref: 'securityAccessorsActionMenu',
+            selector: 'security-accessors-action-menu'
+        },
+
     ],
 
     fromEditForm: false,
@@ -167,21 +172,29 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     recordSelected: function (grid, recordParam) {
         var me = this,
+            gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
             processRecord = function (record) {
                 me.selectedRecord = record;
                 me.getPreviewForm().doLoadRecord(record);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
+                gridMenu.updateMenuItems(record);
                 if (me.getPreview().down('security-accessors-action-menu')) {
+                    me.getPreview().down('security-accessors-action-menu').updateMenuItems(record);
                     me.getPreview().down('security-accessors-action-menu').record = record;
+
                 }
                 me.getPreview().setLoading(false);
+                gridMenu.setLoading(false);
             };
 
         me.getPreview().setLoading();
+        gridMenu.setLoading();
+
         // if (recordParam.get('isKey')) {
             var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
             model.load(recordParam.get('id'), {
                 success: function (keyRecord) {
+                    console.log('f');
                     processRecord(keyRecord);
                 }
             });
@@ -538,10 +551,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         me.getApplication().fireEvent('changecontentevent', view);
                         if(record.get('defaultValue')){
                             me.getManageCentrallyCheckbox().setValue(true);
-                            me.getManageCentrallyCheckbox().disable();
-                        } else {
-                            me.getManageCentrallyCheckbox().enable();
                         }
+                        me.getManageCentrallyCheckbox().disable();
                     }
                 };
                 timeUnitsStore.load({callback: callBackFunction});
@@ -647,7 +658,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         labelWidth: 185,
                         width: 485,
                         itemId: 'mdc-active-alias-combo',
-                        dataIndex: 'alias',
+                        dataIndex: 'defaultValue.currentProperties.alias',
                         emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
                         listConfig: {
                             emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
@@ -696,7 +707,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         labelWidth: 185,
                         width: 485,
                         itemId: 'mdc-passive-alias-combo',
-                        dataIndex: 'alias',
+                        dataIndex: 'defaultValue.tempProperties.alias',
                         emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
                         listConfig: {
                             emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')

@@ -10,7 +10,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                // hidden: this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey')),
+                hidden: this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey')),
                 action: 'changePrivileges',
                 itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT
@@ -36,14 +36,12 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 checkPassive: true,
                 action: 'clearPassiveCertificate',
                 itemId: 'menu-sa-clear-passive-certificate',
-                // hidden: !Ext.isEmpty(this.record.get('defaultValue')),
                 section: this.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 checkPassive: true,
-                // hidden: !Ext.isEmpty(this.record.get('defaultValue')),
                 action: 'activatePassiveCertificate',
                 itemId: 'menu-sa-activate-passive-certificate',
                 section: this.SECTION_EDIT
@@ -51,11 +49,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         ];
         this.callParent(arguments);
     },
-    listeners: {
-        beforeshow: function (menu) {
-            var record = menu.record;
-            menu.down('#menu-sa-clear-passive-certificate').setVisible(record.get('defaultValue'));
-            menu.down('#menu-sa-activate-passive-certificate').setVisible(record.get('defaultValue'));
-        }
+    updateMenuItems: function(record){
+        this.down('#menu-sa-clear-passive-certificate').setVisible(!this.deviceTypeId && record.get('defaultValue'));
+        this.down('#menu-sa-activate-passive-certificate').setVisible(!this.deviceTypeId && record.get('defaultValue'));
     }
 });

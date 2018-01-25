@@ -109,6 +109,46 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
                                 storeIndex = trustStoresStore.findExact('id', val);
                             return trustStoresStore.getAt(storeIndex).get('name');
+                        },
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),
+                        name: 'manageCentrally',
+                        renderer: function (val) {
+                            if (Ext.isEmpty(val)) {
+                                return Uni.I18n.translate('general.no', 'MDC', 'No');
+                            } else {
+                                return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                            }
+
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.activeCertificate', 'MDC', 'Active certificate'),
+                        name: 'activeCertificate',
+                        hidden: !record.get('manageCentrally'),
+                        renderer: function (val) {
+                            console.log(val);
+                            if (Ext.isEmpty(val)) {
+                                return '-';
+                            } else {
+                                return val;
+                            }
+
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.passiveCertificate', 'MDC', 'Passive certificate'),
+                        name: 'passiveCertificate',
+                        hidden: !record.get('manageCentrally'),
+                        renderer: function (val) {
+                            console.log(val);
+                            if (Ext.isEmpty(val)) {
+                                return '-';
+                            } else {
+                                return val;
+                            }
+
                         }
                     }
                 ]

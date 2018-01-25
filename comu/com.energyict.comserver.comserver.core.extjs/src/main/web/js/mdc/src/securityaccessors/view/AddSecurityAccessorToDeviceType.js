@@ -16,7 +16,7 @@ Ext.define('Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+            title: Uni.I18n.translate('securityaccessors.addSecurityAccessors', 'MDC', 'Add security accessors'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

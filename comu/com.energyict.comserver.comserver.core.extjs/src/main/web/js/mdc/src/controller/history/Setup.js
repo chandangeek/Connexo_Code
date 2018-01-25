@@ -2051,7 +2051,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         action: 'showSecurityAccessorsOverview',
                                         items: {
                                             add: {
-                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessors', 'MDC', 'Add security accessors'),
                                                 route: 'add',
                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',

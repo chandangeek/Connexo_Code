@@ -34,7 +34,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
             stepItems: [
                 {
                     xtype: 'button',
-                    text: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                    text: Uni.I18n.translate('securityaccessors.addSecurityAccessors', 'MDC', 'Add security accessors'),
                     itemId: 'mdc-add-security-accessor'
                 }
             ]
