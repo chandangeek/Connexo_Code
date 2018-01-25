@@ -81,7 +81,7 @@ public class CreateDemoDataCommand {
         createImportersCommand();
         createValidationSetupCommand();
         createEstimationSetupCommand();
-        createNtaConfigCommand();
+//        createNtaConfigCommand();
         createDeliverDataSetupCommand();
         createDataLoggerSetupCommand();
         createBelgianMarketTimeOfUseData();

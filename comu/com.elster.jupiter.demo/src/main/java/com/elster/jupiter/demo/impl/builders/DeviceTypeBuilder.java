@@ -6,6 +6,12 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.demo.impl.Log;
+import com.elster.jupiter.demo.impl.templates.KeyAccessorTpl;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
@@ -29,6 +35,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     private final DeviceConfigurationService deviceConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final SecurityManagementService securityManagementService;
 
     private String protocol;
     private List<RegisterType> registerTypes;
@@ -36,10 +43,12 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     private List<LogBookType> logBookTypes;
     private Set<ProtocolSupportedCalendarOptions> timeOfUseOptions;
     private List<Calendar> calendars;
+    private List<KeyAccessorTpl> securityAccessors;
 
     @Inject
-    public DeviceTypeBuilder(DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceTypeBuilder(DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, SecurityManagementService securityManagementService) {
         super(DeviceTypeBuilder.class);
+        this.securityManagementService = securityManagementService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
@@ -47,6 +56,11 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
 
     public DeviceTypeBuilder withProtocol(String protocol) {
         this.protocol = protocol;
+        return this;
+    }
+
+    public DeviceTypeBuilder withSecurityAccessors(List<KeyAccessorTpl> securityAccessors) {
+        this.securityAccessors = securityAccessors;
         return this;
     }
 
@@ -123,6 +137,31 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
             this.calendars.forEach(result::addCalendar);
         }
 
+        if (this.securityAccessors != null && !this.securityAccessors.isEmpty()) {
+            this.securityAccessors.forEach(keyAccessorTpl -> {
+
+                KeyType keyType = securityManagementService.getKeyType(keyAccessorTpl.getKeyType().getName())
+                        .orElseGet(() ->
+                                (keyAccessorTpl.getTrustStore() != null && keyAccessorTpl.getTrustStore().length() > 0) ?
+                                        securityManagementService.newCertificateType(keyAccessorTpl.getKeyType().getName()).add() :
+                                        securityManagementService.newSymmetricKeyType(keyAccessorTpl.getKeyType().getName(), keyAccessorTpl.getKeyType()
+                                                .getKeyAlgorithmName(), keyAccessorTpl.getKeyType().getKeySize()).add());
+                SecurityAccessorType.Builder keyFunctionTypeBuilder = result.addSecurityAccessorType(keyAccessorTpl.getName(), keyType)
+                        .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+
+                if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
+                    TrustStore trustStore = securityManagementService.findTrustStore(keyAccessorTpl.getTrustStore())
+                            .orElseGet(() -> securityManagementService.newTrustStore(keyAccessorTpl.getTrustStore()).add());
+                    keyFunctionTypeBuilder.trustStore(trustStore);
+                }
+
+                keyFunctionTypeBuilder
+                        .duration(keyAccessorTpl.getTimeDuration())
+                        .add();
+            });
+        }
+
         return applyPostBuilders(result);
     }
+
 }

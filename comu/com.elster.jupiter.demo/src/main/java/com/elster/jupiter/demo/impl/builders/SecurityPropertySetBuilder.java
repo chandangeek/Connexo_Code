@@ -5,17 +5,18 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.KeyAccessorTpl;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet, SecurityPropertySetBuilder> {
@@ -27,6 +28,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     private int suite;
     private int authLevel;
     private int encLevel;
+    private List<KeyAccessorTpl> keys;
 
     @Inject
     public SecurityPropertySetBuilder(SecurityManagementService securityManagementService) {
@@ -59,6 +61,11 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
         return this;
     }
 
+    public SecurityPropertySetBuilder withKeys(List<KeyAccessorTpl> keys) {
+        this.keys = keys;
+        return this;
+    }
+
     private void check() {
         if (this.deviceConfiguration == null) {
             throw new UnableToCreate("You must set the device configuration");
@@ -78,34 +85,37 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
                 .securitySuite(suite)
                 .authenticationLevel(authLevel)
                 .encryptionLevel(encLevel);
+
         // Add for each of the propertySpecs a configuration security property - the propertySpec name will be used as name for the KeyAccessorType
         securityPropertySetBuilder.getPropertySpecs().forEach(
                 propertySpec -> securityPropertySetBuilder.addConfigurationSecurityProperty(
                         propertySpec.getName(),
-                        createOrGetKeyAccessorType(propertySpec.getName()))
+                        createOrGetKeyAccessorType(keys.stream().filter(k -> k.getName().contains(propertySpec.getName())).findAny().get()))
         );
         SecurityPropertySet securityPropertySet = securityPropertySetBuilder.build();
         securityPropertySet.update();
         return securityPropertySet;
     }
 
-    private SecurityAccessorType createOrGetKeyAccessorType(String keyAccessorTypeName) {
+    private SecurityAccessorType createOrGetKeyAccessorType(KeyAccessorTpl key) {
         DeviceType deviceType = this.deviceConfiguration.getDeviceType();
         return deviceType.getSecurityAccessorTypes()
                 .stream()
-                .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))
+                .filter(keyAccessorType -> keyAccessorType.getName().equals(key.getName()))
                 .findFirst()
-                .orElseGet(() -> deviceType.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(keyAccessorTypeName))
+                .orElseGet(() -> deviceType.addSecurityAccessorType(key.getName(), createOrGetKeyType(key))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
-                        .duration(TimeDuration.years(1))
+                        .duration(key.getTimeDuration())
                         .add());
     }
 
-    private KeyType createOrGetKeyType(String keyAccessorTypeName) {
-        if (keyAccessorTypeName.equals("Password")) {
-            return securityManagementService.getKeyType("Password").orElseGet(() -> securityManagementService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
+    private KeyType createOrGetKeyType(KeyAccessorTpl keyAccessorType) {
+        if (keyAccessorType.getName().contains("Password")) {
+            return securityManagementService.getKeyType(keyAccessorType.getName())
+                    .orElseGet(() -> securityManagementService.newPassphraseType(keyAccessorType.getName()).withSpecialCharacters().length(keyAccessorType.getKeyType().getKeySize()).add());
         } else {
-            return securityManagementService.getKeyType("AES 128").orElseGet(() -> securityManagementService.newSymmetricKeyType("AES 128", "AES", 128).add());
+            return securityManagementService.getKeyType(keyAccessorType.getName())
+                    .orElseGet(() -> securityManagementService.newSymmetricKeyType(keyAccessorType.getName(), keyAccessorType.getKeyType().getKeyAlgorithmName(), keyAccessorType.getKeyType().getKeySize()).add());
         }
     }
 }

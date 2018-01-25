@@ -159,7 +159,19 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     V200PR_6("Elster V200PR-6", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
             Arrays.asList(RegisterTypeTpl.BULK_WATER_VOLUME),
             Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER),
-            Collections.emptyList(), true);
+            Collections.emptyList(), true),
+    BEACON_3100("Beacon 3100", "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100", 0, OutboundTCPComPortPoolTpl.OUTBOUND_TCP,
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
+            Arrays.asList(KeyAccessorTpl.PSK),
+            true),
+    AM540_DLMS("AM540 DLMS (IDIS P2)", "com.energyict.protocolimplv2.dlms.idis.am540.AM540", 0, null,
+            Arrays.asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
+            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
+            Arrays.asList(KeyAccessorTpl.PSK),
+            true);
 
     private String longName;
     private String protocol;
@@ -170,6 +182,14 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     private List<RegisterTypeTpl> registerTypes;
     private List<LoadProfileTypeTpl> loadProfileTypes;
     private List<LogBookTypeTpl> logBookTypes;
+    private List<KeyAccessorTpl> securityAccessors;
+
+    DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes, List<KeyAccessorTpl> securityAccessors, boolean validateOnStore) {
+        this(name, protocol, deviceCount, poolTpl, registerTypes, loadProfileTypes);
+        this.logBookTypes = logBookTypes;
+        this.validateOnStore = validateOnStore;
+        this.securityAccessors = securityAccessors;
+    }
 
     DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes, boolean validateOnStore) {
         this(name, protocol, deviceCount, poolTpl, registerTypes, loadProfileTypes);
@@ -198,6 +218,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     @Override
     public DeviceTypeBuilder get(DeviceTypeBuilder builder) {
         builder.withName(this.longName).withProtocol(this.protocol)
+                .withSecurityAccessors(this.securityAccessors)
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
                 .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()));
         if (this.logBookTypes != null) {

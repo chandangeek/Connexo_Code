@@ -8,7 +8,6 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -45,19 +44,23 @@ public class ConnectionsDevicePostBuilder implements Consumer<Device> {
         checkProperties();
         if (device.getScheduledConnectionTasks().isEmpty()) {
             DeviceConfiguration configuration = device.getDeviceConfiguration();
-            PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
             int portNumber = 4059;
-            ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                    .setComPortPool(this.comPortPool)
-                    .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .setNextExecutionSpecsFrom(null)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                    .setProperty("host", this.host)
-                    .setProperty("portNumber", new BigDecimal(portNumber))
-                    .setProperty("connectionTimeout", TimeDuration.minutes(1))
-                    .setNumberOfSimultaneousConnections(1)
-                    .add();
-            connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+            configuration.getPartialOutboundConnectionTasks().stream()
+                    .findFirst()
+                    .map(connectionTask -> {
+                        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+                                .setComPortPool(this.comPortPool)
+                                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                                .setNextExecutionSpecsFrom(null)
+                                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                                .setProperty("host", this.host)
+                                .setProperty("portNumber", new BigDecimal(portNumber))
+                                .setProperty("connectionTimeout", TimeDuration.minutes(1))
+                                .setNumberOfSimultaneousConnections(1)
+                                .add();
+                        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+                        return connectionTask;
+                    });
         }
     }
 
