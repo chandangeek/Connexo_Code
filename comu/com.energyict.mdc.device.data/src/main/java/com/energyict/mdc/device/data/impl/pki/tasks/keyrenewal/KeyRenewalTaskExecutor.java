@@ -24,6 +24,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,16 +128,40 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
     }
 
+    private List<BpmProcessDefinition> getActiveKeyRenewalProcesses() {
+        return bpmService.getAllBpmProcessDefinitions()
+                .stream()
+                .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus()) && p.getId() == keyRenewalBpmProcessDefinitionId)
+                .collect(Collectors.toList());
+    }
+
+    private boolean checkKeyRenewalProcess(List<BpmProcessDefinition> processList, SecurityAccessor securityAccessor) {
+        return processList.stream().anyMatch(bpmProcessDefinition -> {
+            Map<String, Object> m = bpmProcessDefinition.getProperties();
+            if (m.containsKey("SecurityAccessor")) {
+                SecurityAccessor s = (SecurityAccessor) m.get("SecurityAccessor");
+                return s.getDevice().getId() == securityAccessor.getDevice().getId() &&
+                        getDeviceKey((SymmetricKeyAccessor) s).isPresent() && getDeviceKey((SymmetricKeyAccessor) securityAccessor).isPresent() &&
+                        Arrays.equals(getDeviceKey((SymmetricKeyAccessor) s).get().getEncoded(),
+                                getDeviceKey((SymmetricKeyAccessor) securityAccessor).get().getEncoded());
+            }
+            return false;
+        });
+    }
+
     private void triggerBpmProcess(SecurityAccessor securityAccessor, Logger logger) {
         Map<String, Object> expectedParams = new HashMap<>();
         expectedParams.put("SecurityAccessor", securityAccessor);
-        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.findBpmProcessDefinition(keyRenewalBpmProcessDefinitionId);
-        if (bpmProcessDefinition.isPresent()) {
-            bpmService.startProcess(bpmProcessDefinition.get(), expectedParams);
-            logger.log(Level.INFO, "Device key renewal process has been triggered on device " + securityAccessor.getDevice().getName()
-                    + " for " + securityAccessor.getKeyAccessorType().getName());
-            keyRenewalBpmProcessCount++;
-            logger.log(Level.INFO, "Number of device key renewal processes triggered  " + keyRenewalBpmProcessCount);
+        Optional<BpmProcessDefinition> definition = bpmService.findBpmProcessDefinition(keyRenewalBpmProcessDefinitionId);
+        if (definition.isPresent()) {
+            List<BpmProcessDefinition> activeProcesses = getActiveKeyRenewalProcesses();
+            if (activeProcesses.isEmpty() || !checkKeyRenewalProcess(activeProcesses, securityAccessor)) {
+                bpmService.startProcess(definition.get(), expectedParams);
+                logger.log(Level.INFO, "Device key renewal process has been triggered on device " + securityAccessor.getDevice().getName()
+                        + " for " + securityAccessor.getKeyAccessorType().getName());
+                keyRenewalBpmProcessCount++;
+                logger.log(Level.INFO, "Number of device key renewal processes triggered  " + keyRenewalBpmProcessCount);
+            }
         }
     }
 }
