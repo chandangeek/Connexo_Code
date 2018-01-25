@@ -211,6 +211,12 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                 change: this.basicMacroPeriodChange
             }
         });
+
+        var me = this;
+        me.cimHandler = Ext.create('Mtr.controller.readingtypesgroup.processors.CIMHandler', {});
+        me.factory = Ext.create('Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory', {
+            controller: me
+        });
     },
 
     showOverview: function () {
@@ -236,37 +242,24 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
      */
     preloadComboBoxes: function (){
         var me = this,
-            router = me.getController('Uni.controller.history.Router')
-        ;
+            router = me.getController('Uni.controller.history.Router'),
+            uploadAddflag = !!(router.arguments.aliasName),
+            basicCommodityProcessor;
 
-        if (!me.cimHandler) {
-            me.cimHandler = Ext.create('Mtr.controller.readingtypesgroup.processors.CIMHandler', {});
-        }
         me.cimHandler.process();
-
-
-        if (!me.factory) {
-            me.factory = Ext.create('Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory', {
-                controller: me
-            });
-        }
+        basicCommodityProcessor = me.factory.getProcessor(me.getBasicCommodity());
 
         // All combos are linked to the commodity one. If commodity has a preload value,
         // it will tell all the other combos to process
         // set uploadAddflag for upload add form with predifined values
-
-        var uploadAddflag = !!(router.arguments.aliasName);
-        var basicCommodityProcessor = me.factory.getProcessor(me.getBasicCommodity());
-        basicCommodityProcessor.disabledForLoad = uploadAddflag;
+        basicCommodityProcessor.selectAndDisable = uploadAddflag;
         if (uploadAddflag) {
             basicCommodityProcessor.cloneValue = me.cimHandler.getValue(me.getBasicCommodity().cimIndex);
         }
         basicCommodityProcessor.process();
-
         if (uploadAddflag) {
             me.processExtendedProcessors(uploadAddflag);
         }
-
 
         // Need to set the controller value for all processors every time we get on the page
         if (!me.firstRun) {
@@ -287,7 +280,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
         extendedCombos.forEach(function (item) {
             var processor = me.factory.getProcessor(item);
-            processor.disabledForLoad = uploadFormforAddFlag;
+            processor.selectAndDisable = uploadFormforAddFlag;
             if (uploadFormforAddFlag) {
                 processor.cloneValue = me.cimHandler.getValue(item.cimIndex);
             }
@@ -318,19 +311,21 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
     },
 
     basicCommodityChange: function (combo, commodity) {
-        var me = this;
-        var router = me.getController('Uni.controller.history.Router');
-        var uploadAddFlag = !!(router.arguments.aliasName);
-        me.getNoAdditionalParameters().setVisible(commodity === 0);
-        me.registerProcessors();
-
-        var flowProcessor = me.factory.getProcessor(me.getBasicFlowDirection()),
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            uploadAddFlag = !!(router.arguments.aliasName),
+            flowProcessor = me.factory.getProcessor(me.getBasicFlowDirection()),
             kindProcessor = me.factory.getProcessor(me.getBasicMeasurementKind()),
             unitProcessor = me.factory.getProcessor(me.getBasicUnit());
 
-        flowProcessor.disabledForLoad = uploadAddFlag;
-        kindProcessor.disabledForLoad = uploadAddFlag;
-        unitProcessor.disabledForLoad = uploadAddFlag;
+
+        me.getNoAdditionalParameters().setVisible(commodity === 0);
+        me.registerProcessors();
+
+
+        flowProcessor.selectAndDisable = uploadAddFlag;
+        kindProcessor.selectAndDisable = uploadAddFlag;
+        unitProcessor.selectAndDisable = uploadAddFlag;
         if (uploadAddFlag) {
             flowProcessor.cloneValue = me.cimHandler.getValue(me.getBasicFlowDirection().cimIndex);
             kindProcessor.cloneValue = me.cimHandler.getValue(me.getBasicMeasurementKind().cimIndex);
@@ -369,6 +364,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         this.factory.getProcessor(this.getBasicAccumulation()).process();
         this.factory.getProcessor(this.getBasicMeasuringPeriod()).process();
     },
+
 
     addGeneralButtonClick: function () { //add with check for aliasName
         var me = this,

@@ -8,15 +8,16 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.AggregateProcessor', {
         return this.controller.getBasicAggregate();
     },
 
-    process: function(){
-        var me = this,
-            commodity = me.controller.getBasicCommodity().getValue(),
-            disabled = me.isDisabled(commodity);
-
-        me.getCombo().setDisabled(disabled);
-        me.resetComboValue();
-        if (!disabled && me.cloneValue) {
-            me.setComboValue();
+    /**
+     * Load store and select value when clone we have a clone value and
+     * it's not disabled. Currently the combo is disabled if commodity is not set
+     */
+    process: function() {
+        var disabled = this.isDisabled();
+        if (this.cloneValue && !disabled){
+            this.setComboValue(false);
+        } else {
+            this.restoreValue(disabled);
         }
     }
 });

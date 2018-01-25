@@ -6,7 +6,8 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.FlowProcessor', {
 
     END_DEVICE_CONDITION: 41,
 
-    isDisabled: function (commodity) {
+    isDisabled: function () {
+        var commodity = this.controller.getBasicCommodity().getValue();
         return commodity === this.NOT_APPLICABLE || commodity === this.END_DEVICE_CONDITION;
     },
 

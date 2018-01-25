@@ -3,22 +3,41 @@
  */
 Ext.define('Mtr.controller.readingtypesgroup.processors.AlwaysVisibleComboProcessor', {
     extend: 'Mtr.controller.readingtypesgroup.processors.ComboProcessor',
-    disabledForLoad: false,
-    isDisabled: function (commodity){
-        return commodity === this.NOT_APPLICABLE;
+
+    // This flag is set for those combos that need to set a value and disable
+    // Currently is set when we're cloning from a reading type set
+    selectAndDisable: false,
+
+    isDisabled: function (){
+        return this.controller.getBasicCommodity().getValue() === this.NOT_APPLICABLE;
     },
 
-    process: function (value) {
-        var me = this,
-            combo = me.getCombo(),
-            commodity = value || me.controller.getBasicCommodity().getValue(),
-            disabled = me.isDisabled(commodity);
+    setState: function (state) {
+        this.getCombo().setDisabled(state);
+    },
 
-        combo.setDisabled(disabled || this.disabledForLoad);
-        me.resetComboValue();
-        if (!disabled){
-            combo.getStore().getProxy().setExtraParam('filter', commodity);
-            me.setComboValue();
+    getFilterParam: function (){
+        return this.controller.getBasicCommodity().getValue();
+    },
+
+    /**
+     * If cloning from ReadingTypeSet => load store, select clone value, set disabled
+     * If cloning from AddRegister => load store, select clone, set enabled
+     * If no cloning select NOT_APPLICABLE
+     */
+    process: function() {
+        if (this.isDisabled()){
+            this.restoreValue(true);
+        } else {
+            this.loadAndSelect(this.selectAndDisable);
         }
+    },
+
+    /**
+     * @param disabled {boolean} 'true' means disable combobox
+     */
+    loadAndSelect: function (disabled) {
+        this.getCombo().getStore().getProxy().setExtraParam('filter', this.getFilterParam());
+        this.setComboValue(disabled);
     }
 });

@@ -4,10 +4,13 @@
 Ext.define('Mtr.controller.readingtypesgroup.processors.AccumulationProcessor', {
     extend: 'Mtr.controller.readingtypesgroup.processors.AdditionalParamsProcessor',
 
+    /**
+     * Visible when commodity is set and period is not applicable
+     * @returns {boolean}
+     */
     isVisible: function () {
-        var isMacroPeriodNA = this.controller.getBasicMacroPeriod().getValue() === this.NOT_APPLICABLE,
-            isCommodityNA = this.controller.getBasicCommodity().getValue() === this.NOT_APPLICABLE;
-        return (isMacroPeriodNA && !isCommodityNA);  // CXO-8254
+        return !this.controller.getBasicMacroPeriod().getValue()
+            && this.controller.getBasicCommodity().getValue() !== this.NOT_APPLICABLE;
     },
 
     getCombo: function (){

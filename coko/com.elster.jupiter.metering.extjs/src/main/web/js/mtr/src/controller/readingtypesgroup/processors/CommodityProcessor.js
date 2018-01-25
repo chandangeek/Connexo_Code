@@ -3,22 +3,17 @@
  */
 Ext.define('Mtr.controller.readingtypesgroup.processors.CommodityProcessor', {
     extend: 'Mtr.controller.readingtypesgroup.processors.ComboProcessor',
-    disabledForLoad: false,
-    process: function(){
-        var me = this,
-            combo = me.getCombo();
+    selectAndDisable: false,
 
-        combo.setDisabled(me.disabledForLoad);
-
-        if (this.cloneValue){
-            this.setComboValue();
+    process: function () {
+        if (this.cloneValue) {
+            this.setComboValue(this.selectAndDisable);
         }
     },
 
-    setComboValue: function (){
+    setComboValue: function (disabled){
         var me = this,
-            combo = me.getCombo(),
-            record = null;
+            combo = me.getCombo();
 
         combo.getStore().load({
             callback: function (records, operation, success) {
@@ -27,11 +22,12 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.CommodityProcessor', {
                     if (me.cloneValue === me.SECONDARY_ELECTRICITY){
                         me.cloneValue = me.PRIMARY_ELECTRICITY;
                     }
-                    record = combo.findRecordByValue(me.cloneValue);
-                    if (record) {
+                    var record = combo.findRecordByValue(me.cloneValue);
+                    if (record){
                         combo.select(record);
-                        me.cloneValue = null;
                     }
+                    me.cloneValue = me.NOT_APPLICABLE;
+                    combo.setDisabled(disabled);
                 }
             }
         });

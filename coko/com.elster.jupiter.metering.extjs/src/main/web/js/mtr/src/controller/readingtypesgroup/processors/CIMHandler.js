@@ -12,10 +12,6 @@
 Ext.define('Mtr.controller.readingtypesgroup.processors.CIMHandler', {
 
     cimValues: null,
-    /*
-        constructor: function () {
-
-        },*/
 
     process: function () {
         var me = this,
@@ -28,8 +24,13 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.CIMHandler', {
         }
     },
 
+    /**
+     * Return value at index or NOT_APPLICABLE(0)
+     * @param index combo index
+     * @returns {number}
+     */
     getValue: function (index) {
-        return (this.cimValues && this.cimValues.length > (index - 1)) ?  this.cimValues[index - 1] : null;
+        return (this.cimValues && this.cimValues.length > (index - 1)) ?  this.cimValues[index - 1] : 0;
     }
 });
 
