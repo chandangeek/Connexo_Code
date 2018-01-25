@@ -185,11 +185,12 @@ public class PkiGogoCommand {
 
     public void revokeCertificate() {
         System.out.println("Revokes certificate");
-        System.out.println("usage: revokeCertificate <certificate s/n> <issuer DN>");
+        System.out.println("usage: revokeCertificate <certificate s/n> <issuer DN> <revocation reason [0-6, 8-10]>");
     }
 
-    public void revokeCertificate(String serialNumber, String issuerDN) {
+    public void revokeCertificate(String serialNumber, String issuerDN, String reason) {
         BigInteger sn;
+        Integer r;
         List<List<?>> collect = new ArrayList<>();
         CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
         try {
@@ -197,12 +198,20 @@ public class PkiGogoCommand {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Specify valid serial number");
         }
+        try {
+            r = Integer.parseInt(reason);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Specify valid revocation reason");
+        }
+        if (RevokeStatus.fromValue(r) == null) {
+            throw new IllegalArgumentException("Specify valid revocation reason");
+        }
         certificateSearchFilter.setSerialNumber(sn);
         certificateSearchFilter.setIssuerDN(issuerDN);
         collect.clear();
-        collect.add(0, Arrays.asList("Revoking certificate with reason certificate hold"));
+        collect.add(0, Arrays.asList("Revoking certificate with reason " + r));
         MYSQL_PRINT.printTable(collect);
-        caService.revokeCertificate(certificateSearchFilter, 6);
+        caService.revokeCertificate(certificateSearchFilter, r);
     }
 
 
