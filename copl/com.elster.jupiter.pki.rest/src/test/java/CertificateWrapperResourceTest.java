@@ -5,13 +5,12 @@
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 
 import com.jayway.jsonpath.JsonModel;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -39,13 +38,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import static com.elster.jupiter.pki.rest.impl.MessageSeeds.NO_CSR_PRESENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -234,7 +235,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     }
 
     @Test
-    @Ignore
     public void testDownloadCSRButThereIsNone() throws Exception {
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
@@ -245,8 +245,42 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
 
         Response response = target("/certificates/12345/download/csr").request().get();
-        InputStream entity = (InputStream) response.getEntity();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<String>get("message")).isEqualTo(NO_CSR_PRESENT.getDefaultFormat());
+        assertThat(model.<String>get("error")).isEqualTo(NO_CSR_PRESENT.getKey());
+    }
+
+    //TODO: add 'in use' cases when these checks become available
+    @Test
+    public void testMarkCertificateObsolete() throws Exception {
+        //Prepare
+        Long certId = 111L;
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
+        doNothing().when(securityManagementService).checkCertificateUsages(certificateWrapper);
+
+        //Act
+        Response response = target("/certificates/" + certId + "/markObsolete").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(certificateWrapper, times(1)).setObsoleteFlagAndSave(true);
+    }
+
+    @Test
+    public void testUnmarkCertificateObsolete() throws Exception {
+        //Prepare
+        Long certId = 111L;
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
+
+        //Act
+        Response response = target("/certificates/" + certId + "/unmarkObsolete").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(certificateWrapper, times(1)).setObsoleteFlagAndSave(false);
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
