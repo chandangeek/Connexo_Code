@@ -213,7 +213,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>enddeviceevents/ReplyEndDeviceEvents.wsdl</wsdlFile>
+                        <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>

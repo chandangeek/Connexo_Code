@@ -17,8 +17,8 @@ import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
-import ch.iec.tc57._2011.replyenddeviceevents.EndDeviceEventsPort;
-import ch.iec.tc57._2011.replyenddeviceevents.ReplyEndDeviceEvents;
+import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
+import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -55,7 +55,7 @@ public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWe
 
     @Override
     public Service get() {
-        return new ReplyEndDeviceEvents(this.getClass().getResource("/enddeviceevents/ReplyEndDeviceEvents.wsdl"));
+        return new SendEndDeviceEvents(this.getClass().getResource("/enddeviceevents/SendEndDeviceEvents.wsdl"));
     }
 
     @Override
@@ -69,14 +69,16 @@ public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWe
     }
 
     @Override
-    public void call(Issue issue, EndPointConfiguration endPointConfiguration) {
-        endDeviceEvents.stream().forEach(event -> {
-            try {
-                event.createdEndDeviceEvents(createResponseMessage(issue));
-            } catch (Exception e) {
-                endPointConfiguration.log(String.format("Failed to send %s to web service %s with the URL: %s",
-                        END_DEVICE_EVENTS, endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
-            }
+    public void call(Issue issue, List<EndPointConfiguration> endPointConfigurations) {
+        endPointConfigurations.stream().forEach(endPointConfiguration -> {
+            endDeviceEvents.stream().forEach(event -> {
+                try {
+                    event.createdEndDeviceEvents(createResponseMessage(issue));
+                } catch (Exception e) {
+                    endPointConfiguration.log(String.format("Failed to send %s to web service %s with the URL: %s",
+                            END_DEVICE_EVENTS, endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
+                }
+            });
         });
     }
 
