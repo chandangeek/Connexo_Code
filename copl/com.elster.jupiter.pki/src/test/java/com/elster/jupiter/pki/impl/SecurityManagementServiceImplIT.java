@@ -1,6 +1,5 @@
 package com.elster.jupiter.pki.impl;
 
-import certpathvalidator.CertPathValidatorTest;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -8,7 +7,26 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
@@ -17,6 +35,8 @@ import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.time.TimeDuration;
+
+import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -54,7 +74,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -77,6 +103,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityManagementServiceImplIT {
 
@@ -1344,6 +1371,28 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(certificates).hasSize(1);
         assertEquals("myCert", certificates.get(0).getAlias());
+    }
+
+    @Test
+    @Transactional
+    public void testMarkUnmarkCertificateObsolete() throws Exception {
+        cleanup(inMemoryPersistence);
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
+        String alias = "certAlias";
+
+        X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
+        CertificateWrapper wrapper = securityManagementService.newCertificateWrapper(alias);
+        wrapper.setCertificate(certificate);
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
+
+        wrapper.setObsoleteFlagAndSave(true);
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.OBSOLETE.getKey());
+
+        wrapper.setObsoleteFlagAndSave(false);
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
     }
 
     private SecurityManagementService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {
