@@ -139,11 +139,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     showSecurityAccessorsOverviewAdministration: function () {
         var me = this,
-            view = Ext.widget('device-type-security-accessors-setup');
+            view = Ext.widget('device-type-security-accessors-setup'),
+            trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores');
 
-        me.deviceTypeId = null;
-        me.deviceType = null;
-        me.getApplication().fireEvent('changecontentevent', view);
+        trustStoresStore.load({
+            callback: function(){
+                me.deviceTypeId = null;
+                me.deviceType = null;
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
     },
 
     chooseAction: function (menu, item) {

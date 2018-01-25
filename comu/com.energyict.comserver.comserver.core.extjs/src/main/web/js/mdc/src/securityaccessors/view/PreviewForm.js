@@ -109,7 +109,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
                                 storeIndex = trustStoresStore.findExact('id', val);
                             return trustStoresStore.getAt(storeIndex).get('name');
-                        },
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),
@@ -142,7 +142,6 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'passiveCertificate',
                         hidden: !record.get('manageCentrally'),
                         renderer: function (val) {
-                            console.log(val);
                             if (Ext.isEmpty(val)) {
                                 return '-';
                             } else {
