@@ -69,13 +69,26 @@ public class CreateReadingTypeInfo {
 
         createReadingTypeInfo.mRID = createBasicReadingTypeInfo.mRID;
         createReadingTypeInfo.aliasName = createBasicReadingTypeInfo.aliasName;
-        createReadingTypeInfo.macroPeriod = makeList(createBasicReadingTypeInfo.basicMacroPeriod);
+
+        // Interval < day is not a valid period value. We use 0 when we add the reading type
+        if (intervalLessThanDayPeriod(createBasicReadingTypeInfo.basicMacroPeriod)){
+            createReadingTypeInfo.macroPeriod = Collections.singletonList(0);
+        } else {
+            createReadingTypeInfo.macroPeriod = makeList(createBasicReadingTypeInfo.basicMacroPeriod);
+        }
+
         createReadingTypeInfo.aggregate = makeList(createBasicReadingTypeInfo.basicAggregate);
         createReadingTypeInfo.measuringPeriod = makeList(createBasicReadingTypeInfo.basicMeasuringPeriod);
         createReadingTypeInfo.accumulation = makeList(createBasicReadingTypeInfo.basicAccumulation);
         createReadingTypeInfo.flowDirection = makeList(createBasicReadingTypeInfo.basicFlowDirection);
 
-        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null && createBasicReadingTypeInfo.basicCommodity == 2) ? Arrays.asList(1,2) : makeList(createBasicReadingTypeInfo.basicCommodity); // Electricity 1 & 2
+        // BasicCommodity combo only has the Primary Electricity value available. If that is selected,
+        // we will create both primary and secondary.
+        if (primaryElectricity(createBasicReadingTypeInfo.basicCommodity)){
+            createReadingTypeInfo.commodity = Arrays.asList(1,2);
+        } else {
+            makeList(createBasicReadingTypeInfo.basicCommodity);
+        }
 
         createReadingTypeInfo.measurementKind = makeList(createBasicReadingTypeInfo.basicMeasurementKind);
         createReadingTypeInfo.interHarmonicNumerator = makeList(null);
@@ -90,6 +103,14 @@ public class CreateReadingTypeInfo {
         createReadingTypeInfo.unit = makeList(createBasicReadingTypeInfo.basicUnit);
         createReadingTypeInfo.currency = makeList(null);
         return createReadingTypeInfo;
+    }
+
+    private static boolean primaryElectricity(Integer basicCommodity) {
+        return basicCommodity != null && basicCommodity == 2;
+    }
+
+    private static boolean intervalLessThanDayPeriod(Integer basicMeasuringPeriod) {
+        return basicMeasuringPeriod != null && basicMeasuringPeriod == 0x10000;
     }
 
     void fixNullLists() {
