@@ -660,7 +660,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private PropertyInfo createPropertyInfo(String key, String value) {
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = key;
-        propertyInfo.propertyValueInfo = new PropertyValueInfo<String>(value, null);
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>(value, null);
         return propertyInfo;
     }
 
