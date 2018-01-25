@@ -2,7 +2,6 @@
 <!--
   ~ Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
   -->
-        <!--xmlns:cas="http://connexo.elster.com/2017/schema/customattributes"-->
 <xs:schema xmlns="http://langdale.com.au/2005/Message#"
            xmlns:m="http://iec.ch/TC57/2011/EndDeviceConfig#"
            xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
