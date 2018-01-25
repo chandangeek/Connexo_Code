@@ -179,6 +179,14 @@ public class EndPointConfigurationResource {
         if (info.active == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "active");
         }
+        if (info.properties != null) {
+            info.properties.stream()
+                    .filter(propertyInfo -> checkPropertyOnNullAndEmpty(propertyInfo.getPropertyValueInfo().getValue()))
+                    .findAny()
+                    .ifPresent(propertyInfo -> {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, propertyInfo.key);
+                    });
+        }
     }
 
     private void validateBasicPayload(EndPointConfigurationInfo info) {
@@ -187,5 +195,8 @@ public class EndPointConfigurationResource {
         }
     }
 
+    private boolean checkPropertyOnNullAndEmpty(Object object) {
+        return object == null || object.toString().isEmpty();
+    }
 
 }
