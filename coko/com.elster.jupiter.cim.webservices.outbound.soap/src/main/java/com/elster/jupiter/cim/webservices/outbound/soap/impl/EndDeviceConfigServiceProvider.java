@@ -60,6 +60,11 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMeterConfigPortService(EndDeviceConfigPort endDeviceConfigPort) {
         stateEndDeviceConfigPortServices.add(endDeviceConfigPort);
