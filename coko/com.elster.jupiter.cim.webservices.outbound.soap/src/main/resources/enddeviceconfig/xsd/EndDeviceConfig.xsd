@@ -7,9 +7,11 @@
            xmlns:m="http://iec.ch/TC57/2011/EndDeviceConfig#"
            xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-
+           xmlns:cas="http://connexo.elster.com/2017/schema/customattributes"
            targetNamespace="http://iec.ch/TC57/2011/EndDeviceConfig#" elementFormDefault="qualified"
            attributeFormDefault="unqualified">
+    <xs:import namespace="http://connexo.elster.com/2017/schema/customattributes"
+               schemaLocation="CustomAttributes.xsd"/>
     <xs:element name="EndDeviceConfig" type="m:EndDeviceConfig"/>
     <xs:complexType name="EndDeviceConfig">
         <xs:sequence>
@@ -282,22 +284,22 @@ SimpleEndDeviceFunction">
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#AssetContainer.Seals"/>
             <xs:element name="status" type="m:Status" minOccurs="0"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset.status"/>
-            <!-- Below elements added for Connexo -->
-            <!--<xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"-->
-                        <!--maxOccurs="unbounded"/>-->
-            <!--<xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">-->
-                <!--<xs:complexType>-->
-                    <!--<xs:sequence>-->
-                        <!--<xs:element name="ReadingType"-->
-                                    <!--sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Channel.ReadingType">-->
-                            <!--<xs:complexType sawsdl:modelReference="">-->
-                                <!--<xs:attribute name="ref" type="xs:string"/>-->
-                            <!--</xs:complexType>-->
-                        <!--</xs:element>-->
-                        <!--<xs:element name="CustomAttributeSet" type="cas:CustomAttributeSet"/>-->
-                    <!--</xs:sequence>-->
-                <!--</xs:complexType>-->
-            <!--</xs:element>-->
+             <!--Below elements added for Connexo-->
+            <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ReadingType"
+                                    sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Channel.ReadingType">
+                            <xs:complexType sawsdl:modelReference="">
+                                <xs:attribute name="ref" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="CustomAttributeSet" type="cas:CustomAttributeSet"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="EndDeviceCapability" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schemacim15#
