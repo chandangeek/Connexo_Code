@@ -21,6 +21,8 @@ import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
@@ -54,6 +56,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -89,9 +92,9 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         certificateType = mockKeyType(12, CERTIFICATE_TYPE_NAME, CryptographicType.TrustedCertificate);
         keyAccessorType = mockKeyAccessorType(1, 2, NAME_X, DESCRIPTION_X);
         certificateAccessorType = mockCertificateAccessorType(2, 1, NAME_W, DESCRIPTION_W);
-        actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver", "myAlias");
-        tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver", "myAlias");
-        certificateAccessor = mockClientCertificateAccessor(certificatePropertySpecs, certificateAccessorType, actualClientCertificateWrapper);
+        actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver", "myAlias1");
+        tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver", "myAlias2");
+        certificateAccessor = mockClientCertificateAccessor(3, certificatePropertySpecs, certificateAccessorType, actualClientCertificateWrapper);
         when(securityManagementService.getPropertySpecs(certificateAccessorType)).thenReturn(certificatePropertySpecs);
         when(securityManagementService.getPropertySpecs(eq(certificateType), anyString())).thenReturn(certificatePropertySpecs);
         when(securityManagementService.findCertificateWrapper(anyString())).thenReturn(Optional.empty());
@@ -240,6 +243,18 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(builder).trustStore(trustStore);
         verify(builder).add();
         verify(builder, never()).managedCentrally();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.id")).isEqualTo(2);
+        assertThat(model.<Number>get("$.version")).isEqualTo(1);
+        assertThat(model.<String>get("$.name")).isEqualTo(NAME_W);
+        assertThat(model.<String>get("$.description")).isEqualTo(DESCRIPTION_W);
+        assertThat(model.<String>get("$.storageMethod")).isNull();
+        assertThat(model.<Number>get("$.keyType.id")).isEqualTo(12);
+        assertThat(model.<String>get("$.keyType.name")).isEqualTo(CERTIFICATE_TYPE_NAME);
+        assertThat(model.<Boolean>get("$.keyType.requiresDuration")).isFalse();
+        assertThat(model.<Number>get("$.duration")).isNull();
+        assertThat(model.<Object>get("$.defaultValue")).isNull();
     }
 
     @Test
@@ -327,7 +342,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
     // Here begin tests on default values
 
     @Test
-    public void testGetCertificateAccessorType() throws Exception {
+    public void testGetCertificateAccessorTypeWithDefaultValues() throws Exception {
         mockUserActions(certificateAccessorType);
         when(securityManagementService.findSecurityAccessorTypeById(2)).thenReturn(Optional.of(certificateAccessorType));
         when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
@@ -360,6 +375,14 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(model.<List>get("$.viewLevels[0].userRoles")).hasSize(1);
         assertThat(model.<Number>get("$.viewLevels[0].userRoles[0].id")).isEqualTo(11);
         assertThat(model.<String>get("$.viewLevels[0].userRoles[0].name")).isEqualTo("Group");
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
     }
 
     @Test
@@ -380,6 +403,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(jsonModel.<List>get("$.tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<String>get("$.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
     }
 
     @Test
@@ -429,18 +454,17 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorInfo response = target("/securityaccessors/previewproperties").request().post(Entity.json(info), SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "com*").property("trustStore", 33L).create())
+                .queryParam("filter", ExtjsFilter.filter().property("alias", "my*").property("trustStore", 33L).create())
                 .request()
                 .get();
         ArgumentCaptor<AliasParameterFilter> captor = ArgumentCaptor.forClass(AliasParameterFilter.class);
         verify(securityManagementService).getAliasesByFilter(captor.capture());
         assertThat(captor.getValue().searchParam).isEqualTo("alias");
-        assertThat(captor.getValue().searchValue).isEqualTo("com*");
+        assertThat(captor.getValue().searchValue).isEqualTo("my*");
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
         JsonModel jsonModel = JsonModel.create((InputStream)response1.getEntity());
-        System.out.println(jsonModel.toJson());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.aliases[0].alias")).isEqualTo("myAlias");
+        assertThat(jsonModel.<String>get("$.aliases[0].alias")).isEqualTo("myAlias1");
     }
 
     @Test
@@ -462,7 +486,577 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
     }
 
-    // TODO: more tests on add, edit, swap, clearTemp, remove with default values
+    @Test
+    public void testAddCertificateAccessorTypeWithDefaultActiveValue() throws Exception {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        info.storageMethod = "SSM";
+
+        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
+        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
+        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
+        when(builder.description(anyString())).thenReturn(builder);
+        when(builder.add()).thenReturn(certificateAccessorType);
+        when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
+                .thenReturn(certificateAccessor);
+
+        info.trustStoreId = 33;
+        info.keyType = new KeyTypeInfo();
+        info.keyType.id = 12;
+        info.keyType.name = CERTIFICATE_TYPE_NAME;
+        info.keyType.requiresDuration = false;
+
+        info.defaultValue = createDefaultValue(null, "comserver", null);
+
+        Response response = target("/securityaccessors").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(securityManagementService).addSecurityAccessorType(NAME_W, certificateType);
+        verify(builder).description(DESCRIPTION_W);
+        verify(builder).duration(null);
+        verify(builder).keyEncryptionMethod("SSM");
+        verify(builder).trustStore(trustStore);
+        verify(builder).managedCentrally();
+        verify(builder).add();
+
+        verify(securityManagementService).setDefaultValues(certificateAccessorType, actualClientCertificateWrapper, null);
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
+    }
+
+    @Test
+    public void testAddCertificateAccessorTypeWithDefaultValues() throws Exception {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        info.storageMethod = "SSM";
+
+        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
+        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
+        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
+        when(builder.description(anyString())).thenReturn(builder);
+        when(builder.add()).thenReturn(certificateAccessorType);
+        when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
+                .thenReturn(certificateAccessor);
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        info.trustStoreId = 33;
+        info.keyType = new KeyTypeInfo();
+        info.keyType.id = 12;
+        info.keyType.name = CERTIFICATE_TYPE_NAME;
+        info.keyType.requiresDuration = false;
+
+        info.defaultValue = createDefaultValue(null, "comserver", "newcomserver");
+
+        Response response = target("/securityaccessors").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(securityManagementService).addSecurityAccessorType(NAME_W, certificateType);
+        verify(builder).description(DESCRIPTION_W);
+        verify(builder).duration(null);
+        verify(builder).keyEncryptionMethod("SSM");
+        verify(builder).trustStore(trustStore);
+        verify(builder).managedCentrally();
+        verify(builder).add();
+
+        verify(securityManagementService).setDefaultValues(certificateAccessorType, actualClientCertificateWrapper, tempClientCertificateWrapper);
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyValueInfo.value")).isEqualTo("newcomserver");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testAddCertificateAccessorTypeWithOnlyPassiveDefaultValue() throws Exception {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        info.storageMethod = "SSM";
+
+        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
+        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
+        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
+        when(builder.description(anyString())).thenReturn(builder);
+        when(builder.add()).thenReturn(certificateAccessorType);
+        when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
+                .thenReturn(certificateAccessor);
+
+        info.trustStoreId = 33;
+        info.keyType = new KeyTypeInfo();
+        info.keyType.id = 12;
+        info.keyType.name = CERTIFICATE_TYPE_NAME;
+        info.keyType.requiresDuration = false;
+
+        info.defaultValue = createDefaultValue(null, null, "newcomserver");
+
+        Response response = target("/securityaccessors").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        verify(securityManagementService, never()).setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class));
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("defaultValue.currentProperties.alias");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValues_ChangeActualAndSetTemp() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(3L, "newcomserver", "comserver");
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessorType).startUpdate();
+        verify(updater).description(info.description);
+        verify(updater).name(info.name);
+        verify(updater).complete();
+        verify(certificateAccessor).setActualValue(tempClientCertificateWrapper);
+        verify(certificateAccessor).setTempValue(actualClientCertificateWrapper);
+        verify(certificateAccessor).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("newcomserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValues_OnlyUnsetTemp() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(3L, "comserver", null);
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessorType).startUpdate();
+        verify(updater).description(info.description);
+        verify(updater).name(info.name);
+        verify(updater).complete();
+        verify(certificateAccessor).clearTempValue();
+        verify(certificateAccessor).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValues_OnlyChangeActual() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(3L, "newcomserver", "newcomserver");
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessorType).startUpdate();
+        verify(updater).description(info.description);
+        verify(updater).name(info.name);
+        verify(updater).complete();
+        verify(certificateAccessor).setActualValue(tempClientCertificateWrapper);
+        verify(certificateAccessor).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("newcomserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyValueInfo.value")).isEqualTo("newcomserver");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValues_UnchangedValues() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(3L, "comserver", null);
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessorType).startUpdate();
+        verify(updater).description(info.description);
+        verify(updater).name(info.name);
+        verify(updater).complete();
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).clearActualValue();
+        verify(certificateAccessor, never()).clearTempValue();
+        verify(certificateAccessor, never()).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValues_UnsetActualAndChangeTemp() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(3L, null, "comserver");
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).clearActualValue();
+        verify(certificateAccessor, never()).clearTempValue();
+        verify(certificateAccessor, never()).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("defaultValue.currentProperties.alias");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValuesFailedDueToMissingValue() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).clearActualValue();
+        verify(certificateAccessor, never()).clearTempValue();
+        verify(certificateAccessor, never()).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("defaultValue");
+    }
+
+    @Test
+    public void testUpdateCertificateAccessorTypeWithDefaultValuesFailedDueToConflict() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 2)).thenReturn(Optional.empty());
+        when(securityManagementService.getDefaultValues(certificateAccessorType)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.description = DESCRIPTION_W;
+        info.name = NAME_W;
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(certificateAccessorType.startUpdate()).thenReturn(updater);
+        when(updater.complete()).thenReturn(certificateAccessorType);
+
+        info.defaultValue = createDefaultValue(2L, "newcomserver", "comserver");
+
+        Response response = target("/securityaccessors/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).clearActualValue();
+        verify(certificateAccessor, never()).clearTempValue();
+        verify(certificateAccessor, never()).save();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.error")).contains(NAME_W + " has changed");
+        assertThat(model.<Number>get("$.version")).isEqualTo(3);
+        assertThat(model.<Number>get("$.parent.id")).isEqualTo(2);
+        assertThat(model.<Number>get("$.parent.version")).isEqualTo(1);
+    }
+
+    @Test
+    public void testClearTempValue() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(3L, null, null);
+
+        Response response = target("/securityaccessors/2/tempvalue").request().method("DELETE", Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessor).clearTempValue();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testClearTempValueFailed() throws IOException {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 2)).thenReturn(Optional.empty());
+        when(securityManagementService.getDefaultValues(certificateAccessorType)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(2L, null, null);
+
+        Response response = target("/securityaccessors/2/tempvalue").request().method("DELETE", Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(certificateAccessor, never()).clearTempValue();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.error")).contains(NAME_W + " has changed");
+        assertThat(model.<Number>get("$.version")).isEqualTo(3);
+        assertThat(model.<Number>get("$.parent.id")).isEqualTo(2);
+        assertThat(model.<Number>get("$.parent.version")).isEqualTo(1);
+    }
+
+    @Test
+    public void testSwapValues() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(3L, null, null);
+
+        Response response = target("/securityaccessors/2/swap").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(certificateAccessor).swapValues();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Number>get("$.defaultValue.version")).isEqualTo(3);
+        assertThat(model.<List>get("$.defaultValue.currentProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyValueInfo.value")).isEqualTo("newcomserver");
+        assertThat(model.<String>get("$.defaultValue.currentProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+        assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyValueInfo.value")).isEqualTo("comserver");
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
+    }
+
+    @Test
+    public void testSwapValuesFailed() throws IOException {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 2)).thenReturn(Optional.empty());
+        when(securityManagementService.getDefaultValues(certificateAccessorType)).thenReturn(Optional.of(certificateAccessor));
+        when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(2L, null, null);
+
+        Response response = target("/securityaccessors/2/swap").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(certificateAccessor, never()).swapValues();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.error")).contains(NAME_W + " has changed");
+        assertThat(model.<Number>get("$.version")).isEqualTo(3);
+        assertThat(model.<Number>get("$.parent.id")).isEqualTo(2);
+        assertThat(model.<Number>get("$.parent.version")).isEqualTo(1);
+    }
+
+    @Test
+    public void testDeleteSecurityAccessorTypeWithDefaultValues() throws Exception {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 3)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(3L, null, null);
+
+        Response response = target("/securityaccessors/2").request().method("DELETE", Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+
+        verify(certificateAccessor).delete();
+        verify(certificateAccessorType).delete();
+    }
+
+    @Test
+    public void testDeleteWithDefaultValuesFailed() throws IOException {
+        when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
+        when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
+        when(securityManagementService.lockDefaultValues(certificateAccessorType, 2)).thenReturn(Optional.empty());
+        when(securityManagementService.getDefaultValues(certificateAccessorType)).thenReturn(Optional.of(certificateAccessor));
+
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 2;
+        info.version = 1;
+        info.defaultValue = createDefaultValue(2L, null, null);
+
+        Response response = target("/securityaccessors/2").request().method("DELETE", Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+
+        assertThat(model.<String>get("$.error")).contains(NAME_W + " has changed");
+        assertThat(model.<Number>get("$.version")).isEqualTo(3);
+        assertThat(model.<Number>get("$.parent.id")).isEqualTo(2);
+        assertThat(model.<Number>get("$.parent.version")).isEqualTo(1);
+
+        verify(certificateAccessor, never()).delete();
+        verify(certificateAccessorType, never()).delete();
+    }
+
+    private SecurityAccessorInfo createDefaultValue(Long version, String activeAlias, String passiveAlias) {
+        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        info.version = version;
+        info.currentProperties = Collections.singletonList(createPropertyInfo("alias", activeAlias));
+        info.tempProperties = Collections.singletonList(createPropertyInfo("alias", passiveAlias));
+        return info;
+    }
+
+    private PropertyInfo createPropertyInfo(String key, String value) {
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = key;
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>(value, null);
+        return propertyInfo;
+    }
 
     private TrustStore mockTrustStore(long id) {
         TrustStore trustStore = mock(TrustStore.class);
@@ -540,11 +1134,32 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         return clientCertificateWrapper;
     }
 
-    private SecurityAccessor<CertificateWrapper> mockClientCertificateAccessor(List<PropertySpec> propertySpecs, SecurityAccessorType certificateKeyAccessorType,
-                                                           CertificateWrapper clientCertificateWrapper) {
+    private SecurityAccessor<CertificateWrapper> mockClientCertificateAccessor(long version, List<PropertySpec> propertySpecs,
+                                                                               SecurityAccessorType certificateKeyAccessorType,
+                                                                               CertificateWrapper clientCertificateWrapper) {
         SecurityAccessor<CertificateWrapper> securityAccessor1 = mock(SecurityAccessor.class);
+        when(securityAccessor1.getVersion()).thenReturn(version);
         when(securityAccessor1.getTempValue()).thenReturn(Optional.empty());
         when(securityAccessor1.getActualValue()).thenReturn(Optional.of(clientCertificateWrapper));
+        doAnswer(invocation -> {
+            when(securityAccessor1.getTempValue()).thenReturn(Optional.ofNullable(invocation.getArgumentAt(0, CertificateWrapper.class)));
+            return null;
+        }).when(securityAccessor1).setTempValue(any(CertificateWrapper.class));
+        doAnswer(invocation -> {
+            when(securityAccessor1.getActualValue()).thenReturn(Optional.ofNullable(invocation.getArgumentAt(0, CertificateWrapper.class)));
+            return null;
+        }).when(securityAccessor1).setActualValue(any(CertificateWrapper.class));
+        doAnswer(invocation -> {
+            when(securityAccessor1.getTempValue()).thenReturn(Optional.empty());
+            return null;
+        }).when(securityAccessor1).clearTempValue();
+        doAnswer(invocation -> {
+            Optional<CertificateWrapper> temp = securityAccessor1.getTempValue();
+            Optional<CertificateWrapper> actual = securityAccessor1.getActualValue();
+            when(securityAccessor1.getTempValue()).thenReturn(actual);
+            when(securityAccessor1.getActualValue()).thenReturn(temp);
+            return null;
+        }).when(securityAccessor1).swapValues();
         when(securityAccessor1.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
         when(securityAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
         return securityAccessor1;
