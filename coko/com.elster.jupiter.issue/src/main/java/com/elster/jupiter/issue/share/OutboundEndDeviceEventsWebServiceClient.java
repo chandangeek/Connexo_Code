@@ -7,6 +7,8 @@ package com.elster.jupiter.issue.share;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
+import java.util.List;
+
 public interface OutboundEndDeviceEventsWebServiceClient {
 
     String NAME = "OutboundEndDeviceEvents";
@@ -22,7 +24,7 @@ public interface OutboundEndDeviceEventsWebServiceClient {
      * Invoked by the alarm/issue framework when a new alarm/issue was created
      *
      * @param issue - issue object
-     * @param endPointConfiguration - end point configuration
+     * @param endPointConfigurations - the list of end point configurations
      */
-    void call(Issue issue, EndPointConfiguration endPointConfiguration);
+    void call(Issue issue, List<EndPointConfiguration> endPointConfigurations);
 }

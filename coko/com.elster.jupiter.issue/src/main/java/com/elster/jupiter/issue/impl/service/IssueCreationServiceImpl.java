@@ -295,11 +295,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                             .collect(Collectors.toList());
 
             ((IssueServiceImpl) issueService).getCreatedEndDeviceEventsClients().stream()
-                    .forEach(client -> {
-                        for (EndPointConfiguration endPointConfiguration : endPointConfigurations) {
-                            client.call(issue, endPointConfiguration);
-                        }
-                    });
+                    .forEach(client -> client.call(issue, endPointConfigurations));
         }
     }
 
