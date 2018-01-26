@@ -331,6 +331,7 @@ public interface SecurityManagementService {
      */
     Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter);
 
+    @ProviderType
     class AliasSearchFilter {
         public String alias;
         public TrustStore trustStore;
