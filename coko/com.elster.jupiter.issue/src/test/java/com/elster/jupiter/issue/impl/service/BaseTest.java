@@ -57,6 +57,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
@@ -100,6 +102,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.mockito.Matchers;
+import org.osgi.service.http.HttpService;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.mockito.Mockito.any;
@@ -150,9 +153,8 @@ public abstract class BaseTest {
             bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
             bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             endPointConfigurationService = mock(EndPointConfigurationService.class);
-            bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
         }
     }
 
@@ -181,12 +183,15 @@ public abstract class BaseTest {
                 new FiniteStateMachineModule(),
                 new IssueModule(),
                 new BasicPropertiesModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new WebServicesModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
@@ -256,7 +261,7 @@ public abstract class BaseTest {
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
         issue.setPriority(Priority.DEFAULT);
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
-        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName","Description");
+        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName", "Description");
         User user = getUserService().createUser("UserName", "Description");
         issue.setWorkGroup(workGroup);
         issue.setUser(user);
@@ -377,5 +382,4 @@ public abstract class BaseTest {
             return Optional.of(spyIssue);
         }
     }
-
 }
