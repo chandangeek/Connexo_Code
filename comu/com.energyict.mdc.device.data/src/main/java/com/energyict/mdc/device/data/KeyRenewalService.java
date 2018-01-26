@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.tasks.RecurrentTask;
