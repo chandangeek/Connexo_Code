@@ -7,14 +7,12 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.devtools.tests.rules.LocaleNeutral;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -55,7 +53,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.in;
 
 /**
  * Integration test for the {@link UsagePointImpl} component.
@@ -469,7 +466,7 @@ public class UsagePointImplIT {
     public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         StageSet defaultStageSet = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet();
-        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.POST_OPERATIONAL.getKey()).get(); // test updated corresponding with CONM-129
         Instant now = inMemoryBootstrapModule.getClock().instant();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory

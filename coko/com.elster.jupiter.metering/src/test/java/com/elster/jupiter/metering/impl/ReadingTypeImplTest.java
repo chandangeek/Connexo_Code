@@ -40,9 +40,9 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     private final String aliasWithMacroPeriod = "[Daily] Delta PlainAlias";
     private final String primaryAliasWithMacroPeriod = "[Daily] Primary Delta PlainAlias";
     private final String secondaryAliasWithMacroPeriod = "[Daily] Secondary Delta PlainAlias";
-    private final String aliasWithMeasuringPeriod = "[15-minute] Delta PlainAlias";
-    private final String primaryAliasWithMeasuringPeriod = "[15-minute] Primary Delta PlainAlias";
-    private final String secondaryAliasWithMeasuringPeriod = "[15-minute] Secondary Delta PlainAlias";
+    private final String aliasWithMeasuringPeriod = "[15-minutes] Delta PlainAlias";
+    private final String primaryAliasWithMeasuringPeriod = "[15-minutes] Primary Delta PlainAlias";
+    private final String secondaryAliasWithMeasuringPeriod = "[15-minutes] Secondary Delta PlainAlias";
     private final String aliasWithUnit = "Delta PlainAlias (Wh)";
     private final String primaryAliasWithUnit = "Primary Delta PlainAlias (Wh)";
     private final String secondaryAliasWithUnit = "Secondary Delta PlainAlias (Wh)";
@@ -230,19 +230,19 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Test
     public void readingTypeWith15MinTest() {
         ReadingType readingType = mockReadingTypeWith15MinPeriodAlias();
-//        assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithMeasuringPeriod);  // lori
+        assertThat(readingType.getFullAliasName()).isEqualTo(aliasWithMeasuringPeriod);
     }
 
     @Test
     public void primaryReadingTypeWith15MinTest() {
         ReadingType readingType = mockReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
-//        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithMeasuringPeriod);  // lori
+        assertThat(readingType.getFullAliasName()).isEqualTo(primaryAliasWithMeasuringPeriod);
     }
 
     @Test
     public void secondaryReadingTypeWith15MinTest() {
         ReadingType readingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.0.0", plainAlias);
-//        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithMeasuringPeriod);  // lori
+        assertThat(readingType.getFullAliasName()).isEqualTo(secondaryAliasWithMeasuringPeriod);
     }
 
     @Test
