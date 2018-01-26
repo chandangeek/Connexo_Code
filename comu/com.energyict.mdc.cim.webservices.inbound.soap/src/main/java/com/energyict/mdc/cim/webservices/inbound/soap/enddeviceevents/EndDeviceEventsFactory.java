@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
+import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 
@@ -14,19 +16,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 class EndDeviceEventsFactory {
-    EndDeviceEvents asEndDeviceEvents(com.elster.jupiter.metering.readings.EndDeviceEvent createdEndDeviceEvent) {
+    EndDeviceEvents asEndDeviceEvents(com.elster.jupiter.metering.readings.EndDeviceEvent endDeviceEvent, EndDevice endDevice) {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
-        EndDeviceEvent endDeviceEvent = createEndDeviceEvent(createdEndDeviceEvent);
-        endDeviceEvents.getEndDeviceEvent().add(endDeviceEvent);
+        endDeviceEvents.getEndDeviceEvent().add(createEndDeviceEvent(endDeviceEvent, endDevice));
         return endDeviceEvents;
     }
 
-    EndDeviceEvent createEndDeviceEvent(com.elster.jupiter.metering.readings.EndDeviceEvent createdEndDeviceEvent) {
-        EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
-        endDeviceEvent.setMRID(createdEndDeviceEvent.getMRID());
-        endDeviceEvent.setCreatedDateTime(createdEndDeviceEvent.getCreatedDateTime());
-        endDeviceEvent.setSeverity(createdEndDeviceEvent.getSeverity());
-        return endDeviceEvent;
+    EndDeviceEvent createEndDeviceEvent(com.elster.jupiter.metering.readings.EndDeviceEvent endDeviceEvent, EndDevice endDevice) {
+        EndDeviceEvent event = new EndDeviceEvent();
+        event.setMRID(endDeviceEvent.getMRID());
+        event.setCreatedDateTime(endDeviceEvent.getCreatedDateTime());
+        event.setSeverity(endDeviceEvent.getSeverity());
+        event.setAssets(createAsset(endDevice));
+        return event;
+    }
+
+    Asset createAsset(EndDevice endDevice) {
+        Asset asset = new Asset();
+        asset.setMRID(endDevice.getMRID());
+        return asset;
     }
 
     EndDeviceEvents asEndDeviceEvents(List<HistoricalDeviceAlarm> closedAlarms) {
@@ -37,6 +45,7 @@ class EndDeviceEventsFactory {
 
     List<EndDeviceEvent> createEndDeviceEvents(HistoricalDeviceAlarm alarm) {
         List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
+        Asset asset = createAsset(alarm.getDevice());
         alarm.getDeviceAlarmRelatedEvents().stream()
                 .map(DeviceAlarmRelatedEvent::getEventRecord)
                 .forEach(eventRecord -> {
@@ -44,7 +53,7 @@ class EndDeviceEventsFactory {
                     endDeviceEvent.setMRID(eventRecord.getMRID());
                     endDeviceEvent.setCreatedDateTime(eventRecord.getCreatedDateTime());
                     endDeviceEvent.setSeverity(eventRecord.getSeverity());
-
+                    endDeviceEvent.setAssets(asset);
                     endDeviceEvents.add(endDeviceEvent);
                 });
         return endDeviceEvents;

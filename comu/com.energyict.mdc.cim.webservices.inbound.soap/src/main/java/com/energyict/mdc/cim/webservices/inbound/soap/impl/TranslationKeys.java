@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
     LOGBOOK_OBIS_CODE("endDeviceEvents.obisCode", "Logbook OBIS code"),
+    ALARM_CLOSURE_COMMENT("alarmClosureComment", "Alarm closed on {0} call"),
     ;
 
     private final String key;

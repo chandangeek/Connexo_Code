@@ -20,6 +20,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.data.Device;
@@ -48,7 +49,6 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EndDeviceEventsBuilder {
-    private static final String ALARM_CLOSURE_COMMENT = "Alarm closed on %s call";
     private static final String ALARM_SEVERITY = "alarm";
 
     private static final String END_DEVICE_EVENTS_ITEM = "EndDeviceEvents";
@@ -110,7 +110,7 @@ public class EndDeviceEventsBuilder {
         Optional<String> mrid = extractMrid(endDeviceEvent);
         Instant createdDate = extractCreatedDateOrThrowException(endDeviceEvent);
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
-
+        Optional<String> name = extractName(endDeviceEvent);
         Optional<Status> status = extractStatus(endDeviceEvent);
         Optional<String> reason = extractReason(endDeviceEvent);
         Optional<String> issuerID = extractIssuerId(endDeviceEvent);
@@ -127,14 +127,18 @@ public class EndDeviceEventsBuilder {
             builder.setLogBookId(getLogBook(endDevice).getId());
             mrid.ifPresent(builder::setmRID);
             builder.setSeverity(severity);
+            name.ifPresent(builder::setName);
 
-            reason.ifPresent(builder::setReason);
+            reason.ifPresent(value -> {
+                builder.setReason(value);
+                builder.setDescription(value);
+            });
             issuerID.ifPresent(builder::setIssuerID);
             issuerTrackingID.ifPresent(builder::setIssuerTrackingID);
             eventData.ifPresent(value -> value.entrySet().stream().forEach(property -> builder.addProperty(property.getKey(), property.getValue())));
             status.ifPresent(value -> builder.setStatus(buildStatus(value)));
 
-            return endDeviceEventsFactory.asEndDeviceEvents(builder.create());
+            return endDeviceEventsFactory.asEndDeviceEvents(builder.create(), endDevice);
         };
     }
 
@@ -164,7 +168,7 @@ public class EndDeviceEventsBuilder {
                     .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType.getMRID()));
             List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenDeviceAlarms(condition).find()
                     .stream().map(alarm -> {
-                        alarm.addComment(String.format(ALARM_CLOSURE_COMMENT, user.getName()), user);
+                        alarm.addComment(thesaurus.getFormat(TranslationKeys.ALARM_CLOSURE_COMMENT).format(user.getName()), user);
                         return alarm.close(issueStatus);
                     }).collect(Collectors.toList());
 
@@ -199,6 +203,12 @@ public class EndDeviceEventsBuilder {
     private Optional<String> extractMrid(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getMRID())
                 .filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
+    }
+
+    private Optional<String> extractName(EndDeviceEvent endDeviceEvent) throws FaultMessage {
+        return Optional.ofNullable(endDeviceEvent.getNames())
+                .map(names -> names.stream().map(Name::getName))
+                .flatMap(Stream::findFirst);
     }
 
     private Instant extractCreatedDateOrThrowException(EndDeviceEvent endDeviceEvent) throws FaultMessage {
