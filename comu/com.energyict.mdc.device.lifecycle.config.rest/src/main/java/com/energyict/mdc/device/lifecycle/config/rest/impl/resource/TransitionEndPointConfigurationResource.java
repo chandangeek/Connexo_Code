@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -41,6 +42,7 @@ public class TransitionEndPointConfigurationResource {
                 .stream()
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.NAME))
                 .map(transitionEndPointConfigurationInfoFactory::from)
                 .sorted((e1, e2) -> e1.name.compareToIgnoreCase(e2.name))
                 .collect(Collectors.toList());
