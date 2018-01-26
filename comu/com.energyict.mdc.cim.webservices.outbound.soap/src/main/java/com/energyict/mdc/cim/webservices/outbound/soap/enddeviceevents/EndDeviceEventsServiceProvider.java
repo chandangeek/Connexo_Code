@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents;
 
-import com.elster.jupiter.issue.share.OutboundEndDeviceEventsWebServiceClient;
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -17,9 +17,9 @@ import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -30,10 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
-        service = {OutboundEndDeviceEventsWebServiceClient.class, OutboundSoapEndPointProvider.class},
+        service = {IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + OutboundEndDeviceEventsWebServiceClient.NAME})
-public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWebServiceClient, OutboundSoapEndPointProvider {
+        property = {"name=" + EndDeviceEventsServiceProvider.NAME})
+public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, OutboundSoapEndPointProvider {
+
+    static final String NAME = "CIM SendEndDeviceEvents";
+
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
     private static final String END_DEVICE_EVENT_SEVERITY = "Alarm";
 
@@ -65,21 +68,20 @@ public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWe
 
     @Override
     public String getWebServiceName() {
-        return OutboundEndDeviceEventsWebServiceClient.NAME;
+        return NAME;
     }
 
     @Override
-    public void call(Issue issue, List<EndPointConfiguration> endPointConfigurations) {
-        endPointConfigurations.stream().forEach(endPointConfiguration -> {
-            endDeviceEvents.stream().forEach(event -> {
-                try {
-                    event.createdEndDeviceEvents(createResponseMessage(issue));
-                } catch (Exception e) {
-                    endPointConfiguration.log(String.format("Failed to send %s to web service %s with the URL: %s",
-                            END_DEVICE_EVENTS, endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
-                }
-            });
+    public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
+        endDeviceEvents.stream().forEach(event -> {
+            try {
+                event.createdEndDeviceEvents(createResponseMessage(issue));
+            } catch (Exception e) {
+                endPointConfiguration.log(String.format("Failed to send %s to web service %s with the URL: %s",
+                        END_DEVICE_EVENTS, endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
+            }
         });
+        return true;
     }
 
     private EndDeviceEventsEventMessageType createResponseMessage(Issue issue) {
@@ -104,25 +106,26 @@ public class EndDeviceEventsServiceProvider implements OutboundEndDeviceEventsWe
     private EndDeviceEvent createEndDeviceEvent(Issue issue) {
         EndDevice device = issue.getDevice();
         EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
-        endDeviceEvent.setMRID(device.getMRID());
-        endDeviceEvent.setCreatedDateTime(issue.getCreateDateTime());
-        endDeviceEvent.setIssuerID(issue.getIssueId());
-        endDeviceEvent.setReason(issue.getReason().getName());
-        endDeviceEvent.setSeverity(END_DEVICE_EVENT_SEVERITY);
-        endDeviceEvent.setUserID(issue.getUserName());
 
         Asset asset = new Asset();
         asset.setMRID(device.getMRID());
         endDeviceEvent.setAssets(asset);
 
+        endDeviceEvent.setSeverity(END_DEVICE_EVENT_SEVERITY);
+
         if (issue instanceof OpenDeviceAlarm) {
-            OpenDeviceAlarm alarm = (OpenDeviceAlarm) issue;
-            alarm.getDeviceAlarmRelatedEvents().stream().findFirst().ifPresent(event -> {
+            ((OpenDeviceAlarm) issue).getDeviceAlarmRelatedEvents().stream().findFirst().ifPresent(event -> {
                 EndDeviceEventRecord record = event.getEventRecord();
+                endDeviceEvent.setMRID(record.getMRID());
+                endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
+                endDeviceEvent.setIssuerID(record.getIssuerID());
+                endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
+                endDeviceEvent.setReason(record.getDescription());
+                endDeviceEvent.setUserID(record.getUserID());
+
                 EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
                 eventType.setRef(record.getEventTypeCode());
                 endDeviceEvent.setEndDeviceEventType(eventType);
-                endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
             });
         }
         return endDeviceEvent;
