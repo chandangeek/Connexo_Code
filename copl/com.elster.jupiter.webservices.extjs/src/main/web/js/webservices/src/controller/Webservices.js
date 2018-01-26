@@ -192,8 +192,8 @@ Ext.define('Wss.controller.Webservices', {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     form.getForm().clearInvalid();
-                    form.down('#property-form').clearInvalid();
-                    form.down('#property-form').markInvalid(json.errors);
+                    me.getPropertyForm().clearInvalid();
+                    me.getPropertyForm().markInvalid(json.errors);
                     form.getForm().markInvalid(json.errors);
                     me.showErrorPanel();
                 }

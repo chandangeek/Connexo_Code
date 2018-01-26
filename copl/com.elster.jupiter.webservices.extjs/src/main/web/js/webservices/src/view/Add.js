@@ -85,7 +85,7 @@ Ext.define('Wss.view.Add', {
                         width: '100%',
                         defaults: {
                             labelWidth: 250,
-                            width: 325,
+                            width: 385,
                             resetButtonHidden: true,
                             hasNotValueSameAsDefaultMessage: true
                         }
