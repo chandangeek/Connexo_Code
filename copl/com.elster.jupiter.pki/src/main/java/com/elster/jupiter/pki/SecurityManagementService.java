@@ -118,6 +118,13 @@ public interface SecurityManagementService {
      */
     PasswordTypeBuilder newPassphraseType(String name);
 
+    /**
+     * List the PropertySpecs that can be expected for the described Wrapper type
+     * @param keyType The key type describing the {@link CryptographicType}
+     * @param keyEncryptionMethod The key encryption type
+     * @return List of to-be-expected property specs
+     */
+    List<PropertySpec> getPropertySpecs(KeyType keyType, String keyEncryptionMethod);
 
     /**
      * List the PropertySpecs that can be expected for the described Wrapper type
@@ -316,8 +323,8 @@ public interface SecurityManagementService {
 
     /**
      * List all known aliases from the certificate store that match the search filter.
-     * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
-     * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements}
+     * @see <a href="https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter">Filter</a>
+     * @see <a href="https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements">Forms and form elements</a>
      * @param searchFilter Search filter for alias and truststore, possibly containing wildcards for alias
      * @return Finder for matching aliases. If more results are available
      * than requested, limit+1 results will be returned.
@@ -398,8 +405,54 @@ public interface SecurityManagementService {
 
     Condition getSearchCondition(DataSearchFilter dataSearchFilter);
 
-     interface PasswordTypeBuilder {
+    /**
+     * Returns builder to create a new {@link SecurityAccessorType}.
+     * @param name The SecurityAccessorType name. This name identifies the function of the key/certificate (or whatever value).
+     * It will be the link between shipment import and the security accessors.
+     * @param keyType description of the key/certificate (or whatever value) to be stored in security accessors.
+     * @return {@link SecurityAccessorType.Builder}
+     */
+    SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType);
 
+    /**
+     * Returns all configured security accessor types.
+     * @return All configured security accessor types.
+     */
+    List<SecurityAccessorType> getSecurityAccessorTypes();
+
+    /**
+     * Returns security accessor type with a given id if exists.
+     * @param id
+     * @return Security accessor type with a given id if exists.
+     */
+    Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id);
+
+    /**
+     * Returns security accessor type with a given name if exists.
+     * @param name
+     * @return Security accessor type with a given name if exists.
+     */
+    Optional<SecurityAccessorType> findSecurityAccessorTypeByName(String name);
+
+    /**
+     * Locks security accessor type with given id & version if exists.
+     * @param id
+     * @param version
+     * @return Locked security accessor type with given id & version if exists.
+     */
+    Optional<SecurityAccessorType> findAndLockSecurityAccessorType(long id, long version);
+
+    Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType);
+
+    List<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType... securityAccessorTypes);
+
+    <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue);
+
+    Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version);
+
+    boolean isUsedByCertificateAccessors(CertificateWrapper certificate);
+
+    interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
         PasswordTypeBuilder length(int length);
         PasswordTypeBuilder withLowerCaseCharacters();

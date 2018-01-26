@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -34,6 +35,7 @@ import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -42,6 +44,10 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
+import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -89,8 +95,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name="PkiService",
-        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+@Component(name = "PkiService",
+        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
@@ -151,10 +157,14 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
-            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
-            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
+            case AsymmetricKey:
+                return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey:
+                return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case Passphrase:
+                return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default:
+                return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -241,9 +251,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
-        this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
-        this.dataModel.register(this.getModule());
+        dataModel.register(this.getModule());
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
                 dataModel,
@@ -345,8 +355,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
-        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(KeyType keyType, String keyEncryptionMethod) {
+        switch (keyType.getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -354,14 +364,19 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(keyEncryptionMethod).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(keyEncryptionMethod).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
                 throw new RuntimeException("A new case was added: implement it");
         }
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        return getPropertySpecs(securityAccessorType.getKeyType(), securityAccessorType.getKeyEncryptionMethod());
     }
 
     @Override
@@ -401,11 +416,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> all = new ArrayList<>();
         allFactoriesSupportingExpiration().forEach(es -> all.addAll(es.findExpired(expiration, when)));
-        this.findExpiredCertificates(expiration, when).stream().forEach(all::add);
+        all.addAll(this.findExpiredCertificates(expiration, when));
         return all;
     }
 
-    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+    private List<ExpirationSupport> allFactoriesSupportingExpiration() {
         List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
         privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
         symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
@@ -618,16 +633,16 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getDataModel().mapper(KeypairWrapper.class).lockObjectIfVersion(version, id);
     }
 
-    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when) {
         return dataModel.query(CertificateWrapper.class).select(
-                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
-                    .and(expiration.isExpired("expirationTime", when)));
+                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                        .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
-        if (searchFilter.trustStore ==null) {
+        if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .likeIgnoreCase(searchFilter.alias)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
@@ -736,7 +751,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         Query<CertificateWrapper> query = getCertificateWrapperQuery();
         List<CertificateWrapper> pagedList = query.select(getSearchCondition(dataSearchFilter));
 
-        pagedList.forEach((CertificateWrapper certificateWrapper) -> trustedCertificates.add(certificateWrapper));
+        trustedCertificates.addAll(pagedList);
         return trustedCertificates;
     }
 
@@ -805,6 +820,91 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getQueryService().wrap(dataModel.query(CertificateWrapper.class));
     }
 
+    @Override
+    public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
+        return new SecurityAccessorTypeBuilder(dataModel, name, keyType);
+    }
+
+    @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+        return dataModel.mapper(SecurityAccessorType.class).find();
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id) {
+        return dataModel.mapper(SecurityAccessorType.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findSecurityAccessorTypeByName(String name) {
+        return dataModel.mapper(SecurityAccessorType.class).getUnique(SecurityAccessorTypeImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findAndLockSecurityAccessorType(long id, long version) {
+        return dataModel.mapper(SecurityAccessorType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.isManagedCentrally()) {
+            return dataModel.mapper(SecurityAccessor.class).getOptional(securityAccessorType.getId())
+                    .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType... securityAccessorTypes) {
+        List<SecurityAccessorType> typesManagedCentrally = Arrays.stream(securityAccessorTypes)
+                .filter(SecurityAccessorType::isManagedCentrally)
+                .collect(Collectors.toList());
+        return typesManagedCentrally.isEmpty() ? Collections.emptyList() : dataModel.stream(SecurityAccessor.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).in(typesManagedCentrally))
+                .map(sa -> (SecurityAccessor<? extends SecurityValueWrapper>) sa)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
+        if (!securityAccessorType.isManagedCentrally()) {
+            throw new UnsupportedOperationException("Cannot set default values for security accessor type that is not managed centrally.");
+        }
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+            case ClientCertificate:
+            case TrustedCertificate:
+                if (actualValue instanceof CertificateWrapper && (tempValue == null || tempValue instanceof CertificateWrapper)) {
+                    AbstractSecurityAccessorImpl<T> certificateAccessor = (AbstractSecurityAccessorImpl<T>) dataModel.getInstance(CertificateAccessorImpl.class);
+                    certificateAccessor.init(securityAccessorType);
+                    certificateAccessor.setActualValue(actualValue);
+                    certificateAccessor.setTempValue(tempValue);
+                    Save.CREATE.save(dataModel, certificateAccessor);
+                    return certificateAccessor;
+                } else {
+                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName());
+                }
+            default:
+                throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
+                // when adding more cases pls modify com.energyict.mdc.device.data.impl.pki.AbstractCentrallyManagedDeviceSecurityAccessor
+        }
+    }
+
+    @Override
+    public Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version) {
+        return dataModel.mapper(SecurityAccessor.class)
+                .lockObjectIfVersion(version, securityAccessorType.getId())
+                .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
+    }
+
+    @Override
+    public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
+        return dataModel.stream(SecurityAccessor.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .findAny()
+                .isPresent();
+    }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
         private final KeyTypeImpl underConstruction;
@@ -871,6 +971,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 underConstruction.setCurve(curveName);
                 return this;
             }
+
             @Override
             public KeyType add() {
                 underConstruction.save();

@@ -12,7 +12,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
+import com.elster.jupiter.util.ShouldHaveUniqueName;
+import com.elster.jupiter.util.UniqueName;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -47,8 +52,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
-public class TrustStoreImpl implements TrustStore {
-
+public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final EventService eventService;
@@ -104,6 +108,18 @@ public class TrustStoreImpl implements TrustStore {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean hasUniqueName() {
+        Optional<TrustStore> namesake = dataModel.mapper(TrustStore.class).getUnique("name", getName());
+        if (namesake.isPresent()) {
+            if (namesake.get().getId() != getId()) {
+                return false;
+            }
+
+        }
+        return true;
     }
 
     public void setName(String name) {
@@ -212,11 +228,15 @@ public class TrustStoreImpl implements TrustStore {
     }
 
     public void delete() {
-        this.eventService.postEvent(EventType.TRUSTSTORE_VALIDATE_DELETE.topic(), this);
-        this.getCertificates().forEach(TrustedCertificate::delete);
+        Condition referencesThisTrustStore = Where.where(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
+                .isEqualTo(this);
+        if (dataModel.stream(SecurityAccessorTypeImpl.class).anyMatch(referencesThisTrustStore)) {
+            throw new VetoDeleteTrustStoreException(thesaurus, this);
+        }
+        eventService.postEvent(EventType.TRUSTSTORE_VALIDATE_DELETE.topic(), this);
+        getCertificates().forEach(TrustedCertificate::delete);
         dataModel.remove(this);
-        this.eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
-
+        eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
     }
 
     private class UntrustedCertificateException extends RuntimeException {

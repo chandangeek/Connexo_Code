@@ -4,9 +4,10 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * SecurityAccessor links a KeyType to a DeviceType. By configuring KeyTypes on a DeviceType, the user identifies which
@@ -17,7 +18,7 @@ import java.util.Optional;
  * map keys to SecurityAccessorType by name, that is, the keys from the shipment file will be labelled, the label matches the
  * name of a SecurityAccessor.
  */
-@ConsumerType
+@ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
 
     /**
@@ -42,7 +43,6 @@ public interface SecurityAccessorType extends HasId, HasName  {
      */
     Optional<TimeDuration> getDuration();
 
-
     /**
      * Keytype identifies main parameters for the stored value (certificate or key), such as curve, algorithm,
      * bitlength, ...
@@ -62,14 +62,24 @@ public interface SecurityAccessorType extends HasId, HasName  {
     long getVersion();
 
     /**
-     * If a KeyAcccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
+     * If a KeyAccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
      * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
      * the value of this KeyAccessorType to be validated against a specific TrustStore.
      * @return TrustStore in case the KeyType of this accessorType represents a certificate
      */
     Optional<TrustStore> getTrustStore();
 
-    Updater startUpdate();
+    Set<SecurityAccessorUserAction> getUserActions();
+
+    boolean isCurrentUserAllowedToEditProperties(String application);
+
+    boolean isCurrentUserAllowedToViewProperties(String application);
+
+    SecurityAccessorTypeUpdater startUpdate();
+
+    void delete();
+
+    boolean isManagedCentrally();
 
     interface Builder {
         /**
@@ -86,7 +96,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Builder keyEncryptionMethod(String keyEncryptionMethod);
 
         /**
-         * If a KeyAcccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
+         * If a KeyAccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
          * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
          * the value of this KeyAccessorType to be validated against a specific TrustStore.
          * @param trustStore The trust by which a chain of trust for certificates for this KeyAccessor will be validated
@@ -94,9 +104,14 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Builder trustStore(TrustStore trustStore);
 
         /**
-         * Symmetric keys require a durarion to be provided.
+         * Symmetric keys require a duration to be provided.
          */
         Builder duration(TimeDuration duration);
+
+        /**
+         * Makes this type of security accessors managed centrally.
+         */
+        Builder managedCentrally();
 
         SecurityAccessorType add();
     }

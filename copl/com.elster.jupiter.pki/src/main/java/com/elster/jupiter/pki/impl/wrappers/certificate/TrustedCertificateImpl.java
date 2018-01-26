@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -21,7 +22,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.*;
+import java.security.cert.CRL;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +42,12 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     private Reference<TrustStore> trustStoreReference = Reference.empty();
 
     @Inject
-    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
-        super(dataModel, thesaurus, propertySpecService, eventService);
+    public TrustedCertificateImpl(DataModel dataModel,
+                                  Thesaurus thesaurus,
+                                  PropertySpecService propertySpecService,
+                                  EventService eventService,
+                                  SecurityManagementService securityManagementService) {
+        super(dataModel, thesaurus, propertySpecService, eventService, securityManagementService);
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
