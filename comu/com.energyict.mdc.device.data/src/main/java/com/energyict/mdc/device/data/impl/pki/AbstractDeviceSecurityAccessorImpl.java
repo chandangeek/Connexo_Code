@@ -19,14 +19,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-
+// almost copy-pasted as com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl.
+// A refactoring towards usage of that class can be attempted
 // TODO validate actual value is present, fix newBlaBla() first to take actual value!
-public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrapper> implements SecurityAccessor<T> {
+public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValueWrapper> implements SecurityAccessor<T> {
     private final SecurityManagementService securityManagementService;
 
     private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
-    private boolean swapped=false;
+    private boolean swapped;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -43,7 +44,7 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
                     "P", PassphraseAccessorImpl.class,
                     "S", SymmetricKeyAccessorImpl.class);
 
-    protected AbstractSecurityAccessorImpl(SecurityManagementService securityManagementService) {
+    protected AbstractDeviceSecurityAccessorImpl(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
 
@@ -75,10 +76,12 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
         this.deviceReference.set(device);
     }
 
+    @Override
     public SecurityAccessorType getKeyAccessorType() {
         return keyAccessorTypeReference.get();
     }
 
+    @Override
     public Device getDevice() {
         return deviceReference.get();
     }
@@ -121,5 +124,10 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;
+    }
+
+    @Override
+    public boolean isEditable() {
+        return true;
     }
 }

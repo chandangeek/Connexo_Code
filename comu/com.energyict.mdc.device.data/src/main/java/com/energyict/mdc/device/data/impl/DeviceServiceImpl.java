@@ -49,6 +49,7 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -60,7 +61,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.pki.AbstractSecurityAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.AbstractDeviceSecurityAccessorImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -326,10 +327,10 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, SecurityAccessorType securityAccessorType, long version) {
-        return Optional.ofNullable((SecurityAccessor<SecurityValueWrapper>) this.deviceDataModelService.dataModel()
+        return deviceDataModelService.dataModel()
                 .mapper(SecurityAccessor.class)
                 .lockObjectIfVersion(version, device.getId(), securityAccessorType.getId())
-                .orElse(null));
+                .map(securityAccessor -> (SecurityAccessor<SecurityValueWrapper>) securityAccessor);
     }
 
     @Override
@@ -617,9 +618,10 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public List<SecurityAccessor> getAssociatedKeyAccessors(CertificateWrapper certificate) {
         return deviceDataModelService.dataModel()
-                .query(SecurityAccessor.class)
-                .select(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
-                        .or(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)));
+                .stream(SecurityAccessor.class)
+                .filter(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .collect(Collectors.toList());
     }
 
     private SqlBuilder deleteOutdatedComTaskExecutionTriggersSqlBuilder() {
