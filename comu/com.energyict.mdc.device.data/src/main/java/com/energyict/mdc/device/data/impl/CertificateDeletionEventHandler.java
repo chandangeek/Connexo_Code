@@ -43,15 +43,12 @@ public class CertificateDeletionEventHandler implements TopicHandler {
         this.setNlsService(nlsService);
     }
 
+    //TODO: might be dropped at all
     @Override
     public void handle(LocalEvent localEvent) {
         CertificateWrapper source = (CertificateWrapper) localEvent.getSource();
-        List<SecurityAccessor> accessors = deviceService.getAssociatedKeyAccessors(source);
-        if (!accessors.isEmpty()) {
-            List<String> deviceNames = accessors.stream()
-                    .map(securityAccessor -> securityAccessor.getDevice().getName())
-                    .collect(Collectors.toList());
-            throw new VetoDeleteCertificateException(thesaurus, source, deviceNames);
+        if (!deviceService.getAssociatedKeyAccessors(source).isEmpty()) {
+            throw new VetoDeleteCertificateException(thesaurus, source);
         }
     }
 

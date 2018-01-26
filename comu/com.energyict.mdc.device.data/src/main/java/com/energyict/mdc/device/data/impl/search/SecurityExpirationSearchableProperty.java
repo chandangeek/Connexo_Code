@@ -95,6 +95,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
             }
             sqlBuilder.closeBracket();
 
+            //todo: update central query / 'obsolete'
             appendCentralCertificateAccessorsClause(sqlBuilder, expiration, now);
 
             if (expiration.getType() != Expiration.Type.OBSOLETE){
