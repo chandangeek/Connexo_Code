@@ -61,7 +61,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered"),
     PROPERTY_VALUE_REQUIRED(1042, "InvalidPropertyValue", "Value for property {0} is required"),
     CA_RUNTIME_ERROR(1043, "CaError", "CA runtime error: {0}"),
-    INVALID_REVOCATION_REASON(1044, "InvalidRevocationReason", "Invalid revocation reason: {0}");
+    CA_RUNTIME_ERROR_NO_TRUSTSTORE(1044, "CaError", "CA runtime error: no truststore {0} found"),
+    CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE(1045, "CaError", "CA runtime error: no self signed certificate with alias {0} found"),
+    CA_RUNTIME_ERROR_NO_CLIENT_CERTIFICATE(1046, "CaError", "CA runtime error: no client certificate with alias {0} found"),
+    CA_RUNTIME_ERROR_NO_PRIVATE_KEY_FOR_CLIENT_CERTIFICATE(1047, "CaError", "CA runtime error: no private key for client certificate found"),
+    INVALID_REVOCATION_REASON(1048, "InvalidRevocationReason", "Invalid revocation reason: {0}");
 
 
     private final int number;

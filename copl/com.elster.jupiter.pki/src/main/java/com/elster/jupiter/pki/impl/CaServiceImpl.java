@@ -294,34 +294,65 @@ public class CaServiceImpl implements CaService {
      * Superadmin client certificate and private key should be in CXO keystore (importSuperAdmin).
      * */
     private void setNewDefaultSSLSocketFactory() {
-        TrustStore requiredTrustStore = securityManagementService.getAllTrustStores().stream()
-                .filter(p -> p.getName().trim().equalsIgnoreCase(pkiTrustStore)).findFirst().orElseThrow(
-                        () -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR,
-                                "No connexo truststore with name " + pkiTrustStore + " found"));
-        TrustedCertificate mgmtCaCertificate = requiredTrustStore.getCertificates().stream()
-                .filter(p -> p.getAlias().trim().equalsIgnoreCase(MANAGEMENT_CA_ALIAS)).findFirst().orElseThrow(
-                        () -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR,
-                                "No self signed management ca certificate with alias " + MANAGEMENT_CA_ALIAS + " found"));
-        X509Certificate x509MgmtCaCertificate = mgmtCaCertificate.getCertificate().orElseThrow(
-                () -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR,
-                        "No self signed management ca certificate with alias " + MANAGEMENT_CA_ALIAS + " found"));
-
-        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(pkiSuperAdminClientAlias).orElseThrow(
-                () -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR,
-                        "No superadmin client certificate with alias " + pkiSuperAdminClientAlias + " found"));
-
-        X509Certificate superAdminCertificate = certificateWrapper.getCertificate().orElseThrow(
-                () -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR,
-                        "No superadmin client certificate with alias " + pkiSuperAdminClientAlias + " found"));
-
+        TrustStore requiredTrustStore = securityManagementService
+                .getAllTrustStores()
+                .stream()
+                .filter(p -> p.getName().trim().equalsIgnoreCase(pkiTrustStore))
+                .findFirst()
+                .orElseThrow(
+                        () -> new CertificateAuthorityRuntimeException(
+                                thesaurus,
+                                MessageSeeds.CA_RUNTIME_ERROR_NO_TRUSTSTORE,
+                                pkiTrustStore)
+                );
+        TrustedCertificate mgmtCaCertificate = requiredTrustStore
+                .getCertificates()
+                .stream()
+                .filter(p -> p.getAlias().trim().equalsIgnoreCase(MANAGEMENT_CA_ALIAS))
+                .findFirst()
+                .orElseThrow(
+                        () -> new CertificateAuthorityRuntimeException(
+                                thesaurus,
+                                MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
+                                MANAGEMENT_CA_ALIAS)
+                );
+        X509Certificate x509MgmtCaCertificate = mgmtCaCertificate
+                .getCertificate()
+                .orElseThrow(
+                        () -> new CertificateAuthorityRuntimeException(
+                                thesaurus,
+                                MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
+                                MANAGEMENT_CA_ALIAS)
+                );
+        CertificateWrapper certificateWrapper = securityManagementService
+                .findCertificateWrapper(pkiSuperAdminClientAlias)
+                .orElseThrow(
+                        () -> new CertificateAuthorityRuntimeException(
+                                thesaurus,
+                                MessageSeeds.CA_RUNTIME_ERROR_NO_CLIENT_CERTIFICATE,
+                                pkiSuperAdminClientAlias)
+                );
+        X509Certificate superAdminCertificate = certificateWrapper
+                .getCertificate()
+                .orElseThrow(
+                        () -> new CertificateAuthorityRuntimeException(
+                                thesaurus,
+                                MessageSeeds.CA_RUNTIME_ERROR_NO_CLIENT_CERTIFICATE,
+                                pkiSuperAdminClientAlias)
+                );
         PrivateKeyWrapper privateKeyWrapper = ((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper();
         if (privateKeyWrapper == null) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "No private key for superadmin found");
+            throw new CertificateAuthorityRuntimeException(
+                    thesaurus,
+                    MessageSeeds.CA_RUNTIME_ERROR_NO_PRIVATE_KEY_FOR_CLIENT_CERTIFICATE
+            );
         }
-
         try {
             if (!privateKeyWrapper.getPrivateKey().isPresent()) {
-                throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "No private key for superadmin found");
+                throw new CertificateAuthorityRuntimeException(
+                        thesaurus,
+                        MessageSeeds.CA_RUNTIME_ERROR_NO_PRIVATE_KEY_FOR_CLIENT_CERTIFICATE
+                );
             }
             PrivateKey privateKey = privateKeyWrapper.getPrivateKey().get();
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
