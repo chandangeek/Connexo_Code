@@ -107,7 +107,8 @@ Ext.define('Idv.controller.Detail', {
                                 issueId: record.getId()
                             },
                             {
-                                validationBlock: record.get('startTime')
+                                validationBlock: record.get('startTime'),
+                                validationBlockEndTime: record.get('endTime')
                             }
                         );
                     }
