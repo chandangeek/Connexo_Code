@@ -212,7 +212,6 @@
                 <configuration>
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
-                        <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
