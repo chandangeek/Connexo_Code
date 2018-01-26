@@ -120,7 +120,6 @@ public abstract class BaseTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     protected static IssueService issueService;
-    protected static HttpService httpService = mock(HttpService.class);
     protected static EndPointConfigurationService endPointConfigurationService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -154,7 +153,7 @@ public abstract class BaseTest {
             bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
             bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(httpService);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             endPointConfigurationService = mock(EndPointConfigurationService.class);
         }
     }
@@ -191,6 +190,7 @@ public abstract class BaseTest {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(EndPointConfigurationService.class);
             injector.getInstance(WebServicesService.class);
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
@@ -261,7 +261,7 @@ public abstract class BaseTest {
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
         issue.setPriority(Priority.DEFAULT);
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
-        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName","Description");
+        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName", "Description");
         User user = getUserService().createUser("UserName", "Description");
         issue.setWorkGroup(workGroup);
         issue.setUser(user);
@@ -382,5 +382,4 @@ public abstract class BaseTest {
             return Optional.of(spyIssue);
         }
     }
-
 }
