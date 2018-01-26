@@ -14,6 +14,8 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -49,7 +51,6 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
-import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -177,6 +178,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static SecurityAccessorResourceHelper securityAccessorResourceHelper;
     private static SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private static TrustStoreValuesProvider trustStoreValuesProvider;
+    private static AliasSearchFilterFactory aliasSearchFilterFactory;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -212,6 +214,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         securityAccessorResourceHelper = mock(SecurityAccessorResourceHelper.class);
         securityAccessorInfoFactory = mock(SecurityAccessorInfoFactory.class);
         trustStoreValuesProvider = mock(TrustStoreValuesProvider.class);
+        aliasSearchFilterFactory = mock(AliasSearchFilterFactory.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -439,6 +442,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
         application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
+        application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         return application;
     }
 

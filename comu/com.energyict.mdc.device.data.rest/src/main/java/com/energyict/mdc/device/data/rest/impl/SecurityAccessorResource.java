@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.rest.AliasInfo;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -20,7 +21,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
-import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -42,7 +43,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
@@ -82,6 +82,7 @@ public class SecurityAccessorResource {
     private final TrustStoreValuesProvider trustStoreValuesProvider;
     private final Thesaurus thesaurus;
     private final SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private final AliasSearchFilterFactory aliasSearchFilterFactory;
 
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
@@ -93,7 +94,8 @@ public class SecurityAccessorResource {
                                     DeviceService deviceService,
                                     Thesaurus thesaurus,
                                     SecurityAccessorResourceHelper securityAccessorResourceHelper,
-                                    TrustStoreValuesProvider trustStoreValuesProvider) {
+                                    TrustStoreValuesProvider trustStoreValuesProvider,
+                                    AliasSearchFilterFactory aliasSearchFilterFactory) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
@@ -104,6 +106,7 @@ public class SecurityAccessorResource {
         this.thesaurus = thesaurus;
         this.trustStoreValuesProvider = trustStoreValuesProvider;
         this.securityAccessorResourceHelper = securityAccessorResourceHelper;
+        this.aliasSearchFilterFactory = aliasSearchFilterFactory;
     }
 
     @GET
@@ -274,7 +277,7 @@ public class SecurityAccessorResource {
         return Response.ok().entity(securityAccessorInfoFactory.asKey(result)).build();
     }
 
-    // TODO: try reworking with com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper
+    // TODO: try reworking with com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper
     @PUT
     @Transactional
     @Path("/certificates/{id}")
@@ -316,40 +319,14 @@ public class SecurityAccessorResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
             com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
-    public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        SecurityManagementService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
-        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilter)
+    public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilterFactory.from(uriInfo))
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getAlias)
                 .map(AliasInfo::new)
                 .collect(toList());
         return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
-    }
-
-    private SecurityManagementService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams) {
-        SecurityManagementService.AliasSearchFilter aliasSearchFilter = new SecurityManagementService.AliasSearchFilter();
-        String alias = null;
-
-        if (uriParams.containsKey("alias")) {
-            alias = params.getFirst("alias");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            Long trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-            aliasSearchFilter.trustStore = securityManagementService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (alias == null || alias.isEmpty()) {
-            aliasSearchFilter.alias = "*";
-        }
-        if (alias != null && !alias.isEmpty()) {
-            if (!alias.contains("*") && !alias.contains("?")) {
-                aliasSearchFilter.alias = "*" + alias + "*";
-            } else {
-                aliasSearchFilter.alias = alias;
-            }
-        }
-        return aliasSearchFilter;
     }
 
     private SecurityAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
