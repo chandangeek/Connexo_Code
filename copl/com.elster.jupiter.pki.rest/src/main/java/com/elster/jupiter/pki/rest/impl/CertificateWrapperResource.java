@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.KeyUsagesParameterFilter;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
