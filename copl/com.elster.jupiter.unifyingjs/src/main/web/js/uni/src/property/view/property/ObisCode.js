@@ -55,5 +55,13 @@ Ext.define('Uni.property.view.property.ObisCode', {
 
     getField: function () {
         return this.down('textfield');
-    }
+    },
+
+    markInvalid: function (error) {
+        this.down('obis-field').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('obis-field') && this.down('obis-field').clearInvalid();
+    },
 });
