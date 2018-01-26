@@ -109,7 +109,7 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
                                 }
                             });
                         });
-            } catch (RuntimeException ex) {
+            } catch (Exception ex) {
                 endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
             }
         });
