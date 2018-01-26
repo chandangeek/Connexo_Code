@@ -6,7 +6,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -17,10 +16,11 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.rest.AliasInfo;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
@@ -28,7 +28,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
-import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 
 import javax.annotation.security.RolesAllowed;
@@ -43,8 +42,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -66,6 +67,7 @@ public class SecurityAccessorTypeResource {
     private final SecurityAccessorResourceHelper securityAccessorResourceHelper;
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private final TrustStoreValuesProvider trustStoreValuesProvider;
+    private final AliasSearchFilterFactory aliasSearchFilterFactory;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -76,6 +78,7 @@ public class SecurityAccessorTypeResource {
                                         SecurityAccessorResourceHelper securityAccessorResourceHelper,
                                         SecurityAccessorInfoFactory securityAccessorInfoFactory,
                                         TrustStoreValuesProvider trustStoreValuesProvider,
+                                        AliasSearchFilterFactory aliasSearchFilterFactory,
                                         Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
@@ -84,6 +87,7 @@ public class SecurityAccessorTypeResource {
         this.securityAccessorResourceHelper = securityAccessorResourceHelper;
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.trustStoreValuesProvider = trustStoreValuesProvider;
+        this.aliasSearchFilterFactory = aliasSearchFilterFactory;
         this.thesaurus = thesaurus;
     }
 
@@ -150,8 +154,8 @@ public class SecurityAccessorTypeResource {
     @Path("/certificates/aliases")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
-    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(new AliasParameterFilter(securityManagementService, jsonQueryFilter))
+    public PagedInfoList aliasSource(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilterFactory.from(uriInfo))
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getAlias)

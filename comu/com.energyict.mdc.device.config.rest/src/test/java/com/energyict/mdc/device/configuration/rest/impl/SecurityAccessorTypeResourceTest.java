@@ -4,10 +4,8 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
-import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
@@ -16,6 +14,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
@@ -101,7 +100,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityManagementService.findCertificateWrapper("comserver")).thenReturn(Optional.of(actualClientCertificateWrapper));
         when(securityManagementService.findCertificateWrapper("newcomserver")).thenReturn(Optional.of(tempClientCertificateWrapper));
         Finder<CertificateWrapper> finder = mockFinder(Collections.singletonList(actualClientCertificateWrapper));
-        when(securityManagementService.getAliasesByFilter(any(AliasParameterFilter.class))).thenReturn(finder);
+        when(securityManagementService.getAliasesByFilter(any(SecurityManagementService.AliasSearchFilter.class))).thenReturn(finder);
     }
 
     @Test
@@ -383,6 +382,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(model.<List>get("$.defaultValue.tempProperties")).hasSize(1);
         assertThat(model.<String>get("$.defaultValue.tempProperties[0].key")).isEqualTo("alias");
         assertThat(model.<JSONObject>get("$.defaultValue.tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(model.<String>get("$.defaultValue.tempProperties[0].propertyTypeInfo.propertyValuesResource.possibleValuesURI"))
+                .isEqualTo("http://localhost:9998/securityaccessors/certificates/aliases");
     }
 
     @Test
@@ -416,13 +417,12 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorInfo response = target("/securityaccessors/previewproperties").request().post(Entity.json(info), SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "com").create())
+                .queryParam("alias", "com")
                 .request()
                 .get();
-        ArgumentCaptor<AliasParameterFilter> captor = ArgumentCaptor.forClass(AliasParameterFilter.class);
+        ArgumentCaptor<SecurityManagementService.AliasSearchFilter> captor = ArgumentCaptor.forClass(SecurityManagementService.AliasSearchFilter.class);
         verify(securityManagementService).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().searchParam).isEqualTo("alias");
-        assertThat(captor.getValue().searchValue).isEqualTo("*com*");
+        assertThat(captor.getValue().alias).isEqualTo("*com*");
         assertThat(captor.getValue().trustStore).isNull();
     }
 
@@ -435,13 +435,12 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorInfo response = target("/securityaccessors/previewproperties").request().post(Entity.json(info), SecurityAccessorInfo.class);
         URI uri = new URI(response.tempProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "com*").create())
+                .queryParam("alias", "com*")
                 .request()
                 .get();
-        ArgumentCaptor<AliasParameterFilter> captor = ArgumentCaptor.forClass(AliasParameterFilter.class);
+        ArgumentCaptor<SecurityManagementService.AliasSearchFilter> captor = ArgumentCaptor.forClass(SecurityManagementService.AliasSearchFilter.class);
         verify(securityManagementService).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().searchParam).isEqualTo("alias");
-        assertThat(captor.getValue().searchValue).isEqualTo("com*");
+        assertThat(captor.getValue().alias).isEqualTo("com*");
         assertThat(captor.getValue().trustStore).isNull();
     }
 
@@ -454,13 +453,13 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorInfo response = target("/securityaccessors/previewproperties").request().post(Entity.json(info), SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "my*").property("trustStore", 33L).create())
+                .queryParam("alias", "my*")
+                .queryParam("trustStore", 33)
                 .request()
                 .get();
-        ArgumentCaptor<AliasParameterFilter> captor = ArgumentCaptor.forClass(AliasParameterFilter.class);
+        ArgumentCaptor<SecurityManagementService.AliasSearchFilter> captor = ArgumentCaptor.forClass(SecurityManagementService.AliasSearchFilter.class);
         verify(securityManagementService).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().searchParam).isEqualTo("alias");
-        assertThat(captor.getValue().searchValue).isEqualTo("my*");
+        assertThat(captor.getValue().alias).isEqualTo("my*");
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
         JsonModel jsonModel = JsonModel.create((InputStream)response1.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
@@ -476,13 +475,13 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorInfo response = target("/securityaccessors/previewproperties").request().post(Entity.json(info), SecurityAccessorInfo.class);
         URI uri = new URI(response.tempProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "").property("trustStore", 33L).create())
+                .queryParam("alias", "")
+                .queryParam("trustStore", 33)
                 .request()
                 .get();
-        ArgumentCaptor<AliasParameterFilter> captor = ArgumentCaptor.forClass(AliasParameterFilter.class);
+        ArgumentCaptor<SecurityManagementService.AliasSearchFilter> captor = ArgumentCaptor.forClass(SecurityManagementService.AliasSearchFilter.class);
         verify(securityManagementService).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().searchParam).isEqualTo("alias");
-        assertThat(captor.getValue().searchValue).isEqualTo("*");
+        assertThat(captor.getValue().alias).isEqualTo("*");
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
     }
 

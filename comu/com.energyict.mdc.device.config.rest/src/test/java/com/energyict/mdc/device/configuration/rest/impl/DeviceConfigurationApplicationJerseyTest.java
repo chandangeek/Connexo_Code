@@ -33,6 +33,10 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
+import com.elster.jupiter.pki.rest.impl.AliasSearchFilterFactoryImpl;
+import com.elster.jupiter.pki.rest.impl.SecurityAccessorResourceHelperImpl;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -47,7 +51,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
-import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -140,6 +143,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
     SecurityAccessorInfoFactory securityAccessorInfoFactory;
     TrustStoreValuesProvider trustStoreValuesProvider;
+    AliasSearchFilterFactory aliasSearchFilterFactory;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
@@ -236,6 +240,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
         trustStoreValuesProvider = new TrustStoreValuesProviderImpl(securityManagementService);
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
+        aliasSearchFilterFactory = new AliasSearchFilterFactoryImpl(securityManagementService);
+        application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         return application;
     }
 
