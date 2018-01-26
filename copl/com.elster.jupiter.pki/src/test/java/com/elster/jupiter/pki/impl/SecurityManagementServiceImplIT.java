@@ -1385,7 +1385,7 @@ public class SecurityManagementServiceImplIT {
     @Test
     @Transactional
     public void testMarkUnmarkCertificateObsolete() throws Exception {
-        cleanup(inMemoryPersistence);
+        cleanupCertificates();
         SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         String alias = "certAlias";
 
