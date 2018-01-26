@@ -13,7 +13,6 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.OutboundEndDeviceEventsWebServiceClient;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -31,7 +30,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
@@ -56,7 +54,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -234,7 +231,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         OpenIssue newIssue = template.createIssue(baseIssue, event);
         newIssue.autoAssign();
         executeCreationActions(newIssue);
-        callCimWebServices(newIssue);
     }
 
     private boolean restrictIssueCreation(IssueEvent event) {
@@ -267,36 +263,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     private void executeCreationActions(Issue issue) {
         new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus, issueService.getIssueActionService()).run();
-    }
-
-    private void callCimWebServices(Issue issue) {
-        new EndDeviceEventsExecutor(issue, endPointConfigurationService).run();
-    }
-
-    private class EndDeviceEventsExecutor implements Runnable {
-        private Issue issue;
-        private EndPointConfigurationService endPointConfigurationService;
-
-        public EndDeviceEventsExecutor(Issue issue, EndPointConfigurationService endPointConfigurationService) {
-            if (issue == null){
-                throw new IllegalArgumentException("Issue for execution can't be null");
-            }
-            this.issue = issue;
-            this.endPointConfigurationService = endPointConfigurationService;
-        }
-
-        @Override
-        public void run() {
-            List<EndPointConfiguration> endPointConfigurations =
-                    endPointConfigurationService.findEndPointConfigurations().find().stream()
-                            .filter(epc -> !epc.isInbound())
-                            .filter(EndPointConfiguration::isActive)
-                            .filter(epc -> epc.getWebServiceName().equals(OutboundEndDeviceEventsWebServiceClient.NAME))
-                            .collect(Collectors.toList());
-
-            ((IssueServiceImpl) issueService).getCreatedEndDeviceEventsClients().stream()
-                    .forEach(client -> client.call(issue, endPointConfigurations));
-        }
     }
 
     private <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {

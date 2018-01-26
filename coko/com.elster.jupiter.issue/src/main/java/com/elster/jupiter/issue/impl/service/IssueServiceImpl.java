@@ -25,7 +25,6 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.OutboundEndDeviceEventsWebServiceClient;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
@@ -156,7 +155,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
-    private final List<OutboundEndDeviceEventsWebServiceClient> endDeviceEventsClients = new ArrayList<>();
 
     public IssueServiceImpl() {
     }
@@ -438,19 +436,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     public List<IssueWebServiceClient> getIssueWebServiceClients() {
         return Collections.unmodifiableList(this.issueWebServiceClients);
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addCreatedEndDeviceEventsClient(OutboundEndDeviceEventsWebServiceClient endDeviceEventsClient) {
-        endDeviceEventsClients.add(endDeviceEventsClient);
-    }
-
-    public void removeCreatedEndDeviceEventsClient(OutboundEndDeviceEventsWebServiceClient endDeviceEventsClient) {
-        endDeviceEventsClients.remove(endDeviceEventsClient);
-    }
-
-    public List<OutboundEndDeviceEventsWebServiceClient> getCreatedEndDeviceEventsClients() {
-        return Collections.unmodifiableList(this.endDeviceEventsClients);
     }
 
     @Override
