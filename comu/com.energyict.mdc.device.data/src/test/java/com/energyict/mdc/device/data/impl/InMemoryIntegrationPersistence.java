@@ -45,7 +45,14 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -216,6 +223,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceMessageService deviceMessageService;
     private Injector injector;
     private CronExpressionParser cronExpressionParser;
+    private SecurityManagementService securityManagementService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -354,6 +362,7 @@ public class InMemoryIntegrationPersistence {
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
+            this.securityManagementService = injector.getInstance(SecurityManagementService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
             initHeadEndInterface();
             initializePrivileges();
@@ -569,6 +578,22 @@ public class InMemoryIntegrationPersistence {
 
     public DeviceMessageService getDeviceMessageService() {
         return deviceMessageService;
+    }
+
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
+    }
+
+    public PrivateKeyFactory getDataVaultPrivateKeyFactory() {
+        return injector.getInstance(DataVaultPrivateKeyFactory.class);
+    }
+
+    public SymmetricKeyFactory getDataVaultSymmetricKeyFactory() {
+        return injector.getInstance(DataVaultSymmetricKeyFactory.class);
+    }
+
+    public PassphraseFactory getDataVaultPassphraseFactory() {
+        return injector.getInstance(DataVaultPassphraseFactory.class);
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
