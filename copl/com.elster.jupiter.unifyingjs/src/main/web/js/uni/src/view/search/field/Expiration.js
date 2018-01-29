@@ -24,7 +24,7 @@ Ext.define('Uni.view.search.field.Expiration', {
         } else if (criterium == 'expires_3months') {
             this.down('#uni-expiration-radio-expires-3months').setValue(true);
         } else if (criterium == 'obsolete') {
-            this.down('#uni-expiration-radio-expires-3months').setValue(true);
+            this.down('#uni-expiration-radio-obsolete').setValue(true);
         }
     },
 
