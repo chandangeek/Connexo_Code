@@ -128,7 +128,6 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'activeCertificate',
                         hidden: !record.get('manageCentrally'),
                         renderer: function (val) {
-                            console.log(val);
                             if (Ext.isEmpty(val)) {
                                 return '-';
                             } else {

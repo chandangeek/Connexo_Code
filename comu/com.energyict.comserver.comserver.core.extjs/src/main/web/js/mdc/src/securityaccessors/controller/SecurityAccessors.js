@@ -153,6 +153,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     chooseAction: function (menu, item) {
         var me = this;
+        console.log(menu.record);
 
         switch (item.action) {
             case 'edit':
@@ -183,6 +184,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.getPreviewForm().doLoadRecord(record);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
+                gridMenu.record = record;
                 if (me.getPreview().down('security-accessors-action-menu')) {
                     me.getPreview().down('security-accessors-action-menu').updateMenuItems(record);
                     me.getPreview().down('security-accessors-action-menu').record = record;
@@ -195,17 +197,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         me.getPreview().setLoading();
         gridMenu.setLoading();
 
-        // if (recordParam.get('isKey')) {
-            var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
-            model.load(recordParam.get('id'), {
-                success: function (keyRecord) {
-                    console.log('f');
-                    processRecord(keyRecord);
-                }
-            });
-        // } else {
-        //     processRecord(recordParam);
-        // }
+        var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
+        model.load(recordParam.get('id'), {
+            success: function (keyRecord) {
+                processRecord(keyRecord);
+            }
+        });
     },
 
     reconfigureMenu: function (deviceType, view) {
@@ -395,10 +392,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     property.propertyValueInfo = {
                         value: activeAliasCombo.getValue()
                     };
-                } else if (key === 'trustStore') {
-
-                    trustStoreId = property.raw.propertyValueInfo.value.id;
-                    trustStoreName = property.raw.propertyValueInfo.value.name;
                 }
             });
 
@@ -409,10 +402,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     property.propertyValueInfo = {
                         value: passiveAliasCombo.getValue()
                     };
-                } else if (key === 'trustStore') {
-
-                    trustStoreId = property.raw.propertyValueInfo.value.id;
-                    trustStoreName = property.raw.propertyValueInfo.value.name;
                 }
             });
             var defaultValueData = me.defaultPropertiesData;
@@ -687,11 +676,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
-                } else if (property.key === 'trustStore') {
-                    aliasesStore.getProxy().setExtraParam('trustStore', property.propertyValueInfo.value.id);
-
-                    trustStoreId = property.propertyValueInfo.value ? property.propertyValueInfo.value.id : undefined;
-                    trustStoreName = property.propertyValueInfo.value ? property.propertyValueInfo.value.name : undefined;
                 }
 
             });
@@ -734,19 +718,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
-                } else if (property.key === 'trustStore') {
-                    if (trustStoreId && trustStoreName) {
-                        if (!property.propertyValueInfo.value) {
-                            property.propertyValueInfo.value = {};
-                        }
-                        if (property.propertyValueInfo.value) {
-                            property.propertyValueInfo.value.id = trustStoreId;
-                            property.propertyValueInfo.value.name = trustStoreName;
-                        }
-                    }
-                    aliasesStore.getProxy().setExtraParam('trustStore', property.propertyValueInfo.value.id);
                 }
-
             });
             me.getActivePassiveCertContainer().add(passiveAliasCombo);
         }

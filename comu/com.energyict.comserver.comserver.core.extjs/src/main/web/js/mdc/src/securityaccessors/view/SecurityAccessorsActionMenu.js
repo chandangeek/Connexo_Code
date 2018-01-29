@@ -34,6 +34,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 text: Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 checkPassive: true,
+                hidden: !Ext.isEmpty(this.record) && !this.record.get('passiveCertificate'),
                 action: 'clearPassiveCertificate',
                 itemId: 'menu-sa-clear-passive-certificate',
                 section: this.SECTION_EDIT
@@ -42,6 +43,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 text: Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 checkPassive: true,
+                hidden: !Ext.isEmpty(this.record) && !this.record.get('passiveCertificate'),
                 action: 'activatePassiveCertificate',
                 itemId: 'menu-sa-activate-passive-certificate',
                 section: this.SECTION_EDIT
@@ -49,8 +51,12 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         ];
         this.callParent(arguments);
     },
-    updateMenuItems: function(record){
-        this.down('#menu-sa-clear-passive-certificate').setVisible(!this.deviceTypeId && record.get('defaultValue'));
-        this.down('#menu-sa-activate-passive-certificate').setVisible(!this.deviceTypeId && record.get('defaultValue'));
+    updateMenuItems: function (record) {
+        this.down('#menu-sa-clear-passive-certificate')
+        && this.down('#menu-sa-clear-passive-certificate')
+                .setVisible(!this.deviceTypeId && record.get('defaultValue'));
+        this.down('#menu-sa-activate-passive-certificate')
+        &&  this.down('#menu-sa-activate-passive-certificate')
+                .setVisible(!this.deviceTypeId && record.get('defaultValue'));
     }
 });
