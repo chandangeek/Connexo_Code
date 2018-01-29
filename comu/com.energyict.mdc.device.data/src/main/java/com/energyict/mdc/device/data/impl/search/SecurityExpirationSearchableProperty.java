@@ -88,7 +88,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
             sqlBuilder.openBracket();
             //Devices having an actual certificate that is expired
             sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
-            if (Expiration.Type.OBSOLETE == expiration.getType()){
+            if (Expiration.Type.OBSOLETE == expiration.getType()) {
                 sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.OBSOLETE", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.OBSOLETE")));
             } else {
                 sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
@@ -98,9 +98,9 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
             //todo: update central query / 'obsolete'
             appendCentralCertificateAccessorsClause(sqlBuilder, expiration, now);
 
-            if (expiration.getType() != Expiration.Type.OBSOLETE){
+            if (expiration.getType() != Expiration.Type.OBSOLETE) {
                 // Devices having an actual passphrase that is expired
-                getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID" ,passPhraseTableName, expiration, now));
+                getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID", passPhraseTableName, expiration, now));
                 // Devices having an actual symmetric key that is expired
                 getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", "ACTUALSYMKEYID", symmetricKeyTableName, expiration, now));
             }
@@ -218,7 +218,12 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
                 "  INNER JOIN DTC_SECACCTYPES_ON_DEVICETYPE ON DDC_DEVICE.DEVICETYPE = DTC_SECACCTYPES_ON_DEVICETYPE.DEVICETYPE" +
                 "  INNER JOIN PKI_SECACCESSOR ON (DTC_SECACCTYPES_ON_DEVICETYPE.SECACCTYPE = PKI_SECACCESSOR.SECACCESSORTYPE AND PKI_SECACCESSOR.DISCRIMINATOR = 'C')" +
                 "  INNER JOIN PKI_CERTIFICATE ON (PKI_SECACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
-        sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", when)));
+
+        if (Expiration.Type.OBSOLETE == expiration.getType()) {
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.OBSOLETE", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.OBSOLETE")));
+        } else {
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", when)));
+        }
         sqlBuilder.closeBracket();
     }
 }
