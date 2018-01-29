@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
@@ -104,8 +105,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
-
     private final Map<String, SymmetricAlgorithm> symmetricAlgorithmMap = new ConcurrentHashMap<>();
+    private final List<CertificateUsagesFinder> certificateUsagesFinders = new ArrayList<>();
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -202,6 +203,15 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     public void removePassphraseFactory(PassphraseFactory passphraseFactory) {
         this.passphraseFactories.remove(passphraseFactory.getKeyEncryptionMethod());
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCertificateUsagesFinder(CertificateUsagesFinder finder){
+        certificateUsagesFinders.add(finder);
+    }
+
+    public void removeCertificateUsagesFinder(CertificateUsagesFinder finder){
+        certificateUsagesFinders.remove(finder);
     }
 
     @Reference
@@ -756,11 +766,6 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public void checkCertificateUsages(CertificateWrapper certificateWrapper) {
-        //TODO: check global security accessors and importers
-    }
-
-    @Override
     public Condition getSearchCondition(DataSearchFilter dataSearchFilter) {
         Condition searchCondition = Condition.TRUE;
 
@@ -899,11 +904,22 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
+        return !getAssociatedCertificateAccessors(certificate).isEmpty();
+    }
+
+    @Override
+    public List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate) {
         return dataModel.stream(SecurityAccessor.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
                         .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
-                .findAny()
-                .isPresent();
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getCertificateAssociatedDevicesNames(CertificateWrapper certificateWrapper) {
+        List<String> names = new ArrayList<>();
+        certificateUsagesFinders.forEach(finder -> names.addAll(finder.findAssociatedDevicesNames(certificateWrapper)));
+        return names;
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

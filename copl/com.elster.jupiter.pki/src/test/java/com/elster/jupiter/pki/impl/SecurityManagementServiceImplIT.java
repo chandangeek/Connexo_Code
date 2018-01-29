@@ -28,26 +28,6 @@ import com.elster.jupiter.pki.SubjectParameterFilter;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
-import com.elster.jupiter.pki.AliasParameterFilter;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.IssuerParameterFilter;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.KeyUsage;
-import com.elster.jupiter.pki.KeyUsagesParameterFilter;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.SubjectParameterFilter;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
@@ -1395,11 +1375,13 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
 
-        wrapper.setObsoleteFlagAndSave(true);
+        wrapper.setObsolete(true);
+        wrapper.save();
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.OBSOLETE.getKey());
 
-        wrapper.setObsoleteFlagAndSave(false);
+        wrapper.setObsolete(false);
+        wrapper.save();
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
     }

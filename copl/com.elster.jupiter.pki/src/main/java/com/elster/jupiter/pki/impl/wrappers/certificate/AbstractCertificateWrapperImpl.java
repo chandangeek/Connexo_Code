@@ -405,14 +405,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public void setObsoleteFlagAndSave(boolean obsolete) {
-        if (obsolete){
-            //post and handle event
-            eventService.postEvent(EventType.CERTIFICATE_VALIDATE_OBSOLETE.topic(), this);
-        }
+    public void setObsolete(boolean obsolete) {
         this.obsolete = obsolete;
-        save();
-
     }
 
     @Override

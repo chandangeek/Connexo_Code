@@ -381,14 +381,6 @@ public interface SecurityManagementService {
      */
     List<CertificateWrapper> findTrustedCertificatesByFilter(DataSearchFilter dataSearchFilter);
 
-
-    /**
-     * Checks if given certificate is being used by other system objects. May throw an exception in this case
-     *
-     * @param certificateWrapper Certificate to be checked
-     */
-    void checkCertificateUsages(CertificateWrapper certificateWrapper);
-
     class DataSearchFilter {
         public Optional<TrustStore> trustStore;
         public Optional<List<String>> alias;
@@ -451,6 +443,10 @@ public interface SecurityManagementService {
     Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version);
 
     boolean isUsedByCertificateAccessors(CertificateWrapper certificate);
+
+    List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate);
+
+    List<String> getCertificateAssociatedDevicesNames(CertificateWrapper certificateWrapper);
 
     interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
