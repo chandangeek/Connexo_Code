@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -380,6 +381,12 @@ public interface SecurityManagementService {
      * than requested, limit+1 results will be returned.
      */
     List<CertificateWrapper> findTrustedCertificatesByFilter(DataSearchFilter dataSearchFilter);
+
+    Query<DirectoryCertificateUsage> getDirectoryCertificateUsagesQuery();
+
+    DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory);
+
+    Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory);
 
     class DataSearchFilter {
         public Optional<TrustStore> trustStore;

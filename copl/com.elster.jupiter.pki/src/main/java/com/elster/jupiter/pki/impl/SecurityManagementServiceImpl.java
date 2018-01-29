@@ -25,6 +25,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.IssuerParameterFilter;
@@ -49,6 +50,7 @@ import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -61,6 +63,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
@@ -79,7 +84,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,11 +107,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "PkiService",
-        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+@Component(name="PkiService",
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class , UserDirectorySecurityProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -825,6 +836,47 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getQueryService().wrap(dataModel.query(CertificateWrapper.class));
     }
 
+    @Override
+    public DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return dataModel.getInstance(DirectoryCertificateUsageImpl.class).init(userDirectory);
+    }
+
+    @Override
+    public Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return getDataModel().mapper(DirectoryCertificateUsage.class).getUnique(DirectoryCertificateUsageImpl.Fields.DIRECTORY.fieldName(), userDirectory);
+    }
+
+    @Override
+    public Query<DirectoryCertificateUsage> getDirectoryCertificateUsagesQuery() {
+        return getQueryService().wrap(dataModel.query(DirectoryCertificateUsage.class, TrustStore.class, CertificateWrapper.class));
+    }
+
+    @Override
+    public Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory) {
+        return this.getUserDirectoryCertificateUsage(ldapUserDirectory)
+                .map(directoryCertificateUsage -> {
+                    KeyStore keyStore = null;
+                    try {
+                        keyStore = KeyStore.getInstance("JKS");
+                        keyStore.load(null, null);
+                        Optional<TrustStore> trustStore = directoryCertificateUsage.getTrustStore();
+                        Optional<CertificateWrapper> certificate = directoryCertificateUsage.getCertificate();
+                        if (trustStore.isPresent()) {
+                            for (TrustedCertificate cert : trustStore.get().getCertificates()) {
+                                if (cert.getCertificate().isPresent()) {
+                                    keyStore.setCertificateEntry(cert.getAlias(), cert.getCertificate().get());
+                                }
+                            }
+                        } else if (certificate.isPresent() && certificate.get().getCertificate().isPresent()) {
+                            X509Certificate trustedCertificate = certificate.get().getCertificate().get();
+                            keyStore.setCertificateEntry(certificate.get().getAlias(), trustedCertificate);
+                        }
+                        return keyStore;
+                    } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+                        return null;
+                    }
+                });
+    }
     @Override
     public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
         return new SecurityAccessorTypeBuilder(dataModel, name, keyType);
