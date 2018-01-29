@@ -50,7 +50,9 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             name: this.getName(),
             store: sortedStore,
             queryMode: 'local',
-            typeAhead: true,
+            // We want typeAhead enabled, but if combo is not editable,
+            // typeAhead must be disabled
+            typeAhead: this.isEditable(),
             autoSelect: true,
             displayField: 'value',
             valueField: 'key',
@@ -60,13 +62,17 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             allowBlank: !me.getProperty().data.required,
             blankText: me.blankText,
             forceSelection: this.getProperty().isEditable() || me.getProperty().getExhaustive(),
-            editable: this.getProperty().isEditable() || !me.getProperty().getExhaustive(),
+            editable: me.isEditable(),
             emptyText: this.getProperty().isEditable() === false ? '' : Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
             listConfig: {
                 loadMask: true,
                 maxHeight: 300
             }
         }
+    },
+
+    isEditable: function () {
+        this.getProperty().isEditable() || !this.getProperty().getExhaustive();
     },
 
     setValue: function (value) {
