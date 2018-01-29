@@ -5,16 +5,35 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.conditions.Where;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,7 +41,10 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -286,7 +308,11 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
-        findTrustStoreOrThrowException(id).delete();
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("trustStore").isEqualTo(trustStore)).isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY, id);
+        }
+        trustStore.delete();
         return Response.status(Response.Status.OK).build();
     }
 
