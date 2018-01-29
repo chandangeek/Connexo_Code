@@ -153,8 +153,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     chooseAction: function (menu, item) {
         var me = this;
-        console.log(menu.record);
-
         switch (item.action) {
             case 'edit':
                 me.navigateToEditSecurityAccessor(menu.record);
