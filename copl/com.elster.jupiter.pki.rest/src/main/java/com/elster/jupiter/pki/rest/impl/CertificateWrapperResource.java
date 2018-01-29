@@ -5,7 +5,6 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -14,6 +13,7 @@ import com.elster.jupiter.pki.IssuerParameterFilter;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsagesParameterFilter;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SubjectParameterFilter;
 import com.elster.jupiter.pki.rest.AliasInfo;
@@ -73,7 +73,7 @@ public class CertificateWrapperResource {
     private final DataSearchFilterFactory dataSearchFilterFactory;
 
     @Inject
-    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory,DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory, DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
         this.securityManagementService = securityManagementService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -216,22 +216,35 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response markCertificateObsolete(@PathParam("id") long certificateId) {
-        CertificateWrapper wrapper = securityManagementService.findCertificateWrapper(certificateId)
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
-        //TODO tbd check results structure to be able to aggregate it with other 'already used by' constraint sources (MDC events for instance)
-        securityManagementService.checkCertificateUsages(wrapper);
+        //fixme
+        List<String> directories = Collections.emptyList();
+        List<String> importers = Collections.emptyList();
+        List<String> devices = securityManagementService.getCertificateAssociatedDevicesNames(cert);
+        List<SecurityAccessor> accessors = securityManagementService.getAssociatedCertificateAccessors(cert);
 
-        Exception earlierCaughtException = new Exception("Blah blah already used by that guy over there");
-
-        try{
-            wrapper.setObsoleteFlagAndSave(true);
-        } catch (LocalizedException e){
-            if (e.getMessageSeed().getKey().equals("VetoCertificateMarkObsolete")){
-                throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_IN_USE, "["+earlierCaughtException.getLocalizedMessage() + "], [" + e.getLocalizedMessage() + "]");
-            }
-            throw e;
+        if (accessors.isEmpty() && devices.isEmpty() && importers.isEmpty() && directories.isEmpty()) {
+            cert.setObsolete(true);
+            cert.save();
+            return Response.status(Response.Status.OK).build();
         }
+        return Response.status(Response.Status.ACCEPTED)
+                .entity(certificateInfoFactory.asCertificateUsagesInfo(accessors, devices, directories, importers))
+                .build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/forceMarkObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response forceMarkCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper wrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        wrapper.setObsolete(true);
+        wrapper.save();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -243,7 +256,8 @@ public class CertificateWrapperResource {
     public Response unMarkCertificateObsolete(@PathParam("id") long certificateId) {
         CertificateWrapper wrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-        wrapper.setObsoleteFlagAndSave(false);
+        wrapper.setObsolete(false);
+        wrapper.save();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -258,7 +272,7 @@ public class CertificateWrapperResource {
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("version") long version) {
-        if (contentDispositionHeader==null) {
+        if (contentDispositionHeader == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
@@ -277,16 +291,16 @@ public class CertificateWrapperResource {
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
-        if (csrInfo.keyTypeId==null) {
+        if (csrInfo.keyTypeId == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyTypeId");
         }
-        if (csrInfo.alias==null) {
+        if (csrInfo.alias == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "alias");
         }
-        if (csrInfo.keyEncryptionMethod==null) {
+        if (csrInfo.keyEncryptionMethod == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyEncryptionMethod");
         }
-        if (csrInfo.CN==null) {
+        if (csrInfo.CN == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
         }
         KeyType keyType = securityManagementService.getKeyType(csrInfo.keyTypeId)
@@ -300,7 +314,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/csr")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCsr(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
@@ -318,7 +332,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".csr")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".csr")
                     .build();
         } catch (IOException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CSR, e);
@@ -327,7 +341,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/certificate")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
@@ -343,7 +357,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
@@ -371,7 +385,7 @@ public class CertificateWrapperResource {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            if (certificate==null) {
+            if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
             certificateWrapper.setCertificate(certificate);

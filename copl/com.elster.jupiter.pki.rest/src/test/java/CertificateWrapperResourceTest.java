@@ -46,7 +46,6 @@ import org.mockito.ArgumentCaptor;
 import static com.elster.jupiter.pki.rest.impl.MessageSeeds.NO_CSR_PRESENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -162,8 +161,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<String>get("keyEncryptionMethod")).isEqualTo("DataVault");
         assertThat(model.<Long>get("expirationDate")).isEqualTo(1488240000000L);
         assertThat(model.<String>get("type")).isEqualTo("A, B, C");
-        assertThat(model.<String>get("issuer")).contains("C=BE","ST=Vlaanderen","L=Kortrijk","O=Honeywell","OU=SmartEnergy","CN=MyRootCA");
-        assertThat(model.<String>get("subject")).contains("C=BE","ST=Vlaanderen","L=Kortrijk","O=Honeywell","OU=SmartEnergy","CN=MyRootCA");
+        assertThat(model.<String>get("issuer")).contains("C=BE", "ST=Vlaanderen", "L=Kortrijk", "O=Honeywell", "OU=SmartEnergy", "CN=MyRootCA");
+        assertThat(model.<String>get("subject")).contains("C=BE", "ST=Vlaanderen", "L=Kortrijk", "O=Honeywell", "OU=SmartEnergy", "CN=MyRootCA");
         assertThat(model.<Integer>get("certificateVersion")).isEqualTo(1);
         assertThat(model.<String>get("serialNumber")).isEqualTo("12550491392904217459");
         assertThat(model.<Instant>get("notBefore")).isNotNull();
@@ -258,14 +257,13 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Long certId = 111L;
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
-        doNothing().when(securityManagementService).checkCertificateUsages(certificateWrapper);
 
         //Act
         Response response = target("/certificates/" + certId + "/markObsolete").request().post(null);
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(certificateWrapper, times(1)).setObsoleteFlagAndSave(true);
+        verify(certificateWrapper, times(1)).setObsolete(true);
     }
 
     @Test
@@ -280,7 +278,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(certificateWrapper, times(1)).setObsoleteFlagAndSave(false);
+        verify(certificateWrapper, times(1)).setObsolete(false);
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
