@@ -359,46 +359,75 @@ Ext.define('Pkj.controller.Certificates', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.confirm', 'PKJ', 'Confirm')}),
             certificateRecord = menuItem.up('certificate-action-menu').record;
 
-        confirmationWindow.show({
-            title: Uni.I18n.translate('general.obsoleteX', 'PKJ', "Mark as obsolete '{0}'?", certificateRecord.get('alias')),
-            msg: Uni.I18n.translate('certificate.obsolete.msg', 'PKJ', 'The certificate will no longer be available.'),
-            headers: {'Content-type': 'multipart/form-data'},
-            fn: function (state) {
-                if (state === 'confirm') {
-                    Ext.Ajax.request({
-                        url: '/api/pir/certificates/' + certificateRecord.get('id') + '/markObsolete',
-                        method: 'POST',
-                        success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateMarkedObsolete', 'PKJ', 'Certificate marked as obsolete'));
-                            me.navigateToCertificatesOverview();
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/markObsolete',
+            method: 'POST',
+            callback: function (config, success, response) {
+                console.log(response);
+                if (!Ext.isEmpty(response.responseText)) {
+                    var responseObject = JSON.parse(response.responseText);
+
+                    var accessors, directories, importers, devices;
+                    accessors = devices = directories = importers = 'None';
+
+                    if (responseObject.securityAccessors.length !== 0) {
+                        accessors = responseObject.securityAccessors.join(', ');
+                    }
+                    if (responseObject.devices.length !== 0) {
+                        devices = responseObject.devices.join(', ');
+                    }
+                    if (responseObject.userDirectories.length !== 0) {
+                        directories = responseObject.userDirectories.join(', ');
+                    }
+                    if (responseObject.importers.length !== 0) {
+                        importers = responseObject.importers.join(', ');
+                    }
+
+                    //todo: \n experiments
+                    var messageTemplate = 'Certificate is still used by the following objects:<br/>' +
+                        'Security accessors: {0}\n' +
+                        'Devices: {1}\n' +
+                        'Import services: {2}\n' +
+                        'User directories: {3}';
+                    var args = [accessors, devices, importers, directories];
+
+                    confirmationWindow.show({
+                        title: Uni.I18n.translate('general.obsoleteX', 'PKJ', "Mark as obsolete '{0}'?", certificateRecord.get('alias')),
+                        msg: Uni.I18n.translate('certificate.obsolete.warning.msgTest', 'PKJ', messageTemplate, args),
+                        headers: {'Content-type': 'multipart/form-data'},
+                        fn: function (state) {
+                            if (state === 'confirm') {
+                                Ext.Ajax.request({
+                                    url: '/api/pir/certificates/' + certificateRecord.get('id') + '/forceMarkObsolete',
+                                    method: 'POST',
+                                    success: function () {
+                                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateMarkedObsolete', 'PKJ', 'Certificate marked as obsolete'));
+                                        me.navigateToCertificatesOverview();
+                                    }
+                                });
+                            }
                         }
                     });
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateMarkedObsolete', 'PKJ', 'Certificate marked as obsolete'));
+                    me.navigateToCertificatesOverview();
                 }
+
             }
         });
     },
 
     cancelObsoleteCertificate: function (menuItem) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.confirm', 'PKJ', 'Confirm')}),
             certificateRecord = menuItem.up('certificate-action-menu').record;
 
-        confirmationWindow.show({
-            title: Uni.I18n.translate('general.unmarkObsoleteX', 'PKJ', "Unmark obsolete '{0}'?", certificateRecord.get('alias')),
-            msg: Uni.I18n.translate('certificate.unmarkObsolete.msg', 'PKJ', 'The certificate will become available again.'),
-            fn: function (state) {
-                if (state === 'confirm') {
-                    Ext.Ajax.request({
-                        url: '/api/pir/certificates/' + certificateRecord.get('id') + '/unmarkObsolete',
-                        method: 'POST',
-                        success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateUnmarkedObsolete', 'PKJ', 'Certificate is no longer obsolete'));
-                            me.navigateToCertificatesOverview();
-                        }
-                    });
-                }
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/unmarkObsolete',
+            method: 'POST',
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateUnmarkedObsolete', 'PKJ', 'Certificate is no longer obsolete'));
+                me.navigateToCertificatesOverview();
             }
         });
     }
-
 });
