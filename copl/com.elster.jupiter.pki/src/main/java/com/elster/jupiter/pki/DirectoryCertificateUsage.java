@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface DirectoryCertificateUsage extends HasId{
     UserDirectory getDirectory();
 
+    String getDirectoryName();
+
     Optional<TrustStore> getTrustStore();
 
     void setTrustStore(TrustStore trustStore);
