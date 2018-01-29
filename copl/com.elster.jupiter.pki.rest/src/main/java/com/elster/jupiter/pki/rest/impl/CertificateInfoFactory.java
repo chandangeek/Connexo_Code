@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
@@ -75,7 +76,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
         return info;
     }
 
-    public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<String> directories, List<String> importers) {
+    public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<DirectoryCertificateUsage> directories, List<String> importers) {
         CertificateUsagesInfo info = new CertificateUsagesInfo();
         info.securityAccessors = accessors.stream()
                 .limit(3)
@@ -88,6 +89,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
                 .collect(Collectors.toList());
         info.userDirectories = directories.stream()
                 .limit(3)
+                .map(usage -> String.valueOf(usage.getDirectoryName()))
                 .sorted()
                 .collect(Collectors.toList());
         info.importers = importers.stream()

@@ -2,15 +2,21 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
+import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -36,6 +42,10 @@ import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -45,10 +55,13 @@ import org.mockito.ArgumentCaptor;
 
 import static com.elster.jupiter.pki.rest.impl.MessageSeeds.NO_CSR_PRESENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -250,19 +263,85 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<String>get("error")).isEqualTo(NO_CSR_PRESENT.getKey());
     }
 
-    //TODO: add 'in use' cases when these checks become available
     @Test
     public void testMarkCertificateObsolete() throws Exception {
         //Prepare
+        Query mockQuery = mock(Query.class);
         Long certId = 111L;
-        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
+        ClientCertificateWrapper cert = mock(ClientCertificateWrapper.class);
+
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         //Act
         Response response = target("/certificates/" + certId + "/markObsolete").request().post(null);
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(cert, times(1)).setObsolete(true);
+    }
+
+    @Test
+    public void testMarkCertificateObsolete_thereAreUsages() throws Exception {
+        //Prepare
+        String accessorName = "accessor_1";
+        String deviceName1 = "device_1";
+        String deviceName2 = "device_2";
+        String deviceName3 = "device_3";
+        String deviceName4 = "device_4";
+        String dirUsageName1 = "dirUsage_1";
+        String dirUsageName2 = "dirUsage_2";
+
+        Query mockQuery = mock(Query.class);
+        List<String> deviceNames = Arrays.asList(deviceName1, deviceName2, deviceName3, deviceName4);
+        DirectoryCertificateUsage dirUsage1 = mock(DirectoryCertificateUsage.class);
+        DirectoryCertificateUsage dirUsage2 = mock(DirectoryCertificateUsage.class);
+        SecurityAccessor accessor = mock(SecurityAccessor.class);
+        SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
+
+        Long certId = 111L;
+        ClientCertificateWrapper cert = mock(ClientCertificateWrapper.class);
+
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Arrays.asList(accessor));
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(deviceNames);
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Arrays.asList(dirUsage1, dirUsage2));
+        when(accessor.getKeyAccessorType()).thenReturn(accessorType);
+        when(accessorType.getName()).thenReturn(accessorName);
+        when(dirUsage1.getDirectoryName()).thenReturn(dirUsageName1);
+        when(dirUsage2.getDirectoryName()).thenReturn(dirUsageName2);
+
+        //Act
+        Response response = target("/certificates/" + certId + "/markObsolete").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<JSONArray>get("userDirectories")).hasSize(2).contains(dirUsageName1, dirUsageName2);
+        assertThat(model.<JSONArray>get("importers")).isEmpty();
+        assertThat(model.<JSONArray>get("devices")).hasSize(3).contains(deviceName1, deviceName2, deviceName3);
+        assertThat(model.<JSONArray>get("securityAccessors")).hasSize(1).contains(accessorName);
+        verify(cert, never()).setObsolete(true);
+    }
+
+    @Test
+    public void testForceMarkCertificateObsolete() throws Exception {
+        //Prepare
+        Long certId = 112L;
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
+
+        //Act
+        Response response = target("/certificates/" + certId + "/forceMarkObsolete").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(securityManagementService, times(1)).findCertificateWrapper(certId);
+        verifyNoMoreInteractions(securityManagementService);
         verify(certificateWrapper, times(1)).setObsolete(true);
     }
 

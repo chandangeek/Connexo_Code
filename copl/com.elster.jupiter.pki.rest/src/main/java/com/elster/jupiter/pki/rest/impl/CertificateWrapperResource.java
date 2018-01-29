@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.IssuerParameterFilter;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsagesParameterFilter;
@@ -25,6 +26,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -206,7 +208,7 @@ public class CertificateWrapperResource {
     public Response removeCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(certificateWrapper)).isEmpty()) {
+        if (!findDirectoryCertificateUsages(certificateWrapper).isEmpty()) {
             throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
         }
         certificateWrapper.delete();
@@ -223,18 +225,18 @@ public class CertificateWrapperResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
         //fixme
-        List<String> directories = Collections.emptyList();
         List<String> importers = Collections.emptyList();
-        List<String> devices = securityManagementService.getCertificateAssociatedDevicesNames(cert);
+        List<String> devicesNames = securityManagementService.getCertificateAssociatedDevicesNames(cert);
+        List<DirectoryCertificateUsage> directoryUsages = findDirectoryCertificateUsages(cert);
         List<SecurityAccessor> accessors = securityManagementService.getAssociatedCertificateAccessors(cert);
 
-        if (accessors.isEmpty() && devices.isEmpty() && importers.isEmpty() && directories.isEmpty()) {
+        if (accessors.isEmpty() && devicesNames.isEmpty() && importers.isEmpty() && directoryUsages.isEmpty()) {
             cert.setObsolete(true);
             cert.save();
             return Response.status(Response.Status.OK).build();
         }
         return Response.status(Response.Status.ACCEPTED)
-                .entity(certificateInfoFactory.asCertificateUsagesInfo(accessors, devices, directories, importers))
+                .entity(certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages, importers))
                 .build();
     }
 
@@ -413,5 +415,9 @@ public class CertificateWrapperResource {
                 return Collections.emptyList();
             }
         };
+    }
+
+    private List<DirectoryCertificateUsage> findDirectoryCertificateUsages(CertificateWrapper cert) {
+        return securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(cert));
     }
 }
