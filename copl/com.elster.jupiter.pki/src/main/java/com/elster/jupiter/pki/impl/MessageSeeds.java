@@ -3,14 +3,11 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.logging.Level;
 
 /**
  * Defines all the {@link MessageSeed}s of the PKI module.
  */
-@ProviderType
 public enum MessageSeeds implements MessageSeed {
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
@@ -20,12 +17,11 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
     ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm is not supported in the environment at this time"),
     INVALID_KEY(1007, "InvalidKeyException", "The key could not be recreated due to erroneous encoding"),
-    INVALID_KEY_SPECIFICATION(1007, "InvalidKeySpecificationException", "The key specification is invalid"),
+    INVALID_KEY_SPECIFICATION(1008, "InvalidKeySpecificationException", "The key specification is invalid"),
     INVALID_ALGORITHM_PARAMETERS(1009, "InvalidAlgorithmException", "Invalid or inappropriate algorithm parameters were provided"),
     UNKNOWN_PROVIDER(1010, "UnknownSecurityProvider", "The requested security provider is not available in the environment"),
     CRL_EXCEPTION(1011, "CrlException", "Could not read CRL"),
     CERTIFICATE_EXCEPTION(1012, "CertificateException", "Could not read certificate"),
-    CSR_EXCEPTION(1012, "CsrException", "Could not read CSR"),
     CERTIFICATE_ENCODING_EXCEPTION(1013, "CertificateEncodingException", "The certificate could not be properly encoded"),
     ALIAS_IS_UNIQUE(1014, Keys.ALIAS_UNIQUE, "Alias must be unique"),
     SIGNATURE_EXCEPTION(1015, "SignatureException", "An error occurred while signing"),
@@ -60,7 +56,8 @@ public enum MessageSeeds implements MessageSeed {
     TEMP_VALUE_NOT_SET(1044, "NoTempValue", "The security accessor does not contain a temporary value"),
     NO_ACTUAL_CERTIFICATE(1045, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     ACTUAL_VALUE_NOT_SET(1046, "NoActualValue", "The security accessor does not contain an actual value"),
-    VETO_CERTIFICATE_DELETION(1047, "VetoCertificateDeletion", "This certificate is still in use.");
+    VETO_CERTIFICATE_DELETION(1047, "VetoCertificateDeletion", "This certificate is still in use."),
+    CSR_EXCEPTION(1048, "CsrException", "Could not read CSR");
 
     private final int number;
     private final String key;
