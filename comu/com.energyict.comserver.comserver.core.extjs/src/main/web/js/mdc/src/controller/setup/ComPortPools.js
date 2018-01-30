@@ -117,14 +117,31 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var itemPanel = this.getComPortPoolPreview(),
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComPortPool'),
-            id = record.getId();
+            id = record.getId(),
+            deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
         itemPanel.setLoading(this.getModel('Mdc.model.ComPortPool'));
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    record.get('direction').toLowerCase() == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
-                        form.down('displayfield[name=discoveryProtocolPluggableClassId]').show() ;
+                    record.get('direction').toLowerCase() == 'outbound' ? form.down('#discoveryProtocolPluggableClassId').hide() :
+                        form.down('#discoveryProtocolPluggableClassId').show() ;
                     form.loadRecord(record);
+
+                    if (!deviceDiscoveryProtocolsStore.getCount()){
+                        deviceDiscoveryProtocolsStore.load(function (records) {
+                            var deviceDiscoveryProtocols = records.filter(function (deviceDiscoveryProtocol) {
+                                return deviceDiscoveryProtocol.get('id') == record.get('discoveryProtocolPluggableClassId');
+                            });
+
+                            deviceDiscoveryProtocols.length > 0 && form.down('#discoveryProtocolPluggableClassId').setValue(deviceDiscoveryProtocols[0].get('name'));
+                        });
+                    }
+                    else {
+                        var deviceDiscoveryProtocol = deviceDiscoveryProtocolsStore.getById(record.get('discoveryProtocolPluggableClassId'));
+                        form.down('#discoveryProtocolPluggableClassId').isVisible() && form.down('#discoveryProtocolPluggableClassId').setValue(deviceDiscoveryProtocol.get('name'));
+
+                    }
+
                     var menuItem = form.up('panel').down('menu');
                     if(menuItem)
                         menuItem.record = record;

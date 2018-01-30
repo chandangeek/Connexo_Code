@@ -79,11 +79,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comPortPool.preview.protocolDetection', 'MDC', 'Protocol detection'),
-                        name: 'discoveryProtocolPluggableClassId',
-                        renderer: function (val) {
-                            var protDetect = val ? Ext.getStore('Mdc.store.DeviceDiscoveryProtocols').getById(val) : null;
-                            return protDetect ? Ext.String.htmlEncode(protDetect.get('name')) : '';
-                        }
+                        itemId: 'discoveryProtocolPluggableClassId'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
