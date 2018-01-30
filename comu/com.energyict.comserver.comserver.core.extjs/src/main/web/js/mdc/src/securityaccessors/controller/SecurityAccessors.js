@@ -158,19 +158,19 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.navigateToEditSecurityAccessor(menu.record);
                 break;
             case 'remove':
-                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) :me.removeSecurityAccessor(menu.record);
+                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) : me.removeSecurityAccessor(menu.record);
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
                     securityAccessorRecord: me.selectedRecord
                 }).show();
                 break;
-            case 'clearPassiveCertificate':
-                me.clearPassive(menu.record, false);
-                break;
-            case 'activatePassiveCertificate':
-                me.activatePassiveCertificate(menu.record);
-                break;
+            case 'clearPassiveCertificate': {
+                me.clearPassive(me.selectedRecord, false);
+            } break;
+            case 'activatePassiveCertificate': {
+                me.activatePassiveCertificate(me.selectedRecord);
+            } break;
         }
     },
 
