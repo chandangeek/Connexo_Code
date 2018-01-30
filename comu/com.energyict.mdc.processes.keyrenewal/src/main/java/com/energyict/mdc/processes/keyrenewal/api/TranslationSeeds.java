@@ -6,6 +6,7 @@ package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory;
 
 public enum TranslationSeeds implements TranslationKey {
 
@@ -13,7 +14,8 @@ public enum TranslationSeeds implements TranslationKey {
     CALL_BACK_SUCCESS_URL("callbackSuccess", "Callback success URL"),
     CALL_BACK_ERROR_URL("callbackError", "Callback error URL"),
     PROVIDED_RESPONSE("providedResponse", "Provided response"),
-    COMPLETION_OPTIONS_MESSAGE_HANDLER(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME)
+    COMPLETION_OPTIONS_MESSAGE_HANDLER(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER_DISPLAYNAME),
+    CERTIFICATE_REQUEST_FOR_CSR_MESSAGE_HANDLER(CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_TASK_SUBSCRIBER, CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_TASK_SUBSCRIBER_DISPLAYNAME),
     ;
     private String key;
     private final String defaultFormat;

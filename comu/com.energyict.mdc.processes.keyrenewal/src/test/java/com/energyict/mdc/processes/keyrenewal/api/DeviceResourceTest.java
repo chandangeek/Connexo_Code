@@ -5,16 +5,21 @@
 package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
@@ -56,6 +61,16 @@ public class DeviceResourceTest {
     @Mock
     HeadEndController headEndController;
     @Mock
+    JsonService jsonService;
+    @Mock
+    SecurityManagementService securityManagementService;
+    @Mock
+    CaService caService;
+    @Mock
+    ServiceCallService serviceCallService;
+    @Mock
+    MessageService messageService;
+    @Mock
     UriInfo uriInfo;
     @Mock
     Device device;
@@ -77,7 +92,7 @@ public class DeviceResourceTest {
     public void setUp() throws Exception {
         setUpThesaurus();
         exceptionFactory = new ExceptionFactory(thesaurus);
-        deviceResource = new DeviceResource(deviceService, exceptionFactory, transactionService, serviceCallCommands, headEndController, meteringService);
+        deviceResource = new DeviceResource(deviceService, exceptionFactory, transactionService, serviceCallCommands, headEndController, meteringService, securityManagementService, serviceCallService, messageService, jsonService);
         when(transactionService.getContext()).thenReturn(mock(TransactionContext.class));
         when(serviceCallCommands.createRenewKeyServiceCall(any(), any())).thenReturn(serviceCall);
     }

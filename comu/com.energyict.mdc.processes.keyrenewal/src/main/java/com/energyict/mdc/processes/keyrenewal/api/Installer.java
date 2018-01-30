@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.OperationHandler;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
@@ -79,6 +80,13 @@ public class Installer implements FullInstaller {
                     .createDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
             destinationSpec.activate();
             destinationSpec.subscribe(TranslationSeeds.COMPLETION_OPTIONS_MESSAGE_HANDLER, KeyRenewalApplication.COMPONENT_NAME, Layer.REST);
+        }
+        destinationSpecOptional = messageService.getDestinationSpec(CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec destinationSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
+                    .createDestinationSpec(CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
+            destinationSpec.activate();
+            destinationSpec.subscribe(TranslationSeeds.CERTIFICATE_REQUEST_FOR_CSR_MESSAGE_HANDLER, KeyRenewalApplication.COMPONENT_NAME, Layer.REST);
         }
     }
 

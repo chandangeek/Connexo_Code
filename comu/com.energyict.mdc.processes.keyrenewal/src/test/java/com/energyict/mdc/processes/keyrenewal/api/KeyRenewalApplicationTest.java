@@ -11,6 +11,8 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -56,6 +58,10 @@ public class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
     CustomPropertySet customPropertySet;
     @Mock
     KeyRenewalCustomPropertySet keyRenewalCustomPropertySet;
+    @Mock
+    SecurityManagementService securityManagementService;
+    @Mock
+    CaService caService;
 
     @Override
     protected Application getApplication() {
@@ -75,6 +81,8 @@ public class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setCustomPropertySet(keyRenewalCustomPropertySet);
+        application.setSecurityManagementService(securityManagementService);
+        application.setCaService(caService);
         return application;
     }
 }
