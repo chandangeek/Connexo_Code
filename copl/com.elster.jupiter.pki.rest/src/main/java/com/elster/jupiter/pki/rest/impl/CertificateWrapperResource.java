@@ -56,6 +56,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -86,11 +87,20 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList = findCertficates(jsonQueryFilter)
-                .from(queryParameters)
-                .stream()
-                .map(certificateInfoFactory::asInfo)
-                .collect(toList());
+        List<CertificateWrapperInfo> infoList = new ArrayList<>();
+        if(queryParameters.getLike()!=null && !queryParameters.getLike().isEmpty()){
+            infoList = securityManagementService.findCertificatesByFilter(dataSearchFilterFactory.asLikeFilter(queryParameters.getLike()))
+                    .from(queryParameters)
+                    .stream()
+                    .map(certificateInfoFactory::asInfo)
+                    .collect(toList());
+        } else {
+            infoList = findCertficates(jsonQueryFilter)
+                    .from(queryParameters)
+                    .stream()
+                    .map(certificateInfoFactory::asInfo)
+                    .collect(toList());
+        }
 
         return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
     }

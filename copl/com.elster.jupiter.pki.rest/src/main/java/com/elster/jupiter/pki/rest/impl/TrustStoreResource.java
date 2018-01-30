@@ -81,10 +81,10 @@ public class TrustStoreResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    public PagedInfoList getTrustStores(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        if (jsonQueryFilter.hasFilters()) {
+    public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
+        if (queryParameters.getLike() != null) {
             return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
-                    .findTrustStores(trustStoreFilterFactory.asFilter(jsonQueryFilter))), queryParameters);
+                    .findTrustStores(trustStoreFilterFactory.asLike(queryParameters.getLike()))), queryParameters);
         } else {
             return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
                     .getAllTrustStores()), queryParameters);

@@ -24,4 +24,10 @@ public class DataSearchFilterFactory {
 
         return dataSearchFilter;
     }
+
+    public SecurityManagementService.DataSearchFilter asLikeFilter(String like) {
+        SecurityManagementService.DataSearchFilter dataSearchFilter = new SecurityManagementService.DataSearchFilter();
+        dataSearchFilter.aliasContains = Optional.ofNullable(like);
+        return dataSearchFilter;
+    }
 }
