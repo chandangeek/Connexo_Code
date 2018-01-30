@@ -7,6 +7,8 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -71,6 +73,29 @@ public class CertificateInfoFactory implements CertificateFormatter {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
 
+        return info;
+    }
+
+    public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<DirectoryCertificateUsage> directories, List<String> importers) {
+        CertificateUsagesInfo info = new CertificateUsagesInfo();
+        info.securityAccessors = accessors.stream()
+                .limit(3)
+                .map(accessor -> accessor.getKeyAccessorType().getName())
+                .sorted()
+                .collect(Collectors.toList());
+        info.devices = devices.stream()
+                .limit(3)
+                .sorted()
+                .collect(Collectors.toList());
+        info.userDirectories = directories.stream()
+                .limit(3)
+                .map(usage -> String.valueOf(usage.getDirectoryName()))
+                .sorted()
+                .collect(Collectors.toList());
+        info.importers = importers.stream()
+                .limit(3)
+                .sorted()
+                .collect(Collectors.toList());
         return info;
     }
 }
