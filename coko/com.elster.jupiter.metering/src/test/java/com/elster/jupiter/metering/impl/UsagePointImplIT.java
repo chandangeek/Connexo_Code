@@ -467,7 +467,7 @@ public class UsagePointImplIT {
     public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         StageSet defaultStageSet = inMemoryBootstrapModule.getUsagePointLifeCycleConfService().getDefaultStageSet();
-        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.POST_OPERATIONAL.getKey()).get(); // test updated corresponding with CONM-129
         Instant now = inMemoryBootstrapModule.getClock().instant();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory
