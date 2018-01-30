@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,15 @@ public interface LogBookService {
      * @return the requested LogBook or null if none exists with that ID
      */
     Optional<LogBook> findByIdentifier(LogBookIdentifier identifier);
+
+    /**
+     * Finds the LogBook with the given {@link ObisCode} linked to the given {@link Device}
+     *
+     * @param device the device
+     * @param obisCode the obis code of the LogBook
+     * @return the requested LogBook or null if none exists
+     */
+    Optional<LogBook> findByDeviceAndObisCode(Device device, ObisCode obisCode);
 
     /**
      * Finds all the LogBooks for the given Device

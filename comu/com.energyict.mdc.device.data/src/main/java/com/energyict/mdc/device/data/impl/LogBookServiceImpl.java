@@ -104,7 +104,8 @@ public class LogBookServiceImpl implements ServerLogBookService {
         }
     }
 
-    protected Optional<LogBook> findByDeviceAndObisCode(Device device, ObisCode obisCode) {
+    @Override
+    public Optional<LogBook> findByDeviceAndObisCode(Device device, ObisCode obisCode) {
         return device
                 .getLogBooks()
                 .stream()
