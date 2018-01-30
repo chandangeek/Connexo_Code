@@ -53,6 +53,7 @@ public class PkiApplication extends Application {
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
                 bind(CertificateInfoFactory.class).to(CertificateInfoFactory.class);
                 bind(DataSearchFilterFactory.class).to(DataSearchFilterFactory.class);
+                bind(TrustStoreFilterFactory.class).to(TrustStoreFilterFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(KeypairInfoFactory.class).to(KeypairInfoFactory.class);
             }

@@ -60,15 +60,17 @@ public class TrustStoreResource {
     private final DataSearchFilterFactory dataSearchFilterFactory;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final TrustStoreFilterFactory trustStoreFilterFactory;
 
     @Inject
-    public TrustStoreResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory) {
+    public TrustStoreResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory, TrustStoreFilterFactory trustStoreFilterFactory) {
         this.securityManagementService = securityManagementService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.trustStoreInfoFactory = trustStoreInfoFactory;
         this.certificateInfoFactory = certificateInfoFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
+        this.trustStoreFilterFactory = trustStoreFilterFactory;
     }
 
     private static List<KeyUsage> applyKeyUsages(TrustedCertificate x) {
@@ -78,9 +80,15 @@ public class TrustStoreResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
-                .getAllTrustStores()), queryParameters);
+    public PagedInfoList getTrustStores(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        if (jsonQueryFilter.hasFilters()) {
+            return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
+                    .findTrustStores(trustStoreFilterFactory.asFilter(jsonQueryFilter))), queryParameters);
+        } else {
+            return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
+                    .getAllTrustStores()), queryParameters);
+        }
+
     }
 
     @GET
