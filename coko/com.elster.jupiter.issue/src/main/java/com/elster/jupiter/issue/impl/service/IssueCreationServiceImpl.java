@@ -221,7 +221,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
         baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
-        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        long dueInValue = firedRule.getDueInValue();
+        Instant dueDate = dueInValue > 0 ? Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(dueInValue)) : null;
+        baseIssue.setDueDate(dueDate);
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
