@@ -114,7 +114,7 @@ public class HeadEndController {
     }
 
     protected SecurityAccessorType getKeyAccessorType(String keyAccessType, Device device) {
-        return device.getDeviceType().getSecurityAccessorTypes().stream().filter(keyAcccessorType -> keyAcccessorType.getName().equals(keyAccessType)).findFirst()
+        return device.getDeviceType().getSecurityAccessorTypes().stream().filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessType)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_KEYACCESSORTYPE));
     }
 
