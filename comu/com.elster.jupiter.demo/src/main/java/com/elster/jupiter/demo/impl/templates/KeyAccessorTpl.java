@@ -58,15 +58,15 @@ public enum KeyAccessorTpl {
             buildCertificateType("X509 Certificate"),
             "dlms TrustStore"
     ),
-    AUTHENTICATION_KEY_10_YEARS("AuthenticationKey",
+    AUTHENTICATION_KEY_10_YEARS("AuthenticationKey10",
             TimeDuration.years(10),
             buildSymmetricKeyType("AES 128", "AES", 128)
     ),
-    ENCRYPTION_KEY_10_YEARS("EncryptionKey",
+    ENCRYPTION_KEY_10_YEARS("EncryptionKey10",
             TimeDuration.years(10),
             buildSymmetricKeyType("AES 128", "AES", 128)
     ),
-    PASSWORD_10_YEARS("Password",
+    PASSWORD_10_YEARS("Password10",
             TimeDuration.years(10),
             buildPassphraseType("Password", 30)
     ),;
