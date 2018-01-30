@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -72,6 +73,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -402,9 +404,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         //filter by due date
         if (!filter.getDueDates().isEmpty()) {
             Condition dueDateCondition = Condition.FALSE;
-            for (int i = 0; i < filter.getDueDates().size(); i++) {
-                dueDateCondition = dueDateCondition.or(where("baseIssue.dueDate").isGreaterThanOrEqual(filter.getDueDates().get(i).getStartTimeAsInstant())
-                        .and(where("baseIssue.dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
+            for (DueDateRange dueDateRange : filter.getDueDates()) {
+                dueDateCondition = dueDateCondition.or(where("baseIssue.dueDate").isGreaterThanOrEqual(dueDateRange.getStartTimeAsInstant())
+                        .and(where("baseIssue.dueDate").isLessThan(dueDateRange.getEndTimeAsInstant())));
             }
             condition = condition.and(dueDateCondition);
         }
