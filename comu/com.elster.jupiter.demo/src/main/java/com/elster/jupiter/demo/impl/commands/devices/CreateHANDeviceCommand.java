@@ -11,15 +11,19 @@ import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 
+import com.google.common.collect.ImmutableMap;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,28 +34,35 @@ public class CreateHANDeviceCommand {
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;
+    private final SecurityManagementService securityManagementService;
     private final Provider<ActivateDevicesCommand> activateDevicesCommandProvider;
     private final Clock clock;
 
     private DeviceTypeTpl deviceTypeTpl;
     private DeviceConfiguration deviceConfiguration;
     private String serialNumber;
-    private String prefix;
+    private String deviceName;
     private String linkToDeviceName;
-    private String serialPrefix = "";
-    private String serialSuffix = "";
     private ComScheduleTpl comschedule;
+    private ImmutableMap<String, String> securityAccesors;
+    private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
     public CreateHANDeviceCommand(DeviceService deviceService,
                                   TopologyService topologyService,
+                                  SecurityManagementService securityManagementService,
                                   Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
                                   Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
                                   Clock clock) {
         this.deviceService = deviceService;
         this.topologyService = topologyService;
+        this.securityManagementService = securityManagementService;
         this.activateDevicesCommandProvider = activateDevicesCommandProvider;
         this.clock = clock;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public void setSerialNumber(String serialNumber) {
@@ -69,18 +80,6 @@ public class CreateHANDeviceCommand {
         this.deviceConfiguration = deviceConfiguration;
     }
 
-    public void withPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public void withSerialPrefix(String serialPrefix) {
-        this.serialPrefix = serialPrefix;
-    }
-
-    public void withSerialSuffix(String serialSuffix) {
-        this.serialSuffix = serialSuffix;
-    }
-
     public void linkTo(String deviceName) {
         this.linkToDeviceName = deviceName;
     }
@@ -89,7 +88,11 @@ public class CreateHANDeviceCommand {
         this.comschedule = comSchedule;
     }
 
-    public void run() {
+    public void withSecurityAccesors(ImmutableMap<String, String> securityAccesors) {
+        this.securityAccesors = securityAccesors;
+    }
+
+    public String run() {
         if (this.serialNumber == null) {
             throw new UnableToCreate("Please specify the serial number for device");
         }
@@ -104,23 +107,41 @@ public class CreateHANDeviceCommand {
         }
         Device master = deviceService.findDeviceByName(linkToDeviceName).get();
         if(master.getState().getName().equals(DefaultState.ACTIVE.getKey())) {
-            String name = prefix + this.serialNumber;
             DeviceBuilder deviceBuilder = Builders.from(DeviceBuilder.class)
-                    .withName(name)
-                    .withShippingDate(this.clock.instant().minusSeconds(60))
-                    .withSerialNumber(serialPrefix + this.serialNumber.substring(0, 8) + serialSuffix)
+                    .withName(deviceName)
+                    .withShippingDate(this.clock.instant().minus(30, ChronoUnit.DAYS))
+                    .withSerialNumber(this.serialNumber)
                     .withDeviceConfiguration(this.deviceConfiguration)
                     .withComSchedules(Collections.singletonList(Builders.from(comschedule).get()));
             deviceBuilder.get();
 
-            Device device = deviceService.findDeviceByName(name).get();
+            Device device = deviceService.findDeviceByName(deviceName).get();
             master.getLocation().ifPresent(device::setLocation);
             master.getSpatialCoordinates().ifPresent(device::setSpatialCoordinates);
+            addSecurityPropertiesToDevice(device);
             device.save();
             topologyService.setPhysicalGateway(device, master);
             ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
             activateDevicesCommand.setDevices(Collections.singletonList(device));
             activateDevicesCommand.run();
+
+            return deviceName;
         }
+        return "";
+    }
+
+    private void addSecurityPropertiesToDevice(Device device) {
+        if (securityAccesors != null) {
+            securityAccesors.forEach((name, value) ->
+                    getKeyAccessorValuePersister().persistKeyAccessorValue(device, name, value)
+            );
+        }
+    }
+
+    private KeyAccessorValuePersister getKeyAccessorValuePersister() {
+        if (keyAccessorValuePersister == null) {
+            keyAccessorValuePersister = new KeyAccessorValuePersister(securityManagementService);
+        }
+        return keyAccessorValuePersister;
     }
 }

@@ -23,6 +23,8 @@ public final class Constants {
         public static final String A3_DEVICE = "DTech-A3-";
         public static final String A3_SERIAL_NUMBER = "18358577";
 
+        public static final String BEACON_PREFIX = "SPB";
+        public static final String BEACON_SLAVE_PREFIX = "SPBS";
         private Device() {}
     }
 }
