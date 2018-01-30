@@ -18,7 +18,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
 
     init: function () {
         this.control({
-            '#mdc-registered-devices-on-gateway-frequency-combo': {
+            '#mdc-registered-devices-add-gateway-frequency-combo': {
                 select: this.onSelectFrequency
             }
         });

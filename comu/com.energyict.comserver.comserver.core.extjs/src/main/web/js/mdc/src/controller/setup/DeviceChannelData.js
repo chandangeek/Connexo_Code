@@ -465,7 +465,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         .add(gasDayYearStart.get('minutes'), 'minutes');
                 }
                 filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(fromDate.toDate());
-            } else {
+            } else if (router.getQueryStringValues().validationBlock) {
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(Number(router.getQueryStringValues().validationBlock));
+            }
+            else {
                 var fromDate = channel.get('lastReading');
                 if (!Ext.isEmpty(gasDayYearStart)) {
                     var lastReading = moment(channel.get('lastReading')),
@@ -1274,7 +1277,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.down('#form-errors').show();
                             if (Ext.isArray(responseText.errors)) {
                                 adjustedPropertyFormErrors = responseText.errors.map(function (error) {
-                                    if (error.id.startsWith('properties.')) {
+                                    if (Ext.String.startsWith(error.id, 'properties.')) {
                                         error.id = error.id.slice(11);
                                     }
                                     return error;
