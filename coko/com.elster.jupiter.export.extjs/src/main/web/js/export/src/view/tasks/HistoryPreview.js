@@ -18,7 +18,7 @@ Ext.define('Dxp.view.tasks.HistoryPreview', {
             {
                 xtype: 'uni-button-action',
                 itemId: 'history-preview-actions-button',
-                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
+                privileges: Dxp.privileges.DataExport.run,
                 menu: {
                     xtype: 'history-grid-action-menu',
                     itemId: 'history-grid-action-menu',
