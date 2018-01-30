@@ -257,7 +257,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             case 'viewHistory':
                 route = 'devices/device/registers/registerdata/history';
                 filterParams = {
-                    endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp'))
+                    endInterval: Number(menu.record.get('timeStamp') - 1) + '-' + Number(menu.record.get('timeStamp')),
+                    oneInterval: true
                 };
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);

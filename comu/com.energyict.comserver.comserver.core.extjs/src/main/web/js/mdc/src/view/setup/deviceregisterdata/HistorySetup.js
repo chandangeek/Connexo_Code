@@ -72,16 +72,18 @@ Ext.define('Mdc.view.setup.deviceregisterdata.HistorySetup', {
                     }
                 }
             ],
-            dockedItems: [
-                {
-                    dock: 'top',
-                    xtype: 'device-register-history-filter',
-                    itemId: 'device-register-history-filter',
-                    hidden: !me.showFilter,
-                    filterDefault: me.filterDefault
-                }
-            ]
+
         };
+
+        me.showFilter && (me.content.dockedItems = [
+            {
+                dock: 'top',
+                xtype: 'device-register-history-filter',
+                itemId: 'device-register-history-filter',
+                hidden: !me.showFilter,
+                filterDefault: me.filterDefault
+            }
+        ]);
 
         me.callParent(arguments);
     }

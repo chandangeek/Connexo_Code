@@ -89,16 +89,30 @@ Ext.define('Mdc.controller.setup.DeviceRegisterHistoryData', {
                             router: router,
                             register: register,
                             type: type,
-                            showFilter: router.queryParams.changedDataOnly == 'yes',
+                            showFilter: !router.queryParams.oneInterval,
                             filterDefault: {
                                 defaultFromDate: new Date(Number(router.queryParams.endInterval.split('-')[0])),
                                 defaultToDate: new Date(Number(router.queryParams.endInterval.split('-')[1]))
                             }
                         });
                         var store = widget.down('#device-registers-history').store;
-                        widget.down('#device-register-history-filter').store = store;
+                        widget.down('#device-register-history-filter') && (widget.down('#device-register-history-filter').store = store);
                         me.getApplication().fireEvent('changecontentevent', widget);
                         store.getProxy().setUrl(deviceId, registerId);
+                        if (!!router.queryParams.oneInterval) {
+                            store.proxy.extraParams = {
+                                filter: Ext.encode([
+                                    {
+                                        "property": "intervalStart",
+                                        "value": Number(router.queryParams.endInterval.split('-')[0])
+                                    },
+                                    {
+                                        "property": "intervalEnd",
+                                        "value": Number(router.queryParams.endInterval.split('-')[1])
+                                    }
+                                ])
+                            };
+                        }
                         store.load({
                             callback: function (records) {
                                 me.getApplication().fireEvent('loadDevice', device);
