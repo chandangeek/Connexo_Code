@@ -17,7 +17,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -63,7 +67,9 @@ public class DeviceResource {
 
                 serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
                 headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+                if (!serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
+                    serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+                }
 
                 context.commit();
                 return Response.accepted().build();

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
 public class DeviceCommandInfo {
-    public String command;
+    public Command command;
     @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
     public String keyAccessorType;
