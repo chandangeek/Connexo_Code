@@ -308,6 +308,17 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public List<TrustStore> findTrustStores(TrustStoreFilter trustStoreFilter) {
+        Condition searchCondition = Condition.TRUE;
+        if (trustStoreFilter.nameContains.isPresent()) {
+            searchCondition = searchCondition.and(where(TrustStoreImpl.Fields.NAME.fieldName()).isNotNull()
+                    .and(where(TrustStoreImpl.Fields.NAME.fieldName()).likeIgnoreCase("*" + trustStoreFilter.nameContains.get() + "*")));
+        }
+        return getDataModel().mapper(TrustStore.class).select(searchCondition, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
+    }
+
+
+    @Override
     public List<KeypairWrapper> getAllKeyPairs() {
         return getDataModel().mapper(KeypairWrapper.class).select(Condition.TRUE, Order.ascending(KeypairWrapperImpl.Fields.ALIAS.fieldName()).toUpperCase());
     }
@@ -802,6 +813,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(dataSearchFilter.trustStore.get()));
         } else {
             searchCondition = searchCondition.and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        }
+
+        if (dataSearchFilter.aliasContains.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).isNotNull()
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).likeIgnoreCase("*" + dataSearchFilter.aliasContains.get() + "*")));
         }
 
         return searchCondition;

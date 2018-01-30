@@ -54,10 +54,16 @@ public interface SecurityManagementService {
     Optional<TrustStore> findTrustStore(long id);
 
     /**
-     * Returns a lost of all trust stores
+     * Returns a list of all trust stores
      * @return List of trust stores
      */
     List<TrustStore> getAllTrustStores();
+
+    /**
+     * Returns a list (through paged finder)  of trust stores
+     * @return List of trust stores
+     */
+    List<TrustStore> findTrustStores(TrustStoreFilter filter);
 
     /**
      * Returns a list of all keypair wrappers that exist in the system. There is expected to be a limited set of keypair wrappers.
@@ -397,6 +403,11 @@ public interface SecurityManagementService {
         public Optional<List<String>> keyUsages;
         public Optional<Instant> intervalFrom;
         public Optional<Instant> intervalTo;
+        public Optional<String> aliasContains;
+    }
+
+    class TrustStoreFilter {
+        public Optional<String> nameContains;
     }
 
     QueryService getQueryService() ;
