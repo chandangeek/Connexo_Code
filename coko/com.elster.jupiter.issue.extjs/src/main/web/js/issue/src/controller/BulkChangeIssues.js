@@ -436,23 +436,26 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         warnCount = obj.failure[0].issues.length;
                         warnList = '<h4>' + obj.failure[0].reason + '</h4><br>';
                     } else {
+
                         Ext.each(obj.failure, function (fail) {
                             switch (fail.reason) {
                                 case 'Issue doesn\'t exist':
                                     warnList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
+                                        var issueType = me.getIssueType(record.get('issues'), issue.id);
                                         warnCount += 1;
                                         warnIssues.push(issue.id);
-                                        failList += '<li>- <a href="#/workspace/issues/'+ issue.id +'?issueType=datacollection">' + issue.title + '</a></li>';
+                                        failList += '<li>- <a href="#/workspace/issues/' + issue.id + '?issueType=' + issueType + '">' + issue.title + '</a></li>';
                                     });
                                     warnList += '</ul>';
                                     break;
                                 default:
                                     failList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
+                                        var issueType = me.getIssueType(record.get('issues'), issue.id);
                                         failedCount += 1;
                                         failedIssues.push(issue.id);
-                                        failList += '<li>- <a href="#/workspace/issues/'+ issue.id +'?issueType=datacollection">' + issue.title + '</a></li>';
+                                        failList += '<li>- <a href="#/workspace/issues/' + issue.id + '?issueType=' + issueType + '">' + issue.title + '</a></li>';
                                     });
                                     failList += '</ul>';
                             }
@@ -930,5 +933,15 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     beforeStep4: function () {
         return true;
+    },
+
+    getIssueType: function (array, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].data.id === value) {
+                return array[i].data.issueType.uid;
+            }
+        }
+        return null;
     }
+
 });
