@@ -69,7 +69,9 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors'),
+                        text: me.deviceTypeId
+                            ? Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors')
+                            : Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
                         itemId: 'mdc-add-security-accessor',
                         deviceTypeId: me.deviceTypeId
                     }

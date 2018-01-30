@@ -10,7 +10,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                hidden: this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey')),
+                hidden: !!(this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey'))),
                 action: 'changePrivileges',
                 itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT
@@ -34,6 +34,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 text: Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 checkPassive: true,
+                hidden: true,
                 action: 'clearPassiveCertificate',
                 itemId: 'menu-sa-clear-passive-certificate',
                 section: this.SECTION_EDIT
@@ -42,6 +43,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 text: Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 checkPassive: true,
+                hidden: true,
                 action: 'activatePassiveCertificate',
                 itemId: 'menu-sa-activate-passive-certificate',
                 section: this.SECTION_EDIT
