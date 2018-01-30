@@ -142,7 +142,7 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      *
      * @param obsolete bool value to be set as obsolete flag
      */
-    void setObsoleteFlagAndSave(boolean obsolete);
+    void setObsolete(boolean obsolete);
 
     /**
      * @return boolean value that specifies obsolete status for this certificate

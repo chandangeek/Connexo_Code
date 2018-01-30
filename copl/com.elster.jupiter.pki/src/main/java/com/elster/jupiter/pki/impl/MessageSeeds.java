@@ -65,8 +65,13 @@ public enum MessageSeeds implements MessageSeed {
     CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE(1045, "CaErrorNoSelfSignedCertificate", "CA runtime error: no self signed certificate with alias {0} found"),
     CA_RUNTIME_ERROR_NO_CLIENT_CERTIFICATE(1046, "CaErrorNoClientCertificate", "CA runtime error: no client certificate with alias {0} found"),
     CA_RUNTIME_ERROR_NO_PRIVATE_KEY_FOR_CLIENT_CERTIFICATE(1047, "CaErrorNoPrivateKey", "CA runtime error: no private key for client certificate found"),
-    INVALID_REVOCATION_REASON(1048, "InvalidRevocationReason", "Invalid revocation reason: {0}");
-
+    INVALID_REVOCATION_REASON(1048, "InvalidRevocationReason", "Invalid revocation reason: {0}"),
+    EXCESSIVE_TIME_DURATION(1049, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
+    VETO_TRUSTSTORE_DELETION(1050, "trustStoreXstillInUse", "Trust store {0} is still in use"),
+    TEMP_VALUE_NOT_SET(1051, "NoTempValue", "The security accessor does not contain a temporary value"),
+    NO_ACTUAL_CERTIFICATE(1052, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
+    ACTUAL_VALUE_NOT_SET(1053, "NoActualValue", "The security accessor does not contain an actual value"),
+    VETO_CERTIFICATE_DELETION(1054, "VetoCertificateDeletion", "This certificate is still in use.");
 
     private final int number;
     private final String key;
@@ -123,6 +128,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
+        public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
     }
 
 }

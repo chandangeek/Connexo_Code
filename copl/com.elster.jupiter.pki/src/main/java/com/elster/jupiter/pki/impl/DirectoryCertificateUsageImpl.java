@@ -76,6 +76,11 @@ public class DirectoryCertificateUsageImpl implements DirectoryCertificateUsage 
     }
 
     @Override
+    public String getDirectoryName() {
+        return directory.get().getDomain();
+    }
+
+    @Override
     public Optional<TrustStore> getTrustStore() {
         return trustStore.getOptional();
     }

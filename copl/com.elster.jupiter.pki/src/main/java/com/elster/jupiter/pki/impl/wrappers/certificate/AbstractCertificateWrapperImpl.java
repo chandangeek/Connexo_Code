@@ -13,6 +13,8 @@ import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.VetoDeleteCertificateException;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
@@ -57,9 +59,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     private final DataModel dataModel;
     private final EventService eventService;
-
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
+    private final SecurityManagementService securityManagementService;
+
     public static final Map<String, Class<? extends CertificateWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
                     CLIENT_CERTIFICATE_DISCRIMINATOR, ClientCertificateWrapperImpl.class,
@@ -117,11 +120,16 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private Instant modTime;
     private boolean obsolete;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel,
+                                          Thesaurus thesaurus,
+                                          PropertySpecService propertySpecService,
+                                          EventService eventService,
+                                          SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
+        this.securityManagementService = securityManagementService;
     }
 
     @Override
@@ -277,6 +285,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     @Override
     public void delete() {
+        if (securityManagementService.isUsedByCertificateAccessors(this)) {
+            throw new VetoDeleteCertificateException(thesaurus, this);
+        }
         this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
         this.eventService.postEvent(EventType.CERTIFICATE_DELETED.topic(), this);
@@ -394,14 +405,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public void setObsoleteFlagAndSave(boolean obsolete) {
-        if (obsolete){
-            //post and handle event
-            eventService.postEvent(EventType.CERTIFICATE_VALIDATE_OBSOLETE.topic(), this);
-        }
+    public void setObsolete(boolean obsolete) {
         this.obsolete = obsolete;
-        save();
-
     }
 
     @Override

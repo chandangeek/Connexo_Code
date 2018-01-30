@@ -5,23 +5,33 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
+import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.users.UserDirectory;
 import javafx.scene.chart.ValueAxis;
+
+import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     PKI_KEYTYPES {
@@ -183,7 +193,6 @@ public enum TableSpecs {
         }
     },
 
-
     PKI_DIRECTORY_CERTIFICATE {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
@@ -222,9 +231,201 @@ public enum TableSpecs {
                     .add();
 
         }
+    },
+
+    PKI_SECACCESSORTYPE {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<SecurityAccessorType> table = dataModel.addTable(name(), SecurityAccessorType.class);
+            table.map(SecurityAccessorTypeImpl.class);
+            table.previouslyNamed(Range.lessThan(Version.version(10, 4)), Constants.PKI_SECACCESSORTYPE_TABLE_UP_TO_10_4);
+            Column id = table.addAutoIdColumn();
+            table.setJournalTableName(Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE);
+            table.addAuditColumns();
+            Column nameColumn = table.column("NAME")
+                    .varChar()
+                    .notNull()
+                    .map(SecurityAccessorTypeImpl.Fields.NAME.fieldName())
+                    .since(Version.version(10, 3))
+                    .add();
+            Column deviceType = table.column("DEVICETYPEID")
+                    .number()
+                    .notNull()
+                    .during(Range.closedOpen(Version.version(10, 3), Version.version(10, 4)))
+                    .add();
+            table.column("DESCRIPTION")
+                    .varChar()
+                    .map(SecurityAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
+                    .since(Version.version(10, 3))
+                    .add();
+            table.column("DURATION").number()
+                    .conversion(NUMBER2INT)
+                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".count")
+                    .since(Version.version(10, 3))
+                    .add();
+            table.column("DURATIONCODE").number()
+                    .conversion(NUMBER2INT)
+                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".timeUnitCode")
+                    .since(Version.version(10, 3))
+                    .add();
+            table.column("ENCRYPTION")
+                    .varChar()
+                    .map(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
+                    .since(Version.version(10, 3))
+                    .add();
+            Column keytypeid = table.column("KEYTYPEID")
+                    .number()
+                    .notNull()
+                    .since(Version.version(10, 3))
+                    .add();
+            Column trustStoreId = table.column("TRUSTSTOREID")
+                    .number()
+                    .since(Version.version(10, 3))
+                    .add();
+            table.column(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.name())
+                    .bool()
+                    .map(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.fieldName())
+                    .notNull()
+                    .since(Version.version(10, 4))
+                    .add();
+            table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
+                    .on(deviceType)
+                    // need to reference some existent table here to pass orm checks,
+                    // even if this constraint is obsolete
+                    .references(name())
+                    .map("deviceType")
+                    .composition()
+                    .during(Range.closedOpen(Version.version(10, 3), Version.version(10, 4)))
+                    .add();
+            ForeignKeyConstraint oldKeyTypeConstraint = table.foreignKey("FK_DTC_KEYACCCESSOR_KEYTYPE")
+                    .on(keytypeid)
+                    .references(KeyType.class)
+                    .map(SecurityAccessorTypeImpl.Fields.KEYTYPE.fieldName())
+                    .upTo(Version.version(10, 4))
+                    .add();
+            table.foreignKey("FK_PKI_SECACCESSOR_KEYTYPE")
+                    .on(keytypeid)
+                    .references(KeyType.class)
+                    .map(SecurityAccessorTypeImpl.Fields.KEYTYPE.fieldName())
+                    .since(Version.version(10, 4))
+                    .previously(oldKeyTypeConstraint)
+                    .add();
+            ForeignKeyConstraint oldTrustStoreConstraint = table.foreignKey("FK_DTC_KEYACCCESSOR_TRUSTSTORE")
+                    .on(trustStoreId)
+                    .references(TrustStore.class)
+                    .map(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
+                    .upTo(Version.version(10, 4))
+                    .add();
+            table.foreignKey("FK_PKI_SECACCESSOR_TRUSTSTORE")
+                    .on(trustStoreId)
+                    .references(TrustStore.class)
+                    .map(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
+                    .since(Version.version(10, 4))
+                    .previously(oldTrustStoreConstraint)
+                    .add();
+            PrimaryKeyConstraint oldPrimaryKey = table.primaryKey("PK_DTC_KEYACCESSOR")
+                    .on(id)
+                    .upTo(Version.version(10, 4))
+                    .add();
+            table.primaryKey("PK_PKI_SECACCESSORTYPE")
+                    .on(id)
+                    .since(Version.version(10, 4))
+                    .previously(oldPrimaryKey)
+                    .add();
+            table.unique("UK_PKI_SECACCESSORNAME").on(nameColumn).since(version(10, 4)).add();
+        }
+    },
+
+    PKI_SECACCTYPEUSRACTN {
+        @Override
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<UserActionRecord> table = dataModel.addTable(name(), UserActionRecord.class).since(version(10, 3));
+            table.map(UserActionRecord.class);
+            table.previouslyNamed(Range.lessThan(Version.version(10, 4)), "DTC_KEYACCTYPEUSRACTN");
+            Column userAction = table.column("USERACTION")
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .notNull()
+                    .map("userAction")
+                    .add();
+            Column keyAccessorType = table.column("KEYACCESSORTYPE")
+                    .number()
+                    .notNull()
+                    .add();
+            table.setJournalTableName(Constants.PKI_SECACCTYPEUSRACTN_JOURNAL_TABLE);
+            table.addAuditColumns();
+            ForeignKeyConstraint oldAccessorTypeConstraint = table.foreignKey("FK_DTC_KEYACCTYPE_USRACTN")
+                    .on(keyAccessorType)
+                    .references(SecurityAccessorType.class)
+                    .reverseMap("userActionRecords")
+                    .composition()
+                    .map("keyAccessorType")
+                    .upTo(Version.version(10, 4))
+                    .add();
+            table.foreignKey("FK_PKI_SECACCTYPE_USRACTN")
+                    .on(keyAccessorType)
+                    .references(SecurityAccessorType.class)
+                    .reverseMap("userActionRecords")
+                    .composition()
+                    .map("keyAccessorType")
+                    .since(Version.version(10, 4))
+                    .previously(oldAccessorTypeConstraint)
+                    .add();
+            PrimaryKeyConstraint oldPrimaryKey = table.primaryKey("PK_DTC_KEYACCTYPEUSRACTN")
+                    .on(userAction, keyAccessorType)
+                    .upTo(Version.version(10, 4))
+                    .add();
+            table.primaryKey("PK_PKI_SECACCTYPEUSRACTN")
+                    .on(userAction, keyAccessorType)
+                    .since(Version.version(10, 4))
+                    .previously(oldPrimaryKey)
+                    .add();
+        }
+    },
+
+    PKI_SECACCESSOR {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<SecurityAccessor> table = dataModel.addTable(name(), SecurityAccessor.class).since(version(10, 4));
+            table.map(AbstractSecurityAccessorImpl.IMPLEMENTERS);
+            Column keyAccessorType = table.column("SECACCESSORTYPE").number().notNull().add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+
+            Column actualCertificate = table.column("ACTUAL_CERT").number().add();
+            Column tempCertificate = table.column("TEMP_CERT").number().add();
+            table.column("SWAPPED")
+                    .bool()
+                    .map(AbstractSecurityAccessorImpl.Fields.SWAPPED.fieldName())
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("PK_PKI_SECACCESSOR").on(keyAccessorType).add();
+            table.foreignKey("FK_PKI_SECACC_2_TYPE")
+                    .on(keyAccessorType)
+                    .references(SecurityAccessorType.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
+                    .add();
+            table.foreignKey("FK_PKI_SECACC_2_ACT_CERT")
+                    .on(actualCertificate)
+                    .references(CertificateWrapper.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName())
+                    .add();
+            table.foreignKey("FK_PKI_SECACC_2_TEMP_CERT")
+                    .on(tempCertificate)
+                    .references(CertificateWrapper.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName())
+                    .add();
+        }
     }
     ;
 
     abstract void addTo(DataModel component, Encrypter encrypter);
 
+    public interface Constants {
+        String PKI_SECACCESSORTYPE_TABLE_UP_TO_10_4 = "DTC_KEYACCESSORTYPE";
+        String PKI_SECACCESSORTYPE_JOURNAL_TABLE_UP_TO_10_4 = "DTC_KEYACCESSORTYPEJRNL";
+        String PKI_SECACCESSORTYPE_JOURNAL_TABLE = "PKI_SECACCESSORTYPEJRNL";
+        String PKI_SECACCTYPEUSRACTN_JOURNAL_TABLE_UP_TO_10_4 = "DTC_KEYACCTYPE_USRACTNJRNL";
+        String PKI_SECACCTYPEUSRACTN_JOURNAL_TABLE = "PKI_SECACCTYPEUSRACTNJRNL";
+    }
 }
