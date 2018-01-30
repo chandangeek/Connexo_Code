@@ -41,7 +41,6 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         {ref: 'periodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter'},
         {ref: 'applyButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=apply]'},
         {ref: 'clearButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=clear]'},
-        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'},
         {ref: 'gatewayPeriodFilter', selector: 'registered-devices-on-gateway-view #mdc-registered-devices-on-gateway-filters #mdc-registered-devices-on-gateway-period-filter'}
     ],
 
