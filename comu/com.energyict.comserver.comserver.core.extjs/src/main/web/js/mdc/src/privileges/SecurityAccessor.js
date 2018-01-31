@@ -7,7 +7,7 @@ Ext.define('Mdc.privileges.SecurityAccessor', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['view.security.accessors'],
+    view: ['view.security.accessors', 'edit.security.accessors'],
     admin: ['edit.security.accessors'],
     all: function () {
         return Ext.Array.merge(Mdc.privileges.SecurityAccessor.view, Mdc.privileges.SecurityAccessor.admin);

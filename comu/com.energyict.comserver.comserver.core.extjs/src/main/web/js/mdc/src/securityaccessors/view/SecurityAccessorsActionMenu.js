@@ -10,7 +10,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                hidden: !!(this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey'))),
+                hidden: true,
                 action: 'changePrivileges',
                 itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT
@@ -58,5 +58,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.down('#menu-sa-activate-passive-certificate')
         &&  this.down('#menu-sa-activate-passive-certificate')
                 .setVisible(!this.deviceTypeId && record.get('passiveCertificate'));
+        this.down('#menu-sa-change-privileges')
+        &&  this.down('#menu-sa-change-privileges')
+                .setVisible(!this.deviceTypeId && record.get('isKey'));
     }
 });

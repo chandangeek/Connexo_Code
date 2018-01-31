@@ -18,6 +18,7 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
             {
                 xtype: 'uni-button-action',
                 privileges: Mdc.privileges.DeviceType.admin,
+                disabled: !Mdc.privileges.SecurityAccessor.canAdmin(),
                 itemId: 'mdc-security-accessor-preview-button',
                 menu: {
                     xtype: 'security-accessors-action-menu',
