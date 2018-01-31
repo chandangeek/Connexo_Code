@@ -140,7 +140,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      * @param includeInheritedProperties boolean indicating whether or not the inherited values should be set as well -
      *                                   if true, the inherited properties are added <b>as local</b> property of this instance
      */
-    private void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties, boolean includeInheritedProperties) {
+    public void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties, boolean includeInheritedProperties) {
         /* If needed, first we add the inherited properties, then the local (so we can overwrite the inherited) */
         if (includeInheritedProperties && otherTypedProperties.getInheritedProperties() != null) {
             this.setAllProperties(otherTypedProperties.getInheritedProperties(), true);

@@ -15,6 +15,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.CRL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
@@ -47,6 +48,7 @@ public interface CertificateWrapperExtractor {
 
     PrivateKey getPrivateKey(CertificateWrapper clientCertificateWrapper) throws InvalidKeyException;
 
+    Optional<CRL> getCRL(CertificateWrapper trustedCertificateWrapper);
 
     //TODO also support ClientCertificateWrapper extraction (including its certificate and private key)
 
