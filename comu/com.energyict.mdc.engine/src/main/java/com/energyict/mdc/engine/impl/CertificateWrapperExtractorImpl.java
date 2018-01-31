@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -24,6 +25,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.CRL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -131,6 +133,16 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
             return ((ClientCertificateWrapper) connexoCertificateWrapper).getPrivateKeyWrapper().getPrivateKey().get();
         } else {
             throw new IllegalArgumentException("The given CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must be of type ClientCertificateWrapper");
+        }
+    }
+
+    @Override
+    public Optional<CRL> getCRL(CertificateWrapper trustedCertificateWrapper) {
+        com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = toConnexoCertificateWrapper(trustedCertificateWrapper);
+        if (connexoCertificateWrapper instanceof TrustedCertificate) {
+            return ((TrustedCertificate) connexoCertificateWrapper).getCRL();
+        } else {
+            throw new IllegalArgumentException("The given CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must be of type TrustedCertificate");
         }
     }
 }
