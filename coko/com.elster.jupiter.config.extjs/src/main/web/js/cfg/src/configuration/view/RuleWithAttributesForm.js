@@ -63,10 +63,10 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
             });
         });
 
-        records.find(function(record) {
+        _.find(records, function (record) {
             var properties = record.properties().getRange();
             if (properties.length) {
-                showActionsMenu = properties.find(function(property) {
+                showActionsMenu = _.find(properties, function (property) {
                     return property.get('canBeOverridden');
                 });
                 return showActionsMenu;
