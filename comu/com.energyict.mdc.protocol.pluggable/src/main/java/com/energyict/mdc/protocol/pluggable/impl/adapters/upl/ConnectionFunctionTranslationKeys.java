@@ -18,7 +18,8 @@ import java.util.stream.Stream;
 public enum ConnectionFunctionTranslationKeys implements TranslationKey {
 
     Gateway("ConnectionFunction.gateway", "Gateway"),
-    Mirror("ConnectionFunction.mirror", "Mirror");
+    Mirror("ConnectionFunction.mirror", "Mirror"),
+    Inbound("ConnectionFunction.inbound", "Inbound");
 
     private static final String TRANSLATION_KEY_PREFIX = "ConnectionFunction.";
 
