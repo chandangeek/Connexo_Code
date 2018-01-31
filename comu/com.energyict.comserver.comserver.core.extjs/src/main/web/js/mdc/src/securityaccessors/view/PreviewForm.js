@@ -108,7 +108,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                             }
                             var trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores'),
                                 storeIndex = trustStoresStore.findExact('id', val);
-                            return trustStoresStore.getAt(storeIndex).get('name');
+                            return storeIndex > -1 ?trustStoresStore.getAt(storeIndex).get('name') : '-';
                         }
                     },
                     {

@@ -158,7 +158,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.navigateToEditSecurityAccessor(menu.record);
                 break;
             case 'remove':
-                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) : me.removeSecurityAccessor(menu.record);
+                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) : me.removeSecurityAccessor(me.selectedRecord);
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
@@ -196,6 +196,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         gridMenu.setLoading();
 
         var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
+
         model.load(recordParam.get('id'), {
             success: function (keyRecord) {
                 processRecord(keyRecord);

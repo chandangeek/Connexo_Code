@@ -34,6 +34,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
             stepItems: [
                 {
                     xtype: 'button',
+                    privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                     text: me.deviceTypeId
                         ? Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors')
                         : Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
