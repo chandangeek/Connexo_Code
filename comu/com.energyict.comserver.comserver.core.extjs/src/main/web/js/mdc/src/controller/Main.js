@@ -425,7 +425,7 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
-        if (Mdc.privileges.SecurityAccessor.canView()) {
+        if (Mdc.privileges.RegisteredDevicesKpi.canView()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
                 portal: 'administration',
@@ -433,50 +433,21 @@ Ext.define('Mdc.controller.Main', {
                 index: 10
             }));
 
-            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.security', 'MDC', 'Security'),
-                portal: 'administration',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
-                        itemId: 'lnk-metrology-configurations',
-                        href: '#/administration/securityaccessors',
-                        route: 'securityaccessors'
-                    }
-                ]
-            }));
-        }
-
-        me.addTaskManagement();
-    },
-
-    addTaskManagement: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            taskManagement = null;
-
-        if (Mdc.privileges.TaskManagement.canView()) {
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
-                portal: 'administration',
-                glyph: 'settings',
-                index: 10
-            }));
-
-            taskManagement = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.taskManagement', 'MDC', 'Task management'),
-                portal: 'administration',
-                route: 'taskmanagement',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'MDC', 'Tasks'),
-                        href: router.getRoute('administration/taskmanagement').buildUrl({}, {application: Uni.util.Application.getAppName()}),
-                        route: 'taskmanagement',
-                        itemId: 'taskmanagement'
-                    }
-                ]
-            });
-            Uni.store.PortalItems.add(taskManagement);
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.KPIs', 'MDC', 'KPIs'),
+                    portal: 'administration',
+                    route: 'regdeviceskpis',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
+                            itemId: 'mdc-workspace-registered-devices-link',
+                            privileges: Mdc.privileges.RegisteredDevicesKpi.view,
+                            href: '#/administration/regdeviceskpis'
+                        }
+                    ]
+                })
+            );
         }
 
         if (Mdc.privileges.SecurityAccessor.canView()) {
