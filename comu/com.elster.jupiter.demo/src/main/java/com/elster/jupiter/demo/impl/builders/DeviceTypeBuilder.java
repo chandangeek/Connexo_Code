@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
@@ -137,30 +138,36 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
             this.calendars.forEach(result::addCalendar);
         }
 
-        //fixme: compilation issues -> merge from master later
-//        if (this.securityAccessors != null && !this.securityAccessors.isEmpty()) {
-//            this.securityAccessors.forEach(keyAccessorTpl -> {
-//
-//                KeyType keyType = securityManagementService.getKeyType(keyAccessorTpl.getKeyType().getName())
-//                        .orElseGet(() ->
-//                                (keyAccessorTpl.getTrustStore() != null && keyAccessorTpl.getTrustStore().length() > 0) ?
-//                                        securityManagementService.newCertificateType(keyAccessorTpl.getKeyType().getName()).add() :
-//                                        securityManagementService.newSymmetricKeyType(keyAccessorTpl.getKeyType().getName(), keyAccessorTpl.getKeyType()
-//                                                .getKeyAlgorithmName(), keyAccessorTpl.getKeyType().getKeySize()).add());
-//                SecurityAccessorType.Builder keyFunctionTypeBuilder = result.addSecurityAccessorType(keyAccessorTpl.getName(), keyType)
-//                        .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
-//
-//                if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
-//                    TrustStore trustStore = securityManagementService.findTrustStore(keyAccessorTpl.getTrustStore())
-//                            .orElseGet(() -> securityManagementService.newTrustStore(keyAccessorTpl.getTrustStore()).add());
-//                    keyFunctionTypeBuilder.trustStore(trustStore);
-//                }
-//
-//                keyFunctionTypeBuilder
-//                        .duration(keyAccessorTpl.getTimeDuration())
-//                        .add();
-//            });
-//        }
+        if (this.securityAccessors != null && !this.securityAccessors.isEmpty()) {
+            // TODO: move to new key type & security accessor type builders
+            SecurityAccessorType[] securityAccessorTypes = this.securityAccessors.stream()
+                    .map(keyAccessorTpl -> {
+                        KeyType keyType = securityManagementService.getKeyType(keyAccessorTpl.getKeyType().getName())
+                                .orElseGet(() -> Checks.is(keyAccessorTpl.getTrustStore()).empty() ?
+                                        securityManagementService.newSymmetricKeyType(keyAccessorTpl.getKeyType().getName(),
+                                                keyAccessorTpl.getKeyType().getKeyAlgorithmName(),
+                                                keyAccessorTpl.getKeyType().getKeySize())
+                                                .add() :
+                                        securityManagementService.newCertificateType(keyAccessorTpl.getKeyType().getName())
+                                                .add());
+                        return securityManagementService.findSecurityAccessorTypeByName(keyAccessorTpl.getName())
+                                .orElseGet(() -> {
+                                    SecurityAccessorType.Builder builder = securityManagementService.addSecurityAccessorType(keyAccessorTpl.getName(), keyType)
+                                            .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+
+                                    if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
+                                        TrustStore trustStore = securityManagementService.findTrustStore(keyAccessorTpl.getTrustStore())
+                                                .orElseGet(() -> securityManagementService.newTrustStore(keyAccessorTpl.getTrustStore()).add());
+                                        builder.trustStore(trustStore);
+                                    }
+
+                                    return builder
+                                            .duration(keyAccessorTpl.getTimeDuration())
+                                            .add();
+                                });
+                    }).toArray(SecurityAccessorType[]::new);
+            result.addSecurityAccessorTypes(securityAccessorTypes);
+        }
 
         return applyPostBuilders(result);
     }

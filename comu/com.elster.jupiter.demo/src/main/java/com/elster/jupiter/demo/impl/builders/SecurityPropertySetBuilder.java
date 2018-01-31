@@ -11,7 +11,6 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
@@ -98,15 +97,13 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     }
 
     private SecurityAccessorType createOrGetKeyAccessorType(KeyAccessorTpl key) {
-        DeviceType deviceType = this.deviceConfiguration.getDeviceType();
-        return deviceType.getSecurityAccessorTypes()
-                .stream()
-                .filter(keyAccessorType -> keyAccessorType.getName().equals(key.getName()))
-                .findFirst()
-                .orElseGet(() -> deviceType.addSecurityAccessorType(key.getName(), createOrGetKeyType(key))
+        SecurityAccessorType securityAccessorType = securityManagementService.findSecurityAccessorTypeByName(key.getName())
+                .orElseGet(() -> securityManagementService.addSecurityAccessorType(key.getName(), createOrGetKeyType(key))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(key.getTimeDuration())
                         .add());
+        deviceConfiguration.getDeviceType().addSecurityAccessorTypes(securityAccessorType);
+        return securityAccessorType;
     }
 
     private KeyType createOrGetKeyType(KeyAccessorTpl keyAccessorType) {
