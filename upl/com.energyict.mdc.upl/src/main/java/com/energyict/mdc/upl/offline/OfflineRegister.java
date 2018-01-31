@@ -1,17 +1,18 @@
 package com.energyict.mdc.upl.offline;
 
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents an Offline version of a Register
@@ -153,5 +154,11 @@ public interface OfflineRegister extends Offline {
     default void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
     }
+
+    /**
+     * The last reading date of this register
+     */
+    @XmlAttribute
+    Optional<Instant> getLastReadingDate();
 
 }
