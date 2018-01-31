@@ -306,9 +306,9 @@ Ext.define('Mdc.commands.controller.Commands', {
                 });
                 break;
             case 2:
-                if (me.validateStep2()) {
+                me.validateStep2(function () {
                     doCallback();
-                }
+                });
                 break;
             case 3:
                 if (me.validateStep3()) {
@@ -354,33 +354,28 @@ Ext.define('Mdc.commands.controller.Commands', {
         step2Form.clearInvalid();
         me.categoriesStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
         me.categoriesStore.load(function (records, operation, success) {
-            if (records.length === 0) {
-                me.getStep2CategoryCombo().reset();
-                me.getStep2CommandCombo().reset();
-            } else if (records.length === 1) {
-                me.getStep2CategoryCombo().reset();
+            me.getStep2CategoryCombo().reset();
+            me.getStep2CommandCombo().reset();
+            if (records.length === 1) {
                 me.getStep2CategoryCombo().setValue(records[0].get('id'));
             }
             step2.setLoading(false);
         });
     },
 
-    validateStep2: function () {
+    validateStep2: function (callback) {
         var me = this,
             wizard = me.getAddCommandWizard(),
             addCommandForm = wizard.down('#mdc-add-command-step2'),
             step2ErrorMsg = me.getStep2FormErrorMessage(),
-            step2 = wizard.down('add-command-step2'),
-            commandCombo = me.getStep2CommandCombo(),
-            valid = true;
+            step2 = wizard.down('add-command-step2');
 
         if (!step2.isValid()) {
-            valid = false;
             step2ErrorMsg.show();
         } else {
-            me.wizardInformation.releaseDate = new Date(addCommandForm.getValues().releaseDate).getTime()
+            me.wizardInformation.releaseDate = new Date(addCommandForm.getValues().releaseDate).getTime();
+            me.validateAddCommandExceedsLimit(callback, addCommandForm.getValues().command, me.wizardInformation.releaseDate);
         }
-        return valid;
     },
 
     prepareStep3: function (wizard) {
@@ -489,6 +484,33 @@ Ext.define('Mdc.commands.controller.Commands', {
                         //wizard.down('#cmbw-step4').setResultMessage(action, success);
                     }
                 }
+            }
+        });
+    },
+
+    validateAddCommandExceedsLimit: function (callback, command, releaseDate) {
+        var me = this;
+        Ext.Ajax.suspendEvent('requestexception');
+        Ext.Ajax.request({
+            url: '/api/ddr/devicegroups/commands/checkExceeds/' + me.wizardInformation.deviceGroupId,
+            method: 'GET',
+            params: {
+                messageSpecificationId: command,
+                releaseDate: releaseDate
+            },
+            success: function () {
+                callback();
+            },
+            failure: function (response) {
+                var message = response.responseText || response.statusText,
+                    decoded = Ext.decode(message, true);
+                if (decoded && decoded.message){
+                    var title = Uni.I18n.translate('general.failedToAddBulkCommandTitle', 'MDC', 'Couldn\'t perform your action');
+                    me.getApplication().getController('Uni.controller.Error').showError(title, decoded.message, decoded.errorCode);
+                }
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     }
