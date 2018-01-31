@@ -1,36 +1,32 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolLoggingSupport;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
@@ -44,6 +40,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -217,6 +214,53 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
             }
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+        }
+    }
+
+    /**
+     * Add extra retries to the association request.
+     * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
+     *
+     * @param dlmsSession
+     */
+    protected void connectWithRetries(DlmsSession dlmsSession) {
+        int tries = 0;
+        while (true) {
+            ProtocolRuntimeException exception;
+            try {
+                dlmsSession.getDLMSConnection().setRetries(0); // Temporarily disable retries in the connection layer, AARQ retries are handled here
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    dlmsSession.getDlmsV2Connection().connectMAC();
+                    dlmsSession.createAssociation();
+                }
+                return;
+            } catch (ProtocolRuntimeException e) {
+                getLogger().log(Level.WARNING, e.getMessage(), e);
+                if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
+                    throw e;    // Throw real errors, e.g. unsupported security mechanism, wrong password...
+                } else if (e instanceof ConnectionCommunicationException) {
+                    throw e;
+                } else if (e instanceof DataEncryptionException) {
+                    throw e;
+                }
+                exception = e;
+            } finally {
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
+            }
+
+            // Release and retry the AARQ in case of ACSE exception
+            if (++tries > dlmsSession.getProperties().getRetries()) {
+                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
+                throw CommunicationException.protocolConnectFailed(exception);
+            } else {
+                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                try {
+                    dlmsSession.getAso().releaseAssociation();
+                } catch (ProtocolRuntimeException e) {
+                    dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                    // Absorb exception: in 99% of the cases we expect an exception here ...
+                }
+            }
         }
     }
 

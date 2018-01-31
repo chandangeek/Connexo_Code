@@ -1,11 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -15,13 +19,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -29,23 +27,9 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -60,11 +44,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -157,53 +137,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
-    }
-
-    /**
-     * Add extra retries to the association request.
-     * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
-     *
-     * @param dlmsSession
-     */
-    protected void connectWithRetries(DlmsSession dlmsSession) {
-        int tries = 0;
-        while (true) {
-            ProtocolRuntimeException exception;
-            try {
-                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
-                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    dlmsSession.getDlmsV2Connection().connectMAC();
-                    dlmsSession.createAssociation();
-                }
-                return;
-            } catch (ProtocolRuntimeException e) {
-                getLogger().log(Level.WARNING, e.getMessage(), e);
-                if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
-                    throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (e instanceof ConnectionCommunicationException) {
-                    throw e;
-                } else if (e instanceof DataEncryptionException) {
-                    throw e;
-                }
-                exception = e;
-            } finally {
-                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
-            }
-
-            //Release and retry the AARQ in case of ACSE exception
-            if (++tries > dlmsSession.getProperties().getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
-                throw CommunicationException.protocolConnectFailed(exception);
-            } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
-                try {
-                    dlmsSession.getAso().releaseAssociation();
-                } catch (ProtocolRuntimeException e) {
-                    dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
-                    // Absorb exception: in 99% of the cases we expect an exception here ...
-                }
-            }
-        }
     }
 
     @Override
@@ -346,7 +279,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
         return registerFactory;
     }
 
-    public IDISStoredValues getStoredValues() {
+    public StoredValues getStoredValues() {
         if (storedValues == null) {
             storedValues = new IDISStoredValues(this);
         }

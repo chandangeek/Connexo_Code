@@ -3,11 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.HistoricalRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.NotInObjectListException;
@@ -21,11 +17,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IDISStoredValues implements StoredValues {
 
@@ -73,14 +65,18 @@ public class IDISStoredValues implements StoredValues {
         // get the value
         IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getValueIndex() - 1);
         int value = intervalValue.getNumber().intValue();
-        Date historicalDate = intervalData.getEndTime();
+
+        Calendar calHistoricalDate = Calendar.getInstance(getProtocol().getTimeZone());
+        calHistoricalDate.setTimeInMillis(intervalData.getEndTime().getTime());
 
         // try to see if we have also event time (i.e. for extended registers)
         Date eventTime = null;
         if (channelIndex.getEventTimeIndex()>0){
             IntervalValue capturedTime = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getEventTimeIndex() - 1);
             if (capturedTime.getNumber()!=null) {
-                eventTime = new Date(capturedTime.getNumber().longValue());
+                Calendar calEventTime = Calendar.getInstance(getProtocol().getTimeZone());
+                calEventTime.setTimeInMillis(capturedTime.getNumber().longValue());
+                eventTime = calEventTime.getTime();
             }
         }
 
@@ -88,7 +84,7 @@ public class IDISStoredValues implements StoredValues {
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 
 
-        return new HistoricalValue(cosemValue, historicalDate, eventTime, 0);
+        return new HistoricalValue(cosemValue, calHistoricalDate.getTime(), eventTime, 0);
     }
 
     protected int getReversedBillingPoint(int billingPoint) throws IOException {
@@ -105,17 +101,20 @@ public class IDISStoredValues implements StoredValues {
 
         for (int index = 0; index < getBillingPointCounter(); index++) {
             DataStructure structure = getFullBuffer().getRoot().getStructure(index);
-            Date timeStamp = new Date();
+            Calendar timeStamp = Calendar.getInstance();
             List<IntervalValue> values = new ArrayList<>();
             for (int channel = 0; channel < structure.getNrOfElements(); channel++) {
                 try {
                     if (channel == 0) {
-                        timeStamp = structure.getOctetString(0).toDate();
+                        timeStamp = structure.getOctetString(0).toCalendar(getProtocol().getTimeZone());
                     } else {
                         if (structure.isInteger(channel)) {
                             value = new IntervalValue(structure.getInteger(channel), 0, 0);
+                        } else if (structure.isLong(channel)) {
+                            value = new IntervalValue(structure.getLong(channel), 0, 0);
                         } else if (structure.isOctetString(channel)){
-                            value = new IntervalValue(structure.getOctetString(channel).toDate().getTime(), 0, 0);
+                            Calendar cal = structure.getOctetString(channel).toCalendar(getProtocol().getTimeZone());
+                            value = new IntervalValue(cal.getTimeInMillis(), 0, 0);
                         } else {
                             value = new IntervalValue(null, 0, 0);
                         }
@@ -129,7 +128,7 @@ public class IDISStoredValues implements StoredValues {
                     }
                 }
             }
-            intervalDatas.add(new IntervalData(timeStamp, 0, 0, 0, values));
+            intervalDatas.add(new IntervalData(timeStamp.getTime(), 0, 0, 0, values));
         }
         profileData.setIntervalDatas(intervalDatas);
         profileData.sort();

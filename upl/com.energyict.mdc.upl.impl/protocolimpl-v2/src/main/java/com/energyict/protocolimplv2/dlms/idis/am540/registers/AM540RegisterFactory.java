@@ -27,12 +27,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * RegisterFactory created for the AM540 protocol <br/>
@@ -70,43 +65,34 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
 
     @Override
     protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
-        if (register.getObisCode() != null && register.getObisCode().equals(MAPPED_IMAGE_TRANSFER_BLOCK_SIZE)) {
-            final ComposedData mapping = this.getImageTransferBlockSizeMapping();
+        G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
 
-            composedObjectMap.put(register.getObisCode(), mapping);
-            dlmsAttributes.add(mapping.getDataValueAttribute());
+        if (g3Mapping != null && this.isNotMirroredOnDC()) {
+            ComposedRegister composedRegister = new ComposedRegister();
+            int[] attributeNumbers = g3Mapping.getAttributeNumbers();
 
+            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                return null; //Don't add the new attributes, no more room
+            }
+
+            for (int index = 0; index < attributeNumbers.length; index++) {
+                int attributeNumber = attributeNumbers[index];
+                DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+                dlmsAttributes.add(dlmsAttribute);
+
+                //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
+                if (index == 0) {
+                    composedRegister.setRegisterValue(dlmsAttribute);
+                } else if (index == 1) {
+                    composedRegister.setRegisterUnit(dlmsAttribute);
+                } else if (index == 2) {
+                    composedRegister.setRegisterCaptureTime(dlmsAttribute);
+                }
+            }
+            composedObjectMap.put(register.getObisCode(), composedRegister);
             return true;
         } else {
-            G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
-
-            if (g3Mapping != null) {
-                ComposedRegister composedRegister = new ComposedRegister();
-                int[] attributeNumbers = g3Mapping.getAttributeNumbers();
-
-                if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
-                    return null; //Don't add the new attributes, no more room
-                }
-
-                for (int index = 0; index < attributeNumbers.length; index++) {
-                    int attributeNumber = attributeNumbers[index];
-                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
-                    dlmsAttributes.add(dlmsAttribute);
-
-                    //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
-                    if (index == 0) {
-                        composedRegister.setRegisterValue(dlmsAttribute);
-                    } else if (index == 1) {
-                        composedRegister.setRegisterUnit(dlmsAttribute);
-                    } else if (index == 2) {
-                        composedRegister.setRegisterCaptureTime(dlmsAttribute);
-                    }
-                }
-                composedObjectMap.put(register.getObisCode(), composedRegister);
-                return true;
-            } else {
-                return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
-            }
+            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
         }
     }
 
@@ -134,6 +120,16 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
             }
         } else {
             return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
+        }
+    }
+
+    @Override
+    //Add a warning if it's an "old" register value
+    protected void validateRegisterResult(OfflineRegister offlineRegister, CollectedRegister collectedRegister, Date captureTime) {
+        if (isNotMirroredOnDC())
+            return;
+        if (offlineRegister.getLastReadingDate().isPresent() && offlineRegister.getLastReadingDate().get().getEpochSecond() == (captureTime.getTime() / 1000)) {
+            collectedRegister.setFailureInformation(ResultType.Other, getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(), "Received an old register value from the mirror device. This could mean that the Beacon DC was not able to read out new register values from the actual device. Please check the logbook of the Beacon device for issues."));
         }
     }
 
@@ -171,25 +167,25 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
         return invalidRegisters;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected final List<CollectedRegister> createCollectedRegisterListFromComposedCosemObject(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
-        final List<CollectedRegister> collectedRegisters = super.createCollectedRegisterListFromComposedCosemObject(registers, composedObjectMap, composedCosemObject);
+    public final List<CollectedRegister> readRegisters(final List<OfflineRegister> offlineRegisters) {
+        final List<CollectedRegister> registers = super.readRegisters(offlineRegisters);
 
-        if (!this.mapBillingRegistersFromBillingProfile()) {
+        if (!this.isNotMirroredOnDC()) {
             // If we don't map from a profile, but read directly, from a DC, we'll need to perform a couple of fixups.
-            fixupBillingRegisterTimestamps(collectedRegisters);
+            // For FW version >= 1.12.3, we have the Beacon read time in A- regs, the MDI reset time in A+ regs, and the event time in P regs.
+            // For older versions, both A+ and A- contain the MDI reset time (aka the billing time). We don't have the Beacon read time on these.
+            fixupBillingRegisterTimestamps(registers);
         }
 
-        return collectedRegisters;
+        return registers;
     }
 
     @Override
     protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
         ComposedObject composedObject = composedObjectMap.get(offlineRegister.getObisCode());
         G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(offlineRegister.getObisCode());
-        if (g3Mapping != null) {
+
+        if (g3Mapping != null && this.isNotMirroredOnDC()) {
             if (composedObject == null) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);    // Should never occur, but safety measure
             } else {
@@ -238,32 +234,45 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
      */
     private static final void fixupBillingRegisterTimestamps(final List<CollectedRegister> registers) {
         final Set<CollectedRegister> pRegisters = new HashSet<>();
-        final Set<CollectedRegister> aRegisters = new HashSet<>();
+        final Set<CollectedRegister> aPlusRegisters = new HashSet<>();
+        final Set<CollectedRegister> aMinusRegisters = new HashSet<>();
 
         for (int index = 0; index < 15; index++) {
             for (final CollectedRegister register : registers) {
                 if (isPBillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
                     pRegisters.add(register);
-                } else if (isABillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
-                    aRegisters.add(register);
+                } else if (isAPlusBillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
+                    aPlusRegisters.add(register);
+                } else if (isAMinusBillingRegister(register.getRegisterIdentifier().getRegisterObisCode(), index)) {
+                    aMinusRegisters.add(register);
                 }
             }
 
-            if (aRegisters.size() > 0) {
-                final Date toTime = aRegisters.iterator().next().getReadTime();
-                final Date readTime = new Date();
+            if (aPlusRegisters.size() > 0 && aMinusRegisters.size() > 0) {
+                final Date toTime = aPlusRegisters.iterator().next().getReadTime();
+                Date readTime = aMinusRegisters.iterator().next().getReadTime();
+
+                if (readTime == null || readTime.equals(toTime)) {
+                    // Beacon FW version < 1.12.3 doesn't keep the Beacon read time, meaning we have to use now().
+                    readTime = new Date();
+                }
 
                 for (final CollectedRegister pRegister : pRegisters) {
                     pRegister.setCollectedTimeStamps(readTime, null, toTime, pRegister.getReadTime());
                 }
 
-                for (final CollectedRegister aRegister : aRegisters) {
-                    aRegister.setCollectedTimeStamps(readTime, null, toTime);
+                for (final CollectedRegister aPlusRegister : aPlusRegisters) {
+                    aPlusRegister.setCollectedTimeStamps(readTime, null, toTime);
+                }
+
+                for (final CollectedRegister aMinusRegister : aMinusRegisters) {
+                    aMinusRegister.setCollectedTimeStamps(readTime, null, toTime);
                 }
             }
 
             pRegisters.clear();
-            aRegisters.clear();
+            aPlusRegisters.clear();
+            aMinusRegisters.clear();
         }
     }
 
@@ -271,8 +280,8 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
      * Indicates whether or not this concerns a P+- billing register.
      *
      * @param logicalName The logical name.
-     * @param        index            The index.
-     * @return        <code>true</code> if this is a P+ or P- register, <code>false</code> if not.
+     * @param index       The index.
+     * @return <code>true</code> if this is a P+ or P- register, <code>false</code> if not.
      */
     private static final boolean isPBillingRegister(final ObisCode logicalName, final int index) {
         return logicalName.getA() == 1 &&
@@ -284,28 +293,44 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
     }
 
     /**
-     * Indicates whether or not this concerns a A+- billing register.
+     * Indicates whether or not this concerns an A+ billing register.
+     *
+     * @param logicalName The logical name.
+     * @param index       The index.
+     * @return        <code>true</code> if this is an A+ register, <code>false</code> if not.
+     */
+    private static final boolean isAPlusBillingRegister(final ObisCode logicalName, final int index) {
+        return logicalName.getA() == 1 &&
+                logicalName.getB() == 0 &&
+                logicalName.getC() == 1 &&
+                logicalName.getD() == 8 &&
+                (logicalName.getE() == 0 || logicalName.getE() == 1 || logicalName.getE() == 2) &&
+                logicalName.getF() == index;
+    }
+
+    /**
+     * Indicates whether or not this concerns an A- billing register.
      *
      * @param logicalName The logical name.
      * @param        index            The index.
-     * @return        <code>true</code> if this is a A+ or A- register, <code>false</code> if not.
+     * @return        <code>true</code> if this is an A- register, <code>false</code> if not.
      */
-    private static final boolean isABillingRegister(final ObisCode logicalName, final int index) {
+    private static final boolean isAMinusBillingRegister(final ObisCode logicalName, final int index) {
         return logicalName.getA() == 1 &&
                 logicalName.getB() == 0 &&
-                (logicalName.getC() == 1 || logicalName.getC() == 2) &&
+                logicalName.getC() == 2 &&
                 logicalName.getD() == 8 &&
-                logicalName.getE() == 0 &&
+                (logicalName.getE() == 0 || logicalName.getE() == 1 || logicalName.getE() == 2) &&
                 logicalName.getF() == index;
     }
 
     /**
      * Indicates whether or not we are mapping billing registers from a billing profile.
      *
-     * @return    <code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
+     * @return <code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
      */
     @Override
-    protected final boolean mapBillingRegistersFromBillingProfile() {
+    protected final boolean isNotMirroredOnDC() {
         // Don't map these if we are using a mirror, because they have already been mapped by the Beacon itself (as it runs the AM540 protocol).
         return !((AM540) this.getMeterProtocol()).getDlmsSessionProperties().useBeaconMirrorDeviceDialect();
     }

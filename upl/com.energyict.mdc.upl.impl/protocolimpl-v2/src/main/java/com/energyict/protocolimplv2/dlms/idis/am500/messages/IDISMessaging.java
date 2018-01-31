@@ -18,19 +18,9 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
@@ -41,21 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -182,7 +158,8 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
         } else if (propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newMasterKeyAttributeName)) {
+                || propertySpec.getName().equals(DeviceMessageConstants.newMasterKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newPSKAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         }
         return messageAttribute.toString();

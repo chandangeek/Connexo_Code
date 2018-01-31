@@ -90,7 +90,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
     SetPathDiscoveryTime(3032, "Set path discovery time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.pathDiscoveryTime, DeviceMessageConstants.pathDiscoveryTimeDefaultTranslation));
+            return Collections.singletonList(this.durationSpec(service, DeviceMessageConstants.pathDiscoveryTime, DeviceMessageConstants.pathDiscoveryTimeDefaultTranslation));
         }
     },
     SetMaxNumberOfHopsAttributeName(3026, "Set maximum number of hops") {

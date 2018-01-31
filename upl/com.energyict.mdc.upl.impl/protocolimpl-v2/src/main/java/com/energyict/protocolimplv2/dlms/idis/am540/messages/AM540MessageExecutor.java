@@ -1,29 +1,19 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -31,13 +21,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540Cache;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
@@ -45,23 +29,12 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50Activ
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -77,6 +50,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final ObisCode MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS = ObisCode.fromString("1.0.0.8.2.255");
     private static final ObisCode BILLING_SCRIPT_TABLE_OBIS_CODE = ObisCode.fromString("0.0.10.0.1.255");
     private static final ObisCode ADHOC_END_OF_BILLING = ObisCode.fromString("0.0.15.1.0.255");
+    private static final ObisCode PSK_RENEWAL_OBISCODE = ObisCode.fromString("0.0.94.33.128.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -122,10 +96,62 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 collectedMessage = configureLoadLimitParametersEVN_Attributes_4to9(collectedMessage, pendingMessage);
             }else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BillingResetWithActivationDate)) {
                 collectedMessage = billingResetWithActivationDate(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ENABLE_AND_INITIATE_IMAGE_TRANSFER)) {
+                this.enableAndInitiateImageTransfer(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURABLE_IMAGE_TRANSFER_WITH_RESUME_OPTION)) {
+                this.executeImageTransferActions(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
+                collectedMessage = this.readDlmsAttribute(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS)) {
+                byte[] newPSKKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newPSKAttributeName), "");
+                byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+                byte[] wrappedKey = ProtocolTools.aesWrap(newPSKKey, masterKey);
+                changePSK(wrappedKey);
+            } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_USING_SERVICE_KEY)) {
+                collectedMessage = this.changePSKUsingServiceKey(pendingMessage, collectedMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
         }
+
+        return collectedMessage;
+    }
+
+    protected void changePSK(byte[] newWrappedPSK) throws IOException {
+        Data pskRenewalObject = getProtocol().getDlmsSession().getCosemObjectFactory().getData(PSK_RENEWAL_OBISCODE);
+        try {
+            pskRenewalObject.setValueAttr(OctetString.fromByteArray(newWrappedPSK));
+        } catch (ExceptionResponseException e) {
+            //Swallow this exception. It is the Beacon that responds an error because the logical device of the meter no longer exists.
+            //Indeed, this is expected behaviour because the meter disconnects immediately after the PSK is written.
+            ;
+        }
+    }
+
+    //Sub classes can override this implementation
+    protected CollectedMessage changePSKUsingServiceKey(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        throw new ProtocolException("Service keys can only be injected by the HSM crypto-protocol");
+    }
+
+    private CollectedMessage readDlmsAttribute(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        String obisCodeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.obisCode).getValue();
+        int attributeId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.attributeId).getValue());
+        int classId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.classId).getValue());
+
+        obisCodeString = obisCodeString.replace(":", ".").replace("-", ".").replace(" ", "");
+        ObisCode obisCode = ObisCode.fromString(obisCodeString);
+
+        DLMSAttribute dlmsAttribute = new DLMSAttribute(obisCode, attributeId, classId);
+
+        try {
+            ComposedCosemObject composeObject = getCosemObjectFactory().getComposedCosemObject(dlmsAttribute);
+            AbstractDataType abstractDataType = composeObject.getAttribute(dlmsAttribute);
+            collectedMessage.setDeviceProtocolInformation(abstractDataType.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            collectedMessage.setDeviceProtocolInformation(e.toString());
+        }
+
         return collectedMessage;
     }
 
@@ -193,7 +219,15 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
             adHocEndOfBilling.writeExecutionTime(executionTime);
 
-            collectedMessage.setDeviceProtocolInformation("Added a new ad-hoc end-of-billing reset to "+activationEpochString);
+            String protocolInfo = activationEpochString;
+            try {
+                Date activationDate = new Date(Long.parseLong(activationEpochString));
+                protocolInfo = activationDate.toString();
+            } catch (Exception ex) {
+                // swallow
+            }
+
+            collectedMessage.setDeviceProtocolInformation("Added a new ad-hoc end-of-billing reset to " + protocolInfo);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Failed to add an ad-hoc billing reset: " + e.getMessage();
@@ -217,33 +251,107 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return collectedMessage;
     }
 
+    /**
+     * Enable and initiate the image transfer.
+     *
+     * @param collectedMessage The output {@link CollectedMessage}.
+     * @param pendingMessage The input {@link OfflineDeviceMessage}.
+     */
+    private final void enableAndInitiateImageTransfer(final CollectedMessage collectedMessage, final OfflineDeviceMessage pendingMessage) {
+        final String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName)
+                .getValue();
+        final String imageSizeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.FW_UPGRADE_IMAGE_SIZE)
+                .getValue();
+
+        if (imageIdentifier != null && imageIdentifier.length() > 0 && imageSizeAttributeValue != null && imageSizeAttributeValue.length() > 0) {
+            final long imageSize = new BigDecimal(imageSizeAttributeValue).longValue();
+
+            try {
+                final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
+                imageTransfer.enableImageTransfer();
+
+                final Structure structure = new Structure();
+
+                structure.addDataType(OctetString.fromString(imageIdentifier));
+                structure.addDataType(new Unsigned32(imageSize));
+
+                imageTransfer.imageTransferInitiate(structure);
+            } catch (IOException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                if (this.getLogger().isLoggable(Level.WARNING)) {
+                    this.getLogger().log(Level.WARNING, "Error enabling and initiating image transfer : [" + e.getMessage() + "]", e);
+                }
+
+                final String errorMessage = new StringBuilder("Could not enable and initiate image transfer : [").append(e.getMessage()).append("]").toString();
+                collectedMessage.setDeviceProtocolInformation(errorMessage);
+                collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMessage));
+            }
+        } else {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+
+            final String errorMessage = new StringBuilder("Message contents not valid : need an image identifier and image size attribute, image identifier was [")
+                    .append(imageIdentifier)
+                    .append("], image size [")
+                    .append(imageSizeAttributeValue).append("]")
+                    .toString();
+
+            collectedMessage.setDeviceProtocolInformation(errorMessage);
+            collectedMessage.setFailureInformation(ResultType.Other, this.createMessageFailedIssue(pendingMessage, errorMessage));
+        }
+    }
+
     protected CollectedMessage verifyAndActivateFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
 
         ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
-        if (imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
+        if (imageTransferStatus.getValue() >= ImageTransferStatus.TRANSFER_INITIATED.getValue()) {
+            if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_FAILED) || imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
             try {
                 imageTransfer.verifyAndPollForSuccess();
             } catch (DataAccessResultException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 String errorMsg = "Verification of image failed: " + e.getMessage();
                 collectedMessage.setDeviceProtocolInformation(errorMsg);
-                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMsg));
+                    collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
                 return collectedMessage;
             }
+            } else {
+                collectedMessage.setDeviceProtocolInformation(collectedMessage.getDeviceProtocolInformation() + " Image verification action not executed because current Image Transfer Status was " + imageTransferStatus
+                        .getInfo() + ".");
+            }
 
+            imageTransferStatus = imageTransfer.readImageTransferStatus();
+            if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_SUCCESSFUL)) {
             try {
+                    if (activationDate.isEmpty()) {
                 imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
                 imageTransfer.imageActivation();
                 collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+                    } else {
+                        SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+                        sas.writeExecutionTime(convertLongDateToDlmsArray(Long.valueOf(activationDate)));
+                    }
             } catch (IOException e) {
+
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
+                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                     collectedMessage.setDeviceProtocolInformation("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
+                        return collectedMessage;
                 } else if (e.getMessage().toLowerCase().contains("timeout")) {
                     collectedMessage.setDeviceProtocolInformation("Image activation timed out, meter is rebooting. Moving on.");
+                        collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, collectedMessage.getDeviceProtocolInformation()));
                 } else {
                     throw e;
                 }
+            }
+        } else {
+                collectedMessage.setDeviceProtocolInformation(collectedMessage.getDeviceProtocolInformation() + " Image activation action not executed because current Image Transfer Status was: " + imageTransferStatus
+                        .getInfo() + ".");
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, collectedMessage.getDeviceProtocolInformation()));
             }
         } else {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -254,6 +362,13 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         }
 
         return collectedMessage;
+    }
+
+    protected Array convertLongDateToDlmsArray(Long epoch) {
+        Date actionTime = new Date(epoch);
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTime(actionTime);
+        return convertDateToDLMSArray(cal);
     }
 
     @Override
@@ -436,6 +551,22 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
     }
 
+    protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
+
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        if (clientInUse == clientToChangeKeyFor) {
+            //Update the key in the security provider, it is used instantly
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        }
+
+        return collectedMessage;
+    }
+
     @Override
     protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
@@ -457,5 +588,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
 
         return collectedMessage;
+    }
+
+    /**
+     * Returns the {@link Logger} to use.
+     *
+     * @return The {@link Logger}.
+     */
+    private final Logger getLogger() {
+        return this.getProtocol().getLogger();
     }
 }

@@ -37,6 +37,12 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
     protected void initializeMappings() {
         this.getMappings().addAll(getPLCStatisticsMappings());
         this.getMappings().addAll(getAdditionalPLCMappings());
+        this.getMappings().addAll(getDisconnectControlRegistering());
+        this.getMappings().addAll(getImageTransferMappings());
+        this.getMappings().addAll(getLimiterMappings());
+        this.getMappings().addAll(getBillingSchedulerMappings());
+        this.getMappings().addAll(getDisconnectControlSchedulerMappings());
+        this.getMappings().addAll(getImageTransferActivationSchedulerMappings());
     }
 
     private final List<G3Mapping> getAdditionalPLCMappings() {

@@ -213,26 +213,20 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         return collectedMessage;
     }
 
+    /*
+    Example of expected objectDefinition: 0.0.42.0.0.255,2;0.0.96.65.0.255,2,3
+    For the case when multiple attributes are present after the obis splitted by "," there will be one entry for each attribute of the same obis code
+    */
     protected List<ObjectDefinition> composePushSetupObjectDefinitions(ObisCode pushSetupObisCode, String objectDefinitionsAttributeValue) throws ProtocolException {
         List<ObjectDefinition> objectDefinitions = new ArrayList<>();
         addObjectDefinitionsToConfig(objectDefinitions, pushSetupObisCode, DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId(), 1);
-        for (String definition : objectDefinitionsAttributeValue.split(";")) {
-            ObisCode obisCode = ObisCode.fromString(definition);
+        for (String definition : objectDefinitionsAttributeValue.trim().split(";")) {
+            String[] obis_attribute = definition.split(",");
+            ObisCode obisCode = ObisCode.fromString(obis_attribute[0].trim());
             int classId = getCosemObjectFactory().getProtocolLink().getMeterConfig().getClassId(obisCode);
-            switch (classId) {
-                case 1:
-                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2); // Logical name, value
-                    break;
-                case 3:
-                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 3); // Logical name, valua, scaler_unit
-                    break;
-                case 4:
-                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 3, 5); // Logical name, value, scaler_unit, capture_time
-                case 5:
-                    addObjectDefinitionsToConfig(objectDefinitions, obisCode, classId, 1, 2, 4, 6); // Logical name, value, scaler_unit, capture_time
-                    break;
-                default:
-                    throw new ProtocolException("Object " + obisCode + " is of class " + classId + ", only objects of classes 1, 3, 4 and 5 are supported.");
+            for (int i = 1; i < obis_attribute.length; i++) { //start from 1 as the first element is the obis code
+                int attribute = Integer.parseInt(obis_attribute[i].trim());
+                objectDefinitions.add(new ObjectDefinition(classId, obisCode, attribute, 0));
             }
         }
         return objectDefinitions;

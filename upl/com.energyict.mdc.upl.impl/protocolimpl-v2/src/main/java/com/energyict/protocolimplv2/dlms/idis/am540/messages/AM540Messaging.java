@@ -12,21 +12,14 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,8 +55,11 @@ public class AM540Messaging extends AM130Messaging {
     }
 
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
+        supportedMessages.add(FirmwareDeviceMessage.ENABLE_AND_INITIATE_IMAGE_TRANSFER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(FirmwareDeviceMessage.CONFIGURABLE_IMAGE_TRANSFER_WITH_RESUME_OPTION.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
@@ -74,6 +70,7 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(DeviceActionMessage.BILLING_RESET.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(DeviceActionMessage.BillingResetWithActivationDate.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
@@ -118,12 +115,18 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_7_Parameters.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_5_Parameters.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.monitoredValueAttributeName)) {
             return messageAttribute.toString(); // Simply return as string (in IDISMessaging#format this attribute is parsed as MonitoredValue.fromDescription, which we don't want here)
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName)) {
+            return String.valueOf(((Date) messageAttribute).getTime());     //Epoch) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.pathDiscoveryTime)){
+            return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
         }
         return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }

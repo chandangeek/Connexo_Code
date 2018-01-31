@@ -1,16 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
@@ -21,15 +16,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * Copyrights EnergyICT
@@ -57,6 +44,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
+                this.bulkRequestPropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
                 this.limitMaxNrOfDaysPropertySpec(),
@@ -96,10 +84,10 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 .specBuilder(DlmsProtocolProperties.CIPHERING_TYPE, false, PropertyTranslationKeys.V2_DLMS_CIPHERING_TYPE, this.propertySpecService::stringSpec)
                 .setDefaultValue(this.getDefaultCipheringType().getDescription())
                 .addValues(
-                    CipheringType.GLOBAL.getDescription(),
-                    CipheringType.DEDICATED.getDescription(),
-                    CipheringType.GENERAL_GLOBAL.getDescription(),
-                    CipheringType.GENERAL_DEDICATED.getDescription())
+                        CipheringType.GLOBAL.getDescription(),
+                        CipheringType.DEDICATED.getDescription(),
+                        CipheringType.GENERAL_GLOBAL.getDescription(),
+                        CipheringType.GENERAL_DEDICATED.getDescription())
                 .markExhaustive()
                 .finish();
     }
@@ -144,20 +132,33 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return this.stringSpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, PropertyTranslationKeys.V2_DLMS_CALL_HOME_ID);
     }
 
-    private PropertySpec stringSpec (String name, TranslationKey translationKey) {
+    /**
+     * Returns the default ciphering type.
+     *
+     * @return The default ciphering type.
+     */
+    protected CipheringType getDefaultCipheringType() {
+        return DEFAULT_CIPHERING_TYPE;
+    }
+
+    protected PropertySpec bulkRequestPropertySpec() {
+        return this.booleanSpec(BULK_REQUEST, DEFAULT_BULK_REQUEST, PropertyTranslationKeys.V2_EICT_BULK_REQUEST_DESCRIPTION);
+    }
+
+    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::stringSpec)
                 .finish();
     }
 
-    private PropertySpec booleanSpec (String name, boolean defaultValue, TranslationKey translationKey) {
+    private PropertySpec booleanSpec(String name, boolean defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    protected PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
+    protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
@@ -176,12 +177,5 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return propertySpecService;
     }
 
-    /**
-     * Returns the default ciphering type.
-     *
-     * @return	The default ciphering type.
-     */
-    protected CipheringType getDefaultCipheringType() {
-    	return DEFAULT_CIPHERING_TYPE;
-    }
+
 }

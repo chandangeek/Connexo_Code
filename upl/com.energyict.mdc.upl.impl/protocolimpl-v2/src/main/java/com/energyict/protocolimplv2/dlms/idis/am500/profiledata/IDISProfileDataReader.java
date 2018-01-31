@@ -1,5 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -7,48 +17,18 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.*;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -169,12 +149,55 @@ public class IDISProfileDataReader {
                 Issue problem = this.issueFactory.createWarning(loadProfileReader, "loadProfileXnotsupported", correctedLoadProfileObisCode);
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
-
+            //TODO: see how to handle this validation in Connexo
+            //validateLoadProfileData(collectedLoadProfile, loadProfileReader);
             result.add(collectedLoadProfile);
         }
 
         return result;
     }
+
+    /**
+     * Indicates whether or not we are the mirror connection to read load profile.
+     */
+    protected  boolean isNotMirroredOnDC() {
+        return !((IDISProperties)protocol.getDlmsSessionProperties()).useBeaconMirrorDeviceDialect();
+    }
+
+    /*
+     * Add a warning if no LP intervals were read out from a mirror logical device
+      */
+    protected void validateLoadProfileData(CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        if (isNotMirroredOnDC())
+            return;
+        if (collectedLoadProfile.getCollectedIntervalData().isEmpty() ||
+                intervalWarningElapsed(collectedLoadProfile, loadProfileReader)) {
+            ObisCode profileObisCode = collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode();
+            collectedLoadProfile.setFailureInformation(ResultType.Other, issueFactory.createWarning(profileObisCode, "loadProfileXIssue", profileObisCode, "Received 0 LP intervals from the mirror device. This could mean that the Beacon DC was not able to read out new LP data from the actual device. Please check the logbook of the Beacon device for issues."));
+        }
+    }
+
+    private boolean intervalWarningElapsed(CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        Calendar intervalRangeEnd =  Calendar.getInstance();
+        intervalRangeEnd.setTime(Date.from(collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint()));
+        //TODO: see how to handle getBeaconWarningPeriod() in Connexo
+//        getBeaconWarningPeriod().addTo(intervalRangeEnd);
+        return Calendar.getInstance().compareTo(intervalRangeEnd) > 0;
+    }
+
+//    private Duration getBeaconWarningPeriod() {
+//        //TODO To change the string value to the SystemParameterFactory.BEACON_DATA_WARNING_PERIOD constant
+//        String beaconPeriod = MeteringWarehouse.getCurrent().getSystemProperty("beacon.data.warning period");
+//        if (beaconPeriod == null) {
+//            return new Duration(1, Duration.DAYS);
+//        }
+//        try {
+//            return Duration.fromSystemParameterString(beaconPeriod);
+//        } catch (NumberFormatException e) {
+//            return new Duration(1, Duration.DAYS);
+//        }
+//    }
+
 
     private Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
@@ -314,7 +337,7 @@ public class IDISProfileDataReader {
             attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
         }
 
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), true, new ArrayList<>(attributes.values()));
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
 
         if (correctedLoadProfileObisCode != null) {
             try {

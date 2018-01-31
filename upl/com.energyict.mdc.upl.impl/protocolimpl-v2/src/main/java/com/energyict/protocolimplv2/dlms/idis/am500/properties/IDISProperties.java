@@ -9,6 +9,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import java.math.BigDecimal;
 
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 
 /**
  * Copyrights EnergyICT
@@ -19,6 +20,7 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
 public class IDISProperties extends DlmsProperties {
 
     public static final String READCACHE_PROPERTY = "ReadCache";
+    public static final Boolean DEFAULT_BULK_REQUEST = true;
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
@@ -73,11 +75,21 @@ public class IDISProperties extends DlmsProperties {
         return dialectName != null && dialectName.equals(DeviceProtocolDialectTranslationKeys.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
-    public boolean useLogicalDeviceNameAsSerialNumber(){
+    public boolean useLogicalDeviceNameAsSerialNumber() {
         return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.USE_LOGICAL_DEVICE_NAME_AS_SERIAL, false);
     }
 
-    public boolean useUndefinedAsTimeDeviation(){
+    public boolean useUndefinedAsTimeDeviation() {
         return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false);
+    }
+
+    @Override
+    public boolean isBulkRequest() {
+        return getProperties().<Boolean>getTypedProperty(BULK_REQUEST, DEFAULT_BULK_REQUEST);
+    }
+
+    @Override
+    public boolean incrementFrameCounterForRetries() {
+        return true;
     }
 }

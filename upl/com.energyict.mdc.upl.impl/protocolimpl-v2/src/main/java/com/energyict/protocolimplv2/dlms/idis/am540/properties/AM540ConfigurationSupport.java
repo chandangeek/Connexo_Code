@@ -39,7 +39,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
     public static final String USE_METER_IN_TRANSPARENT_MODE = "UseMeterInTransparentMode";
     public static final String TRANSP_CONNECT_TIME = "TransparentConnectTime";
-    public static final String PASSWORD = "Password";
+    public static final String PASSWORD = "IEC1107Password";
     public static final String METER_SECURITY_LEVEL = "SecurityLevel";
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
@@ -102,6 +102,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
+                this.bulkRequestPropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
                 this.limitMaxNrOfDaysPropertySpec(),
@@ -142,10 +143,19 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.ipV4Address(),
                 this.ipV6Address(),
                 this.shortAddressPan(),
+                this.increaseFrameCounterOnHLSReply(),
                 this.masterKeyPropertySpec()
         );
     }
 
+    /**
+     * Property spec indicating whether or not to increment the FC for the reply to HLS.
+     *
+     * @return	The corresponding PropertySpec.
+     */
+    private final PropertySpec increaseFrameCounterOnHLSReply() {
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).finish();
+    }
     private PropertySpec shortAddressPan() {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SHORT_ADDRESS_PAN, false, PropertyTranslationKeys.V2_SHORT_ADDRESS_PAN, getPropertySpecService()::bigDecimalSpec).finish();
     }
@@ -161,7 +171,6 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     private PropertySpec frameCounterRecoveryRetries() {
         return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
     }
-
     private PropertySpec frameCounterRecoveryStep() {
         return this.bigDecimalSpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
     }

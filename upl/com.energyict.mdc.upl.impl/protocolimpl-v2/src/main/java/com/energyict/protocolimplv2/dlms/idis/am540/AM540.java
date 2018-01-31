@@ -1,5 +1,17 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -12,11 +24,7 @@ import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.UPLConnectionFunction;
+import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -25,35 +33,15 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
+import com.energyict.protocol.exception.*;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -67,10 +55,12 @@ import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am540.registers.FIFOStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -94,14 +84,28 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     protected static final ObisCode EVN_FRAMECOUNTER_MAINTENANCE = ObisCode.fromString("0.0.43.5.0.255");
     protected static final ObisCode EVN_FRAMECOUNTER_CERTIFICATION = ObisCode.fromString("0.0.43.6.0.255");
 
+    /**
+     * OBIS code for the billing profile.
+     */
+    private static final ObisCode OBIS_BILLING_PROFILE = ObisCode.fromString("0.0.98.1.0.255");
+
     protected static final int EVN_CLIENT_MANAGEMENT = 1;
     protected static final int EVN_CLIENT_DATA_READOUT = 2;
+    protected static final int EVN_CLIENT_FW_UPGRADE = 3;
     protected static final int EVN_CLIENT_INSTALLATION = 5;
     protected static final int EVN_CLIENT_MAINTENANCE = 6;
     protected static final int EVN_CLIENT_CERTIFICATION = 7;
     protected static final int PUBLIC_CLIENT = 16;
+    protected static final int EVN_CLIENT_CUSTOMER_INFORMATION_PUSH = 103;
+
 
     private AM540Cache am540Cache;
+    private HHUSignOnV2 hhuSignOn;
+
+    /**
+     * For billing registers.
+     */
+    private StoredValues storedValues;
 
     public AM540(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
@@ -120,6 +124,31 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         getLogger().info("Protocol initialization phase ended, executing tasks ...");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final StoredValues getStoredValues() {
+        if (this.storedValues == null) {
+            try {
+                this.storedValues = new FIFOStoredValues(OBIS_BILLING_PROFILE,
+                        this.getDlmsSession().getCosemObjectFactory(),
+                        this.getDlmsSessionProperties(),
+                        this.getIDISProfileDataReader(),
+                        this.getTimeZone(),
+                        this.getLogger());
+            } catch (IOException e) {
+                if (this.getLogger().isLoggable(Level.WARNING)) {
+                    this.getLogger().log(Level.WARNING, "IO error when creating StoredValues : [" + e.getMessage() + "]", e);
+                }
+
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+            }
+        }
+
+        return this.storedValues;
+    }
+
     protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()));
     }
@@ -135,9 +164,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 int transparentParity = getParityValue(serialPortConfiguration.getParity());
                 int transparentBaudrate = serialPortConfiguration.getBaudrate().getBaudrate().intValue();
                 int authenticationSecurityLevel = Integer.parseInt(getDlmsSessionProperties().getTransparentSecurityLevel().split(":")[0]);
-                String strPassword = getDlmsSessionProperties().getTransparentPassword();
                 FlagIEC1107Connection flagIEC1107Connection = null;
                 try {
+                    String strPassword = getDlmsSessionProperties().getTransparentPassword();
                     flagIEC1107Connection = new FlagIEC1107Connection((SerialPortComChannel) comChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits, transparentParity, authenticationSecurityLevel, strPassword, getLogger(), hhuSignOn);
                     flagIEC1107Connection.setMeterToTransparentMode();
                 } catch (Exception e) {
@@ -179,7 +208,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-01-31 22:14:48 +0100 (Tue, 31 Jan 2017)$";
+        return "$Date: 2017-04-13 16:22:14 +0300 (Thu, 13 Apr 2017)$";
     }
 
     /**
@@ -234,7 +263,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public List<UPLConnectionFunction> getConsumableConnectionFunctions() {
-        return Arrays.asList(DeviceConnectionFunction.MIRROR, DeviceConnectionFunction.GATEWAY);
+        return Arrays.asList(DeviceConnectionFunction.MIRROR, DeviceConnectionFunction.GATEWAY, DeviceConnectionFunction.INBOUND);
     }
 
     @Override
@@ -267,16 +296,35 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             }
 
             if (!weHaveValidCachedFrameCounter) {
-                if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-                    if (clientId != EVN_CLIENT_MANAGEMENT) {
-                        readFrameCounterSecure(comChannel);
-                    } else {
-                        getLogger().info("Reading frame counter with client " + EVN_CLIENT_MANAGEMENT + " is not allowed. " +
-                                "If communication fails please adjust your initial frame counter value to a proper one");
-                    }
+                if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter() & (clientId != EVN_CLIENT_MANAGEMENT)) {
+                    readFrameCounterSecure(comChannel);
                 } else {
-                    getLogger().info("Reading frame counter using unsecured public client");
-                    super.readFrameCounter(comChannel, (int) getDlmsSessionProperties().getAARQTimeout());
+                    try {
+                        //Attempt to read out the FC with the public client.
+                        //Note that this possible for every client of the DEWA AM540, but not for the management client of the EVN AM540. The object_undefined error in that case is handled below.
+                        getLogger().info("Attempting to read out frame counter using unsecured public client");
+                        super.readFrameCounter(comChannel, (int) getDlmsSessionProperties().getAARQTimeout());
+                    } catch (CommunicationException e) {
+                        if (e.getMessageSeed() == ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE
+                                || e.getMessageSeed() == ProtocolExceptionMessageSeeds.UNEXPECTED_PROTOCOL_ERROR) {
+                            getLogger().warning(e.getMessage());
+
+                            //Abort session, the FC cannot be read out using the public client on the EVN AM540.
+                            if (clientId == EVN_CLIENT_MANAGEMENT) {
+                                if (!getDlmsSessionProperties().useCachedFrameCounter()) {
+                                    throw CommunicationException.protocolConnectFailed(new IOException("Reading frame counter for client " + EVN_CLIENT_MANAGEMENT +
+                                            " is not allowed. Enable property '" + AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER + "' to use the cached FC"));
+                                } else {
+                                    throw CommunicationException.protocolConnectFailed(new IOException("Could not create the DLMS association to the device. Possibly the cached frame counter is wrong, but it cannot be read out for the management client. Please check all security related properties and keys."));
+                                }
+                            } else {
+                                throw CommunicationException.protocolConnectFailed(new IOException("Cannot read out the FC of client '" + clientId + "' using the public client. Enable property '" + AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER + "' to read it out using HMAC authentication."));
+                            }
+                        } else {
+                            //Another communication exception, propagate
+                            throw e;
+                        }
+                    }
                 }
             }
         }
@@ -356,7 +404,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                     return true;
                 }
             } catch (CommunicationException ex) {
-                if (ex.getMessageSeed() != ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED) {
+                if (isAssociationFailed(ex)) {
                     long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
                     getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                     frameCounter += step;
@@ -374,7 +422,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                         }
                     }
                 } else {
-                    return false;
+                    throw ex;       //Propagate any other exception
                 }
             }
             retries--;
@@ -383,6 +431,12 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         testDlmsSession.disconnect();
         getLogger().warning("Could not validate the frame counter, seems that it's out-of-sync with the device. You'll have to read a fresh one.");
         return false;
+    }
+
+    private boolean isAssociationFailed(CommunicationException ex) {
+        return ex.getMessageSeed() == ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE
+                || ex.getMessageSeed() == ProtocolExceptionMessageSeeds.UNEXPECTED_PROTOCOL_ERROR
+                || ex.getMessageSeed() == ProtocolExceptionMessageSeeds.PROTOCOL_CONNECT;
     }
 
     /**
@@ -397,6 +451,12 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      */
     protected void readFrameCounterSecure(ComChannel comChannel) {
         getLogger().info("Reading frame counter using secure method");
+
+        byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
+        if (authenticationKey.length != 16) {
+            throw DeviceConfigurationException.unsupportedPropertyValueLengthWithReason(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), String.valueOf(authenticationKey.length * 2), "Need a plain text AuthenticationKey (32 hex chars) to read out the frame counter securely using HMAC");
+        }
+
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
@@ -416,7 +476,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
             frameCounterProvider.setSkipValidation(this.getDlmsSessionProperties().skipFramecounterAuthenticationTag());
 
-            frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
+            frameCounter = frameCounterProvider.getFrameCounter(authenticationKey);
 
             getLogger().info("The read-out frame-counter is: " + frameCounter);
 
@@ -654,6 +714,15 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         }
 
         this.getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList(clientId));
+    }
+
+    /**
+     * Boolean used to decide if we should specify or not the TimeDeviation and ClockStatus when we readout a class 7 COSEM object (LoadProfile and Logbooks)
+     *
+     * @return
+     */
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return !getDlmsSessionProperties().useUnspecifiedAsClockStatus() && !getDlmsSessionProperties().useUndefinedAsTimeDeviation();
     }
 
     @Override

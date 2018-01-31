@@ -1,14 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
@@ -60,11 +59,6 @@ public class AM540Properties extends IDISProperties {
         conformanceBlock.setEventNotification(false);
 
         return conformanceBlock;
-    }
-
-    @Override
-    public boolean isBulkRequest() {
-        return true;
     }
 
     /**

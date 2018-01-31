@@ -14,13 +14,7 @@ import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.ClockAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.NotInObjectListException;
@@ -37,25 +31,13 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectControl;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.common.composedobjects.*;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -88,9 +70,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         List<OfflineRegister> subSet;
         List<CollectedRegister> result = new ArrayList<>();
 
-        if (this.mapBillingRegistersFromBillingProfile()) {
-	        result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
-	        filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
+        if (this.isNotMirroredOnDC()) {
+            result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
+            filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
         }
 
         result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
@@ -264,7 +246,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     } else if (dataValue.getTypeEnum() != null) {
                         registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(), Unit.getUndefined()));
                     } else if (dataValue.getUnsigned32() != null) {
-                    	registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getUnsigned32().getValue(), Unit.getUndefined()));
+                        registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getUnsigned32().getValue(), Unit.getUndefined()));
                     } else {
                         registerValue = getRegisterValueForAlarms(offlineRegister, dataValue);
                     }
@@ -297,7 +279,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                     } else if (DLMSIOExceptionHandler.isTemporaryFailure(e)) {
-                    	return this.dataNotAvailable(offlineRegister);
+                        return this.dataNotAvailable(offlineRegister);
                     } else {
                         return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                     }
@@ -318,7 +300,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 scalerUnit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()));
                 unit = scalerUnit.getEisUnit();
             } catch (Exception e) {
-                scalerUnitIssue =  issueFactory.createProblem(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
+                scalerUnitIssue = getIssueFactory().createProblem(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
                         "Unable to resolve the unit code value: " + scalerUnit.getUnitCode());
             }
         }
@@ -328,25 +310,38 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
             TimeZone configuredTimeZone = getMeterProtocol().getDlmsSession().getTimeZone();
             DateTime dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
-            int configuredTimeZoneOffset = configuredTimeZone.getRawOffset()/(-1*60*1000);
-            if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset){
-                timeZoneIssue = issueFactory.createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-                        "Capture time zone offset ["+dlmsDateTime.getDeviation()+"] differs from the configured time zone ["+configuredTimeZone.getDisplayName()+"] = ["+configuredTimeZoneOffset+"]");
-            }
+
             captureTime = dlmsDateTime.getValue().getTime();
+
+            // Add the raw offset.
+            int offsetAtCaptureTime = configuredTimeZone.getRawOffset();
+
+            // If DST is active at capture time, add DST savings too.
+            if (configuredTimeZone.inDaylightTime(captureTime)) {
+                offsetAtCaptureTime += configuredTimeZone.getDSTSavings();
+            }
+
+            int configuredTimeZoneOffset = offsetAtCaptureTime / (-1 * 60 * 1000);
+            if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset) {
+                timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
+                        "Time zone offset reported by the meter [" + dlmsDateTime.getDeviation() + "] " +
+                                (dlmsDateTime.isDST() ? " (in DST) " : "") +
+                                "differs from the time zone configured in HES [" + configuredTimeZone.getID() + "] = [" + configuredTimeZoneOffset + "]");
+            }
+
         }
 
         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
         // let each sub-protocol to create it's own flavour of time-stamp combination
         // AM540 when reading mirror will change this
-        RegisterValue registerValue  = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
+        RegisterValue registerValue = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
 
         CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
-        if (timeZoneIssue!=null) {
+        if (timeZoneIssue != null) {
             collectedRegister.setFailureInformation(ResultType.ConfigurationError, timeZoneIssue);
         }
-        if(scalerUnitIssue != null) {
+        if (scalerUnitIssue != null) {
             collectedRegister.setFailureInformation(ResultType.DataIncomplete, scalerUnitIssue);
         }
 
@@ -356,9 +351,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     /**
      * Will create a register value for a composed register which provides the capture time
      * By default will set readTime = collection time eventTime=captureTime
-     *
+     * <p/>
      * This is overridden in AM540 to handle mirror devices!
-     *
      */
     protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
         if (attributeValue.isOctetString()) {
@@ -368,7 +362,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     new Quantity(attributeValue.toBigDecimal(), unit),
                     captureTime // eventTime
             );
-    }
+        }
     }
 
     protected RegisterValue getRegisterValueForAlarms(OfflineRegister offlineRegister, AbstractDataType dataValue) {
@@ -432,14 +426,14 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         try {
             HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
             RegisterValue registerValue = new RegisterValue(
-                                                    offlineRegister.getObisCode(),
-                                                    historicalValue.getQuantityValue(),
-                                                    historicalValue.getEventTime(), // event time
-                                                    null, // from time
-                                                    historicalValue.getBillingDate(), // to time
-                                                    historicalValue.getCaptureTime(),  // read time
-                                                    0,
-                                                    null);
+                    offlineRegister.getObisCode(),
+                    historicalValue.getQuantityValue(),
+                    historicalValue.getEventTime(), // event time
+                    null, // from time
+                    historicalValue.getBillingDate(), // to time
+                    historicalValue.getCaptureTime(),  // read time
+                    0,
+                    null);
 
             return createCollectedRegister(registerValue, offlineRegister);
         } catch (NoSuchRegisterException e) {
@@ -466,16 +460,15 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     /**
      * Create a collected register that indicates no data is available at this time for the particular register.
      *
-     * @param 		offlineRegister		The {@link OfflineRegister}.
-     *
-     * @return		The corresponding {@link CollectedRegister}.
+     * @param offlineRegister The {@link OfflineRegister}.
+     * @return The corresponding {@link CollectedRegister}.
      */
     protected final CollectedRegister dataNotAvailable(final OfflineRegister offlineRegister) {
-    	final CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(this.getRegisterIdentifier(offlineRegister));
-    	@SuppressWarnings("unchecked") final Issue issue = issueFactory.createWarning(offlineRegister.getObisCode(), "noDataFound", new Object[0]);
-    	collectedRegister.setFailureInformation(ResultType.DataIncomplete, issue);
+        final CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(this.getRegisterIdentifier(offlineRegister));
+        @SuppressWarnings("unchecked") final Issue issue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "noDataFound", new Object[0]);
+        collectedRegister.setFailureInformation(ResultType.DataIncomplete, issue);
 
-    	return collectedRegister;
+        return collectedRegister;
     }
 
     private boolean isMBusValueChannel(ObisCode obisCode) {
@@ -489,12 +482,12 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
             if (errorMessage.length == 0) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
             }
         }
         return collectedRegister;
@@ -504,7 +497,11 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+        validateRegisterResult(offlineRegister, deviceRegister, registerValue.getReadTime());
         return deviceRegister;
+    }
+
+    protected void validateRegisterResult(OfflineRegister offlineRegister, CollectedRegister collectedRegister, Date captureTime) {
     }
 
     public AbstractDlmsProtocol getMeterProtocol() {
@@ -536,9 +533,13 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     /**
      * Indicates whether or not we are mapping billing registers from a billing profile.
      *
-     * @return	<code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
+     * @return    <code>true</code> if we are mapping, <code>false</code> if we are not (for example when we have a mirror on a Beacon).
      */
-    protected boolean mapBillingRegistersFromBillingProfile() {
-    	return true;
+    protected boolean isNotMirroredOnDC() {
+        return true;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
     }
 }

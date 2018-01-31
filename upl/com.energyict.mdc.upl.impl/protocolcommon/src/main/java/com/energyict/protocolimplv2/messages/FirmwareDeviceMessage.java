@@ -21,78 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycleDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPortDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlockDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFastDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlowDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlockDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSapDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCyclesDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZoneDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPortDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlockDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSizeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcastDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticastDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicastDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcastDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0DefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivateDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnableDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerifyDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPortDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterTypeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatusDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastClientMacAddressAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastClientMacAddressAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastGroupIdAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastGroupIdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastLogicalDeviceIdAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastLogicalDeviceIdAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastNumberOfBlocksInCycleAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastNumberOfBlocksInCycleAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.deviceIdsAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.deviceIdsAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateURLAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Provides a summary of all <i>Firmware</i> related messages.
@@ -575,6 +504,42 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+    },
+
+    ENABLE_AND_INITIATE_IMAGE_TRANSFER(5033, "Enable and initiate image transfer") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, FW_UPGRADE_IMAGE_SIZE, FW_UPGRADE_IMAGE_SIZE_DEFAULT_TRANSLATION)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+    },
+
+    CONFIGURABLE_IMAGE_TRANSFER_WITH_RESUME_OPTION(5034, "Configurable image transfer with resume option") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
+                    this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, true),
+                    this.booleanSpec(service, enableImageTransfer, enableImageTransferDefaultTranslation, true),
+                    this.booleanSpec(service, initiateImageTransfer, initiateImageTransferDefaultTranslation, true),
+                    this.booleanSpec(service, transferBlocks, transferBlocksDefaultTranslation, true),
+                    this.booleanSpec(service, verifyImage, verifyImageDefaultTranslation, true),
+                    this.booleanSpec(service, activateImage, activateImageDefaultTranslation, true)
             );
         }
 
