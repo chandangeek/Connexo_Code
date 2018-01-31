@@ -18,10 +18,8 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +60,12 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * The ID(s) of the {@link RegisterGroup}(s) where this registers belongs to.
      */
     private List<Long> registerGroupIds;
+
+    /**
+     * The last reading date of this register
+     */
+    private Optional<Instant> lastReadingDate;
+
     /**
      * The serialNumber of the Device owning this Register
      */
@@ -120,6 +124,12 @@ public class OfflineRegisterImpl implements OfflineRegister {
             this.overFlow = ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().get();
         }
         this.isText = this.register.getRegisterSpec().isTextual();
+        this.lastReadingDate = register.getLastReadingDate();
+    }
+
+    @Override
+    public Optional<Instant> getLastReadingDate() {
+        return lastReadingDate;
     }
 
     @Override
