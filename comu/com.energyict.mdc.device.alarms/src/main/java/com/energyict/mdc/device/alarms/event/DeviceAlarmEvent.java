@@ -155,7 +155,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     public boolean isClearing(List<String> endDeviceEventTypes) {
-        return endDeviceEventTypes.contains(this.getEventTypeMrid());
+        return endDeviceEventTypes.contains(this.getEventTypeMrid())
+                || endDeviceEventTypes
+                .stream()
+                .anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()));
     }
 
     public boolean isClearing(int ruleId, String endDeviceEventTypes) {
