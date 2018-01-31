@@ -479,7 +479,14 @@ Ext.define('Mdc.controller.Main', {
             Uni.store.PortalItems.add(taskManagement);
         }
 
-        if (Mdc.privileges.SecurityAccessor.all()) { //SA privileges!!
+        if (Mdc.privileges.SecurityAccessor.canView()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            }));
+
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.security', 'MDC', 'Security'),
                 portal: 'administration',
