@@ -137,29 +137,30 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
             this.calendars.forEach(result::addCalendar);
         }
 
-        if (this.securityAccessors != null && !this.securityAccessors.isEmpty()) {
-            this.securityAccessors.forEach(keyAccessorTpl -> {
-
-                KeyType keyType = securityManagementService.getKeyType(keyAccessorTpl.getKeyType().getName())
-                        .orElseGet(() ->
-                                (keyAccessorTpl.getTrustStore() != null && keyAccessorTpl.getTrustStore().length() > 0) ?
-                                        securityManagementService.newCertificateType(keyAccessorTpl.getKeyType().getName()).add() :
-                                        securityManagementService.newSymmetricKeyType(keyAccessorTpl.getKeyType().getName(), keyAccessorTpl.getKeyType()
-                                                .getKeyAlgorithmName(), keyAccessorTpl.getKeyType().getKeySize()).add());
-                SecurityAccessorType.Builder keyFunctionTypeBuilder = result.addSecurityAccessorType(keyAccessorTpl.getName(), keyType)
-                        .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
-
-                if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
-                    TrustStore trustStore = securityManagementService.findTrustStore(keyAccessorTpl.getTrustStore())
-                            .orElseGet(() -> securityManagementService.newTrustStore(keyAccessorTpl.getTrustStore()).add());
-                    keyFunctionTypeBuilder.trustStore(trustStore);
-                }
-
-                keyFunctionTypeBuilder
-                        .duration(keyAccessorTpl.getTimeDuration())
-                        .add();
-            });
-        }
+        //fixme: compilation issues -> merge from master later
+//        if (this.securityAccessors != null && !this.securityAccessors.isEmpty()) {
+//            this.securityAccessors.forEach(keyAccessorTpl -> {
+//
+//                KeyType keyType = securityManagementService.getKeyType(keyAccessorTpl.getKeyType().getName())
+//                        .orElseGet(() ->
+//                                (keyAccessorTpl.getTrustStore() != null && keyAccessorTpl.getTrustStore().length() > 0) ?
+//                                        securityManagementService.newCertificateType(keyAccessorTpl.getKeyType().getName()).add() :
+//                                        securityManagementService.newSymmetricKeyType(keyAccessorTpl.getKeyType().getName(), keyAccessorTpl.getKeyType()
+//                                                .getKeyAlgorithmName(), keyAccessorTpl.getKeyType().getKeySize()).add());
+//                SecurityAccessorType.Builder keyFunctionTypeBuilder = result.addSecurityAccessorType(keyAccessorTpl.getName(), keyType)
+//                        .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+//
+//                if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
+//                    TrustStore trustStore = securityManagementService.findTrustStore(keyAccessorTpl.getTrustStore())
+//                            .orElseGet(() -> securityManagementService.newTrustStore(keyAccessorTpl.getTrustStore()).add());
+//                    keyFunctionTypeBuilder.trustStore(trustStore);
+//                }
+//
+//                keyFunctionTypeBuilder
+//                        .duration(keyAccessorTpl.getTimeDuration())
+//                        .add();
+//            });
+//        }
 
         return applyPostBuilders(result);
     }
