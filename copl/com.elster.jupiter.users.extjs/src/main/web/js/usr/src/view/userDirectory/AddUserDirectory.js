@@ -182,13 +182,15 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('userDirectories.certificateAlias', 'USR', 'Certificate alias'),
                                 labelWidth: 250,
-                                required: false,
+                                required: true,
                                 store: 'Usr.store.Certificates',
                                 editable: false,
                                 disabled: false,
-                                // emptyText: Uni.I18n.translate('userDirectories.securityProtocolPrompt', 'USR', 'Select a security protocol...'),
+                                emptyText: Uni.I18n.translate('userDirectories.certificateAliasPrompt', 'USR', 'Start typing to select...'),
                                 allowBlank: true,
                                 displayField: 'alias',
+                                queryMode: 'remote',
+                                queryParam: 'like',
                                 valueField: 'id'
                             },
                             {
@@ -203,11 +205,13 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 store: 'Usr.store.TrustStores',
                                 editable: false,
                                 disabled: false,
-                                // emptyText: Uni.I18n.translate('userDirectories.securityProtocolPrompt', 'USR', 'Select a security protocol...'),
+                                emptyText: Uni.I18n.translate('userDirectories.trustStorePrompt', 'USR', 'Select a trust store...'),
                                 allowBlank: true,
+                                queryMode: 'remote',
+                                queryParam: 'like',
                                 displayField: 'name',
                                 valueField: 'id'
-                            },
+                            }
                         ]
                     },
                     {
