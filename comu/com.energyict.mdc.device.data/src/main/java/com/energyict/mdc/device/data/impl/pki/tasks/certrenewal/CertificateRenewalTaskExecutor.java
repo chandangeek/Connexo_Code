@@ -74,11 +74,12 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
         List<SecurityAccessor> securityAccessors = deviceDataModelService.dataModel()
                 .query(SecurityAccessor.class, Device.class, EndDevice.class, EndDeviceLifeCycleStatus.class, State.class, Stage.class, CertificateWrapper.class)
                 .select(condition);
+        logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
 
         List<SecurityAccessor> resultList = securityAccessors
                 .stream()
                 .filter(this::checkSecuritySets)
-                /*.filter(securityAccessor -> !securityAccessor.isEditable())*/
+                .filter(securityAccessor -> securityAccessor.isEditable())
                 .collect(Collectors.toList());
 
         resultList.forEach(securityAccessor -> triggerBpmProcess(securityAccessor, logger));
@@ -92,6 +93,9 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
 
     private boolean checkSecuritySets(SecurityAccessor securityAccessor) {
         long id = securityAccessor.getKeyAccessorType().getId();
+        boolean result;
+        logger.log(Level.INFO, "Checking " + securityAccessor.getKeyAccessorType().getName() + " for " +
+                securityAccessor.getDevice().getName());
         List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
         securityAccessor.getDevice().getDeviceConfiguration().getSecurityPropertySets().forEach(
                 securityPropertySet -> {
@@ -101,7 +105,9 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
                     }
                 }
         );
-        return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
+        result = configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
+        logger.log(Level.INFO, result ? "Used by security set" : "Not used by security set");
+        return result;
     }
 
     private Optional<X509Certificate> getDeviceCertificate(SecurityAccessor securityAccessor) {

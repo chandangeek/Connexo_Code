@@ -185,7 +185,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
     COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command ''{0}'' should have a 'security accessor reference' attribute"),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(2161, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
-    PROPERTY_VALUE_REQUIRED(2162, "InvalidPropertyValue", "Value for property {0} is required");
+    NOT_ALLOWED_TO_EDIT_CENTRALLY_MANAGED_SECURITY_ACCESSOR(2162, "NotAllowedToEditCentrallyManagedSecurityAccessor",
+            "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level."),
+    PROPERTY_VALUE_REQUIRED(2163, "InvalidPropertyValue", "Value for property {0} is required");
 
     private final int number;
     private final String key;

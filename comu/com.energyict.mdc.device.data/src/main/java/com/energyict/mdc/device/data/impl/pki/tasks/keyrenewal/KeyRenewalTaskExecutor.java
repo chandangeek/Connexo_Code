@@ -73,6 +73,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         List<SecurityAccessor> securityAccessors = deviceDataModelService.dataModel()
                 .query(SecurityAccessor.class, Device.class, EndDevice.class, EndDeviceLifeCycleStatus.class, State.class, Stage.class)
                 .select(operationalDeviceContition);
+        logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
 
         List<SecurityAccessor> resultList = securityAccessors
                 .stream()
@@ -83,7 +84,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
                     return secretKey.isPresent() && deviceKeyExpired((SymmetricKeyAccessor) securityAccessor);
                 })
                 .filter(this::checkSecuritySets)
-                /*.filter(securityAccessor -> !securityAccessor.isEditable())*/
+                .filter(securityAccessor -> securityAccessor.isEditable())
                 .collect(Collectors.toList());
 
         resultList.forEach(securityAccessor -> triggerBpmProcess(securityAccessor, logger));
@@ -120,6 +121,9 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
 
     private boolean checkSecuritySets(SecurityAccessor securityAccessor) {
         long id = securityAccessor.getKeyAccessorType().getId();
+        boolean result;
+        logger.log(Level.INFO, "Checking " + securityAccessor.getKeyAccessorType().getName() + " for " +
+                securityAccessor.getDevice().getName());
         List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
         securityAccessor.getDevice().getDeviceConfiguration().getSecurityPropertySets().forEach(
                 securityPropertySet -> {
@@ -129,7 +133,9 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
                     }
                 }
         );
-        return configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
+        result = configurationSecurityProperties.stream().anyMatch(property -> property.getSecurityAccessorType().getId() == id);
+        logger.log(Level.INFO, result ? "Used by security set" : "Not used by security set");
+        return result;
     }
 
     private List<BpmProcessDefinition> getActiveKeyRenewalProcesses() {
