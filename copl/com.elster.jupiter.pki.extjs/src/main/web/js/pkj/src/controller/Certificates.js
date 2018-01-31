@@ -363,7 +363,6 @@ Ext.define('Pkj.controller.Certificates', {
             url: '/api/pir/certificates/' + certificateRecord.get('id') + '/markObsolete',
             method: 'POST',
             callback: function (config, success, response) {
-                console.log(response);
                 if (!Ext.isEmpty(response.responseText)) {
                     var responseObject = JSON.parse(response.responseText);
 
@@ -383,17 +382,33 @@ Ext.define('Pkj.controller.Certificates', {
                         importers = responseObject.importers.join(', ');
                     }
 
-                    //todo: \n experiments
-                    var messageTemplate = 'Certificate is still used by the following objects:<br/>' +
-                        'Security accessors: {0}\n' +
-                        'Devices: {1}\n' +
-                        'Import services: {2}\n' +
-                        'User directories: {3}';
-                    var args = [accessors, devices, importers, directories];
+                    var messageTemplate = '{0}:<br/>' +
+                        '<ul>' +
+                        '<li><b>{1}:</b> {2}</li>' +
+                        '<li><b>{3}:</b> {4}</li>' +
+                        '<li><b>{5}:</b> {6}</li>' +
+                        '<li><b>{7}:</b> {8}</li>' +
+                        '</ul>';
+
+                    var confirmationText = Ext.String.format(messageTemplate,
+                        Uni.I18n.translate('certificate.obsolete.confirm.title', 'PKJ', 'Certificate is still used by the following objects'),
+                        Uni.I18n.translate('certificate.obsolete.confirm.accessors', 'PKJ', 'Security accessors'), accessors,
+                        Uni.I18n.translate('certificate.obsolete.confirm.devices', 'PKJ', 'Devices'), devices,
+                        Uni.I18n.translate('certificate.obsolete.confirm.importers', 'PKJ', 'Import services'), importers,
+                        Uni.I18n.translate('certificate.obsolete.confirm.directories', 'PKJ', 'User directories'), directories);
+
+                    confirmationWindow.insert(1,
+                        {
+                            xtype: 'displayfield',
+                            itemId: 'obsolete-confirmation-field',
+                            value: confirmationText,
+                            htmlEncode: false,
+                            margin: '-15 0 25 50'
+                        }
+                    );
 
                     confirmationWindow.show({
                         title: Uni.I18n.translate('general.obsoleteX', 'PKJ', "Mark as obsolete '{0}'?", certificateRecord.get('alias')),
-                        msg: Uni.I18n.translate('certificate.obsolete.warning.msgTest', 'PKJ', messageTemplate, args),
                         headers: {'Content-type': 'multipart/form-data'},
                         fn: function (state) {
                             if (state === 'confirm') {
