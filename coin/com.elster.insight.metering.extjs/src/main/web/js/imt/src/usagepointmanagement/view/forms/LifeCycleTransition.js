@@ -127,7 +127,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
             resetTransitionButton.enable();
             transitionDateField.show();
             me.down('#transition-date-field-errors').hide();
-            transitionDateField.down('#date-time-field-date').setMinValue(moment(effectiveTimestamp).startOf('day').toDate());
+            // CXO-8275 - time can be set in the past - for testing reasons
+            //transitionDateField.down('#date-time-field-date').setMinValue(moment(effectiveTimestamp).startOf('day').toDate());
             transitionRecord.set('effectiveTimestamp', effectiveTimestamp);
             me.loadRecord(transitionRecord);
             transitionPropertyForm.show();
