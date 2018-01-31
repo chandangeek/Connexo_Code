@@ -248,6 +248,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new NTPServerAddress(protocolLink, getObjectReference(obisCode));
     }
 
+    public NTPSetup getNTPSetup(ObisCode obisCode) throws NotInObjectListException {
+        return new NTPSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public EventPushNotificationConfig getEventPushNotificationConfig() throws NotInObjectListException {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
     }
@@ -825,5 +829,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public MemoryManagement getMemoryManagement(ObisCode obisCode) throws NotInObjectListException {
         return new MemoryManagement(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
+    public CRLManagementIC getCRLManagementIC(ObisCode obisCode) throws NotInObjectListException {
+        return new CRLManagementIC(this.protocolLink, this.getObjectReference(obisCode));
     }
 }

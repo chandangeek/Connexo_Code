@@ -372,6 +372,15 @@ public final class ConcentratorSetup extends AbstractCosemObject {
         this.methodInvoke(ConcentratorSetupMethods.REMOVE_LOGICAL_DEVICE, osMC.getBEREncodedByteArray());
     }
 
+    /**
+     * Removes all meter data associated with the given logical device
+     *
+     */
+    public final void resetLogicalDevice(final byte[] mac) throws IOException {
+        OctetString osMC = OctetString.fromByteArray(mac);
+        this.methodInvoke(ConcentratorSetupMethods.RESET_LOGICAL_DEVICE, osMC.getBEREncodedByteArray());
+    }
+
 	/**
 	 * Trigger the preliminary protocol for a particular meter (identified by it's MAC address (EUI64)).
 	 * 

@@ -445,10 +445,26 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
         }
     },
-    IMPORT_CA_CERTIFICATE(7050, "Import certificate (into device)") {
+    IMPORT_CA_CERTIFICATE(7050, "Import CA certificate") {
+        //TODO: see how this CA will be stored in Connexo and from where to get this information. In EIServer an alias is used instead of certificate wrapper
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //Referring to a CertificateWrapper in the database. Can be a CA certificate, a device certificate or a HES (MDC) certificate.
+            //Referring to a CertificateWrapper in the database. Can be a CA certificate
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
+        }
+    },
+    IMPORT_CLIENT_END_DEVICE_CERTIFICATE(7051, "Import client end device certificate") {
+        //TODO: see how this CA will be stored in Connexo and from where to get this information. In EIServer an alias is used instead of certificate wrapper
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            //Referring to a CertificateWrapper in the database. Can be a device certificate.
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
+        }
+    },
+    IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052, "Import server end device certificate") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            //Referring to a CertificateWrapper in the database. Can be a device certificate.
             return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
         }
     },
@@ -562,7 +578,27 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.keyAccessorTypeAttributeName, DeviceMessageConstants.keyAccessorTypeAttributeNameDefaultTranslation));
         }
-    };
+    },
+    UPDATE_CRL(7065, "Update CRL") {
+        //TODO: see if we should use a string with max value spec to extend the maximum allowed string length (4000 for standard string properties)
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.pemCRL, DeviceMessageConstants.pemCRLDefaultTranslation));
+        }
+    },
+    REMOVE_CRL(7066, "Remove CRL") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.crlIssuerName, DeviceMessageConstants.crlIssuerNameDefaultTranslation));
+        }
+    },
+    UPDATE_DEVICE_CRL_USING_TRUSTED_CERT_CRL(7067, "Update device CRL using trusted certificate CRL") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.trustedCertificateWrapperAttributeName, DeviceMessageConstants.trustedCertificateWrapperDefaultTranslation));
+        }
+    },
+    ;
 
 
     private final long id;

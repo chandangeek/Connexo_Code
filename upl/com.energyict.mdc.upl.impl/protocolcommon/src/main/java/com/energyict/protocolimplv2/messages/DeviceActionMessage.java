@@ -419,9 +419,51 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     RemoveLogicalDevice(8064, "Remove logical device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.dateTimeSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish());
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation));
         }
-    };
+    },
+
+    ReadDLMSAttribute(8065, "Read DLMS Attribute") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecWithDefaultValue(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation, "0.0.96.1.0.255"),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.attributeId, DeviceMessageConstants.attributeIdDefaultTranslation, BigDecimal.valueOf(2)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.classId, DeviceMessageConstants.classIdDefaultTranslation, BigDecimal.valueOf(1)));
+        }
+    },
+
+    SetCTVTRatios(8066, "Set CT VT ratios") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.CTRatioMultiplier, DeviceMessageConstants.CTRatioMultiplierDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.VTRatioMultiplier, DeviceMessageConstants.VTRatioMultiplierDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.CTRatioDivisor, DeviceMessageConstants.CTRatioDivisorDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.VTRatioDivisor, DeviceMessageConstants.VTRatioDivisorDefaultTranslation));
+        }
+    },
+
+    ProgramPulseInputParametersAndConstants(8067, "Program pulse input parameters") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.PulseMode, DeviceMessageConstants.PulseModeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.PulseSubMode, DeviceMessageConstants.PulseSubModeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.PulseMultiplier, DeviceMessageConstants.PulseMultiplierDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.InputChannel, DeviceMessageConstants.InputChannelDefaultTranslation));
+        }
+    },
+
+    ResetLogicalDevice(8068, "Reset logical device") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation));
+        }
+    }
+
+    ;
 
     private final long id;
     private final String defaultNameTranslation;
@@ -494,6 +536,10 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec stringSpecWithDefaultValue(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String defaultValue) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
     }
 
     protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

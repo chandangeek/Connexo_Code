@@ -2,17 +2,10 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
@@ -87,6 +80,12 @@ public class ImageTransfer extends AbstractCosemObject {
     private long delayBeforeSendingBlocks = 0;
     private int booleanValue = 0xFF;        //Default byte value representing boolean TRUE is 0xFF
     private boolean checkNumberOfBlocksInPreviousSession = true;
+    private boolean enableImageTransfer = true;
+    private boolean initiateImageTransfer = true;
+    private boolean transferBlocks = true;
+    private boolean verifyImage = true;
+    private boolean activateImage = false;
+
     public ImageTransfer(ProtocolLink protocolLink) {
         super(protocolLink, new ObjectReference(LN));
         this.protocolLink = protocolLink;
@@ -94,6 +93,13 @@ public class ImageTransfer extends AbstractCosemObject {
     public ImageTransfer(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink, objectReference);
         this.protocolLink = protocolLink;
+    }
+
+    /**
+     * The default ObisCode
+     */
+    public static ObisCode getDefaultObisCode() {
+        return ObisCode.fromByteArray(LN);
     }
 
     /**
@@ -219,9 +225,24 @@ public class ImageTransfer extends AbstractCosemObject {
      * @throws java.io.IOException when something went wrong during the upgrade
      */
     public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
+        configurableUpgrade(dataSupplier, additionalZeros, imageIdentifier, checkForMissingBlocks);
+    }
 
+    /**
+     * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
+     *
+     * @param dataSupplier          - supplier of the image to transfer
+     * @param additionalZeros       - indicate whether you need to add zeros to the last block to match the blockSize
+     * @param imageIdentifier       - the name of the file. Default is NewImage
+     * @param checkForMissingBlocks - whether or not to resend lost blocks
+     * @throws java.io.IOException when something went wrong during the upgrade
+     */
+    public final void configurableUpgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
+
+        if (isEnableImageTransfer()) {
         enableImageTransfer(dataSupplier, imageIdentifier);
         getLogger().finest("Image transfer enabled for imageIdentifier: " + imageIdentifier);
+        }
         getLogger().finest("Add additional zeros to match the last blocksize (additionalZeros): " + additionalZeros);
         getLogger().finest("checkForMissingBlocks: " + checkForMissingBlocks);
         if (getImageTransferEnabledState().getState()) {
@@ -235,6 +256,7 @@ public class ImageTransfer extends AbstractCosemObject {
             }
 
             // Step5: Verify image
+            if (isVerifyImage()) {
             updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
             if (isUsePollingVerifyAndActivate()) {
                 getLogger().log(Level.INFO, "Verification of image using polling method ...");
@@ -243,13 +265,25 @@ public class ImageTransfer extends AbstractCosemObject {
                 verifyAndRetryImage();
             }
             getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
+            }
 
             // Step6: Check image before activation
             // Skip this step
 
             // Step7: Activate image
             // This step is done in the ProtocolCode!
-
+            if(isActivateImage()) {
+                try {
+                    setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation (the meter will immediately reboot)!
+                    imageActivation();
+                } catch (DataAccessResultException e) {
+                    if (isTemporaryFailure(e)) {
+                        getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                    } else {
+                        throw e;
+                    }
+                }
+            }
 
         } else {
             throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
@@ -304,15 +338,19 @@ public class ImageTransfer extends AbstractCosemObject {
         }
 
         // Step2: Initiate the image transfer
+        if (isInitiateImageTransfer()) {
         initiateImageTransfer(imageIdentifier);
         getLogger().finest("ImageTransfer initiated");
+        }
 
         //add delay
         initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
+        if (isTransferBlocks()) {
         transferImageBlocks(additionalZeros);
         getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+    }
     }
 
     /**
@@ -754,6 +792,12 @@ public class ImageTransfer extends AbstractCosemObject {
         return this.imageTransferStatus;
     }
 
+    public TypeEnum getImageTransferStatus() throws IOException {
+        final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_STATUS);
+        final TypeEnum typeEnum = AXDRDecoder.decode(berEncodedData, TypeEnum.class);
+        return typeEnum;
+    }
+
     public int getNumberOfBlocksInPreviousSession() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_BLOCK_STATUS);
         return AXDRDecoder.decode(berEncodedData, BitString.class).getNrOfBits();
@@ -950,6 +994,46 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public void setUsePollingVerifyAndActivate(boolean usePollingVerifyAndActivate) {
         this.usePollingVerifyAndActivate = usePollingVerifyAndActivate;
+    }
+
+    public boolean isEnableImageTransfer() {
+        return enableImageTransfer;
+    }
+
+    public void setEnableImageTransfer(boolean enableImageTransfer) {
+        this.enableImageTransfer = enableImageTransfer;
+    }
+
+    public boolean isInitiateImageTransfer() {
+        return initiateImageTransfer;
+    }
+
+    public void setInitiateImageTransfer(boolean initiateImageTransfer) {
+        this.initiateImageTransfer = initiateImageTransfer;
+    }
+
+    public boolean isTransferBlocks() {
+        return transferBlocks;
+    }
+
+    public void setTransferBlocks(boolean transferBlocks) {
+        this.transferBlocks = transferBlocks;
+    }
+
+    public boolean isVerifyImage() {
+        return verifyImage;
+    }
+
+    public void setVerifyImage(boolean verifyImage) {
+        this.verifyImage = verifyImage;
+    }
+
+    public boolean isActivateImage() {
+        return activateImage;
+    }
+
+    public void setActivateImage(boolean activateImage) {
+        this.activateImage = activateImage;
     }
 
     /**

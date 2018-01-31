@@ -174,9 +174,18 @@ public class G3RegisterMapper {
     private static final ObisCode SIXLOWPAN_SETUP_ATTR18 = ObisCode.fromString("0.18.29.2.0.255");
     private static final ObisCode SIXLOWPAN_SETUP_ATTR19 = ObisCode.fromString("0.19.29.2.0.255");
 
-    private static final ObisCode EVENT_NOTIFICATION_ATTR1 = ObisCode.fromString("0.1.128.0.12.255");
-    private static final ObisCode EVENT_NOTIFICATION_ATTR2 = ObisCode.fromString("0.2.128.0.12.255");
-    private static final ObisCode EVENT_NOTIFICATION_ATTR4 = ObisCode.fromString("0.4.128.0.12.255");
+    private static final ObisCode EVENT_NOTIFICATION_ATTR1_LEGACY = ObisCode.fromString("0.1.128.0.12.255");
+    private static final ObisCode EVENT_NOTIFICATION_ATTR2_LEGACY = ObisCode.fromString("0.2.128.0.12.255");
+    private static final ObisCode EVENT_NOTIFICATION_ATTR4_LEGACY = ObisCode.fromString("0.4.128.0.12.255");
+
+    private static final ObisCode PUSH_SETUP_ATTR1 = ObisCode.fromString("0.0.25.9.0.1");
+    private static final ObisCode PUSH_SETUP_ATTR3 = ObisCode.fromString("0.0.25.9.0.3");
+    private static final ObisCode PUSH_SETUP_ATTR6 = ObisCode.fromString("0.0.25.9.0.6");
+    private static final ObisCode PUSH_SETUP_ATTR7 = ObisCode.fromString("0.0.25.9.0.7");
+    private static final ObisCode PUSH_SETUP_ATTRc2 = ObisCode.fromString("0.0.25.9.0.254");
+    private static final ObisCode PUSH_SETUP_ATTRc3 = ObisCode.fromString("0.0.25.9.0.253");
+    private static final ObisCode PUSH_SETUP_ATTRc4 = ObisCode.fromString("0.0.25.9.0.252");
+    private static final ObisCode PUSH_SETUP_ATTRc5 = ObisCode.fromString("0.0.25.9.0.251");
 
     private static final ObisCode WAN_DL_REFERENCE          = ObisCode.fromString("0.0.25.1.2.255");
     private static final ObisCode WAN_IP_ADDRESS            = ObisCode.fromString("0.0.25.1.3.255");
@@ -272,6 +281,50 @@ public class G3RegisterMapper {
     public static final ObisCode MEMORY_MANAGEMENT_ATTR2_LEGACY = ObisCode.fromString("0.0.128.0.20.2");
     public static final ObisCode MEMORY_MANAGEMENT_ATTR3_LEGACY = ObisCode.fromString("0.0.128.0.20.3");
 
+    /**
+     * ObisCode mappers for the Image transfer attributes
+     */
+    public static final ObisCode IMAGE_TRANSFER_ATTR2 = ObisCode.fromString("0.2.44.0.0.255");
+    public static final ObisCode IMAGE_TRANSFER_ATTR3 = ObisCode.fromString("0.3.44.0.0.255");
+    public static final ObisCode IMAGE_TRANSFER_ATTR4 = ObisCode.fromString("0.4.44.0.0.255");
+    public static final ObisCode IMAGE_TRANSFER_ATTR5 = ObisCode.fromString("0.5.44.0.0.255");
+    public static final ObisCode IMAGE_TRANSFER_ATTR6 = ObisCode.fromString("0.6.44.0.0.255");
+
+    /**
+     * ObisCode mappers for the Limiter attributes
+     */
+    public static final ObisCode LIMITER_ATTR4 = ObisCode.fromString("0.4.17.0.0.255");
+    public static final ObisCode LIMITER_ATTR6 = ObisCode.fromString("0.6.17.0.0.255");
+    public static final ObisCode LIMITER_ATTR7 = ObisCode.fromString("0.7.17.0.0.255");
+
+    /**
+     * ObisCode mappers for the End of billing period 1 scheduler attributes
+     */
+    public static final ObisCode BILLING_SCHEDULER_ATTR2 = ObisCode.fromString("0.2.15.0.0.255");
+    public static final ObisCode BILLING_SCHEDULER_ATTR3 = ObisCode.fromString("0.3.15.0.0.255");
+    public static final ObisCode BILLING_SCHEDULER_ATTR4 = ObisCode.fromString("0.4.15.0.0.255");
+
+    /**
+     * ObisCode mappers for Image transfer activation scheduler attributes
+     */
+    public static final ObisCode IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR2 = ObisCode.fromString("0.2.15.0.2.255");
+    public static final ObisCode IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR3 = ObisCode.fromString("0.3.15.0.2.255");
+    public static final ObisCode IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR4 = ObisCode.fromString("0.4.15.0.2.255");
+
+    /**
+     * ObisCode mappers for Disconnect control scheduler attributes
+     */
+    public static final ObisCode DISCONNECT_CONTROL_SCHEDULER_ATTR2 = ObisCode.fromString("0.2.15.0.1.255");
+    public static final ObisCode DISCONNECT_CONTROL_SCHEDULER_ATTR3 = ObisCode.fromString("0.3.15.0.1.255");
+    public static final ObisCode DISCONNECT_CONTROL_SCHEDULER_ATTR4 = ObisCode.fromString("0.4.15.0.1.255");
+
+    /**
+     * ObisCode mappers for NTP Setup
+     */
+    public static final ObisCode NTP_SETUP_ATTR1 = ObisCode.fromString("0.1.25.10.0.255");
+    public static final ObisCode NTP_SETUP_ATTR2 = ObisCode.fromString("0.2.25.10.0.255");
+    public static final ObisCode NTP_SETUP_ATTR3 = ObisCode.fromString("0.3.25.10.0.255");
+    public static final ObisCode NTP_SETUP_ATTR4 = ObisCode.fromString("0.4.25.10.0.255");
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
@@ -281,14 +334,26 @@ public class G3RegisterMapper {
     private G3StoredValues monthlyStoredValues;
 
     /**
+     * Constructor which should only be used to access the mappings,
+     * <b>not</b> for actual readout of the registers!
+     */
+    public G3RegisterMapper() {
+        initializeMappings();
+
+        this.logger = null;
+        this.cosemObjectFactory = null;
+        this.deviceTimeZone = null;
+    }
+
+    /**
      * G3 register mapping, used to read ata from the meter as a register value
      */
     public G3RegisterMapper(CosemObjectFactory cosemObjectFactory, TimeZone deviceTimeZone, Logger logger) {
-        initializeMappings();
-
         this.logger = logger;
         this.cosemObjectFactory = cosemObjectFactory;
         this.deviceTimeZone = deviceTimeZone;
+
+        initializeMappings();
 
         dailyStoredValues = new G3StoredValues(cosemObjectFactory, deviceTimeZone, G3ProfileType.DAILY_PROFILE.getObisCode(), true);
         monthlyStoredValues = new G3StoredValues(cosemObjectFactory, deviceTimeZone, G3ProfileType.MONTHLY_PROFILE.getObisCode(), false);
@@ -296,6 +361,7 @@ public class G3RegisterMapper {
 
     protected void initializeMappings() {
         this.mappings.addAll(getClockMappings());
+        this.mappings.addAll(getNTPSetupMappings());
         this.mappings.addAll(getBillingPeriodMappings());
         this.mappings.addAll(getBreakerManagementMappings());
         this.mappings.addAll(getCommunicationMappings());
@@ -310,6 +376,8 @@ public class G3RegisterMapper {
         this.mappings.addAll(getGprsModemSetupMappings());
         this.mappings.addAll(getPPPSetupRegistering());
         this.mappings.addAll(getModemWatchdogMappings());
+        this.mappings.addAll(getImageTransferMappings());
+        this.mappings.addAll(getLimiterMappings());
     }
 
     /**
@@ -327,6 +395,10 @@ public class G3RegisterMapper {
 
     public List<G3Mapping> getMappings() {
         return mappings;
+    }
+
+    public CosemObjectFactory getCosemObjectFactory() {
+        return cosemObjectFactory;
     }
 
     /**
@@ -372,8 +444,8 @@ public class G3RegisterMapper {
         return obisCode.getF() < 12;
     }
 
-    private final List<G3Mapping> getClockMappings() {
-        List<G3Mapping> basicChecks = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getClockMappings() {
+        List<G3Mapping> basicChecks = new ArrayList<>();
         basicChecks.add(new ClockMapping(Clock.getDefaultObisCode()));
         return basicChecks;
     }
@@ -387,8 +459,8 @@ public class G3RegisterMapper {
         return memoryManagement;
     }
 
-    private final List<G3Mapping> getBillingPeriodMappings() {
-        List<G3Mapping> billingMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getBillingPeriodMappings() {
+        List<G3Mapping> billingMappings = new ArrayList<>();
         billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_ALL));
         billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_TYPE));
         billingMappings.add(new SingleActionScheduleMapping(deviceTimeZone, ASYNC_EOB_SCHEDULE_TIME));
@@ -401,8 +473,8 @@ public class G3RegisterMapper {
         return billingMappings;
     }
 
-    private final List<G3Mapping> getBreakerManagementMappings() {
-        final List<G3Mapping> breakerMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getBreakerManagementMappings() {
+        final List<G3Mapping> breakerMappings = new ArrayList<>();
         breakerMappings.add(new DisconnectControlMapper(BREAKER_STATE));
         breakerMappings.add(new DownstreamVoltageMonitoringMapper(DOWNSTREAM_VOLTAGE_MONITORING, Unit.get("V")));
         breakerMappings.add(new OverHeatCurrentLimitMapper(OVERHEAT_CURRENT_LIMIT, Unit.get("A")));
@@ -410,15 +482,15 @@ public class G3RegisterMapper {
         return breakerMappings;
     }
 
-    private final List<G3Mapping> getCommunicationMappings() {
-        final List<G3Mapping> communcationMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getCommunicationMappings() {
+        final List<G3Mapping> communcationMappings = new ArrayList<>();
         communcationMappings.add(new DataValueMapping(CONSUMER_INTERFACE_SETUP));
         communcationMappings.add(new DataValueMapping(EURIDIS_PROTOCOL_SETUP));
         return communcationMappings;
     }
 
-    private final List<G3Mapping> getDataBaseMappings() {
-        final List<G3Mapping> dataBaseMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getDataBaseMappings() {
+        final List<G3Mapping> dataBaseMappings = new ArrayList<>();
         dataBaseMappings.add(new FirmwareMapping(FIRMWARE_ENTRIES));
         dataBaseMappings.add(new FirmwareMapping(FIRMWARE_ENTRY_1));
         dataBaseMappings.add(new FirmwareMapping(FIRMWARE_ENTRY_2));
@@ -431,8 +503,8 @@ public class G3RegisterMapper {
         return dataBaseMappings;
     }
 
-    private final List<G3Mapping> getEventManagerMappings() {
-        final List<G3Mapping> eventMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getEventManagerMappings() {
+        final List<G3Mapping> eventMappings = new ArrayList<>();
         eventMappings.add(new DataValueMapping(ALARM_FILTER));
         eventMappings.add(new DataValueMapping(ALARM_REGISTER));
         eventMappings.add(new DataValueMapping(BREAKER_EVENT_CODE));
@@ -452,8 +524,8 @@ public class G3RegisterMapper {
         return eventMappings;
     }
 
-    private final List<G3Mapping> getTotalEnergyRegistering() {
-        final List<G3Mapping> energyMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getTotalEnergyRegistering() {
+        final List<G3Mapping> energyMappings = new ArrayList<>();
         energyMappings.add(new RegisterMapping(TOTAL_EXPORT_ACTIVE_ENERGY));
         energyMappings.add(new RegisterMapping(TOTAL_IMPORT_ACTIVE_ENERGY));
         energyMappings.add(new RegisterMapping(TOTAL_REACTIVE_Q1_ENERGY));
@@ -465,8 +537,8 @@ public class G3RegisterMapper {
         return energyMappings;
     }
 
-    private final List<G3Mapping> getRatedEnergyRegistering() {
-        final List<G3Mapping> ratedEnergyMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getRatedEnergyRegistering() {
+        final List<G3Mapping> ratedEnergyMappings = new ArrayList<>();
         ratedEnergyMappings.add(new RegisterMapping(TARIFF1_IMPORT_ACTIVE_ENERGY_PROVIDER));
         ratedEnergyMappings.add(new RegisterMapping(TARIFF2_IMPORT_ACTIVE_ENERGY_PROVIDER));
         ratedEnergyMappings.add(new RegisterMapping(TARIFF3_IMPORT_ACTIVE_ENERGY_PROVIDER));
@@ -484,8 +556,8 @@ public class G3RegisterMapper {
         return ratedEnergyMappings;
     }
 
-    private final List<G3Mapping> getVoltageQualityMeasurements() {
-        final List<G3Mapping> voltageMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getVoltageQualityMeasurements() {
+        final List<G3Mapping> voltageMappings = new ArrayList<>();
         voltageMappings.add(new RegisterMapping(AVG_ABNORMAL_VOLTAGE_PH1));
         voltageMappings.add(new RegisterMapping(AVG_ABNORMAL_VOLTAGE_PH2));
         voltageMappings.add(new RegisterMapping(AVG_ABNORMAL_VOLTAGE_PH3));
@@ -494,8 +566,8 @@ public class G3RegisterMapper {
         return voltageMappings;
     }
 
-    protected final List<G3Mapping> getUsbSetupMappings() {
-        final List<G3Mapping> usbSetupMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getUsbSetupMappings() {
+        final List<G3Mapping> usbSetupMappings = new ArrayList<>();
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR1));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR2));
         usbSetupMappings.add(new USBSetupMapping(USB_SETUP_ATTR3));
@@ -507,8 +579,8 @@ public class G3RegisterMapper {
         return usbSetupMappings;
     }
 
-    protected final List<G3Mapping> getDisconnectControlRegistering() {
-        final List<G3Mapping> disconnectControlMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getDisconnectControlRegistering() {
+        final List<G3Mapping> disconnectControlMappings = new ArrayList<>();
         disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR1));
         disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR2));
         disconnectControlMappings.add(new DisconnectControlMapping(DISCONNECT_CONTROL_ATTR3));
@@ -516,8 +588,8 @@ public class G3RegisterMapper {
         return disconnectControlMappings;
     }
 
-    protected final List<G3Mapping> getGprsModemSetupMappings() {
-        final List<G3Mapping> gprsModemSetupMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getGprsModemSetupMappings() {
+        final List<G3Mapping> gprsModemSetupMappings = new ArrayList<>();
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR1));
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR2));
         gprsModemSetupMappings.add(new GprsModemSetupMapping(GPRS_MODEM_SETUP_ATTR3));
@@ -532,9 +604,9 @@ public class G3RegisterMapper {
         return gprsModemSetupMappings;
     }
 
-    protected final List<G3Mapping> getPPPSetupRegistering() {
-        final List<G3Mapping> pppSetupMappings = new ArrayList<G3Mapping>();
-        pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR1));
+    public final List<G3Mapping> getPPPSetupRegistering() {
+           final List<G3Mapping> pppSetupMappings = new ArrayList<>();
+     pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR1));
         pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR2));
         pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR3));
         pppSetupMappings.add(new PPPSetupMapping(PPP_SETUP_ATTR4));
@@ -543,8 +615,8 @@ public class G3RegisterMapper {
         return pppSetupMappings;
     }
 
-    protected final List<G3Mapping> getModemWatchdogMappings() {
-        final List<G3Mapping> ModemWatchdogMappings = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getModemWatchdogMappings() {
+        final List<G3Mapping> ModemWatchdogMappings = new ArrayList<>();
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR1));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR2));
         ModemWatchdogMappings.add(new ModemWatchdogMapping(MODEM_WATCHDOG_ATTR3));
@@ -554,8 +626,8 @@ public class G3RegisterMapper {
         return ModemWatchdogMappings;
     }
 
-    protected final List<G3Mapping> getPLCStatisticsMappings() {
-        final List<G3Mapping> plcStatistics = new ArrayList<G3Mapping>();
+    public final List<G3Mapping> getPLCStatisticsMappings() {
+        final List<G3Mapping> plcStatistics = new ArrayList<>();
         plcStatistics.add(new PlcStatisticsMapping(PHYS_MAC_LAYER_COUNTERS_ATTR1));
         plcStatistics.add(new PlcStatisticsMapping(PHYS_MAC_LAYER_COUNTERS_ATTR2));
         plcStatistics.add(new PlcStatisticsMapping(PHYS_MAC_LAYER_COUNTERS_ATTR3));
@@ -613,17 +685,32 @@ public class G3RegisterMapper {
         return plcStatistics;
     }
 
-    protected final List<G3Mapping> getBeaconPushEventNotificationAttibutesMappings() {
+    protected final List<G3Mapping> getBeaconPushEventNotificationAttributesMappings() {
         final List<G3Mapping> pushEventNotificationMappings = new ArrayList<G3Mapping>();
-        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR1));
-        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR2));
-        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR4));
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR1_LEGACY));
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR2_LEGACY));
+        pushEventNotificationMappings.add(new BeaconEventNotificationMapping(EVENT_NOTIFICATION_ATTR4_LEGACY));
 
         return pushEventNotificationMappings;
     }
 
-    protected final List<G3Mapping> getIPv4SetupMappings() {
-        final List<G3Mapping> ipv4SetupMappings = new ArrayList<G3Mapping>();
+    protected final List<G3Mapping> getPushSetupMappings() {
+        final List<G3Mapping> pushEventNotificationMappings = new ArrayList<G3Mapping>();
+
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTR1));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTR3));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTR6));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTR7));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTRc2));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTRc3));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTRc4));
+        pushEventNotificationMappings.add(new PushSetupMapping(PUSH_SETUP_ATTRc5));
+
+        return pushEventNotificationMappings;
+    }
+
+    public final List<G3Mapping> getIPv4SetupMappings() {
+        final List<G3Mapping> ipv4SetupMappings = new ArrayList<>();
 
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_DL_REFERENCE));
         ipv4SetupMappings.add(new IPv4SetupMapping(WAN_IP_ADDRESS));
@@ -678,6 +765,57 @@ public class G3RegisterMapper {
         apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG));
         apnConfigsMappings.add(new MultiAPNConfigMapping(MULTI_APN_CONFIG_LEGACY));
         return apnConfigsMappings;
+    }
+
+    protected final List<G3Mapping> getImageTransferMappings() {
+        final List<G3Mapping> imageTransferMappings = new ArrayList<G3Mapping>();
+        imageTransferMappings.add(new ImageTransferMapping(IMAGE_TRANSFER_ATTR2));
+        imageTransferMappings.add(new ImageTransferMapping(IMAGE_TRANSFER_ATTR3));
+        imageTransferMappings.add(new ImageTransferMapping(IMAGE_TRANSFER_ATTR4));
+        imageTransferMappings.add(new ImageTransferMapping(IMAGE_TRANSFER_ATTR5));
+        imageTransferMappings.add(new ImageTransferMapping(IMAGE_TRANSFER_ATTR6));
+        return imageTransferMappings;
+    }
+
+    protected final List<G3Mapping> getLimiterMappings() {
+        final List<G3Mapping> limiterMappings = new ArrayList<G3Mapping>();
+        limiterMappings.add(new LimiterMapping(LIMITER_ATTR4));
+        limiterMappings.add(new LimiterMapping(LIMITER_ATTR6));
+        limiterMappings.add(new LimiterMapping(LIMITER_ATTR7));
+        return limiterMappings;
+    }
+
+    protected final List<G3Mapping> getNTPSetupMappings() {
+        final List<G3Mapping> ntpSetupMappings = new ArrayList<>();
+        ntpSetupMappings.add(new NTPSetupMapping(NTP_SETUP_ATTR1));
+        ntpSetupMappings.add(new NTPSetupMapping(NTP_SETUP_ATTR2));
+        ntpSetupMappings.add(new NTPSetupMapping(NTP_SETUP_ATTR3));
+        ntpSetupMappings.add(new NTPSetupMapping(NTP_SETUP_ATTR4));
+        return ntpSetupMappings;
+    }
+
+    protected final List<G3Mapping> getBillingSchedulerMappings() {
+        final List<G3Mapping> schedulerMappings = new ArrayList<G3Mapping>();
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, BILLING_SCHEDULER_ATTR2));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, BILLING_SCHEDULER_ATTR3));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, BILLING_SCHEDULER_ATTR4));
+        return schedulerMappings;
+    }
+
+    protected final List<G3Mapping> getDisconnectControlSchedulerMappings() {
+        final List<G3Mapping> schedulerMappings = new ArrayList<G3Mapping>();
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, DISCONNECT_CONTROL_SCHEDULER_ATTR2));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, DISCONNECT_CONTROL_SCHEDULER_ATTR3));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, DISCONNECT_CONTROL_SCHEDULER_ATTR4));
+        return schedulerMappings;
+    }
+
+    protected final List<G3Mapping> getImageTransferActivationSchedulerMappings() {
+        final List<G3Mapping> schedulerMappings = new ArrayList<G3Mapping>();
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR2));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR3));
+        schedulerMappings.add(new SchedulerMapping(deviceTimeZone, IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR4));
+        return schedulerMappings;
     }
 
 }

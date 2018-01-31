@@ -174,6 +174,14 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.echoTestNotification, DeviceMessageConstants.echoTestNotificationDefaultTranslation)
             );
         }
+    },
+    PUSH_SETUP_NOTIFICATION_TYPE(2020, "Push setup notification type") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.PUSH_SETUP_NOTIFICATION_TYPE, DeviceMessageConstants.PUSH_SETUP_NOTIFICATION_TYPE_DEFAULT_TRANSLATION, NotificationType.getTypes())
+            );
+        }
     };
 
     public enum PushType {
@@ -251,6 +259,40 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
                     .findFirst()
                     .map(TransportType::name)
                     .orElse("Unknown transport type");
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum NotificationType {
+        Disabled(0),
+        Event_Notification(1),
+        Data_Notification(2);
+
+        private final int id;
+
+        private NotificationType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            NotificationType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public static String getStringValue(int id){
+            for(TransportType type: TransportType.values()){
+                if(type.getId() == id){
+                    return type.name();
+                }
+            }
+            return "Unknown transport type";
         }
 
         public int getId() {

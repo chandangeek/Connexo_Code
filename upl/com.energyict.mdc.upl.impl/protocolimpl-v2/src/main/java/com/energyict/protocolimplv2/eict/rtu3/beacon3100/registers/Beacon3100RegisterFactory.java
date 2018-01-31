@@ -8,14 +8,12 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.NPTServerAddressAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.NotInObjectListException;
@@ -37,11 +35,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -160,17 +154,45 @@ public class Beacon3100RegisterFactory {
         RegisterValue registerValue = null;
 
         if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
-            //read out upgrade_state, attribute -1
+            //read out upgrade_state, attribute -3
             AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-            if (attributeValue instanceof TypeEnum) {
-                int value = ((TypeEnum) attributeValue).getValue();
-                String description = MulticastUpgradeState.fromValue(value).getDescription();
+
+            if (attributeValue instanceof Structure) {
+            	final Structure upgradeProgress = attributeValue.getStructure();
+
+            	if (upgradeProgress.nrOfDataTypes() > 0 && upgradeProgress.getDataType(0).isTypeEnum()) {
+                    final int value = ((TypeEnum)upgradeProgress.getDataType(0)).getValue();
+
+                    final String description = MulticastUpgradeState.fromValue(value).getDescription();
                 registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(value, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
             } else {
-                addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse attribute " + ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE + " (previous_upgrade_state) of object " + MULTICAST_FIRMWARE_UPGRADE_OBISCODE
-                        .toString() + ", should be of type Enum."));
+                    this.addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Received an incompatible structure (upgrade_progress) : expected the first element to be an Enumeration."));
+
                 return null;
             }
+            } else {
+                this.addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Received an incompatible datatype (upgrade_progress) : expected a structure, instead got a " + attributeValue.getClass()));
+
+                return null;
+            }
+        } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
+                AbstractDataType memoryManagementAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+
+                if (memoryManagementAttribute.isStructure() && memoryManagementAttribute.getStructure().nrOfDataTypes() == 4) {
+                    //Special parsing for memory statistics
+                    final String unit = memoryManagementAttribute.getStructure().getDataType(3).getOctetString().stringValue();
+                    registerValue = new RegisterValue(offlineRegister.getObisCode(),
+                            "Used space: " + memoryManagementAttribute.getStructure().getDataType(0).toBigDecimal() + " " + unit +
+                                    ", free space: " + memoryManagementAttribute.getStructure().getDataType(1).toBigDecimal() + " " + unit +
+                                    ", total space: " + memoryManagementAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
+                } else if (memoryManagementAttribute.isArray()) {
+                    //flash devices
+                    registerValue = new RegisterValue(offlineRegister.getObisCode(),
+                            "Flash devices: " + memoryManagementAttribute.getArray().toString());
+                } else {
+                    addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse memory management register, should be a structure with 4 or 8 elements"));
+                    return null;
+                }
         } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId() || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
             //Generic parsing for all data registers
             final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
@@ -261,12 +283,16 @@ public class Beacon3100RegisterFactory {
         if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
             composedRegister.setRegisterValue(valueAttribute);
-        }
-
-        if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
-            //read out upgrade_state, attribute -1
-            DLMSAttribute valueAttribute = new DLMSAttribute(baseObisCode, ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE, universalObject.getClassID());
+        } else if (universalObject.getClassID() == DLMSClassId.NTP_SETUP.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NTPSetupAttributes.SERVER_ADDRESS.getAttributeNumber(), universalObject.getClassID());
             composedRegister.setRegisterValue(valueAttribute);
+        } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+            //read out upgrade_state, attribute -1
+            DLMSAttribute valueAttribute = new DLMSAttribute(baseObisCode, ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS, universalObject.getClassID());
+            composedRegister.setRegisterValue(valueAttribute);
+        } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
+            DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
+            composedRegister.setRegisterValue(memoryStatisticsAttribute);
         }
 
         if (composedRegister.getRegisterValueAttribute() != null) {

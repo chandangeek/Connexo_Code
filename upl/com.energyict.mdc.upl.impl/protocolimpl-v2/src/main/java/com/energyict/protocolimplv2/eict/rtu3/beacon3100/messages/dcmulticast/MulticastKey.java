@@ -20,7 +20,7 @@ public class MulticastKey {
 
 
     /* 24-byte value (AES key wrapped with DlmsMeterKEK) */
-    String wrappedKey;
+    private String wrappedKey;
 
     public MulticastKey(String wrappedKey) {
         this.wrappedKey = wrappedKey;
@@ -31,14 +31,16 @@ public class MulticastKey {
     }
 
     public AbstractDataType toDataType() {
+        final Structure result = new Structure();
         if (getWrappedKey() == null || getWrappedKey().isEmpty()) {
-            return new NullData();
+            result.addDataType(new TypeEnum(DLMS_KEY_TYPE_VOID));
+            result.addDataType(new NullData());
         } else {
-            final Structure result = new Structure();
             result.addDataType(new TypeEnum(DLMS_KEY_TYPE_AESWRAP_WITHOUT_PADDING));
             result.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getWrappedKey(), "")));
             return result;
         }
+        return result;
     }
 
     @XmlAttribute

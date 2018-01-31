@@ -8,12 +8,15 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
  */
 public enum MulticastUpgradeState {
 
-    NotStarted(0, "The multicast upgrade has not started"),
-    Pending(1, "The upgrade is waiting to be executed"),
-    Running(2, "The upgrade is in progress"),
-    Failed(3, "The upgrade failed"),
-    Finished(4, "The upgrade is finished"),
-    Unknown(5, "The upgrade is in an unknown execution state");
+    INITIAL(0, "The multicast upgrade has not started"),
+    IMAGE_PRESENT(1, "A valid slave image is present"),
+    PROTOCOL_CONFIG_PRESENT(2, "A valid protocol configuration is present"),
+    IMAGE_AND_PROTOCOL_CONFIG_PRESENT(3, "A valid slave image and protocol configuration are present"),
+    PENDING(4, "The upgrade process was requested and waiting to be executed"),
+    RUNNING(5, "The upgrade is in progress"),
+    FAILED(6, "The upgrade failed"),
+    FINISHED(7, "The upgrade has finished"),
+    UNKNOWN(-1, "The state of the upgrade is unknown.");
 
     private int value;
     private String description;
@@ -29,7 +32,7 @@ public enum MulticastUpgradeState {
                 return multicastUpgradeState;
             }
         }
-        return Unknown;
+        return UNKNOWN;
     }
 
     public int getValue() {

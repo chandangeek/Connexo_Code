@@ -47,6 +47,11 @@ public enum  Beacon3100PushSetupAttributes implements DLMSClassAttributes{
     NUMBER_OF_RETRIES(6, 0x28),
 
     /**
+     * Time delay in seconds until next push attempt is started.
+     */
+    REPETITION_DELAY(7, 0x30),
+
+    /**
      * Placeholder for upstream event-notifications.
      * @deprecated Attribute is never accessible
      */

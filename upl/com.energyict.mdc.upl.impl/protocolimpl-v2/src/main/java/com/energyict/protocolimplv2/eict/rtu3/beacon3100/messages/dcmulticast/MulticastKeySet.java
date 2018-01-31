@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class MulticastKeySet {
 
-    MulticastGlobalKeySet globalKeySet;
+    private MulticastGlobalKeySet globalKeySet;
 
     public MulticastKeySet(MulticastGlobalKeySet globalKeySet) {
         this.globalKeySet = globalKeySet;

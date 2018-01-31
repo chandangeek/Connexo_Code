@@ -21,6 +21,7 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
+    String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
 
     /** Property indicating whether the public client is pre-established or not. */
     String PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED = "PublicClient-PreEstablished";
@@ -226,6 +227,14 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * @return
      */
     boolean validateLoadProfileChannels();
+
+    /**
+     * Indicates whether or not to increment the frame counter when creating the action request for the reply_to_hls.
+     *
+     * @return	<code>true</code> if the frame counter needs to be bumped after generation of the f(StoC), <code>false</code> otherwise. Default is <code>false</code> for
+     * 			backwards compatibility.
+     */
+    boolean incrementFrameCounterForReplyToHLS();
 
     /**
      * Indicates whether or not to ignore the DST status flag on load profile entries.

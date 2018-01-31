@@ -32,5 +32,11 @@ public enum ConnectionFunctionKeys {
      * Indication that the connection is established to the mirror of the data concentrator. In this case, no direct communication
      * to the downstream device is done.
      */
-    MIRROR;
+    MIRROR,
+
+    /**
+     * Indication that the connection is established for the inbound communication and is used for communication
+     * to the downstream device.
+     */
+    INBOUND;
 }

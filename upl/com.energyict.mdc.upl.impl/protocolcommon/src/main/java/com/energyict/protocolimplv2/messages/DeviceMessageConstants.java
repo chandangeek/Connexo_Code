@@ -4,7 +4,7 @@ package com.energyict.protocolimplv2.messages;
  * Lists all translation keys that are used for the message attribute names.
  * Every key should be unique.
  * Also, do not name them CategoryName.MessageSpecName, this is already used as translation key for the message name.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 19/03/13
  * Time: 8:45
@@ -19,6 +19,8 @@ public final class DeviceMessageConstants {
     public static final String contactorModeAttributeDefaultTranslation = "Connect control mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relaynumber";
     public static final String relayNumberAttributeDefaultTranslation = "Relay number";
+    public static final String relayActionAttributeName = "ContactorDeviceMessage.relayAction";
+    public static final String relayActionAttributeDefaultTranslation = "ContactorDeviceMessage.Relay action";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String relayOperatingModeAttributeDefaultTranslation = "Relay operating mode";
 
@@ -32,6 +34,10 @@ public final class DeviceMessageConstants {
     public static final String broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation = "Initial time between blocks";
     public static final String broadcastNumberOfBlocksInCycleAttributeName = "FirmwareDeviceMessage.broadcast.numberofblocksincycle";
     public static final String broadcastNumberOfBlocksInCycleAttributeDefaultTranslation = "Number of block transfers per cycle";
+    public static final String broadcastEncryptionKeyAttributeName = "FirmwareDeviceMessage.broadcast.encryptionkey";
+    public static final String broadcastEncryptionKeyAttributeDefaultTranslation = "Broadcast Encryption Key";
+    public static final String broadcastAuthenticationKeyAttributeName = "FirmwareDeviceMessage.broadcast.authenticationkey";
+    public static final String broadcastAuthenticationKeyAttributeDefaultTranslation = "Broadcast Authentication Key";
 
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String firmwareUpdateActivationDateAttributeDefaultTranslation = "Activation date";
@@ -83,6 +89,16 @@ public final class DeviceMessageConstants {
     public static final String UseTransferredBlockStatusDefaultTranslation = "Use the transferred block status";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String resumeFirmwareUpdateAttributeDefaultTranslation = "Resume";
+    public static final String enableImageTransfer = "FirmwareDeviceMessage.upgrade.enableImageTransfer";
+    public static final String enableImageTransferDefaultTranslation = "Enable image transfer";
+    public static final String initiateImageTransfer = "FirmwareDeviceMessage.upgrade.initiateImageTransfer";
+    public static final String initiateImageTransferDefaultTranslation = "Initiate image transfer";
+    public static final String transferBlocks = "FirmwareDeviceMessage.upgrade.transferBlocks";
+    public static final String transferBlocksDefaultTranslation = "Transfer image blocks";
+    public static final String verifyImage = "FirmwareDeviceMessage.upgrade.verifyImage";
+    public static final String verifyImageDefaultTranslation = "Verify transfered image";
+    public static final String activateImage = "FirmwareDeviceMessage.upgrade.activateImage";
+    public static final String activateImageDefaultTranslation = "Activate image";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String plcTypeFirmwareUpdateAttributeDefaultTranslation = "PLC type";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
@@ -93,6 +109,8 @@ public final class DeviceMessageConstants {
     public static final String SkipStepVerifyDefaultTranslation = "Skip image verification step";
     public static final String SkipStepActivate = "FirmwareDeviceMessage.SkipStepActivate";
     public static final String SkipStepActivateDefaultTranslation = "Skip image activation step";
+    public static final String SkipStepInitiate = "FirmwareDeviceMessage.SkipStepInitiate";
+    public static final String SkipStepInitiateDefaultTranslation = "Skip image transfer initiate step";
     public static final String UnicastFrameCounterType = "FirmwareDeviceMessage.UnicastFrameCounterType";
     public static final String UnicastFrameCounterTypeDefaultTranslation = "Unicast frame counter type";
     public static final String MeterTimeZone = "FirmwareDeviceMessage.TimeZone";
@@ -106,26 +124,43 @@ public final class DeviceMessageConstants {
      * Indicates to the device whether or not it can read the image block size.
      */
     public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE = "FirmwareDeviceMessage.BlockSizeReadable";
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE_DEFAULT_TRANSLATION = "Can read block size";
 
     /**
      * Indicates to the device whether or not it can write the image block size.
      */
     public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE = "FirmwareDeviceMessage.BlockSizeWritable";
+    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE_DEFAULT_TRANSLATION = "Can write block size";
 
     /**
      * If the device cannot read the block size, spell it out.
      */
     public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE = "FirmwareDeviceMessage.RequestedBlockSize";
+    public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE_DEFAULT_TRANSLATION = "Requested block size";
 
     /**
      * max-apdu-size for a pre-established association.
      */
     public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE = "FirmwareDeviceMessage.MaxRecPDUSize";
+    public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE_DEFAULT_TRANSLATION = "Maximum APDU size";
 
     /**
      * The logical name of the frame counter to be used in unicast mode.
      */
     public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME = "FirmwareDeviceMessage.UnicastFrameCounterObiscode";
+    public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME_DEFAULT_TRANSLATION = "Unicast frame counter obiscode";
+
+    /**
+     * Indicates whether or not to skip the transfer status check.
+     */
+    public static final String MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK = "FirmwareDeviceMessage.SkipTransferStatusCheck";
+    public static final String MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK_DEFAULT_TRANSLATION = "Skip transfer status check";
+
+    /**
+     * Attribute containing the image size.
+     */
+    public static final String FW_UPGRADE_IMAGE_SIZE = "FirmwareDeviceMessage.ImageSize";
+    public static final String FW_UPGRADE_IMAGE_SIZE_DEFAULT_TRANSLATION = "Image size";
 
     public static final String contractAttributeName = "contract";
     public static final String contractAttributeDefaultTranslation = "Contract";
@@ -167,10 +202,18 @@ public final class DeviceMessageConstants {
     public static final String authenticationLevelAttributeDefaultTranslation = "Authentication level";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
+    public static final String newWrappedPSKAttributeName = "SecurityMessage.new.wrapped.PSK";
+    public static final String newWrappedPSKDefaultTranslation = "New wrapped PSK";
+    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
+    public static final String newWrappedEncryptionKeyDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newAuthenticationKeyAttributeDefaultTranslation = "New authentication key";
+    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
+    public static final String newWrappedAuthenticationKeyDefaultTranslation = "New wrapped authentication key";
     public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
     public static final String newMasterKeyAttributeDefaultTranslation = "New master key";
+    public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
+    public static final String newWrappedMasterKeyDefaultTranslation = "New wrapped master key";
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String client = "SecurityMessage.client";
     public static final String clientDefaultTranslation = "Client";
@@ -237,9 +280,18 @@ public final class DeviceMessageConstants {
     public static final String securitySuiteAttributeDefaultTranslation = "Security suite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
     public static final String certificateEntityAttributeDefaultTranslation = "Certificate entity";
-
+    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
+    public static final String CACertificateAliasDefaultTranslation = "CA certificate alias";
+    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
+    public static final String clientCertificateAliasDefaultTranslation = "Client certificate alias";
     public static final String certificateWrapperAttributeName = "SecurityMessage.certificateWrapper";
     public static final String certificateWrapperAttributeDefaultTranslation = "Certificate";
+    public static final String pemCRL = "SecurityMessage.pemCRL";
+    public static final String pemCRLDefaultTranslation = "PEM encoded X.509 CRL";
+    public static final String crlIssuerName = "SecurityMessage.crlIssuerName";
+    public static final String crlIssuerNameDefaultTranslation = "X.500 name of the CRL issuer";
+    public static final String trustedCertificateWrapperAttributeName = "SecurityMessage.trustedCertificate";
+    public static final String trustedCertificateWrapperDefaultTranslation = "Trusted certificate containing the CRL to send";
 
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
@@ -323,6 +375,8 @@ public final class DeviceMessageConstants {
     public static final String synchronisationBitDefaultTranslation = "Synchronisation bit";
     public static final String EnableEventNotifications = "EnableEventNotifications";
     public static final String EnableEventNotificationsDefaultTranslation = "Enable event notifications";
+    public static final String PUSH_SETUP_NOTIFICATION_TYPE = "AlarmConfigurationMessage.PushSetupNotificationType";
+    public static final String PUSH_SETUP_NOTIFICATION_TYPE_DEFAULT_TRANSLATION = "Notification type";
 
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String managedWhiteListPhoneNumbersAttributeDefaultTranslation = "Phone numbers managed whitelist";
@@ -1018,6 +1072,10 @@ public final class DeviceMessageConstants {
     public static final String FTIONMailConfigDefaultTranslation = "FTION mail configuration";
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
     public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
+    public static final String AdminOld = "DeviceActionMessage.adminold";
+    public static final String AdminOldDefaultTranslation = "Admin old";
+    public static final String AdminNew = "DeviceActionMessage.adminnew";
+    public static final String AdminNewDefaultTranslation = "Admin new";
     public static final String AdminPassword = "Admin.password";
     public static final String AdminPasswordDefaultTranslation = "Admin password";
 
@@ -1114,6 +1172,8 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationSASPanIdAttributeDefaultTranslation = "PAN ID";
     public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.forceremoval";
     public static final String ZigBeeConfigurationForceRemovalAttributeDefaultTranslation = "Force removal";
+    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeelinkkey";
+    public static final String ZigBeeConfigurationZigBeeLinkKeyDefaultTranslation = "ZigBee link key";
     public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.activationdate";
     public static final String ZigBeeConfigurationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeeieeeaddress";
@@ -1142,6 +1202,8 @@ public final class DeviceMessageConstants {
     public static final String currency = "currency";
     public static final String currencyDefaultTranslation = "Currency";
 
+    public static final String alarmStatusFlagAttributeName = "AlarmConfigurationMessage.alarmStatusFlagAttributeName";
+    public static final String alarmStatusFlagDefaultTranslation = "Alarm status flags to reset";
     public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
     public static final String alarmRegisterAttributeDefaultTranslation = "Alarm register";
     public static final String alarmBitMaskAttributeName = "AlarmConfigurationMessage.alarmBitMask";
@@ -1213,6 +1275,16 @@ public final class DeviceMessageConstants {
     public static final String plcG3TimeoutAttributeDefaultTranslation = "PLC G3 timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.g3panid";
     public static final String G3PanIdAttributeDefaultTranslation = "G3 PAN ID";
+    public static final String Association_max_retry = "PLCConfigurationDeviceMessage.Association_max_retry";
+    public static final String Association_max_retryDefaultTranslation = "Association max retry";
+    public static final String Association_rand_wait_time_step = "PLCConfigurationDeviceMessage.Association_rand_wait_time_step";
+    public static final String Association_rand_wait_time_stepDefaultTranslation = "Association rand wait max step";
+    public static final String Association_alt_PAN = "PLCConfigurationDeviceMessage.Association_alt_PAN";
+    public static final String Association_alt_PANDefaultTranslation = "Association alt PAN";
+    public static final String Join_LQI_threshold = "PLCConfigurationDeviceMessage.Join_LQI_threshold";
+    public static final String Join_LQI_thresholdDefaultTranslation = "Join LQI threshold";
+    public static final String Active_scan_duration = "PLCConfigurationDeviceMessage.Active_scan_duration";
+    public static final String Active_scan_durationDefaultTranslation = "Active scan duration";
     public static final String adp_Kr = "PLCConfigurationDeviceMessage.adp_Kr";
     public static final String adp_KrDefaultTranslation = "Weight factor for the Robust Mode to calculate link cost";
     public static final String adp_Km = "PLCConfigurationDeviceMessage.adp_Km";
@@ -1279,6 +1351,8 @@ public final class DeviceMessageConstants {
     public static final String KeepAliveRetriesDefaultTranslation = "Keep alive retries";
     public static final String KeepAliveTimeout = "PLCConfigurationDeviceMessage.keepAliveTimeout";
     public static final String KeepAliveTimeoutDefaultTranslation = "Keep alive timeout";
+    public static final String icVersion0 = "PLCConfigurationDeviceMessage.icVersion0";
+    public static final String icVersion0DefaultTranslation = "Is IC Version 0";
 
     public static final String groupName = "PLCConfigurationDeviceMessage.groupName";
     public static final String groupNameDefaultTranslation = "Group name";
@@ -1386,8 +1460,8 @@ public final class DeviceMessageConstants {
     public static final String NUMBER_OF_SUBINTERVALS_DEFAULT_TRANSLATION = "Number of sub intervals";
     public static final String SUB_INTERVAL_DURATION = "ACE4000ConfigurationMessages.SUB_INTERVAL_DURATION";
     public static final String SUB_INTERVAL_DURATION_DEFAULT_TRANSLATION = "Sub interval duration (seconds)";
-    public static final String SHORT_DISPLAY_MESSAGE = "Send short display message (max 8 chars)";
-    public static final String SHORT_DISPLAY_MESSAGE_DEFAULT_TRANSLATION = "ACE4000ConfigurationMessages.SHORT_DISPLAY_MESSAGE";
+    public static final String SHORT_DISPLAY_MESSAGE = "ACE4000ConfigurationMessages.SHORT_DISPLAY_MESSAGE";
+    public static final String SHORT_DISPLAY_MESSAGE_DEFAULT_TRANSLATION = "Send short display message (max 8 chars)";
     public static final String LONG_DISPLAY_MESSAGE = "ACE4000ConfigurationMessages.LONG_DISPLAY_MESSAGE";
     public static final String LONG_DISPLAY_MESSAGE_DEFAULT_TRANSLATION = "Send long display message (max 1024 chars)";
     public static final String NUMBER_OF_DIGITS_BEFORE_COMMA = "ACE4000ConfigurationMessages.NUMBER_OF_DIGITS_BEFORE_COMMA";
@@ -1512,10 +1586,22 @@ public final class DeviceMessageConstants {
     public static final String echoTestNotificationDefaultTranslation = "Echo test notification";
     public static final String startDate = "DeviceActionMessage.startDate";
     public static final String startDateDefaultTranslation = "Start date";
+    public static final String previousStartDate = "DeviceActionMessage.previousStartDate";
+    public static final String previousStartDateDefaultTranslation = "Previous configuration start date";
+    public static final String currentStartDate = "DeviceActionMessage.currentStartDate";
+    public static final String currentStartDateDefaultTranslation = "Current configuration start date";
     public static final String endDate = "DeviceActionMessage.endDate";
     public static final String endDateDefaultTranslation = "End date";
+    public static final String previousEndDate = "DeviceActionMessage.previousEndDate";
+    public static final String previousEndDateDefaultTranslation = "Previous configuration end date";
+    public static final String currentEndDate = "DeviceActionMessage.currentEndDate";
+    public static final String currentEndDateDefaultTranslation = "Current configuration end date";
     public static final String configurationId = "DeviceActionMessage.configurationId";
     public static final String configurationIdDefaultTranslation = "Configuration ID";
+    public static final String previousConfigurationId = "DeviceActionMessage.previousConfigurationId";
+    public static final String previousConfigurationIdDefaultTranslation = "Previous configuration id";
+    public static final String currentConfigurationId = "DeviceActionMessage.currentConfigurationId";
+    public static final String currentConfigurationIdDefaultTranslation = "Current configuration id";
     public static final String bufferSize = "DeviceActionMessage.bufferSize";
     public static final String bufferSizeDefaultTranslation = "Buffer size";
     public static final String obisCode = "DeviceActionMessage.obisCode";
@@ -1529,6 +1615,36 @@ public final class DeviceMessageConstants {
 
     public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
+    public static final String attributeId = "DeviceActionMessage.AttributeId";
+    public static final String attributeIdDefaultTranslation = "Attribute ID";
+    public static final String classId = "DeviceActionMessage.ClassID";
+    public static final String classIdDefaultTranslation = "Class ID";
+
+    public static final String CTRatioMultiplier = "DeviceActionMessage.CTRatioMultiplier";
+    public static final String CTRatioMultiplierDefaultTranslation = "CT ratio multiplier";
+    public static final String VTRatioMultiplier = "DeviceActionMessage.VTRatioMultiplier";
+    public static final String VTRatioMultiplierDefaultTranslation = "VT ratio multiplier";
+    public static final String CTRatioDivisor = "DeviceActionMessage.CTRatioDivisor";
+    public static final String CTRatioDivisorDefaultTranslation = "CT ratio divisor";
+    public static final String VTRatioDivisor = "DeviceActionMessage.VTRatioDivisor";
+    public static final String VTRatioDivisorDefaultTranslation = "VT ratio divisor";
+
+    public static final String PulseMode = "DeviceActionMessage.PulseMode";
+    public static final String PulseModeDefaultTranslation = "Pulse mode";
+    public static final String PulseSubMode = "DeviceActionMessage.PulseSubMode";
+    public static final String PulseSubModeDefaultTranslation = "Pulse sub mode";
+    public static final String PulseMultiplier = "DeviceActionMessage.PulseMultiplier";
+    public static final String PulseMultiplierDefaultTranslation = "Pulse multiplier";
+    public static final String InputChannel = "DeviceActionMessage.InputChannel";
+    public static final String InputChannelDefaultTranslation = "Input channel";
+    public static final String ignorePreviousStartDate = "DeviceActionMessage.ignorePreviousStartDate";
+    public static final String ignorePreviousStartDateDefaultTranslation = "Ignore previous configuration start date";
+    public static final String ignorePreviousEndDate = "DeviceActionMessage.ignorePreviousEndDate";
+    public static final String ignorePreviousEndDateDefaultTranslation = "Ignore previous configuration end date";
+    public static final String ignoreStartDate = "DeviceActionMessage.ignoreStartDate";
+    public static final String ignoreStartDateDefaultTranslation = "Ignore current configuration start date";
+    public static final String ignoreEndDate = "DeviceActionMessage.ignoreEndDate";
+    public static final String ignoreEndDateDefaultTranslation = "Ignore current configuration end date";
 
     public static final String keyAccessorTypeAttributeName = "keyAccessorType";
     public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";

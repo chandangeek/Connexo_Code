@@ -112,7 +112,7 @@ public class Beacon3100ProtocolTypedProperty {
         return type;
     }
 
-    private enum PropertyType {
+    public enum PropertyType {
         Unknown(-1),
         String(0),
         BigDecimal(1),

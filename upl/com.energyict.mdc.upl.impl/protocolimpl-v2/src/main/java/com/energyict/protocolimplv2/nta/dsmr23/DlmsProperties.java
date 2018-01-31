@@ -100,7 +100,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public void addProperties(TypedProperties properties) {
-        this.properties.setAllProperties(properties);
+        this.properties.setAllProperties(properties, true);
     }
 
     @Override
@@ -451,6 +451,14 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public boolean validateLoadProfileChannels() {
         return this.properties.getTypedProperty(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean incrementFrameCounterForReplyToHLS() {
+        return this.properties.getTypedProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false);
     }
 
     @Override

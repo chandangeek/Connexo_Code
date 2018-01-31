@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
@@ -11,11 +15,6 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -36,14 +35,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
@@ -63,6 +55,7 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
 public class MasterDataSerializer {
 
     public static final ObisCode FIXED_SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    private final int PUBLIC_CLIENT_ID = 16;
 
     private static final long NO_SCHEDULE = -1;
     private static Logger logger;
@@ -261,6 +254,21 @@ public class MasterDataSerializer {
     }
 
     private Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
+
+        //A comtask for the DC has a schedule and at least one obiscode.
+        List<DeviceMasterDataExtractor.CommunicationTask> mirrorComTasks = new ArrayList<>();
+        DeviceMasterDataExtractor.DeviceConfiguration deviceConfiguration = this.extractor.configuration(device);
+        for (DeviceMasterDataExtractor.CommunicationTask communicationTask : this.extractor.enabledTasks(device)) {
+            if (getScheduleName(communicationTask) != null) {
+                List<SchedulableItem> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, communicationTask);
+                List<SchedulableItem> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, communicationTask);
+                List<SchedulableItem> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, communicationTask);
+                if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
+                    mirrorComTasks.add(communicationTask);
+                }
+            }
+        }
+
         final String callHomeId = this.parseCallHomeId(device);
 
         final long configurationId = this.extractor.configuration(device).id();     //The ID of the config, instead of the device type. Since every new config represents a unique device type in the Beacon model
@@ -275,9 +283,9 @@ public class MasterDataSerializer {
         final byte[] dlmsMeterKEK = this.parseKey(masterDevice, Beacon3100ConfigurationSupport.DLMS_METER_KEK);
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
-        final byte[] password = getSecurityKey(device, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
-        final byte[] ak = getSecurityKey(device, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString());
-        final byte[] ek = getSecurityKey(device, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString());
+        final byte[] password = getSecurityKey(device, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), null, mirrorComTasks);
+        final byte[] ak = getSecurityKey(device, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), null, mirrorComTasks);
+        final byte[] ek = getSecurityKey(device, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), null, mirrorComTasks);
 
         final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, password), "");
         final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ak), "");
@@ -288,13 +296,13 @@ public class MasterDataSerializer {
                 configurationId,
                 deviceTimeZone,
                 this.extractor.serialNumber(device),
-                createClientDetails(device, dlmsMeterKEK),
+                createClientDetails(device, dlmsMeterKEK, mirrorComTasks),
                 wrappedPassword,
                 wrappedAK,
                 wrappedEK);
     }
 
-    private List<Beacon3100ClientDetails> createClientDetails(Device device, byte[] dlmsMeterKEK) {
+    private List<Beacon3100ClientDetails> createClientDetails(Device device, byte[] dlmsMeterKEK, List<DeviceMasterDataExtractor.CommunicationTask> mirrorComTasks) {
         byte[] password = null;
         byte[] hlsPassword = null;
         byte[] ak = null;
@@ -302,8 +310,18 @@ public class MasterDataSerializer {
         List<Beacon3100ClientDetails> clientDetails = new ArrayList<>();
         final long initialFrameCounter = this.extractor.protocolProperties(device).getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(-1)).longValue();
 
-        for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
+        Set<DeviceMasterDataExtractor.SecurityPropertySet> securityPropertySets = new HashSet<>();
+        for (DeviceMasterDataExtractor.CommunicationTask mirrorComTask : mirrorComTasks) {
+            DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet = mirrorComTask.securityPropertySet();
+            if (securityPropertySet != null) {
+                securityPropertySets.add(securityPropertySet);
+            }
+        }
+
+        for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : securityPropertySets) {
+            final int clientId = ((BigDecimal) securityPropertySet.client()).intValue();
             for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
+                validateDlmsClient(clientId);
                 if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
                     if (securityPropertySet.authenticationDeviceAccessLevelId() >= 3) {
                         hlsPassword = parseASCIIPassword(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
@@ -321,7 +339,6 @@ public class MasterDataSerializer {
             final String wrappedHLSPassword = hlsPassword == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, hlsPassword), "");
             final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ak), "");
             final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ek), "");
-            final int clientId = ((BigDecimal) securityPropertySet.client()).intValue();
             clientDetails.add(new Beacon3100ClientDetails(clientId, new Beacon3100ConnectionDetails(wrappedPassword, wrappedHLSPassword, wrappedAK, wrappedEK, initialFrameCounter)));
         }
 
@@ -591,7 +608,8 @@ public class MasterDataSerializer {
                         .map(BigDecimal.class::cast)
                         .orElseGet(() -> this.defaultClientMacAddress(securityPropertySet));
 
-        final int securitySuite = 0;//TODO: get the security suite in use
+        int securitySuiteId = securityPropertySet.securitySuite();         //Note that -1 means undefined, we change that to the default suite (0)
+        final int securitySuite = securitySuiteId == -1 ? 0 : securitySuiteId;
 
         return new Beacon3100ClientType(
                 clientTypeId,
@@ -621,7 +639,7 @@ public class MasterDataSerializer {
         TypedProperties allProperties = TypedProperties.empty();
 
         //General props & pluggable class props, from the configuration of the slave device
-        allProperties.setAllProperties(deviceConfiguration.properties());
+        allProperties.setAllProperties(deviceConfiguration.properties(), true);
 
         //These properties will be used to read out the connected e-meters (down stream). The actual e-meter only has 1 logical device, it's ID is 1.
         allProperties.setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
@@ -684,18 +702,32 @@ public class MasterDataSerializer {
      * Iterate over every defined security set to find a certain security property.
      * If it's not defined on any security set, return null.
      */
-    public byte[] getSecurityKey(Device device, String propertyName) {
-        return getSecurityKey(device, propertyName, null);
+    public byte[] getSecurityKey(Device device, String propertyName, Integer clientMacAddress) {
+        return getSecurityKey(device, propertyName, clientMacAddress, null);
     }
 
     /**
      * Iterate over the security sets that have the given clientMacAddress to find a certain security property.
      * If the given clientMacAddress is null, iterate over all security sets.
      * If the requested property is not defined on any security set, return null.
+     * <p>
+     * Note that the list of security sets can be based on a given list of comtasks, or on all comtask of the device.
      */
-    public byte[] getSecurityKey(Device device, String propertyName, Integer clientMacAddress) {
+    public byte[] getSecurityKey(Device device, String propertyName, Integer clientMacAddress, List<DeviceMasterDataExtractor.CommunicationTask> mirrorComTasks) {
+        Set<DeviceMasterDataExtractor.SecurityPropertySet> securityPropertySets = new HashSet<>();
+        if (mirrorComTasks != null) {
+            for (DeviceMasterDataExtractor.CommunicationTask mirrorComTask : mirrorComTasks) {
+                DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet = mirrorComTask.securityPropertySet();
+                if (securityPropertySet != null) {
+                    securityPropertySets.add(securityPropertySet);
+                }
+            }
+        } else {
+            securityPropertySets.addAll(extractor.securityPropertySets(device));
+        }
+
         List<DeviceMasterDataExtractor.SecurityPropertySet> securitySets = new ArrayList<>();
-        for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
+        for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : securityPropertySets) {
             if (clientMacAddress == null) {
                 securitySets.add(securityPropertySet);
             } else {
@@ -767,6 +799,14 @@ public class MasterDataSerializer {
 
     protected DeviceConfigurationException missingProperty(String propertyName) {
         return DeviceConfigurationException.missingProperty(propertyName);
+    }
+
+    private void validateDlmsClient(int clientId) {
+        if (clientId == PUBLIC_CLIENT_ID) {
+            //Drop full sync process if we find a configuration that uses public client
+            String message = "We should NEVER try to synchronize a device configured to be readout with public client. Please change the configured dlms client with a proper one and try again!";
+            throw DeviceConfigurationException.unsupportedPropertyValueWithReason(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), String.valueOf(PUBLIC_CLIENT_ID), message);
+        }
     }
 
     protected Beacon3100Properties getProperties() {

@@ -17,7 +17,8 @@ import com.energyict.protocolimplv2.ConnectionFunctionKeys;
 public enum DeviceConnectionFunction implements UPLConnectionFunction {
 
     GATEWAY(1, ConnectionFunctionKeys.GATEWAY),
-    MIRROR(2, ConnectionFunctionKeys.MIRROR);
+    MIRROR(2, ConnectionFunctionKeys.MIRROR),
+    INBOUND(3, ConnectionFunctionKeys.INBOUND);
 
     private final long id;
     private final ConnectionFunctionKeys key;

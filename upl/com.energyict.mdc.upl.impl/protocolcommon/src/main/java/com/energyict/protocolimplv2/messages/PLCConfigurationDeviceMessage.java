@@ -582,12 +582,54 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetBroadCastLogTableEntryTTLVersion1(3088, "") {
+    SetBroadCastLogTableEntryTTLVersion1(3088, "Set broadcast log table entry TTL (in minutes)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeDefaultTranslation));
         }
-    };
+    },
+    ReadBlacklist(3089, "Read blacklist") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    SetHighLowLQI(3090, "Set high and low LQI values") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.highLQIValueAttributeName, DeviceMessageConstants.highLQIValueAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.lowLQIValueAttributeName, DeviceMessageConstants.lowLQIValueAttributeDefaultTranslation));
+        }
+    },
+
+    SetAdpLBPAssociationSetup_7_Parameters(3091, "Set ADP LBP association setup wtih low and high LQI values") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Association_max_retry, DeviceMessageConstants.Association_max_retryDefaultTranslation, new BigDecimal(1), new BigDecimal(255)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Association_rand_wait_time_step, DeviceMessageConstants.Association_rand_wait_time_stepDefaultTranslation, new BigDecimal(0), new BigDecimal(255)),
+                    this.booleanSpec(service, DeviceMessageConstants.Association_alt_PAN, DeviceMessageConstants.Association_alt_PANDefaultTranslation),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Join_LQI_threshold, DeviceMessageConstants.Join_LQI_thresholdDefaultTranslation, new BigDecimal(0), new BigDecimal(255)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Active_scan_duration, DeviceMessageConstants.Active_scan_durationDefaultTranslation, new BigDecimal(0), new BigDecimal(255)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.lowLQIValueAttributeName, DeviceMessageConstants.lowLQIValueAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.highLQIValueAttributeName, DeviceMessageConstants.highLQIValueAttributeDefaultTranslation));
+        }
+    },
+
+    SetAdpLBPAssociationSetup_5_Parameters(3092, "Set ADP LBP association setup") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Association_max_retry, DeviceMessageConstants.Association_max_retryDefaultTranslation, new BigDecimal(1), new BigDecimal(255)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Association_rand_wait_time_step, DeviceMessageConstants.Association_rand_wait_time_stepDefaultTranslation, new BigDecimal(0), new BigDecimal(255)),
+                    this.booleanSpec(service, DeviceMessageConstants.Association_alt_PAN, DeviceMessageConstants.Association_alt_PANDefaultTranslation),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Join_LQI_threshold, DeviceMessageConstants.Join_LQI_thresholdDefaultTranslation, new BigDecimal(0), new BigDecimal(255)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.Active_scan_duration, DeviceMessageConstants.Active_scan_durationDefaultTranslation, new BigDecimal(0), new BigDecimal(255)));
+        }
+    },
+
+    ;
 
     private final long id;
     private final String defaultNameTranslation;

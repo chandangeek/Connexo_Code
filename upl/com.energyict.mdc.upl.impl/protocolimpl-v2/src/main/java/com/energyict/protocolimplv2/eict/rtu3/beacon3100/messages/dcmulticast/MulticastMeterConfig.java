@@ -17,13 +17,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MulticastMeterConfig {
 
     /* Device identifier (EUI-64) */
-    String deviceIdentifier;
+    private String deviceIdentifier;
     /* Meter serial */
-    String meterSerialNumber;
+    private String meterSerialNumber;
     /* Unicast security configuration */
-    MulticastKeySet unicastSecurity;
+    private MulticastKeySet unicastSecurity;
     /* Multicast security configuration */
-    MulticastKeySet multicastSecurity;
+    private MulticastKeySet multicastSecurity;
 
     //JSon constructor
     private MulticastMeterConfig() {

@@ -100,7 +100,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         this.sessionKey = sessionKey;
     }
 
-    private int getKeyLength() {
+    public int getKeyLength() {
         return securitySuite == 2 ? 32 : 16;
     }
 

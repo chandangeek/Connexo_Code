@@ -19,6 +19,7 @@ public class GenericPlcIBSetup extends AbstractCosemObject {
      * The default obis code
      */
     private static final ObisCode LN = ObisCode.fromString("0.0.128.0.3.255");
+    private static final ObisCode NEW_LN = ObisCode.fromString("0.168.96.160.0.255");
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -40,6 +41,13 @@ public class GenericPlcIBSetup extends AbstractCosemObject {
      */
     public static ObisCode getDefaultObisCode() {
         return LN;
+    }
+
+    /**
+     * @return The new obis code of this cosem object
+     */
+    public static ObisCode getNewObisCode() {
+        return NEW_LN;
     }
 
     /**

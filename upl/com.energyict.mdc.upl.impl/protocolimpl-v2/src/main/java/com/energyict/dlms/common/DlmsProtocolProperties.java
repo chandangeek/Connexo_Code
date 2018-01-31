@@ -54,6 +54,11 @@ public class DlmsProtocolProperties {
     public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     public static final String MASTER_KEY = "MasterKey";
 
+    /** Property name of the property that indicates whether or not to bump the FC when invoking reply_to_hls. The f(StoC) uses FC, the action request carrying it FC + 1. */
+    public static final String INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = "IncrementFrameCounterForReplyToHLS";
+    public static final String RTU_TYPE = "RTU_TYPE";
+    public static final String FOLDER_EXT_NAME = "FolderExtName";
+
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);

@@ -18,6 +18,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -389,5 +390,25 @@ public class G3NetworkManagement extends AbstractCosemObject {
      */
     public final boolean detachNode(final String macAddress) throws IOException {
         return this.methodInvoke(G3NetworkManagementMethods.DETACH, extractEUI64(macAddress), BooleanObject.class).getState();
+    }
+
+    /**
+     * Returns the list of nodes that are currently in the blacklist.
+     *
+     * @return	The {@link List} of nodes that are currently in the blacklist (EUI64s, in hex format).
+     *
+     * @throws 	IOException		If an IO error occurs.
+     */
+    public final List<String> getBlacklistedNodes() throws IOException {
+        final Array blacklistArray = this.readDataType(G3NetworkManagementAttributes.BLACKLISTED_NODES, Array.class);
+        final List<String> blacklist = new ArrayList<>();
+
+        for (final AbstractDataType dataType : blacklistArray) {
+            if (dataType.isOctetString()) {
+                blacklist.add(DLMSUtils.getHexStringFromBytes(dataType.getOctetString().toByteArray()));
+            }
+        }
+
+        return blacklist;
     }
 }

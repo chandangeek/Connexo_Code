@@ -4,10 +4,9 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
@@ -50,7 +49,7 @@ public class Beacon3100ClockSyncConfiguration {
     }
 
     //JSon constructor
-    public Beacon3100ClockSyncConfiguration() {
+    private Beacon3100ClockSyncConfiguration() {
     }
 
     public Structure toStructure() {

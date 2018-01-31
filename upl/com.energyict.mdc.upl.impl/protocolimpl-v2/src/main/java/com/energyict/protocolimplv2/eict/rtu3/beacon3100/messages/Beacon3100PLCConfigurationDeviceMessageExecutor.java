@@ -37,15 +37,15 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
     boolean readOldObisCodes = false;
 
     public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, boolean readOldObisCodes, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(session, offlineDevice, collectedDataFactory, issueFactory);
+        super(session, offlineDevice, readOldObisCodes, collectedDataFactory, issueFactory);
         this.readOldObisCodes = readOldObisCodes;
         this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
-    // Beacon3100 uses IC version 0, has only 14 parameters on adp_routing_configuration
-    protected boolean isICVersion0() {
-        return true;
+    // Beacon3100 uses IC version 1 now, doesn't have the adp_routing_tuple_TTL
+    protected boolean isICVersion0(OfflineDeviceMessage pendingMessage) {
+        return false;
     }
 
     @Override

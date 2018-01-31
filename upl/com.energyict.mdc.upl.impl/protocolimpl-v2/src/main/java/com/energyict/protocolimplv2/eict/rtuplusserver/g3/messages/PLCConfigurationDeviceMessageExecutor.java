@@ -1,12 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.GenericPlcIBSetup;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.Issue;
@@ -28,12 +26,7 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Helper class that groups all logic related to the execution of the (standard) PLC messages. <br/>
@@ -47,17 +40,25 @@ public class PLCConfigurationDeviceMessageExecutor {
     private static final int MAX_REGISTER_TEXT_SIZE = 3800;  //The register text field is 4000 chars maximum
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PLC_G3_KEEP_ALIVE_OBISCODE = ObisCode.fromString("0.0.94.33.11.255");
+    private static final int HIGH_LQI_ID = 35;
+    private static final int LOW_LQI_ID = 36;
 
     protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final boolean readOldObisCode;
 
     public PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this(session, offlineDevice, false, collectedDataFactory, issueFactory);
+    }
+
+    public PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, boolean readOldObisCode, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.session = session;
         this.offlineDevice = offlineDevice;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.readOldObisCode = readOldObisCode;
     }
 
     /**
@@ -151,6 +152,12 @@ public class PLCConfigurationDeviceMessageExecutor {
             writePlcG3Timeout(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive)) {
             configurePlcG3KeepAlive(pendingMessage);
+        } else if(pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighLowLQI)){
+            setHighLowLQI(pendingMessage);
+        }else if(pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_7_Parameters)){
+            setAdpLBPAssociationSetup7Params(pendingMessage);
+        }else if(pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_5_Parameters)){
+            setAdpLBPAssociationSetup5Params(pendingMessage);
         } else {   //Unsupported message
             return null;
         }
@@ -183,6 +190,66 @@ public class PLCConfigurationDeviceMessageExecutor {
         cof.getSixLowPanAdaptationLayerSetup().writeSecurityLevel(value);
     }
 
+    private void setHighLowLQI(OfflineDeviceMessage pendingMessage) throws IOException {
+        int highLQI = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.highLQIValueAttributeName).getValue());
+        int lowLQI = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.lowLQIValueAttributeName).getValue());
+
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        GenericPlcIBSetup genericPlcIBSetup;
+        if(readOldObisCode){
+            genericPlcIBSetup = cof.getGenericPlcIBSetup();
+        }else {
+            genericPlcIBSetup = cof.getGenericPlcIBSetup(GenericPlcIBSetup.getNewObisCode());
+        }
+        Array values = new Array();
+        values.addDataType(getLQIStructure(HIGH_LQI_ID, highLQI));
+        values.addDataType(getLQIStructure(LOW_LQI_ID, lowLQI));
+        genericPlcIBSetup.writeRawIBValues(values);
+    }
+
+    private void setAdpLBPAssociationSetup7Params(OfflineDeviceMessage pendingMessage) throws IOException {
+        ObisCode adpLBPAssociationSetupObisCode = ObisCode.fromString("0.0.94.33.14.255");
+        CosemObjectFactory cosemObjectFactory = this.session.getCosemObjectFactory();
+        Structure structure = getAdpLBPAssociationsSturcture(7, pendingMessage);
+        cosemObjectFactory.writeObject(adpLBPAssociationSetupObisCode, 1, 2, structure.getBEREncodedByteArray());
+    }
+
+    private void setAdpLBPAssociationSetup5Params(OfflineDeviceMessage pendingMessage) throws IOException {
+        ObisCode adpLBPAssociationSetupObisCode = ObisCode.fromString("0.0.94.33.14.255");
+        CosemObjectFactory cosemObjectFactory = this.session.getCosemObjectFactory();
+        Structure structure = getAdpLBPAssociationsSturcture(5, pendingMessage);
+        cosemObjectFactory.writeObject(adpLBPAssociationSetupObisCode, 1, 2, structure.getBEREncodedByteArray());
+    }
+
+    private Structure getAdpLBPAssociationsSturcture(int paramNumber, OfflineDeviceMessage pendingMessage){
+        Structure structure = new Structure();
+        int associationMaxRetry = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.Association_max_retry).getValue());
+        int associationRandWaitTimeStep = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.Association_rand_wait_time_step).getValue());
+        boolean associationAltPAN = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.Association_alt_PAN).getValue());
+        int joinLQIThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.Join_LQI_threshold).getValue());
+        int activeScanDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.Active_scan_duration).getValue());
+        structure.addDataType(new Unsigned8(associationMaxRetry));
+        structure.addDataType(new Unsigned8(associationRandWaitTimeStep));
+        structure.addDataType(new BooleanObject(associationAltPAN));
+        structure.addDataType(new Unsigned8(joinLQIThreshold));
+        structure.addDataType(new Unsigned8(activeScanDuration));
+
+        if(paramNumber > 5){
+            int highLQI = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.highLQIValueAttributeName).getValue());
+            int lowLQI = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.lowLQIValueAttributeName).getValue());
+            structure.addDataType(new Unsigned8(lowLQI));
+            structure.addDataType(new Unsigned8(highLQI));
+        }
+        return structure;
+    }
+
+    private Structure getLQIStructure(int id, int value){
+        Structure structure = new Structure();
+        structure.addDataType(new Unsigned32(id));
+        structure.addDataType(new OctetString(ProtocolTools.getBytesFromHexString(ProtocolTools.getHexStringFromInt(value))));
+        return structure;
+    }
+
     private void setRoutingConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
 
@@ -203,7 +270,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         int adp_add_rev_link_cost = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_add_rev_link_cost).getValue());
 
         cof.getSixLowPanAdaptationLayerSetup().writeRoutingConfiguration(
-                isICVersion0(),
+                isICVersion0(pendingMessage),
                 adp_net_traversal_time,
                 adp_routing_table_entry_TTL,
                 adp_routing_tuple_TTL,
@@ -224,10 +291,11 @@ public class PLCConfigurationDeviceMessageExecutor {
 
     /**
      * Flag if this is a IC version 0 or greater.
-     * Beacon3100 uses version 0, which causes some issues on adp_routing_configuration
+     *  On version 1 adp_routing_tuple_TTL does not exist
+     * @param pendingMessage
      */
-    protected boolean isICVersion0() {
-        return false;
+    protected boolean isICVersion0(OfflineDeviceMessage pendingMessage) {
+        return Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.icVersion0).getValue());
     }
 
     private void setBroadCastLogTableEntryTTL(OfflineDeviceMessage pendingMessage) throws IOException {

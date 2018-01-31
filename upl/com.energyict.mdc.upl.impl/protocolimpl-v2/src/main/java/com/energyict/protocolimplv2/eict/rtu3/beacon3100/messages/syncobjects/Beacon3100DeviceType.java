@@ -1,11 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -165,7 +160,7 @@ public class Beacon3100DeviceType {
             schedulable.updateBufferSizeForAllRegisters(bufferSize);
             updated = updated || schedulable.getRegisters().size() != 0;
         }
-        return false;
+        return updated;
     }
 
     public boolean updateBufferSizeForLoadProfiles(ObisCode obisCode, Unsigned32 bufferSize) {
@@ -199,7 +194,7 @@ public class Beacon3100DeviceType {
             schedulable.updateBufferSizeForAllEventLogs(bufferSize);
             updated = updated || schedulable.getEventLogs().size() != 0;
         }
-        return false;
+        return updated;
     }
 
     /**
@@ -228,5 +223,13 @@ public class Beacon3100DeviceType {
         if (id != other.id)
             return false;
         return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final String toString() {
+		return new StringBuilder("ID [").append(this.id).append("], name [").append(this.name).append("]").toString();
     }
 }

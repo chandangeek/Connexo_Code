@@ -55,6 +55,11 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private Logger logger;
 
+    /**
+     * Maximum length of certificate chain
+     */
+    private static final int MAX_CERT_CHAIN_LENGTH = 8;
+
     public TLSConnectionType(PropertySpecService propertySpecService, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(propertySpecService);
         this.certificateWrapperExtractor = certificateWrapperExtractor;
@@ -128,6 +133,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         try {
             final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
+            //TODO: As now the truststore and keystore comes from core and not created here, we need to see who will do the specific work we had on EIServer to validate certificates, CRL and so on
             X509TrustManager trustManager = certificateWrapperExtractor.getTrustManager(getTlsServerCertificate()).get();           //This contains sub-CA and root-CA certificates.
             X509KeyManager keyManager = certificateWrapperExtractor.getKeyManager(getTlsClientPrivateKey()).get();                  //This contains the private key for TLS and its matching certificate.
 

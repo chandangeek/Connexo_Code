@@ -7,15 +7,13 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
+import javafx.util.Duration;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -27,7 +25,11 @@ import java.util.Set;
 public class Beacon3100ProtocolConfiguration {
 
     /**
-     * The {@link Set} of {@link Properties} we don't sync.
+     * Parses the given {@link Beacon3100ProtocolConfiguration} from the {@link Structure} received from the device.
+     *
+     * @param 		structure		The {@link Structure} received from the device.
+     *
+     * @return		The parsed {@link Beacon3100ProtocolConfiguration}.
      */
     public static final Beacon3100ProtocolConfiguration fromStructure(final Structure structure) throws IOException {
         final String className = structure.getDataType(0, OctetString.class).stringValue();
@@ -38,7 +40,38 @@ public class Beacon3100ProtocolConfiguration {
         for (final AbstractDataType propEntry : propertiesArray) {
             final Beacon3100ProtocolTypedProperty property = Beacon3100ProtocolTypedProperty.fromStructure(propEntry.getStructure());
 
-            protocolProperties.setProperty(property.getName(), property.getValue());
+            Object typedValue = null;
+
+            switch (property.getType()) {
+                case BigDecimal: {
+                    typedValue = new BigDecimal(property.getValue());
+                    break;
+                }
+
+                case TimeDuration: {
+                    typedValue = Duration.millis(Integer.parseInt(property.getValue()));
+                    break;
+                }
+
+                case String: {
+                    typedValue = property.getValue();
+                    break;
+                }
+
+                case Boolean: {
+                    typedValue = Boolean.valueOf(property.getValue());
+                    break;
+                }
+
+                // Use a string if all else fails.
+                case Unknown:
+                default: {
+                    typedValue = property.getValue();
+                    break;
+                }
+            }
+
+            protocolProperties.setProperty(property.getName(), typedValue);
         }
 
         return new Beacon3100ProtocolConfiguration(className, protocolProperties);
@@ -60,7 +93,6 @@ public class Beacon3100ProtocolConfiguration {
 
         // We'll need to override this one, default for the management client is true.
         OVERRIDES.put(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, Boolean.FALSE);
-        OVERRIDES.put(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
         OVERRIDES.put(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, Boolean.FALSE);
     }
 

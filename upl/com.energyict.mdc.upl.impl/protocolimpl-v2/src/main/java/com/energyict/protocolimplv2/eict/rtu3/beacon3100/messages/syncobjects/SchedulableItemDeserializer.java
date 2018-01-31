@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -17,7 +18,7 @@ import java.io.IOException;
  */
 public class SchedulableItemDeserializer extends JsonDeserializer<SchedulableItem> {
     @Override
-    public SchedulableItem deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public SchedulableItem deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectCodec oc = jp.getCodec();
         JsonNode node = oc.readTree(jp);
         String axdrEncodedBufferSize = node.get("bufferSize").textValue();
