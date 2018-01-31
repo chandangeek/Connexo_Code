@@ -461,6 +461,7 @@ public class UsagePointImplIT {
         assertThat(found).isEqualTo(usagePoint);
     }
 
+    // TODO: really need to allow operational stage here??? If yes, change the message seed & fix the test
     @Test(expected = UsagePointManagementException.class)
     @Transactional
     public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
