@@ -6,13 +6,14 @@ package com.energyict.mdc.device.data.impl.messagehandlers;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Objects;
@@ -46,13 +47,16 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
                         connectionTask.setProperty(propertySpec.getName(), convertedValue);
                         LOGGER.info(String.format("Set property '%s' on connection task %d to value '%s'", propertySpec.getName(), connectionTask.getId(), convertedValue));
                     } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on connection task %d: value '%s' was refused: %s", propertySpec.getName(), connectionTask.getId(), convertedValue, e.getMessage()));
+                        LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on connection task %d: value '%s' was refused: %s", propertySpec.getName(), connectionTask.getId(), convertedValue, e
+                                .getMessage()));
                     }
                 }
             }
             connectionTask.save();
+            connectionTask.saveAllProperties();  // CXO-7908
+            // connectionTask.save();   //  CXO-7908
         } else {
-            LOGGER.log(Level.SEVERE, "No connectionTask with id "+queueMessage.connectionTaskId);
+            LOGGER.log(Level.SEVERE, "No connectionTask with id " + queueMessage.connectionTaskId);
         }
     }
 
@@ -64,13 +68,12 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         if (Objects.equals(valueTypeClazz, Date.class)) {
             return new Date(Long.valueOf(value));
         } else if (Objects.equals(valueTypeClazz, TimeDuration.class)) {
-            try { // String looks like this: '{timeUnit=hours, count=1}'
-                TimeDurationJson json = jsonService.deserialize(value, TimeDurationJson.class);
+            //try { // String looks like this: '{timeUnit=hours, count=1}'
+            TimeDurationJson json = new TimeDurationJson().from(value);
                 return new TimeDuration(json.count, TimeDuration.TimeUnit.forDescription(json.timeUnit));
-            }
-            catch (LocalizedFieldValidationException e) {
-                throw new IllegalArgumentException("Invalid timeduration");
-            }
+            //} catch (LocalizedFieldValidationException e) {
+
+            // }
         } else if (Objects.equals(valueTypeClazz, String.class)) {
             return jsonService.deserialize(value, String.class);
         } else if (Objects.equals(valueTypeClazz, Boolean.class)) {
@@ -94,13 +97,27 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         return this;
     }
 
-    class TimeDurationJson {
+    //@JsonIgnoreProperties(ignoreUnknown = true)
+    private class TimeDurationJson {
         public String timeUnit;
         public int count;
 
         public TimeDurationJson() {
         }
-    }
 
+        TimeDurationJson from(String jsonData) {
+            if (jsonData != null && !jsonData.isEmpty()) {
+                try {
+                    JSONObject json = new JSONObject(jsonData);
+                    this.timeUnit = json.get("timeUnit").toString();
+                    this.count = Integer.parseInt(json.get("count").toString());
+                    return this;
+                } catch (Exception e) {  // CXO-7908
+
+                }
+            }
+            throw new IllegalArgumentException("Invalid timeduration");
+        }
+    }
 }
 
