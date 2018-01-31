@@ -598,8 +598,78 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.trustedCertificateWrapperAttributeName, DeviceMessageConstants.trustedCertificateWrapperDefaultTranslation));
         }
     },
-    ;
 
+    //This messages only allows a set of predefined clients, as a String.
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT(7068, "Change authentication key using service key for given client") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation, getClients()));
+        }
+    },
+
+    //This messages only allows a set of predefined clients, as a String.
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT(7069, "Change encryption key using service key for given client") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation, getClients()));
+        }
+    },
+
+    //This messages allows any client, as a BigDecimal
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT(7070, "Change authentication key using service key for client") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation, BigDecimal.valueOf(1)));
+        }
+    },
+
+    //This messages allows any client, as a BigDecimal
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT(7071, "Change encryption key using service key for client") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation, BigDecimal.valueOf(1)));
+        }
+    },
+
+    CHANGE_PSK_WITH_NEW_KEYS(7072, "Change PSK") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPSKAttributeName, DeviceMessageConstants.newPSKDefaultTranslation));
+        }
+    },
+
+    CHANGE_PSK_USING_SERVICE_KEY(7072, "Change PSK using service key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation));
+        }
+    },
+
+    ;
 
     private final long id;
     private final String defaultNameTranslation;

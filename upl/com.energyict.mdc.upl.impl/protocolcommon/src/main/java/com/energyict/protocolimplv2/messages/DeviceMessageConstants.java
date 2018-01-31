@@ -202,8 +202,8 @@ public final class DeviceMessageConstants {
     public static final String authenticationLevelAttributeDefaultTranslation = "Authentication level";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
-    public static final String newWrappedPSKAttributeName = "SecurityMessage.new.wrapped.PSK";
-    public static final String newWrappedPSKDefaultTranslation = "New wrapped PSK";
+    public static final String newPSKAttributeName = "SecurityMessage.new.PSK";
+    public static final String newPSKDefaultTranslation = "New wrapped PSK";
     public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newWrappedEncryptionKeyDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
