@@ -5,11 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
-import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -25,32 +21,16 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsRegister;
-import com.energyict.mdc.device.data.LoadProfileJournalReading;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.TextReading;
-import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 import com.energyict.mdc.device.topology.TopologyService;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -87,6 +67,10 @@ public class DeviceDataInfoFactory {
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.readingQualityInfoFactory = readingQualityInfoFactory;
+    }
+
+    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
+        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
     ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
@@ -148,7 +132,6 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-
     ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
         ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
         channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
@@ -157,7 +140,6 @@ public class DeviceDataInfoFactory {
         channelHistoryDataInfo.version = loadProfileJournalReading.getVersion();
         return channelHistoryDataInfo;
     }
-
 
     /**
      * Find translation of the index of the given reading quality CIM code.
@@ -173,10 +155,6 @@ public class DeviceDataInfoFactory {
             Quantity quantity = reading.getQuantity(readingType);
             channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
         });
-    }
-
-    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
-        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
     LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
@@ -314,7 +292,7 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
-        setDeltaValue(reading, register, numericalReadingInfo);
+        setDeltaValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
@@ -322,9 +300,10 @@ public class DeviceDataInfoFactory {
         return numericalReadingInfo;
     }
 
-    private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo) {
+    private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
         if (register.getReadingType().isCumulative()) {
-            reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue);
+            reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP)
+            );
         }
     }
 
