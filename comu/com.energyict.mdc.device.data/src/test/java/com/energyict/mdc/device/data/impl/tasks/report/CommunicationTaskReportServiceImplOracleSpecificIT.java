@@ -17,7 +17,6 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;

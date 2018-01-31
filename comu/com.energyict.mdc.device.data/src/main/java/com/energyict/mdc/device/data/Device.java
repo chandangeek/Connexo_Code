@@ -496,14 +496,14 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * Returns all SecurityAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
      * @return all SecurityAccessors defined for this device.
      */
-    public List<SecurityAccessor> getSecurityAccessors();
+    List<SecurityAccessor> getSecurityAccessors();
 
     /**
      * Get the SecurityAccessor (aka 'value') for a SecurityAccessorType, if any
      * @param securityAccessorType The {@link SecurityAccessorType} whose value will be retrieved.
      * @return The actual value (SecurityAccessor), or Optional.empty() if no value could be found
      */
-    public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType);
+    Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new SecurityAccessor for a certain SecurityAccessorType. The SecurityAccessor is merely an empty placeholder at this point.
@@ -511,9 +511,9 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * @param securityAccessorType The type of security accessor to be created
      * @return An empty security accessor.
      */
-    public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType);
+    SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType);
 
-    public void removeSecurityAccessor(SecurityAccessor securityAccessor);
+    void removeSecurityAccessor(SecurityAccessor securityAccessor);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -46,21 +45,12 @@ import com.energyict.mdc.device.data.impl.properties.ChannelEstimationRuleOverri
 import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import javax.validation.Validator;
@@ -72,6 +62,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -100,13 +96,7 @@ public class DeviceDeleteTest {
     @Mock
     private ServerDeviceService deviceService;
     @Mock
-    private MetrologyConfigurationService metrologyConfigurationService;
-    @Mock
     private ValidationService validationService;
-    @Mock
-    private ServerConnectionTaskService connectionTaskService;
-    @Mock
-    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
@@ -115,12 +105,6 @@ public class DeviceDeleteTest {
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationProvider;
     @Mock
     private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
-    @Mock
-    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
-    @Mock
-    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
@@ -151,14 +135,6 @@ public class DeviceDeleteTest {
     private HistoricalIssue historicalIssue2;
     @Mock
     private IssueStatus wontFix;
-    @Mock
-    private ComTaskExecutionImpl comTaskExecution1;
-    @Mock
-    private ComTaskExecutionImpl comTaskExecution2;
-    @Mock
-    private ConnectionTaskImpl connectionTask1;
-    @Mock
-    private ConnectionTaskImpl connectionTask2;
     @Mock
     private DeviceMessageImpl deviceMessage;
     @Mock
@@ -356,7 +332,10 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, securityManagementService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
+                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider,
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
+                deviceConfigurationService, deviceService, lockService, securityManagementService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;
