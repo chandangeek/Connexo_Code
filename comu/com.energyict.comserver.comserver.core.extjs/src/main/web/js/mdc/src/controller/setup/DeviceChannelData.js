@@ -465,8 +465,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         .add(gasDayYearStart.get('minutes'), 'minutes');
                 }
                 filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(fromDate.toDate());
-            } else if (router.getQueryStringValues().validationBlock) {
-                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(Number(router.getQueryStringValues().validationBlock));
+            } else if (router.getQueryStringValues().validationBlockEndTime) {
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(Number(router.getQueryStringValues().validationBlockEndTime));
             }
             else {
                 var fromDate = channel.get('lastReading');
