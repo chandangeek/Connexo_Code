@@ -58,6 +58,7 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.data.BatchService;
@@ -177,6 +178,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile OrmService ormService;
     private volatile com.elster.jupiter.tasks.TaskService tskService;
+    private volatile CommandRuleService commandRuleService;
 
 
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
@@ -230,6 +232,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService){
+        this.commandRuleService = commandRuleService;
     }
 
     @Reference
@@ -689,6 +696,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(issueActionService).to(IssueActionService.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
+            bind(commandRuleService).to(CommandRuleService.class);
         }
     }
 }

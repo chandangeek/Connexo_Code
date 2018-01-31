@@ -39,6 +39,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -104,6 +105,7 @@ public class DeviceGroupResource {
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final CommandRuleService commandRuleService;
 
     @Inject
     public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
@@ -112,7 +114,8 @@ public class DeviceGroupResource {
                                DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService,
                                JsonService jsonService, MessageService messageService,
                                DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
-                               PropertyValueInfoService propertyValueInfoService, ThreadPrincipalService threadPrincipalService) {
+                               PropertyValueInfoService propertyValueInfoService, ThreadPrincipalService threadPrincipalService,
+                               CommandRuleService commandRuleService) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -128,6 +131,7 @@ public class DeviceGroupResource {
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.threadPrincipalService = threadPrincipalService;
+        this.commandRuleService = commandRuleService;
     }
 
     @GET
@@ -345,6 +349,20 @@ public class DeviceGroupResource {
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
         }
+    }
+
+    @GET
+    @Transactional
+    @Path("/commands/checkExceeds/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
+    public Response checkLimitsExceededForBulkCommand(@PathParam("id") long deviceGroupId, @QueryParam("messageSpecificationId") String messageSpecificationId,  @QueryParam("releaseDate") long releaseDate) {
+        DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(messageSpecificationId);
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
+        long groupSize = endDeviceGroup.getMemberCount(Instant.now());
+
+        commandRuleService.checkForLimitationRules(deviceMessageId, Instant.ofEpochMilli(releaseDate), groupSize);
+        return Response.accepted().entity("{\"success\":\"true\"}").build();
     }
 
     private Map<String, String> convertPropertyInfosToMap(List<PropertyInfo> propertyInfos) {
