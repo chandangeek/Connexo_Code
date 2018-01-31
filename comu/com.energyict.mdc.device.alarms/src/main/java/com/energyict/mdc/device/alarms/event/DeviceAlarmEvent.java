@@ -21,7 +21,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
@@ -30,11 +29,14 @@ import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.google.inject.Injector;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -312,8 +314,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
         if(rule.isPresent()){
             getEndDevice().ifPresent(filter::setDevice);
-            filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
-            filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+            new ArrayList<String>(){{
+                add(IssueStatus.OPEN);
+                add(IssueStatus.IN_PROGRESS);
+                add(IssueStatus.SNOOZED);
+            }}.forEach(is -> filter.setStatus(issueService.findStatus(is).get()));
             filter.setAlarmReason(rule.get().getReason());
             Optional<? extends DeviceAlarm> foundAlarm = deviceAlarmService.findAlarms(filter).find()
                     .stream().max(Comparator.comparing(Issue::getCreateDateTime));//It is going to be only zero or one open alarm per device
