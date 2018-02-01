@@ -74,6 +74,7 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -310,14 +311,8 @@ public class DeviceGroupResource {
                     .collect(toList());
 
             for (DeviceMessageCategory deviceMessageCategory : deviceMessageCategories) {
-                List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = new ArrayList<>(allExistingDeviceMessageSpecs);
-                for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
-                    List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
-                            .stream()
-                            .map(DeviceMessageSpecWrapper::new)
-                            .collect(toList());
-                    commonDeviceMessageSpecs.retainAll(deviceMessageSpecWrappersInCategory);
-                }
+                List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = this.getCommonDeviceMessageSpecs(allCommonDeviceConfigurations, deviceMessageCategory);
+                commonDeviceMessageSpecs.retainAll(allExistingDeviceMessageSpecs);
                 if (!commonDeviceMessageSpecs.isEmpty()) {
                     DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(deviceMessageCategory);
                     info.deviceMessageSpecs = commonDeviceMessageSpecs.stream()
@@ -329,7 +324,43 @@ public class DeviceGroupResource {
             }
         }
         return categoryInfos;
+    }
 
+    /**
+     * Perform intersection across multiple collections depending on the device configuration and category
+     * @param allCommonDeviceConfigurations  List of all device configurations from whom devices are present in an EndDeviceGroup
+     * @param deviceMessageCategory Device message category
+     * @return Common device message specification wrappers
+     */
+    private List<DeviceMessageSpecWrapper> getCommonDeviceMessageSpecs(List<DeviceConfiguration> allCommonDeviceConfigurations, DeviceMessageCategory deviceMessageCategory) {
+
+        if (allCommonDeviceConfigurations.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = null;
+        for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
+            List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
+                    .stream()
+                    .map(DeviceMessageSpecWrapper::new)
+                    .collect(Collectors.toList());
+            commonDeviceMessageSpecs = this.getListIntersection(commonDeviceMessageSpecs, deviceMessageSpecWrappersInCategory);
+        }
+        return commonDeviceMessageSpecs ;
+    }
+
+    /**
+     *
+     * @param listA Source list from which we remove elements. Can be null, if this is the first call
+     * @param listB Check if every element in this list is present in the first list
+     * @return Intersection of the 2 lists or a copy of the second list if the first list is null.
+     */
+    private List<DeviceMessageSpecWrapper> getListIntersection(List<DeviceMessageSpecWrapper> listA, List<DeviceMessageSpecWrapper> listB) {
+        if (listA == null){
+            return new ArrayList<>(listB);
+        }
+        listA.retainAll(listB);
+        return listA;
     }
 
     @POST
