@@ -144,14 +144,14 @@ public class UpgraderV10_4 implements Upgrader {
                         " using DTC_DEVICETYPE dt" +
                         " on (sa.DEVICETYPEID = dt.ID)" +
                         " when matched then update" +
-                        " set sa." + SecurityAccessorTypeImpl.Fields.NAME.fieldName() +
-                        " = sa." + SecurityAccessorTypeImpl.Fields.NAME.fieldName() + "||'_'||dt.NAME",
+                        " set sa." + SecurityAccessorTypeImpl.Fields.NAME.name() +
+                        " = sa." + SecurityAccessorTypeImpl.Fields.NAME.name() + "||'_'||dt.NAME",
                 "merge into " + TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE_UP_TO_10_4 + " saj" +
                         " using DTC_DEVICETYPE dt" +
                         " on (saj.DEVICETYPEID = dt.ID)" +
                         " when matched then update" +
-                        " set saj." + SecurityAccessorTypeImpl.Fields.NAME.fieldName() +
-                        " = saj." + SecurityAccessorTypeImpl.Fields.NAME.fieldName() + "||'_'||dt.NAME"
+                        " set saj." + SecurityAccessorTypeImpl.Fields.NAME.name() +
+                        " = saj." + SecurityAccessorTypeImpl.Fields.NAME.name() + "||'_'||dt.NAME"
         );
     }
 

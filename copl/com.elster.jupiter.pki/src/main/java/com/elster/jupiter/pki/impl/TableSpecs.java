@@ -242,7 +242,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.setJournalTableName(Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE);
             table.addAuditColumns();
-            Column nameColumn = table.column("NAME")
+            Column nameColumn = table.column(SecurityAccessorTypeImpl.Fields.NAME.name())
                     .varChar()
                     .notNull()
                     .map(SecurityAccessorTypeImpl.Fields.NAME.fieldName())
@@ -285,7 +285,7 @@ public enum TableSpecs {
             table.column(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.name())
                     .bool()
                     .map(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.fieldName())
-                    .notNull()
+                    .installValue("'N'")
                     .since(Version.version(10, 4))
                     .add();
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
