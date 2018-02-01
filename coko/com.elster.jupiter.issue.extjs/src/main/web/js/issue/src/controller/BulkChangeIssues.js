@@ -442,7 +442,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                 case 'Issue doesn\'t exist':
                                     warnList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
-                                        var issueType = me.getIssueType(record.get('issues'), issue.id);
+                                        var issueType = me.getIssueType(obj.failure[0].issues, issue.id);
                                         warnCount += 1;
                                         warnIssues.push(issue.id);
                                         failList += '<li>- <a href="#/workspace/issues/' + issue.id + '?issueType=' + issueType + '">' + issue.title + '</a></li>';
@@ -452,7 +452,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                 default:
                                     failList += '<h3>' + fail.reason + ':</h3><ul style="list-style: none; padding-left: 1em;">';
                                     Ext.each(fail.issues, function (issue) {
-                                        var issueType = me.getIssueType(record.get('issues'), issue.id);
+                                        var issueType = me.getIssueType(obj.failure[0].issues, issue.id);
                                         failedCount += 1;
                                         failedIssues.push(issue.id);
                                         failList += '<li>- <a href="#/workspace/issues/' + issue.id + '?issueType=' + issueType + '">' + issue.title + '</a></li>';
@@ -937,11 +937,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     getIssueType: function (array, value) {
         for (var i = 0; i < array.length; i++) {
-            if (array[i].data.id === value) {
-                return array[i].data.issueType.uid;
+            if (array[i].id === value && array[i].title.indexOf('estimate') >= 0 ) {
+                return "datavalidation";
             }
         }
-        return null;
+        return "datacollection";
     }
 
 });
