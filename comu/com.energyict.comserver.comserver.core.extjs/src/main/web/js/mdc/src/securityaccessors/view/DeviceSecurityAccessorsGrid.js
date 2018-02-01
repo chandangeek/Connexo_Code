@@ -58,6 +58,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     if (me.keyMode) {
                         return !Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('editLevels'));
+                    } else if(!record.get('editable')){
+                        return true
                     }
                     return false;
                 }

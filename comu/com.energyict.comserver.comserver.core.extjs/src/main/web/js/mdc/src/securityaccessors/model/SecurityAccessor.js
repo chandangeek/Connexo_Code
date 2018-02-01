@@ -45,6 +45,47 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             mapping: function (data) {
                 return Ext.isEmpty(data) || Ext.isEmpty(data.keyType) ? false : data.keyType.isKey;
             }
+        },
+        {
+            name: 'manageCentrally',
+            persist: false,
+            mapping: function (data) {
+                return !!data.defaultValue;
+            }
+        },
+        {
+            name: 'activeCertificate',
+            persist: false,
+            mapping: function (data) {
+                var defaultValue = data.defaultValue,
+                    value = '';
+                if(defaultValue && defaultValue.currentProperties){
+                    _.map(defaultValue.currentProperties, function(property){
+                        var key = property.key;
+                        if (key === 'alias') {
+                            value = property.propertyValueInfo.value;
+                        }
+                    });
+                }
+                return value;
+            }
+        },
+        {
+            name: 'passiveCertificate',
+            persist: false,
+            mapping: function (data) {
+                var defaultValue = data.defaultValue,
+                    value = '';
+                if(defaultValue && defaultValue.tempProperties){
+                    _.map(defaultValue.tempProperties, function(property){
+                        var key = property.key;
+                        if (key === 'alias') {
+                            value = property.propertyValueInfo.value;
+                        }
+                    });
+                }
+                return value;
+            }
         }
     ],
 

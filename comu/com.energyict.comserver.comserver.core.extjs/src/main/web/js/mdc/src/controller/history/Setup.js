@@ -2046,14 +2046,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                     securityaccessors: {
                                         title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
                                         route: 'securityaccessors',
-                                        privileges: Mdc.privileges.DeviceType.view,
+                                        privileges: Mdc.privileges.SecurityAccessor.view,
                                         controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
                                         action: 'showSecurityAccessorsOverview',
                                         items: {
                                             add: {
-                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessors', 'MDC', 'Add security accessors'),
                                                 route: 'add',
-                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                privileges: Mdc.privileges.SecurityAccessor.admin,
                                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
                                                 action: 'showAddSecurityAccessorToDeviceType'
                                             }
@@ -2639,18 +2639,21 @@ Ext.define('Mdc.controller.history.Setup', {
                         title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
                         route: 'securityaccessors',
                         controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                        privileges: Mdc.privileges.SecurityAccessor.view,
                         action: 'showSecurityAccessorsOverviewAdministration',
                         items: {
                             add: {
                                 title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
                                 route: 'add',
                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                privileges: Mdc.privileges.SecurityAccessor.admin,
                                 action: 'showAddSecurityAccessor'
                             },
                             edit: {
                                 title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
                                 route: '{securityAccessorId}/edit',
                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                privileges: Mdc.privileges.SecurityAccessor.admin,
                                 action: 'showEditSecurityAccessor',
                                 callback: function (route) {
                                     this.getApplication().on('securityaccessorload', function (name) {

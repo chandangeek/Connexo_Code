@@ -49,6 +49,9 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 150,
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return !Mdc.privileges.SecurityAccessor.canAdmin();
+                },
                 menu: {
                     xtype: 'security-accessors-action-menu',
                     itemId: 'mdc-security-accessors-action-menu',
@@ -69,8 +72,11 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                        text: me.deviceTypeId
+                            ? Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors')
+                            : Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
                         itemId: 'mdc-add-security-accessor',
+                        privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                         deviceTypeId: me.deviceTypeId
                     }
 

@@ -31,6 +31,14 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                 fieldLabel: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),
                 name: 'lastReadDate'
             },
+            manageCentrallyField = {
+                fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),
+                name: 'editable',
+                renderer: function (value) {
+                   return value ? Uni.I18n.translate('general.no', 'MDC', 'No')
+                       : Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                }
+            },
             leftContainer = {
                 xtype: 'container',
                 layout: 'form',
@@ -169,6 +177,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
             leftContainer.items.push(statusField);
             rightContainer.items.push(lastReadDateField);
             rightContainer.items.push(validUntilField);
+            rightContainer.items.push(manageCentrallyField);
         }
 
         me.items = items;

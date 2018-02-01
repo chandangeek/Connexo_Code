@@ -58,7 +58,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'availableSecurityAccessorsGrid',
             selector: 'security-accessor-add-to-device-type-form #available-security-accessors-grd'
-        }
+        },
+        {
+            ref: 'securityAccessorsActionMenu',
+            selector: 'security-accessors-action-menu'
+        },
+
     ],
 
     fromEditForm: false,
@@ -134,60 +139,69 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     showSecurityAccessorsOverviewAdministration: function () {
         var me = this,
-            view = Ext.widget('device-type-security-accessors-setup');
+            view = Ext.widget('device-type-security-accessors-setup'),
+            trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores');
 
-        me.deviceTypeId = null;
-        me.deviceType = null;
-        me.getApplication().fireEvent('changecontentevent', view);
+        trustStoresStore.load({
+            callback: function(){
+                me.deviceTypeId = null;
+                me.deviceType = null;
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
     },
 
     chooseAction: function (menu, item) {
         var me = this;
-
         switch (item.action) {
             case 'edit':
                 me.navigateToEditSecurityAccessor(menu.record);
                 break;
             case 'remove':
-                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) :me.removeSecurityAccessor(menu.record);
+                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) : me.removeSecurityAccessor(me.selectedRecord);
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
                     securityAccessorRecord: me.selectedRecord
                 }).show();
                 break;
-            case 'clearPassiveCertificate':
-                me.clearPassive(menu.record, false);
-                break;
-            case 'activatePassiveCertificate':
-                me.activatePassiveCertificate(menu.record);
-                break;
+            case 'clearPassiveCertificate': {
+                me.clearPassive(me.selectedRecord, false);
+            } break;
+            case 'activatePassiveCertificate': {
+                me.activatePassiveCertificate(me.selectedRecord);
+            } break;
         }
     },
 
     recordSelected: function (grid, recordParam) {
         var me = this,
+            gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
             processRecord = function (record) {
                 me.selectedRecord = record;
                 me.getPreviewForm().doLoadRecord(record);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
+                gridMenu.updateMenuItems(record);
+                gridMenu.record = record;
                 if (me.getPreview().down('security-accessors-action-menu')) {
+                    me.getPreview().down('security-accessors-action-menu').updateMenuItems(record);
                     me.getPreview().down('security-accessors-action-menu').record = record;
+
                 }
                 me.getPreview().setLoading(false);
+                gridMenu.setLoading(false);
             };
 
         me.getPreview().setLoading();
-        // if (recordParam.get('isKey')) {
-            var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
-            model.load(recordParam.get('id'), {
-                success: function (keyRecord) {
-                    processRecord(keyRecord);
-                }
-            });
-        // } else {
-        //     processRecord(recordParam);
-        // }
+        gridMenu.setLoading();
+
+        var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
+
+        model.load(recordParam.get('id'), {
+            success: function (keyRecord) {
+                processRecord(keyRecord);
+            }
+        });
     },
 
     reconfigureMenu: function (deviceType, view) {
@@ -377,10 +391,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     property.propertyValueInfo = {
                         value: activeAliasCombo.getValue()
                     };
-                } else if (key === 'trustStore') {
-
-                    trustStoreId = property.raw.propertyValueInfo.value.id;
-                    trustStoreName = property.raw.propertyValueInfo.value.name;
                 }
             });
 
@@ -391,10 +401,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     property.propertyValueInfo = {
                         value: passiveAliasCombo.getValue()
                     };
-                } else if (key === 'trustStore') {
-
-                    trustStoreId = property.raw.propertyValueInfo.value.id;
-                    trustStoreName = property.raw.propertyValueInfo.value.name;
                 }
             });
             var defaultValueData = me.defaultPropertiesData;
@@ -538,10 +544,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         me.getApplication().fireEvent('changecontentevent', view);
                         if(record.get('defaultValue')){
                             me.getManageCentrallyCheckbox().setValue(true);
-                            me.getManageCentrallyCheckbox().disable();
-                        } else {
-                            me.getManageCentrallyCheckbox().enable();
                         }
+                        me.getManageCentrallyCheckbox().disable();
                     }
                 };
                 timeUnitsStore.load({callback: callBackFunction});
@@ -647,7 +651,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         labelWidth: 185,
                         width: 485,
                         itemId: 'mdc-active-alias-combo',
-                        dataIndex: 'alias',
+                        dataIndex: 'defaultValue.currentProperties.alias',
                         emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
                         listConfig: {
                             emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
@@ -671,11 +675,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
-                } else if (property.key === 'trustStore') {
-                    aliasesStore.getProxy().setExtraParam('trustStore', property.propertyValueInfo.value.id);
-
-                    trustStoreId = property.propertyValueInfo.value ? property.propertyValueInfo.value.id : undefined;
-                    trustStoreName = property.propertyValueInfo.value ? property.propertyValueInfo.value.name : undefined;
                 }
 
             });
@@ -696,7 +695,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         labelWidth: 185,
                         width: 485,
                         itemId: 'mdc-passive-alias-combo',
-                        dataIndex: 'alias',
+                        dataIndex: 'defaultValue.tempProperties.alias',
                         emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
                         listConfig: {
                             emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
@@ -718,19 +717,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
-                } else if (property.key === 'trustStore') {
-                    if (trustStoreId && trustStoreName) {
-                        if (!property.propertyValueInfo.value) {
-                            property.propertyValueInfo.value = {};
-                        }
-                        if (property.propertyValueInfo.value) {
-                            property.propertyValueInfo.value.id = trustStoreId;
-                            property.propertyValueInfo.value.name = trustStoreName;
-                        }
-                    }
-                    aliasesStore.getProxy().setExtraParam('trustStore', property.propertyValueInfo.value.id);
                 }
-
             });
             me.getActivePassiveCertContainer().add(passiveAliasCombo);
         }
