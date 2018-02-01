@@ -33,10 +33,10 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesActionsMenu', {
             properties = record.properties().getRange();
             if (properties.length) {
                 recordId = record.getId();
-                hasOverriddenProperty = properties.find(function (property) {
+                hasOverriddenProperty = _.find(properties, function (property) {
                     return property.get('overridden');
                 });
-                hasCanBeOverriddenProperty = properties.find(function (property) {
+                hasCanBeOverriddenProperty = _.find(properties, function (property) {
                     return property.get('canBeOverridden');
                 });
 
