@@ -1261,7 +1261,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         if (responseText.message) {
                             window.down('#error-label').show();
                             window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
-                        } else if (responseText.ranges.ranges) {
+                        } else if (responseText.ranges) {
                             window.down('#error-label').show();
                             var listOfFailedReadings = _.map(responseText.ranges.ranges, function (interval) {
                                 return Uni.DateTime.formatDateTimeShort(new Date(interval.start))
