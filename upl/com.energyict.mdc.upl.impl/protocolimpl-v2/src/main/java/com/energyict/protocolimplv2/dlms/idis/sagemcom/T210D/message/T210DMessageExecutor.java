@@ -473,7 +473,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         }
     }
 
-    private Array convertLongDateToDlmsArray(Long epoch) {
+    protected Array convertLongDateToDlmsArray(Long epoch) {
         Date actionTime = new Date(epoch);
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
         cal.setTime(actionTime);

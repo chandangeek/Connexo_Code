@@ -278,7 +278,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
      * @param dlmsSession
      */
-    private void connectWithRetries(DlmsSession dlmsSession) {
+    protected void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
            ProtocolRuntimeException exception;
