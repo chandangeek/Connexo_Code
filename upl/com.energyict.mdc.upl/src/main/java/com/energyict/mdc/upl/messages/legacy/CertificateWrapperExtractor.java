@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.upl.messages.legacy;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import javax.net.ssl.X509KeyManager;
@@ -20,6 +21,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
+@ConsumerType
 public interface CertificateWrapperExtractor {
 
     Optional<X509Certificate> getCertificate(CertificateWrapper certificateWrapper);
