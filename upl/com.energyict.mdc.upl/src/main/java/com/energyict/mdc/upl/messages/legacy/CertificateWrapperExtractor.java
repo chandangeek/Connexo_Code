@@ -4,24 +4,19 @@
 
 package com.energyict.mdc.upl.messages.legacy;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CRL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
-@ConsumerType
+@ProviderType
 public interface CertificateWrapperExtractor {
 
     Optional<X509Certificate> getCertificate(CertificateWrapper certificateWrapper);
