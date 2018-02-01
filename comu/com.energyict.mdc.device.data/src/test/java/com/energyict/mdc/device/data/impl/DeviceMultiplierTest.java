@@ -18,7 +18,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -39,11 +38,8 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.Range;
 
@@ -104,13 +100,7 @@ public class DeviceMultiplierTest {
     @Mock
     private ServerDeviceService deviceService;
     @Mock
-    private MetrologyConfigurationService metrologyConfigurationService;
-    @Mock
     private ValidationService validationService;
-    @Mock
-    private ServerConnectionTaskService connectionTaskService;
-    @Mock
-    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -123,12 +113,6 @@ public class DeviceMultiplierTest {
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
     private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
-    @Mock
-    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
-    @Mock
-    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
@@ -234,14 +218,15 @@ public class DeviceMultiplierTest {
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(now.minus(3000, ChronoUnit.DAYS));
-        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(now.MAX);
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, securityManagementService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
+                deviceConfigurationService, deviceService, lockService, securityManagementService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();

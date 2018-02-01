@@ -63,6 +63,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -109,7 +110,6 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -118,6 +118,7 @@ import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
@@ -137,9 +138,11 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskSche
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
+import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
@@ -3292,18 +3295,46 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<SecurityAccessor> getSecurityAccessors() {
-        return Collections.unmodifiableList(this.keyAccessors);
+        List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
+        List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
+        securityAccessors.addAll(this.keyAccessors);
+        securityAccessors.addAll(securityAccessorsManagedCentrally);
+        return securityAccessors;
     }
 
     @Override
     public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType
-                .getId()).findAny();
+        Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
+                .findAny();
+        if (securityAccessor.isPresent()) {
+            return securityAccessor;
+        }
+        return getDeviceType().getSecurityAccessorTypes().stream()
+                .filter(sat -> sat.getId() == securityAccessorType.getId())
+                .findAny()
+                .flatMap(securityManagementService::getDefaultValues)
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa));
+    }
+
+    private List<SecurityAccessor> getSecurityAccessorsManagedCentrally() {
+        List<SecurityAccessorType> securityAccessorTypes = getDeviceType().getSecurityAccessorTypes();
+        return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
+                .collect(toList());
+    }
+
+    private void validateManageable(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.isManagedCentrally()) {
+            throw new UnmanageableSecurityAccessorException(thesaurus, securityAccessorType);
+        }
     }
 
     @Override
     public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+        validateManageable(securityAccessorType);
+        CryptographicType cryptographicType = securityAccessorType.getKeyType().getCryptographicType();
+        switch (cryptographicType) {
             case Certificate:
             case ClientCertificate:
             case TrustedCertificate:
@@ -3322,13 +3353,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(passphraseAccessor);
                 return passphraseAccessor;
             case AsymmetricKey:
-                break; // TODO implement? will this occur?
+                return null; // TODO implement? will this occur?
+            default:
+                throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }
-        return null; // TODO throw exception
     }
 
     @Override
     public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
+        validateManageable(securityAccessor.getKeyAccessorType());
         this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 

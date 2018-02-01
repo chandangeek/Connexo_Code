@@ -22,7 +22,9 @@ import javax.inject.Inject;
 import java.security.cert.CertificateEncodingException;
 import java.util.Optional;
 
-public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
+// almost copy-pasted as com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl.
+// A refactoring towards usage of that class can be attempted
+public class CertificateAccessorImpl extends AbstractDeviceSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
     private final DataModel dataModel;
     private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;
