@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
-    extend: 'Uni.model.ParentVersion',
+    extend: 'Uni.model.Version',
     requires: [
         'Mdc.securityaccessors.model.KeyType'
     ],
@@ -18,6 +18,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'editLevels', type: 'auto', useNull: true},
         {name: 'defaultViewLevels', type: 'auto', useNull: true},
         {name: 'defaultEditLevels', type: 'auto', useNull: true},
+        {name: 'defaultValue', type: 'auto', useNull: true, defaultValue: null},
         {
             name: 'viewLevelsInfo',
             persist: false,
@@ -44,12 +45,53 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             mapping: function (data) {
                 return Ext.isEmpty(data) || Ext.isEmpty(data.keyType) ? false : data.keyType.isKey;
             }
+        },
+        {
+            name: 'manageCentrally',
+            persist: false,
+            mapping: function (data) {
+                return !!data.defaultValue;
+            }
+        },
+        {
+            name: 'activeCertificate',
+            persist: false,
+            mapping: function (data) {
+                var defaultValue = data.defaultValue,
+                    value = '';
+                if(defaultValue && defaultValue.currentProperties){
+                    _.map(defaultValue.currentProperties, function(property){
+                        var key = property.key;
+                        if (key === 'alias') {
+                            value = property.propertyValueInfo.value;
+                        }
+                    });
+                }
+                return value;
+            }
+        },
+        {
+            name: 'passiveCertificate',
+            persist: false,
+            mapping: function (data) {
+                var defaultValue = data.defaultValue,
+                    value = '';
+                if(defaultValue && defaultValue.tempProperties){
+                    _.map(defaultValue.tempProperties, function(property){
+                        var key = property.key;
+                        if (key === 'alias') {
+                            value = property.propertyValueInfo.value;
+                        }
+                    });
+                }
+                return value;
+            }
         }
     ],
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
+        url: '/api/dtc/securityaccessors',
         reader: {
             type: 'json'
         },

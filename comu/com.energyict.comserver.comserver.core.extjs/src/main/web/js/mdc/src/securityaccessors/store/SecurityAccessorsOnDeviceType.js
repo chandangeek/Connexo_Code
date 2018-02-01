@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-Ext.define('Mdc.securityaccessors.store.SecurityAccessors', {
+Ext.define('Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType', {
     extend: 'Ext.data.Store',
     storeId: 'SecurityAccessorsStore',
     requires: [
@@ -11,10 +11,14 @@ Ext.define('Mdc.securityaccessors.store.SecurityAccessors', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/dtc/securityaccessors',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
         reader: {
             type: 'json',
             root: 'securityaccessors'
+        },
+
+        setUrl: function(deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     },
 

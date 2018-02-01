@@ -8,18 +8,22 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.view.Setup',
         'Mdc.securityaccessors.view.AddEditSecurityAccessor',
         'Uni.view.window.Confirmation',
-        'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow'
+        'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow',
+        'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType'
     ],
 
     stores: [
         'Mdc.securityaccessors.store.SecurityAccessors',
         'Mdc.securityaccessors.store.TrustStores',
-        'Mdc.store.TimeUnitsYearsSeconds'
+        'Mdc.store.TimeUnitsYearsSeconds',
+        'Mdc.securityaccessors.store.UnusedSecurityAccessors',
+        'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'
     ],
 
     models: [
         'Mdc.model.DeviceType',
-        'Mdc.securityaccessors.model.SecurityAccessor'
+        'Mdc.securityaccessors.model.SecurityAccessor',
+        'Mdc.securityaccessors.model.SecurityPreviewProperties'
     ],
 
     refs: [
@@ -40,12 +44,30 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             selector: 'security-accessor-add-form form'
         },
         {
+            ref: 'activePassiveCertContainer',
+            selector: 'security-accessor-add-form #mdc-active-passive-certificates'
+        },
+        {
+            ref: 'manageCentrallyCheckbox',
+            selector: 'security-accessor-add-form #mdc-security-accessor-manage-centrally-checkbox'
+        },
+        {
             ref: 'securityAccessorPrivilegesEditWindow',
             selector: 'security-accessors-privileges-edit-window'
-        }
+        },
+        {
+            ref: 'availableSecurityAccessorsGrid',
+            selector: 'security-accessor-add-to-device-type-form #available-security-accessors-grd'
+        },
+        {
+            ref: 'securityAccessorsActionMenu',
+            selector: 'security-accessors-action-menu'
+        },
+
     ],
 
     fromEditForm: false,
+    isManageCentrallyChecked: false,
     deviceTypeId: null,
     deviceType: null,
     selectedRecord: undefined,
@@ -63,8 +85,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#mdc-security-accessor-cancel-link[action=cancelAddEditSecurityAccessor]': {
                 click: me.navigateToOverviewPage
             },
+            '#btn-cancel-add-security-accessors': {
+                click: me.navigateToOverviewPage
+            },
             '#mdc-security-accessor-add-button': {
                 click: me.addSecurityAccessor
+            },
+            '#btn-add-security-accessors': {
+                click: me.addAvailableSecurityAccessorToDeviceType
             },
             'security-accessors-action-menu': {
                 click: me.chooseAction
@@ -74,84 +102,112 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: this.saveSecurityAccessor
+            },
+            '#mdc-security-accessor-manage-centrally-checkbox': {
+                change: this.onManageCentrallyCheck
             }
         });
     },
 
     navigateToOverviewPage: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            route;
+            router = me.getController('Uni.controller.history.Router');
 
-        route = router.getRoute('administration/devicetypes/view/securityaccessors', {deviceTypeId: me.deviceTypeId});
-        route.forward();
+        (me.deviceTypeId
+            ? router.getRoute('administration/devicetypes/view/securityaccessors', {deviceTypeId: me.deviceTypeId})
+            : router.getRoute('administration/securityaccessors')).forward();
     },
 
     showSecurityAccessorsOverview: function (deviceTypeId) {
         var me = this,
             view,
-            store = me.getStore('Mdc.securityaccessors.store.SecurityAccessors');
+            store = me.getStore('Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType');
+        me.deviceTypeId = deviceTypeId;
         store.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.deviceType = deviceType;
                 view = Ext.widget('device-type-security-accessors-setup', {
                     deviceTypeId: deviceTypeId
                 });
-                me.deviceTypeId = deviceTypeId;
+
                 me.getApplication().fireEvent('changecontentevent', view);
-                view.suspendLayouts();
-                view.setLoading(true);
                 me.reconfigureMenu(deviceType, view);
+            }
+        });
+    },
+
+    showSecurityAccessorsOverviewAdministration: function () {
+        var me = this,
+            view = Ext.widget('device-type-security-accessors-setup'),
+            trustStoresStore = Ext.getStore('Mdc.securityaccessors.store.TrustStores');
+
+        trustStoresStore.load({
+            callback: function(){
+                me.deviceTypeId = null;
+                me.deviceType = null;
+                me.getApplication().fireEvent('changecontentevent', view);
             }
         });
     },
 
     chooseAction: function (menu, item) {
         var me = this;
-
         switch (item.action) {
             case 'edit':
                 me.navigateToEditSecurityAccessor(menu.record);
                 break;
             case 'remove':
-                me.removeSecurityAccessor(menu.record);
+                me.deviceType ? me.removeSecurityAccessorFromDeviceType(menu.record) : me.removeSecurityAccessor(me.selectedRecord);
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
                     securityAccessorRecord: me.selectedRecord
                 }).show();
                 break;
+            case 'clearPassiveCertificate': {
+                me.clearPassive(me.selectedRecord, false);
+            } break;
+            case 'activatePassiveCertificate': {
+                me.activatePassiveCertificate(me.selectedRecord);
+            } break;
         }
     },
 
     recordSelected: function (grid, recordParam) {
         var me = this,
-            processRecord = function(record) {
+            gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
+            processRecord = function (record) {
                 me.selectedRecord = record;
                 me.getPreviewForm().doLoadRecord(record);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
+                gridMenu.updateMenuItems(record);
+                gridMenu.record = record;
                 if (me.getPreview().down('security-accessors-action-menu')) {
+                    me.getPreview().down('security-accessors-action-menu').updateMenuItems(record);
                     me.getPreview().down('security-accessors-action-menu').record = record;
+
                 }
                 me.getPreview().setLoading(false);
+                gridMenu.setLoading(false);
             };
 
         me.getPreview().setLoading();
-        if (recordParam.get('isKey')) {
-            var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
-            model.getProxy().setUrl(me.deviceTypeId);
-            model.load(recordParam.get('id'), {
-                success: function (keyRecord) {
-                    processRecord(keyRecord);
-                }
-            });
-        } else {
-            processRecord(recordParam);
-        }
+        gridMenu.setLoading();
+
+        var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
+
+        model.load(recordParam.get('id'), {
+            success: function (keyRecord) {
+                processRecord(keyRecord);
+            }
+        });
     },
 
     reconfigureMenu: function (deviceType, view) {
         var me = this;
+        view.suspendLayouts();
+        view.setLoading(true);
         me.getApplication().fireEvent('loadDeviceType', deviceType);
         if (view.down('deviceTypeSideMenu')) {
             view.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
@@ -165,35 +221,29 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     navigateToAddSecurityAccessor: function (button) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            route;
+            router = me.getController('Uni.controller.history.Router');
 
-        route = router.getRoute('administration/devicetypes/view/securityaccessors/add', {deviceTypeId: me.deviceTypeId});
-        route.forward();
+        (me.deviceTypeId
+            ? router.getRoute('administration/devicetypes/view/securityaccessors/add', {deviceTypeId: me.deviceTypeId})
+            : router.getRoute('administration/securityaccessors/add')).forward();
     },
 
-    showAddSecurityAccessor: function (deviceTypeId) {
+    showAddSecurityAccessorToDeviceType: function (deviceTypeId) {
         var me = this,
             view,
-            unitStore = me.getStore('Mdc.store.TimeUnitsYearsSeconds'),
-            keyTypesStore = me.getStore('Mdc.securityaccessors.store.KeyTypes'),
-            trustStoresStore = me.getStore('Mdc.securityaccessors.store.TrustStores');
+            store = me.getStore('Mdc.securityaccessors.store.UnusedSecurityAccessors');
 
-        keyTypesStore.getProxy().setUrl(deviceTypeId);
-        keyTypesStore.load();
-        trustStoresStore.load();
         me.deviceTypeId = deviceTypeId;
+        store.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                view = Ext.widget('security-accessor-add-form', {deviceTypeId: deviceTypeId});
-                view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
-                //the device type is needed for the versioning
                 me.deviceType = deviceType;
-                unitStore.load({
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                view = Ext.widget('security-accessor-add-to-device-type-form', {deviceTypeId: deviceTypeId});
+                store.load({
                     callback: function (records, operation, success) {
-                        if (success && records.length > 0) {
-                            view.down('#cbo-security-accessor-validity-period-delay').select(records[0]);
+                        if (records === null || records.length === 0) {
+                            view.down('#btn-add-security-accessors').hide();
                         }
                     }
                 });
@@ -203,24 +253,116 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     },
 
+    addAvailableSecurityAccessorToDeviceType: function () {
+        var me = this,
+            grid = this.getAvailableSecurityAccessorsGrid(),
+            securityAccessors = _.map(grid.getSelectionModel().getSelection(), function (accessorToAdd) {
+                return accessorToAdd.getData();
+            }),
+            jsonData = {
+                name: me.deviceType.get('name'),
+                version: me.deviceType.get('version'),
+                securityAccessors: securityAccessors
+            };
+
+        Ext.Ajax.request({
+            url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors', me.deviceTypeId),
+            method: 'POST',
+            jsonData: jsonData,
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityaccessors.addSecurityAccessorSuccess', 'MDC', 'Security accessor added'));
+                me.getController('Uni.controller.history.Router')
+                    .getRoute('administration/devicetypes/view/securityaccessors', {deviceTypeId: me.deviceTypeId})
+                    .forward();
+            }
+        });
+    },
+
+    removeSecurityAccessorFromDeviceType: function (record) {
+        var me = this,
+            store = me.getStore('Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'),
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            jsonData = {
+                name: me.deviceType.get('name'),
+                version: me.deviceType.get('version')
+            };
+
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('deviceType.securityaccessors.remove.msg', 'MDC', 'This security accessor will no longer be available on this device type .'),
+                title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", Ext.htmlEncode(record.get('name')), false),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        Ext.Ajax.request({
+                            url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId, record.get('id')),
+                            method: 'DELETE',
+                            jsonData: jsonData,
+                            success: function () {
+                                me.getSecurityAccessorsGrid().setLoading();
+                                me.getApplication().fireEvent('acknowledge',
+                                    Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
+                                );
+                                me.getSecurityAccessorsGrid().down('pagingtoolbartop').resetPaging();
+                                me.getSecurityAccessorsGrid().down('pagingtoolbarbottom').resetPaging();
+                                store.load({
+                                    callback: function (records, operation, success) {
+                                        me.getSecurityAccessorsGrid().setLoading(false);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        );
+    },
+
+    showAddSecurityAccessor: function () {
+        var me = this,
+            view,
+            unitStore = me.getStore('Mdc.store.TimeUnitsYearsSeconds'),
+            keyTypesStore = me.getStore('Mdc.securityaccessors.store.KeyTypes'),
+            trustStoresStore = me.getStore('Mdc.securityaccessors.store.TrustStores');
+
+        me.isManageCentrallyChecked = false;
+        keyTypesStore.load();
+        trustStoresStore.load();
+        view = Ext.widget('security-accessor-add-form');
+        view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
+        unitStore.load({
+            callback: function (records, operation, success) {
+                if (success && records.length > 0) {
+                    view.down('#cbo-security-accessor-validity-period-delay').select(records[0]);
+                }
+            }
+        });
+
+        me.getApplication().fireEvent('changecontentevent', view);
+
+    },
+
     addSecurityAccessor: function () {
         var me = this,
             form = me.getAddEditForm(),
             errorMessage = form.down('#mdc-security-accessor-error-message'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
+            defaultValue = Ext.create('Mdc.securityaccessors.model.SecurityPreviewProperties'),
+            activeAliasCombo = me.getActivePassiveCertContainer().down('#mdc-active-alias-combo'),
+            passiveAliasCombo = me.getActivePassiveCertContainer().down('#mdc-passive-alias-combo'),
             record;
+
+        me.editRecord = null;
 
         errorMessage.hide();
         if (!form.isValid()) {
             errorMessage.show();
             return;
         }
-        viewport.setLoading();
+        // viewport.setLoading();
         form.updateRecord();
         record = form.getRecord();
-        record.getProxy().setUrl(me.deviceTypeId);
         record.beginEdit();
-        if(record.get('keyType') && record.get('keyType').requiresDuration) {
+        if (record.get('keyType') && record.get('keyType').requiresDuration) {
             record.set('duration', {
                 count: form.down('#num-security-accessor-validity-period').getValue(),
                 timeUnit: form.down('#cbo-security-accessor-validity-period-delay').getValue()
@@ -228,10 +370,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         } else {
             record.set('duration', null);
         }
-        record.set('parent', {
-            id: me.deviceType.get('name'),
-            version: me.deviceType.get('version')
-        });
         if (!Ext.isArray(record.get('defaultEditLevels'))) {
             record.set('defaultEditLevels', null);
         }
@@ -244,7 +382,36 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         if (!Ext.isArray(record.get('viewLevels'))) {
             record.set('viewLevels', null);
         }
+
+        if(me.isManageCentrallyChecked){
+            var currentProperties = me.defaultPropertiesData.currentProperties;
+            _.map(currentProperties, function(property){
+                var key = property.key;
+                if (key === 'alias') {
+                    property.propertyValueInfo = {
+                        value: activeAliasCombo.getValue()
+                    };
+                }
+            });
+
+            var tempProperties = me.defaultPropertiesData.tempProperties;
+            _.forEach(tempProperties, function(property){
+                var key = property.key;
+                if (key === 'alias') {
+                    property.propertyValueInfo = {
+                        value: passiveAliasCombo.getValue()
+                    };
+                }
+            });
+            var defaultValueData = me.defaultPropertiesData;
+            defaultValueData.tempProperties = tempProperties;
+            defaultValueData.currentProperties = currentProperties;
+
+            record.set('defaultValue', defaultValueData);
+        }
+
         record.endEdit();
+
         record.save({
             callback: function (record, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
@@ -269,19 +436,79 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         });
     },
 
-    navigateToEditSecurityAccessor: function (record) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            route;
+    onManageCentrallyCheck: function(fld, newValue, oldValue, eOpts) {
+        var me = this;
+        me.isManageCentrallyChecked = newValue;
+        if(newValue){
+            me.getSecurityAccessorPreviewProperties()
+        } else {
+            me.getActivePassiveCertContainer().removeAll();
+        }
 
-        router.arguments.deviceTypeId = me.deviceTypeId;
-        router.arguments.securityAccessorId = record.get('id');
-
-        route = router.getRoute('administration/devicetypes/view/securityaccessors/edit');
-        route.forward(router.arguments);
     },
 
-    showEditSecurityAccessor: function (deviceTypeId, securityAccessorId) {
+    getSecurityAccessorPreviewProperties: function () {
+        var me = this,
+            form = me.getAddEditForm(),
+            errorMessage = form.down('#mdc-security-accessor-error-message'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            record = me.editRecord || Ext.create('Mdc.securityaccessors.model.SecurityPreviewProperties');
+
+        errorMessage.hide();
+
+        form.updateRecord(record);
+        record.beginEdit();
+        if (record.get('keyType') && record.get('keyType').requiresDuration) {
+            record.set('duration', {
+                count: form.down('#num-security-accessor-validity-period').getValue(),
+                timeUnit: form.down('#cbo-security-accessor-validity-period-delay').getValue()
+            });
+        } else {
+            record.set('duration', null);
+        }
+        if (!Ext.isArray(record.get('defaultEditLevels'))) {
+            record.set('defaultEditLevels', null);
+        }
+        if (!Ext.isArray(record.get('defaultViewLevels'))) {
+            record.set('defaultViewLevels', null);
+        }
+        if (!Ext.isArray(record.get('editLevels'))) {
+            record.set('editLevels', null);
+        }
+        if (!Ext.isArray(record.get('viewLevels'))) {
+            record.set('viewLevels', null);
+        }
+        // record.getProxy().setPreviewUrl();
+        record.endEdit();
+
+        // record.setDirty();
+        if(me.editRecord && me.editRecord.get('defaultValue')){
+            me.defaultPropertiesData = me.editRecord.get('defaultValue');
+            me.loadProperties(me.editRecord.get('defaultValue'));
+        } else {
+            viewport.setLoading();
+            Ext.Ajax.request({
+                url: '/api/dtc/securityaccessors/previewproperties',
+                method: 'POST',
+                jsonData: record.getRecordData(),
+                success: function (operation) {
+                    var responseText = Ext.JSON.decode(operation.responseText);
+                    viewport.setLoading(false);
+                    me.defaultPropertiesData = responseText;
+                    me.loadProperties(responseText);
+
+                }
+            });
+        }
+
+    },
+
+    navigateToEditSecurityAccessor: function (record) {
+        this.getController('Uni.controller.history.Router')
+            .getRoute('administration/securityaccessors/edit').forward({securityAccessorId: record.get('id')});
+    },
+
+    showEditSecurityAccessor: function (securityAccessorId) {
         var me = this,
             view,
             timeUnitsStore = me.getStore('Mdc.store.TimeUnitsYearsSeconds'),
@@ -290,23 +517,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             callBackFunction,
             storesToLoad = 2;
 
-        keyTypesStore.getProxy().setUrl(deviceTypeId);
-        me.deviceTypeId = deviceTypeId;
-        model.getProxy().setUrl(deviceTypeId);
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.deviceType = deviceType;
-            }
-        });
         model.load(securityAccessorId, {
             success: function (record) {
+                me.editRecord = record;
+
                 me.getApplication().fireEvent('securityaccessorload', record.get('name'));
-                callBackFunction = function() {
+                callBackFunction = function () {
                     storesToLoad--;
-                    if(storesToLoad <= 0) {
+                    if (storesToLoad <= 0) {
                         view = Ext.widget('security-accessor-add-form', {
-                            deviceTypeId: deviceTypeId,
                             isEdit: true,
                             title: Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", record.get('name'), false)
                         });
@@ -317,13 +536,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
-                        if(record.get('duration')) {
+                        if (record.get('duration')) {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
                             view.down('#cbo-security-accessor-validity-period-delay').select(record.get('duration').timeUnit);
                         }
                         view.down('#mdc-security-accessor-storage-method-combobox').setDisabled(true);
-                        me.deviceTypeId = deviceTypeId;
                         me.getApplication().fireEvent('changecontentevent', view);
+                        if(record.get('defaultValue')){
+                            me.getManageCentrallyCheckbox().setValue(true);
+                        }
+                        me.getManageCentrallyCheckbox().disable();
                     }
                 };
                 timeUnitsStore.load({callback: callBackFunction});
@@ -335,9 +557,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     removeSecurityAccessor: function (record) {
         var me = this,
             store = me.getStore('Mdc.securityaccessors.store.SecurityAccessors'),
-            confirmationWindow;
-        record.getProxy().setUrl(me.deviceTypeId);
-        confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
 
         confirmationWindow.show(
             {
@@ -346,7 +566,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 fn: function (state) {
                     if (state === 'confirm') {
                         record.destroy({
-                            success: function() {
+                            success: function () {
                                 me.getSecurityAccessorsGrid().setLoading();
                                 me.getApplication().fireEvent('acknowledge',
                                     Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
@@ -366,10 +586,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         );
     },
 
-    keyTypeChanged: function(combobox, newValue) {
+    keyTypeChanged: function (combobox, newValue) {
         var me = this,
             keyEncryptionMethodStore = me.getStore('Mdc.securityaccessors.store.KeyEncryptionMethods'),
             storageMethodCombo = combobox.up('form').down('#mdc-security-accessor-storage-method-combobox'),
+            manageCentrallyCheckbox = combobox.up('form').down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = combobox.up('form').down('#mdc-security-accessor-validity-period'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
@@ -377,14 +598,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         validityPeriod.setVisible(requiresDuration);
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
+        manageCentrallyCheckbox.enable();
         if (!Ext.isEmpty(newValue)) {
-            keyEncryptionMethodStore.getProxy().setUrl(me.deviceTypeId, newValue.id);
-            keyEncryptionMethodStore.on('load', function(store, records, successful) {
+            keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
+            keyEncryptionMethodStore.on('load', function (store, records, successful) {
                 storageMethodCombo.bindStore(keyEncryptionMethodStore);
-                if (successful && store.getCount()===1) {
+                if (successful && store.getCount() === 1) {
                     storageMethodCombo.setValue(store.getAt(0).get('name'));
                 }
-            }, me, {single:true});
+            }, me, {single: true});
             keyEncryptionMethodStore.load();
         }
     },
@@ -397,7 +619,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         editWindow.close();
         viewport.setLoading();
-        securityAccessorRecordInEditWindow.getProxy().setUrl(me.deviceTypeId);
         securityAccessorRecordInEditWindow.save({
             callback: function (record, operation, success) {
                 if (success) {
@@ -407,5 +628,148 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 }
             }
         });
-    }
+    },
+
+    loadProperties: function(defaultPropertiesData) {
+
+        var me = this,
+            currentProperties = defaultPropertiesData.currentProperties,
+            activeAliasCombo = undefined,
+            passiveAliasCombo = undefined,
+            aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases'),
+            trustStoreId = undefined,
+            trustStoreName = undefined;
+
+        delete aliasesStore.getProxy().extraParams['trustStore'];
+        if(currentProperties.length > 0) {
+            _.map(currentProperties, function (property) {
+                if (property.key === 'alias') {
+                    aliasesStore.getProxy().setUrl(property.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+                    activeAliasCombo = {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.activeCertificate', 'MDC', 'Active certificate'),
+                        labelWidth: 185,
+                        width: 485,
+                        itemId: 'mdc-active-alias-combo',
+                        dataIndex: 'defaultValue.currentProperties.alias',
+                        emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
+                        listConfig: {
+                            emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
+                        },
+                        displayField: 'alias',
+                        value: property.propertyValueInfo.value,
+                        valueField: 'alias',
+                        store: aliasesStore,
+                        queryMode: 'remote',
+                        queryParam: 'alias',
+                        queryDelay: 500,
+                        queryCaching: false,
+                        minChars: 0,
+                        required: true,
+                        allowBlank: false,
+                        loadStore: false,
+                        forceSelection: false,
+                        listeners: {
+                            expand: {
+                                fn: me.comboLimitNotification
+                            }
+                        }
+                    };
+                }
+
+            });
+            me.getActivePassiveCertContainer().add(activeAliasCombo);
+        }
+
+        var tempProperties = defaultPropertiesData.tempProperties,
+        aliasesStoreTemp = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
+
+        delete aliasesStoreTemp.getProxy().extraParams['trustStore'];
+        if(tempProperties.length > 0) {
+            _.map(tempProperties, function (property) {
+                if (property.key === 'alias') {
+                    aliasesStoreTemp.getProxy().setUrl(property.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+                    passiveAliasCombo = {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.passiveCertificate', 'MDC', 'Passive certificate'),
+                        labelWidth: 185,
+                        width: 485,
+                        itemId: 'mdc-passive-alias-combo',
+                        dataIndex: 'defaultValue.tempProperties.alias',
+                        emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
+                        listConfig: {
+                            emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
+                        },
+                        displayField: 'alias',
+                        valueField: 'alias',
+                        value: property.propertyValueInfo.value,
+                        store: aliasesStoreTemp,
+                        queryMode: 'remote',
+                        queryParam: 'alias',
+                        queryDelay: 500,
+                        queryCaching: false,
+                        minChars: 0,
+                        loadStore: false,
+                        forceSelection: false,
+                        listeners: {
+                            expand: {
+                                fn: me.comboLimitNotification
+                            }
+                        }
+                    };
+                }
+            });
+            me.getActivePassiveCertContainer().add(passiveAliasCombo);
+        }
+    },
+
+    activatePassiveCertificate: function(certificateRecord) {
+        var me = this,
+            url = '/api/dtc/securityaccessors/{certificateId}/swap';
+
+        url = url.replace('{certificateId}', certificateRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: Ext.encode(certificateRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveCertificate.activated', 'MDC', 'Passive certificate activated'));
+                var router = me.getController('Uni.controller.history.Router');
+                router.getRoute().forward(router.arguments);
+            }
+        });
+    },
+
+    clearPassive: function(keyOrCertificateRecord, keyMode) {
+        var me = this,
+            url = '/api/dtc/securityaccessors/{keyOrCertificateId}/tempvalue',
+            title,
+            confirmMessage,
+            clearedMessage;
+
+        title = Uni.I18n.translate('general.clearPassiveCertificate.title', 'MDC', "Clear passive certificate of '{0}'?", keyOrCertificateRecord.get('name'));
+        confirmMessage = Uni.I18n.translate('general.clearPassiveCertificate.msg', 'MDC', 'The passive certificate will no longer be available.');
+        clearedMessage = Uni.I18n.translate('general.passiveCertificate.cleared', 'MDC', 'Passive certificate cleared');
+
+
+        Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.clear', 'MDC', 'Clear')}).show({
+            title: title,
+            msg: confirmMessage,
+            fn: function (action) {
+                if (action == 'confirm') {
+                    url = url.replace('{keyOrCertificateId}', keyOrCertificateRecord.get('id'));
+                    Ext.Ajax.request({
+                        url: url,
+                        method: 'DELETE',
+                        jsonData: Ext.encode(keyOrCertificateRecord.getData()),
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', clearedMessage);
+                            var router = me.getController('Uni.controller.history.Router');
+                                router.getRoute().forward(router.arguments);}
+                    });
+                }
+            }
+        });
+    },
 });

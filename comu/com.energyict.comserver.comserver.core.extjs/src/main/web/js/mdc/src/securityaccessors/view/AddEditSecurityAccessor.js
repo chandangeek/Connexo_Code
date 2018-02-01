@@ -185,6 +185,24 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     ]
                 },
                 {
+                    xtype: 'checkboxfield',
+                    fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),
+                    itemId: 'mdc-security-accessor-manage-centrally-checkbox',
+                    name: 'multiElementEnabled',
+                    checked: false,
+                    disabled: true
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    itemId: 'mdc-active-passive-certificates',
+                    fieldLabel: ' ',
+                    layout: 'vbox',
+                    labelWidth: 0,
+                    width: 500,
+                    items: [
+                    ]
+                },
+                {
                     xtype: 'fieldcontainer',
                     itemId: 'mdc-security-accessor-form-buttons',
                     fieldLabel: ' ',
@@ -228,6 +246,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             storageMethodCombo = me.up('form').down('#mdc-security-accessor-storage-method-combobox'),
             trustStoreCombo = me.up('form').down('#mdc-security-accessor-trust-store-combobox'),
             trustStoreContainer = me.up('form').down('#mdc-security-accessor-trust-store-container'),
+            manageCentrallyCheckbox = me.up('form').down('#mdc-security-accessor-manage-centrally-checkbox'),
             noTrustStoreMsg = me.up('form').down('#mdc-security-accessor-no-trust-store-msg'),
             accessorTypeIsKey = ( (radioBtn.itemId === 'mdc-security-accessor-key' && newValue) ||
                                   (radioBtn.itemId === 'mdc-security-accessor-certificate' && !newValue) );
@@ -243,6 +262,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         if (newValue) {
             errorMsgPnl.hide();
             trustStoreContainer.setVisible(!key);
+            manageCentrallyCheckbox.setVisible(!key);
             me.up('form').getForm().clearInvalid();
             var proxy = trustStoreCombo.getStore().getProxy();
             proxy.limitParam = undefined;

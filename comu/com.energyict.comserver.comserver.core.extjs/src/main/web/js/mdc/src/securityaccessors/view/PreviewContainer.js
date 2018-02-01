@@ -18,6 +18,9 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
         me.grid = {
             xtype: 'security-accessors-grid',
             itemId: 'mdc-security-accessors-grid',
+            store: me.deviceTypeId
+                ? 'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'
+                : 'Mdc.securityaccessors.store.SecurityAccessors',
             deviceTypeId: me.deviceTypeId
         };
 
@@ -31,7 +34,10 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
             stepItems: [
                 {
                     xtype: 'button',
-                    text: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                    privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                    text: me.deviceTypeId
+                        ? Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors')
+                        : Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
                     itemId: 'mdc-add-security-accessor'
                 }
             ]
@@ -39,7 +45,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
 
         me.previewComponent = {
             xtype: 'security-accessors-preview',
-            itemId: 'mdc-security-accessors-preview'
+            itemId: 'mdc-security-accessors-preview',
+            deviceTypeId: me.deviceTypeId
         };
 
         me.callParent(arguments);
