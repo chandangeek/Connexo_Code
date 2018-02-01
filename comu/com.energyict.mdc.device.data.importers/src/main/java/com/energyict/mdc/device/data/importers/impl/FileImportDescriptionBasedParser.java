@@ -38,9 +38,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
     @Override
     public T parse(CSVRecord csvRecord) throws FileImportParserException {
-        if (!csvRecord.isConsistent()) {
-            throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.WRONG_LINE_SIZE, csvRecord.getRecordNumber());
-        }
+        checkRecordConsictency(csvRecord);
         T record = this.descriptor.getFileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
         List<FileImportField<?>> fields = new ArrayList<>(this.descriptor.getFields(record).values());
@@ -81,6 +79,12 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
         if (headers.size() < numberOfMandatoryColumns) {
             throw new FileImportParserException(MessageSeeds.MISSING_TITLE_ERROR, numberOfMandatoryColumns, headers.size());
+        }
+    }
+
+    protected void checkRecordConsictency(CSVRecord csvRecord){
+        if (!csvRecord.isConsistent()) {
+            throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.WRONG_LINE_SIZE, csvRecord.getRecordNumber());
         }
     }
 

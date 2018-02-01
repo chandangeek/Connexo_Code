@@ -59,7 +59,7 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
-        FileImportParser<DeviceReadingsImportRecord> parser = new FileImportDescriptionBasedParser(
+        FileImportParser<DeviceReadingsImportRecord> parser = new FileImportReadingsDescriptionBasedParser(
                 new DeviceReadingsImportDescription(dateFormat, timeZone, numberFormat));
         DeviceReadingsImportProcessor processor = new DeviceReadingsImportProcessor(getContext());
         FileImportLogger logger = new DeviceReadingsImportLogger(getContext());

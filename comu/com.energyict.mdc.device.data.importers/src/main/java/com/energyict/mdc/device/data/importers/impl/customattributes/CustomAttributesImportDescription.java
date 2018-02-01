@@ -50,17 +50,13 @@ public class CustomAttributesImportDescription implements FileImportDescription<
         QuantityParser quantityParser = new QuantityParser(bigDecimalParser, new NumberParser(), stringParser);
         CustomAttributeParser customAttributeParser = new CustomAttributeParser(context.getCustomPropertySetService(), stringParser, dateParser, quantityParser, bigDecimalParser);
 
+        // Device mRID or name
         fields.put("deviceIdentifier", CommonField.withParser(stringParser)
                 .withName("Device Identifier")
                 .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
 
-        // Device mRID or name
-        fields.put("mRID", CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceIdentifier)
-                .markMandatory()
-                .build());
         // Reading type mRID
         fields.put("readingType", CommonField.withParser(stringParser)
                 .withSetter(record::setReadingType)
