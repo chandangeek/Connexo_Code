@@ -57,6 +57,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>cim.webservices.outbound.soap</artifactId>
+                <version>1.0.0${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>config.extjs</artifactId>
                 <version>1.4.0${revision}</version>
                 <scope>provided</scope>
@@ -331,6 +336,7 @@
                 <module>../com.elster.jupiter.calendar.extjs</module>
                 <module>../com.elster.jupiter.calendar.rest</module>
                 <module>../com.elster.jupiter.cbo</module>
+                <module>../com.elster.jupiter.cim.webservices.outbound.soap</module>
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.data.lifecycle</module>
                 <module>../com.elster.jupiter.dataquality</module>
