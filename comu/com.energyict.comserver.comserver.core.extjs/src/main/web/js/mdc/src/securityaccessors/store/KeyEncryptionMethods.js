@@ -12,7 +12,7 @@ Ext.define('Mdc.securityaccessors.store.KeyEncryptionMethods', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/keytypes/{keyTypeId}/keyencryptionmethods',
+        urlTpl: '/api/dtc/securityaccessors/keytypes/{keyTypeId}/keyencryptionmethods',
         reader: {
             type: 'json'
         },
@@ -20,8 +20,8 @@ Ext.define('Mdc.securityaccessors.store.KeyEncryptionMethods', {
         startParam: false,
         limitParam: false,
 
-        setUrl: function(deviceTypeId, keyTypeId) {
-            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId).replace('{keyTypeId}', keyTypeId);
+        setUrl: function(keyTypeId) {
+            this.url = this.urlTpl.replace('{keyTypeId}', keyTypeId);
         }
     }
 });

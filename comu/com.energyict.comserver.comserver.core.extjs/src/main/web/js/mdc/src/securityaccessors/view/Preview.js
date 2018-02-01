@@ -5,6 +5,7 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.security-accessors-preview',
     frame: true,
+    deviceTypeId: true,
 
     requires: [
         'Mdc.securityaccessors.view.PreviewForm',
@@ -17,9 +18,11 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
             {
                 xtype: 'uni-button-action',
                 privileges: Mdc.privileges.DeviceType.admin,
+                disabled: !Mdc.privileges.SecurityAccessor.canAdmin(),
                 itemId: 'mdc-security-accessor-preview-button',
                 menu: {
-                    xtype: 'security-accessors-action-menu'
+                    xtype: 'security-accessors-action-menu',
+                    deviceTypeId: me.deviceTypeId
                 }
             }
         ];

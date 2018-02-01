@@ -15,20 +15,22 @@ Ext.define('Mdc.securityaccessors.view.Setup', {
 
     initComponent: function () {
         var me = this;
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceTypeSideMenu',
-                        itemId: 'deviceTypeSideMenu',
-                        deviceTypeId: me.deviceTypeId,
-                        toggle: 0
-                    }
-                ]
-            }
-        ];
+        if(me.deviceTypeId){
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'deviceTypeSideMenu',
+                            itemId: 'deviceTypeSideMenu',
+                            deviceTypeId: me.deviceTypeId,
+                            toggle: 0
+                        }
+                    ]
+                }
+            ];
+        }
 
         me.content = {
             ui: 'large',

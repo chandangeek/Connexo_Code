@@ -12,16 +12,12 @@ Ext.define('Mdc.securityaccessors.store.KeyTypes', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/keytypes',
+        url: '/api/dtc/securityaccessors/keytypes',
         reader: {
             type: 'json'
         },
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function(deviceTypeId) {
-            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
-        }
+        limitParam: false
     }
 });

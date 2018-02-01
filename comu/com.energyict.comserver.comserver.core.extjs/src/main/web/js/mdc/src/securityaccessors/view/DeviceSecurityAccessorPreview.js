@@ -41,6 +41,9 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreview', {
         me.down('#mdc-device-security-accessor-preview-button').setVisible(
             !me.keyMode || (me.keyMode && hasEditRights)
         );
+        me.down('#mdc-device-security-accessor-preview-button').setDisabled(
+            !me.keyMode && !record.get('editable')
+        );
     }
 
 });
