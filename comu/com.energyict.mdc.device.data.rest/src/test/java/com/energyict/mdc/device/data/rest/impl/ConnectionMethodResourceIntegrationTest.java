@@ -14,6 +14,8 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -32,6 +34,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -47,6 +50,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -169,6 +174,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static OrmService ormService;
     private static IssueInfoFactoryService issueInfoFactoryService;
     private static RegisteredDevicesKpiService registeredDevicesKpiService;
+    private static TaskService tskService;
+    private static SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private static SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private static TrustStoreValuesProvider trustStoreValuesProvider;
+    private static AliasSearchFilterFactory aliasSearchFilterFactory;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -200,6 +210,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         ormService = mock(OrmService.class);
         issueInfoFactoryService = mock(IssueInfoFactoryService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
+        tskService = mock(TaskService.class);
+        securityAccessorResourceHelper = mock(SecurityAccessorResourceHelper.class);
+        securityAccessorInfoFactory = mock(SecurityAccessorInfoFactory.class);
+        trustStoreValuesProvider = mock(TrustStoreValuesProvider.class);
+        aliasSearchFilterFactory = mock(AliasSearchFilterFactory.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -423,6 +438,11 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
+        application.setTskService(tskService);
+        application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
+        application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
+        application.setTrustStoreValuesProvider(trustStoreValuesProvider);
+        application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         return application;
     }
 

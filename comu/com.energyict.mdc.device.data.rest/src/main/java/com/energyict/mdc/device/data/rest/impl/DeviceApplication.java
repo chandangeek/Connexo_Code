@@ -39,6 +39,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -61,6 +63,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -181,6 +184,10 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CommandRuleService commandRuleService;
 
 
+    private volatile SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private volatile com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private volatile TrustStoreValuesProvider trustStoreValuesProvider;
+    private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Override
@@ -406,6 +413,26 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
+    @Reference
+    public void setSecurityAccessorResourceHelper(SecurityAccessorResourceHelper securityAccessorResourceHelper) {
+        this.securityAccessorResourceHelper = securityAccessorResourceHelper;
+    }
+
+    @Reference
+    public void setSecurityAccessorInfoFactory(com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory) {
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+    }
+
+    @Reference
+    public void setTrustStoreValuesProvider(TrustStoreValuesProvider trustStoreValuesProvider) {
+        this.trustStoreValuesProvider = trustStoreValuesProvider;
+    }
+
+    @Reference
+    public void setAliasSearchFilterFactory(AliasSearchFilterFactory aliasSearchFilterFactory) {
+        this.aliasSearchFilterFactory = aliasSearchFilterFactory;
     }
 
     @Override
@@ -696,6 +723,10 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(issueActionService).to(IssueActionService.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
+            bind(securityAccessorResourceHelper).to(SecurityAccessorResourceHelper.class);
+            bind(securityAccessorInfoFactory).to(com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory.class);
+            bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
+            bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
             bind(commandRuleService).to(CommandRuleService.class);
         }
     }

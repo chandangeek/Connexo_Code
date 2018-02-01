@@ -219,6 +219,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
@@ -375,10 +379,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

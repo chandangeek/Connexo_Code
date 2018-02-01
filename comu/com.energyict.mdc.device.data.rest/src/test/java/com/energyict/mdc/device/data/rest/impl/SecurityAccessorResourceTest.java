@@ -8,8 +8,8 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -19,23 +19,16 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,6 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,10 +68,10 @@ import static org.mockito.Mockito.when;
  */
 public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    private DeviceSecurityAccessorType symmetricKeyAccessorType;
+    private SecurityAccessorType symmetricKeyAccessorType;
     private List<PropertySpec> symmetricKeyPropertySpecs;
     private List<PropertySpec> certificatePropertySpecs;
-    private DeviceSecurityAccessorType certificateKeyAccessorType;
+    private SecurityAccessorType certificateKeyAccessorType;
     private DeviceType deviceType;
     private SecurityAccessor clientCertificateAccessor;
     private SecurityAccessor symmetrickeyAccessor;
@@ -83,27 +81,18 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private Device device;
 
     @Override
-    protected Application getApplication() {
-        DeviceApplication application = (DeviceApplication) super.getApplication();
-        PropertyValueInfoServiceImpl propertyValueInfoService = new PropertyValueInfoServiceImpl();
-        propertyValueInfoService.activate();
-        application.setPropertyValueInfoService(propertyValueInfoService); // use the real thing
-        application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupService)); // use the real thing
-        return application;
-    }
-
-    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        symmetricKeyPropertySpecs = Arrays.asList(mockPropertySpec("key"));
-        certificatePropertySpecs = Arrays.asList(mockPropertySpec("alias"));
+        symmetricKeyPropertySpecs = Collections.singletonList(mockPropertySpec("key"));
+        certificatePropertySpecs = Collections.singletonList(mockPropertySpec("alias"));
 
         symmetricKeyAccessorType = mockSymmetricKeyAccessorType(111L, "aes");
         certificateKeyAccessorType = mockCertificateKeyAccessorType(222L, "tls1");
 
         actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver", "myAlias");
         clientCertificateAccessor = mockClientCertificateAccessor(certificatePropertySpecs, actualClientCertificateWrapper);
+        when(clientCertificateAccessor.isEditable()).thenReturn(true);
 
         actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, null);
@@ -134,6 +123,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetCertificatesWithoutTempValue() throws Exception {
+        when(clientCertificateAccessor.isEditable()).thenReturn(false);
+
         Response response = target("/devices/BVN001/securityaccessors/certificates").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.certificates")).hasSize(1);
@@ -145,6 +136,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[0].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[0].editable")).isFalse();
     }
 
     @Test
@@ -238,6 +230,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[0].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[0].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[0].editable")).isTrue();
 
         assertThat(jsonModel.<String>get("$.certificates[1].name")).isEqualTo("tls2");
         assertThat(jsonModel.<List>get("$.certificates[1].currentProperties")).hasSize(1);
@@ -246,6 +239,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.certificates[1].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.certificates[1].tempProperties[0].key")).isEqualTo("alias");
         assertThat(jsonModel.<JSONObject>get("$.certificates[1].tempProperties[0].propertyValueInfo")).isEmpty();
+        assertThat(jsonModel.<Boolean>get("$.certificates[1].editable")).isTrue();
     }
 
     @Test
@@ -260,12 +254,13 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.keys[0].currentProperties[0].propertyValueInfo.value")).isEqualTo("b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
         assertThat(jsonModel.<List>get("$.keys[0].tempProperties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.keys[0].tempProperties[0].key")).isEqualTo("key");
+        assertThat(jsonModel.<Boolean>get("$.keys[0].editable")).isTrue();
     }
 
     @Test
     public void testGetKeysWithoutTempValueWithViewPermissions() throws Exception {
-        when(symmetricKeyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-        when(symmetricKeyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(false);
 
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -281,8 +276,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetKeysWithoutTempValueWithoutPermissions() throws Exception {
-        when(symmetricKeyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
-        when(symmetricKeyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(false);
 
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -665,7 +660,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private PropertyInfo createPropertyInfo(String key, String value) {
         PropertyInfo propertyInfo = new PropertyInfo();
         propertyInfo.key = key;
-        propertyInfo.propertyValueInfo = new PropertyValueInfo<String>(value, null);
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>(value, null);
         return propertyInfo;
     }
 
@@ -698,14 +693,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return propertySpec;
     }
 
-    private DeviceSecurityAccessorType mockCertificateKeyAccessorType(long id, String name) {
-        DeviceSecurityAccessorType keyAccessorType = mock(DeviceSecurityAccessorType.class);
+    private SecurityAccessorType mockCertificateKeyAccessorType(long id, String name) {
+        SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
         when(keyAccessorType.getId()).thenReturn(id);
         when(keyAccessorType.getName()).thenReturn(name);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
         when(keyAccessorType.getDescription()).thenReturn("description");
-        when(keyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
-        when(keyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(true);
         KeyType keyType = mock(KeyType.class);
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.ClientCertificate);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
@@ -735,14 +730,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return symmetricKeyWrapper;
     }
 
-    private DeviceSecurityAccessorType mockSymmetricKeyAccessorType(long id, String name) {
-        DeviceSecurityAccessorType keyAccessorType = mock(DeviceSecurityAccessorType.class);
+    private SecurityAccessorType mockSymmetricKeyAccessorType(long id, String name) {
+        SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
         when(keyAccessorType.getId()).thenReturn(id);
         when(keyAccessorType.getName()).thenReturn(name);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
         when(keyAccessorType.getDescription()).thenReturn("description");
-        when(keyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
-        when(keyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(true);
         KeyType keyType = mock(KeyType.class);
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.SymmetricKey);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
