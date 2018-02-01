@@ -12,6 +12,12 @@ Ext.define('Mdc.model.DeviceMessageCategory', {
     hasMany: {
         model: 'Mdc.model.DeviceCommand',
         name: 'deviceMessageSpecs',
-        foreignKey: 'deviceMessageSpecs'
+        foreignKey: 'deviceMessageSpecs',
+        storeConfig: {
+            sorters: [{
+                property: 'name',
+                direction: 'ASC'
+            }]
+        }
     }
 });
