@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
@@ -33,7 +34,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.events.EventService;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
