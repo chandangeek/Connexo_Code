@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
@@ -27,6 +28,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -56,7 +58,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -87,17 +88,19 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList = new ArrayList<>();
+        List<CertificateWrapperInfo> infoList;
         if(queryParameters.getLike()!=null && !queryParameters.getLike().isEmpty()){
             infoList = securityManagementService.findCertificatesByFilter(dataSearchFilterFactory.asLikeFilter(queryParameters.getLike()))
                     .from(queryParameters)
                     .stream()
+                    .filter(wr -> statusFilter(wr, jsonQueryFilter))
                     .map(certificateInfoFactory::asInfo)
                     .collect(toList());
         } else {
-            infoList = findCertficates(jsonQueryFilter)
+            infoList = findCertificates(jsonQueryFilter)
                     .from(queryParameters)
                     .stream()
+                    .filter(wr -> statusFilter(wr, jsonQueryFilter))
                     .map(certificateInfoFactory::asInfo)
                     .collect(toList());
         }
@@ -105,7 +108,17 @@ public class CertificateWrapperResource {
         return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
     }
 
-    private Finder<CertificateWrapper> findCertficates(JsonQueryFilter jsonQueryFilter) {
+
+    /**
+     * Specific custom filter for certificate statuses
+     * Status is not a DB stored property. Certificate status depends on several sources (e.g. actual X509Certificate state or extra obsolete flag)
+     */
+    private boolean statusFilter(CertificateWrapper wr, JsonQueryFilter jsonQueryFilter) {
+        List<String> statuses = jsonQueryFilter.getStringList("status");
+        return CollectionUtils.isEmpty(statuses) || statuses.contains(wr.getStatus());
+    }
+
+    private Finder<CertificateWrapper> findCertificates(JsonQueryFilter jsonQueryFilter) {
         if (jsonQueryFilter.hasFilters()) {
             SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter);
             return securityManagementService.findCertificatesByFilter(dataSearchFilter);
@@ -179,6 +192,17 @@ public class CertificateWrapperResource {
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("keyUsages", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/statuses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList statusSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<StatusInfo> statuses = Stream.of(CertificateStatus.values())
+                .map(st -> new StatusInfo(st.getName()))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("statuses", statuses, queryParameters);
     }
 
     @POST
