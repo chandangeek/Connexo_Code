@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.meterdata;
 
+import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
@@ -18,6 +20,7 @@ import java.util.List;
  * Date: 8/05/13
  * Time: 16:30
  */
+@ProviderType
 public interface CollectedDataFactory {
 
     CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
@@ -45,6 +48,8 @@ public interface CollectedDataFactory {
     CollectedMessage createCollectedMessageWithLogbookData(MessageIdentifier messageIdentifier, CollectedLogBook collectedLoadProfile);
 
     CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier);
+
+    CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceCache);
 
     CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
 
