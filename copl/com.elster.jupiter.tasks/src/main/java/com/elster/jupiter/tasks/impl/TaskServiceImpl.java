@@ -35,6 +35,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -128,10 +129,14 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class,
-            ImmutableMap.of(
-                Version.version(10, 3), V10_3SimpleUpgrader.class
-            )
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.of(
+                        Version.version(10, 3), V10_3SimpleUpgrader.class,
+                        Version.version(10, 4), V10_4SimpleUpgrader.class
+                )
         );
     }
 
