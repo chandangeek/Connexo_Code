@@ -91,6 +91,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessa
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.DeviceAccessLevelTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -1166,6 +1167,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createCollectedDeviceCache(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceCache) {
+            return this.getCollectedDataFactory().createCollectedDeviceCache(deviceIdentifier, deviceCache);
         }
 
         @Override
