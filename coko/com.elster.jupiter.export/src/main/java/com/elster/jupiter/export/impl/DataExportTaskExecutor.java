@@ -127,8 +127,6 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
-        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
-
         IExportTask task = occurrence.getTask();
 
         Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
@@ -147,7 +145,10 @@ class DataExportTaskExecutor implements TaskExecutor {
                 formattedData = dataFormatter.processData(data);
             }
             Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
-            task.getCompositeDestination(at).send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
+            occurrence.getRetryTime()
+                    .map(task::getCompositeDestination)
+                    .orElse(task.getCompositeDestination())
+                    .send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
         }).run();
 
         itemExporter.done();
