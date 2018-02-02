@@ -53,6 +53,10 @@ Ext.onReady(function () {
         {
             name: 'Yfn',
             path: '../../apps/yfn/src'
+        },
+        {
+            name: 'Apr',
+            path: '../../apps/apr/src'
         }
 
     ];
