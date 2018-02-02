@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -171,6 +172,13 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
         return new UpdatedDeviceCache(deviceIdentifier);
+    }
+
+    @Override
+    public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceCache) {
+        UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
+        updatedDeviceCache.setCollectedDeviceCache(deviceCache);
+        return updatedDeviceCache;
     }
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
