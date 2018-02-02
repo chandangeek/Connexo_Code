@@ -103,8 +103,10 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     private void doSetCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) throws IOException {
         this.csr = csr.getEncoded();
 
-        setSubject(csr.getSubject().toString());
-        setKeyUsagesCsv(stringifyKeyUsages(keyUsages,extendedKeyUsages));
+        String keyUsagesCsv = stringifyKeyUsages(keyUsages, extendedKeyUsages);
+        if (keyUsagesCsv != null && !"".equalsIgnoreCase(keyUsagesCsv)) {
+            setKeyUsagesCsv(stringifyKeyUsages(keyUsages, extendedKeyUsages));
+        }
     }
 
     @Override
