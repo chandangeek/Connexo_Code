@@ -62,7 +62,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 public class DataPushNotificationParser {
 
     private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+
     protected final ObisCode logbookObisCode;
     private final InboundDiscoveryContext context;
     protected final CollectedDataFactory collectedDataFactory;
@@ -172,22 +172,20 @@ public class DataPushNotificationParser {
         inboundFrame.get(invokeIdAndPriority);
 
         //2. date-time
-        int dateTimeAxdrLength = DLMSUtils.getAXDRLength(inboundFrame.array(), inboundFrame.position());
-        inboundFrame.get(new byte[DLMSUtils.getAXDRLengthOffset(dateTimeAxdrLength)]); // Increment ByteBuffer position
+        final int dateTimeAxdrLength = DLMSUtils.getAXDRLength(inboundFrame.array(), inboundFrame.position());
+        final int dateTimeLengthSize = DLMSUtils.getAXDRLengthOffset(dateTimeAxdrLength);
 
-        byte[] octetString = new byte[dateTimeAxdrLength];
-        inboundFrame.get(octetString);
-        Date dateTime = parseDateTime(new OctetString(octetString));
+        // ... and as we're not even using this, just position the buffer index in front of the body.
+        inboundFrame.position(inboundFrame.position() + dateTimeLengthSize + dateTimeAxdrLength);
 
         //3. notification-body
-        Structure structure;
         try {
-            structure = AXDRDecoder.decode(inboundFrame.array(), inboundFrame.position(), Structure.class);
+            final Structure structure = AXDRDecoder.decode(inboundFrame.array(), inboundFrame.position(), Structure.class);
+
+            this.parseNotificationBody(structure);
         } catch (ProtocolException e) {
             throw DataParseException.ioException(e);
         }
-
-        parseNotificationBody(structure);
     }
 
     protected void parseNotificationBody(Structure structure) {
@@ -247,8 +245,8 @@ public class DataPushNotificationParser {
     protected void parseEncryptedFrame(ByteBuffer inboundFrame, DeviceIdentifier originDeviceIdentifier) {
         ByteBuffer decryptedFrame = getDecryptedPayload(inboundFrame, originDeviceIdentifier);
         byte plainTag = decryptedFrame.get();
-        if (plainTag != getCosemEventNotificationAPDUTag()) {
-            throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemEventNotificationAPDUTag()));
+        if (plainTag != DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST) {
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST));
         }
 
         parseAPDU(decryptedFrame);
@@ -277,6 +275,10 @@ public class DataPushNotificationParser {
         securityProperties.addProperties(getSecurityPropertySet(originDeviceIdentified).getSecurityProperties());
 
         DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
+       /* TypedProperties comChannelProperties = TypedProperties.empty();
+        comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
+        dummyComChannel.addProperties(comChannelProperties);*/
+
         DlmsSession dlmsSession = getNewInstanceOfDlmsSession(securityProperties, dummyComChannel);
         SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
         securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());
@@ -288,14 +290,6 @@ public class DataPushNotificationParser {
      */
     protected DlmsSession getNewInstanceOfDlmsSession(DlmsProperties securityProperties, DummyComChannel dummyComChannel) {
         return new DlmsSession(dummyComChannel, securityProperties);
-    }
-
-    protected byte getCosemEventNotificationAPDUTag() {
-        return DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
-    }
-
-    protected byte getCosemDataNotificationAPDUTag() {
-        return DLMSCOSEMGlobals.COSEM_DATANOTIFICATIONREQUEST;
     }
 
     protected void parseRegisters(Structure structure) {

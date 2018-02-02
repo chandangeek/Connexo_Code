@@ -116,8 +116,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
      * - event notification frame secured with general signing (tag 0xDF GENERAL_SIGNING)
      * <p/>
      * Not supported:
-     * - ded-event-notification-request (tag 0xCA DED_EVENTNOTIFICATION_REQUEST) because we don't have a dedicated session key available
-     * - glo-event-notification-request (tag 0xD2 GLO_EVENTNOTIFICATION_REQUEST) because it does not contain a system-title to identify the device
+     * - ded-event-notification-request (tag 0xD2 DED_EVENTNOTIFICATION_REQUEST) because we don't have a dedicated session key available
+     * - glo-event-notification-request (tag 0xCA GLO_EVENTNOTIFICATION_REQUEST) because it does not contain a system-title to identify the device
      */
     public void readAndParseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
@@ -163,7 +163,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalGlobalResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame;
+        ByteBuffer decryptedFrame = null;
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
         } catch (DLMSConnectionException e) {
@@ -183,7 +183,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalCipheredResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame;
+        ByteBuffer decryptedFrame = null;
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
         } catch (DLMSConnectionException e) {
@@ -329,7 +329,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         Date dateTime = parseDateTime(new OctetString(octetString));
 
         /* notification-body*/
-        Structure structure;
+        Structure structure = null;
         try {
             structure = AXDRDecoder.decode(inboundFrame.array(), inboundFrame.position(), 1, Structure.class);
         } catch (ProtocolException e) {
@@ -423,7 +423,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     protected void parseEncryptedFrame(ByteBuffer inboundFrame, DeviceIdentifier originDeviceIdentifier) {
         ByteBuffer decryptedFrame = getDecryptedPayload(inboundFrame, originDeviceIdentifier);
         byte plainTag = decryptedFrame.get();
-        if (plainTag == getCosemDataNotificationAPDUTag()) {
+        if (plainTag == DLMSCOSEMGlobals.COSEM_DATANOTIFICATIONREQUEST) {
             parseDataNotificationAPDU(decryptedFrame);
         } else {
             super.parseEncryptedFrame(inboundFrame, originDeviceIdentifier);

@@ -35,16 +35,6 @@ import java.util.logging.Level;
 public class Beacon3100PushEventNotification extends PushEventNotification {
 
     /**
-     * The obiscode of the logbook to store the received events in
-     * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
-     */
-    protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
-    protected final PropertySpecService propertySpecService;
-    private final CollectedDataFactory collectedDataFactory;
-    protected boolean provideProtocolJavaClasName = true;
-
-    /**
      * JSON keys for PLC_G3_REGISTER_NODE event
      */
     public static final String JSON_METER_IDENTIFIER = "MeterIdentifier";
@@ -53,21 +43,28 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     public static final String JSON_SAP_IPV_6 = "SAP_IPV6";
     public static final String JSON_SAP_IPV_4 = "SAP_IPV4";
     public static final String JSON_SAP_802_15_4_ID = "SAP_802_15_4_ID";
-
+    public enum TopologyAction {
+        REMOVE,
+        ADD;
+    }
+    /**
+     * The obiscode of the logbook to store the received events in
+     * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
+     */
+    protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    private static final int PLC_G3_REGISTER_NODE = 0xC2;
+    private static final int PLC_G3_UNREGISTER_NODE = 0xC3;
+    private static final int PLC_G3_NODE_LINK_LOST = 0xCB;
+    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
+    protected boolean provideProtocolJavaClasName = true;
     /**
      * Used to pass back any topology changes observed during push notifications
      */
     protected CollectedTopology collectedTopology;
 
-    private static final int PLC_G3_REGISTER_NODE = 0xC2;
-    private static final int PLC_G3_UNREGISTER_NODE = 0xC3;
-    private static final int PLC_G3_NODE_LINK_LOST = 0xCB;
-    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
-
-    public enum TopologyAction {
-        REMOVE,
-        ADD
-    }
+    protected final PropertySpecService propertySpecService;
+    private final CollectedDataFactory collectedDataFactory;
 
     public Beacon3100PushEventNotification(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
@@ -195,8 +192,28 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             case REMOVE:
                 deviceTopology.addLostSlaveDevice(slaveDeviceIdentified);
                 break;
-
         }
+
+        return deviceTopology;
+    }
+    /**
+    * Generates when node successfully joins the PAN.
+    */
+    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
+        String message = receivedEvent.getMessage();
+
+        if (message == null || message.isEmpty()) {
+            return null;
+        }
+
+        CollectedTopology deviceTopology = null;
+
+        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
+        if (deviceTopology != null) {
+            return deviceTopology;
+        }
+
+        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
 
         return deviceTopology;
     }
@@ -226,9 +243,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             return null;
         }
 
-
         DeviceIdentifier slaveDeviceIdentifier = null;
-
 
         if (json.has(JSON_METER_IDENTIFIER)) {
             String meterIdentifier = json.get(JSON_METER_IDENTIFIER).toString();
@@ -259,7 +274,6 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             }
         }
 
-
         if (json.has(JSON_SAP_DLMS_MIR)) {
             int SAP_DLMS_MIR = getJsonInt(json, JSON_SAP_DLMS_MIR);
             if (SAP_DLMS_MIR > 0) {
@@ -281,7 +295,6 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
                 );
             }
         }
-
 
         if (json.has(JSON_SAP_IPV_4)) {
             String SAP_IPV4 = json.getString(JSON_SAP_IPV_4);
@@ -316,46 +329,12 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return deviceTopology;
     }
 
-    private int getJsonInt(JSONObject json, String key) throws JSONException {
-        String value = json.getString(key);
-        if (value.contains("0x")) {
-            return Integer.parseInt(value.replace("0x", ""), 16);
-        } else {
-            return Integer.parseInt(value);
-        }
-    }
-
-    private BigDecimal getNow() {
-        long mills = new Date().getTime();
-        return BigDecimal.valueOf(mills);
-    }
-
-
-    /**
-     * Generates when node successfully joins the PAN.
-     */
-    public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
-        String message = receivedEvent.getMessage();
-
-        if (message == null || message.isEmpty()) {
-            return null;
-        }
-
-        CollectedTopology deviceTopology = null;
-
-        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
-        if (deviceTopology != null) {
-            return deviceTopology;
-        }
-
-        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
-
-        return deviceTopology;
-    }
-
     /**
      * Decode an event received from an Beacon 1.10, in the format:
      * Node [0223:7EFF:FEFD:A955] [0x0056] has registered on the network
+     *
+     * @param message
+     * @return
      */
     private CollectedTopology extractRegisterEventBeacon10(String message) {
         if (!message.startsWith("Node [")) {
@@ -370,6 +349,19 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return extractNodeInformation(macAddress, TopologyAction.ADD);
     }
 
+    private int getJsonInt(JSONObject json, String key) throws JSONException {
+        String value = json.getString(key);
+        if (value.contains("0x")) {
+            return Integer.parseInt(value.replace("0x", ""), 16);
+        } else {
+            return Integer.parseInt(value);
+        }
+    }
+
+    private BigDecimal getNow() {
+        long mills = new Date().getTime();
+        return BigDecimal.valueOf(mills);
+    }
 
     @Override
     public List<CollectedData> getCollectedData() {
@@ -380,6 +372,5 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
         return collectedData;
     }
-
 
 }

@@ -1,15 +1,16 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
@@ -25,6 +26,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
 public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     private final boolean provideProtocolJavaClasName;
+    private InboundDiscoveryContext context;
 
     public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, boolean provideProtocolJavaClasName) {
         super(deviceIdentifier);
@@ -32,11 +34,28 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
+        this.context = context;
         return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getKeyAccessorTypeExtractor(), context.getDeviceExtractor());
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
         return ((Beacon3100) gatewayProtocol).getDlmsSession();
+    }
+
+    /**
+     * After that the PSKs have been provided, make sure to update the device cache since it can contain the FC
+     */
+    @Override
+    protected void clearInstancesAndStoreCache() {
+        try {
+            if (this.gatewayProtocol != null) {
+                DeviceProtocolCache deviceCache = gatewayProtocol.getDeviceCache();
+                CollectedDeviceCache collectedDeviceCache = context.getCollectedDataFactory().createCollectedDeviceCache(getDeviceIdentifier(), deviceCache);
+                getCollectedDataList().add(collectedDeviceCache);
+            }
+        } finally {
+            super.clearInstancesAndStoreCache();
+        }
     }
 
     /**

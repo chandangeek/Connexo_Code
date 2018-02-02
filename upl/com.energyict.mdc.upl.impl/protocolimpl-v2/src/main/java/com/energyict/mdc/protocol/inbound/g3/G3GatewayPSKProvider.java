@@ -1,22 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.upl.io.ConnectionType;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -25,6 +8,21 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ConnectionSetupException;
@@ -35,11 +33,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +48,8 @@ public class G3GatewayPSKProvider {
     protected ComChannel tcpComChannel;
 
     private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<>());
-    private DeviceProtocol gatewayProtocol = null;
+    protected DeviceProtocol gatewayProtocol = null;
+    private List<CollectedData> collectedData = new ArrayList<>();
 
     public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
@@ -116,10 +111,14 @@ public class G3GatewayPSKProvider {
                     this.tcpComChannel.close();
                 }
             } finally {
-                this.gatewayProtocol = null;
-                this.tcpComChannel = null;
+                clearInstancesAndStoreCache();
             }
         }
+    }
+
+    protected void clearInstancesAndStoreCache() {
+        this.gatewayProtocol = null;
+        this.tcpComChannel = null;
     }
 
     /**
@@ -147,8 +146,7 @@ public class G3GatewayPSKProvider {
                 this.tcpComChannel.close();
             }
         } finally {
-            this.gatewayProtocol = null;
-            this.tcpComChannel = null;
+            clearInstancesAndStoreCache();
         }
     }
 
@@ -177,6 +175,7 @@ public class G3GatewayPSKProvider {
         TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.mdc.upl.TypedProperties.empty() : deviceProtocolProperties;
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getDeviceDialectProperties(getDeviceIdentifier()).orElseGet(com.energyict.mdc.upl.TypedProperties::empty);
+        addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         DeviceProtocolCache deviceCache = offlineDevice.getDeviceProtocolCache();
@@ -193,6 +192,18 @@ public class G3GatewayPSKProvider {
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
         return new RtuPlusServer(context.getCollectedDataFactory(), context.getIssueFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getMessageFileExtractor(), context.getDeviceGroupExtractor(), context.getDeviceExtractor(), context.getKeyAccessorTypeExtractor());
+    }
+
+    /**
+     * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
+     */
+    private void addDefaultValuesIfNecessary(DeviceProtocol gatewayProtocol, TypedProperties dialectProperties) {
+        DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
+        for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
     }
 
     private void createTcpComChannel(InboundDiscoveryContext context) throws PropertyValidationException {
@@ -309,6 +320,10 @@ public class G3GatewayPSKProvider {
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             return null;
         }
+    }
+
+    public List<CollectedData> getCollectedDataList() {
+        return collectedData;
     }
 
 }

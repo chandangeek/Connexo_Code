@@ -66,6 +66,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             } catch (CommunicationException e) {
                 pskProvider.provideError(e.getMessage(), context);
             }
+            getCollectedData().addAll(pskProvider.getCollectedDataList());
         }
         return DiscoverResultType.DATA;
     }
