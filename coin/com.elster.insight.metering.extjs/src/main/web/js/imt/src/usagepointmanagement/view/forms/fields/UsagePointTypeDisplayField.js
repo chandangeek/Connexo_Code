@@ -11,7 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.UsagePointTypeDisplayFiel
             type;
 
         if (!Ext.isEmpty(value)) {
-            result = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').getById(value).get('displayName');
+            result = Ext.getStore('Imt.usagepointmanagement.store.AllUsagePointTypes').getById(value).get('displayName');
         }
 
         return result;

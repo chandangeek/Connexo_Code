@@ -30,6 +30,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.Periods',
         'Imt.usagepointmanagement.store.UsagePointTransitions',
         'Imt.usagepointmanagement.store.MeterRoles',
+        'Imt.usagepointmanagement.store.AllUsagePointTypes'
         //  'Imt.usagepointmanagement.store.AllMeterRoles'
     ],
 
@@ -47,7 +48,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             app = me.getApplication(),
             failure = callback.failure,
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
-            dependenciesCounter = 3,
+            dependenciesCounter = 4,
             onDependenciesLoad = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
@@ -61,6 +62,14 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function (records, operation, success) {
             if (success) {
                 usagePointTypes = records;
+                onDependenciesLoad();
+            } else {
+                failure();
+            }
+        });
+
+        me.getStore('Imt.usagepointmanagement.store.AllUsagePointTypes').load(function (records, operation, success) {
+            if (success) {
                 onDependenciesLoad();
             } else {
                 failure();
