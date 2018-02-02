@@ -103,7 +103,7 @@ public class DataExportTaskHistoryInfoFactory {
 
     public DataExportTaskHistoryInfo asInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence) {
         DataExportTaskHistoryInfo info = new DataExportTaskHistoryInfo();
-        Instant versionAt = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
+        Instant versionAt = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getStartDate().get());
         populateMinimalInfo(info, dataExportOccurrence);
         ExportTask version = history.getVersionAt(versionAt)
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
