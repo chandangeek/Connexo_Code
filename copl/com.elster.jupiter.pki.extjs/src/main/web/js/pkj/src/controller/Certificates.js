@@ -356,7 +356,7 @@ Ext.define('Pkj.controller.Certificates', {
 
     obsoleteCertificate: function (menuItem) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.confirm', 'PKJ', 'Confirm')}),
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.confirm.obsolete', 'PKJ', 'Mark as obsolete')}),
             certificateRecord = menuItem.up('certificate-action-menu').record;
 
         Ext.Ajax.request({
@@ -366,44 +366,38 @@ Ext.define('Pkj.controller.Certificates', {
                 if (!Ext.isEmpty(response.responseText)) {
                     var responseObject = JSON.parse(response.responseText);
 
-                    var accessors, directories, importers, devices;
-                    accessors = devices = directories = importers = 'None';
+                    var messageConstructed = Uni.I18n.translate('certificate.obsolete.confirm.title', 'PKJ', 'Certificate is still used by the following objects') + ':<br/><ul>';
 
                     if (responseObject.securityAccessors.length !== 0) {
-                        accessors = responseObject.securityAccessors.join(', ');
+                        var accessors = Uni.I18n.translate('certificate.obsolete.confirm.accessors', 'PKJ', 'Security accessors');
+                        var accessorList = responseObject.securityAccessors.join(', ');
+                        messageConstructed += '<li><b>' + accessors + ':</b> ' + accessorList + '</li>';
                     }
                     if (responseObject.devices.length !== 0) {
-                        devices = responseObject.devices.join(', ');
-                    }
-                    if (responseObject.userDirectories.length !== 0) {
-                        directories = responseObject.userDirectories.join(', ');
+                        var devices = Uni.I18n.translate('certificate.obsolete.confirm.devices', 'PKJ', 'Devices');
+                        var deviceList = responseObject.devices.join(', ');
+                        messageConstructed += '<li><b>' + devices + ':</b> ' + deviceList + '</li>';
                     }
                     if (responseObject.importers.length !== 0) {
-                        importers = responseObject.importers.join(', ');
+                        var importers = Uni.I18n.translate('certificate.obsolete.confirm.importers', 'PKJ', 'Import services');
+                        var importerList = responseObject.importers.join(', ');
+                        messageConstructed += '<li><b>' + importers + ':</b> ' + importerList + '</li>';
+                    }
+                    if (responseObject.userDirectories.length !== 0) {
+                        var directories = Uni.I18n.translate('certificate.obsolete.confirm.directories', 'PKJ', 'User directories');
+                        var directoryList = responseObject.userDirectories.join(', ');
+                        messageConstructed += '<li><b>' + directories + ':</b> ' + directoryList + '</li>';
                     }
 
-                    var messageTemplate = '{0}:<br/>' +
-                        '<ul>' +
-                        '<li><b>{1}:</b> {2}</li>' +
-                        '<li><b>{3}:</b> {4}</li>' +
-                        '<li><b>{5}:</b> {6}</li>' +
-                        '<li><b>{7}:</b> {8}</li>' +
-                        '</ul>';
-
-                    var confirmationText = Ext.String.format(messageTemplate,
-                        Uni.I18n.translate('certificate.obsolete.confirm.title', 'PKJ', 'Certificate is still used by the following objects'),
-                        Uni.I18n.translate('certificate.obsolete.confirm.accessors', 'PKJ', 'Security accessors'), accessors,
-                        Uni.I18n.translate('certificate.obsolete.confirm.devices', 'PKJ', 'Devices'), devices,
-                        Uni.I18n.translate('certificate.obsolete.confirm.importers', 'PKJ', 'Import services'), importers,
-                        Uni.I18n.translate('certificate.obsolete.confirm.directories', 'PKJ', 'User directories'), directories);
+                    messageConstructed += '</ul>' + Uni.I18n.translate('certificate.obsolete.confirm.question', 'PKJ', 'Do you want to mark it as obsolete?');
 
                     confirmationWindow.insert(1,
                         {
                             xtype: 'displayfield',
                             itemId: 'obsolete-confirmation-field',
-                            value: confirmationText,
+                            value: messageConstructed,
                             htmlEncode: false,
-                            margin: '-15 0 25 50'
+                            margin: '-15 0 10 50'
                         }
                     );
 
