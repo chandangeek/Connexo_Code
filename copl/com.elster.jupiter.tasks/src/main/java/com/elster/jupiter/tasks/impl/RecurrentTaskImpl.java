@@ -174,7 +174,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     TaskOccurrenceImpl createAdHocTaskOccurrence(TaskOccurrence taskOccurrence) {
         TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createRetryAdHoc(dataModel, this, clock.instant(),
-                taskOccurrence.getRetryTime().isPresent() ? taskOccurrence.getRetryTime().get() : taskOccurrence.getTriggerTime(),
+                taskOccurrence.getRetryTime().isPresent() ? taskOccurrence.getRetryTime().get() : taskOccurrence.getStartDate().get(),
                 taskOccurrence.getAdhocTime().isPresent() ? taskOccurrence.getAdhocTime().get() : null);
         occurrence.save();
         return occurrence;

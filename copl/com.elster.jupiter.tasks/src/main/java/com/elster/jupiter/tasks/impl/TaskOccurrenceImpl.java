@@ -199,6 +199,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         this.triggerTime = triggerTime;
         this.retryTime = retryTime;
         this.adhocTime = adhocTime;
+        this.startDate = clock.instant();
         return this;
     }
 
@@ -207,6 +208,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         this.recurrentTaskId = recurrentTask.getId();
         this.triggerTime = triggerTime;
         this.adhocTime = adhocTime;
+        this.startDate = clock.instant();
         return this;
     }
 
