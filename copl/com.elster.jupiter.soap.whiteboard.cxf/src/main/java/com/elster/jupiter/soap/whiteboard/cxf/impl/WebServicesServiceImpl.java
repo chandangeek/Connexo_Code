@@ -300,8 +300,11 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
             logDirectory=logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
-        upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
-                Installer.class, V10_4SimpleUpgrader.V10_4_UPGRADER);
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                V10_4SimpleUpgrader.V10_4_UPGRADER);
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
         BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");
