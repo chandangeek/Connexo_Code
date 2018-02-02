@@ -263,6 +263,21 @@ public class MeteringFieldResource {
         return PagedInfoList.fromCompleteList("usagePointTypes", infos, queryParameters);
     }
 
+
+    @GET
+    @Path("/allusagepointtype")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getAllUsagePointType(@BeanParam JsonQueryParameters queryParameters) {
+        List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values())
+                .map(t -> new UsagePointTypeInfo(t, thesaurus))
+                .collect(Collectors.toList());
+        infos.sort((type1, type2) -> type1.displayName.compareTo(type2.displayName));
+        return PagedInfoList.fromCompleteList("usagePointTypes", infos, queryParameters);
+    }
+
+
     @GET
     @Path("/metrologyconfigurations")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
