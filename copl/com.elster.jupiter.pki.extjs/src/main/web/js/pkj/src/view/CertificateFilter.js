@@ -54,6 +54,15 @@ Ext.define('Pkj.view.CertificateFilter', {
                 store: 'Pkj.store.CertificateSubjects'
             },
             {
+                type: 'combobox',
+                dataIndex: 'status',
+                emptyText: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
+                multiSelect: true,
+                displayField: 'status',
+                valueField: 'status',
+                store: 'Pkj.store.CertificateStatuses'
+            },
+            {
                 type: 'interval',
                 dataIndex: 'interval',
                 dataIndexFrom: 'intervalFrom',
