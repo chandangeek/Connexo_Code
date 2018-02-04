@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<xs:schema xmlns="http://langdale.com.au/2005/Message#"
+           xmlns:m="http://iec.ch/TC57/2011/UsagePointConfig#"
+           xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cas="http://connexo.elster.com/2017/schema/customattributes"
+           targetNamespace="http://iec.ch/TC57/2011/UsagePointConfig#" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:import namespace="http://connexo.elster.com/2017/schema/customattributes"
+               schemaLocation="CustomAttributes.xsd"/>
+    <xs:element name="UsagePointConfig" type="m:UsagePointConfig"/>
+    <xs:complexType name="UsagePointConfig">
+        <xs:sequence>
+            <xs:element name="ReadingType" type="m:ReadingType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="UsagePoint" type="m:UsagePoint" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="AmiBillingReadyKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#AmiBillingReadyKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="amiCapable"/>
+            <xs:enumeration value="amiDisabled"/>
+            <xs:enumeration value="billingApproved"/>
+            <xs:enumeration value="enabled"/>
+            <xs:enumeration value="nonAmi"/>
+            <xs:enumeration value="nonMetered"/>
+            <xs:enumeration value="operable"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="ConfigurationEvent" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ConfigurationEvent">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="createdDateTime" type="xs:dateTime" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.createdDateTime"/>
+            <xs:element name="effectiveDateTime" type="xs:dateTime" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ConfigurationEvent.effectiveDateTime"/>
+            <xs:element name="modifiedBy" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ConfigurationEvent.modifiedBy"/>
+            <xs:element name="reason" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.reason"/>
+            <xs:element name="remark" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ConfigurationEvent.remark"/>
+            <xs:element name="severity" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.severity"/>
+            <xs:element name="type" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.type"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+            <xs:element name="status" type="m:Status" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivityRecord.status"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="MetrologyRequirement" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="reason" type="m:ReadingReasonKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement.reason"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+            <xs:element name="ReadingTypes" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement.ReadingTypes">
+                <xs:complexType sawsdl:modelReference="">
+                    <xs:attribute name="ref" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Name" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.name"/>
+            <xs:element name="NameType" type="m:NameType" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.NameType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="NameType" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.description"/>
+            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.name"/>
+            <xs:element name="NameTypeAuthority" type="m:NameTypeAuthority" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.NameTypeAuthority"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="NameTypeAuthority" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.description"/>
+            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.name"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="PhaseCode" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#PhaseCode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="A"/>
+            <xs:enumeration value="AB"/>
+            <xs:enumeration value="ABC"/>
+            <xs:enumeration value="ABCN"/>
+            <xs:enumeration value="ABN"/>
+            <xs:enumeration value="AC"/>
+            <xs:enumeration value="ACN"/>
+            <xs:enumeration value="AN"/>
+            <xs:enumeration value="B"/>
+            <xs:enumeration value="BC"/>
+            <xs:enumeration value="BCN"/>
+            <xs:enumeration value="BN"/>
+            <xs:enumeration value="C"/>
+            <xs:enumeration value="CN"/>
+            <xs:enumeration value="N"/>
+            <xs:enumeration value="s1"/>
+            <xs:enumeration value="s12"/>
+            <xs:enumeration value="s12N"/>
+            <xs:enumeration value="s1N"/>
+            <xs:enumeration value="s2"/>
+            <xs:enumeration value="s2N"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="PricingStructure" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#PricingStructure">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="code" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#PricingStructure.code"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="RationalNumber" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#RationalNumber">
+        <xs:sequence>
+            <xs:element name="denominator" type="xs:integer" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#RationalNumber.denominator"/>
+            <xs:element name="numerator" type="xs:integer" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#RationalNumber.numerator"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ReadingInterharmonic" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingInterharmonic">
+        <xs:sequence>
+            <xs:element name="denominator" type="xs:integer" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingInterharmonic.denominator"/>
+            <xs:element name="numerator" type="xs:integer" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingInterharmonic.numerator"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="ReadingReasonKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingReasonKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="billing"/>
+            <xs:enumeration value="demandReset"/>
+            <xs:enumeration value="inquiry"/>
+            <xs:enumeration value="installation"/>
+            <xs:enumeration value="loadManagement"/>
+            <xs:enumeration value="loadResearch"/>
+            <xs:enumeration value="moveIn"/>
+            <xs:enumeration value="moveOut"/>
+            <xs:enumeration value="other"/>
+            <xs:enumeration value="removal"/>
+            <xs:enumeration value="serviceConnect"/>
+            <xs:enumeration value="serviceDisconnect"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="ReadingType" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="accumulation" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.accumulation"/>
+            <xs:element name="aggregate" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.aggregate"/>
+            <xs:element name="commodity" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.commodity"/>
+            <xs:element name="consumptionTier" type="xs:integer" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.consumptionTier"/>
+            <xs:element name="cpp" type="xs:integer" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.cpp"/>
+            <xs:element name="currency" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.currency"/>
+            <xs:element name="flowDirection" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.flowDirection"/>
+            <xs:element name="macroPeriod" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.macroPeriod"/>
+            <xs:element name="measurementKind" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.measurementKind"/>
+            <xs:element name="measuringPeriod" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.measuringPeriod"/>
+            <xs:element name="multiplier" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.multiplier"/>
+            <xs:element name="phases" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.phases"/>
+            <xs:element name="tou" type="xs:integer" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.tou"/>
+            <xs:element name="unit" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.unit"/>
+            <xs:element name="argument" type="m:RationalNumber" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.argument"/>
+            <xs:element name="interharmonic" type="m:ReadingInterharmonic" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.interharmonic"/>
+            <xs:element name="Names" type="m:Name" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ServiceCategory" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceCategory">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="kind" type="m:ServiceKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceCategory.kind"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="ServiceKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="electricity"/>
+            <xs:enumeration value="gas"/>
+            <xs:enumeration value="heat"/>
+            <xs:enumeration value="internet"/>
+            <xs:enumeration value="other"/>
+            <xs:enumeration value="rates"/>
+            <xs:enumeration value="refuse"/>
+            <xs:enumeration value="sewerage"/>
+            <xs:enumeration value="time"/>
+            <xs:enumeration value="tvLicence"/>
+            <xs:enumeration value="water"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="ServiceLocation" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceLocation">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ServiceMultiplier" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="kind" type="m:ServiceMultiplierKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier.kind"/>
+            <xs:element name="value" type="xs:float" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier.value"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="ServiceMultiplierKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplierKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ctRatio"/>
+            <xs:enumeration value="ptRatio"/>
+            <xs:enumeration value="transformerRatio"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="ServiceSupplier" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceSupplier">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="kind" type="m:SupplierKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceSupplier.kind"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Status" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status">
+        <xs:sequence>
+            <xs:element name="dateTime" type="xs:dateTime" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status.dateTime"/>
+            <xs:element name="reason" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status.reason"/>
+            <xs:element name="remark" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status.remark"/>
+            <xs:element name="value" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status.value"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="SupplierKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#SupplierKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="other"/>
+            <xs:enumeration value="retailer"/>
+            <xs:enumeration value="utility"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="TransformerTank" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#TransformerTank">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="UsagePoint" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="amiBillingReady" type="m:AmiBillingReadyKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.amiBillingReady"/>
+            <xs:element name="checkBilling" type="xs:boolean" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.checkBilling"/>
+            <xs:element name="connectionState" type="m:UsagePointConnectedKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.connectionState"/>
+            <xs:element name="estimatedLoad" type="m:CurrentFlow" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.estimatedLoad"/>
+            <xs:element name="grounded" type="xs:boolean" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.grounded"/>
+            <xs:element name="isSdp" type="xs:boolean" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.isSdp"/>
+            <xs:element name="isVirtual" type="xs:boolean" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.isVirtual"/>
+            <xs:element name="minimalUsageExpected" type="xs:boolean" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.minimalUsageExpected"/>
+            <xs:element name="nominalServiceVoltage" type="m:Voltage" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.nominalServiceVoltage"/>
+            <xs:element name="outageRegion" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.outageRegion"/>
+            <xs:element name="phaseCode" type="m:PhaseCode" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.phaseCode"/>
+            <xs:element name="ratedCurrent" type="m:CurrentFlow" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ratedCurrent"/>
+            <xs:element name="ratedPower" type="m:ActivePower" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ratedPower"/>
+            <xs:element name="readCycle" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.readCycle"/>
+            <xs:element name="readRoute" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.readRoute"/>
+            <xs:element name="serviceDeliveryRemark" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.serviceDeliveryRemark"/>
+            <xs:element name="servicePriority" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.servicePriority"/>
+            <xs:element name="ConfigurationEvents" type="m:ConfigurationEvent" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ConfigurationEvents"/>
+            <xs:element name="Equipments" type="m:TransformerTank" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.Equipments"/>
+            <xs:element name="MetrologyRequirements" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.MetrologyRequirements">
+                <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement">
+                    <xs:sequence>
+                        <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+                        <xs:element name="reason" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement.reason">
+                            <xs:simpleType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingReasonKind">
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="billing"/>
+                                    <xs:enumeration value="demandReset"/>
+                                    <xs:enumeration value="inquiry"/>
+                                    <xs:enumeration value="installation"/>
+                                    <xs:enumeration value="loadManagement"/>
+                                    <xs:enumeration value="loadResearch"/>
+                                    <xs:enumeration value="moveIn"/>
+                                    <xs:enumeration value="moveOut"/>
+                                    <xs:enumeration value="other"/>
+                                    <xs:enumeration value="removal"/>
+                                    <xs:enumeration value="serviceConnect"/>
+                                    <xs:enumeration value="serviceDisconnect"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="Names" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names">
+                            <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name">
+                                <xs:sequence>
+                                    <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.name"/>
+                                    <xs:element name="NameType" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.NameType">
+                                        <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType">
+                                            <xs:sequence>
+                                                <xs:element name="description" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.description"/>
+                                                <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.name"/>
+                                                <xs:element name="NameTypeAuthority" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.NameTypeAuthority">
+                                                    <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority">
+                                                        <xs:sequence>
+                                                            <xs:element name="description" type="xs:string" minOccurs="0"
+                                                                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.description"/>
+                                                            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.name"/>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="ReadingTypes" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#MetrologyRequirement.ReadingTypes">
+                            <xs:complexType sawsdl:modelReference="">
+                                <xs:attribute name="ref" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+            <xs:element name="PricingStructures" type="m:PricingStructure" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.PricingStructures"/>
+            <xs:element name="ServiceCategory" type="m:ServiceCategory" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ServiceCategory"/>
+            <xs:element name="ServiceLocation" type="m:ServiceLocation" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ServiceLocation"/>
+            <xs:element name="ServiceMultipliers" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ServiceMultipliers">
+                <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier">
+                    <xs:sequence>
+                        <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+                        <xs:element name="kind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier.kind">
+                            <xs:simpleType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplierKind">
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="ctRatio"/>
+                                    <xs:enumeration value="ptRatio"/>
+                                    <xs:enumeration value="transformerRatio"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="value" type="xs:float" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ServiceMultiplier.value"/>
+                        <xs:element name="Names" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names">
+                            <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name">
+                                <xs:sequence>
+                                    <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.name"/>
+                                    <xs:element name="NameType" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.NameType">
+                                        <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType">
+                                            <xs:sequence>
+                                                <xs:element name="description" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.description"/>
+                                                <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.name"/>
+                                                <xs:element name="NameTypeAuthority" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameType.NameTypeAuthority">
+                                                    <xs:complexType sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority">
+                                                        <xs:sequence>
+                                                            <xs:element name="description" type="xs:string" minOccurs="0"
+                                                                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.description"/>
+                                                            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#NameTypeAuthority.name"/>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ServiceSupplier" type="m:ServiceSupplier" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.ServiceSupplier"/>
+            <xs:element name="UsagePointLocation" type="m:UsagePointLocation" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePoint.UsagePointLocation"/>
+            <!-- Below elements added for Connexo -->
+            <xs:element name="status" type="m:Status" minOccurs="0"/>
+            <xs:element name="CustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>This can contain custom information.</xs:documentation>
+                </xs:annotation>
+            </xs:any>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="UsagePointConnectedKind" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePointConnectedKind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="connected"/>
+            <xs:enumeration value="logicallyDisconnected"/>
+            <xs:enumeration value="physicallyDisconnected"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="UsagePointLocation" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#UsagePointLocation">
+        <xs:sequence>
+            <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>
+            <xs:element name="Names" type="m:Name" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="Voltage" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Voltage">
+        <xs:restriction base="xs:float"/>
+    </xs:simpleType>
+    <xs:simpleType name="CurrentFlow" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#CurrentFlow">
+        <xs:restriction base="xs:float"/>
+    </xs:simpleType>
+    <xs:simpleType name="ActivePower" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ActivePower">
+        <xs:restriction base="xs:float"/>
+    </xs:simpleType>
+</xs:schema>

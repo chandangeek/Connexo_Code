@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<wsdl:definitions
+        name="ReplyMasterDataLinkageConfig"
+        targetNamespace="http://iec.ch/TC57/2011/ReplyMasterDataLinkageConfig"
+        xmlns:tns="http://iec.ch/TC57/2011/ReplyMasterDataLinkageConfig"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:infoMessage="http://iec.ch/TC57/2011/MasterDataLinkageConfigMessage">
+    <wsdl:types>
+        <xs:schema targetNamespace="http://iec.ch/TC57/2011/ReplyMasterDataLinkageConfig"
+                   elementFormDefault="qualified">
+            <xs:import
+                    namespace="http://iec.ch/TC57/2011/MasterDataLinkageConfigMessage"
+                    schemaLocation="xsd/MasterDataLinkageConfigMessage.xsd"/>
+        </xs:schema>
+    </wsdl:types>
+    <!-- Message Definitions -->
+    <wsdl:message name="CreatedMasterDataLinkageConfigEventMessage">
+        <wsdl:part name="CreatedMasterDataLinkageConfigEventMessage"
+                   element="infoMessage:CreatedMasterDataLinkageConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ChangedMasterDataLinkageConfigEventMessage">
+        <wsdl:part name="ChangedMasterDataLinkageConfigEventMessage"
+                   element="infoMessage:ChangedMasterDataLinkageConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ClosedMasterDataLinkageConfigEventMessage">
+        <wsdl:part name="ClosedMasterDataLinkageConfigEventMessage"
+                   element="infoMessage:ClosedMasterDataLinkageConfig"/>
+    </wsdl:message>
+    <wsdl:message name="CanceledMasterDataLinkageConfigEventMessage">
+        <wsdl:part name="CanceledMasterDataLinkageConfigEventMessage"
+                   element="infoMessage:CanceledMasterDataLinkageConfig"/>
+    </wsdl:message>
+    <wsdl:message name="DeletedMasterDataLinkageConfigEventMessage">
+        <wsdl:part name="DeletedMasterDataLinkageConfigEventMessage"
+                   element="infoMessage:DeletedMasterDataLinkageConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ResponseMessage">
+        <wsdl:part name="ResponseMessage"
+                   element="infoMessage:MasterDataLinkageConfigResponseMessage"/>
+    </wsdl:message>
+    <wsdl:message name="FaultMessage">
+        <wsdl:part name="FaultMessage"
+                   element="infoMessage:MasterDataLinkageConfigFaultMessage"/>
+    </wsdl:message>
+    <!-- Port Definitions -->
+    <wsdl:portType name="MasterDataLinkageConfig_Port">
+        <wsdl:operation name="CreatedMasterDataLinkageConfig">
+            <wsdl:input name="CreatedMasterDataLinkageConfigEvent"
+                        message="tns:CreatedMasterDataLinkageConfigEventMessage"/>
+            <wsdl:output name="CreatedMasterDataLinkageConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CreatedMasterDataLinkageConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ChangedMasterDataLinkageConfig">
+            <wsdl:input name="ChangedMasterDataLinkageConfigEvent"
+                        message="tns:ChangedMasterDataLinkageConfigEventMessage"/>
+            <wsdl:output name="ChangedMasterDataLinkageConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="ChangedMasterDataLinkageConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="CanceledMasterDataLinkageConfig">
+            <wsdl:input name="CanceledMasterDataLinkageConfigEvent"
+                        message="tns:CanceledMasterDataLinkageConfigEventMessage"/>
+            <wsdl:output name="CanceledMasterDataLinkageConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CanceledMasterDataLinkageConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ClosedMasterDataLinkageConfig">
+            <wsdl:input name="ClosedMasterDataLinkageConfigEvent"
+                        message="tns:ClosedMasterDataLinkageConfigEventMessage"/>
+            <wsdl:output name="ClosedMasterDataLinkageConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="ClosedMasterDataLinkageConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="DeletedMasterDataLinkageConfig">
+            <wsdl:input name="DeletedMasterDataLinkageConfigEvent"
+                        message="tns:DeletedMasterDataLinkageConfigEventMessage"/>
+            <wsdl:output name="DeletedMasterDataLinkageConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="DeletedMasterDataLinkageConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="MasterDataLinkageConfig_Binding"
+                  type="tns:MasterDataLinkageConfig_Port">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="CreatedMasterDataLinkageConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MasterDataLinkageConfig/CreatedMasterDataLinkageConfig" style="document"/>
+            <wsdl:input name="CreatedMasterDataLinkageConfigEvent">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CreatedMasterDataLinkageConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CreatedMasterDataLinkageConfigFault">
+                <soap:fault name="CreatedMasterDataLinkageConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ChangedMasterDataLinkageConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MasterDataLinkageConfig/ChangedMasterDataLinkageConfig" style="document"/>
+            <wsdl:input name="ChangedMasterDataLinkageConfigEvent">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="ChangedMasterDataLinkageConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="ChangedMasterDataLinkageConfigFault">
+                <soap:fault name="ChangedMasterDataLinkageConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CanceledMasterDataLinkageConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MasterDataLinkageConfig/CanceledMasterDataLinkageConfig" style="document"/>
+            <wsdl:input name="CanceledMasterDataLinkageConfigEvent">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CanceledMasterDataLinkageConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CanceledMasterDataLinkageConfigFault">
+                <soap:fault name="CanceledMasterDataLinkageConfigFault"
+                            use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ClosedMasterDataLinkageConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MasterDataLinkageConfig/ClosedMasterDataLinkageConfig" style="document"/>
+            <wsdl:input name="ClosedMasterDataLinkageConfigEvent">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="ClosedMasterDataLinkageConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="ClosedMasterDataLinkageConfigFault">
+                <soap:fault name="ClosedMasterDataLinkageConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="DeletedMasterDataLinkageConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MasterDataLinkageConfig/DeletedMasterDataLinkageConfig" style="document"/>
+            <wsdl:input name="DeletedMasterDataLinkageConfigEvent">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="DeletedMasterDataLinkageConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="DeletedMasterDataLinkageConfigFault">
+                <soap:fault name="DeletedMasterDataLinkageConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ReplyMasterDataLinkageConfig">
+        <wsdl:port name="MasterDataLinkageConfig_Port"
+                   binding="tns:MasterDataLinkageConfig_Binding">
+            <soap:address location="http://iec.ch/TC57/2011/ReplyMasterDataLinkageConfig"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

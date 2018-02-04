@@ -1,0 +1,89 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:met="http://iec.ch/TC57/2011/MeterConfigMessage" xmlns:mes="http://iec.ch/TC57/2011/schema/message" xmlns:met1="http://iec.ch/TC57/2011/MeterConfig#" xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <met:CreateMeterConfig>
+            <met:Header>
+                <mes:Verb>create</mes:Verb>
+                <mes:Noun>MeterConfig</mes:Noun>
+            </met:Header>
+            <met:Payload>
+                <met1:MeterConfig>
+                    <met1:Meter>
+                        <!-- Ignored since there's no API to create a device with a given MRID -->
+                        <met1:mRID>00000000-0000-0000-0000-00000000000f</met1:mRID>
+                        <!-- Optional -->
+                        <met1:lotNumber>batch</met1:lotNumber>
+                        <!-- Optional -->
+                        <met1:serialNumber>000001</met1:serialNumber>
+                        <!-- Required -->
+                        <met1:type>Actaris SL7000</met1:type>
+                        <!-- Ignored -->
+                        <met1:ConfigurationEvents>
+                            <met1:effectiveDateTime>2017-07-07T11:11:00+03:00</met1:effectiveDateTime>
+                            <met1:reason>Change Multiplier</met1:reason>
+                        </met1:ConfigurationEvents>
+                        <!-- Optional. For now ignored -->
+                        <met1:ComFunction/>
+                        <!-- Required -->
+                        <met1:SimpleEndDeviceFunction ref="123"/>
+                        <!-- Optional -->
+                        <met1:EndDeviceInfo>
+                            <met1:AssetModel>
+                                <!-- Optional -->
+                                <met1:modelNumber>1.0</met1:modelNumber>
+                                <!-- Optional -->
+                                <met1:modelVersion>2.0</met1:modelVersion>
+                                <!-- Optional -->
+                                <met1:Manufacturer>
+                                    <met1:Names>
+                                        <met1:name>manufacturer</met1:name>
+                                    </met1:Names>
+                                </met1:Manufacturer>
+                            </met1:AssetModel>
+                        </met1:EndDeviceInfo>
+                        <!-- Required -->
+                        <met1:lifecycle>
+                            <!-- Ignored -->
+                            <met1:installationDate>2017-07-05</met1:installationDate>
+                            <!-- Required -->
+                            <met1:receivedDate>2017-07-04</met1:receivedDate>
+                        </met1:lifecycle>
+                        <!-- Optional -->
+                        <!-- No multiplier => multiplier = 1 -->
+                        <!-- List of multipliers => only first one is processed -->
+                        <met1:MeterMultipliers>
+                            <met1:value>1</met1:value>
+                        </met1:MeterMultipliers>
+                        <!-- Optional -->
+                        <!-- No name => name = serial number -->
+                        <!-- No serial number => name = MRID -->
+                        <met1:Names>
+                            <met1:name>DNB-BA-000</met1:name>
+                        </met1:Names>
+                        <!-- Ignored -->
+                        <met1:status>
+                            <met1:value>In stock</met1:value>
+                        </met1:status>
+                        <!--You may enter ANY elements at this point-->
+                    </met1:Meter>
+                    <met1:Meter/>
+                    <!-- Ignored -->
+                    <met1:ReadingType>
+                        <met1:Names>
+                            <met1:name>?</met1:name>
+                        </met1:Names>
+                    </met1:ReadingType>
+                    <!-- Required -->
+                    <met1:SimpleEndDeviceFunction>
+                        <!-- Required -->
+                        <met1:mRID>123</met1:mRID>
+                        <!-- Required -->
+                        <met1:configID>Prosumers</met1:configID>
+                        <!-- Optional. For now ignored -->
+                        <met1:firmwareID>1.0</met1:firmwareID>
+                    </met1:SimpleEndDeviceFunction>
+                </met1:MeterConfig>
+            </met:Payload>
+        </met:CreateMeterConfig>
+    </soapenv:Body>
+</soapenv:Envelope>
