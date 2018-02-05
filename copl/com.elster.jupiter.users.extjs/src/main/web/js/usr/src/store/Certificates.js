@@ -12,7 +12,10 @@ Ext.define('Usr.store.Certificates', {
         reader: {
             type: 'json',
             root: 'certificates'
-        }
+        },
+        limitParam : undefined,
+        pageParam : undefined,
+        startParam : undefined
     }
 
 });
