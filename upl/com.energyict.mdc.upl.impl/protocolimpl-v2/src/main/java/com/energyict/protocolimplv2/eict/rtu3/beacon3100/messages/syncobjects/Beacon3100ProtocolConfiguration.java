@@ -7,12 +7,12 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
-import javafx.util.Duration;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -49,7 +49,7 @@ public class Beacon3100ProtocolConfiguration {
                 }
 
                 case TimeDuration: {
-                    typedValue = Duration.millis(Integer.parseInt(property.getValue()));
+                    typedValue = Duration.ofMillis(Integer.parseInt(property.getValue()));
                     break;
                 }
 
