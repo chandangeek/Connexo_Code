@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.cim.webservices.outbound.soap.impl;
+package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
-import com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.EndDeviceFactory;
+import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -46,7 +46,8 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
     private final ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory endDeviceConfigMessageObjectFactory = new ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory();
 
     private final List<EndDeviceConfigPort> stateEndDeviceConfigPortServices = new ArrayList<>();
-    private final EndDeviceFactory endDeviceFactory = new EndDeviceFactory();
+    private final List<EndDeviceConfigExtendedDataFactory> endDeviceConfigExtendedDataFactories = new ArrayList<>();
+    private final EndDeviceConfigDataFactory endDeviceConfigDataFactory = new EndDeviceConfigDataFactory();
 
     private volatile MeteringService meteringService;
 
@@ -78,6 +79,19 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         return Collections.unmodifiableList(this.stateEndDeviceConfigPortServices);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndDeviceConfigExtendedDataFactory(EndDeviceConfigExtendedDataFactory endDeviceConfigExtendedDataFactory) {
+        endDeviceConfigExtendedDataFactories.add(endDeviceConfigExtendedDataFactory);
+    }
+
+    public void removeEndDeviceConfigExtendedDataFactory(EndDeviceConfigExtendedDataFactory endDeviceConfigExtendedDataFactory) {
+        endDeviceConfigExtendedDataFactories.remove(endDeviceConfigExtendedDataFactory);
+    }
+
+    public List<EndDeviceConfigExtendedDataFactory> getEndDeviceConfigExtendedDataFactories() {
+        return Collections.unmodifiableList(this.endDeviceConfigExtendedDataFactories);
+    }
+
     @Override
     public Service get() {
         return new ReplyEndDeviceConfig(this.getClass().getResource(RESOURCE_WSDL));
@@ -98,12 +112,16 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         endPointConfigurations.forEach(endPointConfiguration -> {
             try {
                 stateEndDeviceConfigPortServices.stream()
-                        .filter(endDeviceConfigPort -> isServiceURL(endDeviceConfigPort, endPointConfiguration.getUrl()))
+                        .filter(endDeviceConfigPort -> isValidEndDeviceConfigService(endDeviceConfigPort, endPointConfiguration.getUrl()))
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
                             meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
                                 try {
-                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate)));
+                                    EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate);
+                                    endDeviceConfigExtendedDataFactories.forEach(endDeviceConfigExtendedDataFactory -> {
+                                        endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
+                                    });
+                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceConfig));
                                 } catch (FaultMessage faultMessage) {
                                     endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                                 }
@@ -137,7 +155,7 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         return endDeviceConfigEventMessageType;
     }
 
-    private boolean isServiceURL(EndDeviceConfigPort endDeviceConfigPort, String url) throws RuntimeException {
+    private boolean isValidEndDeviceConfigService(EndDeviceConfigPort endDeviceConfigPort, String url) throws RuntimeException {
         return url.contains((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS));
     }
 }

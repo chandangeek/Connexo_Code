@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class EndDeviceFactory {
+class EndDeviceConfigDataFactory {
 
     private enum DefaultState {
 
@@ -50,7 +50,7 @@ public class EndDeviceFactory {
         }
     }
 
-    public EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate) {
+    EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate) {
         EndDeviceConfig endDeviceConfig = new EndDeviceConfig();
         EndDevice cimEndDevice = createEndDevice(endDevice);
         cimEndDevice.setLifecycle(createLifecycleDate(endDevice));
