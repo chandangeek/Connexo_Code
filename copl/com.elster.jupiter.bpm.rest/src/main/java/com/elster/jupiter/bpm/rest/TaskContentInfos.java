@@ -27,6 +27,7 @@ public class TaskContentInfos {
     public String versionDB;
     public String processName;
     public String processVersion;
+    public List<BusinessObject> bulkBusinessObjects;
 
     public TaskContentInfos() {
     }
