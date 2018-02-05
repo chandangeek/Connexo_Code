@@ -659,7 +659,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         }
     },
 
-    CHANGE_PSK_USING_SERVICE_KEY(7072, "Change PSK using service key") {
+    CHANGE_PSK_USING_SERVICE_KEY(7073, "Change PSK using service key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
