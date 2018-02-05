@@ -9,6 +9,9 @@ Ext.define('Mdc.securityaccessors.store.UnusedSecurityAccessors', {
     ],
     model: 'Mdc.securityaccessors.model.SecurityAccessor',
     autoLoad: false,
+    buffered: true,
+    remoteFilter: true,
+    pageSize: 10,
     proxy: {
         type: 'rest',
         urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/unassigned',
