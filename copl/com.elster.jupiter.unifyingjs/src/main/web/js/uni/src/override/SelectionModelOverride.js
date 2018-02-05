@@ -7,7 +7,7 @@
  */
 Ext.define('Uni.override.SelectionModelOverride', {
     override: 'Ext.selection.Model',
-
+    suppressMultiSelEvent: false,
     /*
 
      suppress change event base on number of selected items
@@ -46,7 +46,7 @@ Ext.define('Uni.override.SelectionModelOverride', {
             }
             me.lastSelected = record;
 
-            me.onSelectChange(record, true, selected.getCount() > 1 || !!suppressEvent, commit);
+            me.onSelectChange(record, true, selected.getCount() > 1 && me.suppressMultiSelEvent, commit);
         }
         if (!me.preventFocus) {
             me.setLastFocused(record, suppressEvent);
