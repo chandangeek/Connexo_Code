@@ -6,7 +6,8 @@ public enum CertificateStatus {
     AVAILABLE(TranslationKeys.AVAILABLE),
     REQUESTED(TranslationKeys.REQUESTED),
     EXPIRED(TranslationKeys.EXPIRED),
-    OBSOLETE(TranslationKeys.OBSOLETE);
+    OBSOLETE(TranslationKeys.OBSOLETE),
+    REVOKED(TranslationKeys.REVOKED);
 
     TranslationKeys statusKeyRef;
 

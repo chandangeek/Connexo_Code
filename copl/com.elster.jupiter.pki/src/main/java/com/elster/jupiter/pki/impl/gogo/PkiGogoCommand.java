@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.gogo;
 
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
@@ -12,7 +13,6 @@ import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.CertificateSearchFilterImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -192,7 +192,7 @@ public class PkiGogoCommand {
         BigInteger sn;
         Integer r;
         List<List<?>> collect = new ArrayList<>();
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
         try {
             sn = new BigInteger(serialNumber);
         } catch (NumberFormatException e) {
@@ -223,7 +223,7 @@ public class PkiGogoCommand {
     public void checkRevocationStatus(String serialNumber, String issuerDN) {
         BigInteger sn;
         List<List<?>> collect = new ArrayList<>();
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
         try {
             sn = new BigInteger(serialNumber);
         } catch (NumberFormatException e) {

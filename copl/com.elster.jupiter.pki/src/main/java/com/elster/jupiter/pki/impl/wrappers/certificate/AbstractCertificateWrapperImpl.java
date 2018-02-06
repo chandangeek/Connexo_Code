@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -83,7 +84,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         SUBJECT("subject"),
         ISSUER("issuer"),
         KEY_USAGES("keyUsagesCsv"),
-        OBSOLETE("obsolete");
+        WRAPPER_STATUS("wrapperStatus");
 
         private final String fieldName;
 
@@ -118,7 +119,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-    private boolean obsolete;
+    private long wrapperStatus;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -201,20 +202,26 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
      * @return
      */
     protected Optional<TranslationKeys> getInternalStatus() {
-        if (this.getCertificate().isPresent()) {
-            if (isObsolete()) {
-                return Optional.of(TranslationKeys.OBSOLETE);
-            }
-            try {
-                getCertificate().get().checkValidity();
-                return Optional.of(TranslationKeys.AVAILABLE);
-            } catch (CertificateExpiredException e) {
-                return Optional.of(TranslationKeys.EXPIRED);
-            } catch (CertificateNotYetValidException e) {
-                return Optional.of(TranslationKeys.AVAILABLE);
-            }
-        } else {
+        if (!getCertificate().isPresent()) {
             return Optional.empty();
+        }
+
+        if (getWrapperStatus().isPresent()) {
+            switch (getWrapperStatus().get()) {
+                case REVOKED:
+                    return Optional.of(TranslationKeys.REVOKED);
+                case OBSOLETE:
+                    return Optional.of(TranslationKeys.OBSOLETE);
+            }
+        }
+
+        try {
+            getCertificate().get().checkValidity();
+            return Optional.of(TranslationKeys.AVAILABLE);
+        } catch (CertificateExpiredException e) {
+            return Optional.of(TranslationKeys.EXPIRED);
+        } catch (CertificateNotYetValidException e) {
+            return Optional.of(TranslationKeys.AVAILABLE);
         }
     }
 
@@ -405,12 +412,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public void setObsolete(boolean obsolete) {
-        this.obsolete = obsolete;
+    public void setWrapperStatus(CertificateWrapperStatus status) {
+        this.wrapperStatus = status.statusDBKey();
     }
 
     @Override
-    public boolean isObsolete() {
-        return obsolete;
+    public Optional<CertificateWrapperStatus> getWrapperStatus() {
+        return CertificateWrapperStatus.fromDbKey(wrapperStatus);
     }
 }
