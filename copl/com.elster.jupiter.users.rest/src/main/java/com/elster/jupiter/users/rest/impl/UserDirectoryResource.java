@@ -6,6 +6,7 @@ package com.elster.jupiter.users.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -30,6 +31,7 @@ import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
@@ -130,8 +132,16 @@ public class UserDirectoryResource {
             ldapUserDirectory.setManageGroupsInternal(true);
             ldapUserDirectory.update();
             if (info.trustStore != null || info.certificateAlias != null) {
-                CertificateWrapper trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse("")).orElse(null);
-                TrustStore trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L)).orElse(null);
+                CertificateWrapper trustedCertificate = null;
+                TrustStore trustStore = null;
+                if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                    trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                }
+                if (info.trustStore != null) {
+                    trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                }
                 DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService.newDirectoryCertificateUsage(ldapUserDirectory);
                 newDirectoryCertificateUsage.setCertificate(trustedCertificate);
                 newDirectoryCertificateUsage.setTrustStore(trustStore);
@@ -176,9 +186,16 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setType(info.type);
                     if (info.trustStore != null || info.certificateAlias != null) {
                         Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory);
-                        CertificateWrapper trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
-                                .orElse(null);
-                        TrustStore trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L)).orElse(null);
+                        CertificateWrapper trustedCertificate = null;
+                        TrustStore trustStore = null;
+                        if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                            trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                        }
+                        if (info.trustStore != null) {
+                            trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                        }
                         if (directoryCertificateUsage.isPresent()) {
                             directoryCertificateUsage.get().setCertificate(trustedCertificate);
                             directoryCertificateUsage.get().setTrustStore(trustStore);
