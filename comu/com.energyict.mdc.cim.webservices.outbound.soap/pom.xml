@@ -123,6 +123,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.inbound.soap</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

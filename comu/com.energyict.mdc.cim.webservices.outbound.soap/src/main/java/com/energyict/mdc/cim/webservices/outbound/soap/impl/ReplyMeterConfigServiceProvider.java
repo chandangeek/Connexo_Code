@@ -8,25 +8,24 @@ import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-
-import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory;
 import com.energyict.mdc.device.data.DeviceService;
+
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
+import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
