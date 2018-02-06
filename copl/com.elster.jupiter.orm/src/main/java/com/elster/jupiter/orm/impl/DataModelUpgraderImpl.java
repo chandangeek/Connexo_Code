@@ -374,18 +374,18 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
     }
 
     private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) {
-        List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
+        List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable, context.getStatement());
         if (toTable.getColumns(version).stream().anyMatch(ColumnImpl::isMAC)) {
             upgradeDdl.add(new MacDifference(toTable));
         }
 
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
-                long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());
+                long sequenceValue = toTable.getDataModel().getNextSequenceValue(context.getStatement(), sequenceColumn.getQualifiedSequenceName());
                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(context, sequenceColumn) : 0;
                 if (maxColumnValue > sequenceValue) {
                     upgradeDdl.add(state.ddlGenerator(toTable, version)
-                            .upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                            .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
                 }
             }
         }
@@ -402,19 +402,6 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
             } else {
                 return 0;
             }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private long getLastSequenceValue(Context context, String sequenceName) {
-        try (ResultSet resultSet = context.getStatement()
-                .executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'")) {
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            }
-            // to indicate that the sequence is not there
-            return -1;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }

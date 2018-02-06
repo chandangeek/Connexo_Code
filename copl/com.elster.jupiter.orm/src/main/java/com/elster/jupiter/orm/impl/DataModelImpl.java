@@ -225,15 +225,15 @@ public class DataModelImpl implements DataModel {
                     TableImpl<?> fromTable = getTable(toTable.getName());
                     if (fromTable != null) {
                         List<Difference> upgradeDdl = TableDdlGenerator.cautious(fromTable, fromTable.getDataModel()
-                                .getSqlDialect(), version).upgradeDdl(toTable);
+                                .getSqlDialect(), version).upgradeDdl(toTable, statement);
                         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
                             if (sequenceColumn.getQualifiedSequenceName() != null) {
-                                long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
+                                long sequenceValue = getNextSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
                                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
                                 if (maxColumnValue > sequenceValue) {
                                     upgradeDdl.add(TableDdlGenerator.cautious(toTable, toTable.getDataModel()
                                             .getSqlDialect(), version)
-                                            .upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                                            .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
                                 }
                             }
                         }
@@ -260,14 +260,15 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-    private long getLastSequenceValue(Statement statement, String sequenceName) throws SQLException {
-        try (ResultSet resultSet = statement.executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'")) {
+    long getNextSequenceValue(Statement statement, String sequenceName) {
+        try (ResultSet resultSet = statement.executeQuery("select " + sequenceName + ".nextval from dual")) {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
-            } else {
-                // to indicate that the sequence is not there
-                return -1;
             }
+            return -1;
+        } catch (SQLException e) {
+            // to indicate that the sequence is not there
+            return -1;
         }
     }
 

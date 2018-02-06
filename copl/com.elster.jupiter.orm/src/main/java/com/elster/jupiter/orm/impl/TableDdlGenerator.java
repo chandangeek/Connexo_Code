@@ -12,12 +12,15 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 
+import java.sql.Statement;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -294,16 +297,25 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     }
 
     private String getSequenceDdl(ColumnImpl column) {
-        return getSequenceDdl(column, 1);
+        return getSequenceDdl(column.getQualifiedSequenceName(), 1);
     }
 
-    private String getSequenceDdl(ColumnImpl column, long startValue) {
+    private String getSequenceDdl(String name, long startValue) {
         // cache 1000 for performance in RAC environments
-        return "create sequence " + column.getQualifiedSequenceName() + " start with " + startValue + " cache 1000";
+        return "create sequence " + name + " start with " + startValue + " cache 1000";
     }
 
-    private String getDropSequenceDdl(ColumnImpl column) {
-        return "drop sequence " + column.getQualifiedSequenceName();
+    private String getDropSequenceDdl(String name) {
+        return "drop sequence " + name;
+    }
+
+    private List<String> getRenameSequenceDdl(String oldName, String newName, DataModelImpl dataModel, Statement statement) {
+        return Objects.equals(oldName, newName) ?
+                Collections.emptyList() :
+                dialect.renameSyntax()
+                        .map(renameStatement -> MessageFormat.format(renameStatement, oldName, newName))
+                        .map(Collections::singletonList)
+                        .orElseGet(() -> Arrays.asList(getDropSequenceDdl(oldName), getSequenceDdl(newName, dataModel.getNextSequenceValue(statement, oldName))));
     }
 
     private void appendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType, boolean addNullable) {
@@ -343,7 +355,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
     }
 
-    List<Difference> upgradeDdl(TableImpl<?> toTable) {
+    List<Difference> upgradeDdl(TableImpl<?> toTable, Statement statement) {
         List<Difference> result = new ArrayList<>();
         // Columns
         for (ColumnImpl toColumn : toTable.getColumns(version)) {
@@ -397,7 +409,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
         // rename table
         if (!table.getName().equals(toTable.getName(version))) {
-            result.add(getRenameDifference(toTable));
+            result.add(getRenameDifference(toTable, statement));
         }
         result.addAll(addConstraintDiffs);
         return result;
@@ -546,12 +558,19 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 .findFirst();
     }
 
-    private Difference getRenameDifference(TableImpl<?> toTable) {
-        return DdlDifferenceImpl
-                .builder("Table " + table.getName() + " : Rename table")
-                .add("alter table " + table.getName() + " rename to " + toTable.getName(version))
-                .build()
-                .get();
+    private Difference getRenameDifference(TableImpl<?> toTable, Statement statement) {
+        String oldTableName = table.getName();
+        String newTableName = toTable.getName(version);
+        DdlDifferenceImpl.DifferenceBuilder renameBuilder = DdlDifferenceImpl.builder("Table " + oldTableName + " : Rename table to " + newTableName)
+                .add("alter table " + oldTableName + " rename to " + newTableName);
+        table.getRealColumns()
+                .filter(Column::isAutoIncrement)
+                .map(Column::getQualifiedSequenceName)
+                .map(seqName -> getRenameSequenceDdl(seqName, seqName.replaceFirst(oldTableName, newTableName), table.getDataModel(), statement))
+                .flatMap(List::stream)
+                .forEach(renameBuilder::add);
+        return renameBuilder.build()
+                .orElseThrow(IllegalStateException::new);
     }
 
     private Difference getRenameConstraintDifference(TableConstraintImpl fromConstraint, TableConstraintImpl toConstraint) {
@@ -716,12 +735,11 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         return result;
     }
 
-    Difference upgradeSequenceDdl(ColumnImpl column, long startValue) {
+    Difference upgradeSequenceDifference(ColumnImpl column, long startValue) {
         return DdlDifferenceImpl.builder("Table " + table.getName() + " : Redefined sequence " + column.getSequenceName())
-                .add(getDropSequenceDdl(column))
-                .add(getSequenceDdl(column, startValue))
+                .add(getDropSequenceDdl(column.getQualifiedSequenceName()))
+                .add(getSequenceDdl(column.getQualifiedSequenceName(), startValue))
                 .build()
-                .get();
+                .orElseThrow(IllegalStateException::new);
     }
-
 }
