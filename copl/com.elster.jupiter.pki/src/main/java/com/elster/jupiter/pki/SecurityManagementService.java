@@ -396,14 +396,14 @@ public interface SecurityManagementService {
     Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory);
 
     class DataSearchFilter {
-        public Optional<TrustStore> trustStore;
-        public Optional<List<String>> alias;
-        public Optional<List<String>> subject;
-        public Optional<List<String>> issuer;
-        public Optional<List<String>> keyUsages;
-        public Optional<Instant> intervalFrom;
-        public Optional<Instant> intervalTo;
-        public Optional<String> aliasContains;
+        public Optional<TrustStore> trustStore = Optional.empty();
+        public Optional<List<String>> alias = Optional.empty();
+        public Optional<List<String>> subject = Optional.empty();
+        public Optional<List<String>> issuer = Optional.empty();
+        public Optional<List<String>> keyUsages = Optional.empty();
+        public Optional<Instant> intervalFrom = Optional.empty();
+        public Optional<Instant> intervalTo = Optional.empty();
+        public Optional<String> aliasContains = Optional.empty();
     }
 
     class TrustStoreFilter {
