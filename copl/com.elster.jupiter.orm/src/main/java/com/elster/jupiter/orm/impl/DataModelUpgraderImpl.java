@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelDifferencesLister;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -24,7 +25,6 @@ import com.elster.jupiter.util.streams.Functions;
 
 import java.nio.file.FileSystem;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -378,33 +378,20 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         if (toTable.getColumns(version).stream().anyMatch(ColumnImpl::isMAC)) {
             upgradeDdl.add(new MacDifference(toTable));
         }
-
-        for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
-            if (sequenceColumn.getQualifiedSequenceName() != null) {
-                long sequenceValue = toTable.getDataModel().getNextSequenceValue(context.getStatement(), sequenceColumn.getQualifiedSequenceName());
-                long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(context, sequenceColumn) : 0;
-                if (maxColumnValue > sequenceValue) {
-                    upgradeDdl.add(state.ddlGenerator(toTable, version)
-                            .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
-                }
-            }
-        }
+        toTable.getRealColumns()
+                .filter(Column::isAutoIncrement)
+                .forEach(sequenceColumn -> fromTable.getColumn(sequenceColumn.getName())
+                        .filter(Column::isAutoIncrement)
+                        .ifPresent(fromColumn -> {
+                            DataModelImpl dataModel = fromTable.getDataModel();
+                            long sequenceValue = dataModel.getNextSequenceValue(context.getStatement(), fromColumn.getQualifiedSequenceName());
+                            long maxColumnValue = dataModel.maxColumnValue(context.getStatement(), fromTable.getName(), fromColumn.getName());
+                            if (maxColumnValue > sequenceValue) {
+                                upgradeDdl.add(state.ddlGenerator(toTable, version)
+                                        .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
+                            }
+                        }));
         return upgradeDdl;
-    }
-
-    private long maxColumnValue(Context context, ColumnImpl sequenceColumn) {
-        try (ResultSet resultSet = context.getStatement()
-                .executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn
-                        .getTable()
-                        .getName())) {
-            if (resultSet.next()) {
-                return resultSet.getLong(1);
-            } else {
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
     private class MacDifference implements DifferenceCommand {

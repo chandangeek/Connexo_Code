@@ -315,7 +315,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 dialect.renameSyntax()
                         .map(renameStatement -> MessageFormat.format(renameStatement, oldName, newName))
                         .map(Collections::singletonList)
-                        .orElseGet(() -> Arrays.asList(getDropSequenceDdl(oldName), getSequenceDdl(newName, dataModel.getNextSequenceValue(statement, oldName))));
+                        .orElseGet(() -> Arrays.asList(getDropSequenceDdl(oldName), getSequenceDdl(newName, dataModel.getNextSequenceValue(statement, oldName) + 1)));
+        // plus 1 to recreate the sequence with exactly same next value as current sequence would return next time;
+        // for all the following checks to work well, new sequence must be strictly aligned with current one until the latter is effectively dropped.
     }
 
     private void appendColumns(StringBuilder builder, List<ColumnImpl> columns, boolean addType, boolean addNullable) {

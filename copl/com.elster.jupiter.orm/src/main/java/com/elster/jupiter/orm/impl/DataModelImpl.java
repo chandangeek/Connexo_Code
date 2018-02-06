@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DdlDifference;
@@ -226,17 +227,19 @@ public class DataModelImpl implements DataModel {
                     if (fromTable != null) {
                         List<Difference> upgradeDdl = TableDdlGenerator.cautious(fromTable, fromTable.getDataModel()
                                 .getSqlDialect(), version).upgradeDdl(toTable, statement);
-                        for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
-                            if (sequenceColumn.getQualifiedSequenceName() != null) {
-                                long sequenceValue = getNextSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
-                                long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
-                                if (maxColumnValue > sequenceValue) {
-                                    upgradeDdl.add(TableDdlGenerator.cautious(toTable, toTable.getDataModel()
-                                            .getSqlDialect(), version)
-                                            .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
-                                }
-                            }
-                        }
+                        toTable.getRealColumns()
+                                .filter(Column::isAutoIncrement)
+                                .forEach(sequenceColumn -> fromTable.getColumn(sequenceColumn.getName())
+                                        .filter(Column::isAutoIncrement)
+                                        .ifPresent(fromColumn -> {
+                                            long sequenceValue = getNextSequenceValue(statement, fromColumn.getQualifiedSequenceName());
+                                            long maxColumnValue = maxColumnValue(statement, fromTable.getName(), fromColumn.getName());
+                                            if (maxColumnValue > sequenceValue) {
+                                                upgradeDdl.add(TableDdlGenerator.cautious(toTable, toTable.getDataModel().getSqlDialect(), version)
+                                                        .upgradeSequenceDifference(sequenceColumn, maxColumnValue + 1));
+                                            }
+                                        })
+                                );
                         executeSqlStatements(statement, upgradeDdl);
                     } else {
                         toTable.getDdl().forEach(perform(this::executeSqlStatement).on(statement));
@@ -250,13 +253,15 @@ public class DataModelImpl implements DataModel {
 
     }
 
-    private long maxColumnValue(ColumnImpl sequenceColumn, Statement statement) throws SQLException {
-        try (ResultSet resultSet = statement.executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn.getTable().getName())) {
+    long maxColumnValue(Statement statement, String tableName, String columnName) {
+        try (ResultSet resultSet = statement.executeQuery("select nvl(max(" + columnName + ") ,0) from " + tableName)) {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             } else {
                 return 0;
             }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 

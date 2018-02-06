@@ -9,6 +9,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryPersistence;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
@@ -265,8 +266,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo2ndVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the2ndVersionsCode(dataModel);
+        the1stVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(1, 0));
@@ -284,6 +284,10 @@ public class TableDdlGeneratorIT {
                 statement.executeUpdate();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the2ndVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(2, 0));
 
@@ -562,6 +566,15 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
             }
         }
+
+        Actor3 newActor = new Actor3();
+        newActor.name = "Edward Norton";
+        newActor.movie = 1;
+        newActor.lead = true;
+        try (TransactionContext ignored = transactionService.getContext()) {
+            dataModel.mapper(Actor3.class).persist(newActor);
+            assertThat(dataModel.mapper(Actor3.class).find("name", newActor.name).stream().findAny().map(actor -> actor.id)).contains(1L);
+        }
     }
 
     @Test
@@ -619,8 +632,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo3rdVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the3rdVersionsCode(dataModel);
+        the2ndVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(2, 0));
@@ -634,6 +646,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(3);
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the3rdVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
@@ -658,8 +674,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo4thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the4thVersionsCode(dataModel);
+        the3rdVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(3, 0));
@@ -680,6 +695,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(3);
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the4thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
 
@@ -704,8 +723,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo5thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the5thVersionsCode(dataModel);
+        the4thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
@@ -721,6 +739,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.next()).isFalse();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the5thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(5, 0));
 
@@ -740,8 +762,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo6thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the6thVersionsCode(dataModel);
+        the5thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(5, 0));
@@ -757,6 +778,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.next()).isFalse();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the6thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(6, 0));
 
@@ -776,8 +801,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo7thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the7thVersionsCode(dataModel);
+        the6thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(6, 0));
@@ -791,6 +815,10 @@ public class TableDdlGeneratorIT {
                 assertThat(indexNames.stream().anyMatch(s -> s.startsWith("TST_U_MOVIETITLE"))).isFalse();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the7thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(7, 0));
 
@@ -808,8 +836,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo8thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the8thVersionsCode(dataModel);
+        the7thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(7, 0));
@@ -824,6 +851,10 @@ public class TableDdlGeneratorIT {
                 assertThat(indexNames.stream().anyMatch(s -> s.startsWith("TST_U_TITLE"))).isFalse();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the8thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(8, 0));
 
@@ -842,8 +873,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo9thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the9thVersionsCode(dataModel);
+        the8thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(8, 0));
@@ -857,6 +887,10 @@ public class TableDdlGeneratorIT {
                 assertThat(indexNames.stream().anyMatch(s -> s.startsWith("TST_U_TITLE"))).isTrue();
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the9thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(9, 0));
 
@@ -874,8 +908,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo10thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the10thVersionsCode(dataModel);
+        the9thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(9, 0));
@@ -892,6 +925,10 @@ public class TableDdlGeneratorIT {
             }
         }
 
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the10thVersionsCode(dataModel);
+        dataModel.register();
+
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(10, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
@@ -905,8 +942,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo11thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the11thVersionsCode(dataModel);
+        the10thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(10, 0));
@@ -917,6 +953,10 @@ public class TableDdlGeneratorIT {
                 assertThat(i).isEqualTo(1);
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the11thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(11, 0));
 
@@ -937,8 +977,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo13thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the13thVersionsCode(dataModel);
+        the12thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(12, 0));
@@ -958,6 +997,10 @@ public class TableDdlGeneratorIT {
             }
         }
 
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the13thVersionsCode(dataModel);
+        dataModel.register();
+
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(13, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
@@ -975,13 +1018,21 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getLong(4)).isEqualTo(1);
             }
         }
+
+        Actor3 newActor = new Actor3();
+        newActor.name = "Edward Norton";
+        newActor.movie = 1;
+        newActor.lead = true;
+        try (TransactionContext ignored = transactionService.getContext()) {
+            dataModel.mapper(Actor3.class).persist(newActor);
+            assertThat(dataModel.mapper(Actor3.class).find("name", newActor.name).stream().findAny().map(actor -> actor.id)).contains(2L);
+        }
     }
 
     @Test
     public void testUpgradeTo14thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the14thVersionsCode(dataModel);
+        the13thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(13, 0));
@@ -992,6 +1043,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getInt("COLUMN_SIZE")).isEqualTo(80);
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the14thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(14, 0));
 
@@ -1006,8 +1061,7 @@ public class TableDdlGeneratorIT {
     @Test
     public void testUpgradeTo12thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-
-        the12thVersionsCode(dataModel);
+        the11thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(11, 0));
@@ -1018,6 +1072,10 @@ public class TableDdlGeneratorIT {
                 assertThat(i).isEqualTo(1);
             }
         }
+
+        dataModel = ormService.newDataModel("TEST", "TestModel");
+        the12thVersionsCode(dataModel);
+        dataModel.register();
 
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(12, 0));
 
@@ -1400,8 +1458,8 @@ public class TableDdlGeneratorIT {
             actorTable.since(version(3, 0));
             Column idColumn = actorTable.addAutoIdColumn();
             actorTable.column("NAME").map("name").notNull().varChar(80).add();
-            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
-            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().upTo(version(10, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().map("movie").since(version(10, 0)).add();
             ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie3.class)
@@ -1458,9 +1516,9 @@ public class TableDdlGeneratorIT {
             actorTable.since(version(3, 0));
             Column idColumn = actorTable.addAutoIdColumn();
             actorTable.column("NAME").map("name").notNull().varChar(80).add();
-            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().upTo(version(10, 0)).add();
             actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
-            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().map("movie").since(version(10, 0)).add();
             ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie3.class)
@@ -1525,9 +1583,9 @@ public class TableDdlGeneratorIT {
             actorTable.since(version(3, 0));
             Column idColumn = actorTable.addAutoIdColumn();
             actorTable.column("NAME").map("name").notNull().varChar(80).add();
-            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().upTo(version(10, 0)).add();
             actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
-            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().map("movie").since(version(10, 0)).add();
             ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie3.class)
@@ -1545,7 +1603,7 @@ public class TableDdlGeneratorIT {
         }
     }
 
-    // renames a table
+    // renames a table with auto id column while adding a constraint to it
     private void the13thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
@@ -1592,10 +1650,10 @@ public class TableDdlGeneratorIT {
             actorTable.since(version(3, 0));
             actorTable.previouslyNamed(Range.lessThan(version(13, 0)), "TST_ACTOR");
             Column idColumn = actorTable.addAutoIdColumn();
-            actorTable.column("NAME").map("name").notNull().varChar(80).add();
-            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            Column nameColumn = actorTable.column("NAME").map("name").notNull().varChar(80).add();
+            actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().upTo(version(10, 0)).add();
             actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
-            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().map("movie").since(version(10, 0)).add();
             ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie3.class)
@@ -1610,6 +1668,7 @@ public class TableDdlGeneratorIT {
                     .previously(actorInMovie)
                     .add();
             actorTable.primaryKey("TST_ACTOR_PK").on(idColumn).add();
+            actorTable.unique("UK_TST_ACTOR_NAME").on(nameColumn).since(version(13, 0)).add();
         }
     }
 
@@ -1661,10 +1720,10 @@ public class TableDdlGeneratorIT {
             actorTable.since(version(3, 0));
             actorTable.previouslyNamed(Range.lessThan(version(13, 0)), "TST_ACTOR");
             Column idColumn = actorTable.addAutoIdColumn();
-            actorTable.column("NAME").map("name").notNull().varChar(80).add();
-            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            Column nameColumn = actorTable.column("NAME").map("name").notNull().varChar(80).add();
+            actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().upTo(version(10, 0)).add();
             actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
-            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().map("movie").since(version(10, 0)).add();
             ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie4.class)
@@ -1679,6 +1738,7 @@ public class TableDdlGeneratorIT {
                     .previously(actorInMovie)
                     .add();
             actorTable.primaryKey("TST_ACTOR_PK").on(idColumn).add();
+            actorTable.unique("UK_TST_ACTOR_NAME").on(nameColumn).since(version(13, 0)).add();
         }
     }
 
