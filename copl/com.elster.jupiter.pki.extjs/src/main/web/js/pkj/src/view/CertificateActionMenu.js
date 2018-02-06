@@ -64,6 +64,16 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                     return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
                 },
                 section: this.SECTION_REMOVE
+            },
+            {
+                text: Uni.I18n.translate('general.revoke', 'PKJ', 'Revoke'),
+                itemId: 'pkj-revoke-certificate-menu-item',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                action: 'revokeCertificate',
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
+                },
+                section: this.SECTION_REMOVE
             }
 
         ];

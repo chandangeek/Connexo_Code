@@ -87,6 +87,9 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-cancel-obsolete-certificate-menu-item': {
                 click: this.cancelObsoleteCertificate
+            },
+            '#pkj-revoke-certificate-menu-item': {
+                click: this.revokeCertificate
             }
         });
     },
@@ -436,6 +439,59 @@ Ext.define('Pkj.controller.Certificates', {
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateUnmarkedObsolete', 'PKJ', 'Certificate is no longer obsolete'));
                 me.navigateToCertificatesOverview();
+            }
+        });
+    },
+
+    //todo: correct messages and translations (... and everything else)
+    revokeCertificate: function (menuItem) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: "Revoke"}),
+            certificateRecord = menuItem.up('certificate-action-menu').record,
+            //todo: check if it necessary
+            jsonTrueVal = 'true';
+
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/checkRevoke',
+            method: 'POST',
+
+            callback: function (config, success, response) {
+                if (!Ext.isEmpty(response.responseText)) {
+                    var responseObject = JSON.parse(response.responseText);
+
+                    if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === jsonTrueVal) {
+                        me.getApplication().getController('Uni.controller.Error').showError("Usages!", "There are usages you sneaky human", "-1");
+                        return;
+                    }
+                    var isOnline, title, text, eventText;
+                    isOnline = !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === jsonTrueVal;
+                    if (isOnline) {
+                        title = 'Revoke certificate?';
+                        text = 'A request for revoking the certificate will be sent to the Certification Authority';
+                        eventText = "Certificate is revoked and the status is changed to 'Revoked'";
+                    } else {
+                        title = 'Mark certificate(s) as revoked?';
+                        text = 'The certificates will be marked as revoked in the system but you need to manually send them to the Certificate Authority that will change their revocation status';
+                        eventText = "Certificate status is changed to 'Revoked'";
+                    }
+                    confirmationWindow.show({
+                        title: title,
+                        msg: text,
+                        headers: {'Content-type': 'multipart/form-data'},
+                        fn: function (state) {
+                            if (state === 'confirm') {
+                                Ext.Ajax.request({
+                                    url: '/api/pir/certificates/' + certificateRecord.get('id') + '/revoke',
+                                    method: 'POST',
+                                    success: function () {
+                                        me.getApplication().fireEvent('acknowledge', eventText);
+                                        me.navigateToCertificatesOverview();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             }
         });
     }
