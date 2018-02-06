@@ -90,6 +90,7 @@ public class Expiration {
     }
 
     public Condition isObsolete(String fieldName) {
-        return (Where.where(fieldName).isEqualToIgnoreCase("Y"));
+        // keep in sync with com.elster.jupiter.pki.CertificateWrapperStatus
+        return (Where.where(fieldName).isEqualTo("1"));
     }
 }
