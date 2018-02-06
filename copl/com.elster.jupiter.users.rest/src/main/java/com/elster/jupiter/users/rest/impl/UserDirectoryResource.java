@@ -131,7 +131,7 @@ public class UserDirectoryResource {
             ldapUserDirectory.setDefault(info.isDefault);
             ldapUserDirectory.setManageGroupsInternal(true);
             ldapUserDirectory.update();
-            if (info.trustStore != null || info.certificateAlias != null) {
+            if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
                 CertificateWrapper trustedCertificate = null;
                 TrustStore trustStore = null;
                 if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
@@ -184,7 +184,9 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
                     ldapUserDirectory.setType(info.type);
-                    if (info.trustStore != null || info.certificateAlias != null) {
+                    if (info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) {
+                        securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
+                    } else if (info.trustStore != null || info.certificateAlias != null) {
                         Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory);
                         CertificateWrapper trustedCertificate = null;
                         TrustStore trustStore = null;
