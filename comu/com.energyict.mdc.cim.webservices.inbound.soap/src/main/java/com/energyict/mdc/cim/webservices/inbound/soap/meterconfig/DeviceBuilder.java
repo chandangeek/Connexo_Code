@@ -24,7 +24,6 @@ import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
 import ch.iec.tc57._2011.meterconfig.LifecycleDate;
 import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
@@ -41,7 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-class DeviceBuilder {
+public class DeviceBuilder {
 
     private final DeviceLifeCycleService deviceLifeCycleService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -51,7 +50,7 @@ class DeviceBuilder {
     private final MeterConfigFaultMessageFactory faultMessageFactory;
 
     @Inject
-    DeviceBuilder(DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
+    public DeviceBuilder(DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
                   DeviceService deviceService, BatchService batchService, Clock clock, MeterConfigFaultMessageFactory faultMessageFactory) {
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -61,9 +60,9 @@ class DeviceBuilder {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    PreparedDeviceBuilder prepareCreateFrom(Meter meter, MeterConfig meterConfig) throws FaultMessage {
+    public PreparedDeviceBuilder prepareCreateFrom(Meter meter,  List<SimpleEndDeviceFunction> simpleEndDeviceFunction) throws FaultMessage {
         String deviceName = extractDeviceNameForCreateOrThrowException(meter);
-        DeviceConfiguration deviceConfig = extractDeviceConfigOrThrowException(meter, meterConfig.getSimpleEndDeviceFunction());
+        DeviceConfiguration deviceConfig = extractDeviceConfigOrThrowException(meter, simpleEndDeviceFunction);
         Instant shipmentDate = extractShipmentDateOrThrowException(meter);
         Optional<String> batch = extractBatch(meter);
         Optional<String> serialNumber = extractSerialNumber(meter);
@@ -85,7 +84,7 @@ class DeviceBuilder {
         };
     }
 
-    PreparedDeviceBuilder prepareChangeFrom(Meter meter) throws FaultMessage {
+    public PreparedDeviceBuilder prepareChangeFrom(Meter meter) throws FaultMessage {
         String deviceName = extractDeviceNameForUpdateOrThrowException(meter);
         Optional<String> mrid = extractMrid(meter);
         Optional<String> batch = extractBatch(meter);
@@ -152,7 +151,7 @@ class DeviceBuilder {
     }
 
     @FunctionalInterface
-    interface PreparedDeviceBuilder {
+    public interface PreparedDeviceBuilder {
 
         @TransactionRequired
         Device build() throws FaultMessage;
