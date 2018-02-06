@@ -4,6 +4,7 @@
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
@@ -281,7 +282,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(cert, times(1)).setObsolete(true);
+        verify(cert, times(1)).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
     }
 
     @Test
@@ -325,7 +326,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<JSONArray>get("importers")).isEmpty();
         assertThat(model.<JSONArray>get("devices")).hasSize(3).contains(deviceName1, deviceName2, deviceName3);
         assertThat(model.<JSONArray>get("securityAccessors")).hasSize(1).contains(accessorName);
-        verify(cert, never()).setObsolete(true);
+        verify(cert, never()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
     }
 
     @Test
@@ -342,7 +343,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(securityManagementService, times(1)).findCertificateWrapper(certId);
         verifyNoMoreInteractions(securityManagementService);
-        verify(certificateWrapper, times(1)).setObsolete(true);
+        verify(certificateWrapper, times(1)).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
     }
 
     @Test
@@ -357,7 +358,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(certificateWrapper, times(1)).setObsolete(false);
+        verify(certificateWrapper, times(1)).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {

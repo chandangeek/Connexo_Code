@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_CREATE_CERTIFICATE_FACTORY(3, "CertificateFactoryFail", "Could not create the certificate factory: {0}"),
     COULD_NOT_CREATE_CERTIFICATE(4, "CertificateCreationFailed", "Could not create the certificate: {0}"),
     COULD_NOT_IMPORT_KEYSTORE(5, "KeystoreReadError", "The keystore could not be imported"),
-    NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No such certificate could be found"),
+    NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No such certificate wrapper could be found"),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
     IMPORTFILE_TOO_BIG(8, "pkcsFileTooBig", "File size should be less than 2 kB"),
     FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required"),
@@ -34,7 +34,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "File does not contain a valid public key"),
     INVALID_KEY(22, "InvalidKey", "Invalid key"),
     CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
-    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory");
+    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
+    REVOCATION_FAILED(25, "RevocationFailed", "Certificate couldn't be revoked by the Certification Authority'"),
+    REVOCATION_DESYNC(26, "RevocationDesync", "Certificate was revoked by the Certification Authority, but failed to change status within Connexo");
 
     private final int number;
     private final String key;

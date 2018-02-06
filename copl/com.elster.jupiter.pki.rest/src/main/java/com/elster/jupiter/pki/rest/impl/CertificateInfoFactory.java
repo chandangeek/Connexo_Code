@@ -43,7 +43,6 @@ public class CertificateInfoFactory implements CertificateFormatter {
         info.hasCSR = certificateWrapper.hasCSR();
         info.hasCertificate = certificateWrapper.getCertificate().isPresent();
         info.hasPrivateKey = certificateWrapper.hasPrivateKey();
-        info.isObsolete = certificateWrapper.isObsolete();
 
         info.alias = certificateWrapper.getAlias();
         info.status = certificateWrapper.getStatus();
@@ -96,6 +95,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
                 .limit(3)
                 .sorted()
                 .collect(Collectors.toList());
+        info.isUsed = !info.securityAccessors.isEmpty() || !info.devices.isEmpty() || !info.userDirectories.isEmpty() || !info.importers.isEmpty();
         return info;
     }
 }
