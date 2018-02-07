@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
@@ -76,11 +77,18 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private void processMeterConfigServiceCall(ServiceCall serviceCall) {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        // call device creation
         MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-
         try {
-            getDeviceBuilder().prepareCreateFrom(meter).build();
+            switch (OperationEnum.getFromString(extensionFor.getOperation())) {
+                case CREATE:
+                    getDeviceBuilder().prepareCreateFrom(meter).build();
+                    break;
+                case UPDATE:
+                    getDeviceBuilder().prepareChangeFrom(meter).build();
+                    break;
+                default:
+                    break;
+            }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
             MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)

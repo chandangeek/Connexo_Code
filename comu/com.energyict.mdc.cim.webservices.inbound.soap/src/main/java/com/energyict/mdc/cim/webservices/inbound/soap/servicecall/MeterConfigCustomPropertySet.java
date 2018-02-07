@@ -137,6 +137,12 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .named(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .describedAs(TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.OPERATION.javaName(), TranslationKeys.OPERATION)
+                        .describedAs(TranslationKeys.OPERATION)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -196,11 +202,16 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .add();
+            table.column(MeterConfigDomainExtension.FieldNames.OPERATION.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.OPERATION.javaName())
+                    .notNull()
+                    .add();
         }
 
         @Override
         public String application() {
-            return "MultiSense"; //MeterConfigChecklist.APPLICATION_NAME;
+            return "MultiSense";
         }
     }
 }

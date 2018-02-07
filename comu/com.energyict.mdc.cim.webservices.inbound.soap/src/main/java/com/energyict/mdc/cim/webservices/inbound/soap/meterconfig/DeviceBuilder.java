@@ -155,8 +155,75 @@ public class DeviceBuilder {
             }
 
             if (mrid.isPresent()) {
-                changedDevice.setName(deviceName);
+                changedDevice.setName(deviceName); //todo mlevan ???
             }
+
+            if (batch.isPresent()) {
+                batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
+            }
+
+            serialNumber.ifPresent(changedDevice::setSerialNumber);
+            changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
+            changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
+            changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
+            changedDevice.save();
+
+            return changedDevice;
+        };
+    }
+
+    public PreparedDeviceBuilder prepareChangeFrom(MeterInfo meter) throws FaultMessage {
+        DeviceConfiguration deviceConfig = extractDeviceConfigOrThrowException(meter);
+        Optional<String> batch = Optional.ofNullable(meter.getBatch());
+        Optional<String> serialNumber = Optional.ofNullable(meter.getSerialNumber());
+        Optional<String> manufacturer = Optional.ofNullable(meter.getManufacturer());
+        Optional<String> modelNumber = Optional.ofNullable(meter.getModelNumber());
+        Optional<String> modelVersion = Optional.ofNullable(meter.getModelVersion());
+        Optional<BigDecimal> multiplier = Optional.ofNullable(meter.getMultiplier());
+
+//        Optional<String> mrid = extractMrid(meter);
+//        Optional<String> statusReason = extractStatusReason(meter);
+//        Optional<String> statusValue = extractStatusValue(meter);
+//        Optional<Instant> statusEffectiveDate = extractStatusEffectiveDate(meter);
+//        Optional<String> multiplierReason = extractConfigurationReason(meter);
+//        Optional<Instant> multiplierEffectiveDate = extractConfigurationEffectiveDate(meter);
+        return () -> {
+            Device changedDevice = //mrid.isPresent() ? findDeviceByMRID(mrid.get()) :
+                    deviceService.findDeviceByName(meter.getDeviceName())
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
+
+            String currentModelNumber = changedDevice.getModelNumber();
+            String currentModelVersion = changedDevice.getModelVersion();
+            String currentManufacturer = changedDevice.getManufacturer();
+
+//            if (statusReason.isPresent()) {
+//                EventReason.forReason(statusReason.get())
+//                        .filter(EventReason.CHANGE_STATUS::equals)
+//                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_STATUS_REASON, statusReason.get()));
+//                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].status.value"));
+//                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
+//                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
+//                        .stream()
+//                        .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
+//                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
+//                        .findFirst()
+//                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
+//                executableAction.execute(effectiveDate, Collections.emptyList());
+//                changedDevice.save();
+//                changedDevice = findDeviceByMRID(changedDevice.getmRID());
+//            }
+//
+//            if (multiplierReason.isPresent()) {
+//                EventReason.forReason(multiplierReason.get())
+//                        .filter(EventReason.CHANGE_MULTIPLIER::equals)
+//                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_MULTIPLIER_REASON, multiplierReason.get()));
+//                changedDevice.setMultiplier(multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].multiplier")),
+//                        multiplierEffectiveDate.orElse(clock.instant()));
+//            }
+//
+//            if (mrid.isPresent()) {
+//                changedDevice.setName(meter.getDeviceName()); //todo mlevan ???
+//            }
 
             if (batch.isPresent()) {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);

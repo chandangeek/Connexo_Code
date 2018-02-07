@@ -26,7 +26,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
@@ -166,8 +165,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(MeterConfigChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel,
-                Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
         addConverter(new ObisCodePropertyValueConverter());
         registerServices(bundleContext);

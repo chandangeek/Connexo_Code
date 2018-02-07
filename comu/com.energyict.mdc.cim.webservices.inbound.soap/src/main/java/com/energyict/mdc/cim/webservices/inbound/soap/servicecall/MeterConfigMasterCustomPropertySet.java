@@ -213,7 +213,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String application() {
-            return "MultiSense"; //MeterConfigChecklist.APPLICATION_NAME;
+            return "MultiSense";
         }
     }
 }

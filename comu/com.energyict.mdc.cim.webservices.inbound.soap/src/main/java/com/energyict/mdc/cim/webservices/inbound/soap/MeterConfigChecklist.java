@@ -16,7 +16,7 @@ import java.util.Set;
 @Component(name = "com.energyict.mdc.checklist", service = {UpgradeCheckList.class}, property = {"com.energyict.mdc.checklist=MeterConfig"})
 public class MeterConfigChecklist implements UpgradeCheckList {
 
-    public static final String APPLICATION_NAME = "MDC";
+    public static final String APPLICATION_NAME = "MultiSense";
 
     @Override
     public String application() {

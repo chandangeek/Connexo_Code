@@ -14,8 +14,10 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
+import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
@@ -52,16 +54,19 @@ public class ServiceCallCommands {
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
     private final JsonService jsonService;
+    private final DeviceService deviceService;
 
     @Inject
-    public ServiceCallCommands(ServiceCallService serviceCallService, JsonService jsonService, Thesaurus thesaurus) {
+    public ServiceCallCommands(ServiceCallService serviceCallService, JsonService jsonService, DeviceService deviceService, Thesaurus thesaurus) {
         this.serviceCallService = serviceCallService;
         this.jsonService = jsonService;
+        this.deviceService = deviceService;
         this.thesaurus = thesaurus;
     }
 
     @TransactionRequired
-    public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration) {
+    public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration,
+                                                          OperationEnum operation) {
         ServiceCallType serviceCallType = getServiceCallType(true);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
@@ -73,23 +78,24 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("MultiSense").extendedWith(meterConfigMasterDomainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
 
-        meterConfig.getMeter().forEach(meter -> createMeterConfigChildCall(parentServiceCall, meter, meterConfig.getSimpleEndDeviceFunction()));
+        meterConfig.getMeter().forEach(meter -> createMeterConfigChildCall(parentServiceCall, operation, meter, meterConfig.getSimpleEndDeviceFunction()));
 
         return parentServiceCall;
     }
 
-    private ServiceCall createMeterConfigChildCall(ServiceCall parent, Meter meter,  List<SimpleEndDeviceFunction> simpleEndDeviceFunction) {
+    private ServiceCall createMeterConfigChildCall(ServiceCall parent, OperationEnum operation,
+                                                   Meter meter, List<SimpleEndDeviceFunction> simpleEndDeviceFunction) {
         ServiceCallType serviceCallType = getServiceCallType(false);
 
         MeterConfigDomainExtension meterConfigDomainExtension = new MeterConfigDomainExtension();
         meterConfigDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         MeterInfo meterInfo = new MeterInfo(meter, simpleEndDeviceFunction);
         meterConfigDomainExtension.setMeter(jsonService.serialize(meterInfo));
+        meterConfigDomainExtension.setOperation(operation.getOperation());
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(meterConfigDomainExtension);
-//        todo mlevan take into account update meter
-//        if (device.isPresent()) {
-//            serviceCallBuilder.targetObject(device.get());
-//        }
+        if (operation == OperationEnum.UPDATE) {
+            deviceService.findDeviceByMrid(meter.getMRID()).ifPresent(serviceCallBuilder::targetObject);
+        }
         return serviceCallBuilder.create();
     }
 

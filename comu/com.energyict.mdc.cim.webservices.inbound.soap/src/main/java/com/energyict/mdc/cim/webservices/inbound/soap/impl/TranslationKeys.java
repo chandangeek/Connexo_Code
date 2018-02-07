@@ -15,6 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     METER_CONFIG("meterConfig", "Meter config"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
     ERROR_MESSAGE("errorMessage", "Error message"),
+    OPERATION("operation", "Operation"),
     CALLS_SUCCESS("callsSuccess", "Success calls counter"),
     CALLS_ERROR("callsError", "Error calls counter"),
     CALLS_EXPECTED("callsExpected", "Expected calls counter"),

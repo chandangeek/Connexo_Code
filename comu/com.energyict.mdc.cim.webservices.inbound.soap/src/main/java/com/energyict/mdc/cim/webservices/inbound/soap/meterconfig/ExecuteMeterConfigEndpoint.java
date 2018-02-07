@@ -16,6 +16,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
@@ -29,7 +30,6 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
 
@@ -55,7 +55,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
-                                      ServiceCallCommands serviceCallCommands,  EndPointConfigurationService endPointConfigurationService) {
+                                      ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.faultMessageFactory = faultMessageFactory;
@@ -72,26 +72,16 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             if (requestMessage.getHeader().isAsyncReplyFlag()) {
-                // check outbound end point
-                String replyAddress = requestMessage.getHeader().getReplyAddress();
-                if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-                    throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_REPLY_ADDRESS, ReplyType.Result.FAILED.value()); // todo
-                }
-                EndPointConfiguration outboundEndPointConfiguration = endPointConfigurationService.findEndPointConfigurations().stream()
-                        .filter(EndPointConfiguration::isActive)
-                        .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                        .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(replyAddress))
-                        .findFirst()
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, replyAddress));
-
-                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration);
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.CREATE);
                 context.commit();
                 return createQuickResponseMessage(HeaderType.Verb.REPLY);
             } else if (meterConfig.getMeter().size() > 1) {
-                throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED, ReplyType.Result.FAILED.value()); // todo
+                throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
             } else {
                 // call synchronously
-                Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
+                Meter meter = meterConfig.getMeter().stream().findFirst()
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METER_ITEM));
                 Device createdDevice = deviceBuilder.prepareCreateFrom(meter, meterConfig.getSimpleEndDeviceFunction()).build();
                 context.commit();
@@ -109,11 +99,22 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-            Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METER_ITEM));
-            Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
-            context.commit();
-            return createResponseMessage(changedDevice, HeaderType.Verb.CHANGED);
+            if (requestMessage.getHeader().isAsyncReplyFlag()) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.UPDATE);
+                context.commit();
+                return createQuickResponseMessage(HeaderType.Verb.REPLY);
+            } else if (meterConfig.getMeter().size() > 1) {
+                throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
+            } else {
+                // call synchronously
+                Meter meter = meterConfig.getMeter().stream().findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METER_ITEM));
+                Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
+                context.commit();
+                return createResponseMessage(changedDevice, HeaderType.Verb.CHANGED);
+            }
         } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException e) {
             throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -121,8 +122,27 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         }
     }
 
-    private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig, EndPointConfiguration endPointConfiguration) {
-        ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig, endPointConfiguration);
+    private String getReplyAddress(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
+        String replyAddress = requestMessage.getHeader().getReplyAddress();
+        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
+            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, MessageSeeds.NO_REPLY_ADDRESS);
+        }
+        return replyAddress;
+    }
+
+    private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
+        return endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst()
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
+    }
+
+    private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig, EndPointConfiguration endPointConfiguration,
+                                                                  OperationEnum operation) {
+        ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig, endPointConfiguration, operation);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }

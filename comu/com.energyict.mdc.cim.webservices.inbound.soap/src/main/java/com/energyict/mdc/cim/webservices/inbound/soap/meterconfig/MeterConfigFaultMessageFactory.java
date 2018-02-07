@@ -40,6 +40,10 @@ public class MeterConfigFaultMessageFactory {
         return meterConfigFaultMessage(messageSeed, message, null);
     }
 
+    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, MessageSeeds message) {
+        return meterConfigFaultMessage(messageSeed, message.translate(thesaurus));
+    }
+
     private FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, ReplyType replyType) {
         MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
         faultMessageType.setReply(replyType);

@@ -19,18 +19,11 @@ public interface ReplyMeterConfigWebService {
     String NAME = "CIM ReplyMeterConfig";
 
     /**
-     * Get the registered web service name
+     * Invoked by the service call when the async inbound WS is completed
      *
-     * @return web service name
-     */
-    String getWebServiceName();
-
-    /**
-     * Invoked by the fsm framework when a state was changed
-     *
-     * @param endPointConfiguration - end point configuration list
+     * @param endPointConfiguration - the outbound end point
      * @param successfulDevices - the list of successfully proceeded devices
-     * @param failedDevices - map<deviceMrid, errorMessage>
+     * @param failedDevices - the map contains the MRID of the device failed to proceed as a key and the error message as a value
      */
-    void call(EndPointConfiguration endPointConfiguration, List<Device> successfulDevices, Map<String, String> failedDevices);
+    void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, List<Device> successfulDevices, Map<String, String> failedDevices);
 }

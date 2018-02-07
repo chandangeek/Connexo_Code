@@ -4,16 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 import com.energyict.mdc.device.data.Device;
@@ -42,41 +40,23 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigMasterServiceCallHandler";
 
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile CustomPropertySetService customPropertySetService;
-    private volatile PropertySpecService propertySpecService;
-    private volatile ServiceCallService serviceCallService;
     private volatile JsonService jsonService;
     private volatile DeviceService deviceService;
 
-    private final List<ReplyMeterConfigWebService> webServiceList = new ArrayList<>();
+    private ReplyMeterConfigWebService replyMeterConfigWebService;
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        webServiceList.add(webService);
+        this.replyMeterConfigWebService = webService;
     }
 
     public void removeReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        webServiceList.remove(webService);
+        this.replyMeterConfigWebService = null;
     }
 
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
     }
 
     @Reference
@@ -94,14 +74,13 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         serviceCall.log(LogLevel.FINEST, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case ONGOING:
-                serviceCall.findChildren().stream().forEach(child ->
-                        child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
                 break;
             case SUCCESSFUL:
-                sendResponseToOutbound(serviceCall);
+                sendResponseToOutboundEndPoint(serviceCall);
                 break;
             case FAILED:
-                sendResponseToOutbound(serviceCall);
+                sendResponseToOutboundEndPoint(serviceCall);
                 break;
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING);
@@ -157,7 +136,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         }
     }
 
-    private void sendResponseToOutbound(ServiceCall serviceCall) {
+    private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
         MeterConfigMasterDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigMasterCustomPropertySet()).get();
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().find()
                 .stream()
@@ -165,9 +144,14 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(epc -> !epc.isInbound())
                 .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
-        webServiceList.forEach(client -> client.call(endPointConfiguration.get(),
+
+        ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
+        MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+        OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
+
+        replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
                 getSuccessfullyProceededDevices(serviceCall),
-                getUnsuccessfullyProceededDevices(serviceCall)));
+                getUnsuccessfullyProceededDevices(serviceCall));
     }
 
     private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
