@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +41,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Handles {@link StateTransitionTriggerEvent}s by building the computational
@@ -148,13 +148,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                 this.logger.fine(() -> "Event '" + triggerEvent.getType().getSymbol() + "' did not cause a state change for source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "'. The latter will remain in state '" + currentState.getName() + "'.");
             } else {
                 this.publishChange(currentState, newState, triggerEvent);
-                if (triggerEvent.getSourceType().equals("com.energyict.mdc.device.data.Device")) {
-                    List<EndPointConfiguration> endPointConfigurations = currentState.getOnExitEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration).collect(Collectors.toList());
-                    endPointConfigurations.addAll(newState.getOnEntryEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration).collect(Collectors.toList()));
-                    stateTransitionWebServiceClients.forEach(stateTransitionWebServiceClient -> {
-                        stateTransitionWebServiceClient.call(Long.valueOf(triggerEvent.getSourceId()), endPointConfigurations, newState.getName(), triggerEvent.getEffectiveTimestamp());
-                    });
-                }
+                this.executeWebServiceCall(triggerEvent.getSourceId(), triggerEvent.getSourceType(), currentState, newState, triggerEvent.getEffectiveTimestamp());
             }
         } catch (IllegalStateException e) {
             this.logger.fine(() -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because it is not allowed for current state '" + triggerEvent.getSourceCurrentStateName());
@@ -164,6 +158,22 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     private void publishChange(ActualState currentState, ActualState newState, StateTransitionTriggerEvent triggerEvent) {
         StateTransitionChangeEventImpl changeEvent = new StateTransitionChangeEventImpl(this.eventService, currentState.state, newState.state, triggerEvent.getSourceId(), triggerEvent.getSourceType(), triggerEvent.getEffectiveTimestamp(), triggerEvent.getProperties());
         changeEvent.publish();
+    }
+
+    private void executeWebServiceCall(String id, String source, ActualState currentState, ActualState newState, Instant effectiveDate) {
+        if (source.equals("com.energyict.mdc.device.data.Device")) {
+            List<Long> endPointConfigurationIds = newState.getOnExitEndPointConfigurations().stream()
+                    .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                    .map(EndPointConfiguration::getId)
+                    .collect(Collectors.toList());
+            endPointConfigurationIds.addAll(currentState.getOnEntryEndPointConfigurations().stream()
+                    .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                    .map(EndPointConfiguration::getId)
+                    .collect(Collectors.toList()));
+            stateTransitionWebServiceClients.forEach(stateTransitionWebServiceClient -> {
+                stateTransitionWebServiceClient.call(Long.valueOf(id), endPointConfigurationIds, newState.getName(), effectiveDate);
+            });
+        }
     }
 
     private StateMachineConfig<ActualState, Trigger> configureStateMachine(ActualStatesAndTriggers actualStatesAndTriggers,
