@@ -59,23 +59,17 @@ public class UpgraderV10_4 implements Upgrader {
 
     private void renameJournalTables() {
         executeInTransaction(
-                renameTableIfExistsSql(
+                renameTableSql(
                         TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE_UP_TO_10_4,
                         TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE),
-                renameTableIfExistsSql(
+                renameTableSql(
                         TableSpecs.Constants.PKI_SECACCTYPEUSRACTN_JOURNAL_TABLE_UP_TO_10_4,
                         TableSpecs.Constants.PKI_SECACCTYPEUSRACTN_JOURNAL_TABLE)
         );
     }
 
-    private static String renameTableIfExistsSql(String oldName, String newName) {
-        return "declare n number(10);" +
-                " begin" +
-                " select count(*) into n from DBA_TABLES where TABLE_NAME = '" + oldName + "';" +
-                " if (n > 0) then" +
-                " execute immediate 'alter table " + oldName + " rename to " + newName + "';" +
-                " end if;" +
-                " end;";
+    private static String renameTableSql(String oldName, String newName) {
+        return "alter table " + oldName + " rename to " + newName;
     }
 
     private void updateCertificates() {
