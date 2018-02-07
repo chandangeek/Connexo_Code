@@ -16,6 +16,7 @@ import ch.iec.tc57._2011.meterconfig.Status;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public class MeterConfigFactory {
 
@@ -26,6 +27,18 @@ public class MeterConfigFactory {
         meterConfig.getMeter().add(meter);
         SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
         meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
+        return meterConfig;
+    }
+
+    public MeterConfig asMeterConfig(List<Device> successfulDevices) {
+        MeterConfig meterConfig = new MeterConfig();
+        successfulDevices.stream().forEach(device -> {
+            Meter meter = createMeter(device);
+//            meter.setStatus(createStatus(DefaultState.fromKey(state).map(DefaultState::getDefaultFormat).orElse(state), effectiveDate));
+            meterConfig.getMeter().add(meter);
+        });
+//        SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
+//        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         return meterConfig;
     }
 
