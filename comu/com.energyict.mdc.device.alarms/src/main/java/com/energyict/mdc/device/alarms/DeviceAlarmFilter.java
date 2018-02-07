@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.alarms;
 
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -33,6 +34,7 @@ public class DeviceAlarmFilter {
     private boolean unassignedWorkGroupSelected = false;
     private Long startCreateTime = null;
     private Long endCreateTime = null;
+    private CreationRule rule = null;
 
     public DeviceAlarmFilter() {
     }
@@ -145,5 +147,13 @@ public class DeviceAlarmFilter {
 
     public void setEndCreateTime(Long endCreateTime) {
         this.endCreateTime = endCreateTime;
+    }
+
+    public CreationRule getRule() {
+        return rule;
+    }
+
+    public void setRule(CreationRule rule) {
+        this.rule = rule;
     }
 }

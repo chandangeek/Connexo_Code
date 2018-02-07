@@ -313,6 +313,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         DeviceAlarmFilter filter = new DeviceAlarmFilter();
         Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
         if(rule.isPresent()){
+            filter.setRule(rule.get());
             getEndDevice().ifPresent(filter::setDevice);
             new ArrayList<String>(){{
                 add(IssueStatus.OPEN);

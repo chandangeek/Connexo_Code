@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -295,7 +296,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class, Priority.class));
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class, CreationRule.class));
         } else {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
@@ -421,6 +422,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         if (filter.getEndCreateTime() != null) {
             condition = condition.and(where("baseIssue.createDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
+        }
+        //filter by alarm rule
+        if (filter.getRule() != null) {
+            condition = condition.and(where("baseIssue.rule").isEqualTo(filter.getRule()));
         }
         return condition;
     }

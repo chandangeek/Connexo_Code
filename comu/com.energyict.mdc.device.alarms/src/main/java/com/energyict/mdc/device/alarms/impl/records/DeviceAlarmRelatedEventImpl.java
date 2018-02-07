@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
+import java.time.Clock;
 import java.time.Instant;
 
 public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
@@ -18,8 +19,10 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
         AlARM("alarm"),
         EVENTRECORD("eventRecord"),
         EVENT_TYPE_CODE("eventTypeCode"),
+        DEVICE_CODE("deviceCode"),
         END_DEVICE_ID("endDeviceId"),
-        CREATE_DATE_TIME("createdDateTime");
+        RECORD_TIME("recordTime"),
+        CREATE_TIME("createTime");
 
         private final String javaFieldName;
 
@@ -33,20 +36,28 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
     }
 
 
+
+
     @IsPresent
     private Reference<EndDeviceEventRecord> eventRecord = Reference.empty();
     @SuppressWarnings("unused")
     private String eventTypeCode;
     @SuppressWarnings("unused")
+    private String deviceCode;
+    @SuppressWarnings("unused")
     private long endDeviceId;
     @SuppressWarnings("unused")
-    private Instant createdDateTime;
+    private Instant recordTime;
+    @SuppressWarnings("unused")
+    private Instant createTime;
 
     DeviceAlarmRelatedEventImpl init(EndDeviceEventRecord eventRecord) {
         this.eventRecord.set(eventRecord);
+        this.deviceCode = eventRecord.getDeviceEventType();
         this.eventTypeCode = eventRecord.getEventTypeCode();
         this.endDeviceId = eventRecord.getEndDevice().getId();
-        this.createdDateTime = eventRecord.getCreatedDateTime();
+        this.recordTime = eventRecord.getCreatedDateTime();
+        this.createTime = Instant.now(Clock.systemDefaultZone());
         return this;
     }
 
