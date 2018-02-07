@@ -478,13 +478,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         if (!Ext.isArray(record.get('viewLevels'))) {
             record.set('viewLevels', null);
         }
-        // record.getProxy().setPreviewUrl();
         record.endEdit();
 
-        // record.setDirty();
         if(me.editRecord && me.editRecord.get('defaultValue')){
             me.defaultPropertiesData = me.editRecord.get('defaultValue');
-            me.loadProperties(me.editRecord.get('defaultValue'));
+            me.loadProperties(me.editRecord.get('defaultValue'), me.editRecord);
         } else {
             viewport.setLoading();
             Ext.Ajax.request({
@@ -495,8 +493,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     var responseText = Ext.JSON.decode(operation.responseText);
                     viewport.setLoading(false);
                     me.defaultPropertiesData = responseText;
-                    me.loadProperties(responseText);
-
+                    me.loadProperties(responseText, record);
                 }
             });
         }
@@ -630,15 +627,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         });
     },
 
-    loadProperties: function(defaultPropertiesData) {
+    loadProperties: function(defaultPropertiesData, currentRecord) {
 
         var me = this,
             currentProperties = defaultPropertiesData.currentProperties,
             activeAliasCombo = undefined,
             passiveAliasCombo = undefined,
             aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases'),
-            trustStoreId = undefined,
-            trustStoreName = undefined;
+            trustStoreId = currentRecord.get('trustStoreId');
 
         delete aliasesStore.getProxy().extraParams['trustStore'];
         if(currentProperties.length > 0) {
@@ -675,6 +671,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
+                } else if (property.key === 'trustStore') {
+                    aliasesStore.getProxy().setExtraParam('trustStore', trustStoreId);
                 }
 
             });
@@ -717,6 +715,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             }
                         }
                     };
+                } else if (property.key === 'trustStore') {
+                    aliasesStoreTemp.getProxy().setExtraParam('trustStore', trustStoreId);
                 }
             });
             me.getActivePassiveCertContainer().add(passiveAliasCombo);
