@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.rest.PropertyInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BulkRequestInfo {
@@ -22,6 +24,6 @@ public class BulkRequestInfo {
     String processId;
     String version;
     String deploymentId;
-    Map<String,Object> properties;
+    List<PropertyInfo> properties = new ArrayList<>();
 
 }

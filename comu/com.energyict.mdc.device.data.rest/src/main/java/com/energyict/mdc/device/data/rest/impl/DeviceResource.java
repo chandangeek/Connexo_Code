@@ -15,6 +15,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -55,6 +56,8 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
+import com.energyict.mdc.device.data.rest.Errors;
+import com.energyict.mdc.device.data.rest.LocalizedFieldException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -365,6 +368,18 @@ public class DeviceResource {
         if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
+        List<Errors> err = new ArrayList<>();
+        for (PropertyInfo property : request.properties) {
+            if (property.required) {
+                if (property.propertyValueInfo == null || property.propertyValueInfo.value == null || "".equals(property.propertyValueInfo.value)) {
+                    err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                }
+            }
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        }
+
         BpmProcessDefinition bpmProcessDefinition = bpmService.getAllBpmProcessDefinitions()
                 .stream()
                 .filter(definition -> definition.getProcessName().equalsIgnoreCase(request.name))
