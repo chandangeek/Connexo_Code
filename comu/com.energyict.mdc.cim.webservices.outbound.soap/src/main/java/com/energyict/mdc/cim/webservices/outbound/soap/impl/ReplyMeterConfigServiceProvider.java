@@ -4,14 +4,13 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
-import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
@@ -22,16 +21,12 @@ import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import org.apache.cxf.jaxws.JaxWsClientProxy;
-import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
 import javax.xml.ws.Service;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +38,7 @@ import java.util.Map;
         property = {"name=" + ReplyMeterConfigWebService.NAME})
 public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
+    private final String NOUN = "ReplyMeterConfig";
     private final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -50,21 +46,8 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     private final List<MeterConfigPort> stateMeterConfigPortServices = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
-    private volatile DeviceService deviceService;
-
     public ReplyMeterConfigServiceProvider() {
         // for OSGI purposes
-    }
-
-    @Inject
-    public ReplyMeterConfigServiceProvider(DeviceService deviceService) {
-        this();
-        setDeviceService(deviceService);
-    }
-
-    @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -91,19 +74,20 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     }
 
     @Override
-    public String getWebServiceName() {
-        return StateTransitionWebServiceClient.NAME;
-    }
-
-    @Override
-    public void call(EndPointConfiguration endPointConfiguration, List<Device> successfulDevices, Map<String, String> failedDevices) {
+    public void call(EndPointConfiguration endPointConfiguration,  OperationEnum operation,
+                     List<Device> successfulDevices, Map<String, String> failedDevices) {
         try {
             stateMeterConfigPortServices.stream()
-                    .filter(meterConfigPort -> isValidReplyMeterConfigService(meterConfigPort, endPointConfiguration.getUrl()))
-                    .findFirst()
-                    .ifPresent(meterConfigPortService -> {
+                    .forEach(meterConfigPortService -> {
                         try {
-                            meterConfigPortService.changedMeterConfig(createResponseMessage(successfulDevices, failedDevices));
+                            switch (operation) {
+                                case CREATE:
+                                    meterConfigPortService.createdMeterConfig(createResponseMessage(successfulDevices, failedDevices));
+                                    break;
+                                case UPDATE:
+                                    meterConfigPortService.changedMeterConfig(createResponseMessage(successfulDevices, failedDevices));
+                                    break;
+                            }
                         } catch (FaultMessage faultMessage) {
                             endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                         }
@@ -118,7 +102,7 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(getWebServiceName());
+        header.setNoun(NOUN);
         header.setVerb(HeaderType.Verb.REPLY);
         meterConfigEventMessageType.setHeader(header);
 
@@ -144,9 +128,5 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
         meterConfigEventMessageType.setPayload(payloadType);
 
         return meterConfigEventMessageType;
-    }
-
-    private boolean isValidReplyMeterConfigService(MeterConfigPort meterConfigPort, String url) throws RuntimeException {
-        return url.contains((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(stateMeterConfigPortServices.get(0)))).getRequestContext().get(Message.ENDPOINT_ADDRESS));
     }
 }
