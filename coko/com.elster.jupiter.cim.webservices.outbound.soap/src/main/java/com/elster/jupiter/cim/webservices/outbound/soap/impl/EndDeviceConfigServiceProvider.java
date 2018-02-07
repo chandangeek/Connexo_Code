@@ -4,6 +4,7 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.EndDeviceFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -33,6 +34,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
         service = {StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
@@ -49,20 +52,27 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
     private final EndDeviceFactory endDeviceFactory = new EndDeviceFactory();
 
     private volatile MeteringService meteringService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     public EndDeviceConfigServiceProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceConfigServiceProvider(MeteringService meteringService) {
+    public EndDeviceConfigServiceProvider(MeteringService meteringService, EndPointConfigurationService endPointConfigurationService) {
         this();
         this.meteringService = meteringService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -94,16 +104,17 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
     }
 
     @Override
-    public void call(long id, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate) {
-        endPointConfigurations.forEach(endPointConfiguration -> {
+    public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
+        getEndPointConfigurationByIds(endPointConfigurationIds).forEach(endPointConfiguration -> {
             try {
                 stateEndDeviceConfigPortServices.stream()
-                        .filter(endDeviceConfigPort -> isServiceURL(endDeviceConfigPort, endPointConfiguration.getUrl()))
+                        .filter(endDeviceConfigPort -> isValidReplyMeterConfigService(endDeviceConfigPort, endPointConfiguration))
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
                             meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
                                 try {
-                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate)));
+                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate), HeaderType.Verb.CHANGED));
+                                    endPointConfiguration.log(LogLevel.INFO, "Changed state " + state + " on " + endDevice.getName() + " message was sent");
                                 } catch (FaultMessage faultMessage) {
                                     endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                                 }
@@ -115,13 +126,21 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         });
     }
 
-    private EndDeviceConfigEventMessageType createResponseMessage(EndDeviceConfig endDeviceConfig) {
+    private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
+        return endPointConfigurationIds.stream()
+                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    private EndDeviceConfigEventMessageType createResponseMessage(EndDeviceConfig endDeviceConfig, HeaderType.Verb verb) {
         EndDeviceConfigEventMessageType endDeviceConfigEventMessageType = new EndDeviceConfigEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(getWebServiceName());
-        header.setVerb(HeaderType.Verb.CHANGED);
+        header.setVerb(verb);
         endDeviceConfigEventMessageType.setHeader(header);
 
         // set reply
@@ -137,7 +156,7 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         return endDeviceConfigEventMessageType;
     }
 
-    private boolean isServiceURL(EndDeviceConfigPort endDeviceConfigPort, String url) throws RuntimeException {
-        return url.contains((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS));
+    private boolean isValidReplyMeterConfigService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
+        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 }
