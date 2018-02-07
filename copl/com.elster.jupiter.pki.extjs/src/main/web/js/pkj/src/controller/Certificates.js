@@ -447,9 +447,7 @@ Ext.define('Pkj.controller.Certificates', {
     revokeCertificate: function (menuItem) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: "Revoke"}),
-            certificateRecord = menuItem.up('certificate-action-menu').record,
-            //todo: check if it necessary
-            jsonTrueVal = 'true';
+            certificateRecord = menuItem.up('certificate-action-menu').record;
 
         Ext.Ajax.request({
             url: '/api/pir/certificates/' + certificateRecord.get('id') + '/checkRevoke',
@@ -457,14 +455,15 @@ Ext.define('Pkj.controller.Certificates', {
 
             callback: function (config, success, response) {
                 if (!Ext.isEmpty(response.responseText)) {
+                    console.log(response);
                     var responseObject = JSON.parse(response.responseText);
 
-                    if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === jsonTrueVal) {
+                    if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === true) {
                         me.getApplication().getController('Uni.controller.Error').showError("Usages!", "There are usages you sneaky human", "-1");
                         return;
                     }
                     var isOnline, title, text, eventText;
-                    isOnline = !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === jsonTrueVal;
+                    isOnline = !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === true;
                     if (isOnline) {
                         title = 'Revoke certificate?';
                         text = 'A request for revoking the certificate will be sent to the Certification Authority';
