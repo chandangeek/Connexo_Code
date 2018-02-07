@@ -391,10 +391,10 @@ public class DeviceResource {
             devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
         }
         Stream<Device> deviceStream = resourceHelper.getDeviceStream(devicesForConfigChangeSearch, request.deviceIds);
-        List<Long> deviceList = deviceStream
+        List<String> deviceList = deviceStream
                 .filter(device -> !isProcessOnDevice(device, request))
                 .filter(device -> deviceStateMatches(device, bpmProcessDefinition))
-                .map(HasId::getId)
+                .map(Device::getmRID)
                 .collect(Collectors.toList());
 
         return Response.ok(deviceList).build();
@@ -1446,7 +1446,7 @@ public class DeviceResource {
     }
 
     private boolean isProcessOnDevice(Device device, BulkRequestInfo request) {
-        return bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + device.getId())
+        return bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + device.getmRID())
                 .processes
                 .stream()
                 .anyMatch(p -> p.name.equalsIgnoreCase(request.name) && p.version.equalsIgnoreCase(request.version) &&
