@@ -103,9 +103,10 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     private void doSetCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) throws IOException {
         this.csr = csr.getEncoded();
 
+        setSubject(csr.getSubject().toString());
         String keyUsagesCsv = stringifyKeyUsages(keyUsages, extendedKeyUsages);
-        if (keyUsagesCsv != null && !"".equalsIgnoreCase(keyUsagesCsv)) {
-            setKeyUsagesCsv(stringifyKeyUsages(keyUsages, extendedKeyUsages));
+        if (keyUsagesCsv != null && !keyUsagesCsv.isEmpty()) {
+            setKeyUsagesCsv(keyUsagesCsv);
         }
     }
 
@@ -132,8 +133,9 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                 for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                     Extensions extensions = Extensions.getInstance(asn1Encodable);
                     Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
-                    KeyUsage.fromExtension(keyUsageExtension).stream().map(Enum::toString).forEach(usages::add);
-
+                    if (keyUsageExtension != null) {
+                        KeyUsage.fromExtension(keyUsageExtension).stream().map(Enum::toString).forEach(usages::add);
+                    }
                     Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
                     if (extendedKeyUsage != null) {
                         ExtendedKeyUsage.fromExtension(extendedKeyUsage).stream().map(Enum::toString).forEach(usages::add);
