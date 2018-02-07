@@ -20,10 +20,10 @@ public class BulkRequestInfo {
     public long newDeviceConfiguration;
     public String strategy;
 
-    String name;
-    String processId;
-    String version;
-    String deploymentId;
-    List<PropertyInfo> properties = new ArrayList<>();
+    public String name;
+    public String processId;
+    public String version;
+    public String deploymentId;
+    public List<PropertyInfo> properties = new ArrayList<>();
 
 }
