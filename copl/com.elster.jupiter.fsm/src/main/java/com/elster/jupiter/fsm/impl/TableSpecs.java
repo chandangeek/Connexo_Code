@@ -182,13 +182,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndPointConfigurationReference> table = dataModel.addTable(this.name(), EndPointConfigurationReference.class);
             table.map(EndPointConfigurationReferenceImpl.class);
+            table.since(version(10, 4));
             Column id = table.addAutoIdColumn();
             table.column("PURPOSE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(EndPointConfigurationReferenceImpl.Fields.PURPOSE.fieldName()).add();
             Column endPointConfiguration = table.column("ENDPOINTCONFIGURATION").number().notNull().add();
             Column state = table.column("STATE").number().notNull().add();
             table.primaryKey("PK_FSM_ENDPOINTCONFIG").on(id).add();
             table.setJournalTableName("FSM_ENDPOINT_CONFIGURATIONJRNL").since(version(10, 4));
-            table.addAuditColumns().forEach(column -> column.since(version(10, 4)));
+            table.addAuditColumns();
             table.foreignKey("FK_FSM_ENDPOINTCONFIG")
                     .on(endPointConfiguration)
                     .references(EndPointConfiguration.class)
