@@ -6,10 +6,12 @@ package com.energyict.mdc.cim.webservices.inbound.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
+import com.energyict.mdc.device.data.Device;
+
 import aQute.bnd.annotation.ConsumerType;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @ConsumerType
 public interface ReplyMeterConfigWebService {
@@ -26,8 +28,9 @@ public interface ReplyMeterConfigWebService {
     /**
      * Invoked by the fsm framework when a state was changed
      *
-     * @param id - business object id
-     * @param endPointConfigurations - end point configuration list
+     * @param endPointConfiguration - end point configuration list
+     * @param successfulDevices - the list of successfully proceeded devices
+     * @param failedDevices - map<deviceMrid, errorMessage>
      */
-    void call(long id, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate);
+    void call(EndPointConfiguration endPointConfiguration, List<Device> successfulDevices, Map<String, String> failedDevices);
 }

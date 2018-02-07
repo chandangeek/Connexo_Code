@@ -16,14 +16,14 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import javax.inject.Inject;
 import java.util.function.Supplier;
 
-class MeterConfigFaultMessageFactory {
+public class MeterConfigFaultMessageFactory {
     private final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
 
     private final Thesaurus thesaurus;
     private final ReplyTypeFactory replyTypeFactory;
 
     @Inject
-    MeterConfigFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
+    public MeterConfigFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
         this.thesaurus = thesaurus;
         this.replyTypeFactory = replyTypeFactory;
     }

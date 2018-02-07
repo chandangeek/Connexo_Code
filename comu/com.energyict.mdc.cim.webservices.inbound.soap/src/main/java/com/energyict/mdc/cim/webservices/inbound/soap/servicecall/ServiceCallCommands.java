@@ -15,13 +15,16 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.List;
 
 public class ServiceCallCommands {
 
@@ -70,18 +73,18 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("MultiSense").extendedWith(meterConfigMasterDomainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
 
-        meterConfig.getMeter().forEach(meter -> createMeterConfigChildCall(parentServiceCall, meter));
+        meterConfig.getMeter().forEach(meter -> createMeterConfigChildCall(parentServiceCall, meter, meterConfig.getSimpleEndDeviceFunction()));
 
         return parentServiceCall;
     }
 
-    private ServiceCall createMeterConfigChildCall(ServiceCall parent, Meter meter) {
+    private ServiceCall createMeterConfigChildCall(ServiceCall parent, Meter meter,  List<SimpleEndDeviceFunction> simpleEndDeviceFunction) {
         ServiceCallType serviceCallType = getServiceCallType(false);
 
         MeterConfigDomainExtension meterConfigDomainExtension = new MeterConfigDomainExtension();
         meterConfigDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
-//        meterConfigDomainExtension.setMeter(jsonService.serialize(meter));
-        meterConfigDomainExtension.setMeter("meter");
+        MeterInfo meterInfo = new MeterInfo(meter, simpleEndDeviceFunction);
+        meterConfigDomainExtension.setMeter(jsonService.serialize(meterInfo));
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(meterConfigDomainExtension);
 //        todo mlevan take into account update meter
 //        if (device.isPresent()) {

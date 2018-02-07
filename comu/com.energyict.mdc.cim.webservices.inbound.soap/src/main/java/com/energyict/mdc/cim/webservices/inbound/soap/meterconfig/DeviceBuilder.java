@@ -84,6 +84,28 @@ public class DeviceBuilder {
         };
     }
 
+    public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
+        DeviceConfiguration deviceConfig = extractDeviceConfigOrThrowException(meter);
+        Optional<String> batch = Optional.ofNullable(meter.getBatch());
+        Optional<String> serialNumber = Optional.ofNullable(meter.getSerialNumber());
+        Optional<String> manufacturer = Optional.ofNullable(meter.getManufacturer());
+        Optional<String> modelNumber = Optional.ofNullable(meter.getModelNumber());
+        Optional<String> modelVersion = Optional.ofNullable(meter.getModelVersion());
+        Optional<BigDecimal> multiplier = Optional.ofNullable(meter.getMultiplier());
+        return () -> {
+            Device createdDevice = batch.isPresent() ?
+                    deviceService.newDevice(deviceConfig, meter.getDeviceName(), batch.get(), meter.getShipmentDate()) :
+                    deviceService.newDevice(deviceConfig, meter.getDeviceName(), meter.getShipmentDate());
+            serialNumber.ifPresent(createdDevice::setSerialNumber);
+            manufacturer.ifPresent(createdDevice::setManufacturer);
+            modelNumber.ifPresent(createdDevice::setModelNumber);
+            modelVersion.ifPresent(createdDevice::setModelVersion);
+            multiplier.ifPresent(m -> createdDevice.setMultiplier(m, meter.getShipmentDate()));
+            createdDevice.save();
+            return createdDevice;
+        };
+    }
+
     public PreparedDeviceBuilder prepareChangeFrom(Meter meter) throws FaultMessage {
         String deviceName = extractDeviceNameForUpdateOrThrowException(meter);
         Optional<String> mrid = extractMrid(meter);
@@ -181,8 +203,23 @@ public class DeviceBuilder {
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, deviceConfigurationName));
     }
 
+    private DeviceConfiguration extractDeviceConfigOrThrowException(MeterInfo meter) throws FaultMessage {
+        DeviceType deviceType = extractDeviceTypeOrThrowException(meter);
+        return deviceType.getConfigurations()
+                .stream()
+                .filter(config -> meter.getDeviceConfigurationName().equals(config.getName()))
+                .findAny()
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, meter.getDeviceConfigurationName()));
+    }
+
     private DeviceType extractDeviceTypeOrThrowException(Meter meter) throws FaultMessage {
         String deviceTypeName = extractDeviceTypeName(meter);
+        return deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeName));
+    }
+
+    private DeviceType extractDeviceTypeOrThrowException(MeterInfo meter) throws FaultMessage {
+        String deviceTypeName = meter.getDeviceType();
         return deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeName));
     }

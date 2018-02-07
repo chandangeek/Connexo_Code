@@ -15,6 +15,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,7 +26,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,6 +46,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     private volatile PropertySpecService propertySpecService;
     private volatile ServiceCallService serviceCallService;
     private volatile JsonService jsonService;
+    private volatile DeviceService deviceService;
 
     private final List<ReplyMeterConfigWebService> webServiceList = new ArrayList<>();
 
@@ -76,6 +82,11 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -154,6 +165,34 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(epc -> !epc.isInbound())
                 .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
-        serviceCall.findChildren();
+        webServiceList.forEach(client -> client.call(endPointConfiguration.get(),
+                getSuccessfullyProceededDevices(serviceCall),
+                getUnsuccessfullyProceededDevices(serviceCall)));
+    }
+
+    private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
+        List<Device> devices = new ArrayList<>();
+        serviceCall.findChildren()
+                .stream()
+                .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
+                .forEach(child ->  {
+                    MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+                    deviceService.findDeviceByName(meter.getName()).ifPresent(devices::add);
+                });
+        return devices;
+    }
+
+    private Map<String, String> getUnsuccessfullyProceededDevices(ServiceCall serviceCall) {
+        Map<String, String> map = new HashMap<>();
+        serviceCall.findChildren()
+                .stream()
+                .filter(child -> child.getState().equals(DefaultState.FAILED))
+                .forEach(child ->  {
+                    MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+                    map.put(meter.getmRID(), extensionFor.getErrorMessage());
+                });
+        return map;
     }
 }

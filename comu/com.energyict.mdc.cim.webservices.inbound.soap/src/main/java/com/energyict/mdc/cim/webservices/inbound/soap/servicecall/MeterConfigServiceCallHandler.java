@@ -5,18 +5,25 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 
-import ch.iec.tc57._2011.meterconfig.Meter;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -41,10 +48,53 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile DeviceService deviceService;
     private volatile BatchService batchService;
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
 
-//    private DeviceBuilder deviceBuilder;
+    private ReplyTypeFactory replyTypeFactory;
+    private MeterConfigFaultMessageFactory messageFactory;
+    private DeviceBuilder deviceBuilder;
 
-    public MeterConfigServiceCallHandler(){}
+    @Override
+    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
+        switch (newState) {
+            case ONGOING:
+                processMeterConfigServiceCall(serviceCall);
+                break;
+            case SUCCESSFUL:
+                break;
+            case FAILED:
+                break;
+            case PENDING:
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                break;
+            default:
+                // No specific action required for these states
+                break;
+        }
+    }
+
+    private void processMeterConfigServiceCall(ServiceCall serviceCall) {
+        MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+        // call device creation
+        MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+
+        try {
+            getDeviceBuilder().prepareCreateFrom(meter).build();
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        } catch (Exception faultMessage) {
+            MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            extension.setErrorMessage(faultMessage.getLocalizedMessage());
+            serviceCall.update(extension);
+            serviceCall.requestTransition(DefaultState.FAILED);
+        }
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+    }
 
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
@@ -86,39 +136,24 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
-    @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-            case ONGOING:
-                processMeterConfigServiceCall(serviceCall);
-                break;
-            case SUCCESSFUL:
-                break;
-            case FAILED:
-                break;
-            case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
-            default:
-                // No specific action required for these states
-                break;
+    private DeviceBuilder getDeviceBuilder() {
+        if (deviceBuilder == null) {
+            deviceBuilder = new DeviceBuilder(deviceLifeCycleService, deviceConfigurationService, deviceService, batchService, clock, getMessageFactory());
         }
+        return deviceBuilder;
     }
 
-    private void processMeterConfigServiceCall(ServiceCall serviceCall) {
-        MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        // call device creation
-        Meter meter = jsonService.deserialize(extensionFor.getMeter(), Meter.class);
+    private MeterConfigFaultMessageFactory getMessageFactory() {
+        if (messageFactory == null) {
+            messageFactory = new MeterConfigFaultMessageFactory(thesaurus, getReplyTypeFactory());
+        }
+        return messageFactory;
+    }
 
-//        try {
-//            deviceBuilder.prepareCreateFrom(meter, null).build();
-//        } catch (FaultMessage faultMessage) {
-//            MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
-//                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-//            extension.setErrorMessage(faultMessage.getLocalizedMessage());
-//            serviceCall.update(extension);
-//            serviceCall.requestTransition(DefaultState.FAILED);
-//        }
+    private ReplyTypeFactory getReplyTypeFactory() {
+        if (replyTypeFactory == null) {
+            replyTypeFactory = new ReplyTypeFactory(thesaurus);
+        }
+        return replyTypeFactory;
     }
 }
