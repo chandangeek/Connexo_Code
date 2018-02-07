@@ -1127,6 +1127,7 @@ public class UsagePointOutputResource {
                                 .stream();
                     })).flatMap(Functions.asStream())
                     .flatMap(Function.identity())
+                    .filter(record -> ((OutputChannelHistoryDataInfo) record).reportedDateTime != null)
                     .sorted(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).interval.end)
                             .thenComparing(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).reportedDateTime).reversed()))
                     .collect(Collectors.toList()));

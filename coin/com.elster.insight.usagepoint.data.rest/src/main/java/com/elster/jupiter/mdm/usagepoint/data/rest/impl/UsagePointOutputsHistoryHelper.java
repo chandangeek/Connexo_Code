@@ -172,6 +172,7 @@ public class UsagePointOutputsHistoryHelper {
                             .max(Comparator.comparing(JournaledReadingRecord::getReportedDateTime));
                 } else {
                     journaledReadingRecord = records.stream()
+                            .filter(record -> record.getReportedDateTime() != null)
                             .filter(record -> record.getReportedDateTime().compareTo(mergedReadingQuality.getTimestamp()) >= 0)
                             .min(Comparator.comparing(JournaledReadingRecord::getReportedDateTime));
                 }
