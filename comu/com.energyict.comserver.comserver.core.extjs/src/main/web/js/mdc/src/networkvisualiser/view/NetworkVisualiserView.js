@@ -260,36 +260,23 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         }
     },
 
-    showMap: function () {
-
-        var me = this;
-        me.chart.map().show();
-        if (Ext.isEmpty(geoLocationlayer)) {
-            me.changeMapProvider('1');
-        } else {
-            me.changeMapProvider('2');
-        }
-    },
-
     hideMap: function () {
         var me = this;
         me.chart.map().hide();
     },
 
-    changeMapProvider: function (option) {
+    showMap: function () {
+        var me = this;
+        me.chart.map().show();
+        me.setMapProvider();
+    },
+
+    setMapProvider: function () {
         var me = this;
         leafletMap = me.chart.map().leafletMap();
-        switch (option) {
-            case '1':
-                var mutant = L.gridLayer.googleMutant({maxZoom: geoLocationZoom, type: geoLocationType});
-                mutant.addTo(leafletMap);
-                break;
-            case '2':
-                L.tileLayer(geoLocationlayer, {
-                    maxZoom: geoLocationZoom
-                }).addTo(leafletMap);
-                break;
-        }
+        L.tileLayer(geoLocationlayer, {
+            maxZoom: geoLocationZoom
+        }).addTo(leafletMap);
     },
 
     showDeviceLifeCycleStatus: function () {
