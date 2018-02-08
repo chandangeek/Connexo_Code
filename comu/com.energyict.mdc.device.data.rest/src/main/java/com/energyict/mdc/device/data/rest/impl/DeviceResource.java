@@ -365,10 +365,13 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response validateDevices(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
-        if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
-            throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
-        }
         List<Errors> err = new ArrayList<>();
+        if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
+            err.add(new Errors("invalid action", MessageSeeds.BAD_ACTION.getDefaultFormat()));
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        }
         for (PropertyInfo property : request.properties) {
             if (property.required) {
                 if (property.propertyValueInfo == null || property.propertyValueInfo.value == null || "".equals(property.propertyValueInfo.value)) {
@@ -380,11 +383,16 @@ public class DeviceResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
 
-        BpmProcessDefinition bpmProcessDefinition = bpmService.getAllBpmProcessDefinitions()
+        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getAllBpmProcessDefinitions()
                 .stream()
                 .filter(definition -> definition.getProcessName().equalsIgnoreCase(request.name))
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_PROCESS_DEFINITION));
+                .findAny();
+        if (!bpmProcessDefinition.isPresent()) {
+            err.add(new Errors("process",MessageSeeds.NO_SUCH_PROCESS_DEFINITION.getDefaultFormat()));
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(new LocalizedFieldException(err)).build();
+        }
 
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = null;
         if (request.filter != null) {
@@ -393,7 +401,7 @@ public class DeviceResource {
         Stream<Device> deviceStream = resourceHelper.getDeviceStream(devicesForConfigChangeSearch, request.deviceIds);
         List<String> deviceList = deviceStream
                 .filter(device -> !isProcessOnDevice(device, request))
-                .filter(device -> deviceStateMatches(device, bpmProcessDefinition))
+                .filter(device -> deviceStateMatches(device, bpmProcessDefinition.get()))
                 .map(Device::getmRID)
                 .collect(Collectors.toList());
 
