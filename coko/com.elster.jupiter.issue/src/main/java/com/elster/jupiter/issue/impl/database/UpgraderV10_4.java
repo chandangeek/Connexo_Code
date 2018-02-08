@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@LiteralSql
 public class UpgraderV10_4 implements Upgrader {
 
     private final DataModel dataModel;
