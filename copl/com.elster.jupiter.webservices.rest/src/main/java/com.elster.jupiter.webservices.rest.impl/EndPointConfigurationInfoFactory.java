@@ -77,10 +77,16 @@ public class EndPointConfigurationInfoFactory {
                         .getDisplayName(thesaurus));
         if (endPointConfiguration.isInbound()) {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri()
-                    .getAuthority()
-                    + "/" + ws.getProtocol().path()
-                    + endPointConfiguration.getUrl());
+            if (!endPointConfiguration.getUrl().equals("/")) {
+                webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri()
+                        .getScheme() + "://" + uriInfo.getBaseUri()
+                        .getAuthority()
+                        + "/" + ws.getProtocol().path()
+                        + endPointConfiguration.getUrl());
+            } else {
+                info.previewUrl = null;
+            }
+
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
                     .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
         } else {
