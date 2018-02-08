@@ -31,6 +31,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected ComChannel comChannel;
     protected CollectedLogBook collectedLogBook;
     protected EventPushNotificationParser parser;
+    List<CollectedData> collectedDatas;
 
     @Override
     public void initComChannel(ComChannel comChannel) {
@@ -172,8 +173,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<CollectedData> getCollectedData() {
-        List<CollectedData> collectedDatas = new ArrayList<>();
-        collectedDatas.add(collectedLogBook);
+        if(collectedDatas == null) {
+            collectedDatas = new ArrayList<>();
+            collectedDatas.add(collectedLogBook);
+        }
         return collectedDatas;
     }
 

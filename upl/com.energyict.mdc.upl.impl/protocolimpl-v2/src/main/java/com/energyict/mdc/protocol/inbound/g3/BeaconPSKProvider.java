@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -16,6 +17,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -49,13 +53,25 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     protected void clearInstancesAndStoreCache() {
         try {
             if (this.gatewayProtocol != null) {
+                gatewayProtocol.terminate();
                 DeviceProtocolCache deviceCache = gatewayProtocol.getDeviceCache();
                 CollectedDeviceCache collectedDeviceCache = context.getCollectedDataFactory().createCollectedDeviceCache(getDeviceIdentifier(), deviceCache);
+                clearPreviousCollectedDeviceCacheObjects();
                 getCollectedDataList().add(collectedDeviceCache);
             }
         } finally {
             super.clearInstancesAndStoreCache();
         }
+    }
+
+    private void clearPreviousCollectedDeviceCacheObjects() {
+        List<CollectedData> collectedDeviceCacheToRemove = new ArrayList<>();
+        for (CollectedData collectedData : getCollectedDataList()) {
+            if(collectedData instanceof CollectedDeviceCache){
+                collectedDeviceCacheToRemove.add(collectedData);
+            }
+        }
+        getCollectedDataList().removeAll(collectedDeviceCacheToRemove);
     }
 
     /**

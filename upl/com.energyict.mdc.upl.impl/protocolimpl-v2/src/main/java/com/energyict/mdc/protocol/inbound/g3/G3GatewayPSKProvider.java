@@ -88,14 +88,15 @@ public class G3GatewayPSKProvider {
         } catch (PropertyValidationException e) {
             communicationError("Unexpected property validation exception occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", context);
             throw CommunicationException.protocolConnectFailed(e);
+        } finally {
+            if (joiningMacAddresses.isEmpty()) {
+                context.getLogger().info(() -> "Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
+            } else {
+                context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + joiningMacAddresses.stream().collect(Collectors.joining(", ")) + " the association will be released.");
+            }
+            closeConnection();
         }
 
-        if (joiningMacAddresses.isEmpty()) {
-            context.getLogger().info(() -> "Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
-        } else {
-            context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + joiningMacAddresses.stream().collect(Collectors.joining(", ")) + " the association will be released.");
-        }
-        closeConnection();
     }
 
     private void closeConnection() {
