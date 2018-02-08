@@ -159,21 +159,6 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
         });
     }
 
-    private List<EndDeviceConfigPort> findActualEndDeviceConfigPortServices(List<Long> endPointConfigurationIds) {
-        List<EndDeviceConfigPort> endDeviceConfigPorts = new ArrayList<>();
-        endPointConfigurationIds.stream()
-                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(endPointConfiguration -> {
-                    stateEndDeviceConfigPortServices.stream()
-                            .filter(endDeviceConfigPort -> isValidReplyMeterConfigService(endDeviceConfigPort, endPointConfiguration))
-                            .findFirst()
-                            .ifPresent(endDeviceConfigPorts::add);
-                });
-        return endDeviceConfigPorts;
-    }
-
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
         return endPointConfigurationIds.stream()
                 .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
