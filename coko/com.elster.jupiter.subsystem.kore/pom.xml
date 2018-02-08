@@ -79,6 +79,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.inbound.soap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>cim.webservices.outbound.soap</artifactId>
         </dependency>
         <dependency>
