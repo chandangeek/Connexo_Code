@@ -1,8 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.protocol.pluggable.UPLEndDeviceGroupHolder;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +44,11 @@ public class ConnexoToUPLPropertySpecPossibleValuesAdapter implements PropertySp
 
     @Override
     public List<?> getAllValues() {
-        return this.actual.getAllValues();
+    List values = new ArrayList<>();
+        for (Object value : this.actual.getAllValues()) {
+            values.add(adaptToUPLValue(value));
+        }
+    return values;
     }
 
     @Override
@@ -53,7 +63,7 @@ public class ConnexoToUPLPropertySpecPossibleValuesAdapter implements PropertySp
 
     @Override
     public Object getDefault() {
-        return this.actual.getDefault();
+        return adaptToUPLValue(this.actual.getDefault());
     }
 
     private PropertySelectionMode toUpl(com.elster.jupiter.properties.PropertySelectionMode selectionMode) {
@@ -88,5 +98,18 @@ public class ConnexoToUPLPropertySpecPossibleValuesAdapter implements PropertySp
     @Override
     public int hashCode() {
         return actual != null ? actual.hashCode() : 0;
+    }
+
+    public static Object adaptToUPLValue(Object value) {
+        if (value instanceof TimeDuration) {
+            value = ((TimeDuration) value).asTemporalAmount();
+        } else if (value instanceof Calendar) {
+            value = new TariffCalendarAdapter(((Calendar) value));
+        } else if (value instanceof SecurityAccessorType) {
+            value = new KeyAccessorTypeAdapter(((SecurityAccessorType) value));
+        } else if (value instanceof EndDeviceGroup) {
+            return UPLEndDeviceGroupHolder.from((EndDeviceGroup) value);
+        }
+        return value;
     }
 }
