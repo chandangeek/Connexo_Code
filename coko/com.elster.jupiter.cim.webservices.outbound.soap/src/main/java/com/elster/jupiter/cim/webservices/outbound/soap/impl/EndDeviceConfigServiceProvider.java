@@ -4,13 +4,19 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.EndDeviceFactory;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.HasId;
 
+import com.elster.jupiter.util.HasName;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
@@ -38,10 +44,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
-        service = {StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
+        service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + StateTransitionWebServiceClient.NAME})
-public class EndDeviceConfigServiceProvider implements StateTransitionWebServiceClient, OutboundSoapEndPointProvider {
+public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider {
 
     private final String RESOURCE_WSDL = "/enddeviceconfig/ReplyEndDeviceConfig.wsdl";
 
@@ -105,25 +111,68 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
 
     @Override
     public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
-        getEndPointConfigurationByIds(endPointConfigurationIds).forEach(endPointConfiguration -> {
+        meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
+            call(endDevice, getEndPointConfigurationByIds(endPointConfigurationIds), state, effectiveDate, false);
+        });
+    }
+
+    @Override
+    public void handle(LocalEvent localEvent) {
+        meteringService.findEndDeviceByName(((HasName) localEvent.getSource()).getName()).ifPresent(endDevice -> {
+            endDevice.getFiniteStateMachine().ifPresent(finiteStateMachine -> {
+                List<Long> endPointConfigurationIds = finiteStateMachine.getInitialState().getOnEntryEndPointConfigurations().stream()
+                        .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                        .map(EndPointConfiguration::getId)
+                        .collect(Collectors.toList());
+                endDevice.getLifecycleDates().getReceivedDate().ifPresent(effectiveDate -> {
+                    call(endDevice, getEndPointConfigurationByIds(endPointConfigurationIds), finiteStateMachine.getInitialState().getName(), effectiveDate, true);
+                });
+            });
+        });
+    }
+
+    @Override
+    public String getTopicMatcher() {
+        return "com/energyict/mdc/device/data/device/CREATED";
+    }
+
+    private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
+        endPointConfigurations.forEach(endPointConfiguration -> {
             try {
                 stateEndDeviceConfigPortServices.stream()
                         .filter(endDeviceConfigPort -> isValidReplyMeterConfigService(endDeviceConfigPort, endPointConfiguration))
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
-                            meteringService.findEndDeviceById(id).ifPresent(endDevice -> {
-                                try {
+                            try {
+                                if (isCreated) {
+                                    endDeviceConfigPortService.createdEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate), HeaderType.Verb.CREATED));
+                                } else {
                                     endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate), HeaderType.Verb.CHANGED));
-                                    endPointConfiguration.log(LogLevel.INFO, "Changed state " + state + " on " + endDevice.getName() + " message was sent");
-                                } catch (FaultMessage faultMessage) {
-                                    endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                                 }
-                            });
+                                endPointConfiguration.log(LogLevel.INFO, (isCreated ? "Created" : "Changed") + " state " + state + " on " + endDevice.getName() + " message was sent");
+                            } catch (FaultMessage faultMessage) {
+                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                            }
                         });
             } catch (Exception ex) {
                 endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
             }
         });
+    }
+
+    private List<EndDeviceConfigPort> findActualEndDeviceConfigPortServices(List<Long> endPointConfigurationIds) {
+        List<EndDeviceConfigPort> endDeviceConfigPorts = new ArrayList<>();
+        endPointConfigurationIds.stream()
+                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(endPointConfiguration -> {
+                    stateEndDeviceConfigPortServices.stream()
+                            .filter(endDeviceConfigPort -> isValidReplyMeterConfigService(endDeviceConfigPort, endPointConfiguration))
+                            .findFirst()
+                            .ifPresent(endDeviceConfigPorts::add);
+                });
+        return endDeviceConfigPorts;
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
@@ -132,6 +181,10 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isValidReplyMeterConfigService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
+        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 
     private EndDeviceConfigEventMessageType createResponseMessage(EndDeviceConfig endDeviceConfig, HeaderType.Verb verb) {
@@ -154,9 +207,5 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         endDeviceConfigEventMessageType.setPayload(endDeviceConfigPayloadType);
 
         return endDeviceConfigEventMessageType;
-    }
-
-    private boolean isValidReplyMeterConfigService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
-        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 }
