@@ -5,26 +5,44 @@ import java.util.List;
 
 public class CertificateRevocationInfo {
     public boolean isOnline;
-    public List<Result> revocationResults;
+    public Long timeout;
+    public Bulk bulk;
 
-    public void addResult(long id, String status) {
-        if (revocationResults == null) {
-            revocationResults = new ArrayList<>();
-        }
-        revocationResults.add(new Result(id, status));
+
+    public CertificateRevocationInfo() {
+        this.bulk = new Bulk();
     }
 
     public CertificateRevocationInfo(boolean isOnline) {
         this.isOnline = isOnline;
+        this.bulk = new Bulk();
     }
 
-    private static class Result {
-        private long id;
-        private String status;
+    public void addIdWithUsages(Long id) {
+        if (bulk.certificatesIdsWithUsages == null) {
+            bulk.certificatesIdsWithUsages = new ArrayList<>();
+        }
+        bulk.certificatesIdsWithUsages.add(id);
+        bulk.updateCounts();
+    }
 
-        public Result(long id, String status) {
-            this.id = id;
-            this.status = status;
+    public static class Bulk {
+        //do math on backend
+        public Long total;
+        public Long valid;
+        public Long invalid;
+
+        //all ids
+        public List<Long> certificatesIds;
+        //ids with usages, that can't be revoked
+        public List<Long> certificatesIdsWithUsages;
+
+        private void updateCounts() {
+            if (total == null) {
+                total = (long) certificatesIds.size();
+            }
+            invalid = (long) certificatesIdsWithUsages.size();
+            valid = total - invalid;
         }
     }
 }
