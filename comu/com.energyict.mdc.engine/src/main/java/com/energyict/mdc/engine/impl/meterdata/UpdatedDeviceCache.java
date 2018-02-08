@@ -43,7 +43,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
 
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
-        return false;
+        return true;
     }
 
     @Override

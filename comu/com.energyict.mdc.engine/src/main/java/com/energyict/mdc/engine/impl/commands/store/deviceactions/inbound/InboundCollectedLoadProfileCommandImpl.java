@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
@@ -113,6 +114,8 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     );
                 }
 
+                this.addCollectedDataItem(dataItem);
+            } else if(dataItem instanceof CollectedDeviceCache){
                 this.addCollectedDataItem(dataItem);
             }
         }

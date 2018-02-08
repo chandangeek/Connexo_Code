@@ -14,10 +14,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +38,8 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
         for (ServerCollectedData dataItem : collectedData) {
             if (dataItem instanceof CollectedRegister
                     | dataItem instanceof CollectedRegisterList
-                    | dataItem instanceof CollectedDeviceInfo) {
+                    | dataItem instanceof CollectedDeviceInfo
+                    | dataItem instanceof CollectedDeviceCache) {
                 this.addCollectedDataItem(dataItem);
             }
         }

@@ -13,10 +13,10 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,8 @@ public class InboundCollectedLogBookCommandImpl extends LogBooksCommandImpl {
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         for (ServerCollectedData dataItem : collectedData) {
-            if (dataItem instanceof CollectedLogBook) {
+            if (dataItem instanceof CollectedLogBook
+                    || dataItem instanceof CollectedDeviceCache) {
                 this.addCollectedDataItem(dataItem);
             }
         }
