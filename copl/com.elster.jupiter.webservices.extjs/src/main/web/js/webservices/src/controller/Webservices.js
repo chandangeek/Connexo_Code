@@ -147,7 +147,7 @@ Ext.define('Wss.controller.Webservices', {
         var form = this.getAddForm(),
             me = this,
             formErrorsPanel = form.down('#addEndPointFormErrors');
-        if(!form.isValid() && form.down('#logLevelCombo') === null) {
+        if (!form.isValid() && (form.down('#logLevelCombo') === null || form.down('#url-path').lastValue == null)) {
             formErrorsPanel.show();
             return;
         } else {
