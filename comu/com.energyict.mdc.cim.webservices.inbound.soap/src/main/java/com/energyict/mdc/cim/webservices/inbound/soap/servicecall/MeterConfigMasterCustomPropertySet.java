@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
@@ -37,11 +38,10 @@ import java.util.Set;
         property = "name=" + MeterConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
 public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<ServiceCall, MeterConfigMasterDomainExtension> {
-
     public static final String CUSTOM_PROPERTY_SET_NAME = "MeterConfigMasterCustomPropertySet";
 
-    private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
 
     public MeterConfigMasterCustomPropertySet() {
     }
@@ -95,7 +95,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
     @Override
     public PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> getPersistenceSupport() {
-        return new MyPersistenceSupport();
+        return new MeterConfigMasterCustomPropertyPersistenceSupport();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
         );
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> {
+    private class MeterConfigMasterCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> {
         private final String TABLE_NAME = "MCP_SCS_CNT";
         private final String FK = "FK_MCP_SCS_CNT";
 
@@ -213,7 +213,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String application() {
-            return "MultiSense";
+            return MeterConfigChecklist.APPLICATION_NAME;
         }
     }
 }

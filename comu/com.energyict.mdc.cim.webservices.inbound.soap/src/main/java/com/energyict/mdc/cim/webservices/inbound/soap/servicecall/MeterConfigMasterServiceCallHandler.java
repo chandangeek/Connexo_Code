@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -39,39 +38,14 @@ import java.util.Optional;
 public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigMasterServiceCallHandler";
 
+    private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile JsonService jsonService;
-    private volatile DeviceService deviceService;
 
     private ReplyMeterConfigWebService replyMeterConfigWebService;
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        this.replyMeterConfigWebService = webService;
-    }
-
-    public void removeReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
-        this.replyMeterConfigWebService = null;
-    }
-
-    @Reference
-    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
-        this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINEST, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case ONGOING:
                 serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
@@ -106,6 +80,30 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 // No specific action required for these states
                 break;
         }
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
+        this.replyMeterConfigWebService = webService;
+    }
+
+    public void removeReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
+        this.replyMeterConfigWebService = null;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
@@ -151,7 +149,8 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 
         replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
                 getSuccessfullyProceededDevices(serviceCall),
-                getUnsuccessfullyProceededDevices(serviceCall));
+                getUnsuccessfullyProceededDevices(serviceCall),
+                extensionFor.getExpectedNumberOfCalls());
     }
 
     private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
@@ -162,7 +161,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-                    deviceService.findDeviceByName(meter.getName()).ifPresent(devices::add);
+                    deviceService.findDeviceByName(meter.getDeviceName()).ifPresent(devices::add);
                 });
         return devices;
     }

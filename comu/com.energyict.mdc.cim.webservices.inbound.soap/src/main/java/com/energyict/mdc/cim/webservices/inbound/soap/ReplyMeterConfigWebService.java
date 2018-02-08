@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ public interface ReplyMeterConfigWebService {
      * @param endPointConfiguration - the outbound end point
      * @param successfulDevices - the list of successfully proceeded devices
      * @param failedDevices - the map contains the MRID of the device failed to proceed as a key and the error message as a value
+     * @param expectedNumberOfCalls - the expected number of child calls
      */
-    void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, List<Device> successfulDevices, Map<String, String> failedDevices);
+    void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, List<Device> successfulDevices,
+              Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls);
 }

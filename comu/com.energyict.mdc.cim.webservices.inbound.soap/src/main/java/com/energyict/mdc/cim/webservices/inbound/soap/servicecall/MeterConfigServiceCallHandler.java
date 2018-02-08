@@ -4,11 +4,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -40,15 +38,12 @@ import java.time.Clock;
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
 
-    private volatile CustomPropertySetService customPropertySetService;
-    private volatile PropertySpecService propertySpecService;
-    private volatile JsonService jsonService;
-
+    private volatile BatchService batchService;
+    private volatile Clock clock;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
-    private volatile BatchService batchService;
-    private volatile Clock clock;
+    private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
 
     private ReplyTypeFactory replyTypeFactory;
@@ -81,10 +76,10 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         try {
             switch (OperationEnum.getFromString(extensionFor.getOperation())) {
                 case CREATE:
-                    getDeviceBuilder().prepareCreateFrom(meter).build();
+                    getDeviceFactory().prepareCreateFrom(meter).build();
                     break;
                 case UPDATE:
-                    getDeviceBuilder().prepareChangeFrom(meter).build();
+                    getDeviceFactory().prepareChangeFrom(meter).build();
                     break;
                 default:
                     break;
@@ -100,33 +95,13 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public void setBatchService(BatchService batchService) {
-        this.batchService = batchService;
     }
 
     @Reference
@@ -144,9 +119,19 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
-    private DeviceBuilder getDeviceBuilder() {
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
+    private DeviceBuilder getDeviceFactory() {
         if (deviceBuilder == null) {
-            deviceBuilder = new DeviceBuilder(deviceLifeCycleService, deviceConfigurationService, deviceService, batchService, clock, getMessageFactory());
+            deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService, deviceService, getMessageFactory());
         }
         return deviceBuilder;
     }

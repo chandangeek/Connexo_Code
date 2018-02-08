@@ -44,6 +44,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private final TransactionService transactionService;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private final MeterConfigFactory meterConfigFactory;
+    private final MeterConfigParser meterConfigParser;
     private final ReplyTypeFactory replyTypeFactory;
     private final EndPointHelper endPointHelper;
     private final DeviceBuilder deviceBuilder;
@@ -55,9 +56,11 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
-                                      ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService) {
+                                      ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+                                      MeterConfigParser meterConfigParser) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
+        this.meterConfigParser = meterConfigParser;
         this.faultMessageFactory = faultMessageFactory;
         this.replyTypeFactory = replyTypeFactory;
         this.endPointHelper = endPointHelper;
@@ -83,7 +86,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                 // call synchronously
                 Meter meter = meterConfig.getMeter().stream().findFirst()
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METER_ITEM));
-                Device createdDevice = deviceBuilder.prepareCreateFrom(meter, meterConfig.getSimpleEndDeviceFunction()).build();
+                Device createdDevice = deviceBuilder.prepareCreateFrom(meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE)).build();
                 context.commit();
                 return createResponseMessage(createdDevice, HeaderType.Verb.CREATED);
             }
@@ -111,7 +114,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                 // call synchronously
                 Meter meter = meterConfig.getMeter().stream().findFirst()
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METER_ITEM));
-                Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
+                Device changedDevice = deviceBuilder.prepareChangeFrom(meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.UPDATE)).build();
                 context.commit();
                 return createResponseMessage(changedDevice, HeaderType.Verb.CHANGED);
             }
@@ -141,7 +144,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig, EndPointConfiguration endPointConfiguration,
-                                                                  OperationEnum operation) {
+                                                                  OperationEnum operation) throws FaultMessage{
         ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig, endPointConfiguration, operation);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;

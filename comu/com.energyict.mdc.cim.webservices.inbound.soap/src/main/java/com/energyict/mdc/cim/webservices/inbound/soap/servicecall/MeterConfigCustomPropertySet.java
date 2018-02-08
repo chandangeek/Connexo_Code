@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
@@ -37,11 +38,10 @@ import java.util.Set;
         property = "name=" + MeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
 public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCall, MeterConfigDomainExtension> {
-
     public static final String CUSTOM_PROPERTY_SET_NAME = "MeterConfigCustomPropertySet";
 
-    private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
 
     public MeterConfigCustomPropertySet() {
     }
@@ -94,7 +94,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
     @Override
     public PersistenceSupport<ServiceCall, MeterConfigDomainExtension> getPersistenceSupport() {
-        return new MyPersistenceSupport();
+        return new MeterConfigCustomPropertyPersistenceSupport();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
         );
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigDomainExtension> {
+    private class MeterConfigCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigDomainExtension> {
         private final String TABLE_NAME = "MCM_SCS_CNT";
         private final String FK = "FK_MCM_SCS_CNT";
 
@@ -211,7 +211,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
         @Override
         public String application() {
-            return "MultiSense";
+            return MeterConfigChecklist.APPLICATION_NAME;
         }
     }
 }
