@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +39,8 @@ import java.util.Map;
         property = {"name=" + ReplyMeterConfigWebService.NAME})
 public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
-    private final String NOUN = "ReplyMeterConfig";
-    private final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
+    private static final String NOUN = "ReplyMeterConfig";
+    private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -74,18 +75,18 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     }
 
     @Override
-    public void call(EndPointConfiguration endPointConfiguration,  OperationEnum operation,
-                     List<Device> successfulDevices, Map<String, String> failedDevices) {
+    public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
+                     List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         try {
             stateMeterConfigPortServices.stream()
                     .forEach(meterConfigPortService -> {
                         try {
                             switch (operation) {
                                 case CREATE:
-                                    meterConfigPortService.createdMeterConfig(createResponseMessage(successfulDevices, failedDevices));
+                                    meterConfigPortService.createdMeterConfig(createResponseMessage(successfulDevices, failedDevices, expectedNumberOfCalls));
                                     break;
                                 case UPDATE:
-                                    meterConfigPortService.changedMeterConfig(createResponseMessage(successfulDevices, failedDevices));
+                                    meterConfigPortService.changedMeterConfig(createResponseMessage(successfulDevices, failedDevices, expectedNumberOfCalls));
                                     break;
                             }
                         } catch (FaultMessage faultMessage) {
@@ -97,7 +98,7 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
         }
     }
 
-    private MeterConfigEventMessageType createResponseMessage(List<Device> successfulDevices, Map<String, String> failedDevices) {
+    private MeterConfigEventMessageType createResponseMessage(List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
@@ -108,7 +109,13 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        replyType.setResult(ReplyType.Result.OK);
+        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(successfulDevices.size())) == 0) {
+            replyType.setResult(ReplyType.Result.OK);
+        } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
+            replyType.setResult(ReplyType.Result.FAILED);
+        } else {
+            replyType.setResult(ReplyType.Result.PARTIAL);
+        }
 
         // set errors
         failedDevices.entrySet().stream().forEach(entry -> {
