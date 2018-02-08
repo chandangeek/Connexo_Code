@@ -57,6 +57,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>cim.webservices.inbound.soap</artifactId>
+                <version>1.0.0${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>cim.webservices.outbound.soap</artifactId>
                 <version>1.0.0${revision}</version>
             </dependency>
