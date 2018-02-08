@@ -14,9 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.HasId;
-
 import com.elster.jupiter.util.HasName;
+
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
