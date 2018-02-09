@@ -110,20 +110,26 @@ public enum TableSpecs {
                     .notNull()
                     .varChar(NAME_LENGTH)
                     .map("deviceCode")
+                    .installValue("'*'")
+                    .since(version(10,4))
                     .add();
             Column recordTimeColumn = table.column("RECORDTIME")
                     .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map(DeviceAlarmRelatedEventImpl.Fields.RECORD_TIME.fieldName())
+                    .since(version(10,4))
                     .add();
-            Column createTimeColumn = table.column("CREATETIME")
+            Column createTimeColumn =table.addCreateTimeColumn("CREATETIME", DeviceAlarmRelatedEventImpl.Fields.CREATE_TIME.fieldName()).since(version(10,4));
+            Column oldCreateDateTimeColumn = table.column("CREATEDDATETIME")
                     .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
-                    .map(DeviceAlarmRelatedEventImpl.Fields.CREATE_TIME.fieldName())
+                    .map(DeviceAlarmRelatedEventImpl.Fields.RECORD_TIME.fieldName())
+                    .upTo(version(10,4))
                     .add();
-            table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn,  deviceCode, recordTimeColumn, createTimeColumn).add();
+            recordTimeColumn.previously(oldCreateDateTimeColumn);table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn, recordTimeColumn).upTo(version(10,4)).add();
+            table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn,  deviceCode, recordTimeColumn, createTimeColumn).since(version(10,4)).add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTS")
                     .on(alarmColumn)
                     .references(DAL_ALARM_OPEN.name())
@@ -162,20 +168,27 @@ public enum TableSpecs {
                     .notNull()
                     .varChar(NAME_LENGTH)
                     .map("deviceCode")
+                    .installValue("'*'")
+                    .since(version(10,4))
                     .add();
             Column recordTimeColumn = table.column("RECORDTIME")
                     .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map(DeviceAlarmRelatedEventImpl.Fields.RECORD_TIME.fieldName())
+                    .since(version(10,4))
                     .add();
-            Column createTimeColumn = table.column("CREATETIME")
+            Column createTimeColumn =table.addCreateTimeColumn("CREATETIME", DeviceAlarmRelatedEventImpl.Fields.CREATE_TIME.fieldName()).since(version(10,4));
+            Column oldCreateDateTimeColumn = table.column("CREATEDDATETIME")
                     .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
-                    .map(DeviceAlarmRelatedEventImpl.Fields.CREATE_TIME.fieldName())
+                    .map(DeviceAlarmRelatedEventImpl.Fields.RECORD_TIME.fieldName())
+                    .upTo(version(10,4))
                     .add();
-            table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn,  deviceCode, recordTimeColumn, createTimeColumn).add();
+            recordTimeColumn.previously(oldCreateDateTimeColumn);
+            table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn,  recordTimeColumn).upTo(version(10,4)).add();
+            table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, endDeviceColumn, eventTypeColumn,  deviceCode, recordTimeColumn, createTimeColumn).since(version(10,4)).add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSALM")
                     .on(alarmColumn)
                     .references(DAL_ALARM_HISTORY.name())

@@ -57,7 +57,6 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
         this.eventTypeCode = eventRecord.getEventTypeCode();
         this.endDeviceId = eventRecord.getEndDevice().getId();
         this.recordTime = eventRecord.getCreatedDateTime();
-        this.createTime = Instant.now(Clock.systemDefaultZone());
         return this;
     }
 
