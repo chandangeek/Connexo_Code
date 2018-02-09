@@ -12,7 +12,8 @@ public enum TranslationKeys implements TranslationKey {
     DAY_LIMIT_NO_CASE("dayLimitNoCase", "day limit"),
     WEEK_LIMIT_NO_CASE("weekLimitNoCase", "week limit"),
     MONTH_LIMIT_NO_CASE("monthLimitNoCase", "month limit"),
-    THE_X_OF_Y("theXOfY", "the {0} of ''{1}''");
+    THE_X_OF_Y("theXOfY", "the {0} of ''{1}''"),
+    COMMANDS_ALLOWED("commandsAllowed", "({0} commands allowed)");
 
 
     private final String key;
