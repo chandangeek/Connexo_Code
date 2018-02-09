@@ -214,6 +214,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             }
         ];
 
+        me.getSelectionModel().suppressMultiSelEvent = true;
         me.callParent(arguments);
     },
 

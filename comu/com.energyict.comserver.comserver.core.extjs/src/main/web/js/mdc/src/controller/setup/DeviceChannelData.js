@@ -465,8 +465,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         .add(gasDayYearStart.get('minutes'), 'minutes');
                 }
                 filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(fromDate.toDate());
-            } else if (router.getQueryStringValues().validationBlock) {
-                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(Number(router.getQueryStringValues().validationBlock));
+            } else if (router.getQueryStringValues().validationBlockEndTime) {
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(Number(router.getQueryStringValues().validationBlockEndTime));
             }
             else {
                 var fromDate = channel.get('lastReading');
@@ -1261,7 +1261,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         if (responseText.message) {
                             window.down('#error-label').show();
                             window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
-                        } else if (responseText.ranges.ranges) {
+                        } else if (responseText.ranges) {
                             window.down('#error-label').show();
                             var listOfFailedReadings = _.map(responseText.ranges.ranges, function (interval) {
                                 return Uni.DateTime.formatDateTimeShort(new Date(interval.start))

@@ -289,7 +289,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('deviceType.securityaccessors.remove.msg', 'MDC', 'This security accessor will no longer be available on this device type .'),
+                msg: Uni.I18n.translate('deviceType.securityaccessors.remove.msg', 'MDC', 'This security accessor will no longer be available on this device type.'),
                 title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", Ext.htmlEncode(record.get('name')), false),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -408,6 +408,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             defaultValueData.currentProperties = currentProperties;
 
             record.set('defaultValue', defaultValueData);
+        } else {
+            record.set('defaultValue', null);
         }
 
         record.endEdit();
@@ -673,6 +675,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     };
                 } else if (property.key === 'trustStore') {
                     aliasesStore.getProxy().setExtraParam('trustStore', trustStoreId);
+                    property.propertyValueInfo.value = {id: trustStoreId};
                 }
 
             });
@@ -717,6 +720,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     };
                 } else if (property.key === 'trustStore') {
                     aliasesStoreTemp.getProxy().setExtraParam('trustStore', trustStoreId);
+                    property.propertyValueInfo.value = {id: trustStoreId};
                 }
             });
             me.getActivePassiveCertContainer().add(passiveAliasCombo);
