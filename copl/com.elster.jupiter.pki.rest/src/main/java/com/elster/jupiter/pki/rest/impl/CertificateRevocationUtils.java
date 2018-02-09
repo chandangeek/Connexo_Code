@@ -92,10 +92,10 @@ public class CertificateRevocationUtils {
 
         certificateWrappers.forEach(cw -> jobs.put(cw, executorService.submit(() -> caSendRevoke(cw))));
 
-        //wait for results async, interrupt all jobs if/when first timeout is happened
         List<Future> asyncResults = new ArrayList<>();
         List<CertificateWrapper> revokedByCA = new ArrayList<>();
 
+        //wait for results async, interrupt all jobs if/when first timeout is happened
         jobs.entrySet().forEach(entry -> asyncResults.add(executorService.submit(() -> {
             try {
                 revokedByCA.add(entry.getValue().get(timeout, TimeUnit.SECONDS));
@@ -111,7 +111,7 @@ public class CertificateRevocationUtils {
         })));
 
         //we can use some lock here, but plain 'wait until done' is easier
-        waitAllFutures(asyncResults);
+        waitAllAsyncResults(asyncResults);
 
         //sync updating for certificate wrapper statuses since ORM layer can't handle async tasks properly
         revokedByCA.forEach(cw -> {
@@ -151,7 +151,7 @@ public class CertificateRevocationUtils {
         }
     }
 
-    private void waitAllFutures(List<Future> asyncResults) {
+    private void waitAllAsyncResults(List<Future> asyncResults) {
         asyncResults.forEach(future -> {
             try {
                 if (!future.isDone() && !future.isCancelled()) {

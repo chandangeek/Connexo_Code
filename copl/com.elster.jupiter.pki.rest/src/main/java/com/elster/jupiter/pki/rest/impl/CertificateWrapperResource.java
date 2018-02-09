@@ -27,11 +27,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Where;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -248,13 +246,12 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response removeCertificate(@PathParam("id") long certificateId) {
-        deleteREVOKED();
-//        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-//        if (!findDirectoryCertificateUsages(certificateWrapper).isEmpty()) {
-//            throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
-//        }
-//        certificateWrapper.delete();
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        if (!findDirectoryCertificateUsages(certificateWrapper).isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
+        }
+        certificateWrapper.delete();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -264,16 +261,15 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response markCertificateObsolete(@PathParam("id") long certificateId) {
-//        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
-        markObsolete();
-
-//        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
-//        if (certificateUsages.isUsed) {
-//            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
-//        }
-//        updateCertificateWrapperStatus(cert, CertificateWrapperStatus.OBSOLETE);
+        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
+        if (certificateUsages.isUsed) {
+            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
+        }
+        cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        cert.save();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -296,10 +292,10 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response unMarkCertificateObsolete(@PathParam("id") long certificateId) {
-        unmarkObsolete();
-//        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
-//                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-//        updateCertificateWrapperStatus(cert, CertificateWrapperStatus.NATIVE);
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        cert.setWrapperStatus(CertificateWrapperStatus.NATIVE);
+        cert.save();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -346,12 +342,7 @@ public class CertificateWrapperResource {
     @Path("/checkBulkRevoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response checkBulkRevokeCertificate(/*CertificateRevocationInfo revocationInfo*/) {
-        CertificateRevocationInfo revocationInfo = new CertificateRevocationInfo();
-        revocationInfo.timeout = 1L;
-        revocationInfo.bulk.certificatesIds = getAllObsolete();
-
-
+    public Response checkBulkRevokeCertificate(CertificateRevocationInfo revocationInfo) {
         List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
         revocationInfo.isOnline = revocationUtils.isCAConfigured();
         certificates.forEach(cert -> {
@@ -367,12 +358,7 @@ public class CertificateWrapperResource {
     @Path("/bulkRevoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response bulkRevokeCertificate(/*CertificateRevocationInfo revocationInfo*/) {
-        CertificateRevocationInfo revocationInfo = new CertificateRevocationInfo();
-        revocationInfo.timeout = 1L;
-        revocationInfo.bulk.certificatesIds = getAllObsolete();
-
-
+    public Response bulkRevokeCertificate(CertificateRevocationInfo revocationInfo) {
         List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
         for (CertificateWrapper cert : certificates) {
             //should never happen, but lets leave it here since force revocation (e.g. manual via rest client) can surely break something
@@ -547,42 +533,4 @@ public class CertificateWrapperResource {
         List<SecurityAccessor> accessors = securityManagementService.getAssociatedCertificateAccessors(certificateWrapper);
         return certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages, importers);
     }
-
-    //todo: remove all of next
-    private List<Long> getAllObsolete() {
-        return securityManagementService.findAllCertificates().find().stream()
-                .filter(cw -> cw.getWrapperStatus().isPresent() && cw.getWrapperStatus().get() == CertificateWrapperStatus.OBSOLETE)
-                .map(HasId::getId)
-                .collect(toList());
-    }
-
-    private void markObsolete() {
-        securityManagementService.findAllCertificates().find().stream()
-                .filter(cw -> !StringUtils.equalsIgnoreCase(cw.getAlias(), "superadmin"))
-                .forEach(cw -> {
-                    cw.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
-                    cw.save();
-                });
-    }
-
-    private void unmarkObsolete() {
-        securityManagementService.findAllCertificates().find().stream()
-                .filter(cw -> !StringUtils.equalsIgnoreCase(cw.getAlias(), "superadmin"))
-                .forEach(cw -> {
-                    cw.setWrapperStatus(CertificateWrapperStatus.NATIVE);
-                    cw.save();
-                });
-    }
-
-    private void deleteREVOKED() {
-        securityManagementService.findAllCertificates().find().stream()
-                .filter(cw -> !StringUtils.equalsIgnoreCase(cw.getAlias(), "superadmin"))
-                .filter(cw -> cw.getWrapperStatus().isPresent() && cw.getWrapperStatus().get() == CertificateWrapperStatus.REVOKED)
-                .forEach((cw) -> {
-                    cw.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
-                    cw.save();
-                });
-    }
-
-
 }
