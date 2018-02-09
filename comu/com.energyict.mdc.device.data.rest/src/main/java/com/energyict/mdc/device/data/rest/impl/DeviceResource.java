@@ -31,7 +31,6 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -400,7 +399,6 @@ public class DeviceResource {
         }
         Stream<Device> deviceStream = resourceHelper.getDeviceStream(devicesForConfigChangeSearch, request.deviceIds);
         List<String> deviceList = deviceStream
-                .filter(device -> !isProcessOnDevice(device, request))
                 .filter(device -> deviceStateMatches(device, bpmProcessDefinition.get()))
                 .map(Device::getmRID)
                 .collect(Collectors.toList());
@@ -1451,15 +1449,6 @@ public class DeviceResource {
         return deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND)
                 || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME)
                 || deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE);
-    }
-
-    private boolean isProcessOnDevice(Device device, BulkRequestInfo request) {
-        return bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + device.getmRID())
-                .processes
-                .stream()
-                .anyMatch(p -> p.name.equalsIgnoreCase(request.name) && p.version.equalsIgnoreCase(request.version) &&
-                        p.processId.equalsIgnoreCase(request.processId)
-                );
     }
 
     private boolean deviceStateMatches(Device device, BpmProcessDefinition bpmProcessDefinition) {
