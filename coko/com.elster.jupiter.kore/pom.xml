@@ -341,6 +341,7 @@
                 <module>../com.elster.jupiter.calendar.extjs</module>
                 <module>../com.elster.jupiter.calendar.rest</module>
                 <module>../com.elster.jupiter.cbo</module>
+                <module>../com.elster.jupiter.cim.webservices.inbound.soap</module>
                 <module>../com.elster.jupiter.cim.webservices.outbound.soap</module>
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.data.lifecycle</module>
