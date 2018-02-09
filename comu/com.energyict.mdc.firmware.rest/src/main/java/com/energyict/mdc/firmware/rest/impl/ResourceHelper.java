@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -105,8 +106,8 @@ public class ResourceHelper {
     /**
      * Returns the appropriate DeviceMessageId which corresponds with the uploadOption
      */
-    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption) {
-        return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), null)
+    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption,  FirmwareVersion firmwareVersion) {
+        return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), firmwareVersion)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
@@ -117,7 +118,7 @@ public class ResourceHelper {
     }
 
     public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, FirmwareMessageInfo messageInfo) {
-        DeviceMessageId firmwareMessageId = findFirmwareMessageIdOrThrowException(deviceType, messageInfo.uploadOption);
+        DeviceMessageId firmwareMessageId = findFirmwareMessageIdOrThrowException(deviceType, messageInfo.uploadOption, null);
         return this.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
     }
 
@@ -147,5 +148,19 @@ public class ResourceHelper {
             return Optional.empty();
         }
     }
+
+    Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {
+        Object value = propertyInfo.getPropertyValueInfo().getValue();
+        return this.convertObjectToLong(value);
+    }
+
+    private Optional<Long> convertObjectToLong(Object object) {
+        if (object == null){
+            return Optional.empty();
+        }
+        String str = String.valueOf(object);
+        return Optional.of(Long.parseLong(str));
+    }
+
 
 }

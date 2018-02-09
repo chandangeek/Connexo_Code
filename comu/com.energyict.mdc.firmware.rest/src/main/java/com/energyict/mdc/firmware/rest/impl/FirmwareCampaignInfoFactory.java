@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -99,10 +100,16 @@ public class FirmwareCampaignInfoFactory {
         if (info.managementOption == null || info.managementOption.id == null) {
             throw exceptionFactory.newException(MessageSeeds.NOT_ABLE_TO_CREATE_CAMPAIGN);
         }
-        DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id);
-        if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId)){
-            Long firmwareVersionId = new Long((Integer) info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value);
-            firmwareService.getFirmwareVersionById(firmwareVersionId).ifPresent(x -> info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_IMAGE_IDENTIFIER).ifPresent(y -> y.propertyValueInfo = new PropertyValueInfo<>(x.getImageIdentifier(), x.getImageIdentifier(), x.getImageIdentifier() != null)));
+
+        Long firmwareVersionId = info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION)
+                .flatMap(resourceHelper::getPropertyInfoValueLong)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_VERSION_MISSING));
+
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(firmwareVersionId);
+        DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
+        String imageIdentifier = firmwareVersion.getImageIdentifier();
+        if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && imageIdentifier != null) {
+            info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_IMAGE_IDENTIFIER).ifPresent(x -> x.propertyValueInfo = new PropertyValueInfo<>(imageIdentifier, imageIdentifier, true));
         }
         // Initializing the resume property
         info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_RESUME).ifPresent(x -> x.propertyValueInfo =new PropertyValueInfo<>(false, false, true));
