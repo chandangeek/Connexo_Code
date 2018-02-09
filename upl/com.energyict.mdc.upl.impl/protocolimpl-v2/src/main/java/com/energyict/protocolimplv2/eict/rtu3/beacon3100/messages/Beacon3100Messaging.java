@@ -836,7 +836,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
-            throw new ProtocolException("The certificate with the specified alias does not exist in the database");
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
         }
 
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
@@ -853,7 +853,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void importClientEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
-            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted key store");
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
         }
 
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
@@ -870,7 +870,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void importServerEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         if (base64EncodedCertificate == null || base64EncodedCertificate.isEmpty()) {
-            throw new ProtocolException("The CertificateWrapper with the given ID does not exist in the EIServer database");
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
         }
 
         byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
