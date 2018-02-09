@@ -795,9 +795,7 @@ public class BpmResource {
                                 .filter(f -> List.class.isInstance(p.getProperties().get(f)))
                                 .allMatch(f -> ((List<Object>) p.getProperties().get(f)).stream()
                                         .filter(HasIdAndName.class::isInstance)
-                                        .anyMatch(v -> ((HasIdAndName) v).getId()
-                                                .toString()
-                                                .equals(filterProperties.get(f).get(0)))))
+                                        .anyMatch(v -> filterProperties.get(f).contains(((HasIdAndName) v).getId().toString()))))
                         .collect(Collectors.toList());
 
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
