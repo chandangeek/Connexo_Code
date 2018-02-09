@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class LimitsExceededForCommandException extends LocalizedException {
-    private final Thesaurus thesaurus;
-    String message;
+    protected final Thesaurus thesaurus;
+    protected String message;
 
     public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules) {
         //Dummy call to super so it the exception would get propagated correctly to the FE
@@ -27,7 +27,7 @@ public class LimitsExceededForCommandException extends LocalizedException {
         }
     }
 
-    private void createTranslatedMessage(List<ExceededCommandRule> exceededCommandRules) {
+    protected void createTranslatedMessage(List<ExceededCommandRule> exceededCommandRules) {
         String and = ' ' + thesaurus.getFormat(TranslationKeys.AND).format() + ' ';
 
         ExceededCommandRule exceededCommandRule = exceededCommandRules.get(0);
@@ -44,7 +44,7 @@ public class LimitsExceededForCommandException extends LocalizedException {
         }
     }
 
-    private String getFancyLimits(ExceededCommandRule exceededCommandRule, String and) {
+    protected String getFancyLimits(ExceededCommandRule exceededCommandRule, String and) {
         List<String> brokenLimits = new ArrayList<>();
         if (exceededCommandRule.isDayLimitExceeded()) {
             brokenLimits.add(thesaurus.getFormat(TranslationKeys.DAY_LIMIT_NO_CASE).format());
