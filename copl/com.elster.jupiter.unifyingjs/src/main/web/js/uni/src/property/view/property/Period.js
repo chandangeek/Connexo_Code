@@ -42,7 +42,7 @@ Ext.define('Uni.property.view.property.Period', {
                 valueField: 'timeUnit',
                 width: me.unitComboWidth,
                 forceSelection: false,
-                editable:false,
+                editable: false,
                 required: me.required,
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank,
@@ -53,7 +53,7 @@ Ext.define('Uni.property.view.property.Period', {
 
     getComboCmp: function () {
         var store = Ext.create('Ext.data.Store', {
-            storeId:  this.key,
+            storeId: this.key,
             fields: [
                 {name: 'key', type: 'string'},
                 {name: 'value', type: 'string'}
@@ -77,7 +77,7 @@ Ext.define('Uni.property.view.property.Period', {
         return this.down('numberfield');
     },
 
-    doEnable: function(enable) {
+    doEnable: function (enable) {
         if (this.getField()) {
             if (enable) {
                 this.getField().enable();
@@ -125,8 +125,12 @@ Ext.define('Uni.property.view.property.Period', {
 
         if (me.isEdit) {
             button.setVisible(!resetButtonHidden);
-            if (me.getField()) { countValue = me.getField().getValue(); }
-            if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
+            if (me.getField()) {
+                countValue = me.getField().getValue();
+            }
+            if (me.getComboField()) {
+                timeUnitValue = me.getComboField().getValue();
+            }
 
             if (countValue && timeUnitValue) {
                 if (initialValue && rawValue.inheritedValue) {
@@ -166,7 +170,8 @@ Ext.define('Uni.property.view.property.Period', {
     getValue: function () {
         var me = this,
             countValue = me.getField().getValue(),
-            timeUnitValue = me.getComboField().getValue();
+            timeUnitValue = me.getComboField().getValue(),
+            localizedTimeUnitValue = me.getComboField().getValue();   // lori
 
         if (!me.isCombo()
             && typeof countValue !== 'undefined' && countValue !== null
@@ -176,6 +181,7 @@ Ext.define('Uni.property.view.property.Period', {
 
             result.count = countValue;
             result.timeUnit = timeUnitValue;
+            result.localizedTimeUnit = localizedTimeUnitValue;   // lori
 
             return result;
         }
