@@ -1,7 +1,5 @@
 package com.elster.jupiter.pki;
 
-import java.util.Optional;
-
 /**
  * Extra wrappers statuses to be used over X509Certificate statuses
  * <ul>
@@ -11,27 +9,7 @@ import java.util.Optional;
  * <ul/>
  */
 public enum CertificateWrapperStatus {
-
-    NATIVE(0),
-    OBSOLETE(1),
-    REVOKED(2);
-
-    long statusDBKey;
-
-    CertificateWrapperStatus(int statusDBKey) {
-        this.statusDBKey = statusDBKey;
-    }
-
-    public static Optional<CertificateWrapperStatus> fromDbKey(long statusDBKey){
-        for (CertificateWrapperStatus st : values()){
-            if(st.statusDBKey == statusDBKey){
-                return Optional.of(st);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public long statusDBKey() {
-        return statusDBKey;
-    }
+    NATIVE,
+    OBSOLETE,
+    REVOKED
 }

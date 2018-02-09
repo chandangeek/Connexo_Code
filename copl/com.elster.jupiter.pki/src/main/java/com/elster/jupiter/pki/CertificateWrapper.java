@@ -143,5 +143,5 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      */
     void setWrapperStatus(CertificateWrapperStatus status);
 
-    Optional<CertificateWrapperStatus> getWrapperStatus();
+    CertificateWrapperStatus getWrapperStatus();
 }

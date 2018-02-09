@@ -119,7 +119,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-    private long wrapperStatus;
+    private CertificateWrapperStatus wrapperStatus;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -131,6 +131,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
         this.securityManagementService = securityManagementService;
+        this.wrapperStatus = CertificateWrapperStatus.NATIVE;
     }
 
     @Override
@@ -206,8 +207,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             return Optional.empty();
         }
 
-        if (getWrapperStatus().isPresent()) {
-            switch (getWrapperStatus().get()) {
+        if (getWrapperStatus() != null) {
+            switch (getWrapperStatus()) {
                 case REVOKED:
                     return Optional.of(TranslationKeys.REVOKED);
                 case OBSOLETE:
@@ -413,11 +414,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     @Override
     public void setWrapperStatus(CertificateWrapperStatus status) {
-        this.wrapperStatus = status.statusDBKey();
+        this.wrapperStatus = status;
     }
 
     @Override
-    public Optional<CertificateWrapperStatus> getWrapperStatus() {
-        return CertificateWrapperStatus.fromDbKey(wrapperStatus);
+    public CertificateWrapperStatus getWrapperStatus() {
+        return wrapperStatus;
     }
 }

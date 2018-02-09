@@ -27,6 +27,7 @@ import com.elster.jupiter.users.UserDirectory;
 import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -130,10 +131,10 @@ public enum TableSpecs {
                     .since(Version.version(10, 4))
                     .add();
             table.column("STATUS")
-                    .number()
-                    .conversion(NUMBER2LONG)
+                    .varChar(Table.NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
                     .notNull()
-                    .installValue(String.valueOf(CertificateWrapperStatus.NATIVE.statusDBKey()))
+                    .installValue("'" + CertificateWrapperStatus.NATIVE.name() + "'")
                     .map(AbstractCertificateWrapperImpl.Fields.WRAPPER_STATUS.fieldName())
                     .since(Version.version(10, 4))
                     .add();
