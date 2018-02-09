@@ -104,7 +104,10 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
         this.csr = csr.getEncoded();
 
         setSubject(csr.getSubject().toString());
-        setKeyUsagesCsv(stringifyKeyUsages(keyUsages,extendedKeyUsages));
+        String keyUsagesCsv = stringifyKeyUsages(keyUsages, extendedKeyUsages);
+        if (keyUsagesCsv != null && !keyUsagesCsv.isEmpty()) {
+            setKeyUsagesCsv(keyUsagesCsv);
+        }
     }
 
     @Override
@@ -130,8 +133,9 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                 for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                     Extensions extensions = Extensions.getInstance(asn1Encodable);
                     Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
-                    KeyUsage.fromExtension(keyUsageExtension).stream().map(Enum::toString).forEach(usages::add);
-
+                    if (keyUsageExtension != null) {
+                        KeyUsage.fromExtension(keyUsageExtension).stream().map(Enum::toString).forEach(usages::add);
+                    }
                     Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
                     if (extendedKeyUsage != null) {
                         ExtendedKeyUsage.fromExtension(extendedKeyUsage).stream().map(Enum::toString).forEach(usages::add);
