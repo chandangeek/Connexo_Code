@@ -68,7 +68,7 @@ public class UpgraderV10_4 implements Upgrader {
         String[] sqlStatements = {
                 "CREATE OR REPLACE VIEW DAL_ALARM_ALL AS SELECT * FROM DAL_ALARM_OPEN UNION SELECT * FROM DAL_ALARM_HISTORY",
                 "UPDATE DAL_OPEN_ALM_RELATED_EVT alm SET CREATETIME = (SELECT isu.CREATETIME from ISU_ISSUE_OPEN isu where alm.ALARM = isu.ID)",
-                "UPDATE DAL_HIST_ALM_RELATED_EVT alm SET CREATETIME = (SELECT isu.CREATETIME from ISU_ISSUE_OPEN isu where alm.ALARM = isu.ID)"
+                "UPDATE DAL_HIST_ALM_RELATED_EVT alm SET CREATETIME = (SELECT isu.CREATETIME from ISU_ISSUE_HISTORY isu where alm.ALARM = isu.ISU_HIST_ISSUE_ID)"
         };
         for (String sqlStatement : sqlStatements) {
             try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
