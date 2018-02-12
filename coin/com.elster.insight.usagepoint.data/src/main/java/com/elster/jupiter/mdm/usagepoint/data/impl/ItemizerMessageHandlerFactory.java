@@ -66,10 +66,10 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
         return Stream.empty();
     }
 
-    private Stream<UsagePoint> usagePointStream(List<String> usagePointMRIDs) {
+    private Stream<UsagePoint> usagePointStream(List<String> usagePointMRIDs) {  // CXO-7435
         return usagePointMRIDs
                 .stream()
-                .map(meteringService::findUsagePointByMRID)
+                .map(meteringService::findUsagePointByName)
                 .flatMap(Functions.asStream());
     }
 
