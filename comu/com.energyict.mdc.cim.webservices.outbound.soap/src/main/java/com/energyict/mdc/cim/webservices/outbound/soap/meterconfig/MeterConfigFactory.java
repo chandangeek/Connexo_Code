@@ -20,6 +20,7 @@ import java.util.List;
 
 public class MeterConfigFactory {
 
+    // todo mlevan
     public MeterConfig asMeterConfig(Device device, String state, Instant effectiveDate) {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createMeter(device);
