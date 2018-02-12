@@ -332,7 +332,8 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 var store = me.getUsagePointsGrid().getStore();
                 request.filter = store.getProxy().encodeFilters(store.filters.getRange());
             } else {
-                request.deviceMRIDs = devicesMRID;
+                // request.deviceMRIDs = devicesMRID;
+                request.usagePointMRIDs = devicesMRID;  // CXO-7435 -actually the names of the devices are sent, NOT MRIDs
             }
             request.calendarIds = [me.addCalendarFormValues.calendar];
             request.immediately =  me.addCalendarFormValues.activateCalendar === 'immediate-activation';
