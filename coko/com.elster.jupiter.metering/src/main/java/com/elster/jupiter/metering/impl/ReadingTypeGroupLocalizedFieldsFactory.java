@@ -338,8 +338,9 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
         NOTAPPLICABLE(EnumSet.of(
                 Accumulation.NOTAPPLICABLE,
                 Accumulation.BULKQUANTITY,
-                Accumulation.CUMULATIVE));
-                //Accumulation.DELTADELTA));
+                Accumulation.DELTADELTA,
+                Accumulation.SUMMATION,
+                Accumulation.INSTANTANEOUS));
 
 
         EnumSet<Accumulation> set;
