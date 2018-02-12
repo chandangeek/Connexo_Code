@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -33,24 +33,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigCustomPropertySet",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigMasterCustomPropertySet",
         service = CustomPropertySet.class,
-        property = "name=" + MeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
+        property = "name=" + MeterConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
-public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCall, MeterConfigDomainExtension> {
-    public static final String CUSTOM_PROPERTY_SET_NAME = "MeterConfigCustomPropertySet";
+public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<ServiceCall, MeterConfigMasterDomainExtension> {
+    public static final String CUSTOM_PROPERTY_SET_NAME = "MeterConfigMasterCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MeterConfigCustomPropertySet() {
+    public MeterConfigMasterCustomPropertySet() {
     }
 
     @Inject
-    public MeterConfigCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -79,7 +80,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
     @Override
     public String getName() {
-        return MeterConfigCustomPropertySet.class.getSimpleName();
+        return MeterConfigMasterCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -93,8 +94,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, MeterConfigDomainExtension> getPersistenceSupport() {
-        return new MeterConfigCustomPropertyPersistenceSupport();
+    public PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> getPersistenceSupport() {
+        return new MeterConfigMasterCustomPropertyPersistenceSupport();
     }
 
     @Override
@@ -121,39 +122,39 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .stringSpec()
-                        .named(MeterConfigDomainExtension.FieldNames.METER.javaName(), TranslationKeys.METER_CONFIG)
-                        .describedAs(TranslationKeys.METER_CONFIG)
+                        .bigDecimalSpec()
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(), TranslationKeys.CALLS_SUCCESS)
+                        .describedAs(TranslationKeys.CALLS_SUCCESS)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName(), TranslationKeys.PARENT_SERVICE_CALL)
-                        .describedAs(TranslationKeys.PARENT_SERVICE_CALL)
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(), TranslationKeys.CALLS_ERROR)
+                        .describedAs(TranslationKeys.CALLS_ERROR)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(), TranslationKeys.CALLS_EXPECTED)
+                        .describedAs(TranslationKeys.CALLS_EXPECTED)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
-                        .describedAs(TranslationKeys.ERROR_MESSAGE)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MeterConfigDomainExtension.FieldNames.OPERATION.javaName(), TranslationKeys.OPERATION)
-                        .describedAs(TranslationKeys.OPERATION)
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
+                        .describedAs(TranslationKeys.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
-    private class MeterConfigCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigDomainExtension> {
-        private final String TABLE_NAME = "MCM_SCS_CNT";
-        private final String FK = "FK_MCM_SCS_CNT";
+    private class MeterConfigMasterCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> {
+        private final String TABLE_NAME = "MCP_SCS_CNT";
+        private final String FK = "FK_MCP_SCS_CNT";
 
         @Override
         public String componentName() {
-            return "PKM";
+            return "PKT";
         }
 
         @Override
@@ -163,7 +164,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
         @Override
         public String domainFieldName() {
-            return MeterConfigDomainExtension.FieldNames.DOMAIN.javaName();
+            return MeterConfigMasterDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -172,8 +173,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
         }
 
         @Override
-        public Class<MeterConfigDomainExtension> persistenceClass() {
-            return MeterConfigDomainExtension.class;
+        public Class<MeterConfigMasterDomainExtension> persistenceClass() {
+            return MeterConfigMasterDomainExtension.class;
         }
 
         @Override
@@ -188,23 +189,24 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MeterConfigDomainExtension.FieldNames.METER.databaseName())
-                    .varChar()
-                    .map(MeterConfigDomainExtension.FieldNames.METER.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName())
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName())
                     .number()
-                    .map(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName())
                     .notNull()
                     .add();
-            table.column(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
-                    .varChar()
-                    .map(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName())
+                    .number()
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName())
+                    .notNull()
                     .add();
-            table.column(MeterConfigDomainExtension.FieldNames.OPERATION.databaseName())
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName())
+                    .number()
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName())
+                    .notNull()
+                    .add();
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()
-                    .map(MeterConfigDomainExtension.FieldNames.OPERATION.javaName())
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
         }

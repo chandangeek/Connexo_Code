@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -33,25 +34,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigMasterCustomPropertySet",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.GetEndDeviceEventsCustomPropertySet",
         service = CustomPropertySet.class,
-        property = "name=" + MeterConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
+        property = "name=" + GetEndDeviceEventsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
-public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<ServiceCall, MeterConfigMasterDomainExtension> {
-    public static final String CUSTOM_PROPERTY_SET_NAME = "MeterConfigMasterCustomPropertySet";
+public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<ServiceCall, GetEndDeviceEventsDomainExtension> {
+    public static final String CUSTOM_PROPERTY_SET_NAME = "GetEndDeviceEventsCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MeterConfigMasterCustomPropertySet() {
+    public GetEndDeviceEventsCustomPropertySet() {
     }
 
     @Inject
-    public MeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
-        this();
-        this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
+    public GetEndDeviceEventsCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -80,7 +80,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
     @Override
     public String getName() {
-        return MeterConfigMasterCustomPropertySet.class.getSimpleName();
+        return GetEndDeviceEventsCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -94,8 +94,8 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> getPersistenceSupport() {
-        return new MeterConfigMasterCustomPropertyPersistenceSupport();
+    public PersistenceSupport<ServiceCall, GetEndDeviceEventsDomainExtension> getPersistenceSupport() {
+        return new CustomPropertyPersistenceSupport();
     }
 
     @Override
@@ -122,39 +122,45 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .bigDecimalSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(), TranslationKeys.CALLS_SUCCESS)
-                        .describedAs(TranslationKeys.CALLS_SUCCESS)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .bigDecimalSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(), TranslationKeys.CALLS_ERROR)
-                        .describedAs(TranslationKeys.CALLS_ERROR)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .bigDecimalSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(), TranslationKeys.CALLS_EXPECTED)
-                        .describedAs(TranslationKeys.CALLS_EXPECTED)
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.METER.javaName(), TranslationKeys.METER_CONFIG)
+                        .describedAs(TranslationKeys.METER_CONFIG)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
+                        .describedAs(TranslationKeys.ERROR_MESSAGE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.FROM_DATE.javaName(), TranslationKeys.FROM_DATE)
+                        .describedAs(TranslationKeys.FROM_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.TO_DATE.javaName(), TranslationKeys.TO_DATE)
+                        .describedAs(TranslationKeys.TO_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
                         .describedAs(TranslationKeys.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
-    private class MeterConfigMasterCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterConfigMasterDomainExtension> {
-        private final String TABLE_NAME = "MCP_SCS_CNT";
-        private final String FK = "FK_MCP_SCS_CNT";
+    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, GetEndDeviceEventsDomainExtension> {
+        private final String TABLE_NAME = "MCZ_SCS_CNT";
+        private final String FK = "FK_MCZ_SCS_CNT";
 
         @Override
         public String componentName() {
-            return "PKT";
+            return "PKZ";
         }
 
         @Override
@@ -164,7 +170,7 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String domainFieldName() {
-            return MeterConfigMasterDomainExtension.FieldNames.DOMAIN.javaName();
+            return GetEndDeviceEventsDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -173,8 +179,8 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
         }
 
         @Override
-        public Class<MeterConfigMasterDomainExtension> persistenceClass() {
-            return MeterConfigMasterDomainExtension.class;
+        public Class<GetEndDeviceEventsDomainExtension> persistenceClass() {
+            return GetEndDeviceEventsDomainExtension.class;
         }
 
         @Override
@@ -189,24 +195,28 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName())
-                    .number()
-                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName())
-                    .number()
-                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName())
-                    .number()
-                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.METER.databaseName())
                     .varChar()
-                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.METER.javaName())
+                    .notNull()
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.FROM_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.FROM_DATE.javaName())
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.TO_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.TO_DATE.javaName())
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
         }

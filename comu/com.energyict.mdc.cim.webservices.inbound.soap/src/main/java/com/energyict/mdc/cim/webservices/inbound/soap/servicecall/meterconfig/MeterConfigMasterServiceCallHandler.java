@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -37,6 +37,7 @@ import java.util.Optional;
         property = "name=" + MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
 public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigMasterServiceCallHandler";
+    public static final String VERSION = "v1.0";
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;

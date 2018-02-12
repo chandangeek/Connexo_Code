@@ -19,6 +19,8 @@ public enum TranslationKeys implements TranslationKey {
     CALLS_SUCCESS("callsSuccess", "Success calls counter"),
     CALLS_ERROR("callsError", "Error calls counter"),
     CALLS_EXPECTED("callsExpected", "Expected calls counter"),
+    FROM_DATE("fromDate", "From date"),
+    TO_DATE("toDate", "To date")
     ;
 
     private final String key;

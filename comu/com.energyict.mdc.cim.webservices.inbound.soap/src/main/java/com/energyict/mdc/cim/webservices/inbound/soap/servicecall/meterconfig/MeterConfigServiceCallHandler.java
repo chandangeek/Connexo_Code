@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -37,6 +37,7 @@ import java.time.Clock;
         property = "name=" + MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
+    public static final String VERSION = "v1.0";
 
     private volatile BatchService batchService;
     private volatile Clock clock;
@@ -76,10 +77,10 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         try {
             switch (OperationEnum.getFromString(extensionFor.getOperation())) {
                 case CREATE:
-                    getDeviceFactory().prepareCreateFrom(meter).build();
+                    getDeviceBuilder().prepareCreateFrom(meter).build();
                     break;
                 case UPDATE:
-                    getDeviceFactory().prepareChangeFrom(meter).build();
+                    getDeviceBuilder().prepareChangeFrom(meter).build();
                     break;
                 default:
                     break;
@@ -129,7 +130,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
-    private DeviceBuilder getDeviceFactory() {
+    private DeviceBuilder getDeviceBuilder() {
         if (deviceBuilder == null) {
             deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService, deviceService, getMessageFactory());
         }

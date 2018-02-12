@@ -6,11 +6,17 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
@@ -21,9 +27,11 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsResponseMessageType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,20 +50,22 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
     private final EndDeviceEventsFaultMessageFactory messageFactory;
     private final TransactionService transactionService;
     private final EndDeviceEventsBuilder endDeviceBuilder;
+    private final ServiceCallCommands serviceCallCommands;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    GetEndDeviceEventsEndpoint(EndPointHelper endPointHelper,
-                               ReplyTypeFactory replyTypeFactory,
-                               EndDeviceEventsFaultMessageFactory messageFactory,
-                               TransactionService transactionService,
-                               EndDeviceEventsBuilder endDeviceBuilder,
-                               Clock clock) {
+    GetEndDeviceEventsEndpoint(EndPointHelper endPointHelper, ReplyTypeFactory replyTypeFactory,
+                               EndDeviceEventsFaultMessageFactory messageFactory, TransactionService transactionService,
+                               EndDeviceEventsBuilder endDeviceBuilder, Clock clock,
+                               ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService) {
         this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
         this.transactionService = transactionService;
         this.endDeviceBuilder = endDeviceBuilder;
         this.clock = clock;
+        this.serviceCallCommands = serviceCallCommands;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -68,8 +78,19 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
             if (meters.isEmpty()) {
                 throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
             }
-            EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).build();
-            return createResponseMessage(endDeviceEvents);
+            if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
+                createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()).span(), outboundEndPointConfiguration);
+                context.commit();
+                return createQuickResponseMessage();
+            } else if (meters.size() > 1) {
+                throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
+            } else {
+                // call synchronously
+                EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).build();
+                return createResponseMessage(endDeviceEvents);
+            }
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.createEndDeviceEventsFaultMessage(e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -77,7 +98,42 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         }
     }
 
+    private String getReplyAddress(GetEndDeviceEventsRequestMessageType requestMessage) throws FaultMessage {
+        String replyAddress = requestMessage.getHeader().getReplyAddress();
+        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
+            throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.NO_REPLY_ADDRESS);
+        }
+        return replyAddress;
+    }
+
+    private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
+        return endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst()
+                .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
+    }
+
+    private ServiceCall createServiceCallAndTransition(List<Meter> meters, Range<Instant> interval, EndPointConfiguration endPointConfiguration) throws FaultMessage{
+        ServiceCall serviceCall = serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(meters, interval, endPointConfiguration);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+        return serviceCall;
+    }
+
     private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents) {
+        EndDeviceEventsResponseMessageType responseMessage = createQuickResponseMessage();
+
+        // set payload
+        EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
+        endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
+        responseMessage.setPayload(endDeviceEventsPayload);
+
+        return responseMessage;
+    }
+
+    private EndDeviceEventsResponseMessageType createQuickResponseMessage() {
         EndDeviceEventsResponseMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsResponseMessageType();
 
         // set header
@@ -89,10 +145,6 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         // set reply
         responseMessage.setReply(replyTypeFactory.okReplyType());
 
-        // set payload
-        EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
-        endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
-        responseMessage.setPayload(endDeviceEventsPayload);
         return responseMessage;
     }
 }

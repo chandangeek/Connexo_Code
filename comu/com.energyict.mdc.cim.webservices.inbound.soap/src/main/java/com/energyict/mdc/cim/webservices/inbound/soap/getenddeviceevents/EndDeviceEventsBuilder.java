@@ -83,11 +83,11 @@ public class EndDeviceEventsBuilder {
      * Otherwise, this meter tag is skipped.
      */
 
-    private Optional<String> extractMrid(Meter meter) {
+    public Optional<String> extractMrid(Meter meter) {
         return Optional.ofNullable(meter.getMRID()).filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
     }
 
-    private Optional<String> extractName(Meter meter) {
+    public Optional<String> extractName(Meter meter) {
         return meter.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
     }
 
@@ -97,7 +97,7 @@ public class EndDeviceEventsBuilder {
      * If only the start date is given, the end date = now
      */
 
-    private RangeSet<Instant> getTimeIntervals(List<TimeSchedule> timeSchedules) throws FaultMessage {
+    public RangeSet<Instant> getTimeIntervals(List<TimeSchedule> timeSchedules) throws FaultMessage {
         RangeSet<Instant> result = TreeRangeSet.create();
         if (timeSchedules.isEmpty()) {
             result.addAll(ImmutableRangeSet.of(Range.all()));

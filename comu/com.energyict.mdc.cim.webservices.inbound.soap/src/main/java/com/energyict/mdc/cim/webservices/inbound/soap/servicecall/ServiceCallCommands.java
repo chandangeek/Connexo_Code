@@ -15,33 +15,50 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public class ServiceCallCommands {
 
     public enum ServiceCallTypes {
-        MASTER_METER_CONFIG("MeterConfigMasterServiceCallHandler", "v1.0"),
-        METER_CONFIG("MeterConfigServiceCallHandler", "v1.0");
+        MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterCustomPropertySet.class.getName()),
+        METER_CONFIG(MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigServiceCallHandler.VERSION, MeterConfigCustomPropertySet.class.getName()),
+        GET_END_DEVICE_EVENTS(GetEndDeviceEventsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetEndDeviceEventsServiceCallHandler.VERSION, GetEndDeviceEventsCustomPropertySet.class.getName()),
+        ;
 
         private final String typeName;
         private final String typeVersion;
+        private final String customPropertySetClass;
 
-        ServiceCallTypes(String typeName, String typeVersion) {
+        ServiceCallTypes(String typeName, String typeVersion, String customPropertySetClass) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
+            this.customPropertySetClass = customPropertySetClass;
         }
 
         public String getTypeName() {
@@ -51,10 +68,15 @@ public class ServiceCallCommands {
         public String getTypeVersion() {
             return typeVersion;
         }
+
+        public String getCustomPropertySetClass() {
+            return customPropertySetClass;
+        }
     }
 
     private final DeviceService deviceService;
     private final JsonService jsonService;
+    private final EndDeviceEventsBuilder endDeviceEventsBuilder;
     private final MeterConfigParser meterConfigParser;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
@@ -62,9 +84,10 @@ public class ServiceCallCommands {
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus) {
+                               EndDeviceEventsBuilder endDeviceEventsBuilder, Thesaurus thesaurus) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
+        this.endDeviceEventsBuilder = endDeviceEventsBuilder;
         this.meterConfigParser = meterConfigParser;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
@@ -73,7 +96,7 @@ public class ServiceCallCommands {
     @TransactionRequired
     public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration,
                                                           OperationEnum operation) throws FaultMessage {
-        ServiceCallType serviceCallType = getServiceCallType(true);
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
         meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(new BigDecimal(0));
@@ -95,7 +118,7 @@ public class ServiceCallCommands {
 
     private ServiceCall createMeterConfigChildCall(ServiceCall parent, OperationEnum operation,
                                                    Meter meter, List<SimpleEndDeviceFunction> simpleEndDeviceFunction) throws FaultMessage {
-        ServiceCallType serviceCallType = getServiceCallType(false);
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.METER_CONFIG);
 
         MeterConfigDomainExtension meterConfigDomainExtension = new MeterConfigDomainExtension();
         meterConfigDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
@@ -107,6 +130,37 @@ public class ServiceCallCommands {
         if (operation == OperationEnum.UPDATE) {
             deviceService.findDeviceByMrid(meter.getMRID()).ifPresent(serviceCallBuilder::targetObject);
         }
+        return serviceCallBuilder.create();
+    }
+
+    @TransactionRequired
+    public ServiceCall createGetEndDeviceEventsMasterServiceCall(List<ch.iec.tc57._2011.getenddeviceevents.Meter> meters,
+                                                                 Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration)
+            throws ch.iec.tc57._2011.getenddeviceevents.FaultMessage {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.GET_END_DEVICE_EVENTS);
+
+        GetEndDeviceEventsDomainExtension domainExtension = new GetEndDeviceEventsDomainExtension();
+
+        String meterIdentifiers = "";
+        for (ch.iec.tc57._2011.getenddeviceevents.Meter meter : meters) {
+            Optional<String> mRID = endDeviceEventsBuilder.extractMrid(meter);
+            Optional<String> name = endDeviceEventsBuilder.extractName(meter);
+
+            if (mRID.isPresent()) {
+                meterIdentifiers = meterIdentifiers + "," + mRID.get();
+            } else if (name.isPresent()) {
+                meterIdentifiers = meterIdentifiers + "," + name.get();
+            }
+        }
+
+        domainExtension.setMeter(meterIdentifiers);
+        domainExtension.setFromDate(interval.lowerEndpoint());
+        domainExtension.setToDate(interval.upperEndpoint());
+        domainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
+
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+                .origin("MultiSense")
+                .extendedWith(domainExtension);
         return serviceCallBuilder.create();
     }
 
@@ -133,8 +187,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(newState);
     }
 
-    private ServiceCallType getServiceCallType(boolean master) {
-        ServiceCallTypes serviceCallType = master ? ServiceCallTypes.MASTER_METER_CONFIG : ServiceCallTypes.METER_CONFIG;
+    private ServiceCallType getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
