@@ -66,7 +66,7 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     OfflineLoadProfile offlineLoadProfile = optionalOfflineLoadProfile.get();
                     int configuredNumberOfChannels = offlineLoadProfile.getAllOfflineChannels().size();
                     int receivedNumberOfChannels = collectedLoadProfile.getChannelInfo().size();
-                    if (configuredNumberOfChannels != receivedNumberOfChannels) {
+                    if (configuredNumberOfChannels != receivedNumberOfChannels && !offlineLoadProfile.isDataLoggerSlaveLoadProfile()) {
                         //We received a wrong number of channels
                         addIssue(
                                 getIssueService().newProblem(
