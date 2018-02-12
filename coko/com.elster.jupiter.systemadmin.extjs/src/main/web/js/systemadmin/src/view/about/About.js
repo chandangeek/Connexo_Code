@@ -16,7 +16,7 @@ Ext.define('Sam.view.about.About', {
             ui: 'large',
             bbar: {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.connexoVersion.10.3', 'SAM', 'Connexo version 10.3'),
+                title: Uni.I18n.translate('general.connexoVersion.10.4', 'SAM', 'Connexo version 10.4'),
                 ui: 'medium',
                 padding: 0,
                 items: [
