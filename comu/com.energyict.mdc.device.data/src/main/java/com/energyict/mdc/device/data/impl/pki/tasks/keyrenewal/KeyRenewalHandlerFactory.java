@@ -51,7 +51,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     public static final String KEY_RENEWAL_TASK_DESTINATION_NAME = "KeyRenewal";
     public static final String KEY_RENEWAL_DISPLAY_NAME = "Handle expired keys";
 
-    private Long keyRenewalBpmProcessDefinitionId;
+    private String keyRenewalBpmProcessDefinitionId;
     private Integer keyRenewalExpitationDays;
 
     public KeyRenewalHandlerFactory() {
@@ -73,7 +73,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
         activate(bundleContext);
     }
 
-    public Long getKeyRenewalBpmProcessDefinitionId() {
+    public String getKeyRenewalBpmProcessDefinitionId() {
         return keyRenewalBpmProcessDefinitionId;
     }
 
@@ -135,9 +135,8 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     }
 
     private void getTaskProperties(BundleContext bundleContext) {
-        String definitionId = getTaskProperty(bundleContext, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)
+        keyRenewalBpmProcessDefinitionId = getTaskProperty(bundleContext, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)
                 .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY));
-        keyRenewalBpmProcessDefinitionId = Long.parseLong(definitionId);
         String expirationDays = getTaskProperty(bundleContext, KEY_DAYS_TILL_EXPIRATION_PROPERTY)
                 .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, KEY_DAYS_TILL_EXPIRATION_PROPERTY));
         keyRenewalExpitationDays = Integer.parseInt(expirationDays);

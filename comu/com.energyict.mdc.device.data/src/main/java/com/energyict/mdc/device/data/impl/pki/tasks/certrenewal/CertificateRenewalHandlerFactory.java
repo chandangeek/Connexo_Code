@@ -51,7 +51,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     public static final String CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME = "CertificateRenewal";
     public static final String CERTIFICATE_RENEWAL_DISPLAY_NAME = "Handle expired certificates";
 
-    private Long certRenewalBpmProcessDefinitionId;
+    private String certRenewalBpmProcessDefinitionId;
     private Integer certRenewalExpitationDays;
 
     public CertificateRenewalHandlerFactory() {
@@ -73,7 +73,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
         activate(bundleContext);
     }
 
-    public Long getCertRenewalBpmProcessDefinitionId() {
+    public String getCertRenewalBpmProcessDefinitionId() {
         return certRenewalBpmProcessDefinitionId;
     }
 
@@ -135,9 +135,8 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     }
 
     private void getTaskProperties(BundleContext bundleContext) {
-        String definitionId = getTaskProperty(bundleContext, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY)
+        certRenewalBpmProcessDefinitionId = getTaskProperty(bundleContext, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY)
                 .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY));
-        certRenewalBpmProcessDefinitionId = Long.parseLong(definitionId);
         String expirationDays = getTaskProperty(bundleContext, CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY)
                 .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY));
         certRenewalExpitationDays = Integer.parseInt(expirationDays);

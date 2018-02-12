@@ -35,7 +35,7 @@ public class CertificateRenewalHandlerFactoryTest {
     private static final String CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY = "com.energyict.mdc.device.data.pki.certrenewal.bpmprocess";
     private static final String CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY = "com.energyict.mdc.device.data.pki.certrenewal.expirationdays";
 
-    private static final String CERTIFICATE_RENEWAL_PROCESS_DEFINITION_VALUE = "1";
+    private static final String CERTIFICATE_RENEWAL_PROCESS_DEFINITION_VALUE = "DeviceProcesses.CertificateRenewal";
     private static final String CERTIFICATE_DAYS_TILL_EXPIRATION_VALUE = "1";
 
     private static final String CERTIFICATE_RENEWAL_TASK_NAME = "Certificate Renewal Task";
@@ -124,7 +124,7 @@ public class CertificateRenewalHandlerFactoryTest {
     @Test
     public void testCertificateRenewalTaskActivate() {
         certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
-        assertThat(certificateRenewalHandlerFactory.getCertRenewalBpmProcessDefinitionId()).isEqualTo(Long.parseLong(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_VALUE));
+        assertThat(certificateRenewalHandlerFactory.getCertRenewalBpmProcessDefinitionId()).isEqualTo(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_VALUE);
         assertThat(certificateRenewalHandlerFactory.getCertRenewalExpitationDays()).isEqualTo(Integer.parseInt(CERTIFICATE_DAYS_TILL_EXPIRATION_VALUE));
     }
 

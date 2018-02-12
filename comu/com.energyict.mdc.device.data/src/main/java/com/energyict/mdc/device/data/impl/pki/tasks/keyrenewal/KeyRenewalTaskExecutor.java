@@ -28,7 +28,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,15 +42,17 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     private volatile BpmService bpmService;
     private volatile Clock clock;
 
-    private Long keyRenewalBpmProcessDefinitionId;
+    private String keyRenewalBpmProcessDefinitionId;
     private Integer keyRenewalExpitationDays;
     private Integer keyRenewalBpmProcessCount;
     private final Logger logger;
 
+    private static final String KEY_RENEWAL_PROCESS_NAME = "Key renewal";
+
     KeyRenewalTaskExecutor(DeviceDataModelService deviceDataModelService,
                            BpmService bpmService,
                            Clock clock,
-                           Long keyRenewalBpmProcessDefinitionId,
+                           String keyRenewalBpmProcessDefinitionId,
                            Integer keyRenewalExpitationDays
     ) {
         this.deviceDataModelService = deviceDataModelService;
@@ -138,37 +139,34 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         return result;
     }
 
-    private List<BpmProcessDefinition> getActiveKeyRenewalProcesses() {
-        return bpmService.getAllBpmProcessDefinitions()
+    private boolean getActiveKeyRenewalProcesses(SecurityAccessor securityAccessor) {
+        boolean found = bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID())
+                .processes
                 .stream()
-                .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus()) && p.getId() == keyRenewalBpmProcessDefinitionId)
-                .collect(Collectors.toList());
-    }
-
-    private boolean checkKeyRenewalProcess(List<BpmProcessDefinition> processList, SecurityAccessor securityAccessor) {
-        return processList.stream().anyMatch(bpmProcessDefinition -> {
-            Map<String, Object> m = bpmProcessDefinition.getProperties();
-            if (m.containsKey("SecurityAccessor")) {
-                SecurityAccessor s = (SecurityAccessor) m.get("SecurityAccessor");
-                return s.getDevice().getId() == securityAccessor.getDevice().getId() &&
-                        getDeviceKey((SymmetricKeyAccessor) s).isPresent() && getDeviceKey((SymmetricKeyAccessor) securityAccessor).isPresent() &&
-                        Arrays.equals(getDeviceKey((SymmetricKeyAccessor) s).get().getEncoded(),
-                                getDeviceKey((SymmetricKeyAccessor) securityAccessor).get().getEncoded());
-            }
-            return false;
-        });
+                .anyMatch(processInstanceInfo -> processInstanceInfo.name.equalsIgnoreCase(KEY_RENEWAL_PROCESS_NAME));
+        if (found) {
+            logger.log(Level.INFO, " Active key renewal process found for " + securityAccessor.getDevice().getName() +
+                    " mrid = " + securityAccessor.getDevice().getmRID());
+        }
+        return found;
     }
 
     private void triggerBpmProcess(SecurityAccessor securityAccessor, Logger logger) {
         Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("SecurityAccessor", securityAccessor);
-        Optional<BpmProcessDefinition> definition = bpmService.findBpmProcessDefinition(keyRenewalBpmProcessDefinitionId);
+        expectedParams.put("deviceId", securityAccessor.getDevice().getmRID());
+        expectedParams.put("accessorType", securityAccessor.getKeyAccessorType().getName());
+
+        Optional<BpmProcessDefinition> definition = bpmService.getAllBpmProcessDefinitions()
+                .stream()
+                .filter(p -> p.getProcessName().equalsIgnoreCase(KEY_RENEWAL_PROCESS_NAME))
+                .findAny();
+
         if (definition.isPresent()) {
-            List<BpmProcessDefinition> activeProcesses = getActiveKeyRenewalProcesses();
-            if (activeProcesses.isEmpty() || !checkKeyRenewalProcess(activeProcesses, securityAccessor)) {
+            logger.log(Level.INFO, "Process definition found ");
+            if (!getActiveKeyRenewalProcesses(securityAccessor)) {
                 bpmService.startProcess(definition.get(), expectedParams);
                 logger.log(Level.INFO, "Device key renewal process has been triggered on device " + securityAccessor.getDevice().getName()
-                        + " for " + securityAccessor.getKeyAccessorType().getName());
+                        + " mrid = " + securityAccessor.getDevice().getmRID() + " for " + securityAccessor.getKeyAccessorType().getName());
                 keyRenewalBpmProcessCount++;
                 logger.log(Level.INFO, "Number of device key renewal processes triggered  " + keyRenewalBpmProcessCount);
             }

@@ -36,7 +36,7 @@ public class KeyRenewalHandlerFactoryTest {
     private static final String KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY = "com.energyict.mdc.device.data.pki.keyrenewal.bpmprocess";
     private static final String KEY_DAYS_TILL_EXPIRATION_PROPERTY = "com.energyict.mdc.device.data.pki.keyrenewal.expirationdays";
 
-    private static final String KEY_RENEWAL_PROCESS_DEFINITION_VALUE = "1";
+    private static final String KEY_RENEWAL_PROCESS_DEFINITION_VALUE = "DeviceProcesses.KeyRenewal";
     private static final String KEY_DAYS_TILL_EXPIRATION_VALUE = "1";
 
     private static final String KEY_RENEWAL_TASK_NAME = "Key Renewal Task";
@@ -125,7 +125,7 @@ public class KeyRenewalHandlerFactoryTest {
     @Test
     public void testKeyRenewalTaskActivate() {
         keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
-        assertThat(keyRenewalHandlerFactory.getKeyRenewalBpmProcessDefinitionId()).isEqualTo(Long.parseLong(KEY_RENEWAL_PROCESS_DEFINITION_VALUE));
+        assertThat(keyRenewalHandlerFactory.getKeyRenewalBpmProcessDefinitionId()).isEqualTo(KEY_RENEWAL_PROCESS_DEFINITION_VALUE);
         assertThat(keyRenewalHandlerFactory.getKeyRenewalExpitationDays()).isEqualTo(Integer.parseInt(KEY_DAYS_TILL_EXPIRATION_VALUE));
     }
 }

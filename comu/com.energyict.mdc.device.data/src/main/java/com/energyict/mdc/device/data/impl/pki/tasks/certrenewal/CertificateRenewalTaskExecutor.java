@@ -17,12 +17,10 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
-import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -41,15 +39,17 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
     private volatile BpmService bpmService;
     private volatile Clock clock;
 
-    private Long certRenewalBpmProcessDefinitionId;
+    private String certRenewalBpmProcessDefinitionId;
     private Integer certRenewalExpitationDays;
     private Integer certRenewalBpmProcessCount;
     private final Logger logger;
 
+    private static final String CERTIFICATE_RENEWAL_PROCESS_NAME = "Certificate renewal";
+
     CertificateRenewalTaskExecutor(DeviceDataModelService deviceDataModelService,
                                    BpmService bpmService,
                                    Clock clock,
-                                   Long certRenewalBpmProcessDefinitionId,
+                                   String certRenewalBpmProcessDefinitionId,
                                    Integer certRenewalExpitationDays
     ) {
         this.deviceDataModelService = deviceDataModelService;
@@ -110,52 +110,35 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
         return result;
     }
 
-    private Optional<X509Certificate> getDeviceCertificate(SecurityAccessor securityAccessor) {
-        X509Certificate x509Certificate = null;
-        if (securityAccessor instanceof CertificateAccessor) {
-            if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
-                CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
-                if (certificateWrapper.getCertificate().isPresent()) {
-                    x509Certificate = certificateWrapper.getCertificate().get();
-                }
-            }
-        }
-        return Optional.ofNullable(x509Certificate);
-    }
-
-    private List<BpmProcessDefinition> getActiveCertRenewalProcesses() {
-        return bpmService.getAllBpmProcessDefinitions()
+    private boolean getActiveCertRenewalProcesses(SecurityAccessor securityAccessor) {
+        boolean found = bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID())
+                .processes
                 .stream()
-                .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus()) && p.getId() == certRenewalBpmProcessDefinitionId)
-                .collect(Collectors.toList());
+                .anyMatch(processInstanceInfo -> processInstanceInfo.name.equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME));
+        if (found) {
+            logger.log(Level.INFO, " Active certificate renewal process found for " + securityAccessor.getDevice().getName() +
+                    " mrid = " + securityAccessor.getDevice().getmRID());
+        }
+       return found;
     }
-
-    private boolean checkCertRenewalProcess(List<BpmProcessDefinition> processList, SecurityAccessor securityAccessor) {
-        return processList.stream().anyMatch(bpmProcessDefinition -> {
-            Map<String, Object> m = bpmProcessDefinition.getProperties();
-            if (m.containsKey("SecurityAccessor")) {
-                SecurityAccessor s = (SecurityAccessor) m.get("SecurityAccessor");
-                return s.getDevice().getId() == securityAccessor.getDevice().getId() &&
-                        getDeviceCertificate(s).isPresent() && getDeviceCertificate(securityAccessor).isPresent() &&
-                        getDeviceCertificate(s).get().getSerialNumber().compareTo(
-                                getDeviceCertificate(securityAccessor).get().getSerialNumber()) == 0;
-            }
-            return false;
-        });
-    }
-
 
     private void triggerBpmProcess(SecurityAccessor securityAccessor, Logger logger) {
         Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("SecurityAccessor", securityAccessor);
+        expectedParams.put("deviceId", securityAccessor.getDevice().getmRID());
+        expectedParams.put("accessorType", securityAccessor.getKeyAccessorType().getName());
 
-        Optional<BpmProcessDefinition> definition = bpmService.findBpmProcessDefinition(certRenewalBpmProcessDefinitionId);
+        Optional<BpmProcessDefinition> definition = bpmService.getAllBpmProcessDefinitions()
+                .stream()
+                .filter(p -> p.getProcessName().equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME))
+                .findAny();
+
         if (definition.isPresent()) {
-            List<BpmProcessDefinition> activeProcesses = getActiveCertRenewalProcesses();
-            if (activeProcesses.isEmpty() || !checkCertRenewalProcess(activeProcesses, securityAccessor)) {
+            logger.log(Level.INFO, "Process definition found ");
+            if (!getActiveCertRenewalProcesses(securityAccessor)) {
                 bpmService.startProcess(definition.get(), expectedParams);
                 logger.log(Level.INFO, "Device certificate renewal process has been triggered on device " +
-                        securityAccessor.getDevice().getName() + " for " + securityAccessor.getKeyAccessorType().getName());
+                        securityAccessor.getDevice().getName() + " mrid = " + securityAccessor.getDevice().getmRID() +
+                        " for " + securityAccessor.getKeyAccessorType().getName());
                 certRenewalBpmProcessCount++;
                 logger.log(Level.INFO, "Number of device certificate renewal processes triggered  " + certRenewalBpmProcessCount);
             }
