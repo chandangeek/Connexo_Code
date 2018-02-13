@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
-import java.time.Clock;
 import java.time.Instant;
 
 public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
@@ -36,8 +35,6 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
     }
 
 
-
-
     @IsPresent
     private Reference<EndDeviceEventRecord> eventRecord = Reference.empty();
     @SuppressWarnings("unused")
@@ -53,7 +50,7 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
 
     DeviceAlarmRelatedEventImpl init(EndDeviceEventRecord eventRecord) {
         this.eventRecord.set(eventRecord);
-        this.deviceCode = eventRecord.getDeviceEventType();
+        this.deviceCode = eventRecord.getDeviceEventType() == null ? "*" : eventRecord.getDeviceEventType();
         this.eventTypeCode = eventRecord.getEventTypeCode();
         this.endDeviceId = eventRecord.getEndDevice().getId();
         this.recordTime = eventRecord.getCreatedDateTime();
