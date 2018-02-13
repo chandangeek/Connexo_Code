@@ -432,6 +432,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testRevokeCertificate() throws Exception {
         //Prepare
+        Long timeout = 10L;
         Long certId = 222L;
         CertificateWrapper cert = mock(CertificateWrapper.class);
         Query mockQuery = mock(Query.class);
@@ -444,11 +445,11 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
 
         //Act
-        Response response = target("/certificates/" + certId + "/revoke").request().post(null);
+        Response response = target("/certificates/" + certId + "/revoke").queryParam("timeout", timeout).request().post(null);
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(revocationUtils, times(1)).revokeCertificate(cert);
+        verify(revocationUtils, times(1)).revokeCertificate(cert, timeout);
     }
 
     @Test

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -39,6 +40,7 @@ import static java.util.stream.Collectors.toList;
         immediate = true)
 public class CertificateRevocationUtils {
     private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
+    static final String TIMEOUT_MESSAGE = "Interrupted by timeout";
 
     private SecurityManagementService securityManagementService;
     private ExceptionFactory exceptionFactory;
@@ -108,9 +110,17 @@ public class CertificateRevocationUtils {
         return certs;
     }
 
-    public void revokeCertificate(CertificateWrapper certificateWrapper) {
-        CertificateWrapper cert = caSendRevoke(certificateWrapper);
-        LOGGER.fine("Certificate " + cert.getAlias() + " was revoked by Certification Authority");
+    public void revokeCertificate(CertificateWrapper certificateWrapper, Long timeout) {
+        CertificateWrapper cert;
+        try {
+            cert = executorService.submit(() -> caSendRevoke(certificateWrapper)).get(timeout, TimeUnit.SECONDS);
+            LOGGER.fine("Certificate " + cert.getAlias() + " was revoked by Certification Authority");
+        } catch (InterruptedException | ExecutionException e) {
+            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, e.getLocalizedMessage());
+        } catch (TimeoutException e) {
+            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, TIMEOUT_MESSAGE);
+        }
+
         try {
             updateCertificateWrapperStatus(cert, CertificateWrapperStatus.REVOKED);
         } catch (Exception e) {
@@ -150,11 +160,11 @@ public class CertificateRevocationUtils {
                 LOGGER.fine("Certificate " + entry.getKey().getAlias() + " was revoked by Certification Authority");
             } catch (TimeoutException e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
-                info.addResult(entry.getKey().getAlias(), false, "Interrupted by timeout");
+                info.addResult(entry.getKey().getAlias(), false, TIMEOUT_MESSAGE);
                 cancelAllFutures(jobs.values());
             } catch (CancellationException e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
-                info.addResult(entry.getKey().getAlias(), false, "Interrupted by timeout");
+                info.addResult(entry.getKey().getAlias(), false, TIMEOUT_MESSAGE);
             } catch (Exception e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
                 info.addResult(entry.getKey().getAlias(), false, e.getLocalizedMessage());

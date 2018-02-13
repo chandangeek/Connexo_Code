@@ -48,6 +48,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -323,7 +324,7 @@ public class CertificateWrapperResource {
     @Path("/{id}/revoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response revokeCertificate(@PathParam("id") long certificateId) {
+    public Response revokeCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
         CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
@@ -331,9 +332,7 @@ public class CertificateWrapperResource {
         if (findCertificateUsages(cert).isUsed) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Revocation called with certificate usages").build();
         }
-
-        revocationUtils.revokeCertificate(cert);
-
+        revocationUtils.revokeCertificate(cert, timeout);
         return Response.status(Response.Status.OK).build();
     }
 
