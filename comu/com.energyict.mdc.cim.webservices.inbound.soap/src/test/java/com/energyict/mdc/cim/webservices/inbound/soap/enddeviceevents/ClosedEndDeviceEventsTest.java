@@ -56,6 +56,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
     @Before
     public void setUp() throws Exception {
         when(meteringService.findEndDeviceByMRID(anyString())).thenReturn(Optional.of(endDevice));
+        when(meteringService.getEndDeviceEventType(anyString())).thenReturn(Optional.of(endDeviceEventType));
         when(issueService.findStatus(anyString())).thenReturn(Optional.of(issueStatus));
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
 
@@ -66,6 +67,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         deviceAlarmRelatedEvent = mockDeviceAlarmRelatedEvent();
         when(closedAlarm.getDeviceAlarmRelatedEvents()).thenReturn(Collections.singletonList(deviceAlarmRelatedEvent));
+        when(closedAlarm.getDevice()).thenReturn(endDevice);
 
         mockEndDeviceEvent();
     }
