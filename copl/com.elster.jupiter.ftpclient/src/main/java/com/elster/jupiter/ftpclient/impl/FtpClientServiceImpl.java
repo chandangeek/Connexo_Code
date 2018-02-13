@@ -7,6 +7,7 @@ package com.elster.jupiter.ftpclient.impl;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.ftpclient.IOConsumer;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
@@ -34,8 +35,9 @@ public class FtpClientServiceImpl implements FtpClientService {
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
         com.enterprisedt.util.license.License.setLicenseDetails("EnergyICTnv", "326-1363-8168-7486");
+        sftpProvider.setHostsFile(context.getProperty("com.elster.jupiter.ftpclient.knownhosts"));
     }
 
     @Override
