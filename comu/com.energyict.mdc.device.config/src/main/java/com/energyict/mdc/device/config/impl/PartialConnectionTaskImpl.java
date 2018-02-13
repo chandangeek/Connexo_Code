@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
 
+import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -249,7 +250,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
                 .stream()
                 .filter(p -> p.getValue() != null)
                 .forEach(p -> typedProperties.setProperty(p.getName(), p.getValue()));
-        return typedProperties.getUnmodifiableView();
+        return new UnmodifiableTypedProperties(typedProperties);
     }
 
     private List<PropertySpec> getPropertySpecs() {

@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectExcepti
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
+import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -129,7 +130,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         if (typedProperties == null) {
             typedProperties = initializeTypedProperties();
         }
-        return typedProperties.getUnmodifiableView();
+        return new UnmodifiableTypedProperties(typedProperties);
     }
 
     private TypedProperties initializeTypedProperties() {
