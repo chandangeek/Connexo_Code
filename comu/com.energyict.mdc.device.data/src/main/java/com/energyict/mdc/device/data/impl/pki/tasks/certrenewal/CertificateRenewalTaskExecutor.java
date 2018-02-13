@@ -6,6 +6,10 @@ package com.energyict.mdc.device.data.impl.pki.tasks.certrenewal;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
+import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
@@ -20,6 +24,10 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -111,15 +119,84 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
     }
 
     private boolean getActiveCertRenewalProcesses(SecurityAccessor securityAccessor) {
-        boolean found = bpmService.getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID())
+        Optional<ProcessDefinitionInfos> processDefinitionInfos = getBpmProcessDefinitions();
+        if (!processDefinitionInfos.isPresent()) {
+            logger.log(Level.SEVERE, "No process definitions found");
+            return true;
+        }
+        List<ProcessInstanceInfo> processInstanceInfos = bpmService
+                .getRunningProcesses(null, "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID())
                 .processes
                 .stream()
-                .anyMatch(processInstanceInfo -> processInstanceInfo.name.equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME));
-        if (found) {
-            logger.log(Level.INFO, " Active certificate renewal process found for " + securityAccessor.getDevice().getName() +
-                    " mrid = " + securityAccessor.getDevice().getmRID());
+                .filter(p -> p.name.equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME))
+                .collect(Collectors.toList());
+        if (!processInstanceInfos.isEmpty()) {
+            return false;
         }
-       return found;
+        for (ProcessInstanceInfo processInstanceInfo : processInstanceInfos) {
+            Optional<ProcessDefinitionInfo> processDefinitionInfo = processDefinitionInfos.get()
+                    .processes
+                    .stream()
+                    .filter(p -> p.name.equalsIgnoreCase(processInstanceInfo.name))
+                    .findAny();
+            if (!processDefinitionInfo.isPresent()) {
+                logger.log(Level.SEVERE, "No process definition found for " + CERTIFICATE_RENEWAL_PROCESS_NAME);
+                return true;
+            }
+            String deploymentId = processDefinitionInfo.get().deploymentId;
+            Optional<TaskContentInfos> taskContentInfos = getProcessContent(certRenewalBpmProcessDefinitionId, deploymentId);
+            if (!taskContentInfos.isPresent()) {
+                logger.log(Level.SEVERE, "No task content found for " + CERTIFICATE_RENEWAL_PROCESS_NAME);
+                return true;
+            }
+            return taskContentInfos.get().properties
+                    .stream()
+                    .anyMatch(taskContentInfo -> taskContentInfo.key.equalsIgnoreCase("accessorType") &&
+                            taskContentInfo.propertyValueInfo != null &&
+                            ((String) taskContentInfo.propertyValueInfo.value).equalsIgnoreCase(securityAccessor.getKeyAccessorType().getName()));
+
+        }
+        return false;
+    }
+
+    private Optional<ProcessDefinitionInfos> getBpmProcessDefinitions() {
+        String jsonContent;
+        JSONArray arr = null;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+            if (!"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("processDefinitionList");
+            }
+        } catch (JSONException e) {
+            logger.log(Level.SEVERE, "JSON error", e);
+            return Optional.empty();
+        } catch (RuntimeException e) {
+            logger.log(Level.SEVERE, "Unable to connect to Flow: " + e.getMessage(), e);
+            return Optional.empty();
+        }
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+        return Optional.of(processDefinitionInfos);
+    }
+
+    private Optional<TaskContentInfos> getProcessContent(String id, String deploymentId) {
+        String jsonContent;
+        JSONObject obj = null;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/" + deploymentId + "/content/" + id);
+            if ("Undeployed".equals(jsonContent)) {
+                logger.log(Level.SEVERE, "Undeployed");
+                return Optional.empty();
+            }
+            if (!"".equals(jsonContent)) {
+                obj = new JSONObject(jsonContent);
+            }
+            TaskContentInfos taskContentInfos = obj != null ? new TaskContentInfos(obj) : new TaskContentInfos();
+            return Optional.of(taskContentInfos);
+        } catch (JSONException e) {
+            logger.log(Level.SEVERE, "JSON error", e);
+            return Optional.empty();
+        }
     }
 
     private void triggerBpmProcess(SecurityAccessor securityAccessor, Logger logger) {
