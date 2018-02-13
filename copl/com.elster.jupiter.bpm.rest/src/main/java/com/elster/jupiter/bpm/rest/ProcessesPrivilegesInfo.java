@@ -5,6 +5,7 @@
 package com.elster.jupiter.bpm.rest;
 
 
+import com.elster.jupiter.bpm.rest.impl.UserRolesInfo;
 import com.elster.jupiter.users.Group;
 
 import java.util.List;
