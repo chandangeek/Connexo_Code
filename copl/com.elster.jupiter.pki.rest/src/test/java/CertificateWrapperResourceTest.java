@@ -13,11 +13,14 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
+import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
+import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -43,11 +46,11 @@ import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
@@ -58,6 +61,7 @@ import static com.elster.jupiter.pki.rest.impl.MessageSeeds.NO_CSR_PRESENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -286,7 +290,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     }
 
     @Test
-    public void testMarkCertificateObsolete_thereAreUsages() throws Exception {
+    public void testMarkCertificateObsolete_usages() throws Exception {
         //Prepare
         String accessorName = "accessor_1";
         String deviceName1 = "device_1";
@@ -358,7 +362,239 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(certificateWrapper, times(1)).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        verify(certificateWrapper, times(1)).setWrapperStatus(CertificateWrapperStatus.NATIVE);
+    }
+
+    @Test
+    public void testCheckRevokeCertificate() throws Exception {
+        //Prepare
+
+        Query mockQuery = mock(Query.class);
+
+        Long certId = 222L;
+        CertificateWrapper cert = mock(CertificateWrapper.class);
+
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(revocationUtils.isCAConfigured()).thenReturn(true);
+
+
+        //Act
+        Response response = target("/certificates/" + certId + "/checkRevoke").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Boolean>get("isOnline")).isEqualTo(true);
+    }
+
+
+    @Test
+    public void testCheckRevokeCertificate_usages() throws Exception {
+        //Prepare
+        String accessorName = "accessor";
+        String deviceName = "device";
+        String dirUsageName = "dirUsage";
+
+        Query mockQuery = mock(Query.class);
+        DirectoryCertificateUsage dirUsage = mock(DirectoryCertificateUsage.class);
+        SecurityAccessor accessor = mock(SecurityAccessor.class);
+        SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
+
+        Long certId = 222L;
+        CertificateWrapper cert = mock(CertificateWrapper.class);
+
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.singletonList(accessor));
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.singletonList(deviceName));
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(dirUsage));
+        when(accessor.getKeyAccessorType()).thenReturn(accessorType);
+        when(accessorType.getName()).thenReturn(accessorName);
+        when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
+
+
+        //Act
+        Response response = target("/certificates/" + certId + "/checkRevoke").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<JSONArray>get("userDirectories")).hasSize(1).contains(dirUsageName);
+        assertThat(model.<JSONArray>get("importers")).isEmpty();
+        assertThat(model.<JSONArray>get("devices")).hasSize(1).contains(deviceName);
+        assertThat(model.<JSONArray>get("securityAccessors")).hasSize(1).contains(accessorName);
+    }
+
+    @Test
+    public void testRevokeCertificate() throws Exception {
+        //Prepare
+        Long certId = 222L;
+        CertificateWrapper cert = mock(CertificateWrapper.class);
+        Query mockQuery = mock(Query.class);
+
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+
+
+        //Act
+        Response response = target("/certificates/" + certId + "/revoke").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(revocationUtils, times(1)).revokeCertificate(cert);
+    }
+
+    @Test
+    public void testCheckBulkRevokeCertificate() throws Exception {
+        //Prepare
+        Long certId1 = 211L;
+        Long certId2 = 212L;
+        Long timeout = 10L;
+
+        Query mockQuery = mock(Query.class);
+        CertificateWrapper cert1 = mock(CertificateWrapper.class);
+        CertificateWrapper cert2 = mock(CertificateWrapper.class);
+
+        CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
+        requestInfo.timeout = timeout;
+        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2);
+
+        when(cert1.getId()).thenReturn(certId1);
+        when(cert2.getId()).thenReturn(certId2);
+        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
+        when(revocationUtils.isCAConfigured()).thenReturn(true);
+        when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+
+        //Act
+        Response response = target("/certificates/checkBulkRevoke").request().post(Entity.json(requestInfo));
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Boolean>get("isOnline")).isTrue();
+        assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
+        assertThat(model.<Integer>get("bulk.valid")).isEqualTo(2);
+        assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(0);
+        assertThat(model.<JSONArray>get("bulk.certificatesIdsWithUsages")).isEmpty();
+        assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
+    }
+
+    @Test
+    public void testCheckBulkRevokeCertificate_usages() throws Exception {
+        //Prepare
+        Long certId1 = 211L;
+        Long certId2 = 212L;
+        Long timeout = 10L;
+        String accessorName = "accessor";
+        String deviceName = "device";
+        String dirUsageName = "directory";
+
+        Query mockQuery = mock(Query.class);
+        DirectoryCertificateUsage dirUsage = mock(DirectoryCertificateUsage.class);
+        SecurityAccessor accessor = mock(SecurityAccessor.class);
+        SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
+        CertificateWrapper cert1 = mock(CertificateWrapper.class);
+        CertificateWrapper cert2 = mock(CertificateWrapper.class);
+
+        CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
+        requestInfo.timeout = timeout;
+        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2);
+
+        when(cert1.getId()).thenReturn(certId1);
+        when(cert2.getId()).thenReturn(certId2);
+        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
+        when(revocationUtils.isCAConfigured()).thenReturn(true);
+        when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.singletonList(accessor));
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.singletonList(deviceName));
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        //return empty for first call (first certificate) and something for second one
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList()).thenReturn(Collections.singletonList(dirUsage));
+        when(accessor.getKeyAccessorType()).thenReturn(accessorType);
+        when(accessorType.getName()).thenReturn(accessorName);
+        when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
+
+        //Act
+        Response response = target("/certificates/checkBulkRevoke").request().post(Entity.json(requestInfo));
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Boolean>get("isOnline")).isTrue();
+        assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
+        assertThat(model.<Integer>get("bulk.valid")).isEqualTo(1);
+        assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(1);
+        assertThat(model.<JSONArray>get("bulk.certificatesIdsWithUsages")).hasSize(1).contains(certId2.intValue());
+        assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
+    }
+
+    @Test
+    public void testBulkRevokeCertificate() throws Exception {
+        //Prepare
+        Long certId1 = 223L;
+        Long certId2 = 224L;
+        Long timeout = 10L;
+        ArgumentCaptor<List<CertificateWrapper>> captor = ArgumentCaptor.forClass((Class)List.class);
+        CertificateWrapper cert1 = mock(CertificateWrapper.class);
+        CertificateWrapper cert2 = mock(CertificateWrapper.class);
+        Query mockQuery = mock(Query.class);
+
+        CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
+        requestInfo.timeout = timeout;
+        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2);
+
+        CertificateRevocationResultInfo resultInfo = new CertificateRevocationResultInfo();
+        resultInfo.addResult(String.valueOf(certId1), true);
+        resultInfo.addResult(String.valueOf(certId2), false, "CA complaining");
+
+        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
+        when(revocationUtils.isCAConfigured()).thenReturn(true);
+        when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(revocationUtils.bulkRevokeCertificates(captor.capture(), eq(timeout))).thenReturn(resultInfo);
+
+        //Act
+        Response response = target("/certificates/bulkRevoke").request().post(Entity.json(requestInfo));
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(captor.getValue()).contains(cert1, cert2);
+
+        //get known order to verify
+        List<JSONObject> results = JsonModel.model((InputStream) response.getEntity()).<JSONArray>get("revocationResults").stream()
+                .map(o -> (JSONObject) o)
+                .sorted((o1, o2) -> {
+                    String name1 = (String) o1.get("alias");
+                    String name2 = (String) o2.get("alias");
+                    return name1.compareTo(name2);
+                })
+                .collect(Collectors.toList());
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).get("alias")).isEqualTo(String.valueOf(certId1));
+        assertThat(results.get(0).get("success")).isEqualTo(true);
+        assertThat(results.get(0).get("error")).isEqualTo(null);
+        assertThat(results.get(1).get("alias")).isEqualTo(String.valueOf(certId2));
+        assertThat(results.get(1).get("success")).isEqualTo(false);
+        assertThat(results.get(1).get("error")).isEqualTo("CA complaining");
+
+        verify(revocationUtils, times(1)).bulkRevokeCertificates(any(), eq(timeout));
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {

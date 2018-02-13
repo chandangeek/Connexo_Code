@@ -5,6 +5,7 @@
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.rest.impl.CertificateRevocationUtils;
 import com.elster.jupiter.pki.rest.impl.PkiApplication;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
@@ -24,6 +25,8 @@ public class PkiApplicationTest extends FelixRestApplicationJerseyTest {
     CaService caService;
     @Mock
     RestQueryService restQueryService;
+    @Mock
+    CertificateRevocationUtils revocationUtils;
 
     @Override
     protected Application getApplication() {
@@ -32,6 +35,7 @@ public class PkiApplicationTest extends FelixRestApplicationJerseyTest {
         application.setCaService(caService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
+        application.setCertificateRevocationUtils(revocationUtils);
         return application;
     }
 

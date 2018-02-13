@@ -350,6 +350,8 @@ public class CertificateWrapperResource {
                 revocationInfo.addIdWithUsages(cert.getId());
             }
         });
+        //do math on backend
+        revocationInfo.updateCounters();
         return Response.status(Response.Status.OK).entity(revocationInfo).build();
     }
 

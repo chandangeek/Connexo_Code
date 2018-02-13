@@ -23,24 +23,28 @@ public class CertificateRevocationInfo {
             bulk.certificatesIdsWithUsages = new ArrayList<>();
         }
         bulk.certificatesIdsWithUsages.add(id);
-        bulk.updateCounts();
     }
 
+    /**
+     * Do math on backend
+     */
+    public void updateCounters() {
+        bulk.updateCounters();
+    }
+
+
     public static class Bulk {
-        //do math on backend
-        public Long total;
-        public Long valid;
-        public Long invalid;
+        public Long total = 0L;
+        public Long valid = 0L;
+        public Long invalid = 0L;
 
         //all ids
-        public List<Long> certificatesIds;
+        public List<Long> certificatesIds = new ArrayList<>();
         //ids with usages, that can't be revoked
-        public List<Long> certificatesIdsWithUsages;
+        public List<Long> certificatesIdsWithUsages = new ArrayList<>();
 
-        private void updateCounts() {
-            if (total == null) {
-                total = (long) certificatesIds.size();
-            }
+        private void updateCounters() {
+            total = (long) certificatesIds.size();
             invalid = (long) certificatesIdsWithUsages.size();
             valid = total - invalid;
         }

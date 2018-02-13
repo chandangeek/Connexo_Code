@@ -1,6 +1,8 @@
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -10,6 +12,10 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -28,21 +34,54 @@ import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
 
+@Component(name = "com.elster.jupiter.pki.rest.impl.CertificateRevocationUtils",
+        service = {CertificateRevocationUtils.class},
+        immediate = true)
 public class CertificateRevocationUtils {
     private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
 
-    private final SecurityManagementService securityManagementService;
-    private final ExceptionFactory exceptionFactory;
-    private final CaService caService;
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private SecurityManagementService securityManagementService;
+    private ExceptionFactory exceptionFactory;
+    private CaService caService;
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
+
+    //OSGI
+    public CertificateRevocationUtils() {
+    }
 
     @Inject
     public CertificateRevocationUtils(SecurityManagementService securityManagementService,
-                                      ExceptionFactory exceptionFactory,
-                                      CaService caService) {
+                                      CaService caService,
+                                      NlsService nlsService) {
+        this();
+        setSecurityManagementService(securityManagementService);
+        setCaService(caService);
+        setNlsService(nlsService);
+        activate();
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
-        this.exceptionFactory = exceptionFactory;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.exceptionFactory = new ExceptionFactory(nlsService.getThesaurus(PkiApplication.COMPONENT_NAME, Layer.REST));
+    }
+
+    @Reference
+    public void setCaService(CaService caService) {
         this.caService = caService;
+    }
+
+    @Activate
+    public void activate() {
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     public boolean isCAConfigured() {
@@ -71,10 +110,16 @@ public class CertificateRevocationUtils {
 
     public void revokeCertificate(CertificateWrapper certificateWrapper) {
         CertificateWrapper cert = caSendRevoke(certificateWrapper);
+        LOGGER.fine("Certificate " + cert.getAlias() + " was revoked by Certification Authority");
         try {
             updateCertificateWrapperStatus(cert, CertificateWrapperStatus.REVOKED);
         } catch (Exception e) {
-            LocalizedException ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
+            LocalizedException ex;
+            if (caService.isConfigured()) {
+                ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
+            } else {
+                ex = exceptionFactory.newException(MessageSeeds.STATUS_CHANGE_FAILED);
+            }
             ex.addSuppressed(e);
             throw ex;
         }
@@ -92,6 +137,8 @@ public class CertificateRevocationUtils {
 
         certificateWrappers.forEach(cw -> jobs.put(cw, executorService.submit(() -> caSendRevoke(cw))));
 
+        LOGGER.fine("Started " + jobs.size() + " revocation async tasks");
+
         List<Future> asyncResults = new ArrayList<>();
         List<CertificateWrapper> revokedByCA = new ArrayList<>();
 
@@ -100,12 +147,16 @@ public class CertificateRevocationUtils {
             try {
                 revokedByCA.add(entry.getValue().get(timeout, TimeUnit.SECONDS));
                 info.addResult(entry.getKey().getAlias(), true);
+                LOGGER.fine("Certificate " + entry.getKey().getAlias() + " was revoked by Certification Authority");
             } catch (TimeoutException e) {
+                LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
                 info.addResult(entry.getKey().getAlias(), false, "Interrupted by timeout");
                 cancelAllFutures(jobs.values());
             } catch (CancellationException e) {
+                LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
                 info.addResult(entry.getKey().getAlias(), false, "Interrupted by timeout");
             } catch (Exception e) {
+                LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
                 info.addResult(entry.getKey().getAlias(), false, e.getLocalizedMessage());
             }
         })));
@@ -118,7 +169,12 @@ public class CertificateRevocationUtils {
             try {
                 updateCertificateWrapperStatus(cw, CertificateWrapperStatus.REVOKED);
             } catch (Exception e) {
-                info.replaceResult(cw.getAlias(), false, "Certificate was revoked by the Certification Authority, but failed to change status within Connexo");
+                LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
+                if (isCAConfigured()) {
+                    info.replaceResult(cw.getAlias(), false, "Certificate was revoked by the Certification Authority, but failed to change it status");
+                } else {
+                    info.replaceResult(cw.getAlias(), false, "Failed to change certificate wrapper status");
+                }
             }
         });
         return info;

@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -30,6 +31,7 @@ public class PkiApplication extends Application {
     private volatile CaService caService;
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
+    private volatile CertificateRevocationUtils certificateRevocationUtils;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -51,9 +53,9 @@ public class PkiApplication extends Application {
             protected void configure() {
                 bind(securityManagementService).to(SecurityManagementService.class);
                 bind(caService).to(CaService.class);
+                bind(certificateRevocationUtils).to(CertificateRevocationUtils.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(CertificateRevocationUtils.class).to(CertificateRevocationUtils.class);
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
                 bind(CertificateInfoFactory.class).to(CertificateInfoFactory.class);
                 bind(DataSearchFilterFactory.class).to(DataSearchFilterFactory.class);
@@ -83,5 +85,10 @@ public class PkiApplication extends Application {
     @Reference
     public void setCaService(CaService caService) {
         this.caService = caService;
+    }
+
+    @Reference
+    public void setCertificateRevocationUtils(CertificateRevocationUtils certificateRevocationUtils) {
+        this.certificateRevocationUtils = certificateRevocationUtils;
     }
 }

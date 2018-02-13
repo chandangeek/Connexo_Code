@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
     IMPORTFILE_TOO_BIG(8, "pkcsFileTooBig", "File size should be less than 2 kB"),
     FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required"),
-    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate"),
+    NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR", "CSR can not be generated for this type of certificate"),
     NO_CSR_PRESENT(11, "noCsrPresent", "No CSR found"),
     FAILED_TO_READ_CSR(12, "FailedToReadCSR", "The CSR could not be read"),
     NO_CERTIFICATE_PRESENT(13, "NoCertificatePresent", "No certificate found"),
@@ -37,7 +37,8 @@ public enum MessageSeeds implements MessageSeed {
     TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
     REVOCATION_FAILED(25, "RevocationFailed", "Certificate couldn't be revoked by the Certification Authority'. Cause: {0}"),
     REVOCATION_DESYNC(26, "RevocationDesync", "Certificate was revoked by the Certification Authority, but failed to change status within Connexo"),
-    NO_CERTIFICATES_WITH_IDS(27, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}");
+    NO_CERTIFICATES_WITH_IDS(27, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
+    STATUS_CHANGE_FAILED(28, "StatusChangeFailed", "Failed to change certificate wrapper status");
 
     private final int number;
     private final String key;
