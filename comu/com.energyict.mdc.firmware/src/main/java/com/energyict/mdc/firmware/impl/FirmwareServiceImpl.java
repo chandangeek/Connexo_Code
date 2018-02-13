@@ -203,37 +203,39 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption,FirmwareVersion firmwareVersion){
-        if (deviceType.getDeviceProtocolPluggableClass().isPresent() ) {
-            List<DeviceMessageId> deviceMessageIdList = deviceType.getDeviceProtocolPluggableClass()
-                    .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                            .map(DeviceMessageId::from)
-                            .collect(Collectors.toList())).orElse(Collections.emptyList())
-                    .stream()
-                    .filter(firmwareMessageCandidate -> {
-                        Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                        return firmwareOptionForCandidate.isPresent() && firmwareManagementOption.equals(firmwareOptionForCandidate.get());
-                    })
-                    .collect(Collectors.toList());
-
-            if (!deviceMessageIdList.isEmpty()){
-                if (deviceMessageIdList.size()== 1){
-                   return Optional.of(deviceMessageIdList.get(0));
-                } else {
-                    if (firmwareVersion != null) {
-                        return deviceMessageIdList.stream()
-                                .filter(deviceMessageId -> ((firmwareVersion.getImageIdentifier() != null) == DeviceMessageId.needsImageIdentifier().contains(deviceMessageId)))
-                                .findFirst();
-                    } else {
-                        Optional<DeviceMessageId> messageIdOptional = deviceMessageIdList.stream()
-                                .filter(DeviceMessageId.needsImageIdentifier()::contains)
-                                .findFirst();
-                        return messageIdOptional.isPresent() ? messageIdOptional : deviceMessageIdList.stream().findFirst();
-                    }
-                }
+        List<DeviceMessageId> deviceMessageIdList = getDeviceMessageIdList(deviceType, firmwareManagementOption);
+        if (!deviceMessageIdList.isEmpty()) {
+            if (firmwareVersion != null) {
+                return deviceMessageIdList.stream()
+                        .filter(deviceMessageId -> this.validateImageIdentifier(deviceMessageId, firmwareVersion.getImageIdentifier()))
+                        .findFirst();
+            } else {
+                // If an image identifier message is present, get that first. See CXO-7821 for more details
+                Optional<DeviceMessageId> messageIdOptional = deviceMessageIdList.stream()
+                        .filter(DeviceMessageId.needsImageIdentifier()::contains)
+                        .findFirst();
+                return messageIdOptional.isPresent() ? messageIdOptional : deviceMessageIdList.stream().findFirst();
             }
         }
         return Optional.empty();
+    }
+
+    private boolean validateImageIdentifier(DeviceMessageId deviceMessageId, String imageIdentifier) {
+        return (imageIdentifier != null) == DeviceMessageId.needsImageIdentifier().contains(deviceMessageId);
+    }
+
+    private List<DeviceMessageId> getDeviceMessageIdList(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption) {
+        return deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::from)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList())
+                .stream()
+                .filter(firmwareMessageCandidate -> {
+                    Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
+                    return firmwareOptionForCandidate.isPresent() && firmwareManagementOption.equals(firmwareOptionForCandidate.get());
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
