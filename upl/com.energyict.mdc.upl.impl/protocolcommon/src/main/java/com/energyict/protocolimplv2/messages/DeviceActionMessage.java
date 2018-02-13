@@ -359,9 +359,16 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.deviceId, DeviceMessageConstants.deviceIdDefaultTranslation),
-                    this.dateSpecBuilder(service, DeviceMessageConstants.startDate, DeviceMessageConstants.startDateDefaultTranslation).finish(),
-                    this.dateSpecBuilder(service, DeviceMessageConstants.endDate, DeviceMessageConstants.endDateDefaultTranslation).finish(),
-                    this.stringSpec(service, DeviceMessageConstants.configurationId, DeviceMessageConstants.configurationIdDefaultTranslation)
+                    this.dateSpecBuilder(service, DeviceMessageConstants.previousStartDate, DeviceMessageConstants.previousStartDateDefaultTranslation).finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.ignorePreviousStartDate, DeviceMessageConstants.ignorePreviousStartDateDefaultTranslation, false),
+                    this.dateSpecBuilder(service, DeviceMessageConstants.previousEndDate, DeviceMessageConstants.previousEndDateDefaultTranslation).finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.ignorePreviousEndDate, DeviceMessageConstants.ignorePreviousEndDateDefaultTranslation, false),
+                    this.stringSpec(service, DeviceMessageConstants.previousConfigurationId, DeviceMessageConstants.previousConfigurationIdDefaultTranslation),
+                    this.dateSpecBuilder(service, DeviceMessageConstants.currentStartDate, DeviceMessageConstants.currentStartDateDefaultTranslation).finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.ignoreStartDate, DeviceMessageConstants.ignoreStartDateDefaultTranslation, false),
+                    this.dateSpecBuilder(service, DeviceMessageConstants.currentEndDate, DeviceMessageConstants.currentEndDateDefaultTranslation).finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.ignoreEndDate, DeviceMessageConstants.ignoreEndDateDefaultTranslation, false),
+                    this.stringSpec(service, DeviceMessageConstants.currentConfigurationId, DeviceMessageConstants.currentConfigurationIdDefaultTranslation)
             );
         }
     },
