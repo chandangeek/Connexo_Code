@@ -9,13 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -36,7 +30,6 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
 
     private Map<String, Object> props = new HashMap<>();
     private com.energyict.mdc.upl.properties.TypedProperties inheritedProperties;
-    private UnmodifiableTypedProperties unmodifiableView;
 
     protected TypedProperties() {
         super();
@@ -441,13 +434,6 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
 
     public void setInheritedProperties(TypedProperties inheritedProperties) {
         this.inheritedProperties = inheritedProperties;
-    }
-
-    public TypedProperties getUnmodifiableView() {
-        if (unmodifiableView == null) {
-            unmodifiableView = new UnmodifiableTypedProperties(this);
-        }
-        return unmodifiableView;
     }
 
     /**
