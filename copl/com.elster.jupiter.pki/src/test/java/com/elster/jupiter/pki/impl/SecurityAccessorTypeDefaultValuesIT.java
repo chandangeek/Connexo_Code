@@ -96,10 +96,12 @@ public class SecurityAccessorTypeDefaultValuesIT {
                     .add();
             securityManagementService.addSecurityAccessorType(CAT_WITH_DEFAULT_VALUES_NAME, certs)
                     .managedCentrally()
+                    .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                     .description("just default certificates")
                     .trustStore(trustStore)
                     .add();
             cat = securityManagementService.addSecurityAccessorType(CAT_NAME, certs)
+                    .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                     .description("just certificates")
                     .trustStore(trustStore)
                     .add();
@@ -125,6 +127,8 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(securityManagementService.getDefaultValues(cat)).isEmpty();
         assertThat(securityManagementService.getDefaultValues(catWithDefaultValues)).isEmpty();
         assertThat(securityManagementService.getDefaultValues(cat, catWithDefaultValues)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
     }
 
     @Test
@@ -151,6 +155,16 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(values.getKeyAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
         assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
+
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        foundValuesList = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS).stream()
+                .map(sa -> (SecurityAccessor<CertificateWrapper>) sa)
+                .collect(Collectors.toList());
+        assertThat(foundValuesList).hasSize(1);
+        values = foundValuesList.get(0);
+        assertThat(values.getKeyAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
     }
 
     @Test
@@ -168,6 +182,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .add();
         securityManagementService.addSecurityAccessorType("Name", skType)
                 .managedCentrally()
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("just keys")
                 .add();
     }
@@ -181,6 +196,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .duration(TimeDuration.years(1))
                 .add();
         invoke(keyAccessorType, "setManagedCentrally", true);
@@ -197,6 +213,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .duration(TimeDuration.years(1))
                 .add();
         PlaintextSymmetricKey wrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);

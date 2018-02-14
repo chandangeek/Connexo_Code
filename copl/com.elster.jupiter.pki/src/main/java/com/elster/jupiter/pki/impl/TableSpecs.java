@@ -22,11 +22,11 @@ import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.users.UserDirectory;
-import javafx.scene.chart.ValueAxis;
 
 import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -288,6 +288,15 @@ public enum TableSpecs {
                     .installValue("'N'")
                     .since(Version.version(10, 4))
                     .add();
+            table.column(SecurityAccessorTypeImpl.Fields.PURPOSE.name())
+                    .varChar(30)
+                    .conversion(CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
+                    .notNull()
+                    .since(Version.version(10, 4, 1))
+                    .installValue("'" + SecurityAccessorType.Purpose.COMMUNICATION.name() + "'")
+                    .add();
+
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     // need to reference some existent table here to pass orm checks,

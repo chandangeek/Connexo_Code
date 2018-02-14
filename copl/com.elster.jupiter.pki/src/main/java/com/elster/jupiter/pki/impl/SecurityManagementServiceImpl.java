@@ -39,6 +39,7 @@ import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SubjectParameterFilter;
@@ -46,11 +47,11 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -63,6 +64,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -280,7 +282,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 4), UpgraderV10_4.class));
+                        version(10, 4), UpgraderV10_4.class,
+                        version(10, 4, 1), V10_4_1SimpleUpgrader.class));
     }
 
     private AbstractModule getModule() {
@@ -532,7 +535,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public String getComponentName() {
-        return SecurityManagementServiceImpl.COMPONENTNAME;
+        return SecurityManagementService.COMPONENTNAME;
     }
 
     @Override
@@ -544,7 +547,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(Privileges.values()))
+                Arrays.stream(Privileges.values()),
+                Arrays.stream(SecurityAccessorTypePurposeTranslation.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -893,6 +897,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                     }
                 });
     }
+
     @Override
     public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
         return new SecurityAccessorTypeBuilder(dataModel, name, keyType);
@@ -901,6 +906,13 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public List<SecurityAccessorType> getSecurityAccessorTypes() {
         return dataModel.mapper(SecurityAccessorType.class).find();
+    }
+
+    @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes(SecurityAccessorType.Purpose purpose) {
+        return dataModel.stream(SecurityAccessorType.class)
+                .filter(Where.where(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName()).isEqualTo(purpose))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -980,6 +992,15 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return dataModel.stream(SecurityAccessor.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
                         .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SecurityAccessor> getSecurityAccessors(SecurityAccessorType.Purpose purpose) {
+        return dataModel.stream(SecurityAccessor.class)
+                .join(SecurityAccessorType.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName() + '.' + SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
+                        .isEqualTo(purpose))
                 .collect(Collectors.toList());
     }
 

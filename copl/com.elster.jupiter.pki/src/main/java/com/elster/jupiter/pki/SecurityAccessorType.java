@@ -20,6 +20,11 @@ import java.util.Set;
  */
 @ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
+    @ProviderType
+    enum Purpose {
+        COMMUNICATION,
+        FILE_OPERATIONS
+    }
 
     /**
      * The KeyAccessorType system assigned id
@@ -81,6 +86,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     boolean isManagedCentrally();
 
+    Purpose getPurpose();
+
     interface Builder {
         /**
          * Provide a user understandable description of this key's function
@@ -112,6 +119,11 @@ public interface SecurityAccessorType extends HasId, HasName  {
          * Makes this type of security accessors managed centrally.
          */
         Builder managedCentrally();
+
+        /**
+         * Sets the purpose for this security accessor type.
+         */
+        SecurityAccessorType.Builder purpose(Purpose purpose);
 
         SecurityAccessorType add();
     }
