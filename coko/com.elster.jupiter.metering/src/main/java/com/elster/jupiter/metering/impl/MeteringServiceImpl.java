@@ -75,6 +75,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -274,10 +275,9 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames) {
-        Condition condition = ListOperator.IN.contains("mRID", mRIDs.stream().collect(Collectors.toList()))
-                .or(ListOperator.IN.contains("name", deviceNames.stream().collect(Collectors.toList())));
-        return DefaultFinder.of(EndDevice.class, condition, dataModel).defaultSortColumn("name");
+    public List<EndDevice> findEndDevices(Set<String> ids) {
+        List<String> identifiers = ids.stream().collect(Collectors.toList());
+        return dataModel.mapper(EndDevice.class).select(Where.where("mRID").in(identifiers).or(Where.where("name").in(identifiers)));
     }
 
     @Override
