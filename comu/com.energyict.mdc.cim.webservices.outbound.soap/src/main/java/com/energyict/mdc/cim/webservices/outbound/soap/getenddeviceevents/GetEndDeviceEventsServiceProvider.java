@@ -4,17 +4,22 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
-import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyGetEndDeviceEventsWebService;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsFaultMessageFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
-import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
-import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEventsPort;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents_Service;
@@ -27,6 +32,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +49,14 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     private final ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory getEndDeviceEventsMessageObjectFactory
             = new ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory();
 
+    private volatile Clock clock;
+    private volatile MeteringService meteringService;
+    private volatile Thesaurus thesaurus;
+
+    private EndDeviceEventsBuilder endDeviceEventsBuilder;
+    private EndDeviceEventsFaultMessageFactory faultMessageFactory;
+    private ReplyTypeFactory replyTypeFactory;
+
     private List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
 
     public GetEndDeviceEventsServiceProvider() {
@@ -58,9 +72,24 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         getEndDeviceEventsPorts.remove(port);
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
     @Override
     public Service get() {
-        return new GetEndDeviceEvents_Service(this.getClass().getResource("/getenddeviceevents/ReplyGetEndDeviceEvents.wsdl"));
+        return new GetEndDeviceEvents_Service(this.getClass().getResource("/getenddeviceevents/GetEndDeviceEvents.wsdl"));
     }
 
     @Override
@@ -101,51 +130,31 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         return responseMessage;
     }
 
-    // todo mlevan
-
-    private final ObjectFactory payloadObjectFactory = new ObjectFactory();
-
     private EndDeviceEvents createEndDeviceEvents(List<EndDeviceEventRecord> records) {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-        records.stream().forEach(record -> {
-            EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
-            endDeviceEvent.setEndDeviceEventType(toEndDeviceEventType(record.getEventType()));
-            endDeviceEvent.setMRID(record.getMRID());
-            endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
-            endDeviceEvent.setIssuerID(record.getIssuerID());
-            endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
-            endDeviceEvent.setSeverity(record.getSeverity());
-            endDeviceEvent.setStatus(toStatus(record.getStatus()));
-            endDeviceEvent.setReason(record.getDescription());
-
-            record.getProperties().entrySet().stream().forEach(property -> {
-                        EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
-                        endDeviceEventDetail.setName(property.getKey());
-                        endDeviceEventDetail.setValue(property.getValue());
-                        endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
-                    }
-            );
-            endDeviceEventList.add(endDeviceEvent);
-        });
+        records.stream().forEach(record -> endDeviceEventList.add(getEndDeviceEventsBuilder().asEndDeviceEvent(record)));
         return endDeviceEvents;
     }
 
-    public EndDeviceEvent.EndDeviceEventType toEndDeviceEventType(com.elster.jupiter.metering.events.EndDeviceEventType eventType) {
-        EndDeviceEvent.EndDeviceEventType type = payloadObjectFactory.createEndDeviceEventEndDeviceEventType();
-        type.setRef(eventType.getMRID());
-        return type;
+    private EndDeviceEventsBuilder getEndDeviceEventsBuilder() {
+        if (endDeviceEventsBuilder == null) {
+            endDeviceEventsBuilder = new EndDeviceEventsBuilder(meteringService, getMessageFactory(), clock);
+        }
+        return endDeviceEventsBuilder;
     }
 
-    public ch.iec.tc57._2011.enddeviceevents.Status toStatus(Status status) {
-        if (status == null) {
-            return null;
+    private EndDeviceEventsFaultMessageFactory getMessageFactory() {
+        if (faultMessageFactory == null) {
+            faultMessageFactory = new EndDeviceEventsFaultMessageFactory(thesaurus, getReplyTypeFactory());
         }
-        ch.iec.tc57._2011.enddeviceevents.Status state = payloadObjectFactory.createStatus();
-        state.setDateTime(status.getDateTime());
-        state.setReason(status.getReason());
-        state.setRemark(status.getRemark());
-        state.setValue(status.getValue());
-        return state;
+        return faultMessageFactory;
+    }
+
+    private ReplyTypeFactory getReplyTypeFactory() {
+        if (replyTypeFactory == null) {
+            replyTypeFactory = new ReplyTypeFactory(thesaurus);
+        }
+        return replyTypeFactory;
     }
 }

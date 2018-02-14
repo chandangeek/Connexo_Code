@@ -15,31 +15,18 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 
 public class MeterConfigFactory {
-
-    // todo mlevan
-    public MeterConfig asMeterConfig(Device device, String state, Instant effectiveDate) {
-        MeterConfig meterConfig = new MeterConfig();
-        Meter meter = createMeter(device);
-        meter.setStatus(createStatus(DefaultState.fromKey(state).map(DefaultState::getDefaultFormat).orElse(state), effectiveDate));
-        meterConfig.getMeter().add(meter);
-        SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
-        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
-        return meterConfig;
-    }
 
     public MeterConfig asMeterConfig(List<Device> successfulDevices) {
         MeterConfig meterConfig = new MeterConfig();
         successfulDevices.stream().forEach(device -> {
             Meter meter = createMeter(device);
-//            meter.setStatus(createStatus(DefaultState.fromKey(state).map(DefaultState::getDefaultFormat).orElse(state), effectiveDate));
             meterConfig.getMeter().add(meter);
+            SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
+            meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         });
-//        SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
-//        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         return meterConfig;
     }
 
@@ -52,6 +39,12 @@ public class MeterConfigFactory {
         meter.setEndDeviceInfo(createEndDeviceInfo(device));
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
+
+        String stateKey = device.getState().getName();
+        String stateName = DefaultState.fromKey(stateKey)
+                .map(DefaultState::getDefaultFormat)
+                .orElse(stateKey);
+        meter.setStatus(createStatus(stateName));
         return meter;
     }
 
@@ -107,10 +100,9 @@ public class MeterConfigFactory {
         return nameBean;
     }
 
-    private Status createStatus(String state, Instant effectiveDate) {
+    private Status createStatus(String state) {
         Status status = new Status();
         status.setValue(state);
-        status.setDateTime(effectiveDate);
         return status;
     }
 
