@@ -81,7 +81,7 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
                 EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
-                createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()).span(), outboundEndPointConfiguration);
+                createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration);
                 context.commit();
                 return createQuickResponseMessage();
             } else if (meters.size() > 1) {

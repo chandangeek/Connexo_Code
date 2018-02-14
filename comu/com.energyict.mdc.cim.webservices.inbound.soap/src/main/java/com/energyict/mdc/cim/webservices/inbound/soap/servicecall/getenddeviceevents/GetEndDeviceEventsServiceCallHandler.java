@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents;
 
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -22,7 +21,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -110,16 +108,19 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
 
     private void setEndDeviceEvents(GetEndDeviceEventsDomainExtension extension) {
         Set<String> meterIds = new HashSet<>();
-        Collections.addAll(meterIds, extension.getMeter().split(","));
-
-        List<EndDevice> endDevices = meteringService.findEndDevices(meterIds, meterIds).find(); // todo mlevan
-
-        Range<Instant> interval = Range.openClosed(extension.getFromDate(), extension.getToDate());
+        for (String identifier : extension.getMeter().split(",")) {
+            if (!identifier.isEmpty()) {
+                meterIds.add(identifier);
+            }
+        }
 
         endDeviceEvents.clear();
-        endDevices.stream().forEach(
-                endDevice -> endDevice.getDeviceEvents(interval).stream().forEach(
-                        deviceEvent -> endDeviceEvents.add(deviceEvent)
-                ));
+        Range<Instant> range = Range.openClosed(extension.getFromDate(), extension.getToDate());
+        meteringService.findEndDevices(meterIds).stream().forEach(
+                endDevice -> endDevice.getDeviceEvents(range)
+                        .stream()
+                        .forEach(
+                                deviceEvent -> endDeviceEvents.add(deviceEvent)
+                        ));
     }
 }

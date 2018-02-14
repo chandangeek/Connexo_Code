@@ -41,7 +41,6 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 public class ServiceCallCommands {
 
@@ -142,15 +141,8 @@ public class ServiceCallCommands {
         GetEndDeviceEventsDomainExtension domainExtension = new GetEndDeviceEventsDomainExtension();
 
         String meterIdentifiers = "";
-        for (ch.iec.tc57._2011.getenddeviceevents.Meter meter : meters) {
-            Optional<String> mRID = endDeviceEventsBuilder.extractMrid(meter);
-            Optional<String> name = endDeviceEventsBuilder.extractName(meter);
-
-            if (mRID.isPresent()) {
-                meterIdentifiers = meterIdentifiers + "," + mRID.get();
-            } else if (name.isPresent()) {
-                meterIdentifiers = meterIdentifiers + "," + name.get();
-            }
+        for (String identifier : endDeviceEventsBuilder.getMeterIdentifiers(meters)) {
+            meterIdentifiers = identifier + "," + meterIdentifiers;
         }
 
         domainExtension.setMeter(meterIdentifiers);
