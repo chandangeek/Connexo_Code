@@ -39,6 +39,7 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -121,6 +122,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
@@ -246,7 +248,8 @@ public class ComSessionCrudIT {
                     new PluggableModule(),
                     new SchedulingModule(),
                     new TaskModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -732,7 +735,7 @@ public class ComSessionCrudIT {
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
