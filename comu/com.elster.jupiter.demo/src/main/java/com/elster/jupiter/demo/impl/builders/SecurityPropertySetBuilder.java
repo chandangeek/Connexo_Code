@@ -101,6 +101,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
                 .orElseGet(() -> securityManagementService.addSecurityAccessorType(key.getName(), createOrGetKeyType(key))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(key.getTimeDuration())
+                        .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                         .add());
         deviceConfiguration.getDeviceType().addSecurityAccessorTypes(securityAccessorType);
         return securityAccessorType;
