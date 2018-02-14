@@ -34,7 +34,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "File does not contain a valid public key"),
     INVALID_KEY(22, "InvalidKey", "Invalid key"),
     CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
-    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory");
+    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
+    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(25, "CertificateRequestFromCAFailed", "Certificate couldn't be received from the Certification authority"),
+    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(26, "CertificateSavingFromCAFailed", "The file has been received from the CA but an error has occurred while saving"),;
 
     private final int number;
     private final String key;

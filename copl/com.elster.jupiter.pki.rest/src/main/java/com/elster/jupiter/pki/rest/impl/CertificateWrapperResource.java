@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
@@ -26,7 +27,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
-
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -45,6 +45,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -61,6 +62,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -71,13 +78,15 @@ public class CertificateWrapperResource {
 
     private static final long MAX_FILE_SIZE = 2048;
     private final SecurityManagementService securityManagementService;
+    private final CaService caService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final DataSearchFilterFactory dataSearchFilterFactory;
 
     @Inject
-    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory, DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateWrapperResource(SecurityManagementService securityManagementService, CaService caService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory, DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
         this.securityManagementService = securityManagementService;
+        this.caService = caService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
@@ -248,6 +257,34 @@ public class CertificateWrapperResource {
         return Response.status(Response.Status.ACCEPTED)
                 .entity(certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages, importers))
                 .build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/requestCertificate")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response requestCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
+        timeout = timeout == 0 ? 30 : timeout;
+        try {
+            X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
+            try {
+                certificateWrapper.setCertificate(certificate);
+                certificateWrapper.save();
+            } catch (Exception e) {
+                throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
+            }
+        } catch (CompletionException | ExecutionException | InterruptedException | TimeoutException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA);
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
     }
 
     @POST

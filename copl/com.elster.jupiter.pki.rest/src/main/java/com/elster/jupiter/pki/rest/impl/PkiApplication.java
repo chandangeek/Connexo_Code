@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
@@ -27,6 +28,7 @@ public class PkiApplication extends Application {
 
     private volatile SecurityManagementService securityManagementService;
     private volatile TransactionService transactionService;
+    private volatile CaService caService;
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
@@ -48,6 +50,7 @@ public class PkiApplication extends Application {
             @Override
             protected void configure() {
                 bind(securityManagementService).to(SecurityManagementService.class);
+                bind(caService).to(CaService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
@@ -69,6 +72,11 @@ public class PkiApplication extends Application {
     @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
+    public void setCaService(CaService caService) {
+        this.caService = caService;
     }
 
     @Reference
