@@ -77,7 +77,7 @@ import static org.mockito.Mockito.when;
  * @since 2014-02-10 (17:44)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
+public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
@@ -1072,13 +1072,13 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         certificateAccessorType = securityManagementService.addSecurityAccessorType("Certificate", certs)
                 .description("just certificates")
                 .trustStore(main)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .add();
         keyAccessorType = securityManagementService.addSecurityAccessorType("Key", aes128)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .add();
-
     }
-
 }
