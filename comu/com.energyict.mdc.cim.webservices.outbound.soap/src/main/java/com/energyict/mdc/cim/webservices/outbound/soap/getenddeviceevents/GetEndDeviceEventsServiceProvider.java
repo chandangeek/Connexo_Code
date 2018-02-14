@@ -6,17 +6,10 @@ package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyGetEndDeviceEventsWebService;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsFaultMessageFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
@@ -43,6 +36,7 @@ import java.util.List;
 public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider {
 
     private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
+    private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -51,12 +45,8 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
 
     private volatile Clock clock;
     private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
 
-    private EndDeviceEventsBuilder endDeviceEventsBuilder;
-    private EndDeviceEventsFaultMessageFactory faultMessageFactory;
-    private ReplyTypeFactory replyTypeFactory;
-
+    private EndDeviceEventsFactory endDeviceEventsFactory = new EndDeviceEventsFactory();
     private List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
 
     public GetEndDeviceEventsServiceProvider() {
@@ -82,14 +72,9 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         this.meteringService = meteringService;
     }
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-    }
-
     @Override
     public Service get() {
-        return new GetEndDeviceEvents_Service(this.getClass().getResource("/getenddeviceevents/GetEndDeviceEvents.wsdl"));
+        return new GetEndDeviceEvents_Service(this.getClass().getResource(RESOURCE_WSDL));
     }
 
     @Override
@@ -133,28 +118,7 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     private EndDeviceEvents createEndDeviceEvents(List<EndDeviceEventRecord> records) {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-        records.stream().forEach(record -> endDeviceEventList.add(getEndDeviceEventsBuilder().asEndDeviceEvent(record)));
+        records.stream().forEach(record -> endDeviceEventList.add(endDeviceEventsFactory.asEndDeviceEvent(record)));
         return endDeviceEvents;
-    }
-
-    private EndDeviceEventsBuilder getEndDeviceEventsBuilder() {
-        if (endDeviceEventsBuilder == null) {
-            endDeviceEventsBuilder = new EndDeviceEventsBuilder(meteringService, getMessageFactory(), clock);
-        }
-        return endDeviceEventsBuilder;
-    }
-
-    private EndDeviceEventsFaultMessageFactory getMessageFactory() {
-        if (faultMessageFactory == null) {
-            faultMessageFactory = new EndDeviceEventsFaultMessageFactory(thesaurus, getReplyTypeFactory());
-        }
-        return faultMessageFactory;
-    }
-
-    private ReplyTypeFactory getReplyTypeFactory() {
-        if (replyTypeFactory == null) {
-            replyTypeFactory = new ReplyTypeFactory(thesaurus);
-        }
-        return replyTypeFactory;
     }
 }
