@@ -45,6 +45,14 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             + '.' + destination.fileExtension +
                             ')<br>';
                         break;
+                    case 'SFTP':
+                        toolTip += Uni.I18n.translate('destination.sftp','DES','SFTP') +
+                            ' (' +
+                            'ftps://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
+                            + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
+                            + '.' + destination.fileExtension +
+                            ')<br>';
+                        break;
                 }
             });
         }

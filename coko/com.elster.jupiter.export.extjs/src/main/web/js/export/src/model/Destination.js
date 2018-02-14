@@ -29,6 +29,8 @@ Ext.define('Dxp.model.Destination', {
                         return Uni.I18n.translate('destination.ftp','DES','FTP');
                     case 'FTPS':
                         return Uni.I18n.translate('destination.ftps','DES','FTPS');
+                    case 'SFTP':
+                        return Uni.I18n.translate('destination.sftp','DES','SFTP');
                     default:
                         return 'unknown';
                 }
@@ -45,6 +47,7 @@ Ext.define('Dxp.model.Destination', {
                         return data.recipients;
                     case 'FTP':
                     case 'FTPS':
+                    case 'SFTP':
                         return data.server;
                     default:
                         return 'unknown';
@@ -87,6 +90,19 @@ Ext.define('Dxp.model.Destination', {
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
                     case 'FTPS':
                         return Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
+                            + ': ' + data.server + '<br>'
+                            + Uni.I18n.translate('general.port', 'DES', 'Port')
+                            + ': ' + data.port + '<br>'
+                            + Uni.I18n.translate('general.user', 'DES', 'User')
+                            + ': ' + data.user + '<br>'
+                            + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '<br>'
+                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                            + ': ' + data.fileExtension + '<br>'
+                            + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
+                    case 'SFTP':
+                        return Uni.I18n.translate('dataExportdestinations.sftpServer', 'DES', 'SFTP server')
                             + ': ' + data.server + '<br>'
                             + Uni.I18n.translate('general.port', 'DES', 'Port')
                             + ': ' + data.port + '<br>'
