@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -25,7 +24,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,7 @@ import java.util.List;
         property = {"name=" + ReplyGetEndDeviceEventsWebService.NAME})
 public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider {
 
-    private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
+    private static final String NOUN = "GetEndDeviceEvents";
     private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
@@ -43,33 +41,20 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     private final ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory getEndDeviceEventsMessageObjectFactory
             = new ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory();
 
-    private volatile Clock clock;
-    private volatile MeteringService meteringService;
-
-    private EndDeviceEventsFactory endDeviceEventsFactory = new EndDeviceEventsFactory();
-    private List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
+    private final EndDeviceEventsFactory endDeviceEventsFactory = new EndDeviceEventsFactory();
+    private final List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
 
     public GetEndDeviceEventsServiceProvider() {
         // for OSGI purposes
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyEndDeviceEvents(GetEndDeviceEventsPort port) {
+    public void addGetEndDeviceEventsPort(GetEndDeviceEventsPort port) {
         getEndDeviceEventsPorts.add(port);
     }
 
-    public void removeReplyEndDeviceEvents(GetEndDeviceEventsPort port) {
+    public void removeGetEndDeviceEventsPort(GetEndDeviceEventsPort port) {
         getEndDeviceEventsPorts.remove(port);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -104,7 +89,7 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
-        header.setNoun(GET_END_DEVICE_EVENTS);
+        header.setNoun(NOUN);
         responseMessage.setHeader(header);
 
         // set payload

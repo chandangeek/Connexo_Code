@@ -4,12 +4,15 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
@@ -28,22 +31,21 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
+public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
     private static final String NOUN = "ReplyMeterConfig";
     private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
-    private final List<MeterConfigPort> stateMeterConfigPortServices = new ArrayList<>();
+    private final List<MeterConfigPort> meterConfigPorts = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
     private volatile DeviceService deviceService;
@@ -65,6 +67,11 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
         meterConfigPorts.remove(meterConfigPort);
     }
 
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     @Override
     public Service get() {
         return new ReplyMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
@@ -84,7 +91,7 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
             try {
-                stateMeterConfigPortServices
+                meterConfigPorts
                         .forEach(meterConfigPortService -> {
                             try {
                                 meterConfigPortService.changedMeterConfig(createResponseMessage(HeaderType.Verb.CHANGED, device));
