@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.util.exception.BaseException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.osgi.service.component.annotations.Activate;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.pki.rest.impl.MessageSeeds.CERTIFICATE_ALREADY_REVOKED;
 import static java.util.stream.Collectors.toList;
 
 @Component(name = "com.elster.jupiter.pki.rest.impl.CertificateRevocationUtils",
@@ -110,29 +112,30 @@ public class CertificateRevocationUtils {
         return certs;
     }
 
+    /**
+     * Revokes {@link CertificateWrapper} and changes it status to {@link CertificateWrapperStatus}#REVOKED
+     *
+     * @param certificateWrapper certificate to revoke
+     * @param timeout timeout in seconds
+     */
     public void revokeCertificate(CertificateWrapper certificateWrapper, Long timeout) {
-        CertificateWrapper cert;
         try {
-            cert = executorService.submit(() -> caSendRevoke(certificateWrapper)).get(timeout, TimeUnit.SECONDS);
-            LOGGER.fine("Certificate " + cert.getAlias() + " was revoked by Certification Authority");
+            executorService.submit(() -> caSendRevoke(certificateWrapper)).get(timeout, TimeUnit.MILLISECONDS);
+            LOGGER.fine("Certificate " + certificateWrapper.getAlias() + " was revoked by Certification Authority");
         } catch (InterruptedException | ExecutionException e) {
+            if (e.getCause() instanceof BaseException) {
+                BaseException ex = ((BaseException) e.getCause());
+                if (ex.getMessageSeed() == CERTIFICATE_ALREADY_REVOKED) {
+                    updateCertificateWrapperStatus(certificateWrapper, CertificateWrapperStatus.REVOKED);
+                    throw ex;
+                }
+            }
             throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, e.getLocalizedMessage());
         } catch (TimeoutException e) {
             throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, TIMEOUT_MESSAGE);
         }
 
-        try {
-            updateCertificateWrapperStatus(cert, CertificateWrapperStatus.REVOKED);
-        } catch (Exception e) {
-            LocalizedException ex;
-            if (caService.isConfigured()) {
-                ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
-            } else {
-                ex = exceptionFactory.newException(MessageSeeds.STATUS_CHANGE_FAILED);
-            }
-            ex.addSuppressed(e);
-            throw ex;
-        }
+        updateCertificateWrapperStatus(certificateWrapper, CertificateWrapperStatus.REVOKED);
     }
 
     /**
@@ -155,7 +158,7 @@ public class CertificateRevocationUtils {
         //wait for results async, interrupt all jobs if/when first timeout is happened
         jobs.entrySet().forEach(entry -> asyncResults.add(executorService.submit(() -> {
             try {
-                revokedByCA.add(entry.getValue().get(timeout, TimeUnit.SECONDS));
+                revokedByCA.add(entry.getValue().get(timeout, TimeUnit.MILLISECONDS));
                 info.addResult(entry.getKey().getAlias(), true);
                 LOGGER.fine("Certificate " + entry.getKey().getAlias() + " was revoked by Certification Authority");
             } catch (TimeoutException e) {
@@ -175,18 +178,7 @@ public class CertificateRevocationUtils {
         waitAllAsyncResults(asyncResults);
 
         //sync updating for certificate wrapper statuses since ORM layer can't handle async tasks properly
-        revokedByCA.forEach(cw -> {
-            try {
-                updateCertificateWrapperStatus(cw, CertificateWrapperStatus.REVOKED);
-            } catch (Exception e) {
-                LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
-                if (isCAConfigured()) {
-                    info.replaceResult(cw.getAlias(), false, "Certificate was revoked by the Certification Authority, but failed to change it status");
-                } else {
-                    info.replaceResult(cw.getAlias(), false, "Failed to change certificate wrapper status");
-                }
-            }
-        });
+        revokedByCA.forEach(cw -> updateCertificateWrapperStatus(cw, CertificateWrapperStatus.REVOKED, info));
         return info;
     }
 
@@ -201,6 +193,11 @@ public class CertificateRevocationUtils {
                         .getSerialNumber(),
                 certificateWrapper.getIssuer(),
                 certificateWrapper.getSubject());
+
+        RevokeStatus checkRevokeStatus = caService.checkRevocationStatus(revokeFilter);
+        if (checkRevokeStatus != null && checkRevokeStatus != RevokeStatus.NOT_REVOKED) {
+            throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_ALREADY_REVOKED);
+        }
 
         try {
             // front end doesn't specify reason, so hardcoded
@@ -233,8 +230,33 @@ public class CertificateRevocationUtils {
         futures.forEach(future -> future.cancel(true));
     }
 
-    private void updateCertificateWrapperStatus(CertificateWrapper certificateWrapper, CertificateWrapperStatus status) {
-        certificateWrapper.setWrapperStatus(status);
-        certificateWrapper.save();
+    private void updateCertificateWrapperStatus(CertificateWrapper cw, CertificateWrapperStatus status) {
+        try {
+            cw.setWrapperStatus(status);
+            cw.save();
+        } catch (Exception e) {
+            LocalizedException ex;
+            if (caService.isConfigured()) {
+                ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
+            } else {
+                ex = exceptionFactory.newException(MessageSeeds.STATUS_CHANGE_FAILED);
+            }
+            ex.addSuppressed(e);
+            throw ex;
+        }
+    }
+
+    private void updateCertificateWrapperStatus(CertificateWrapper cw, CertificateWrapperStatus status, CertificateRevocationResultInfo info) {
+        try {
+            cw.setWrapperStatus(status);
+            cw.save();
+        } catch (Exception e) {
+            LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
+            if (isCAConfigured()) {
+                info.replaceResult(cw.getAlias(), false, "Certificate was revoked by the Certification Authority, but failed to change it status");
+            } else {
+                info.replaceResult(cw.getAlias(), false, "Failed to change certificate wrapper status");
+            }
+        }
     }
 }

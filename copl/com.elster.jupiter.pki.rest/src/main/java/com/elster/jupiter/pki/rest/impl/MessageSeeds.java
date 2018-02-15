@@ -36,9 +36,10 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
     TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
     REVOCATION_FAILED(25, "RevocationFailed", "Certificate couldn't be revoked by the Certification Authority'. Cause: {0}"),
-    REVOCATION_DESYNC(26, "RevocationDesync", "Certificate was revoked by the Certification Authority, but failed to change status within Connexo"),
+    REVOCATION_DESYNC(26, "RevocationDesync", "Certificate was revoked by the Certification Authority, but failed to change status"),
     NO_CERTIFICATES_WITH_IDS(27, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
-    STATUS_CHANGE_FAILED(28, "StatusChangeFailed", "Failed to change certificate wrapper status");
+    STATUS_CHANGE_FAILED(28, "StatusChangeFailed", "Failed to change certificate wrapper status"),
+    CERTIFICATE_ALREADY_REVOKED(29, "CertificateAlreadyRevoked", "The certificate has already been revoked by Certification Authority. The status has been updated to ''revoked''");
 
     private final int number;
     private final String key;
