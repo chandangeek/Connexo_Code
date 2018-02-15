@@ -40,7 +40,7 @@ public class EndDeviceEventsFaultMessageFactory {
     }
 
     FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds messageSeed) {
-        return createEndDeviceEventsFaultMessage(messageSeed.translate(thesaurus));
+        return createEndDeviceEventsFaultMessage(messageSeed.translate(thesaurus), messageSeed.getErrorCode());
     }
 
     private FaultMessage createEndDeviceEventsFaultMessage(ReplyType replyType) {
