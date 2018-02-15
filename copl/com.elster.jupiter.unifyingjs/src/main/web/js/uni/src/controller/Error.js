@@ -446,6 +446,67 @@ Ext.define('Uni.controller.Error', {
         });
         box.show(config);
     },
+
+    /**
+     * Shows an error window with a title and a html sensitive message to the user.
+     *
+     * @param {String} title Window title to show
+     * @param {String} message Error message to show
+     * @param {String} [config={}] Optional {@link Ext.window.MessageBox} configuration if tweaks are required
+     */
+    showHtmlSensitiveError: function (title, message, errorCode, config, buttons, itemId) {
+        config = config ? config : {};
+        Ext.apply(config, {
+            title: title,
+            errCode: errorCode,
+            modal: false,
+            ui: 'message-error',
+            icon: 'icon-warning2',
+            style: 'font-size: 34px;',
+            minWidth: 450
+        });
+
+        var box = Ext.create('Ext.window.MessageBox', {
+            itemId: itemId,
+            buttons: buttons || [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                    action: 'close',
+                    name: 'close',
+                    ui: 'remove',
+                    handler: function () {
+                        box.close();
+                    }
+                }
+            ],
+            initComponent: function () {
+                var me = this,
+                    msgClass = Ext.getClass(me),
+                    sLabel = Uni.I18n.translate('general.errorCode', 'UNI', 'Error code'),
+                    separator = ': ';
+                msgClass.prototype.initComponent.apply(me, arguments);
+
+                me.insert(1,
+                    {
+                        xtype: 'displayfield',
+                        value: message,
+                        htmlEncode: false,
+                        margin: '0 0 10 50'
+                    });
+
+                if (Ext.isDefined(errorCode)) {
+                    var fieldErrorCode = new Ext.form.field.Display({
+                        value: sLabel + separator + errorCode,
+                        fieldStyle: 'margin: 0px'
+                    });
+                    me.promptContainer.insert(2, fieldErrorCode);
+                }
+            }
+        });
+        box.show(config);
+    },
+
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
         this.getApplication().fireEvent('changecontentevent', widget);
