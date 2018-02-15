@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,12 +43,17 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
-
-    private final List<MeterConfigPort> meterConfigPorts = new ArrayList<>();
+    private final List<MeterConfigPort> stateMeterConfigPortServices = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
+
+    private volatile DeviceService deviceService;
 
     public ReplyMeterConfigServiceProvider() {
         // for OSGI purposes
+    }
+
+    public ReplyMeterConfigServiceProvider(DeviceService deviceService) {
+        setDeviceService(deviceService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -67,6 +73,30 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     @Override
     public Class getService() {
         return MeterConfigPort.class;
+    }
+
+    @Override
+    public String getWebServiceName() {
+        return ReplyMeterConfigWebService.NAME;
+    }
+
+    @Override
+    public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
+        deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
+            try {
+                stateMeterConfigPortServices
+                        .forEach(meterConfigPortService -> {
+                            try {
+                                meterConfigPortService.changedMeterConfig(createResponseMessage(HeaderType.Verb.CHANGED, device));
+                            } catch (FaultMessage faultMessage) {
+                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                            }
+                        });
+            } catch (RuntimeException ex) {
+                endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+            }
+        });
+        return true;
     }
 
     @Override
@@ -91,6 +121,30 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
+    }
+
+    private MeterConfigEventMessageType createResponseMessage(HeaderType.Verb verb, Device device) {
+        MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
+
+        // set header
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setNoun(NOUN);
+        header.setVerb(verb);
+        meterConfigEventMessageType.setHeader(header);
+
+        // set reply
+        ReplyType replyType = cimMessageObjectFactory.createReplyType();
+        replyType.setResult(ReplyType.Result.OK);
+        meterConfigEventMessageType.setReply(replyType);
+
+        // set payload
+        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
+        meterConfigEventMessageType.setPayload(payloadType);
+        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(device);
+        payloadType.setMeterConfig(meterConfig);
+        meterConfigEventMessageType.setPayload(payloadType);
+
+        return meterConfigEventMessageType;
     }
 
     private MeterConfigEventMessageType createResponseMessage(List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
