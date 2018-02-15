@@ -369,30 +369,9 @@ Ext.define('Pkj.controller.Certificates', {
                 if (!Ext.isEmpty(response.responseText)) {
                     var responseObject = JSON.parse(response.responseText);
 
-                    var messageConstructed = Uni.I18n.translate('certificate.obsolete.confirm.title', 'PKJ', 'Certificate is still used by the following objects') + ':<br/><ul>';
-
-                    if (responseObject.securityAccessors.length !== 0) {
-                        var accessors = Uni.I18n.translate('certificate.obsolete.confirm.accessors', 'PKJ', 'Security accessors');
-                        var accessorList = responseObject.securityAccessors.join(', ');
-                        messageConstructed += '<li><b>' + accessors + ':</b> ' + accessorList + '</li>';
-                    }
-                    if (responseObject.devices.length !== 0) {
-                        var devices = Uni.I18n.translate('certificate.obsolete.confirm.devices', 'PKJ', 'Devices');
-                        var deviceList = responseObject.devices.join(', ');
-                        messageConstructed += '<li><b>' + devices + ':</b> ' + deviceList + '</li>';
-                    }
-                    if (responseObject.importers.length !== 0) {
-                        var importers = Uni.I18n.translate('certificate.obsolete.confirm.importers', 'PKJ', 'Import services');
-                        var importerList = responseObject.importers.join(', ');
-                        messageConstructed += '<li><b>' + importers + ':</b> ' + importerList + '</li>';
-                    }
-                    if (responseObject.userDirectories.length !== 0) {
-                        var directories = Uni.I18n.translate('certificate.obsolete.confirm.directories', 'PKJ', 'User directories');
-                        var directoryList = responseObject.userDirectories.join(', ');
-                        messageConstructed += '<li><b>' + directories + ':</b> ' + directoryList + '</li>';
-                    }
-
-                    messageConstructed += '</ul>' + Uni.I18n.translate('certificate.obsolete.confirm.question', 'PKJ', 'Do you want to mark it as obsolete?');
+                    var messageConstructed = me.constructUsagesList(responseObject,
+                        Uni.I18n.translate('certificate.usages.confirm.title', 'PKJ', 'Certificate is still used by the following objects') + ':',
+                        Uni.I18n.translate('certificate.obsolete.confirm.question', 'PKJ', 'Do you want to mark it as obsolete?'));
 
                     confirmationWindow.insert(1,
                         {
@@ -443,11 +422,13 @@ Ext.define('Pkj.controller.Certificates', {
         });
     },
 
-    //todo: correct messages and translations (... and everything else)
     revokeCertificate: function (menuItem) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: "Revoke"}),
-            certificateRecord = menuItem.up('certificate-action-menu').record;
+            certificateRecord = menuItem.up('certificate-action-menu').record,
+            confirmationWindow = Ext.create('Pkj.view.RevocationConfirmationWindow', {
+                    bindRecordId: certificateRecord.get('id'),
+                    certificatesView: me
+            });
 
         Ext.Ajax.request({
             url: '/api/pir/certificates/' + certificateRecord.get('id') + '/checkRevoke',
@@ -455,43 +436,54 @@ Ext.define('Pkj.controller.Certificates', {
 
             callback: function (config, success, response) {
                 if (!Ext.isEmpty(response.responseText)) {
-                    console.log(response);
                     var responseObject = JSON.parse(response.responseText);
-
                     if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === true) {
-                        me.getApplication().getController('Uni.controller.Error').showError("Usages!", "There are usages you sneaky human", "-1");
+                        var errorMsg = me.constructUsagesList(responseObject,
+                                Uni.I18n.translate('certificate.usages.error', 'PKJ', 'Certificate could not be revoked because it is still used on the following objects')+ ':');
+                        me.getApplication().getController('Uni.controller.Error').showHtmlSensitiveError(
+                            Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), errorMsg);
                         return;
                     }
-                    var isOnline, title, text, eventText;
-                    isOnline = !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === true;
-                    if (isOnline) {
-                        title = 'Revoke certificate?';
-                        text = 'A request for revoking the certificate will be sent to the Certification Authority';
-                        eventText = "Certificate is revoked and the status is changed to 'Revoked'";
-                    } else {
-                        title = 'Mark certificate(s) as revoked?';
-                        text = 'The certificates will be marked as revoked in the system but you need to manually send them to the Certificate Authority that will change their revocation status';
-                        eventText = "Certificate status is changed to 'Revoked'";
-                    }
+
                     confirmationWindow.show({
-                        title: title,
-                        msg: text,
+                        caOnline: Ext.isEmpty(responseObject.isOnline) || responseObject.isOnline === true,
                         headers: {'Content-type': 'multipart/form-data'},
-                        fn: function (state) {
-                            if (state === 'confirm') {
-                                Ext.Ajax.request({
-                                    url: '/api/pir/certificates/' + certificateRecord.get('id') + '/revoke',
-                                    method: 'POST',
-                                    success: function () {
-                                        me.getApplication().fireEvent('acknowledge', eventText);
-                                        me.navigateToCertificatesOverview();
-                                    }
-                                });
-                            }
-                        }
                     });
                 }
             }
         });
+    },
+
+    constructUsagesList: function (certificateUsagesResponse, prefix, suffix) {
+        var messageConstructed = '';
+        if (prefix) {
+            messageConstructed += prefix;
+        }
+        messageConstructed += '<br/><ul>';
+        if (certificateUsagesResponse.securityAccessors.length !== 0) {
+            var accessors = Uni.I18n.translate('certificate.usages.confirm.accessors', 'PKJ', 'Security accessors');
+            var accessorList = certificateUsagesResponse.securityAccessors.join(', ');
+            messageConstructed += '<li><b>' + accessors + ':</b> ' + accessorList + '</li>';
+        }
+        if (certificateUsagesResponse.devices.length !== 0) {
+            var devices = Uni.I18n.translate('certificate.usages.confirm.devices', 'PKJ', 'Devices');
+            var deviceList = certificateUsagesResponse.devices.join(', ');
+            messageConstructed += '<li><b>' + devices + ':</b> ' + deviceList + '</li>';
+        }
+        if (certificateUsagesResponse.importers.length !== 0) {
+            var importers = Uni.I18n.translate('certificate.usages.confirm.importers', 'PKJ', 'Import services');
+            var importerList = certificateUsagesResponse.importers.join(', ');
+            messageConstructed += '<li><b>' + importers + ':</b> ' + importerList + '</li>';
+        }
+        if (certificateUsagesResponse.userDirectories.length !== 0) {
+            var directories = Uni.I18n.translate('certificate.usages.confirm.directories', 'PKJ', 'User directories');
+            var directoryList = certificateUsagesResponse.userDirectories.join(', ');
+            messageConstructed += '<li><b>' + directories + ':</b> ' + directoryList + '</li>';
+        }
+        messageConstructed += '</ul>';
+        if (suffix) {
+            messageConstructed += suffix;
+        }
+        return messageConstructed;
     }
 });
