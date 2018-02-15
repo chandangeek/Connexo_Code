@@ -4,12 +4,15 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
@@ -20,6 +23,7 @@ import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -33,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
+public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
     private static final String NOUN = "ReplyMeterConfig";
     private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
@@ -46,8 +50,14 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     private final List<MeterConfigPort> stateMeterConfigPortServices = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
+    private volatile DeviceService deviceService;
+
     public ReplyMeterConfigServiceProvider() {
         // for OSGI purposes
+    }
+
+    public ReplyMeterConfigServiceProvider(DeviceService deviceService) {
+        setDeviceService(deviceService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -57,6 +67,11 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
 
     public void removeMeterConfigPortService(MeterConfigPort meterConfigPort) {
         stateMeterConfigPortServices.remove(meterConfigPort);
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     public List<MeterConfigPort> getStateTransitionWebServiceClients() {
@@ -71,6 +86,30 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     @Override
     public Class getService() {
         return MeterConfigPort.class;
+    }
+
+    @Override
+    public String getWebServiceName() {
+        return ReplyMeterConfigWebService.NAME;
+    }
+
+    @Override
+    public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
+        deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
+            try {
+                stateMeterConfigPortServices
+                        .forEach(meterConfigPortService -> {
+                            try {
+                                meterConfigPortService.changedMeterConfig(createResponseMessage(HeaderType.Verb.CHANGED, device));
+                            } catch (FaultMessage faultMessage) {
+                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                            }
+                        });
+            } catch (RuntimeException ex) {
+                endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+            }
+        });
+        return true;
     }
 
     @Override
@@ -95,6 +134,30 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
+    }
+
+    private MeterConfigEventMessageType createResponseMessage(HeaderType.Verb verb, Device device) {
+        MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
+
+        // set header
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setNoun(NOUN);
+        header.setVerb(verb);
+        meterConfigEventMessageType.setHeader(header);
+
+        // set reply
+        ReplyType replyType = cimMessageObjectFactory.createReplyType();
+        replyType.setResult(ReplyType.Result.OK);
+        meterConfigEventMessageType.setReply(replyType);
+
+        // set payload
+        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
+        meterConfigEventMessageType.setPayload(payloadType);
+        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(device);
+        payloadType.setMeterConfig(meterConfig);
+        meterConfigEventMessageType.setPayload(payloadType);
+
+        return meterConfigEventMessageType;
     }
 
     private MeterConfigEventMessageType createResponseMessage(List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
