@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -46,7 +45,6 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -348,37 +346,6 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
-    }
-
-    @Test
-    public void testSuccessfulAsyncGet() throws Exception {
-        // Prepare request
-        GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
-        GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
-        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(true);
-        endDeviceEventsRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
-
-        getEndDeviceEvents.getMeter().add(createMeter(END_DEVICE_MRID, END_DEVICE_NAME));
-        getEndDeviceEvents.getTimeSchedule().add(createTimeSchedule(NOW.minusMillis(1000), NOW.plusMillis(1000)));
-
-        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
-        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS);
-        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
-        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
-
-        ServiceCall serviceCall = mock(ServiceCall.class);
-        when(serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(anyList(), any(Range.class), any(EndPointConfiguration.class))).thenReturn(serviceCall);
-
-        // Business method
-        EndDeviceEventsResponseMessageType response = getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
-
-        // Assert response
-        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
-        assertThat(response.getHeader().getNoun()).isEqualTo("GetEndDeviceEvents");
-        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
-
-        EndDeviceEvents endDeviceEvents = response.getPayload().getEndDeviceEvents();
-        assertThat(endDeviceEvents.getEndDeviceEvent()).hasSize(0);
     }
 
     private GetEndDeviceEventsRequestMessageType createGetEndDeviceEventsRequest(GetEndDeviceEvents getEndDeviceEvents) {
