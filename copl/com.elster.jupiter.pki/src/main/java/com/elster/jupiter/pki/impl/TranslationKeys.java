@@ -5,9 +5,10 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterMessageHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
-
     ALIAS("Alias", "Alias"),
     AVAILABLE("Available", "Available"),
     REQUESTED("Requested", "Requested"),
@@ -15,7 +16,11 @@ public enum TranslationKeys implements TranslationKey {
     OBSOLETE("Obsolete", "Obsolete"),
     NOT_YET_VALID("notYetValid", "Not yet valid"),
     TRUSTSTORE("TrustStore", "Trust store"),
-    PUBLIC_KEY("PublicKey", "Public key");
+    PUBLIC_KEY("PublicKey", "Public key"),
+    CSR_IMPORTER(CSRImporterFactory.NAME, "CSR importer [STD]"),
+    CSR_IMPORTER_MESSAGE_HANDLER(CSRImporterMessageHandlerFactory.SUBSCRIBER_NAME, "Handle CSR import"),
+    CSR_IMPORT_SUCCESS("CSRImportSuccess", "Finished successfully."),
+    CSR_IMPORT_FAILED("CSRImportFailed", "Failed to complete, no CSR has been processed.");
 
     private final String key;
     private final String defaultFormat;

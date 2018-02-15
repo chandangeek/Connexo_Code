@@ -11,6 +11,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -130,11 +131,13 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile EventService eventService;
     private volatile UserService userService;
     private volatile QueryService queryService;
+    private volatile MessageService messageService;
 
     @Inject
     public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                         EventService eventService, UserService userService, QueryService queryService) {
+                                         EventService eventService, UserService userService, QueryService queryService,
+                                         MessageService messageService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -143,6 +146,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setEventService(eventService);
         this.setUserService(userService);
         this.setQueryService(queryService);
+        this.setMessageService(messageService);
         this.activate();
     }
 
@@ -271,6 +275,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
@@ -299,6 +308,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
                 bind(QueryService.class).toInstance(queryService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
@@ -984,15 +994,22 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
-        return !getAssociatedCertificateAccessors(certificate).isEmpty();
+        return streamCertificateAccessors(certificate).findAny().isPresent();
     }
 
     @Override
     public List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate) {
+        return streamCertificateAccessors(certificate).collect(Collectors.toList());
+    }
+
+    private Stream<SecurityAccessor> streamCertificateAccessors(CertificateWrapper certificate) {
         return dataModel.stream(SecurityAccessor.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
-                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
-                .collect(Collectors.toList());
+                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)));
+    }
+
+    public List<SecurityAccessor> getAllSecurityAccessors() {
+        return dataModel.stream(SecurityAccessor.class).collect(Collectors.toList());
     }
 
     @Override

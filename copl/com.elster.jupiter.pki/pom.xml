@@ -78,6 +78,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
 
         <!--  Bouncy castle library dependencies  -->
         <dependency>
@@ -114,11 +122,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
