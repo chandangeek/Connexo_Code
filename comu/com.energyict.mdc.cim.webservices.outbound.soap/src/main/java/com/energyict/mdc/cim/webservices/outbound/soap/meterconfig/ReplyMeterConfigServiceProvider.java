@@ -28,7 +28,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,8 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
-    private final List<MeterConfigPort> stateMeterConfigPortServices = new ArrayList<>();
+
+    private final List<MeterConfigPort> meterConfigPorts = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
     public ReplyMeterConfigServiceProvider() {
@@ -51,16 +51,12 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addMeterConfigPortService(MeterConfigPort meterConfigPort) {
-        stateMeterConfigPortServices.add(meterConfigPort);
+    public void addMeterConfigPort(MeterConfigPort meterConfigPort) {
+        meterConfigPorts.add(meterConfigPort);
     }
 
-    public void removeMeterConfigPortService(MeterConfigPort meterConfigPort) {
-        stateMeterConfigPortServices.remove(meterConfigPort);
-    }
-
-    public List<MeterConfigPort> getStateTransitionWebServiceClients() {
-        return Collections.unmodifiableList(this.stateMeterConfigPortServices);
+    public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
+        meterConfigPorts.remove(meterConfigPort);
     }
 
     @Override
@@ -77,7 +73,7 @@ public class ReplyMeterConfigServiceProvider implements ReplyMeterConfigWebServi
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
                      List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         try {
-            stateMeterConfigPortServices.stream()
+            meterConfigPorts.stream()
                     .forEach(meterConfigPortService -> {
                         try {
                             switch (operation) {
