@@ -71,6 +71,10 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         meterConfigPorts.remove(meterConfigPort);
     }
 
+    public List<MeterConfigPort> getMeterConfigPorts() {
+        return Collections.unmodifiableList(meterConfigPorts);
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMeterConfigExtendedDataFactory(MeterConfigExtendedDataFactory meterConfigExtendedDataFactory) {
         meterConfigExtendedDataFactories.add(meterConfigExtendedDataFactory);
@@ -108,14 +112,13 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
             try {
-                meterConfigPorts
-                        .forEach(meterConfigPortService -> {
-                            try {
-                                meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED));
-                            } catch (FaultMessage faultMessage) {
-                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                            }
-                        });
+                getMeterConfigPorts().forEach(meterConfigPortService -> {
+                    try {
+                        meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED));
+                    } catch (FaultMessage faultMessage) {
+                        endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                    }
+                });
             } catch (RuntimeException ex) {
                 endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
             }
@@ -127,7 +130,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
                      List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         try {
-            meterConfigPorts.forEach(meterConfigPortService -> {
+            getMeterConfigPorts().forEach(meterConfigPortService -> {
                 try {
                     switch (operation) {
                         case CREATE:
