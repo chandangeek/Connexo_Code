@@ -24,6 +24,7 @@ import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -77,6 +78,10 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     public void removeMeterConfigExtendedDataFactory(MeterConfigExtendedDataFactory meterConfigExtendedDataFactory) {
         meterConfigExtendedDataFactories.remove(meterConfigExtendedDataFactory);
+    }
+
+    public List<MeterConfigExtendedDataFactory> getMeterConfigExtendedDataFactories() {
+        return Collections.unmodifiableList(meterConfigExtendedDataFactories);
     }
 
     @Reference
@@ -143,7 +148,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     private MeterConfig createMeterConfig(List<Device> devices) {
         MeterConfig meterConfig = meterConfigFactory.asMeterConfig(devices);
-        meterConfigExtendedDataFactories.forEach(meterConfigExtendedDataFactory -> {
+        getMeterConfigExtendedDataFactories().forEach(meterConfigExtendedDataFactory -> {
             meterConfigExtendedDataFactory.extendData(devices, meterConfig);
         });
         return meterConfig;
