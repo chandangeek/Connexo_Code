@@ -86,7 +86,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
                 .query(SecurityAccessor.class, Device.class, EndDevice.class, EndDeviceLifeCycleStatus.class, State.class, Stage.class)
                 .select(operationalDeviceContition)
                 .stream()
-                .filter(distinctByKey(securityAccessor -> securityAccessor.getKeyAccessorType().getName()))
+                .filter(distinctByKey(securityAccessor -> securityAccessor.getDevice().getName()))
                 .collect(Collectors.toList());
         logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
         List<SecurityAccessor> resultList = securityAccessors
