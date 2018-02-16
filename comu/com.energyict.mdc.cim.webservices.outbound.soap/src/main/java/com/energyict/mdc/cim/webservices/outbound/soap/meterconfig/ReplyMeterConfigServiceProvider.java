@@ -25,12 +25,15 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
+import org.apache.cxf.jaxws.JaxWsClientProxy;
+import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,13 +115,18 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
             try {
-                getMeterConfigPorts().forEach(meterConfigPortService -> {
-                    try {
-                        meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED));
-                    } catch (FaultMessage faultMessage) {
-                        endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                    }
-                });
+                getMeterConfigPorts()
+                        .stream()
+                        .filter(port -> isValidMeterConfigPortService(port, endPointConfiguration))
+                        .findAny()
+                        .ifPresent(meterConfigPortService -> {
+                            try {
+                                meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections
+                                        .singletonList(device)), HeaderType.Verb.CHANGED));
+                            } catch (FaultMessage faultMessage) {
+                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                            }
+                        });
             } catch (RuntimeException ex) {
                 endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
             }
@@ -130,20 +138,24 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
                      List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         try {
-            getMeterConfigPorts().forEach(meterConfigPortService -> {
-                try {
-                    switch (operation) {
-                        case CREATE:
-                            meterConfigPortService.createdMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED));
-                            break;
-                        case UPDATE:
-                            meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
-                            break;
-                    }
-                } catch (FaultMessage faultMessage) {
-                    endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                }
-            });
+            getMeterConfigPorts()
+                    .stream()
+                    .filter(port -> isValidMeterConfigPortService(port, endPointConfiguration))
+                    .findAny()
+                    .ifPresent(meterConfigPortService -> {
+                        try {
+                            switch (operation) {
+                                case CREATE:
+                                    meterConfigPortService.createdMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED));
+                                    break;
+                                case UPDATE:
+                                    meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
+                                    break;
+                            }
+                        } catch (FaultMessage faultMessage) {
+                            endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                        }
+                    });
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
@@ -204,5 +216,9 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         meterConfigEventMessageType.setReply(replyType);
 
         return meterConfigEventMessageType;
+    }
+
+    private boolean isValidMeterConfigPortService(MeterConfigPort meterConfigPort, EndPointConfiguration endPointConfiguration) {
+        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(meterConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 }
