@@ -102,7 +102,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-            if (requestMessage.getHeader().isAsyncReplyFlag()) {
+            if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
                 EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.UPDATE);

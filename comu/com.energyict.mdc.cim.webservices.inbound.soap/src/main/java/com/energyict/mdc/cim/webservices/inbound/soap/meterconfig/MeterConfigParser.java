@@ -45,29 +45,27 @@ public class MeterConfigParser {
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
+                meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
+                meterInfo.setShipmentDate(extractShipmentDate(meter));
+                meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 break;
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
+                meterInfo.setmRID(extractMrid(meter).orElse(null));
+                meterInfo.setStatusReason(extractStatusReason(meter).orElse(null));
+                meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
+                meterInfo.setStatusEffectiveDate(extractStatusEffectiveDate(meter).orElse(null));
+                meterInfo.setMultiplierReason(extractConfigurationReason(meter).orElse(null));
+                meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
                 break;
         }
 
-        meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
-        meterInfo.setShipmentDate(extractShipmentDate(meter));
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
         meterInfo.setModelVersion(extractModelVersion(meter).orElse(null));
         meterInfo.setMultiplier(extractMultiplier(meter).orElse(null));
-
-        meterInfo.setmRID(extractMrid(meter).orElse(null));
-        meterInfo.setDeviceType(extractDeviceTypeName(meter));
-        meterInfo.setStatusReason(extractStatusReason(meter).orElse(null));
-        meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
-        meterInfo.setStatusEffectiveDate(extractStatusEffectiveDate(meter).orElse(null));
-        meterInfo.setMultiplierReason(extractConfigurationReason(meter).orElse(null));
-        meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
-
         return meterInfo;
     }
 

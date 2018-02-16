@@ -115,7 +115,7 @@ public class MeterInfo {
 
     @JsonGetter
     private long getEpochShipmentDate() {
-        return this.shipmentDate.toEpochMilli();
+        return this.shipmentDate != null ? this.shipmentDate.toEpochMilli() : 0;
     }
 
     @JsonSetter
