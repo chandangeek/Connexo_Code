@@ -45,18 +45,22 @@ public class MeterConfigExtendedDataFactoryProvider implements MeterConfigExtend
                     .findFirst()
                     .ifPresent(device -> {
                         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
-                        device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-                            getMdcPropertyUtils().stream().findAny().ifPresent(utils -> {
-                                utils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, device)
-                                        .stream()
-                                        .filter(propertyInfo -> propertyInfo.key.equals("Manufacturer"))
-                                        .findAny()
-                                        .ifPresent(property -> meter.setAmrSystem(property.getPropertyValueInfo().value == null
-                                                ? (String) property.getPropertyValueInfo().defaultValue
-                                                : (String) property.getPropertyValueInfo().value));
-                            });
-                        });
+                        device.getDeviceType()
+                                .getDeviceProtocolPluggableClass()
+                                .ifPresent(deviceProtocolPluggableClass -> {
+                                    getMdcPropertyUtils().stream().findAny().ifPresent(utils -> {
+                                        utils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol()
+                                                .getPropertySpecs(), deviceProperties, device)
+                                                .stream()
+                                                .filter(propertyInfo -> propertyInfo.key.equals("Manufacturer"))
+                                                .findAny()
+                                                .ifPresent(property -> meter.setAmrSystem(property.getPropertyValueInfo().value == null
+                                                        ? (String) property.getPropertyValueInfo().defaultValue
+                                                        : (String) property.getPropertyValueInfo().value));
+                                    });
+                                });
                     });
         });
         return toMeterConfig;
     }
+}
