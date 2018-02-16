@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateStatus;
+import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -64,6 +65,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -73,6 +80,7 @@ import static java.util.stream.Collectors.toList;
 public class CertificateWrapperResource {
     private static final long MAX_FILE_SIZE = 2048;
     private final SecurityManagementService securityManagementService;
+    private final CaService caService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final DataSearchFilterFactory dataSearchFilterFactory;
@@ -80,11 +88,13 @@ public class CertificateWrapperResource {
 
     @Inject
     public CertificateWrapperResource(SecurityManagementService securityManagementService,
+                                      CaService caService,
                                       CertificateInfoFactory certificateInfoFactory,
                                       ExceptionFactory exceptionFactory,
                                       DataSearchFilterFactory dataSearchFilterFactory,
                                       CertificateRevocationUtils certificateRevocationUtils) {
         this.securityManagementService = securityManagementService;
+        this.caService = caService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
@@ -272,6 +282,34 @@ public class CertificateWrapperResource {
         cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
         cert.save();
         return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/requestCertificate")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response requestCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
+        timeout = timeout == 0 ? 30 : timeout;
+        try {
+            X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
+            try {
+                certificateWrapper.setCertificate(certificate);
+                certificateWrapper.save();
+            } catch (Exception e) {
+                throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
+            }
+        } catch (CompletionException | ExecutionException | InterruptedException | TimeoutException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA);
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
     }
 
     @POST

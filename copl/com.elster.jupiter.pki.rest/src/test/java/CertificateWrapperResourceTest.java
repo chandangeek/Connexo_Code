@@ -598,6 +598,24 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         verify(revocationUtils, times(1)).bulkRevokeCertificates(any(), eq(timeout));
     }
 
+    @Test
+    public void testRequestCertificateFromCA() throws Exception {
+        Long certId = 345L;
+        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
+        when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(certificateWrapper));
+        PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
+        X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
+        when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
+        when(caService.signCsr(csr)).thenReturn(x509Certificate);
+        Response response = target("/certificates/" + certId + "/requestCertificate").request().post(null);
+
+        //Verify
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(securityManagementService, times(1)).findCertificateWrapper(certId);
+        verifyNoMoreInteractions(securityManagementService);
+        verify(certificateWrapper, times(1)).setCertificate(x509Certificate);
+    }
+
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
         return (X509Certificate) certificateFactory.generateCertificate(CertificateWrapperResourceTest.class.getResourceAsStream(name));
     }
