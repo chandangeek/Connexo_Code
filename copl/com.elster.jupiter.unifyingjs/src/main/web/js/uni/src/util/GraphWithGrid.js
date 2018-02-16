@@ -22,15 +22,7 @@ Ext.define('Uni.util.GraphWithGrid', {
             newScrollTop;
 
         if (index > -1) {
-            if (!(rowOffsetTop > currentScrollTop && rowOffsetTop < currentScrollTop + viewHeight)) {
-                newScrollTop = rowOffsetTop - 15;
-                if (newScrollTop > 0) {
-                    grid.getView().getEl().setScrollTop(newScrollTop);
-                } else {
-                    grid.getView().getEl().setScrollTop(0);
-                }
-            }
-
+            grid.getView().getEl().setScrollTop(rowOffsetTop);
             me.down('preview-container').suspendEvent('rowselect');
             grid.getSelectionModel().select(index);
             me.down('preview-container').resumeEvent('rowselect');

@@ -39,7 +39,8 @@ public class UniUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\Connexo\\copl\\com.elster.jupiter.unifyingjs\\src\\main\\web\\js\\uni", new FileResolver());
+
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\git10.4\\DavidConnexo\\copl\\com.elster.jupiter.unifyingjs\\src\\main\\web\\js\\uni", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
