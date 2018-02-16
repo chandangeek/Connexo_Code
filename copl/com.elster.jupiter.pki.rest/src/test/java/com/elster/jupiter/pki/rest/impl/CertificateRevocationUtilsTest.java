@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -63,6 +64,8 @@ public class CertificateRevocationUtilsTest {
     @Mock
     private SecurityManagementService securityManagementService;
     @Mock
+    private TransactionService transactionService;
+    @Mock
     private CaService caService;
     @Mock
     private NlsService nlsService;
@@ -97,7 +100,7 @@ public class CertificateRevocationUtilsTest {
         when(x509Certificate1.getSerialNumber()).thenReturn(SERIAL_1);
         when(x509Certificate2.getSerialNumber()).thenReturn(SERIAL_2);
 
-        revocationUtils = new CertificateRevocationUtils(securityManagementService, caService, nlsService);
+        revocationUtils = new CertificateRevocationUtils(securityManagementService, caService, nlsService, transactionService);
     }
 
     @Test

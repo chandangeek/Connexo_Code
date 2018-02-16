@@ -133,18 +133,14 @@ public class CertificateRevocationUtils {
             executorService.submit(() -> caSendRevoke(certificateWrapper)).get(timeout, TimeUnit.MILLISECONDS);
             LOGGER.fine("Certificate " + certificateWrapper.getAlias() + " was revoked by Certification Authority");
         } catch (InterruptedException | ExecutionException e) {
-            if (e.getCause() instanceof BaseException) {
-                BaseException ex = ((BaseException) e.getCause());
-                if (ex.getMessageSeed() == CERTIFICATE_ALREADY_REVOKED) {
-                    updateCertificateWrapperStatus(certificateWrapper, CertificateWrapperStatus.REVOKED);
-                    throw ex;
-                }
+            if (!(e.getCause() instanceof BaseException) || ((BaseException) e.getCause()).getMessageSeed() != CERTIFICATE_ALREADY_REVOKED) {
+                LOGGER.warning("Certificate '" + certificateWrapper.getAlias() + "' couldn't be revoked by the Certification Authority'. Cause: " + e.getLocalizedMessage());
+                throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED);
             }
-            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, e.getLocalizedMessage());
+            LOGGER.warning("Certificate '" + certificateWrapper.getAlias() + "' has already been revoked. Updating status... ");
         } catch (TimeoutException e) {
-            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, TIMEOUT_MESSAGE);
+            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED);
         }
-
         updateCertificateWrapperStatus(certificateWrapper, CertificateWrapperStatus.REVOKED);
     }
 
@@ -209,19 +205,14 @@ public class CertificateRevocationUtils {
             throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_ALREADY_REVOKED);
         }
 
-        try {
-            // front end doesn't specify reason, so hardcoded
-            caService.revokeCertificate(revokeFilter, RevokeStatus.REVOCATION_REASON_UNSPECIFIED.getVal());
-            RevokeStatus revokeStatus = caService.checkRevocationStatus(revokeFilter);
-            if (revokeStatus == null || revokeStatus == RevokeStatus.NOT_REVOKED) {
-                throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, "Unexpected revocation status: " + revokeStatus);
-            }
-            return certificateWrapper;
-        } catch (Exception e) {
-            LocalizedException ex = exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED, e.getLocalizedMessage());
-            ex.addSuppressed(e);
-            throw ex;
+        // front end doesn't specify reason, so hardcoded
+        caService.revokeCertificate(revokeFilter, RevokeStatus.REVOCATION_REASON_UNSPECIFIED.getVal());
+        RevokeStatus revokeStatus = caService.checkRevocationStatus(revokeFilter);
+        if (revokeStatus == null || revokeStatus == RevokeStatus.NOT_REVOKED) {
+            LOGGER.warning("Unexpected revocation status received: " + revokeStatus);
+            throw exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED);
         }
+        return certificateWrapper;
     }
 
     private void waitAllAsyncResults(List<Future> asyncResults) {
@@ -246,6 +237,7 @@ public class CertificateRevocationUtils {
             cw.save();
             ctx.commit();
         } catch (Exception e) {
+            LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
             LocalizedException ex;
             if (caService.isConfigured()) {
                 ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
