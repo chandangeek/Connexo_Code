@@ -18,12 +18,15 @@ import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents_Service;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import org.apache.cxf.jaxws.JaxWsClientProxy;
+import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +74,9 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents) {
         try {
             getEndDeviceEventsPorts.stream()
-                    .forEach(portService -> {
+                    .filter(getEndDeviceEventsPort -> isValidPortService(getEndDeviceEventsPort, endPointConfiguration))
+                    .findFirst()
+                    .ifPresent(portService -> {
                         try {
                             portService.getEndDeviceEvents(createResponseMessage(createEndDeviceEvents(endDeviceEvents)));
                         } catch (FaultMessage faultMessage) {
@@ -105,5 +110,9 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
         records.stream().forEach(record -> endDeviceEventList.add(endDeviceEventsFactory.asEndDeviceEvent(record)));
         return endDeviceEvents;
+    }
+
+    private boolean isValidPortService(GetEndDeviceEventsPort port, EndPointConfiguration endPointConfiguration) {
+        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(port))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 }
