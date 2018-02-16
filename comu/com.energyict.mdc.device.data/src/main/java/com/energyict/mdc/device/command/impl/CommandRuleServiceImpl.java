@@ -27,6 +27,7 @@ import com.energyict.mdc.device.command.ICommandRuleCounter;
 import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
+import com.energyict.mdc.device.command.impl.exceptions.LimitsWouldExceedForCommandException;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -54,7 +55,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -276,10 +276,26 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         if (commandRulesByDeviceMessageId.isEmpty()) {
             return Collections.emptyList();
         } else {
+            Instant correctedReleaseDate =  getCorrectReleaseDateForCalculations(deviceMessage.getReleaseDate());
             return commandRulesByDeviceMessageId.stream()
-                    .map(commandRule -> this.wouldCommandExceedLimits(commandRule, getCorrectReleaseDateForCalculations(deviceMessage.getReleaseDate()), oldReleaseDate))
+                    .map(commandRule -> new ExceededCommandRuleBuilder(commandRule, correctedReleaseDate).oldReleaseDate(oldReleaseDate).build())
                     .filter(ExceededCommandRule::isLimitExceeded)
                     .collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public void checkForLimitationRules(DeviceMessageId deviceMessageId, Instant releaseDate, long deviceGroupSize){
+        List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessageId);
+        Instant correctedReleaseDate = getCorrectReleaseDateForCalculations(releaseDate);
+        List<ExceededCommandRule> exceededCommandRules = commandRulesByDeviceMessageId
+                .stream()
+                .map(commandRule -> new ExceededCommandRuleBuilder(commandRule, correctedReleaseDate).availableDevices(deviceGroupSize).build())
+                .filter(ExceededCommandRule::isLimitExceeded)
+                .collect(Collectors.toList());
+
+        if (!exceededCommandRules.isEmpty()){
+            throw new LimitsWouldExceedForCommandException(thesaurus, exceededCommandRules);
         }
     }
 
@@ -316,53 +332,9 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 .filter(ServerCommandRule::isActive)
                 .filter(commandRule ->
                         commandRule.getCommands().stream()
-                                .filter(commandInRule -> commandInRule.getCommand().getId().equals(deviceMessageId))
-                                .findAny()
-                                .isPresent()
+                                .anyMatch(commandInRule -> commandInRule.getCommand().getId().equals(deviceMessageId))
                 )
                 .collect(Collectors.toList());
-    }
-
-    private ExceededCommandRule wouldCommandExceedLimits(CommandRule commandRule, Instant releaseDate, Instant oldReleaseDate) {
-        ExceededCommandRule exceededCommandRule = new ExceededCommandRule(commandRule.getName());
-        commandRule.getCounters()
-                .stream()
-                .map(CommandRuleCounter.class::cast)
-                .filter(commandRuleCounter -> Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(releaseDate))
-                .forEach(commandRuleCounter -> this.wouldExceedCounter(commandRuleCounter, oldReleaseDate, exceededCommandRule));
-
-        return exceededCommandRule;
-    }
-
-    private ExceededCommandRule wouldExceedCounter(CommandRuleCounter commandRuleCounter, Instant oldReleaseDate, ExceededCommandRule exceededCommandRule) {
-        CommandRule commandRule = commandRuleCounter.getCommandRule();
-        long currentCount = commandRuleCounter.getCount();
-        if (oldReleaseDate != null && Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(oldReleaseDate)) {
-            currentCount--;
-        }
-        long limitToCheck;
-        Consumer<Boolean> setter;
-        switch (commandRuleCounter.getCounterType()) {
-            case DAY:
-                limitToCheck = commandRule.getDayLimit();
-                setter = exceededCommandRule::setDayLimitExceeded;
-                break;
-            case WEEK:
-                limitToCheck = commandRule.getWeekLimit();
-                setter = exceededCommandRule::setWeekLimitExceeded;
-                break;
-            default:
-                limitToCheck = commandRule.getMonthLimit();
-                setter = exceededCommandRule::setMonthLimitExceeded;
-                break;
-        }
-        boolean wouldExceedCounter = currentCount >= limitToCheck && limitToCheck != 0;
-        if (wouldExceedCounter) {
-            setter.accept(true);
-            return exceededCommandRule;
-        } else {
-            return exceededCommandRule;
-        }
     }
 
     @Override

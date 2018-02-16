@@ -7,6 +7,7 @@ package com.energyict.mdc.device.command;
 
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -52,6 +53,14 @@ public interface CommandRuleService {
     void commandDeleted(DeviceMessage deviceMessage);
 
     List<ICommandRuleCounter> getCurrentCounters(CommandRule commandRule);
+
+    /**
+     * Checks if we're exceeding the command limitation and throws exception if affirmative
+     * @param deviceMessageId deviceMesageSpecs id
+     * @param releaseDate
+     * @param deviceGroupSize available devices in a group
+     */
+    void checkForLimitationRules(DeviceMessageId deviceMessageId, Instant releaseDate, long deviceGroupSize);
 
 
     @ProviderType
