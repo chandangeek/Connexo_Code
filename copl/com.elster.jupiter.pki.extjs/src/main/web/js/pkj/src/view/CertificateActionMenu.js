@@ -53,7 +53,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 visible: function(record) {
                     return !Ext.isEmpty(record) && record.get('status') === 'Available';
                 },
-                section: this.SECTION_REMOVE
+                section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.unmarkObsolete', 'PKJ', 'Unmark obsolete'),
@@ -63,7 +63,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 visible: function(record) {
                     return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
                 },
-                section: this.SECTION_REMOVE
+                section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.revoke', 'PKJ', 'Revoke'),
@@ -71,9 +71,9 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'revokeCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
+                    return !Ext.isEmpty(record) && (record.get('status') !== 'Requested' && record.get('status') !== 'Revoked');
                 },
-                section: this.SECTION_REMOVE
+                section: this.SECTION_ACTION
             }
 
         ];

@@ -15,6 +15,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
     caOnline: true,
     //default
     timeout: 30000,
+    confirmText: Uni.I18n.translate('general.revoke', 'PKJ', 'Revoke'),
 
     initComponent: function () {
         var me = this;
