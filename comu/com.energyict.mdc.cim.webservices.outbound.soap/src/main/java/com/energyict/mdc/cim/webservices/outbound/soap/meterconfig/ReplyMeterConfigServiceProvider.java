@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -31,6 +32,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +48,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
     private final List<MeterConfigPort> meterConfigPorts = new ArrayList<>();
+    private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
     private volatile DeviceService deviceService;
@@ -65,6 +68,15 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
         meterConfigPorts.remove(meterConfigPort);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterConfigExtendedDataFactory(MeterConfigExtendedDataFactory meterConfigExtendedDataFactory) {
+        meterConfigExtendedDataFactories.add(meterConfigExtendedDataFactory);
+    }
+
+    public void removeMeterConfigExtendedDataFactory(MeterConfigExtendedDataFactory meterConfigExtendedDataFactory) {
+        meterConfigExtendedDataFactories.remove(meterConfigExtendedDataFactory);
     }
 
     @Reference
@@ -94,7 +106,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                 meterConfigPorts
                         .forEach(meterConfigPortService -> {
                             try {
-                                meterConfigPortService.changedMeterConfig(createResponseMessage(HeaderType.Verb.CHANGED, device));
+                                meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED));
                             } catch (FaultMessage faultMessage) {
                                 endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                             }
@@ -110,27 +122,34 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
                      List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
         try {
-            meterConfigPorts.stream()
-                    .forEach(meterConfigPortService -> {
-                        try {
-                            switch (operation) {
-                                case CREATE:
-                                    meterConfigPortService.createdMeterConfig(createResponseMessage(successfulDevices, failedDevices, expectedNumberOfCalls));
-                                    break;
-                                case UPDATE:
-                                    meterConfigPortService.changedMeterConfig(createResponseMessage(successfulDevices, failedDevices, expectedNumberOfCalls));
-                                    break;
-                            }
-                        } catch (FaultMessage faultMessage) {
-                            endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                        }
-                    });
+            meterConfigPorts.forEach(meterConfigPortService -> {
+                try {
+                    switch (operation) {
+                        case CREATE:
+                            meterConfigPortService.createdMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED));
+                            break;
+                        case UPDATE:
+                            meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
+                            break;
+                    }
+                } catch (FaultMessage faultMessage) {
+                    endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                }
+            });
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
     }
 
-    private MeterConfigEventMessageType createResponseMessage(HeaderType.Verb verb, Device device) {
+    private MeterConfig createMeterConfig(List<Device> devices) {
+        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(devices);
+        meterConfigExtendedDataFactories.forEach(meterConfigExtendedDataFactory -> {
+            meterConfigExtendedDataFactory.extendData(devices, meterConfig);
+        });
+        return meterConfig;
+    }
+
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
@@ -147,25 +166,18 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         // set payload
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
         meterConfigEventMessageType.setPayload(payloadType);
-        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(device);
         payloadType.setMeterConfig(meterConfig);
         meterConfigEventMessageType.setPayload(payloadType);
 
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
-        MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
-
-        // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(NOUN);
-        header.setVerb(HeaderType.Verb.REPLY);
-        meterConfigEventMessageType.setHeader(header);
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
+        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(successfulDevices.size())) == 0) {
+        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(meterConfig.getMeter().size())) == 0) {
             replyType.setResult(ReplyType.Result.OK);
         } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
             replyType.setResult(ReplyType.Result.FAILED);
@@ -174,21 +186,14 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         }
 
         // set errors
-        failedDevices.entrySet().stream().forEach(entry -> {
+        failedDevices.forEach((key, value) -> {
             ErrorType errorType = new ErrorType();
-            errorType.setCode(entry.getKey());
-            errorType.setDetails(entry.getValue());
+            errorType.setCode(key);
+            errorType.setDetails(value);
             replyType.getError().add(errorType);
         });
 
         meterConfigEventMessageType.setReply(replyType);
-
-        // set payload
-        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigEventMessageType.setPayload(payloadType);
-        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(successfulDevices);
-        payloadType.setMeterConfig(meterConfig);
-        meterConfigEventMessageType.setPayload(payloadType);
 
         return meterConfigEventMessageType;
     }

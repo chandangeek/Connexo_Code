@@ -19,18 +19,9 @@ import java.util.List;
 
 public class MeterConfigFactory {
 
-    public MeterConfig asMeterConfig(Device device) {
+    public MeterConfig asMeterConfig(List<Device> devices) {
         MeterConfig meterConfig = new MeterConfig();
-        Meter meter = createMeter(device);
-        meterConfig.getMeter().add(meter);
-        SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
-        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
-        return meterConfig;
-    }
-
-    public MeterConfig asMeterConfig(List<Device> successfulDevices) {
-        MeterConfig meterConfig = new MeterConfig();
-        successfulDevices.stream().forEach(device -> {
+        devices.forEach(device -> {
             Meter meter = createMeter(device);
             meterConfig.getMeter().add(meter);
             SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
