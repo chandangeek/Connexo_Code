@@ -40,8 +40,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CERTIFICATES_WITH_IDS(27, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
     STATUS_CHANGE_FAILED(28, "StatusChangeFailed", "Failed to change certificate wrapper status"),
     CERTIFICATE_ALREADY_REVOKED(29, "CertificateAlreadyRevoked", "The certificate has already been revoked by Certification Authority. The status has been updated to ''revoked''"),
-    TRUSTSTORE_USED_BY_DIRECTORY(30, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
-    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(31, "CertificateRequestFromCAFailed", "Certificate couldn't be received from the Certification authority"),
+    COULD_NOT_RECEIVE_CERTIFICATE_FROM_CA(31, "CertificateRequestFromCAFailed", "Certificate couldn't be received from the Certification authority"),
     COULD_NOT_SAVE_CERTIFICATE_FROM_CA(32, "CertificateSavingFromCAFailed", "The file has been received from the CA but an error has occurred while saving"),;
 
     private final int number;

@@ -268,24 +268,6 @@ public class CertificateWrapperResource {
 
     @POST
     @Transactional
-    @Path("/{id}/markObsolete")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response markCertificateObsolete(@PathParam("id") long certificateId) {
-        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-
-        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
-        if (certificateUsages.isUsed) {
-            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
-        }
-        cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
-        cert.save();
-        return Response.status(Response.Status.OK).build();
-    }
-
-    @POST
-    @Transactional
     @Path("/{id}/requestCertificate")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
@@ -303,13 +285,31 @@ public class CertificateWrapperResource {
                 throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
             }
         } catch (CompletionException | ExecutionException | InterruptedException | TimeoutException e) {
-            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA);
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECEIVE_CERTIFICATE_FROM_CA);
         }
         return Response.status(Response.Status.OK).build();
     }
 
     private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
         return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/markObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response markCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+
+        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
+        if (certificateUsages.isUsed) {
+            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
+        }
+        cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        cert.save();
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST
