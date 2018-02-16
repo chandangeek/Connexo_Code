@@ -284,8 +284,10 @@ public class CertificateWrapperResource {
             } catch (Exception e) {
                 throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
             }
-        } catch (CompletionException | ExecutionException | InterruptedException | TimeoutException e) {
-            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECEIVE_CERTIFICATE_FROM_CA);
+        } catch (CompletionException | InterruptedException | TimeoutException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT);
+        } catch (ExecutionException  e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA, e.getCause().getLocalizedMessage());
         }
         return Response.status(Response.Status.OK).build();
     }
