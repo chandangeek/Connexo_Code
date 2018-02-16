@@ -10,6 +10,8 @@ import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.BaseException;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -47,6 +49,7 @@ public class CertificateRevocationUtils {
     private SecurityManagementService securityManagementService;
     private ExceptionFactory exceptionFactory;
     private CaService caService;
+    private TransactionService transactionService;
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -57,11 +60,13 @@ public class CertificateRevocationUtils {
     @Inject
     public CertificateRevocationUtils(SecurityManagementService securityManagementService,
                                       CaService caService,
-                                      NlsService nlsService) {
+                                      NlsService nlsService,
+                                      TransactionService transactionService) {
         this();
         setSecurityManagementService(securityManagementService);
         setCaService(caService);
         setNlsService(nlsService);
+        setTransactionService(transactionService);
         activate();
     }
 
@@ -78,6 +83,11 @@ public class CertificateRevocationUtils {
     @Reference
     public void setCaService(CaService caService) {
         this.caService = caService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Activate
@@ -231,9 +241,10 @@ public class CertificateRevocationUtils {
     }
 
     private void updateCertificateWrapperStatus(CertificateWrapper cw, CertificateWrapperStatus status) {
-        try {
+        try (TransactionContext ctx = transactionService.getContext()) {
             cw.setWrapperStatus(status);
             cw.save();
+            ctx.commit();
         } catch (Exception e) {
             LocalizedException ex;
             if (caService.isConfigured()) {
@@ -247,9 +258,10 @@ public class CertificateRevocationUtils {
     }
 
     private void updateCertificateWrapperStatus(CertificateWrapper cw, CertificateWrapperStatus status, CertificateRevocationResultInfo info) {
-        try {
+        try (TransactionContext ctx = transactionService.getContext()) {
             cw.setWrapperStatus(status);
             cw.save();
+            ctx.commit();
         } catch (Exception e) {
             LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
             if (isCAConfigured()) {

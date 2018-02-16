@@ -301,7 +301,6 @@ public class CertificateWrapperResource {
     }
 
     @POST
-    @Transactional
     @Path("/{id}/checkRevoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
@@ -320,7 +319,6 @@ public class CertificateWrapperResource {
     }
 
     @POST
-    @Transactional
     @Path("/{id}/revoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
@@ -337,7 +335,6 @@ public class CertificateWrapperResource {
     }
 
     @POST
-    @Transactional
     @Path("/checkBulkRevoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
@@ -355,7 +352,6 @@ public class CertificateWrapperResource {
     }
 
     @POST
-    @Transactional
     @Path("/bulkRevoke")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
