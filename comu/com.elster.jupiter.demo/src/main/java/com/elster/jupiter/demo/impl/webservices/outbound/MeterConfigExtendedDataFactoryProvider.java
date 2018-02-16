@@ -2,11 +2,10 @@ package com.elster.jupiter.demo.impl.webservices.outbound;
 
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.device.data.Device;
-
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.upl.TypedProperties;
+
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -51,7 +50,7 @@ public class MeterConfigExtendedDataFactoryProvider implements MeterConfigExtend
                                         .stream()
                                         .filter(propertyInfo -> propertyInfo.key.equals("Manufacturer"))
                                         .findAny()
-                                        .ifPresent(property -> meter.setAmrSystem((String) property.getPropertyValueInfo().value));
+                                        .ifPresent(property -> meter.setAmrSystem((String) property.getPropertyValueInfo().defaultValue));
                             });
                         });
                     });
