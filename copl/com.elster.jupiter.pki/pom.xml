@@ -86,6 +86,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>ftpclient</artifactId>
+        </dependency>
 
         <!--  Bouncy castle library dependencies  -->
         <dependency>

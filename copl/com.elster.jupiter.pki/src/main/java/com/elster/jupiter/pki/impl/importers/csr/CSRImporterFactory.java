@@ -7,8 +7,10 @@ package com.elster.jupiter.pki.impl.importers.csr;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
@@ -34,6 +36,8 @@ public class CSRImporterFactory implements FileImporterFactory {
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile CaService caService;
+    private volatile FtpClientService ftpClientService;
 
     public CSRImporterFactory() {
     }
@@ -49,7 +53,7 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new CSRImporter(thesaurus, properties, securityManagementService);
+        return new CSRImporter(thesaurus, properties, securityManagementService, caService);
     }
 
     @Override
@@ -106,5 +110,15 @@ public class CSRImporterFactory implements FileImporterFactory {
     @Reference
     public final void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public final void setCaService(CaService caService) {
+        this.caService = caService;
+    }
+
+    @Reference
+    public void setFtpClientService(FtpClientService ftpClientService) {
+        this.ftpClientService = ftpClientService;
     }
 }

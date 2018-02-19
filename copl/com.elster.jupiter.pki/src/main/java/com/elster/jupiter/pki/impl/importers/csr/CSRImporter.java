@@ -7,29 +7,27 @@ package com.elster.jupiter.pki.impl.importers.csr;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 
-import org.xml.sax.SAXException;
-
 import javax.validation.ConstraintViolationException;
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import java.time.Clock;
 import java.util.Map;
 
 class CSRImporter implements FileImporter {
 
     private final Thesaurus thesaurus;
     private final Map<String, Object> properties;
-    private final Clock clock;
+    private final SecurityManagementService securityManagementService;
+    private final CaService caService;
 
-    CSRImporter(Thesaurus thesaurus, Map<String, Object> properties, Clock clock) {
+    CSRImporter(Thesaurus thesaurus, Map<String, Object> properties, SecurityManagementService securityManagementService, CaService caService) {
         this.thesaurus = thesaurus;
         this.properties = properties;
-        this.clock = clock;
+        this.securityManagementService = securityManagementService;
+        this.caService = caService;
     }
 
     @Override
