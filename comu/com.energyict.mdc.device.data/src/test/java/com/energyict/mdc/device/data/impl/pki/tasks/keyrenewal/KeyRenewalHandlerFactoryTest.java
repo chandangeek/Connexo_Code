@@ -6,10 +6,10 @@ package com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.pki.PropertyValueRequiredException;
 
 import org.osgi.framework.BundleContext;
@@ -48,7 +48,7 @@ public class KeyRenewalHandlerFactoryTest {
     @Mock
     private TaskService taskService;
     @Mock
-    private DeviceDataModelService deviceDataModelService;
+    private OrmService ormService;
     @Mock
     private BpmService bpmService;
     @Mock
@@ -76,47 +76,47 @@ public class KeyRenewalHandlerFactoryTest {
 
     @Test
     public void testGetKeyRenewalProcessDefinitionProperty() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         verify(bundleContext, times(1)).getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY);
     }
 
     @Test (expected = PropertyValueRequiredException.class)
     public void testNoKeyRenewalProcessDefinitionProperty() {
         when(bundleContext.getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)).thenReturn(null);
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         verify(bundleContext, times(1)).getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY);
     }
 
     @Test
     public void testGetKeyRenewalDaysTillExpirationProperty() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         verify(bundleContext, times(1)).getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY);
     }
 
     @Test (expected = PropertyValueRequiredException.class)
     public void testNoKeyRenewalDaysTillExpirationProperty() {
         when(bundleContext.getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY)).thenReturn(null);
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         verify(bundleContext, times(1)).getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY);
     }
 
     @Test
     public void testGetKeyRenewalTask() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         keyRenewalHandlerFactory.getTask();
         verify(taskService, times(1)).getRecurrentTask(KEY_RENEWAL_TASK_NAME);
     }
 
     @Test
     public void testRunKeyRenewalTask() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         keyRenewalHandlerFactory.runNow();
         verify(recurrentTask, times(1)).runNow(any(KeyRenewalTaskExecutor.class));
     }
 
     @Test
     public void testKeyRenewalTaskDeactivate() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         keyRenewalHandlerFactory.deactivate();
         assertThat(keyRenewalHandlerFactory.getKeyRenewalBpmProcessDefinitionId()).isNull();
         assertThat(keyRenewalHandlerFactory.getKeyRenewalExpitationDays()).isNull();
@@ -124,7 +124,7 @@ public class KeyRenewalHandlerFactoryTest {
 
     @Test
     public void testKeyRenewalTaskActivate() {
-        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, deviceDataModelService, bpmService, clock, nlsService);
+        keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
         assertThat(keyRenewalHandlerFactory.getKeyRenewalBpmProcessDefinitionId()).isEqualTo(KEY_RENEWAL_PROCESS_DEFINITION_VALUE);
         assertThat(keyRenewalHandlerFactory.getKeyRenewalExpitationDays()).isEqualTo(Integer.parseInt(KEY_DAYS_TILL_EXPIRATION_VALUE));
     }

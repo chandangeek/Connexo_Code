@@ -13,17 +13,25 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.SymmetricKeyAccessor;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,20 +43,16 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class KeyRenewalTaskExecutor implements TaskExecutor {
 
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile OrmService ormService;
     private volatile BpmService bpmService;
     private volatile Clock clock;
 
@@ -60,13 +64,13 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     private static final String KEY_RENEWAL_PROCESS_NAME = "Key renewal";
     private static final String ACTIVE_STATUS = "1";
 
-    KeyRenewalTaskExecutor(DeviceDataModelService deviceDataModelService,
+    KeyRenewalTaskExecutor(OrmService ormService,
                            BpmService bpmService,
                            Clock clock,
                            String keyRenewalBpmProcessDefinitionId,
                            Integer keyRenewalExpitationDays
     ) {
-        this.deviceDataModelService = deviceDataModelService;
+        this.ormService = ormService;
         this.bpmService = bpmService;
         this.clock = clock;
         this.keyRenewalBpmProcessDefinitionId = keyRenewalBpmProcessDefinitionId;
@@ -78,20 +82,36 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         logger.addHandler(occurrence.createTaskLogHandler().asHandler());
+        Condition operationalDeviceCondition = Where.where("interval").isEffective(clock.instant())
+                .and(Where.where("state.stage.name").isEqualTo(EndDeviceStage.OPERATIONAL.getKey()));
 
-        Condition operationalDeviceContition = Where.where("deviceReference.meter.status.interval").isEffective()
-                .and(Where.where("deviceReference.meter.status.state.stage.name").isEqualTo(EndDeviceStage.OPERATIONAL.getKey()));
+        Optional<DataModel> dataModel = ormService.getDataModel(MeteringService.COMPONENTNAME);
+        if (!dataModel.isPresent()) {
+            logger.log(Level.SEVERE, "No MTR data model found");
+            return;
+        }
+        Subquery subquery = dataModel.get().query(EndDeviceLifeCycleStatus.class, State.class, Stage.class).asSubquery(operationalDeviceCondition, "endDevice");
 
-        List<SecurityAccessor> securityAccessors = deviceDataModelService.dataModel()
-                .query(SecurityAccessor.class, Device.class, EndDevice.class, EndDeviceLifeCycleStatus.class, State.class, Stage.class)
-                .select(operationalDeviceContition)
+        Condition symmetricKeyContition =
+                ListOperator.IN.contains(subquery, "deviceReference.meter.id")
+                        .and(Where.where("keyAccessorTypeReference.keyType.cryptographicType").isEqualTo(CryptographicType.SymmetricKey));
+
+        dataModel = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME);
+        if (!dataModel.isPresent()) {
+            logger.log(Level.SEVERE, "No DDC data model found");
+            return;
+        }
+
+        List<SecurityAccessor> securityAccessors = dataModel.get()
+                .query(SecurityAccessor.class, Device.class, EndDevice.class, SecurityAccessorType.class, KeyType.class)
+                .select(symmetricKeyContition)
                 .stream()
-                .filter(distinctByKey(securityAccessor -> securityAccessor.getDevice().getName()))
                 .collect(Collectors.toList());
+
         logger.log(Level.INFO, "Number of security accessors to process:  " + securityAccessors.size());
+        printSecurityAccessors(securityAccessors,logger);
         List<SecurityAccessor> resultList = securityAccessors
                 .stream()
-                .filter(SymmetricKeyAccessor.class::isInstance)
                 .filter(securityAccessor -> {
                     Optional<SecretKey> secretKey =
                             getDeviceKey((SymmetricKeyAccessor) securityAccessor);
@@ -102,6 +122,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
                 .collect(Collectors.toList());
 
         logger.log(Level.INFO, "Number of security accessors to trigger bpm:  " + resultList.size());
+        printSecurityAccessors(resultList,logger);
         resultList.forEach(securityAccessor -> triggerBpmProcess(securityAccessor, logger));
     }
 
@@ -110,9 +131,14 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         logger.log(Level.INFO, "Number of key renewal processes triggered  " + keyRenewalBpmProcessCount);
     }
 
-    private <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        final Set<Object> seen = new HashSet<>();
-        return t -> seen.add(keyExtractor.apply(t));
+    private void printSecurityAccessors(List<SecurityAccessor> securityAccessors, Logger logger) {
+        StringBuilder sb = new StringBuilder();
+        securityAccessors.forEach(securityAccessor -> {
+            sb.append("Type=" + securityAccessor.getKeyAccessorType().getName());
+            sb.append(" Device=" + securityAccessor.getDevice().getName());
+            sb.append('\n');
+        });
+        logger.log(Level.INFO, sb.toString());
     }
 
     private Optional<SecretKey> getDeviceKey(SymmetricKeyAccessor symmetricKeyAccessor) {
@@ -147,7 +173,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     }
 
     private boolean checkSecuritySets(SecurityAccessor securityAccessor) {
-        logger.log(Level.INFO, "Checking security sets,  Type=" + securityAccessor.getKeyAccessorType().getName()
+        logger.log(Level.INFO, "Checking security sets, Type=" + securityAccessor.getKeyAccessorType().getName()
                 + " Device=" + securityAccessor.getDevice().getName());
         long id = securityAccessor.getKeyAccessorType().getId();
         boolean result;

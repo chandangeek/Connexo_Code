@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -35,7 +36,7 @@ import java.util.Optional;
         immediate = true)
 public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandlerFactory {
     private volatile TaskService taskService;
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile OrmService ormService;
     private volatile BpmService bpmService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -60,13 +61,13 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     @Inject
     public KeyRenewalHandlerFactory(BundleContext bundleContext,
                                     TaskService taskService,
-                                    DeviceDataModelService deviceDataModelService,
+                                    OrmService ormService,
                                     BpmService bpmService,
                                     Clock clock,
                                     NlsService nlsService) {
         this();
         setTaskService(taskService);
-        setDeviceDataModelService(deviceDataModelService);
+        setOrmService(ormService);
         setBpmService(bpmService);
         setClock(clock);
         setNlsService(nlsService);
@@ -87,8 +88,13 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     }
 
     @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    @Reference
     public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
+        // depends on DDC data model
     }
 
     @Reference
@@ -119,7 +125,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(deviceDataModelService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
+        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(ormService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
                 keyRenewalExpitationDays));
     }
 
@@ -130,7 +136,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new KeyRenewalTaskExecutor(deviceDataModelService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
+        return getTask().runNow(new KeyRenewalTaskExecutor(ormService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
                 keyRenewalExpitationDays));
     }
 
