@@ -6,6 +6,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import com.elster.connexo._2017.schema.customattributes.Attribute;
+import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -54,9 +56,16 @@ public class MeterConfigExtendedDataFactoryProvider implements MeterConfigExtend
                                                 .stream()
                                                 .filter(propertyInfo -> propertyInfo.key.equals("Manufacturer"))
                                                 .findAny()
-                                                .ifPresent(property -> meter.setAmrSystem(property.getPropertyValueInfo().value == null
-                                                        ? (String) property.getPropertyValueInfo().defaultValue
-                                                        : (String) property.getPropertyValueInfo().value));
+                                                .ifPresent(property -> {
+                                                    Attribute attribute = new Attribute();
+                                                    attribute.setName("Manufacturer");
+                                                    attribute.setValue(property.getPropertyValueInfo().value == null
+                                                            ? (String) property.getPropertyValueInfo().defaultValue
+                                                            : (String) property.getPropertyValueInfo().value);
+                                                    CustomAttributeSet customAttributeSet = new CustomAttributeSet();
+                                                    customAttributeSet.getAttribute().add(attribute);
+                                                    meter.getMeterCustomAttributeSet().add(customAttributeSet);
+                                                });
                                     });
                                 });
                     });
