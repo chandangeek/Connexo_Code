@@ -22,7 +22,6 @@ import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.users.UserDirectory;
-import javafx.scene.chart.ValueAxis;
 
 import com.google.common.collect.Range;
 
@@ -132,7 +131,7 @@ public enum TableSpecs {
             table.column("OBSOLETE")
                     .bool()
                     .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
-                    .since(Version.version(10, 4))
+                    .since(Version.version(10, 4, 1))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
