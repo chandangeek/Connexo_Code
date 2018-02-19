@@ -174,11 +174,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(15022, Keys.INVALID_VALUE, "Invalid value"),
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
-    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(15025, "CanNotDeleteKeyAccessor", "Security accessor could not be removed from device type because it is used by security sets on active device configurations."),
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(15025, "CanNotDeleteKeyAccessor", "The security accessor couldn''t be removed from the device type because it is used by security sets on active device configurations."),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(15027, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
     CONNECTION_FUNCTION_UNIQUE(15028, Keys.CONNECTION_FUNCTION_UNIQUE, "The provided connection function is already used on another connection method"),
     COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK(15029, Keys.COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK, "When a partial connection task is specified, you can''t use the connection function"),
-    VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "Security accessor could not be removed because it is still in use by the following device type(s): {0}")
+    VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still in use by the following device type(s): {0}")
     ;
 
     private final int number;
