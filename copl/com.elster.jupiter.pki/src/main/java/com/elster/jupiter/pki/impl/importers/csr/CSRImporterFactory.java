@@ -14,6 +14,7 @@ import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.properties.PropertySpec;
@@ -107,6 +108,13 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .markExhaustive()
                         .addValues(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS))
                         .finish(),
+                propertySpecService.referenceSpec(TrustStore.class)
+                        .named(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_TRUST_STORE)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markExhaustive()
+                        .addValues(securityManagementService.getAllTrustStores())
+                        .finish(),
                 propertySpecService.stringSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_HOSTNAME)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_HOSTNAME_DESCRIPTION)
@@ -127,6 +135,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_PASSWORD_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
+                // TODO: think of a tooltip with available tags
                 propertySpecService.stringSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FILE_NAME)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_NAME_DESCRIPTION)
@@ -137,6 +146,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
+                // TODO: think of a tooltip with available tags
                 propertySpecService.stringSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION_DESCRIPTION)

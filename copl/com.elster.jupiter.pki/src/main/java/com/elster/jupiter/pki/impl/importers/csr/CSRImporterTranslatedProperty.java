@@ -6,7 +6,6 @@ package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-//TODO: reuse export properties from CXO-8351
 public enum CSRImporterTranslatedProperty implements TranslationKey {
     IMPORT_SECURITY_ACCESSOR("importSecurityAccessor", "Import security accessor"),
     IMPORT_SECURITY_ACCESSOR_DESCRIPTION("importSecurityAccessor.description", "Security accessor used to decrypt imported zip"),
@@ -14,6 +13,8 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     EXPORT_CERTIFICATES_DESCRIPTION("exportCertificates.description", "Whether to export result certificates or not"),
     EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Export security accessor"),
     EXPORT_SECURITY_ACCESSOR_DESCRIPTION("exportSecurityAccessor.description", "Security accessor used to encrypt exported zip"),
+    EXPORT_TRUST_STORE("exportTrustStore", "Trust store"),
+    EXPORT_TRUST_STORE_DESCRIPTION("exportTrustStore.description", "All certificates from this trust store are added to the exported zip file"),
     EXPORT_HOSTNAME("exportHostname", "Hostname"),
     EXPORT_HOSTNAME_DESCRIPTION("exportHostname.description", "Destination hostname"),
     EXPORT_PORT("exportPort", "Port"),
