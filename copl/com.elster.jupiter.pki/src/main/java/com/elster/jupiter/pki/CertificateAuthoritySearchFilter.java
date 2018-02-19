@@ -43,4 +43,29 @@ public class CertificateAuthoritySearchFilter {
     public void setSubjectDN(String subjectDN) {
         this.subjectDN = subjectDN;
     }
+
+    //Have to implement equals/hashCode to properly test async functionality
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CertificateAuthoritySearchFilter filter = (CertificateAuthoritySearchFilter) o;
+
+        return (serialNumber != null ? serialNumber.equals(filter.serialNumber) : filter.serialNumber == null) &&
+                (issuerDN != null ? issuerDN.equals(filter.issuerDN) : filter.issuerDN == null) &&
+                (subjectDN != null ? subjectDN.equals(filter.subjectDN) : filter.subjectDN == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = serialNumber != null ? serialNumber.hashCode() : 0;
+        result = 31 * result + (issuerDN != null ? issuerDN.hashCode() : 0);
+        result = 31 * result + (subjectDN != null ? subjectDN.hashCode() : 0);
+        return result;
+    }
 }
