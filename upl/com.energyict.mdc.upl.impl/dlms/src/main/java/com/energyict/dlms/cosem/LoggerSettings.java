@@ -121,6 +121,10 @@ public class LoggerSettings extends AbstractCosemObject {
         }
     }
 
+    /**
+     * @return Beacon logging
+     * @throws IOException
+     */
     public OctetString fetchLogging() throws IOException {
         byte[] responseData = this.methodInvoke(LoggerSettingsMethods.FETCH_LOGGING, new Integer8(0));
         return AXDRDecoder.decode(responseData, OctetString.class);
