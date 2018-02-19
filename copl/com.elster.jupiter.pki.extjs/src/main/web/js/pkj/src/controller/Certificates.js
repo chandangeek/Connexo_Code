@@ -454,31 +454,27 @@ Ext.define('Pkj.controller.Certificates', {
         });
     },
 
-    constructUsagesList: function (certificateUsagesResponse, prefix, suffix) {
+    constructUsagesList: function (certificateUsages, prefix, suffix) {
         var messageConstructed = '';
+        var rowTemplate = '<li><b>{0}:</b> {1}</li>';
         if (prefix) {
             messageConstructed += prefix;
         }
         messageConstructed += '<br/><ul>';
-        if (certificateUsagesResponse.securityAccessors.length !== 0) {
-            var accessors = Uni.I18n.translate('certificate.usages.confirm.accessors', 'PKJ', 'Security accessors');
-            var accessorList = certificateUsagesResponse.securityAccessors.join(', ');
-            messageConstructed += '<li><b>' + accessors + ':</b> ' + accessorList + '</li>';
+        if (certificateUsages.securityAccessors.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.accessors', 'PKJ', 'Security accessors'),
+                certificateUsages.securityAccessors.join(', ') + (certificateUsages.securityAccessorsLimited === true ? '...' : ''));
         }
-        if (certificateUsagesResponse.devices.length !== 0) {
-            var devices = Uni.I18n.translate('certificate.usages.confirm.devices', 'PKJ', 'Devices');
-            var deviceList = certificateUsagesResponse.devices.join(', ');
-            messageConstructed += '<li><b>' + devices + ':</b> ' + deviceList + '</li>';
+        if (certificateUsages.devices.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.devices', 'PKJ', 'Devices'),
+                certificateUsages.devices.join(', ') + (certificateUsages.devicesLimited === true ? '...' : ''));
         }
-        if (certificateUsagesResponse.importers.length !== 0) {
-            var importers = Uni.I18n.translate('certificate.usages.confirm.importers', 'PKJ', 'Import services');
-            var importerList = certificateUsagesResponse.importers.join(', ');
-            messageConstructed += '<li><b>' + importers + ':</b> ' + importerList + '</li>';
-        }
-        if (certificateUsagesResponse.userDirectories.length !== 0) {
-            var directories = Uni.I18n.translate('certificate.usages.confirm.directories', 'PKJ', 'User directories');
-            var directoryList = certificateUsagesResponse.userDirectories.join(', ');
-            messageConstructed += '<li><b>' + directories + ':</b> ' + directoryList + '</li>';
+        if (certificateUsages.userDirectories.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.directories', 'PKJ', 'User directories'),
+                certificateUsages.userDirectories.join(', ') + (certificateUsages.userDirectoriesLimited === true ? '...' : ''));
         }
         messageConstructed += '</ul>';
         if (suffix) {
