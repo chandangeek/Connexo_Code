@@ -75,8 +75,13 @@ public class CertificateInfoFactory implements CertificateFormatter {
         return info;
     }
 
-    public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<DirectoryCertificateUsage> directories, List<String> importers) {
+    public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<DirectoryCertificateUsage> directories) {
         CertificateUsagesInfo info = new CertificateUsagesInfo();
+
+        info.securityAccessorsLimited = accessors.size() > 3;
+        info.devicesLimited = devices.size() > 3;
+        info.userDirectoriesLimited = directories.size() > 3;
+
         info.securityAccessors = accessors.stream()
                 .limit(3)
                 .map(accessor -> accessor.getKeyAccessorType().getName())
@@ -91,11 +96,8 @@ public class CertificateInfoFactory implements CertificateFormatter {
                 .map(usage -> String.valueOf(usage.getDirectoryName()))
                 .sorted()
                 .collect(Collectors.toList());
-        info.importers = importers.stream()
-                .limit(3)
-                .sorted()
-                .collect(Collectors.toList());
-        info.isUsed = !info.securityAccessors.isEmpty() || !info.devices.isEmpty() || !info.userDirectories.isEmpty() || !info.importers.isEmpty();
+
+        info.isUsed = !info.securityAccessors.isEmpty() || !info.devices.isEmpty() || !info.userDirectories.isEmpty();
         return info;
     }
 }

@@ -7,5 +7,7 @@ public class CertificateUsagesInfo {
     public List<String> securityAccessors;
     public List<String> devices;
     public List<String> userDirectories;
-    public List<String> importers;
+    public boolean securityAccessorsLimited;
+    public boolean devicesLimited;
+    public boolean userDirectoriesLimited;
 }

@@ -563,11 +563,9 @@ public class CertificateWrapperResource {
     }
 
     private CertificateUsagesInfo findCertificateUsages(CertificateWrapper certificateWrapper) {
-        //fixme
-        List<String> importers = Collections.emptyList();
         List<String> devicesNames = securityManagementService.getCertificateAssociatedDevicesNames(certificateWrapper);
         List<DirectoryCertificateUsage> directoryUsages = findDirectoryCertificateUsages(certificateWrapper);
         List<SecurityAccessor> accessors = securityManagementService.getAssociatedCertificateAccessors(certificateWrapper);
-        return certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages, importers);
+        return certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages);
     }
 }
