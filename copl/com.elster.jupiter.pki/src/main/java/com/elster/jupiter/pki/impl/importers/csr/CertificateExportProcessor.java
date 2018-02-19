@@ -5,6 +5,8 @@ import sun.security.provider.X509Factory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -19,9 +21,11 @@ public class CertificateExportProcessor {
     private static final int PEM_CHARACTERS_ALIGNMENT = 64;
 
     private final FtpClientService ftpClientService;
+    private final Map<String, Object> properties;
 
-    public CertificateExportProcessor(FtpClientService ftpClientService) {
+    public CertificateExportProcessor(FtpClientService ftpClientService, Map<String, Object> properties) {
         this.ftpClientService = ftpClientService;
+        this.properties = properties;
     }
 
     public void processExport(LinkedHashMap<String, LinkedHashMap<String, X509Certificate>> certificates) {
@@ -32,9 +36,8 @@ public class CertificateExportProcessor {
             LinkedHashMap<String, X509Certificate> certificatesMap = stringLinkedHashMapEntry.getValue();
             for (Map.Entry<String, X509Certificate> stringX509CertificateEntry : certificatesMap.entrySet()) {
                 X509Certificate x509Certificate = stringX509CertificateEntry.getValue();
-                // Note that the path separator in ZIP files is a slash (/), even on other platforms such as Windows
-                String dirName = stringLinkedHashMapEntry.getKey().substring(0, stringLinkedHashMapEntry.getKey().lastIndexOf('/'));
-                String fileName = dirName + '/' + stringX509CertificateEntry.getKey();
+                String dirName = stringLinkedHashMapEntry.getKey();
+                String fileName = dirName + '/' + stringX509CertificateEntry.getKey() + ".pem";
                 try {
                     storeDlmsKeyStoreCertificate(zipOutputStream, x509Certificate, fileName);
                 } catch (CertificateEncodingException e) {
@@ -44,8 +47,13 @@ public class CertificateExportProcessor {
                 }
             }
         }
-        
-        byteArrayOutputStream.toByteArray();
+        try {
+            zipOutputStream.finish();
+            zipOutputStream.close();
+            exportToFtpTest(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void storeDlmsKeyStoreCertificate(ZipOutputStream zipOutputStream, X509Certificate x509Certificate, String fileName)
@@ -78,5 +86,33 @@ public class CertificateExportProcessor {
         }
         pem.append('\n').append(X509Factory.END_CERT);
         return pem.toString();
+    }
+
+    private void exportToFtp(byte[] bytes) throws IOException {
+        String host = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey());
+        Integer port = (Integer) properties.get(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey());
+        String username = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_USER.getPropertyKey());
+        String password = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_PASSWORD.getPropertyKey());
+        String filename = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey());
+        String directory = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey());
+        String extension = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION.getPropertyKey());
+        ftpClientService.getSftpFactory(host, port, username, password).runInSession(fileSystem -> {
+            Path file = fileSystem.getPath(directory.replaceAll("/$", "") + "/" + filename + "/" + extension);
+            Files.write(file, bytes);
+        });
+    }
+
+    private void exportToFtpTest(byte[] bytes) throws IOException {
+        String host = "192.168.99.100";
+        Integer port = 2222;
+        String username = "foo";
+        String password = "pass";
+        String filename = "test1234";
+        String directory = "upload";
+        String extension = "zip";
+        ftpClientService.getSftpFactory(host, port, username, password).runInSession(fileSystem -> {
+            Path file = fileSystem.getPath(directory.replaceAll("/$", "") + "/" + filename + "." + extension);
+            Files.write(file, bytes);
+        });
     }
 }
