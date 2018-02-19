@@ -994,22 +994,18 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
-        return streamCertificateAccessors(certificate).findAny().isPresent();
+        return streamAssociatedCertificateAccessors(certificate).findAny().isPresent();
     }
 
     @Override
     public List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate) {
-        return streamCertificateAccessors(certificate).collect(Collectors.toList());
+        return streamAssociatedCertificateAccessors(certificate).collect(Collectors.toList());
     }
 
-    private Stream<SecurityAccessor> streamCertificateAccessors(CertificateWrapper certificate) {
+    private Stream<SecurityAccessor> streamAssociatedCertificateAccessors(CertificateWrapper certificate) {
         return dataModel.stream(SecurityAccessor.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
                         .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)));
-    }
-
-    public List<SecurityAccessor> getAllSecurityAccessors() {
-        return dataModel.stream(SecurityAccessor.class).collect(Collectors.toList());
     }
 
     @Override
