@@ -1,8 +1,12 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.attributes.LoggerSettingsAttributes;
+import com.energyict.dlms.cosem.methods.LoggerSettingsMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.io.IOException;
 public class LoggerSettings extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.4.255");
+    public static final ObisCode BEACON_DEBUG_LOG_OBIS_CODE = ObisCode.fromString("0.192.96.128.0.255");
 
     private TypeEnum serverLogLevel;
     private TypeEnum webPortalLogLevel;
@@ -114,5 +119,10 @@ public class LoggerSettings extends AbstractCosemObject {
         if (logLevel.getValue() < 0 || logLevel.getValue() > 0x07) {
             throw new IOException("Invalid log level (" + logLevel.getValue() + "). Log level should be in range in range 0 to 7");
         }
+    }
+
+    public OctetString fetchLogging() throws IOException {
+        byte[] responseData = this.methodInvoke(LoggerSettingsMethods.FETCH_LOGGING, new Integer8(0));
+        return AXDRDecoder.decode(responseData, OctetString.class);
     }
 }

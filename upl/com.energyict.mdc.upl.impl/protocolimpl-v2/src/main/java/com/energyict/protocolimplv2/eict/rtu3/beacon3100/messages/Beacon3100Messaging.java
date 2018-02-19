@@ -74,10 +74,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.StringReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -727,6 +724,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.removeRoutingEntry(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RESET_ROUTER)) {
                         this.resetRouter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.FETCH_LOGGING)) {
+                        this.fetchLogging(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -2522,6 +2521,30 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return this.getCosemObjectFactory().getBorderRouterIC(BorderRouterIC.getDefaultObisCode());
         } catch (NotInObjectListException e) {
             this.setNotInObjectListMessage(collectedMessage, BorderRouterIC.getDefaultObisCode().toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private void fetchLogging(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        try {
+            //TODO: Check how files should be saved in Connexo
+            OctetString logging = getDebugLogIC(pendingMessage, collectedMessage).fetchLogging();
+            File log = new File("/log/Beacon_logs/"+pendingMessage.getDeviceSerialNumber()+"_"+System.currentTimeMillis()+".txt");
+            getLogger().log(Level.WARNING, "log file saved at following location:" +log.getAbsolutePath());
+            FileOutputStream fileOutputStream = new FileOutputStream(log);
+            fileOutputStream.write(logging.toByteArray());
+            fileOutputStream.close();
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private LoggerSettings getDebugLogIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return this.getCosemObjectFactory().getLoggerSettings(LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE);
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE.toString(), pendingMessage, e);
             throw e;
         }
     }

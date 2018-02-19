@@ -468,6 +468,13 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(
                     this.stringSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation));
         }
+    },
+
+    FETCH_LOGGING(8069, "Fetch logging") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
     }
 
     ;
