@@ -26,7 +26,7 @@ public enum RevokeStatus {
         this.val = val;
     }
 
-    int getVal() {
+    public int getVal() {
         return val;
     }
 

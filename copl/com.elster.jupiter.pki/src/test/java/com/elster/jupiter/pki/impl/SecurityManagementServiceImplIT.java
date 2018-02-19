@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -1364,7 +1365,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    public void testMarkUnmarkCertificateObsolete() throws Exception {
+    public void testChangeCertificateWrapperStatus() throws Exception {
         cleanupCertificates();
         SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         String alias = "certAlias";
@@ -1375,15 +1376,15 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
 
-        wrapper.setObsolete(true);
+        wrapper.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
         wrapper.save();
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.OBSOLETE.getKey());
 
-        wrapper.setObsolete(false);
+        wrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
         wrapper.save();
 
-        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.REVOKED.getKey());
     }
 
     private SecurityManagementService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {
