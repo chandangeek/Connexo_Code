@@ -36,6 +36,9 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -55,6 +58,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -69,6 +73,7 @@ public class MeteringInMemoryBootstrapModule {
     private final String[] readingTypeRequirements;
     private CustomPropertySetService customPropertySetService;
     private DataAggregationService dataAggregationService;
+    private HttpService httpService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -114,6 +119,7 @@ public class MeteringInMemoryBootstrapModule {
     }
 
     public void activate() {
+        this.initializeMocks();
         List<Module> modules = new ArrayList<>();
         modules.add(new UtilModule(clock));
         modules.add(new MockModule());
@@ -141,12 +147,15 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new SearchModule());
         modules.add(new TaskModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
+        modules.add(new WebServicesModule());
         if (this.customPropertySetService == null) {
             modules.add(new CustomPropertySetsModule());
         }
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
             addMessageHandlers();
@@ -241,11 +250,16 @@ public class MeteringInMemoryBootstrapModule {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mockLicenseService());
+            bind(HttpService.class).toInstance(httpService);
             if (customPropertySetService != null) {
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
+    }
+
+    private void initializeMocks() {
+        httpService = mock(HttpService.class);
     }
 
     private LicenseService mockLicenseService() {
@@ -254,5 +268,4 @@ public class MeteringInMemoryBootstrapModule {
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.of(license));
         return licenseService;
     }
-
 }
