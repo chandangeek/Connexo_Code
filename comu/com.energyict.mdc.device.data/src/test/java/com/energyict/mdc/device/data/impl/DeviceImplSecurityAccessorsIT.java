@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.impl.EventServiceImpl;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -22,6 +24,7 @@ import java.security.Security;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -61,6 +64,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getSecurityAccessorRemovalFromDeviceTypeEventHandler());
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -151,7 +155,19 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         securityAccessor.setTempValue(cert1);
         securityAccessor.save();
         assertThat(device.getSecurityAccessors()).hasSize(2);
-        Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice);
+
+        Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally);
+        assertThat(securityAccessorOptional).isPresent();
+        securityAccessor = securityAccessorOptional.get();
+        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeManagedCentrally.getId());
+        assertThat(securityAccessor.getDevice()).isEqualTo(device);
+        assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
+        assertThat(securityAccessor.isEditable()).isFalse();
+        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
+        assertThat(securityAccessor.getTempValue()).isEmpty();
+        assertThat(securityAccessor.getVersion()).isNegative();
+
+        securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice);
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
         assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeOnDevice.getId());
@@ -162,16 +178,40 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         assertThat(securityAccessor.getTempValue().map(CertificateWrapper::getAlias)).contains(CERT_1_ALIAS);
         assertThat(securityAccessor.getVersion()).isEqualTo(2);
 
-        securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally);
-        assertThat(securityAccessorOptional).isPresent();
-        securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorType().getId()).isEqualTo(certificateTypeManagedCentrally.getId());
-        assertThat(securityAccessor.getDevice()).isEqualTo(device);
-        assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
-        assertThat(securityAccessor.isEditable()).isFalse();
-        assertThat(securityAccessor.getActualValue().map(CertificateWrapper::getAlias)).contains(CERT_0_ALIAS);
-        assertThat(securityAccessor.getTempValue()).isEmpty();
-        assertThat(securityAccessor.getVersion()).isNegative();
+        device.removeSecurityAccessor(securityAccessor);
+        assertThat(device.getSecurityAccessors().stream()
+                .map(SecurityAccessor::getKeyAccessorType)
+                .collect(Collectors.toList()))
+                .containsOnly(certificateTypeManagedCentrally);
+        device.getDeviceType().removeSecurityAccessorType(certificateTypeOnDevice);
+        assertThat(device.getDeviceType().getSecurityAccessorTypes()).containsOnly(certificateTypeManagedCentrally);
+        device.getDeviceType().removeSecurityAccessorType(certificateTypeManagedCentrally);
+        assertThat(device.getDeviceType().getSecurityAccessorTypes()).isEmpty();
+        assertThat(device.getSecurityAccessors()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testNotPossibleToRemoveSecurityAccessorTypeHavingSecurityAccessorFromDeviceType() {
+        device.getDeviceType().addSecurityAccessorTypes(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        SecurityAccessor<CertificateWrapper> securityAccessor = device.newSecurityAccessor(certificateTypeOnDevice);
+        securityAccessor.setTempValue(cert1);
+        securityAccessor.save();
+        assertThat(device.getSecurityAccessors().stream()
+                .map(SecurityAccessor::getKeyAccessorType)
+                .collect(Collectors.toList()))
+                .containsOnly(certificateTypeManagedCentrally, certificateTypeOnDevice);
+
+        device.getDeviceType().removeSecurityAccessorType(certificateTypeManagedCentrally);
+        assertThat(device.getSecurityAccessors().stream()
+                .map(SecurityAccessor::getKeyAccessorType)
+                .collect(Collectors.toList()))
+                .containsOnly(certificateTypeOnDevice);
+
+        expectedEx.expect(LocalizedException.class);
+        expectedEx.expectMessage("Security accessor could not be removed from device type"
+                + " because keys/certificates are specified on devices of this device type.");
+        device.getDeviceType().removeSecurityAccessorType(certificateTypeOnDevice);
     }
 
     @Test
