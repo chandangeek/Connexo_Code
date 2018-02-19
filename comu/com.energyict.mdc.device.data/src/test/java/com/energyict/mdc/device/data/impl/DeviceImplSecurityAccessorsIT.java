@@ -209,7 +209,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
                 .containsOnly(certificateTypeOnDevice);
 
         expectedEx.expect(LocalizedException.class);
-        expectedEx.expectMessage("Security accessor could not be removed from device type"
+        expectedEx.expectMessage("The security accessor couldn't be removed from the device type"
                 + " because keys/certificates are specified on devices of this device type.");
         device.getDeviceType().removeSecurityAccessorType(certificateTypeOnDevice);
     }
