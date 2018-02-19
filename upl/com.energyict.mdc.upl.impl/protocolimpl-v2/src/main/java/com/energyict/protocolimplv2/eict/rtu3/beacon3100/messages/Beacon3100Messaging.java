@@ -224,6 +224,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.RESET_ROUTER.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetAuthenticationMechanism.get(this.propertySpecService, this.nlsService, this.converter),
@@ -718,6 +721,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ReadBlacklist)) {
                         this.readBlacklist(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY)) {
+                        this.addRoutingEntry(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY)) {
+                        this.removeRoutingEntry(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RESET_ROUTER)) {
+                        this.resetRouter(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -2459,5 +2468,65 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             this.setCollectedMessageAsFailed(collectedMessage, pendingMessage, e, "Failed to read out the blacklist : [" + e.getMessage() + "]");
         }
+    }
+
+    private void addRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String routingTypeDescription = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryType);
+        BigDecimal routingEntryId = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryId));
+        String routingDestination = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestination);
+        BigDecimal routingDestinationLength = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestinationLength));
+        boolean compressionContextMulticast = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextMulticast));
+        boolean compressionContextAllowed = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextAllowed));
+
+        BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+        try {
+            TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.entryForDescription(routingTypeDescription).getId());
+            //create the routing entry structure
+            Structure routingEntryStructure = new Structure();
+            routingEntryStructure.addDataType(routingEntryType);
+            routingEntryStructure.addDataType(new Integer16(routingEntryId.intValue()));
+            routingEntryStructure.addDataType(OctetString.fromString(routingDestination));
+            routingEntryStructure.addDataType(new Integer8(routingDestinationLength.intValue()));
+            routingEntryStructure.addDataType(new BooleanObject(compressionContextMulticast));
+            routingEntryStructure.addDataType(new BooleanObject(compressionContextAllowed));
+            //now, send it
+            borderRouterIC.addRoutingEntry(routingEntryStructure);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to add a new routing entry to Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void removeRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        BigDecimal routingEntryId = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryId));
+        BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+        try {
+            borderRouterIC.removeRoutingEntry(routingEntryId.intValue());
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to remove routing entry with ID: "+ routingEntryId +" from Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void resetRouter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        try {
+            getBorderRouterIC(pendingMessage, collectedMessage).resetRouter();
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to reset router using Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private BorderRouterIC getBorderRouterIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return this.getCosemObjectFactory().getBorderRouterIC(BorderRouterIC.getDefaultObisCode());
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, BorderRouterIC.getDefaultObisCode().toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private String getStringAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
+        return MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getValue();
     }
 }

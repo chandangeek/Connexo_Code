@@ -434,7 +434,73 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.booleanSpec(service, DeviceMessageConstants.PLC_NETWORK, DeviceMessageConstants.PLC_NETWORKDefaultTranslation)
             );
         }
+    },
+    ADD_ROUTING_ENTRY(4055, "Add a new routing entry to the routing setup") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.routingEntryType, DeviceMessageConstants.routingEntryTypeDefaultTranslation)
+                            .addValues(RoutingEntryType.getDescriptionValues())
+                            .finish(),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.routingEntryId, DeviceMessageConstants.routingEntryIdDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.routingDestination, DeviceMessageConstants.routingDestinationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.routingDestinationLength, DeviceMessageConstants.routingDestinationLengthDefaultTranslation, new BigDecimal(64)),
+                    this.booleanSpec(service, DeviceMessageConstants.compressionContextMulticast, DeviceMessageConstants.compressionContextMulticastDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.compressionContextAllowed, DeviceMessageConstants.compressionContextAllowedDefaultTranslation, true)
+            );
+        }
+    },
+    REMOVE_ROUTING_ENTRY(4056, "Remove routing entry") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.routingEntryId, DeviceMessageConstants.routingEntryIdDefaultTranslation)
+            );
+        }
+    },
+    RESET_ROUTER(4057, "Reset router") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
     };
+
+    public enum RoutingEntryType {
+        G3_PLC(1, "G3 PLC");
+
+        private final int id;
+        private final String description;
+
+        RoutingEntryType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static RoutingEntryType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            RoutingEntryType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 
     public enum AutoConnectMode {
         SpecifiedTime(1, "Auto connect at specified time"),
@@ -559,6 +625,17 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, boolean defaultValue) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .setDefaultValue(defaultValue)
                 .markRequired()
                 .finish();
     }

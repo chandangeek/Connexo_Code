@@ -834,4 +834,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public CRLManagementIC getCRLManagementIC(ObisCode obisCode) throws NotInObjectListException {
         return new CRLManagementIC(this.protocolLink, this.getObjectReference(obisCode));
     }
+
+    public BorderRouterIC getBorderRouterIC(ObisCode obisCode) throws NotInObjectListException {
+        return new BorderRouterIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
 }

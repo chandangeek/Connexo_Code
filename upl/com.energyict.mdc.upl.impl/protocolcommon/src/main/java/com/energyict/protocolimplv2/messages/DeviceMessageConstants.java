@@ -1648,4 +1648,17 @@ public final class DeviceMessageConstants {
 
     public static final String keyAccessorTypeAttributeName = "keyAccessorType";
     public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";
+
+    public static final String routingEntryType = "NetworkConnectivityMessage.routingEntryType";
+    public static final String routingEntryTypeDefaultTranslation = "Routing entry type";
+    public static final String routingEntryId = "NetworkConnectivityMessage.routingEntryId";
+    public static final String routingEntryIdDefaultTranslation = "Routing entry ID";
+    public static final String routingDestination = "NetworkConnectivityMessage.routingDestination";
+    public static final String routingDestinationDefaultTranslation = "Routing destination";
+    public static final String routingDestinationLength = "NetworkConnectivityMessage.routingDestinationLength";
+    public static final String routingDestinationLengthDefaultTranslation = "Routing destination length";
+    public static final String compressionContextMulticast = "NetworkConnectivityMessage.compressionContextMulticast";
+    public static final String compressionContextMulticastDefaultTranslation = "Compression context multicast";
+    public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
+    public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
 }
