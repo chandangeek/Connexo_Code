@@ -688,7 +688,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 ImmutableMap.of(
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 3), UpgraderV10_3.class,
-                        Version.version(10, 4), UpgraderV10_4.class
+                        Version.version(10, 4), UpgraderV10_4.class,
+                        Version.version(10, 4, 1), UpgraderV10_4_1.class
                 ));
         initPrivileges();
     }
