@@ -4,6 +4,7 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -57,16 +58,20 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
 
     private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile WebServicesService webServicesService;
 
     public EndDeviceConfigServiceProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceConfigServiceProvider(MeteringService meteringService, EndPointConfigurationService endPointConfigurationService) {
+    public EndDeviceConfigServiceProvider(MeteringService meteringService,
+                                          EndPointConfigurationService endPointConfigurationService,
+                                          WebServicesService webServicesService) {
         this();
-        this.meteringService = meteringService;
-        this.endPointConfigurationService = endPointConfigurationService;
+        setMeteringService(meteringService);
+        setEndPointConfigurationService(endPointConfigurationService);
+        setWebServicesService(webServicesService);
     }
 
     @Reference
@@ -77,6 +82,11 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -148,15 +158,16 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     }
 
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
+        publish(endPointConfigurations);
         endPointConfigurations.forEach(endPointConfiguration -> {
             try {
-                stateEndDeviceConfigPortServices.stream()
+                getStateTransitionWebServiceClients().stream()
                         .filter(endDeviceConfigPort -> isValidEndDeviceConfigPortService(endDeviceConfigPort, endPointConfiguration))
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
                             try {
                                 EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate);
-                                endDeviceConfigExtendedDataFactories.forEach(endDeviceConfigExtendedDataFactory -> {
+                                getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
                                     endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
                                 });
                                 if (isCreated) {
@@ -182,6 +193,16 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private void publish(List<EndPointConfiguration> endPointConfigurations) {
+        endPointConfigurations.stream()
+                .filter(EndPointConfiguration::isActive)
+                .forEach(endPointConfiguration -> {
+                    if (!webServicesService.isPublished(endPointConfiguration)) {
+                        webServicesService.publishEndPoint(endPointConfiguration);
+                    }
+                });
     }
 
     private boolean isValidEndDeviceConfigPortService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
