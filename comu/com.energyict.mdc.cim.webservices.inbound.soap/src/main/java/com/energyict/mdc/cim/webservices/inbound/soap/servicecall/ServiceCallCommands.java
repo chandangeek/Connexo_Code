@@ -7,7 +7,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -17,6 +16,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
@@ -28,6 +28,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
@@ -38,7 +39,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
 
@@ -77,17 +77,20 @@ public class ServiceCallCommands {
     private final JsonService jsonService;
     private final EndDeviceEventsBuilder endDeviceEventsBuilder;
     private final MeterConfigParser meterConfigParser;
+    private final MeterConfigFaultMessageFactory meterConfigFaultMessageFactory;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
-                               MeterConfigParser meterConfigParser, ServiceCallService serviceCallService,
-                               EndDeviceEventsBuilder endDeviceEventsBuilder, Thesaurus thesaurus) {
+                               MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
+                               ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
+                               Thesaurus thesaurus) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
         this.meterConfigParser = meterConfigParser;
+        this.meterConfigFaultMessageFactory = meterConfigFaultMessageFactory;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
     }
@@ -127,7 +130,7 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(meterConfigDomainExtension);
         if (operation == OperationEnum.UPDATE) {
-            deviceService.findDeviceByMrid(meter.getMRID()).ifPresent(serviceCallBuilder::targetObject);
+            serviceCallBuilder.targetObject(findDevice(meterInfo));
         }
         return serviceCallBuilder.create();
     }
@@ -156,24 +159,6 @@ public class ServiceCallCommands {
         return serviceCallBuilder.create();
     }
 
-    /**
-     * Reject the given ServiceCall<br/>
-     * Note: the ServiceCall should be in an appropriate state from which it can transit to either REJECTED or FAILED,
-     * meaning it should be either in state CREATED or ONGOING.
-     *
-     * @param serviceCall
-     * @param message
-     */
-    @TransactionRequired
-    public void rejectServiceCall(ServiceCall serviceCall, String message) {
-        serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Service call has failed: {0}", message));
-        if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
-            requestTransition(serviceCall, DefaultState.REJECTED);
-        } else {
-            requestTransition(serviceCall, DefaultState.FAILED);
-        }
-    }
-
     @TransactionRequired
     public void requestTransition(ServiceCall serviceCall, DefaultState newState) {
         serviceCall.requestTransition(newState);
@@ -183,5 +168,15 @@ public class ServiceCallCommands {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
+    }
+
+    private Device findDevice(MeterInfo meterInfo) throws FaultMessage {
+        if (meterInfo.getmRID() != null) {
+            return deviceService.findDeviceByMrid(meterInfo.getmRID())
+                    .orElseThrow(meterConfigFaultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, meterInfo.getmRID()));
+        } else {
+            return deviceService.findDeviceByName(meterInfo.getDeviceName())
+                    .orElseThrow(meterConfigFaultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, meterInfo.getDeviceName()));
+        }
     }
 }

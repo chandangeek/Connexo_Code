@@ -28,7 +28,7 @@ public class MeterConfigFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> meterConfigFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+    public Supplier<FaultMessage> meterConfigFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
         return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
