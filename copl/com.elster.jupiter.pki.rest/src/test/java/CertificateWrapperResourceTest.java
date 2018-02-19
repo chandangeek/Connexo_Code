@@ -327,7 +327,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<JSONArray>get("userDirectories")).hasSize(2).contains(dirUsageName1, dirUsageName2);
-        assertThat(model.<JSONArray>get("importers")).isEmpty();
         assertThat(model.<JSONArray>get("devices")).hasSize(3).contains(deviceName1, deviceName2, deviceName3);
         assertThat(model.<JSONArray>get("securityAccessors")).hasSize(1).contains(accessorName);
         verify(cert, never()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
@@ -424,7 +423,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<JSONArray>get("userDirectories")).hasSize(1).contains(dirUsageName);
-        assertThat(model.<JSONArray>get("importers")).isEmpty();
         assertThat(model.<JSONArray>get("devices")).hasSize(1).contains(deviceName);
         assertThat(model.<JSONArray>get("securityAccessors")).hasSize(1).contains(accessorName);
     }

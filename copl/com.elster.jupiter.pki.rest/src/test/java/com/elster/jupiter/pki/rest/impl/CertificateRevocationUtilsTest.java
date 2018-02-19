@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.math.BigInteger;
@@ -55,8 +56,8 @@ public class CertificateRevocationUtilsTest {
     private static final String ISSUER_2 = "issuer_2";
     private static final String SUBJECT_1 = "subject_1";
     private static final String SUBJECT_2 = "subject_2";
-    private static final Long TIMEOUT = 10L;
-    private static final Long SHORT_TIMEOUT = 1L;
+    private static final Long TIMEOUT = 10000L;
+    private static final Long SHORT_TIMEOUT = 100L;
 
     //Under test
     private CertificateRevocationUtils revocationUtils;
@@ -65,6 +66,8 @@ public class CertificateRevocationUtilsTest {
     private SecurityManagementService securityManagementService;
     @Mock
     private TransactionService transactionService;
+    @Mock
+    private TransactionContext transactionContext;
     @Mock
     private CaService caService;
     @Mock
@@ -87,6 +90,7 @@ public class CertificateRevocationUtilsTest {
     public void setup() {
         //common mocks
         when(nlsService.getThesaurus(PkiApplication.COMPONENT_NAME, Layer.REST)).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
+        when(transactionService.getContext()).thenReturn(transactionContext);
         when(wrapper1.getId()).thenReturn(ID_1);
         when(wrapper2.getId()).thenReturn(ID_2);
         when(wrapper1.getAlias()).thenReturn(ALIAS_1);
@@ -145,14 +149,16 @@ public class CertificateRevocationUtilsTest {
     public void testRevokeCertificate_caIsConfigured() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(true);
-        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class))).thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class)))
+                .thenReturn(RevokeStatus.NOT_REVOKED)
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
 
         //Act
         revocationUtils.revokeCertificate(wrapper1, TIMEOUT);
 
         //Verify
         verify(caService, times(1)).revokeCertificate(revokeFilterCaptor.capture(), eq(RevokeStatus.REVOCATION_REASON_UNSPECIFIED.getVal()));
-        verify(caService, times(1)).checkRevocationStatus(checkFilterCaptor.capture());
+        verify(caService, times(2)).checkRevocationStatus(checkFilterCaptor.capture());
         verify(wrapper1, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, times(1)).save();
 
@@ -165,22 +171,45 @@ public class CertificateRevocationUtilsTest {
     }
 
     @Test
+    public void testRevokeCertificate_caIsConfigured_alreadyRevoked() throws Exception {
+        //Prepare
+        when(caService.isConfigured()).thenReturn(true);
+        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class)))
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+
+        //Act
+        revocationUtils.revokeCertificate(wrapper1, TIMEOUT);
+
+        //Verify
+        verify(caService, times(1)).checkRevocationStatus(checkFilterCaptor.capture());
+        verify(caService, never()).revokeCertificate(any(CertificateAuthoritySearchFilter.class), eq(RevokeStatus.REVOCATION_REASON_UNSPECIFIED.getVal()));
+        verify(wrapper1, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
+        verify(wrapper1, times(1)).save();
+
+        assertThat(checkFilterCaptor.getValue().getIssuerDN()).isEqualTo(ISSUER_1);
+        assertThat(checkFilterCaptor.getValue().getSubjectDN()).isEqualTo(SUBJECT_1);
+        assertThat(checkFilterCaptor.getValue().getSerialNumber()).isEqualTo(SERIAL_1);
+    }
+
+    @Test
     public void testRevokeCertificate_caIsConfigured_desync() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(true);
-        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class))).thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class)))
+                .thenReturn(RevokeStatus.NOT_REVOKED)
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
         doThrow(new RuntimeException("Nope, no status here")).when(wrapper1).save();
 
         //Act and verify
         try {
-            revocationUtils.revokeCertificate(wrapper1, SHORT_TIMEOUT);
+            revocationUtils.revokeCertificate(wrapper1, TIMEOUT);
             failNoException();
         } catch (ExceptionFactory.RestException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REVOCATION_DESYNC);
         }
 
         verify(caService, times(1)).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
-        verify(caService, times(1)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
+        verify(caService, times(2)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
         verify(wrapper1, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, times(1)).save();
     }
@@ -193,7 +222,7 @@ public class CertificateRevocationUtilsTest {
             //imitate CA is stuck
             TimeUnit.SECONDS.sleep(SHORT_TIMEOUT * 2);
             return null;
-        }).when(caService).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
+        }).when(caService).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
 
         //Act and verify
         try {
@@ -201,11 +230,10 @@ public class CertificateRevocationUtilsTest {
             failNoException();
         } catch (ExceptionFactory.RestException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REVOCATION_FAILED);
-            assertThat(e.getLocalizedMessage()).contains(TIMEOUT_MESSAGE);
         }
 
-        verify(caService, times(1)).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
-        verify(caService, never()).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
+        verify(caService, times(1)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
+        verify(caService, never()).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
         verify(wrapper1, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, never()).save();
     }
@@ -228,14 +256,19 @@ public class CertificateRevocationUtilsTest {
     public void testBulkRevokeCertificates_caIsConfigured() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(true);
-        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class))).thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_1, ISSUER_1, SUBJECT_1)))
+                .thenReturn(RevokeStatus.NOT_REVOKED)
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_2, ISSUER_2, SUBJECT_2)))
+                .thenReturn(RevokeStatus.NOT_REVOKED)
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
 
         //Act
         CertificateRevocationResultInfo result = revocationUtils.bulkRevokeCertificates(Arrays.asList(wrapper1, wrapper2), TIMEOUT);
 
         //Verify
+        verify(caService, times(4)).checkRevocationStatus(checkFilterCaptor.capture());
         verify(caService, times(2)).revokeCertificate(revokeFilterCaptor.capture(), anyInt());
-        verify(caService, times(2)).checkRevocationStatus(checkFilterCaptor.capture());
         verify(wrapper1, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, times(1)).save();
         verify(wrapper2, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
@@ -249,12 +282,12 @@ public class CertificateRevocationUtilsTest {
                 .collect(Collectors.toList());
 
         assertThat(revokeFilters).hasSize(2);
-        assertThat(checkFilters).hasSize(2);
-        assertThat(revokeFilters.get(0)).isSameAs(checkFilters.get(0));
+        assertThat(checkFilters).hasSize(4);
+        assertThat(revokeFilters.get(0)).isSameAs(checkFilters.get(0)).isSameAs(checkFilters.get(1));
         assertThat(revokeFilters.get(0).getSerialNumber()).isEqualTo(SERIAL_1);
         assertThat(revokeFilters.get(0).getSubjectDN()).isEqualTo(SUBJECT_1);
         assertThat(revokeFilters.get(0).getIssuerDN()).isEqualTo(ISSUER_1);
-        assertThat(revokeFilters.get(1)).isSameAs(checkFilters.get(1));
+        assertThat(revokeFilters.get(1)).isSameAs(checkFilters.get(2)).isSameAs(checkFilters.get(3));
         assertThat(revokeFilters.get(1).getSerialNumber()).isEqualTo(SERIAL_2);
         assertThat(revokeFilters.get(1).getSubjectDN()).isEqualTo(SUBJECT_2);
         assertThat(revokeFilters.get(1).getIssuerDN()).isEqualTo(ISSUER_2);
@@ -273,19 +306,18 @@ public class CertificateRevocationUtilsTest {
     public void testBulkRevokeCertificates_caIsConfigured_partialSuccess() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(true);
-        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class)))
-                .thenAnswer(invocation -> {
-                    //imitate revocation failure only for second certificate
-                    CertificateAuthoritySearchFilter filter = invocation.getArgumentAt(0, CertificateAuthoritySearchFilter.class);
-                    return filter.getSubjectDN().equals(SUBJECT_1) ? RevokeStatus.REVOCATION_REASON_UNSPECIFIED : RevokeStatus.NOT_REVOKED;
-                });
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_1, ISSUER_1, SUBJECT_1)))
+                .thenReturn(RevokeStatus.NOT_REVOKED)
+                .thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_2, ISSUER_2, SUBJECT_2)))
+                .thenReturn(RevokeStatus.NOT_REVOKED);
 
         //Act
         CertificateRevocationResultInfo result = revocationUtils.bulkRevokeCertificates(Arrays.asList(wrapper1, wrapper2), TIMEOUT);
 
         //Verify
         verify(caService, times(2)).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
-        verify(caService, times(2)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
+        verify(caService, times(4)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
         verify(wrapper1, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, times(1)).save();
         verify(wrapper2, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
@@ -298,13 +330,16 @@ public class CertificateRevocationUtilsTest {
         assertThat(result.revocationResults.get(0).error).isNullOrEmpty();
         assertThat(result.revocationResults.get(1).alias).isEqualTo(ALIAS_2);
         assertThat(result.revocationResults.get(1).success).isFalse();
-        assertThat(result.revocationResults.get(1).error).isNotEmpty().contains("Unexpected revocation status");
     }
 
     @Test
     public void testBulkRevokeCertificates_caIsConfigured_timeout() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(true);
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_1, ISSUER_1, SUBJECT_1)))
+                .thenReturn(RevokeStatus.NOT_REVOKED);
+        when(caService.checkRevocationStatus(new CertificateAuthoritySearchFilter(SERIAL_2, ISSUER_2, SUBJECT_2)))
+                .thenReturn(RevokeStatus.NOT_REVOKED);
         doAnswer(invocation -> {
             //imitate CA is stuck
             TimeUnit.SECONDS.sleep(SHORT_TIMEOUT * 2);
@@ -315,8 +350,8 @@ public class CertificateRevocationUtilsTest {
         CertificateRevocationResultInfo result = revocationUtils.bulkRevokeCertificates(Arrays.asList(wrapper1, wrapper2), SHORT_TIMEOUT);
 
         //Verify
+        verify(caService, times(2)).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
         verify(caService, times(2)).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
-        verify(caService, never()).checkRevocationStatus(any(CertificateAuthoritySearchFilter.class));
         verify(wrapper1, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper1, never()).save();
         verify(wrapper2, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
@@ -336,7 +371,6 @@ public class CertificateRevocationUtilsTest {
     public void testBulkRevokeCertificates_caIsNotConfigured() throws Exception {
         //Prepare
         when(caService.isConfigured()).thenReturn(false);
-        when(caService.checkRevocationStatus(any(CertificateAuthoritySearchFilter.class))).thenReturn(RevokeStatus.REVOCATION_REASON_UNSPECIFIED);
 
         //Act
         CertificateRevocationResultInfo result = revocationUtils.bulkRevokeCertificates(Arrays.asList(wrapper1, wrapper2), TIMEOUT);
