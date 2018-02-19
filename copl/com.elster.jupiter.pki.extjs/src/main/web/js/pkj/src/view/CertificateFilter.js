@@ -10,7 +10,8 @@ Ext.define('Pkj.view.CertificateFilter', {
         'Pkj.store.CertificateIssuers',
         'Pkj.store.CertificateAliases',
         'Pkj.store.CertificateKeyUsages',
-        'Pkj.store.CertificateSubjects'
+        'Pkj.store.CertificateSubjects',
+        'Pkj.store.CertificateStatuses'
     ],
 
     initComponent: function () {
