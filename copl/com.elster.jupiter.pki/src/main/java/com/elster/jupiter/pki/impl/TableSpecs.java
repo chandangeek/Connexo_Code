@@ -136,7 +136,7 @@ public enum TableSpecs {
                     .notNull()
                     .installValue("'" + CertificateWrapperStatus.NATIVE.name() + "'")
                     .map(AbstractCertificateWrapperImpl.Fields.WRAPPER_STATUS.fieldName())
-                    .since(Version.version(10, 4))
+                    .since(Version.version(10, 4, 1))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
