@@ -73,5 +73,4 @@ public class DeviceDataModule extends AbstractModule {
         bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndDeviceCommandFactory.class).to(EndDeviceCommandFactoryImpl.class).in(Scopes.SINGLETON);
     }
-
 }
