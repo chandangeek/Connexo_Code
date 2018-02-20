@@ -11,8 +11,6 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
     itemId: 'revocation-confirmation-window',
     bindRecordId: undefined,
     certificatesView: undefined,
-    progressBar: undefined,
-    caOnline: true,
     //default
     timeout: 30000,
     confirmText: Uni.I18n.translate('general.revoke', 'PKJ', 'Revoke'),
@@ -56,22 +54,20 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
     },
 
     show: function (config) {
-        var me = this;
-
         if (!Ext.isDefined(config.title)) {
             Ext.apply(config, {
-                title: me.caOnline ?
+                title: config.caOnline ?
                     Uni.I18n.translate('certificate.revoke.confirm.title.caOnline', 'PKJ', 'Revoke certificate?') :
-                    Uni.I18n.translate('certificate.revoke.confirm.title.caOffline', 'PKJ', 'Mark certificate(s) as revoked?')
+                    Uni.I18n.translate('certificate.revoke.confirm.title.caOffline', 'PKJ', 'Mark certificate as revoked?')
             });
         }
         if (!Ext.isDefined(config.msg)) {
             Ext.apply(config, {
-                msg: me.caOnline ?
+                msg: config.caOnline ?
                     Uni.I18n.translate('certificate.revoke.confirm.body.caOnline', 'PKJ',
                         'A request for revoking the certificate will be sent to the Certification Authority') :
                     Uni.I18n.translate('certificate.revoke.confirm.body.caOffline', 'PKJ',
-                        'The certificates will be marked as revoked in the system but you need to manually send them to the Certificate Authority that will change their revocation status')
+                        'The certificate will be marked as revoked in the system but you need to manually send it to the Certificate Authority that will change it revocation status')
             });
         }
 

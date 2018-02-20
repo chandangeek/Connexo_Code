@@ -444,10 +444,9 @@ Ext.define('Pkj.controller.Certificates', {
                             Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), errorMsg);
                         return;
                     }
-
                     confirmationWindow.show({
-                        caOnline: Ext.isEmpty(responseObject.isOnline) || responseObject.isOnline === true,
-                        headers: {'Content-type': 'multipart/form-data'},
+                        caOnline: !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === true,
+                        headers: {'Content-type': 'multipart/form-data'}
                     });
                 }
             }
