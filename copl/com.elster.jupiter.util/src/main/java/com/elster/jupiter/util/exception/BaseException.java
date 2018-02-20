@@ -27,7 +27,7 @@ public abstract class BaseException extends RuntimeException {
     }
 
     protected BaseException(MessageSeed messageSeed) {
-        super(messageSeed.getDefaultFormat());
+        super(MessageFormat.format(messageSeed.getDefaultFormat(), new Object[0]));
         this.messageSeed = messageSeed;
     }
 
