@@ -25,7 +25,6 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -412,10 +411,10 @@ public class InMemoryIntegrationPersistence {
         privileges.add(vPrivilege1);
         when(this.principal.getPrivileges()).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
-        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         this.thesaurus = mock(Thesaurus.class);
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
-        when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
+        when(this.issueService.findStatus(any())).thenReturn(Optional.empty());
         cronExpressionParser = new DefaultCronExpressionParser();
     }
 
@@ -597,6 +596,10 @@ public class InMemoryIntegrationPersistence {
 
     public PassphraseFactory getDataVaultPassphraseFactory() {
         return injector.getInstance(DataVaultPassphraseFactory.class);
+    }
+
+    public SecurityAccessorRemovalFromDeviceTypeEventHandler getSecurityAccessorRemovalFromDeviceTypeEventHandler() {
+        return injector.getInstance(SecurityAccessorRemovalFromDeviceTypeEventHandler.class);
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
