@@ -119,9 +119,9 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
         if (logBookObisCode.equals(POWER_QUALITY_LOG)) {
             meterEvents = new PowerQualityEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(POWER_FAILURE_EVENT_LOG)) {
-            meterEvents = new PowerFailureEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new PowerFailureEventLog(protocol.getTimeZone(), dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_CONTROL_LOG)) {
-            meterEvents = new DisconnectorControlLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new DisconnectorControlLog(protocol.getTimeZone(), dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
             meterEvents = new FraudDetectionLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {

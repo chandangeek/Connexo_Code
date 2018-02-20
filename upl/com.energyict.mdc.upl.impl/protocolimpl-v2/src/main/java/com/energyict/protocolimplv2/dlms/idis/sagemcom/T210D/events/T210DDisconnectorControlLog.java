@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
 
 import java.util.Date;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.TimeZone;
 public class T210DDisconnectorControlLog extends com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog {
 
     public T210DDisconnectorControlLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+        super(timeZone, dc, false);
     }
 
     @Override

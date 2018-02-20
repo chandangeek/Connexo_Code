@@ -38,19 +38,19 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(POWER_QUALITY_LOG)) {
-            meterEvents = new AM130PowerQualityEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new AM130PowerQualityEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(POWER_FAILURE_EVENT_LOG)) {
-            meterEvents = new PowerFailureEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new PowerFailureEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_CONTROL_LOG)) {
-            meterEvents = new DisconnectorControlLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new DisconnectorControlLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
-            meterEvents = new AM130FraudDetectionLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new AM130FraudDetectionLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
-            meterEvents = new AM130StandardEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new AM130StandardEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(COMMUNICATION_LOG)) {
-            meterEvents = new AM130CommunicationLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new AM130CommunicationLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(MBUS_EVENT_LOG)) {
-            meterEvents = new AM130MBusEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new AM130MBusEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else {
             return new ArrayList<>();
         }

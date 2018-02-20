@@ -14,7 +14,7 @@ import java.util.TimeZone;
 public class Mx382StandardEventLog extends AM130StandardEventLog {
 
     public Mx382StandardEventLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+        super(timeZone, dc, false);
     }
 
     @Override
