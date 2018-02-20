@@ -132,7 +132,7 @@ public enum TableSpecs {
             table.column("OBSOLETE")
                     .bool()
                     .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
-                    .since(Version.version(10, 4))
+                    .since(Version.version(10, 4, 1))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
