@@ -74,6 +74,9 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -96,6 +99,7 @@ import com.google.inject.Module;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -186,6 +190,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mockSearchService());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(UpgradeService.class).toInstance(new UpgradeModule.FakeUpgradeService());
         }
     }
@@ -241,12 +246,15 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     new BasicPropertiesModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
-                    new UsagePointLifeCycleConfigurationModule()
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             getCustomPropertySetService();
             getMeteringService();
             getDataAggregationService();
@@ -281,14 +289,14 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
-                        injector.getInstance(Clock.class),
-                        meteringService,
-                        getCalendarService(),
-                        getCustomPropertySetService(),
-                        new InstantTruncaterFactory(meteringService),
-                        DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
-                        () -> new VirtualFactoryImpl(dataModelService),
-                        () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
+                injector.getInstance(Clock.class),
+                meteringService,
+                getCalendarService(),
+                getCustomPropertySetService(),
+                new InstantTruncaterFactory(meteringService),
+                DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
+                () -> new VirtualFactoryImpl(dataModelService),
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {
@@ -444,23 +452,23 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.antennaCountPropertyWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
             assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
                     .toLowerCase() + " as value, cps.starttime, cps.endtime, cps.modtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime, modtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
             String countPropertyTableName = "cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_1";
             String powerPropertyTableName = "cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1";
@@ -469,9 +477,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*" + powerPropertyTableName + "\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*" + countPropertyTableName + "\\s*ON\\s*\\(\\s*\\(\\s*" + powerPropertyTableName + "\\.starttime <= " + countPropertyTableName + "\\.starttime\\s*AND\\s*" + powerPropertyTableName + "\\.endtime >= " + countPropertyTableName+ "\\.starttime\\).*");
+                    .matches("SELECT.*JOIN\\s*" + countPropertyTableName + "\\s*ON\\s*\\(\\s*\\(\\s*" + powerPropertyTableName + "\\.starttime <= " + countPropertyTableName + "\\.starttime\\s*AND\\s*" + powerPropertyTableName + "\\.endtime >= " + countPropertyTableName + "\\.starttime\\).*");
             assertThat(netConsumptionSql)
-                    .matches(".*OR\\s*\\(\\s*" + countPropertyTableName + "\\.starttime <= " + powerPropertyTableName + ".starttime\\s*AND\\s*" + countPropertyTableName + "\\.endtime >= " + powerPropertyTableName+ "\\.starttime\\)\\)");
+                    .matches(".*OR\\s*\\(\\s*" + countPropertyTableName + "\\.starttime <= " + powerPropertyTableName + ".starttime\\s*AND\\s*" + countPropertyTableName + "\\.endtime >= " + powerPropertyTableName + "\\.starttime\\)\\)");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -550,17 +558,17 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
             assertThat(propertySql)
                     .matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime, cps.modtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime, modtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
             assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp

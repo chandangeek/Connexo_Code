@@ -60,6 +60,9 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -81,6 +84,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -172,6 +176,7 @@ public class DataAggregationServiceImplCalculateIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mockSearchService());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -227,12 +232,15 @@ public class DataAggregationServiceImplCalculateIT {
                     new TaskModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
-                    new UsagePointLifeCycleConfigurationModule()
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             getMeteringService();
             getDataAggregationService();
             ctx.commit();
@@ -273,7 +281,7 @@ public class DataAggregationServiceImplCalculateIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
             fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            thirtyMinuteskWhReverse  = getMeteringService().getReadingType("0.0.5.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            thirtyMinuteskWhReverse = getMeteringService().getReadingType("0.0.5.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
             fifteenMinutesNetConsumption = getMeteringService().getReadingType(FIFTEEN_MINS_NET_CONSUMPTION_MRID).get();
             monthlyNetConsumption = getMeteringService().getReadingType(MONTHLY_NET_CONSUMPTION_MRID).get();
             ctx.commit();
@@ -417,21 +425,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1 as id, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
@@ -517,21 +525,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp.*\\) realrod" + netConsumptionDeliverableId + "_1.*");
@@ -625,21 +633,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the with clause for the production requirement is NOT aggregated
             String productionWithSelectClause = this.productionWithClauseBuilder1.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*[sum|SUM]\\(value\\).*");
@@ -736,39 +744,39 @@ public class DataAggregationServiceImplCalculateIT {
             // First meter activation
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Second meter activation
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder2.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder2.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline in the first meter activation
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1 as id, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
@@ -869,21 +877,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + this.productionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + this.productionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1 as id, rid" + this.productionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp as timestamp.*");
@@ -962,5 +970,4 @@ public class DataAggregationServiceImplCalculateIT {
     private String mRID2GrepPattern(String mRID) {
         return mRID.replace(".", "\\.");
     }
-
 }

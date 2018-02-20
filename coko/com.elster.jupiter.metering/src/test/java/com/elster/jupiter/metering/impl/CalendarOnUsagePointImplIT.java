@@ -42,6 +42,9 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -60,6 +63,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -107,6 +111,7 @@ public class CalendarOnUsagePointImplIT {
     private CalendarService calendarService;
     private MetrologyConfigurationService metrologyConfigurationService;
     private MeteringService meteringService;
+    private HttpService httpService;
 
     private class MockModule extends AbstractModule {
 
@@ -115,6 +120,7 @@ public class CalendarOnUsagePointImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(searchService);
+            bind(HttpService.class).toInstance(httpService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
@@ -122,6 +128,7 @@ public class CalendarOnUsagePointImplIT {
 
     @Before
     public void setUp() throws SQLException {
+        this.httpService = mock(HttpService.class);
         this.searchService = mock(SearchService.class);
         when(this.searchService.findDomain(anyString())).thenReturn(Optional.of(this.searchDomain));
         try {
@@ -149,12 +156,15 @@ public class CalendarOnUsagePointImplIT {
                     new TaskModule(),
                     new MeteringModule(SECONDARY_DELTA),
                     new CalendarModule(),
-                    new UsagePointLifeCycleConfigurationModule());
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             meteringModelService = injector.getInstance(MeteringDataModelService.class);
             meteringService = injector.getInstance(MeteringService.class);
@@ -523,5 +533,4 @@ public class CalendarOnUsagePointImplIT {
                 .add()
                 .add();
     }
-
 }
