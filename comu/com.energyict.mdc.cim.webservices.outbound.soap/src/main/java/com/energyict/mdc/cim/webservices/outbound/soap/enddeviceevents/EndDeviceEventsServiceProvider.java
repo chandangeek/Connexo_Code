@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
 import ch.iec.tc57._2011.enddeviceevents.Asset;
@@ -20,13 +21,16 @@ import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
@@ -47,6 +51,23 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
 
     private List<EndDeviceEventsPort> endDeviceEvents = new ArrayList<>();
 
+    private volatile WebServicesService webServicesService;
+
+    public EndDeviceEventsServiceProvider() {
+        // for OSGI purposes
+    }
+
+    @Inject
+    public EndDeviceEventsServiceProvider(WebServicesService webServicesService) {
+        this();
+        setWebServicesService(webServicesService);
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addReplyEndDeviceEvents(EndDeviceEventsPort events) {
         endDeviceEvents.add(events);
@@ -54,6 +75,10 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
 
     public void removeReplyEndDeviceEvents(EndDeviceEventsPort events) {
         endDeviceEvents.remove(events);
+    }
+
+    public List<EndDeviceEventsPort> getEndDeviceEventsPorts() {
+        return Collections.unmodifiableList(endDeviceEvents);
     }
 
     @Override
@@ -73,7 +98,8 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
 
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
-        endDeviceEvents.stream().forEach(event -> {
+        publish(endPointConfiguration);
+        getEndDeviceEventsPorts().forEach(event -> {
             try {
                 event.createdEndDeviceEvents(createResponseMessage(issue));
             } catch (Exception e) {
@@ -82,6 +108,12 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
             }
         });
         return true;
+    }
+
+    private void publish(EndPointConfiguration endPointConfiguration) {
+        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
+            webServicesService.publishEndPoint(endPointConfiguration);
+        }
     }
 
     private EndDeviceEventsEventMessageType createResponseMessage(Issue issue) {

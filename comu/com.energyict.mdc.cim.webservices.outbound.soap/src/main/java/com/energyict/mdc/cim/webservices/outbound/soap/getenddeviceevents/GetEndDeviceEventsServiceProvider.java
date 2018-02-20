@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyGetEndDeviceEventsWebService;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
@@ -18,6 +19,7 @@ import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents_Service;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
@@ -25,9 +27,11 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents.provider",
@@ -47,8 +51,21 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     private final EndDeviceEventsFactory endDeviceEventsFactory = new EndDeviceEventsFactory();
     private final List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
 
+    private volatile WebServicesService webServicesService;
+
     public GetEndDeviceEventsServiceProvider() {
         // for OSGI purposes
+    }
+
+    @Inject
+    public GetEndDeviceEventsServiceProvider(WebServicesService webServicesService) {
+        this();
+        setWebServicesService(webServicesService);
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -58,6 +75,10 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
 
     public void removeGetEndDeviceEventsPort(GetEndDeviceEventsPort port) {
         getEndDeviceEventsPorts.remove(port);
+    }
+
+    public List<GetEndDeviceEventsPort> getGetEndDeviceEventsPorts() {
+        return Collections.unmodifiableList(getEndDeviceEventsPorts);
     }
 
     @Override
@@ -72,8 +93,9 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents) {
+        publish(endPointConfiguration);
         try {
-            getEndDeviceEventsPorts.stream()
+            getGetEndDeviceEventsPorts().stream()
                     .filter(getEndDeviceEventsPort -> isValidPortService(getEndDeviceEventsPort, endPointConfiguration))
                     .findFirst()
                     .ifPresent(portService -> {
@@ -105,10 +127,16 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         return responseMessage;
     }
 
+    private void publish(EndPointConfiguration endPointConfiguration) {
+        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
+            webServicesService.publishEndPoint(endPointConfiguration);
+        }
+    }
+
     private EndDeviceEvents createEndDeviceEvents(List<EndDeviceEventRecord> records) {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-        records.stream().forEach(record -> endDeviceEventList.add(endDeviceEventsFactory.asEndDeviceEvent(record)));
+        records.forEach(record -> endDeviceEventList.add(endDeviceEventsFactory.asEndDeviceEvent(record)));
         return endDeviceEvents;
     }
 

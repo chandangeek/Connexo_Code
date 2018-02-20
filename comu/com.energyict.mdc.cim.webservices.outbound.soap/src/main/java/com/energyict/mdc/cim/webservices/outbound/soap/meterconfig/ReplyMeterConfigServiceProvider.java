@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
@@ -56,13 +57,16 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
     private volatile DeviceService deviceService;
+    private volatile WebServicesService webServicesService;
 
     public ReplyMeterConfigServiceProvider() {
         // for OSGI purposes
     }
 
-    public ReplyMeterConfigServiceProvider(DeviceService deviceService) {
+    public ReplyMeterConfigServiceProvider(DeviceService deviceService, WebServicesService webServicesService) {
+        this();
         setDeviceService(deviceService);
+        setWebServicesService(webServicesService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -96,6 +100,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
     @Override
     public Service get() {
         return new ReplyMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
@@ -113,6 +122,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
+        publish(endPointConfiguration);
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
             try {
                 getMeterConfigPorts()
@@ -137,6 +147,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
                      List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
+        publish(endPointConfiguration);
         try {
             getMeterConfigPorts()
                     .stream()
@@ -158,6 +169,12 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                     });
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+        }
+    }
+
+    private void publish(EndPointConfiguration endPointConfiguration) {
+        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
+            webServicesService.publishEndPoint(endPointConfiguration);
         }
     }
 
