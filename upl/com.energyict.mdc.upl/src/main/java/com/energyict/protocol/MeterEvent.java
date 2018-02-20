@@ -295,8 +295,383 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      */
     public static final int VALVE_ALARM_MBUS = 64;
 
+    public static final int MAX_NUMBER_OF_GENERIC_EVENTS = 64;
+
+    /**
+     * Start of Beacon3100 custom codes
+     * Range from 100000 to 100073
+     * Actual codes MUST be remapped and CIM code corespondents created.
+     * Event description is currently used in Beacon3100 protocol class.
+     * 02.02.2018
+     * In case event codes remain the same table EISRTUEVENTS must be modified to support 6 digit numbers
+     * ALTER TABLE EISRTUEVENT
+     * MODIFY (CODE NUMBER(6,0));
+     */
+
+    /**
+     *  CLEARED
+     */
+    public static final int CLEARED = 100001;
+
+    /**
+     *  Power management switch low power
+     */
+    public static final int POWER_MANAGEMENT_SWITCH_LOW_POWER = 100002;
+
+    /**
+     *   Power management switch full power
+     */
+    public static final int POWER_MANAGEMENT_SWITCH_FULL_POWER = 100003;
+
+    /**
+     *  Power management switch reduced power
+     */
+    public static final int POWER_MANAGEMENT_SWITCH_REDUCED_POWER = 100004;
+
+    /**
+     *  Power management mains lost
+     */
+    public static final int POWER_MANAGEMENT_MAINS_LOST = 100005;
+
+    /**
+     *  Power management mains recovered
+     */
+    public static final int POWER_MANAGEMENT_MAINS_RECOVERED = 100006;
+
+    /**
+     *  Power management last gasp
+     */
+    public static final int POWER_MANAGEMENT_LAST_GASP = 100007;
+
+    /**
+     *  Power management battery charge start
+     */
+    public static final int POWER_MANAGEMENT_BATTERY_CHARGE_START = 100008;
+
+    /**
+     *  Power management battery charge stop
+     */
+    public static final int POWER_MANAGEMENT_BATTERY_CHARGE_STOP = 100009;
+
+    /**
+     *  Idis meter discovery
+     */
+    public static final int IDIS_METER_DISCOVERY = 1000010;
+    /**
+     *  Idis meter accepted
+     */
+    public static final int IDIS_METER_ACCEPTED = 1000011;
+
+    /**
+     *  Idis meter rejected
+     */
+    public static final int IDIS_METER_REJECTED = 100012;
+
+    /**
+     *  Idis meter alarm
+     */
+    public static final int IDIS_METER_ALARM = 100013;
+
+    /**
+     *  Idis alarm condition
+     */
+    public static final int IDIS_ALARM_CONDITION = 100014;
+
+    /**
+     *  Idis multi master
+     */
+    public static final int IDIS_MULTI_MASTER = 100015;
+
+    /**
+     *  Idis plc equipment in state new
+     */
+    public static final int IDIS_PLC_EQUIPMENT_IN_STATE_NEW = 100016;
+
+    /**
+     *  Idis extended alarm status
+     */
+    public static final int IDIS_EXTENDED_ALARM_STATUS = 100017;
+
+    /**
+     *  Idis meter deleted
+     */
+    public static final int IDIS_METER_DELETED = 100018;
+
+    /**
+     *  Idis stack event
+     */
+    public static final int IDIS_STACK_EVENT = 100019;
+
+    /**
+     *  Plc prime restarted
+     */
+    public static final int PLC_PRIME_RESTARTED = 100020;
+
+    /**
+     *  Plc prime stack event
+     */
+    public static final int PLC_PRIME_STACK_EVENT = 100021;
+
+    /**
+     *  Plc prime register node
+     */
+    public static final int PLC_PRIME_REGISTER_NODE = 100022;
+
+    /**
+     *  Plc prime unregister node
+     */
+    public static final int PLC_PRIME_UNREGISTER_NODE = 100023;
+
+    /**
+     *  Plc g3 restarted
+     */
+    public static final int PLC_G3_RESTARTED = 100024;
+
+    /**
+     *  Plc g3 stack event
+     */
+    public static final int PLC_G3_STACK_EVENT = 100025;
+
+    /**
+     *  Plc g3 register node
+     */
+    public static final int PLC_G3_REGISTER_NODE = 100026;
+
+    /**
+     * Plc g3 unregister node
+     */
+    public static final int PLC_G3_UNREGISTER_NODE = 100027;
+
+    /**
+     *  Plc g3 event received
+     */
+    public static final int PLC_G3_EVENT_RECEIVED = 100028;
+
+    /**
+     *  Plc g3 join request node
+     */
+    public static final int PLC_G3_JOIN_REQUEST_NODE = 100029;
+
+    /**
+     *  Plc g3 uppermac stopped
+     */
+    public static final int PLC_G3_UPPERMAC_STOPPED = 100030;
+
+    /**
+     *  plc g3 uppermac started
+     */
+    public static final int PLC_G3_UPPERMAC_STARTED = 100031;
+
+    /**
+     *  Plc g3 join failed
+     */
+    public static final int PLC_G3_JOIN_FAILED = 100032;
+
+    /**
+     *  Plc g3 auth failure
+     */
+    public static final int PLC_G3_AUTH_FAILURE = 100033;
+
+    /**
+     *  Dlms server session accepted
+     */
+    public static final int DLMS_SERVER_SESSION_ACCEPTED = 100034;
+
+    /**
+     *  Dlms server session finished
+     */
+    public static final int DLMS_SERVER_SESSION_FINISHED = 100035;
+
+    /**
+     * Dlms other
+     */
+    public static final int DLMS_OTHER = 100036;
+
+    /**
+     *  Dlms upstream test
+     */
+    public static final int DLMS_UPSTREAM_TEST = 100037;
+
+    /**
+     *  Modem wdg pppd reset
+     */
+    public static final int MODEM_WDG_PPPD_RESET = 100038;
+
+    /**
+     *  Modem wdg hw reset
+     */
+    public static final int MODEM_WDG_HW_RESET = 100039;
+
+    /**
+     *  Modem wdg reboot requested
+     */
+    public static final int MODEM_WDG_REBOOT_REQUESTED = 100040;
+
+    /**
+     *  Modem connected
+     */
+    public static final int MODEM_CONNECTED = 100041;
+
+    /**
+     *  Modem disconnected
+     */
+    public static final int MODEM_DISCONNECTED = 100042;
+
+    /**
+     *  Modem wake up
+     */
+    public static final int MODEM_WAKE_UP = 100043;
+
+    /**
+     *  Protocol preliminary task completed
+     */
+    public static final int PROTOCOL_PRELIMINARY_TASK_COMPLETED = 100044;
+
+    /**
+     *  Protocol preliminary task failed
+     */
+    public static final int PROTOCOL_PRELIMINARY_TASK_FAILED = 100045;
+
+    /**
+     *  Protocol consecutive failure
+     */
+    public static final int PROTOCOL_CONSECUTIVE_FAILURE = 100046;
+
+    /**
+     *  Firmware upgrade
+     */
+    public static final int FIRMWARE_UPGRADE = 100047;
+
+    /**
+     *  Firmware modified
+     */
+    public static final int FIRMWARE_MODIFIED = 100048;
+
+    /**
+     *  CPU overload
+     */
+    public static final int CPU_OVERLOAD = 100049;
+
+    /**
+     *  RAM too high
+     */
+    public static final int RAM_TOO_HIGH = 100050;
+
+    /**
+     *  Disk usage too high
+     */
+    public static final int DISK_USAGE_TOO_HIGH = 100051;
+
+    /**
+     *  Pace exception
+     */
+    public static final int PACE_EXCEPTION = 100052;
+
+    /**
+     *  SSH login
+     */
+    public static final int SSH_LOGIN = 100053;
+
+    /**
+     *  Factory reset
+     */
+    public static final int FACTORY_RESET = 100054;
+
+    /**
+     *  Webportal login
+     */
+    public static final int WEBPORTAL_LOGIN = 100055;
+
+    /**
+     *  Webportal action
+     */
+    public static final int WEBPORTAL_ACTION = 100056;
+
+    /**
+     *  Webportal failed login
+     */
+    public static final int WEBPORTAL_FAILED_LOGIN = 100057;
+
+    /**
+     *  Webportal locked user
+     */
+    public static final int WEBPORTAL_LOCKED_USER = 100058;
+
+    /**
+     *  Meter multicast upgrade start
+     */
+    public static final int METER_MULTICAST_UPGRADE_START = 100059;
+
+    /**
+     *  Meter multicast upgrade completed
+     */
+    public static final int METER_MULTICAST_UPGRADE_COMPLETED = 100060;
+
+    /**
+     *  Meter multicast upgrade failed
+     */
+    public static final int METER_MULTICAST_UPGRADE_FAILED = 100061;
+
+    /**
+     *  Meter multicast upgrade info
+     */
+    public static final int METER_MULTICAST_UPGRADE_INFO = 100062;
+
+    /**
+     *  General security error
+     */
+    public static final int GENERAL_SECURITY_ERROR = 100063;
+
+    /**
+     *  Wrap key error
+     */
+    public static final int WRAP_KEY_ERROR = 100064;
+
+    /**
+     *  Dlms authentication level updated
+     */
+    public static final int DLMS_AUTHENTICATION_LEVEL_UPDATED = 100065;
+
+    /**
+     *  Dlms security policy updated
+     */
+    public static final int DLMS_SECURITY_POLICY_UPDATED = 100066;
+
+    /**
+     *  Dlms security suite updated
+     */
+    public static final int DLMS_SECURITY_SUITE_UPDATED = 100067;
+
+    /**
+     *  Dlms keys updated
+     */
+    public static final int DLMS_KEYS_UPDATED = 100069;
+
+    /**
+     *  Dlms access violation
+     */
+    public static final int DLMS_ACCESS_VIOLATION = 100070;
+
+    /**
+     *  Dlms authentication failure
+     */
+    public static final int DLMS_AUTHENTICATION_FAILURE = 100071;
+
+    /**
+     *  Dlms ciphering error
+     */
+    public static final int DLMS_CIPHERING_ERROR = 100072;
+
+    /**
+     * Unknown register
+     */
+    public static final int UNKNOWN_REGISTER = 100073;
+
+
     // Used by EIServer UI:
     // !!! Keep this one in sync with the above !!!
+    // total number of events - 1 (first event starts at 0)
+    //Left at 64, custom Beacon events must be remapped
     public static final int MAX_NUMBER_OF_EVENTS = 64;
 
     private final Date time;
@@ -327,8 +702,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
         if (getMessage() != null) {
             return getMessage();
         }
+        return codeToMessage(eiCode);
+    }
 
-        switch (eiCode) {
+    public static String codeToMessage(int code){
+        switch (code) {
             case MeterEvent.POWERDOWN:
                 return ("Power down.");
             case MeterEvent.POWERUP:
@@ -381,8 +759,6 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Reverse Run.");
             case LOADPROFILE_CLEARED:
                 return ("Load Profile cleared.");
-
-
             case EVENT_LOG_CLEARED:
                 return ("Event log cleared");
             case DAYLIGHT_SAVING_TIME_ENABLED_OR_DISABLED:
@@ -457,30 +833,208 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Remote connection MBus.");
             case VALVE_ALARM_MBUS:
                 return ("Valve alarm M-Bus.");
-
+            case POWER_MANAGEMENT_SWITCH_LOW_POWER:
+                return ("Power management switch low power.");
+            case POWER_MANAGEMENT_SWITCH_FULL_POWER:
+                return ("Power management switch full power.");
+            case POWER_MANAGEMENT_SWITCH_REDUCED_POWER:
+                return ("Power management switch reduced power");
+            case POWER_MANAGEMENT_MAINS_LOST:
+                return ("power management mains lost.");
+            case POWER_MANAGEMENT_MAINS_RECOVERED:
+                return ("Power management mains recovered.");
+            case POWER_MANAGEMENT_LAST_GASP:
+                return ("Power management last gasp.");
+            case POWER_MANAGEMENT_BATTERY_CHARGE_START:
+                return ("Power management battery charge start.");
+            case POWER_MANAGEMENT_BATTERY_CHARGE_STOP:
+                return ("Power management battery charge stop.");
+            case IDIS_METER_DISCOVERY:
+                return ("IDIS meter discovery.");
+            case IDIS_METER_ACCEPTED:
+                return ("IDIS meter accepted.");
+            case IDIS_METER_REJECTED:
+                return ("IDIS meter rejected.");
+            case IDIS_METER_ALARM:
+                return ("IDIS meter alarm.");
+            case IDIS_ALARM_CONDITION:
+                return ("IDIS alarm condition.");
+            case IDIS_MULTI_MASTER:
+                return ("IDIS multi master");
+            case IDIS_PLC_EQUIPMENT_IN_STATE_NEW:
+                return ("IDIS PLC equipment in state new.");
+            case IDIS_EXTENDED_ALARM_STATUS:
+                return ("IDIS extended alarm status.");
+            case IDIS_METER_DELETED:
+                return ("IDIS meter deleted.");
+            case IDIS_STACK_EVENT:
+                return ("IDIS stack event.");
+            case PLC_PRIME_RESTARTED:
+                return ("PLC prime restarted.");
+            case PLC_PRIME_STACK_EVENT:
+                return ("PLC prime stack event.");
+            case PLC_PRIME_REGISTER_NODE:
+                return ("PLC prime register node.");
+            case PLC_PRIME_UNREGISTER_NODE:
+                return ("PLC prime unregister node.");
+            case PLC_G3_RESTARTED:
+                return ("PLC G3 restarted.");
+            case PLC_G3_STACK_EVENT:
+                return ("PLC G3 stack event.");
+            case PLC_G3_REGISTER_NODE:
+                return ("PLC G3 register node.");
+            case PLC_G3_UNREGISTER_NODE:
+                return ("PLC G3 unregister node.");
+            case PLC_G3_EVENT_RECEIVED:
+                return ("PLC G3 event received.");
+            case PLC_G3_JOIN_REQUEST_NODE:
+                return ("PLC G3 join request node.");
+            case PLC_G3_UPPERMAC_STOPPED:
+                return ("PLC G3 uppermac stopped.");
+            case PLC_G3_UPPERMAC_STARTED:
+                return ("PLC G3 uppermac started.");
+            case PLC_G3_JOIN_FAILED:
+                return ("PLC G3 join failed.");
+            case PLC_G3_AUTH_FAILURE:
+                return ("PLC G3 auth failure.");
+            case DLMS_SERVER_SESSION_ACCEPTED:
+                return ("Dlms server session accepted.");
+            case DLMS_SERVER_SESSION_FINISHED:
+                return ("Dlms server session finished.");
+            case DLMS_OTHER:
+                return ("Dlms other.");
+            case DLMS_UPSTREAM_TEST:
+                return ("Dlms upstream test.");
+            case MODEM_WDG_PPPD_RESET:
+                return ("Modem wdg pppd reset.");
+            case MODEM_WDG_HW_RESET:
+                return ("Modem wdg hw reset.");
+            case MODEM_WDG_REBOOT_REQUESTED:
+                return ("Modem wdg reboot requested.");
+            case MODEM_CONNECTED:
+                return ("Modem connected.");
+            case MODEM_DISCONNECTED:
+                return ("Modem disconnected.");
+            case MODEM_WAKE_UP:
+                return ("Modem wake up.");
+            case PROTOCOL_PRELIMINARY_TASK_COMPLETED:
+                return ("Protocol preliminary task completed.");
+            case PROTOCOL_PRELIMINARY_TASK_FAILED:
+                return ("Protocol preliminary task failed.");
+            case PROTOCOL_CONSECUTIVE_FAILURE:
+                return ("Protocol consecutive failure.");
+            case FIRMWARE_UPGRADE:
+                return ("Firmware upgrade.");
+            case FIRMWARE_MODIFIED:
+                return ("Firmware modified");
+            case CPU_OVERLOAD:
+                return ("CPU overload.");
+            case RAM_TOO_HIGH:
+                return ("RAM too high.");
+            case DISK_USAGE_TOO_HIGH:
+                return ("Disk usage too high.");
+            case PACE_EXCEPTION:
+                return ("Pace exception.");
+            case SSH_LOGIN:
+                return ("SSH login.");
+            case FACTORY_RESET:
+                return ("Factory reset.");
+            case WEBPORTAL_LOGIN:
+                return ("Webportal login.");
+            case WEBPORTAL_ACTION:
+                return ("Webportal action.");
+            case WEBPORTAL_FAILED_LOGIN:
+                return ("Webportal failed login.");
+            case WEBPORTAL_LOCKED_USER:
+                return ("Webportal locked user.");
+            case METER_MULTICAST_UPGRADE_START:
+                return ("Meter multicast upgrade start.");
+            case METER_MULTICAST_UPGRADE_COMPLETED:
+                return ("Meter multicast upgrade completed.");
+            case METER_MULTICAST_UPGRADE_FAILED:
+                return ("Meter multicast upgrade failed.");
+            case METER_MULTICAST_UPGRADE_INFO:
+                return ("Meter multicast upgrade info.");
+            case GENERAL_SECURITY_ERROR:
+                return ("General security error.");
+            case WRAP_KEY_ERROR:
+                return ("Wrap key error.");
+            case DLMS_AUTHENTICATION_LEVEL_UPDATED:
+                return ("Dlms authentication level updated.");
+            case DLMS_SECURITY_POLICY_UPDATED:
+                return ("Dlms security policy updated.");
+            case DLMS_SECURITY_SUITE_UPDATED:
+                return ("Dlms security suite updated.");
+            case DLMS_KEYS_UPDATED:
+                return ("Dlms keys updated.");
+            case DLMS_ACCESS_VIOLATION:
+                return ("Dlms access violation.");
+            case DLMS_AUTHENTICATION_FAILURE:
+                return ("Dlms authentication failure.");
+            case DLMS_CIPHERING_ERROR:
+                return ("Dlms ciphering error.");
+            case CLEARED:
+                return ("Cleared.");
+            case UNKNOWN_REGISTER:
+                return ("Unknown register.");
             default:
-                return ("Unknown event." + eiCode);
+                return ("Unknown event." + code);
 
         } // switch(iLogCode)
+    }
 
-    } // public String toString()
-
+    /**
+     * <p></p>
+     *
+     * @param time   event time
+     * @param eiCode generic event code
+     */
     public MeterEvent(Date time, int eiCode) {
         this(time, eiCode, 0);
     }
 
+    /**
+     * <p></p>
+     *
+     * @param time         event time
+     * @param eiCode       generic event code
+     * @param protocolCode protocol specific event code
+     */
     public MeterEvent(Date time, int eiCode, int protocolCode) {
         this(time, eiCode, protocolCode, null);
     }
 
+    /**
+     * <p></p>
+     *
+     * @param time    event time
+     * @param eiCode  generic event code
+     * @param message event message
+     */
     public MeterEvent(Date time, int eiCode, String message) {
         this(time, eiCode, 0, message);
     }
 
+    /**
+     * <p></p>
+     *
+     * @param time         event time
+     * @param eiCode       generic event code
+     * @param protocolCode the protocol specific event code
+     * @param message      event message
+     */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message) {
         this(time, eiCode, protocolCode, message, 0, 0);
     }
 
+    /**
+     * @param time          event time
+     * @param eiCode        generic event code
+     * @param protocolCode  the protocol specific event code
+     * @param message       event message
+     * @param eventLogId    device specific event Logbook Identification
+     * @param deviceEventId device specific event ID
+     */
     public MeterEvent(Date time, int eiCode, int protocolCode, String message, int eventLogId, int deviceEventId) {
         this.time = time;
         this.eiCode = eiCode;
@@ -490,26 +1044,54 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
         this.deviceEventId = deviceEventId;
     }
 
+
+    /**
+     * <p></p>
+     *
+     * @return the event time
+     */
     public Date getTime() {
         return time;
-    }
+    } // end getTime
 
+    /**
+     * <p></p>
+     *
+     * @return the generic event code
+     */
     public int getEiCode() {
         return eiCode;
-    }
+    } // end getEiCode
 
+    /**
+     * <p></p>
+     *
+     * @return the protocol specific event code
+     */
     public int getProtocolCode() {
         return protocolCode;
-    }
+    } // end getProtocolCode
 
+    /**
+     * <p></p>
+     *
+     * @return the event's message
+     */
     public String getMessage() {
         return message;
-    }
+    } // end getMessage
 
+
+    /**
+     * @return the {@link #eventLogId}
+     */
     public int getEventLogId() {
         return eventLogId;
     }
 
+    /**
+     * @return the {@link #deviceEventId}
+     */
     public int getDeviceEventId() {
         return deviceEventId;
     }
