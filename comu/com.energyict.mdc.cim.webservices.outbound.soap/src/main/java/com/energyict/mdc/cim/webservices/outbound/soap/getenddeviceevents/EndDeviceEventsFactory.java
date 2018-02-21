@@ -5,8 +5,10 @@
 package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 
+import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
@@ -25,6 +27,7 @@ public class EndDeviceEventsFactory {
         endDeviceEvent.setSeverity(record.getSeverity());
         endDeviceEvent.setStatus(toStatus(record.getStatus()));
         endDeviceEvent.setReason(record.getDescription());
+        endDeviceEvent.setAssets(createAsset(record.getEndDevice()));
 
         record.getProperties().entrySet().stream().forEach(property -> {
                     EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
@@ -52,5 +55,11 @@ public class EndDeviceEventsFactory {
         state.setRemark(status.getRemark());
         state.setValue(status.getValue());
         return state;
+    }
+
+    private Asset createAsset(EndDevice endDevice) {
+        Asset asset = payloadObjectFactory.createAsset();
+        asset.setMRID(endDevice.getMRID());
+        return asset;
     }
 }
