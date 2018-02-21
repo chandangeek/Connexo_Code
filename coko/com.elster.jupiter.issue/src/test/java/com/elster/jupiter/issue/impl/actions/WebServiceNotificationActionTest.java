@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +42,7 @@ public class WebServiceNotificationActionTest extends BaseTest {
         action = getDefaultActionsFactory().createIssueAction(WebServiceNotificationAction.class.getName());
     }
 
+    @Ignore
     @Test
     @Transactional
     public void testCreateAndExecuteAction() {
