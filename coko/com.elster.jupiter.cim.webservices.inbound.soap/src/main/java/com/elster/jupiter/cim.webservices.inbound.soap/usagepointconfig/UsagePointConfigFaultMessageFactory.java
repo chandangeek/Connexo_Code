@@ -10,8 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigFaultMessageType;
 
 import javax.inject.Inject;
