@@ -90,6 +90,13 @@ Ext.define('Pkj.controller.history.Main', {
                             controller: 'Pkj.controller.Certificates',
                             action: 'showAddCSRPage'
                         },
+                        bulk: {
+                            title: Uni.I18n.translate('general.bulk', 'PKJ', 'Bulk action'),
+                            route: 'bulk',
+                            controller: 'Pkj.controller.BulkAction',
+                            privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                            action: 'showOverview'
+                        },
                         view: {
                             route: '{certificateId}',
                             title: '&nbsp;',

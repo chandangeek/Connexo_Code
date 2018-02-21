@@ -74,6 +74,15 @@ Ext.define('Pkj.view.CertificatesGrid', {
                 emptyMsg: Uni.I18n.translate('certificates.pagingtoolbartop.emptyMsg', 'PKJ', 'There are no certificates to display'),
                 items: [
                     {
+                        xtype: 'button',
+                        itemId: 'certificate-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'PKJ', 'Bulk action'),
+                        privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                        handler: function () {
+                            me.router.getRoute(me.router.currentRoute + '/bulk').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
+                        }
+                    },
+                    {
                         xtype: 'uni-button-action',
                         privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                         menu: {
