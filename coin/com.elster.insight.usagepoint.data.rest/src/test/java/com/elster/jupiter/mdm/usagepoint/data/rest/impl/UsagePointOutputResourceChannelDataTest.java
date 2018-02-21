@@ -1055,6 +1055,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(aggregatedIntervalReadingRecord.getTimeStamp()).thenReturn(effectiveRange.upperEndpoint());
         when(aggregatedIntervalReadingRecord.getValue()).thenReturn(new BigDecimal(555));
         when(aggregatedIntervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(aggregatedIntervalReadingRecord.getReportedDateTime()).thenReturn(INTERVAL_1.upperEndpoint());
         when(regularReadingType.getIntervalLength()).thenReturn(Optional.empty());
 
         DataValidationStatus dataValidationStatus = mockValidationStatus(aggregatedIntervalReadingRecord.getReportedDateTime(), minMax);
