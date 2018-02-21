@@ -242,7 +242,7 @@ Ext.define('Pkj.controller.BulkAction', {
                                 items: [{
                                     xtype: 'component',
                                     html: '<h3 style="font-weight: 600; color: #EB5642">' +
-                                    Uni.I18n.translate('certificates.bulk.step5applyRevokeCAusages', 'PKJ', 'Unable to revoke {0} certificates',decoded.withUsagesCount)
+                                    Uni.I18n.translate('certificates.bulk.step5applyRevokeCAerrors', 'PKJ', 'Unable to revoke {0} certificates',decoded.withUsagesCount)
                                     + '</h3>'
 
                                 },{
