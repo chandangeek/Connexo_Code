@@ -61,6 +61,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -82,6 +83,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -175,6 +177,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mockSearchService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -230,7 +233,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new TaskModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
-                    new UsagePointLifeCycleConfigurationModule()
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
