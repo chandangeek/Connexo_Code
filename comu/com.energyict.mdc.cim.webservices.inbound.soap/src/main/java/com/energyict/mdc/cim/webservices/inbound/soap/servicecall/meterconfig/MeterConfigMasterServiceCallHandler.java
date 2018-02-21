@@ -57,6 +57,9 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
             case FAILED:
                 sendResponseToOutboundEndPoint(serviceCall);
                 break;
+            case PARTIAL_SUCCESS:
+                sendResponseToOutboundEndPoint(serviceCall);
+                break;
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING);
                 break;

@@ -23,10 +23,13 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MeterConfig
@@ -86,10 +89,15 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                     break;
             }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        } catch (Exception faultMessage) {
+        } catch (FaultMessage faultMessage) {
             MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            extension.setErrorMessage(faultMessage.getLocalizedMessage());
+            Optional<ErrorType> errorType = faultMessage.getFaultInfo().getReply().getError().stream().findFirst();
+            if (errorType.isPresent()) {
+                extension.setErrorMessage(errorType.get().getDetails());
+            } else {
+                extension.setErrorMessage(faultMessage.getLocalizedMessage());
+            }
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
