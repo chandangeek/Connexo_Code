@@ -42,6 +42,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -60,6 +61,7 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -114,6 +116,7 @@ public class QueryUsagePointGroupImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(licenseService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -150,7 +153,8 @@ public class QueryUsagePointGroupImplIT {
                     new CalendarModule(),
                     new DataVaultModule(),
                     new TaskModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
