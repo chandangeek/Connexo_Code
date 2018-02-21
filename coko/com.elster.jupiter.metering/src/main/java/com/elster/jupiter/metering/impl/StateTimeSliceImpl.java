@@ -28,7 +28,7 @@ public class StateTimeSliceImpl implements StateTimeSlice {
         return new StateTimeSliceImpl(
                 endDeviceLifeCycleStatus.getState(),
                 endDeviceLifeCycleStatus.getRange(),
-                endDeviceLifeCycleStatus.getUser());
+                endDeviceLifeCycleStatus.getOriginator());
     }
 
     private StateTimeSliceImpl(State state, Range<Instant> period, Optional<User> user) {

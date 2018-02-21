@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileServiceImpl;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_1;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
@@ -292,7 +293,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 2, 1), UpgraderV10_2_1.class,
-                        version(10, 3), UpgraderV10_3.class
+                        version(10, 3), UpgraderV10_3.class,
+                        version(10, 4, 1), UpgraderV10_4_1.class
                 ));
         this.meteringService.readLocationTemplatesFromDatabase();
     }

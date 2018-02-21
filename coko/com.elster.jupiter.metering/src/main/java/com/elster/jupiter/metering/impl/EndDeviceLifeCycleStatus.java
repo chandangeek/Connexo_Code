@@ -35,7 +35,19 @@ public interface EndDeviceLifeCycleStatus extends Effectivity {
      */
     public State getState();
 
+    /**
+     * Gets the User that triggered the change.
+     *
+     * @return The user
+     */
     public Optional<User> getUser();
+
+    /**
+     * Gets the User that originate the status.
+     *
+     * @return The originator
+     */
+    Optional<User> getOriginator();
 
     /**
      * Closes this EndDeviceLifeCycleStatus so that it is
