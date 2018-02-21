@@ -170,8 +170,8 @@ Ext.define('Pkj.controller.BulkAction', {
                                 me.getConfirmPage().addErrorPanel(title, message)
                             }
                             if(decoded.bulk.certificatesWithUsages && decoded.bulk.certificatesWithUsages.length > 0) {
-                                var title = Uni.I18n.translate('certificates.bulk.step4applyRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.certificatesWithUsages.length);
-                                var message = Uni.I18n.translate('certificates.bulk.step4RevokeMsgx', 'PKJ', 'These certificates are used on a security accessor, firmware version, user directory or import service:');
+                                var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.certificatesWithUsages.length);
+                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeMsgx', 'PKJ', 'These certificates are used on a security accessor, firmware version, user directory or import service:');
                                 me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
                                 me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.certificatesWithUsages)
                             }
