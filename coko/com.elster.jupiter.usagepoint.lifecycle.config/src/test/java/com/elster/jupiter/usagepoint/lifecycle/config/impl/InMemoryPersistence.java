@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -29,6 +30,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.sql.SQLException;
 
@@ -57,7 +59,8 @@ public class InMemoryPersistence {
                 new DataVaultModule(),
                 new EventsModule(),
                 new TransactionModule(),
-                new UsagePointLifeCycleConfigurationModule());
+                new UsagePointLifeCycleConfigurationModule(),
+                new WebServicesModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(UsagePointLifeCycleConfigurationService.class).addMicroActionFactory(new TestMicroAction.Factory());
@@ -80,6 +83,7 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 }
