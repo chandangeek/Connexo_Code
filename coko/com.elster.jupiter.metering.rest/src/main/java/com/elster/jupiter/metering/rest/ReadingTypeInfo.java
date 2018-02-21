@@ -85,8 +85,7 @@ public class ReadingTypeInfo {
         this.numberOfReadingTypes = numberOfReadingTypes;
     }
 
-    public String getName() {
-
+    public String getAliasName() {
         return aliasName;
     }
 

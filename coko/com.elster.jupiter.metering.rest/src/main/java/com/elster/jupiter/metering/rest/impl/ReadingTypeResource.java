@@ -114,7 +114,7 @@ public class ReadingTypeResource {
 
         Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
                 .stream()
-                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getAliasName));
 
         List<ReadingTypeInfo> infos = new ArrayList();
 
@@ -129,7 +129,7 @@ public class ReadingTypeResource {
 
         return PagedInfoList.fromPagedList("groups", ListPager.of(infos
                 .stream()
-                .sorted(Comparator.comparing(ReadingTypeInfo::getName, String.CASE_INSENSITIVE_ORDER))
+                .sorted(Comparator.comparing(ReadingTypeInfo::getAliasName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList())).from(queryParameters).find(), queryParameters);
     }
 
