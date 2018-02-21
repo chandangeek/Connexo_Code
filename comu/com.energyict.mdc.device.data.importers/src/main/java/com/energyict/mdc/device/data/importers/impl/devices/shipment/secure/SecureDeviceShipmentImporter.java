@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.streams.ReusableInputStream;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -26,7 +27,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bind
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-import com.google.common.io.ByteStreams;
 import org.w3._2000._09.xmldsig_.KeyValueType;
 import org.w3._2000._09.xmldsig_.RSAKeyValueType;
 import org.w3._2000._09.xmldsig_.X509DataType;
@@ -34,7 +34,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -49,7 +48,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -128,25 +126,14 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         }
     }
 
-    /**
-     * We'll need to read the input stream more than once.
-     */
-    private Provider<InputStream> asReusableInputStream(FileImportOccurrence fileImportOccurrence) throws IOException {
-        InputStream inputStream = fileImportOccurrence.getContents();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(100);
-        ByteStreams.copy(inputStream, byteArrayOutputStream);
-        final byte[] bytes = byteArrayOutputStream.toByteArray();
-        return () -> new ByteArrayInputStream(bytes);
-    }
-
     private void doProcess(FileImportOccurrence fileImportOccurrence, Logger logger) throws
             JAXBException,
             CertificateException,
             InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
             CertPathValidatorException, IOException {
-        Provider<InputStream> inputStreamProvider = asReusableInputStream(fileImportOccurrence);
-        Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.get());
+        ReusableInputStream inputStreamProvider = ReusableInputStream.from(fileImportOccurrence.getContents());
+        Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.stream());
         certificateFactory = CertificateFactory.getInstance("X.509");
         Optional<X509Certificate> certificate = findCertificate(shipment, logger);
         if (certificate.isPresent()) {
@@ -155,7 +142,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
         PublicKey publicKey = getPublicKeyFromShipmentFile(logger, shipment, certificate).orElseThrow(()->new ImportFailedException(MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION));
 
-        verifySignature(inputStreamProvider.get(), publicKey, logger);
+        verifySignature(inputStreamProvider.stream(), publicKey, logger);
         DeviceCreator deviceCreator = getDeviceCreator(shipment);
 
         int importDevices = importDevices(shipment, deviceCreator, logger);
