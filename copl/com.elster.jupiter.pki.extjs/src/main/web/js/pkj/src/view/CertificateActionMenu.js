@@ -74,6 +74,16 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                     return !Ext.isEmpty(record) && (record.get('status') !== 'Requested' && record.get('status') !== 'Revoked');
                 },
                 section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.request', 'PKJ', 'Request'),
+                itemId: 'pkj-request-certificate-menu-item',
+                privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                action: 'requestCertificate',
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && (record.get('status') !== 'Requested' && record.get('status') !== 'Revoked');
+                },
+                section: this.SECTION_ACTION
             }
 
         ];

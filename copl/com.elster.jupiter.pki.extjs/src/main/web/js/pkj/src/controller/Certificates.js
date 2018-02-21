@@ -4,6 +4,10 @@
 Ext.define('Pkj.controller.Certificates', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Pkj.view.RequestConfirmationWindow'
+    ],
+
     views: [
         'Pkj.view.CertificatesOverview',
         'Pkj.view.AddCertificate',
@@ -90,6 +94,9 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-revoke-certificate-menu-item': {
                 click: this.revokeCertificate
+            },
+            '#pkj-request-certificate-menu-item': {
+                click: this.requestCertificate
             }
         });
     },
@@ -451,6 +458,45 @@ Ext.define('Pkj.controller.Certificates', {
                 }
             }
         });
+    },
+
+    requestCertificate: function (menuItem) {
+        var recordId = menuItem.up('certificate-action-menu').record.get('id');
+
+        Ext.widget('certificate-request-window', {
+            confirmText: Uni.I18n.translate('general.request', 'PKJ', 'Request'),
+            confirmation: function () {
+                var me = this,
+                    combobox = this.down('combobox'),
+                    timeout = combobox.getValue();
+
+                me.down('#request-progress').add(Ext.create('Ext.ProgressBar'))
+                    .wait({
+                        duration: timeout,
+                        interval: 100,
+                        increment: timeout / 100,
+                        text: Uni.I18n.translate('certificate.revoke.progress.test', 'PKJ', 'Request to CA is in progress. Please wait...')
+                    });
+                me.down('#confirm-button').disable();
+                me.down('#cancel-button').disable();
+                combobox.disable();
+
+                Ext.Ajax.request({
+                    url: '/api/pir/certificates/' + recordId + '/requestCertificate?timeout=' + timeout,
+                    method: 'POST',
+                    timeout: timeout,
+
+                    callback: function () {
+                        me.superclass.confirmation.call(me);
+                    }
+                });
+            },
+            green: true
+        }).show({
+            title: Uni.I18n.translate('general.certificateRequestQuestion', 'PKJ', 'Request certificate?'),
+            msg: Uni.I18n.translate('general.requestCertificateWindowMsg', 'PKJ', 'The CSR will be sent to Certification authority'),
+        });
+
     },
 
     constructUsagesList: function (certificateUsages, prefix, suffix) {

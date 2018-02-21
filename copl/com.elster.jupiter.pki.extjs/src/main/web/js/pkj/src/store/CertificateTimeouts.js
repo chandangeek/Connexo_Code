@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-Ext.define('Pkj.store.RevocationTimeouts', {
+Ext.define('Pkj.store.CertificateTimeouts', {
     extend: 'Ext.data.Store',
     fields: ['label', 'timeout'],
     data: [

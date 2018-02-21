@@ -5,7 +5,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
     extend: 'Uni.view.window.Confirmation',
     xtype: 'confirmation-window',
     requires: [
-        'Pkj.store.RevocationTimeouts'
+        'Pkj.store.CertificateTimeouts'
     ],
 
     itemId: 'revocation-confirmation-window',
@@ -23,7 +23,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
             itemId: 'revocation-timeout-combobox',
             name: 'revocationTimeout',
             fieldLabel: Uni.I18n.translate('general.timeout', 'PKJ', 'Timeout'),
-            store: Ext.getStore('Pkj.store.RevocationTimeouts') || Ext.create('Pkj.store.RevocationTimeouts'),
+            store: Ext.getStore('Pkj.store.CertificateTimeouts') || Ext.create('Pkj.store.CertificateTimeouts'),
             queryMode: 'local',
             displayField: 'label',
             valueField: 'timeout',
