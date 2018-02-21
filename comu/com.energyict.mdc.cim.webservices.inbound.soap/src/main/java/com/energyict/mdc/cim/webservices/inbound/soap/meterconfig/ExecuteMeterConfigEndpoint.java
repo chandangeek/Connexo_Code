@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
@@ -51,13 +52,14 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServicesService webServicesService;
 
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
                                       ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                      MeterConfigParser meterConfigParser) {
+                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -67,6 +69,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.deviceBuilder = deviceBuilder;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.webServicesService = webServicesService;
     }
 
     @Override
@@ -134,13 +137,17 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
-        return endPointConfigurationService.findEndPointConfigurations()
+        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
                 .stream()
                 .filter(EndPointConfiguration::isActive)
                 .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
                 .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
                 .findFirst()
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
+        if (!webServicesService.isPublished(endPointConfig)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
+        }
+        return endPointConfig;
     }
 
     private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig, EndPointConfiguration endPointConfiguration,

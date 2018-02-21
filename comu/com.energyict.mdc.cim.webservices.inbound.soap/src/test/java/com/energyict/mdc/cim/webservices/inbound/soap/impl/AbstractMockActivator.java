@@ -19,6 +19,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -46,6 +47,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -101,6 +103,8 @@ public abstract class AbstractMockActivator {
     protected CustomPropertySetService customPropertySetService;
     @Mock
     private ServiceCallType serviceCallType;
+    @Mock
+    protected WebServicesService webServicesService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -115,6 +119,7 @@ public abstract class AbstractMockActivator {
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
+        when(webServicesService.isPublished(anyObject())).thenReturn(true);
     }
 
     private void initActivator() {
@@ -139,6 +144,7 @@ public abstract class AbstractMockActivator {
         activator.setJsonService(jsonService);
         activator.setCustomPropertySetService(customPropertySetService);
         activator.setServiceCallService(serviceCallService);
+        activator.setWebServicesService(webServicesService);
         activator.activate(mock(BundleContext.class));
     }
 

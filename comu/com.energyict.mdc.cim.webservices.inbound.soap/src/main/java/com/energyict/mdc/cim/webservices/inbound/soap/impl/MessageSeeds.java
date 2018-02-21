@@ -59,6 +59,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_REPLY_ADDRESS(4002, "NoReplyAddress", "Reply address is required"),
     NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
+    NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     ;
 
     private final int number;

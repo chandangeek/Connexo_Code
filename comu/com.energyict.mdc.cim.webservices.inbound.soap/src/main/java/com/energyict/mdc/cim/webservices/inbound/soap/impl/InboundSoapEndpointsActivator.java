@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
+
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -20,15 +24,13 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -92,6 +94,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile ServiceCallService serviceCallService;
     private volatile JsonService jsonService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile WebServicesService webServicesService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -108,7 +111,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                                          DeviceService deviceService, UserService userService,
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
-                                         JsonService jsonService, CustomPropertySetService customPropertySetService) {
+                                         JsonService jsonService, CustomPropertySetService customPropertySetService,
+                                         WebServicesService webServicesService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -128,6 +132,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setServiceCallService(serviceCallService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
+        setWebServicesService(webServicesService);
         activate(bundleContext);
     }
 
@@ -156,6 +161,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(JsonService.class).toInstance(jsonService);
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(WebServicesService.class).toInstance(webServicesService);
             }
         };
     }
@@ -293,6 +299,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Override
