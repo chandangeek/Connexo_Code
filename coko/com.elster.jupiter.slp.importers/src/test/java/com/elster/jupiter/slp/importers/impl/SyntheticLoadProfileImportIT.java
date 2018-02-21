@@ -33,6 +33,7 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
@@ -50,6 +51,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -72,6 +74,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -138,7 +141,8 @@ public class SyntheticLoadProfileImportIT {
                     new PartyModule(),
                     new SearchModule(),
                     new CalendarModule(),
-                    new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                    new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -231,6 +235,7 @@ public class SyntheticLoadProfileImportIT {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(LicenseService.class).toInstance(licenseService);
             bind(TimeService.class).toInstance(timeService);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
