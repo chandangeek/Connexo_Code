@@ -26,6 +26,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -42,6 +43,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -72,6 +74,7 @@ public class LifeCycleServiceTest {
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -104,7 +107,8 @@ public class LifeCycleServiceTest {
                 new BasicPropertiesModule(),
                 new TimeModule(),
                 new DataLifeCycleModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new WebServicesModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(CustomPropertySetService.class);
