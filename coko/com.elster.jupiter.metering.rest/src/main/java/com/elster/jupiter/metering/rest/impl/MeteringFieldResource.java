@@ -79,7 +79,7 @@ public class MeteringFieldResource {
 
         Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
                 .stream()
-                .collect(Collectors.groupingBy(ReadingTypeInfo::getAliasName));
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
 
         List<ReadingTypeInfo> infos = new ArrayList();
 

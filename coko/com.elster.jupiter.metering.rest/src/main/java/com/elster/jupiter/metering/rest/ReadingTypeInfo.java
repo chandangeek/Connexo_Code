@@ -85,7 +85,9 @@ public class ReadingTypeInfo {
         this.numberOfReadingTypes = numberOfReadingTypes;
     }
 
-    public String getAliasName() {
+
+    // ToDo: This method needs to be redesigned. Will cause issues when serializing to json . Property name different than function name
+    public String getName() {
         return aliasName;
     }
 
