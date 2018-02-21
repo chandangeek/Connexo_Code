@@ -36,13 +36,11 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
     TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
     REVOCATION_FAILED(25, "RevocationFailed", "Certificate couldn't be revoked by the Certification Authority"),
-    REVOCATION_DESYNC(26, "RevocationDesync", "Certificate was revoked by the Certification Authority, but failed to change status"),
-    NO_CERTIFICATES_WITH_IDS(27, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
-    STATUS_CHANGE_FAILED(28, "StatusChangeFailed", "Failed to change certificate wrapper status"),
-    CERTIFICATE_ALREADY_REVOKED(29, "CertificateAlreadyRevoked", "The certificate has already been revoked by Certification Authority. The status has been updated to ''revoked''"),
-    COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(30, "CertificateRequestFromCAFailedTimeout", "'A time out occurred. Certificate couldn''t be received from the Certification authority"),
-    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(31, "CertificateSavingFromCAFailed", "The file has been received from the CA but an error has occurred while saving"),
-    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(32, "CertificateRequestFromCAFailed", "Certificate couldn''t be received from the Certification authority: {0}"),
+    NO_CERTIFICATES_WITH_IDS(26, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
+    CERTIFICATE_ALREADY_REVOKED(27, "CertificateAlreadyRevoked", "The certificate has already been revoked by Certification Authority. The status has been updated to ''revoked''"),
+    COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(28, "CertificateRequestFromCAFailedTimeout", "'A time out occurred. Certificate couldn''t be received from the Certification authority"),
+    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The file has been received from the CA but an error has occurred while saving"),
+    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(30, "CertificateRequestFromCAFailed", "Certificate couldn''t be received from the Certification authority: {0}"),
     ;
 
     private final int number;

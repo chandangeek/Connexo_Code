@@ -7,8 +7,8 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.AliasParameterFilter;
-import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -61,6 +61,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -286,7 +287,7 @@ public class CertificateWrapperResource {
             }
         } catch (CompletionException | InterruptedException | TimeoutException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT);
-        } catch (ExecutionException  e) {
+        } catch (ExecutionException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA, e.getCause().getLocalizedMessage());
         }
         return Response.status(Response.Status.OK).build();
@@ -383,7 +384,7 @@ public class CertificateWrapperResource {
         revocationInfo.isOnline = revocationUtils.isCAConfigured();
         certificates.forEach(cert -> {
             if (findCertificateUsages(cert).isUsed) {
-                revocationInfo.addIdWithUsages(cert.getId());
+                revocationInfo.addWithUsages(cert);
             }
         });
         //do math on backend
@@ -397,14 +398,23 @@ public class CertificateWrapperResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response bulkRevokeCertificate(CertificateRevocationInfo revocationInfo) {
         List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
-        for (CertificateWrapper cert : certificates) {
-            //should never happen, but lets leave it here since force revocation (e.g. manual via rest client) can surely break something
-            if (findCertificateUsages(cert).isUsed) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Revocation called with certificate usages").build();
+
+        List<CertificateWrapper> toRevoke = new ArrayList<>();
+        List<CertificateWrapper> withUsages = new ArrayList<>();
+
+        certificates.forEach(certificate -> {
+            if (findCertificateUsages(certificate).isUsed) {
+                withUsages.add(certificate);
+            } else {
+                toRevoke.add(certificate);
             }
-        }
-        CertificateRevocationResultInfo revocationResultInfo = revocationUtils.bulkRevokeCertificates(certificates, revocationInfo.timeout);
-        return Response.status(Response.Status.OK).entity(revocationResultInfo).build();
+        });
+
+        CertificateRevocationResultInfo resultInfo = revocationUtils.bulkRevokeCertificates(toRevoke, revocationInfo.timeout);
+        withUsages.forEach(resultInfo::addWithUsages);
+        resultInfo.updateCounters(certificates.size());
+
+        return Response.status(Response.Status.OK).entity(resultInfo).build();
     }
 
     @POST // This should be PUT but has to be POST due to some 3th party issue

@@ -1,5 +1,8 @@
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +21,11 @@ public class CertificateRevocationInfo {
         this.bulk = new Bulk();
     }
 
-    public void addIdWithUsages(Long id) {
-        if (bulk.certificatesIdsWithUsages == null) {
-            bulk.certificatesIdsWithUsages = new ArrayList<>();
+    public void addWithUsages(CertificateWrapper cert) {
+        if (bulk.certificatesWithUsages == null) {
+            bulk.certificatesWithUsages = new ArrayList<>();
         }
-        bulk.certificatesIdsWithUsages.add(id);
+        bulk.certificatesWithUsages.add(new IdWithNameInfo(cert.getId(), cert.getAlias()));
     }
 
     /**
@@ -38,14 +41,12 @@ public class CertificateRevocationInfo {
         public Long valid = 0L;
         public Long invalid = 0L;
 
-        //all ids
         public List<Long> certificatesIds = new ArrayList<>();
-        //ids with usages, that can't be revoked
-        public List<Long> certificatesIdsWithUsages = new ArrayList<>();
+        public List<IdWithNameInfo> certificatesWithUsages = new ArrayList<>();
 
         private void updateCounters() {
             total = (long) certificatesIds.size();
-            invalid = (long) certificatesIdsWithUsages.size();
+            invalid = (long) certificatesWithUsages.size();
             valid = total - invalid;
         }
     }

@@ -30,7 +30,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.elster.jupiter.pki.rest.impl.CertificateRevocationUtils.TIMEOUT_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
@@ -205,7 +204,7 @@ public class CertificateRevocationUtilsTest {
             revocationUtils.revokeCertificate(wrapper1, TIMEOUT);
             failNoException();
         } catch (ExceptionFactory.RestException e) {
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REVOCATION_DESYNC);
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REVOCATION_FAILED);
         }
 
         verify(caService, times(1)).revokeCertificate(any(CertificateAuthoritySearchFilter.class), anyInt());
@@ -292,14 +291,16 @@ public class CertificateRevocationUtilsTest {
         assertThat(revokeFilters.get(1).getSubjectDN()).isEqualTo(SUBJECT_2);
         assertThat(revokeFilters.get(1).getIssuerDN()).isEqualTo(ISSUER_2);
 
-        result.revocationResults.sort(Comparator.comparing(o -> o.alias));
-        assertThat(result.revocationResults).hasSize(2);
-        assertThat(result.revocationResults.get(0).alias).isEqualTo(ALIAS_1);
-        assertThat(result.revocationResults.get(0).success).isTrue();
-        assertThat(result.revocationResults.get(0).error).isNullOrEmpty();
-        assertThat(result.revocationResults.get(1).alias).isEqualTo(ALIAS_2);
-        assertThat(result.revocationResults.get(1).success).isTrue();
-        assertThat(result.revocationResults.get(1).error).isNullOrEmpty();
+        assertThat(result.revoked).hasSize(2);
+        assertThat(result.withErrors).isEmpty();
+        assertThat(result.withUsages).isEmpty();
+
+        result.withErrors.sort(Comparator.comparing(o -> o.name));
+
+        assertThat(result.revoked.get(0).id).isEqualTo(ID_1);
+        assertThat(result.revoked.get(0).name).isEqualTo(ALIAS_1);
+        assertThat(result.revoked.get(1).id).isEqualTo(ID_2);
+        assertThat(result.revoked.get(1).name).isEqualTo(ALIAS_2);
     }
 
     @Test
@@ -323,13 +324,13 @@ public class CertificateRevocationUtilsTest {
         verify(wrapper2, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper2, never()).save();
 
-        result.revocationResults.sort(Comparator.comparing(o -> o.alias));
-        assertThat(result.revocationResults).hasSize(2);
-        assertThat(result.revocationResults.get(0).alias).isEqualTo(ALIAS_1);
-        assertThat(result.revocationResults.get(0).success).isTrue();
-        assertThat(result.revocationResults.get(0).error).isNullOrEmpty();
-        assertThat(result.revocationResults.get(1).alias).isEqualTo(ALIAS_2);
-        assertThat(result.revocationResults.get(1).success).isFalse();
+        assertThat(result.revoked).hasSize(1);
+        assertThat(result.withErrors).hasSize(1);
+        assertThat(result.withUsages).isEmpty();
+        assertThat(result.revoked.get(0).id).isEqualTo(ID_1);
+        assertThat(result.revoked.get(0).name).isEqualTo(ALIAS_1);
+        assertThat(result.withErrors.get(0).id).isEqualTo(ID_2);
+        assertThat(result.withErrors.get(0).name).isEqualTo(ALIAS_2);
     }
 
     @Test
@@ -357,14 +358,16 @@ public class CertificateRevocationUtilsTest {
         verify(wrapper2, never()).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper2, never()).save();
 
-        result.revocationResults.sort(Comparator.comparing(o -> o.alias));
-        assertThat(result.revocationResults).hasSize(2);
-        assertThat(result.revocationResults.get(0).alias).isEqualTo(ALIAS_1);
-        assertThat(result.revocationResults.get(0).success).isFalse();
-        assertThat(result.revocationResults.get(0).error).isNotEmpty().contains(TIMEOUT_MESSAGE);
-        assertThat(result.revocationResults.get(1).alias).isEqualTo(ALIAS_2);
-        assertThat(result.revocationResults.get(1).success).isFalse();
-        assertThat(result.revocationResults.get(1).error).isNotEmpty().contains(TIMEOUT_MESSAGE);
+        assertThat(result.revoked).isEmpty();
+        assertThat(result.withErrors).hasSize(2);
+        assertThat(result.withUsages).isEmpty();
+
+        result.withErrors.sort(Comparator.comparing(o -> o.name));
+
+        assertThat(result.withErrors.get(0).id).isEqualTo(ID_1);
+        assertThat(result.withErrors.get(0).name).isEqualTo(ALIAS_1);
+        assertThat(result.withErrors.get(1).id).isEqualTo(ID_2);
+        assertThat(result.withErrors.get(1).name).isEqualTo(ALIAS_2);
     }
 
     @Test
@@ -382,14 +385,16 @@ public class CertificateRevocationUtilsTest {
         verify(wrapper2, times(1)).setWrapperStatus(CertificateWrapperStatus.REVOKED);
         verify(wrapper2, times(1)).save();
 
-        result.revocationResults.sort(Comparator.comparing(o -> o.alias));
-        assertThat(result.revocationResults).hasSize(2);
-        assertThat(result.revocationResults.get(0).alias).isEqualTo(ALIAS_1);
-        assertThat(result.revocationResults.get(0).success).isTrue();
-        assertThat(result.revocationResults.get(0).error).isNullOrEmpty();
-        assertThat(result.revocationResults.get(1).alias).isEqualTo(ALIAS_2);
-        assertThat(result.revocationResults.get(1).success).isTrue();
-        assertThat(result.revocationResults.get(1).error).isNullOrEmpty();
+        assertThat(result.revoked).hasSize(2);
+        assertThat(result.withErrors).isEmpty();
+        assertThat(result.withUsages).isEmpty();
+
+        result.withErrors.sort(Comparator.comparing(o -> o.name));
+
+        assertThat(result.revoked.get(0).id).isEqualTo(ID_1);
+        assertThat(result.revoked.get(0).name).isEqualTo(ALIAS_1);
+        assertThat(result.revoked.get(1).id).isEqualTo(ID_2);
+        assertThat(result.revoked.get(1).name).isEqualTo(ALIAS_2);
     }
 
     private void failNoException() {

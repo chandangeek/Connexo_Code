@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
@@ -486,7 +487,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
         assertThat(model.<Integer>get("bulk.valid")).isEqualTo(2);
         assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(0);
-        assertThat(model.<JSONArray>get("bulk.certificatesIdsWithUsages")).isEmpty();
+        assertThat(model.<JSONArray>get("bulk.certificatesWithUsages")).isEmpty();
         assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
     }
 
@@ -536,7 +537,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
         assertThat(model.<Integer>get("bulk.valid")).isEqualTo(1);
         assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(1);
-        assertThat(model.<JSONArray>get("bulk.certificatesIdsWithUsages")).hasSize(1).contains(certId2.intValue());
+        assertThat(model.<JSONArray>get("bulk.certificatesWithUsages")).hasSize(1);
+        assertThat(model.<JSONObject>get("bulk.certificatesWithUsages[0]").get("id")).isEqualTo(certId2.intValue());
         assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
     }
 
@@ -545,26 +547,42 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         //Prepare
         Long certId1 = 223L;
         Long certId2 = 224L;
+        Long certId3 = 225L;
+        String certAlias1 = "al1";
+        String certAlias2 = "al2";
+        String certAlias3 = "al3";
         Long timeout = 10L;
+
         ArgumentCaptor<List<CertificateWrapper>> captor = ArgumentCaptor.forClass((Class)List.class);
         CertificateWrapper cert1 = mock(CertificateWrapper.class);
         CertificateWrapper cert2 = mock(CertificateWrapper.class);
+        CertificateWrapper cert3 = mock(CertificateWrapper.class);
+
+        when(cert1.getId()).thenReturn(certId1);
+        when(cert1.getAlias()).thenReturn(certAlias1);
+        when(cert2.getId()).thenReturn(certId2);
+        when(cert2.getAlias()).thenReturn(certAlias2);
+        when(cert3.getId()).thenReturn(certId3);
+        when(cert3.getAlias()).thenReturn(certAlias3);
+
         Query mockQuery = mock(Query.class);
 
         CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
         requestInfo.timeout = timeout;
-        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2);
+        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2, certId3);
 
         CertificateRevocationResultInfo resultInfo = new CertificateRevocationResultInfo();
-        resultInfo.addResult(String.valueOf(certId1), true);
-        resultInfo.addResult(String.valueOf(certId2), false, "CA complaining");
+        resultInfo.addRevoked(cert1);
+        resultInfo.addWithError(cert2);
 
-        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
+        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2, certId3))).thenReturn(Arrays.asList(cert1, cert2, cert3));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
         when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getAssociatedCertificateAccessors(cert3)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.emptyList());
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert3)).thenReturn(Collections.singletonList("device"));
         when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
         when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(revocationUtils.bulkRevokeCertificates(captor.capture(), eq(timeout))).thenReturn(resultInfo);
@@ -577,21 +595,30 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(captor.getValue()).contains(cert1, cert2);
 
         //get known order to verify
-        List<JSONObject> results = JsonModel.model((InputStream) response.getEntity()).<JSONArray>get("revocationResults").stream()
-                .map(o -> (JSONObject) o)
-                .sorted((o1, o2) -> {
-                    String name1 = (String) o1.get("alias");
-                    String name2 = (String) o2.get("alias");
-                    return name1.compareTo(name2);
-                })
-                .collect(Collectors.toList());
-        assertThat(results).hasSize(2);
-        assertThat(results.get(0).get("alias")).isEqualTo(String.valueOf(certId1));
-        assertThat(results.get(0).get("success")).isEqualTo(true);
-        assertThat(results.get(0).get("error")).isEqualTo(null);
-        assertThat(results.get(1).get("alias")).isEqualTo(String.valueOf(certId2));
-        assertThat(results.get(1).get("success")).isEqualTo(false);
-        assertThat(results.get(1).get("error")).isEqualTo("CA complaining");
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Integer>get("totalCount")).isEqualTo(3);
+        assertThat(model.<Integer>get("revokedCount")).isEqualTo(1);
+        assertThat(model.<Integer>get("withErrorsCount")).isEqualTo(1);
+        assertThat(model.<Integer>get("withUsagesCount")).isEqualTo(1);
+
+        JSONArray revoked = model.get("revoked");
+        JSONArray withErrors = model.get("withErrors");
+        JSONArray withUsages = model.get("withUsages");
+
+        assertThat(revoked).hasSize(1);
+        JSONObject revokedInfo = (JSONObject) revoked.get(0);
+        assertThat(revokedInfo.get("id")).isEqualTo(certId1.intValue());
+        assertThat(revokedInfo.get("name")).isEqualTo(certAlias1);
+
+        assertThat(withErrors).hasSize(1);
+        JSONObject withErrorsInfo = (JSONObject) withErrors.get(0);
+        assertThat(withErrorsInfo.get("id")).isEqualTo(certId2.intValue());
+        assertThat(withErrorsInfo.get("name")).isEqualTo(certAlias2);
+
+        assertThat(withUsages).hasSize(1);
+        JSONObject withUsagesInfo = (JSONObject) withUsages.get(0);
+        assertThat(withUsagesInfo.get("id")).isEqualTo(certId3.intValue());
+        assertThat(withUsagesInfo.get("name")).isEqualTo(certAlias3);
 
         verify(revocationUtils, times(1)).bulkRevokeCertificates(any(), eq(timeout));
     }

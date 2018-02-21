@@ -44,7 +44,6 @@ import static java.util.stream.Collectors.toList;
         immediate = true)
 public class CertificateRevocationUtils {
     private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
-    static final String TIMEOUT_MESSAGE = "Interrupted by timeout";
 
     private SecurityManagementService securityManagementService;
     private ExceptionFactory exceptionFactory;
@@ -165,18 +164,17 @@ public class CertificateRevocationUtils {
         jobs.entrySet().forEach(entry -> asyncResults.add(executorService.submit(() -> {
             try {
                 revokedByCA.add(entry.getValue().get(timeout, TimeUnit.MILLISECONDS));
-                info.addResult(entry.getKey().getAlias(), true);
                 LOGGER.fine("Certificate " + entry.getKey().getAlias() + " was revoked by Certification Authority");
             } catch (TimeoutException e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
-                info.addResult(entry.getKey().getAlias(), false, TIMEOUT_MESSAGE);
+                info.addWithError(entry.getKey());
                 cancelAllFutures(jobs.values());
             } catch (CancellationException e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
-                info.addResult(entry.getKey().getAlias(), false, TIMEOUT_MESSAGE);
+                info.addWithError(entry.getKey());
             } catch (Exception e) {
                 LOGGER.warning("Exception occurred during async revocation task: " + e.getLocalizedMessage());
-                info.addResult(entry.getKey().getAlias(), false, e.getLocalizedMessage());
+                info.addWithError(entry.getKey());
             }
         })));
 
@@ -237,13 +235,10 @@ public class CertificateRevocationUtils {
             cw.save();
             ctx.commit();
         } catch (Exception e) {
-            LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
-            LocalizedException ex;
-            if (caService.isConfigured()) {
-                ex = exceptionFactory.newException(MessageSeeds.REVOCATION_DESYNC);
-            } else {
-                ex = exceptionFactory.newException(MessageSeeds.STATUS_CHANGE_FAILED);
-            }
+            LOGGER.warning(caService.isConfigured() ?
+                    "Certificate '" + cw.getAlias() + "' was revoked by the Certification Authority, but failed to change it status: " + e.getLocalizedMessage() :
+                    "Exception occurred while changing certificate '" + cw.getAlias() + "'  status: " + e.getLocalizedMessage());
+            LocalizedException ex = exceptionFactory.newException(MessageSeeds.REVOCATION_FAILED);
             ex.addSuppressed(e);
             throw ex;
         }
@@ -254,13 +249,12 @@ public class CertificateRevocationUtils {
             cw.setWrapperStatus(status);
             cw.save();
             ctx.commit();
+            info.addRevoked(cw);
         } catch (Exception e) {
-            LOGGER.warning("Exception occurred while changing certificate status: " + e.getLocalizedMessage());
-            if (isCAConfigured()) {
-                info.replaceResult(cw.getAlias(), false, "Certificate was revoked by the Certification Authority, but failed to change it status");
-            } else {
-                info.replaceResult(cw.getAlias(), false, "Failed to change certificate wrapper status");
-            }
+            LOGGER.warning(caService.isConfigured() ?
+                    "Certificate '" + cw.getAlias() + "' was revoked by the Certification Authority, but failed to change it status: " + e.getLocalizedMessage() :
+                    "Exception occurred while changing certificate '" + cw.getAlias() + "' status: " + e.getLocalizedMessage());
+            info.addWithError(cw);
         }
     }
 }
