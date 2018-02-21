@@ -12,6 +12,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 
+import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
@@ -118,6 +119,7 @@ public class EndDeviceEventsBuilder {
         endDeviceEvent.setSeverity(record.getSeverity());
         endDeviceEvent.setStatus(toStatus(record.getStatus()));
         endDeviceEvent.setReason(record.getDescription());
+        endDeviceEvent.setAssets(createAsset(record.getEndDevice()));
 
         record.getProperties().entrySet().stream().forEach(property -> {
                     EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
@@ -153,6 +155,12 @@ public class EndDeviceEventsBuilder {
         state.setRemark(status.getRemark());
         state.setValue(status.getValue());
         return state;
+    }
+
+    private Asset createAsset(EndDevice endDevice) {
+        Asset asset = payloadObjectFactory.createAsset();
+        asset.setMRID(endDevice.getMRID());
+        return asset;
     }
 
     private Range<Instant> getTimeInterval(TimeSchedule timeSchedule) throws FaultMessage {
