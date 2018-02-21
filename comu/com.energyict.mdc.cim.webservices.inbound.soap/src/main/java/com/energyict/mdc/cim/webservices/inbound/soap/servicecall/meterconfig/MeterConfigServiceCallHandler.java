@@ -89,12 +89,16 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                     break;
             }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        } catch (FaultMessage faultMessage) {
+        } catch (Exception faultMessage) {
             MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            Optional<ErrorType> errorType = faultMessage.getFaultInfo().getReply().getError().stream().findFirst();
-            if (errorType.isPresent()) {
-                extension.setErrorMessage(errorType.get().getDetails());
+            if (faultMessage instanceof FaultMessage) {
+                Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
+                if (errorType.isPresent()) {
+                    extension.setErrorMessage(errorType.get().getDetails());
+                } else {
+                    extension.setErrorMessage(faultMessage.getLocalizedMessage());
+                }
             } else {
                 extension.setErrorMessage(faultMessage.getLocalizedMessage());
             }

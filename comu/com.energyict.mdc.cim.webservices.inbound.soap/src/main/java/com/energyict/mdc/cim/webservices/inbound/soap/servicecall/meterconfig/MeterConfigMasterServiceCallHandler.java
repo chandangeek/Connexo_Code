@@ -178,7 +178,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-                    map.put(meter.getmRID(), extensionFor.getErrorMessage());
+                    map.put(meter.getDeviceName(), extensionFor.getErrorMessage());
                 });
         return map;
     }
