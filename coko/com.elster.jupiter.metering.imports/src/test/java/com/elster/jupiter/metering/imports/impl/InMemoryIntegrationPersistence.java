@@ -33,6 +33,7 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -55,6 +56,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
@@ -113,6 +115,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new ValidationModule());
         modules.add(new PropertyValueInfoServiceModule());
         modules.add(new ServiceCallModule());
+        modules.add(new WebServicesModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));
@@ -158,6 +161,7 @@ public class InMemoryIntegrationPersistence {
                     .thenAnswer(invocation -> ((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
 
         }
     }
