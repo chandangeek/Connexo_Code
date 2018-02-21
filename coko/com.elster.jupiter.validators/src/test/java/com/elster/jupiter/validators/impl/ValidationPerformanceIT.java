@@ -43,6 +43,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -70,13 +71,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -125,6 +126,7 @@ public class ValidationPerformanceIT {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -159,7 +161,8 @@ public class ValidationPerformanceIT {
                     new BpmModule(),
                     new BasicPropertiesModule(),
                     new DataVaultModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
