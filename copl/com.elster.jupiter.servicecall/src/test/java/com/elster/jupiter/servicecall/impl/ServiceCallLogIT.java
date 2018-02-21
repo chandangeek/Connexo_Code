@@ -32,6 +32,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.servicecall.impl.example.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -47,6 +48,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
@@ -110,6 +112,7 @@ public class ServiceCallLogIT {
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -146,7 +149,8 @@ public class ServiceCallLogIT {
                     new CustomPropertySetsModule(),
                     new TimeModule(),
                     new BasicPropertiesModule(),
-                    new ServiceCallModule()
+                    new ServiceCallModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

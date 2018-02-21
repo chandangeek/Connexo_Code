@@ -57,6 +57,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -77,6 +78,7 @@ import com.google.inject.Module;
 import org.hamcrest.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.inject.Inject;
@@ -161,6 +163,7 @@ public class ServiceCallTransitionIT {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 //            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -192,7 +195,8 @@ public class ServiceCallTransitionIT {
                     new TimeModule(),
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
-                    new FileImportModule()
+                    new FileImportModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
