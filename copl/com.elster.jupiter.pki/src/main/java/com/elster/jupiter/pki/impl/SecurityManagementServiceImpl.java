@@ -65,7 +65,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -292,7 +291,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), V10_4_1SimpleUpgrader.class));
+                        version(10, 4, 1), UpgraderV10_4_1.class));
     }
 
     private AbstractModule getModule() {

@@ -68,7 +68,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTUAL_CERTIFICATE(1052, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     ACTUAL_VALUE_NOT_SET(1053, "NoActualValue", "The security accessor does not contain an actual value"),
     VETO_CERTIFICATE_DELETION(1054, "VetoCertificateDeletion", "This certificate is still in use."),
-    CSR_EXCEPTION(1055, "CsrException", "Could not read CSR");
+    CSR_EXCEPTION(1055, "CsrException", "Could not read CSR"),
+    BAD_SIGNATURE(1056, "BadSignature", "File signature verification failed."),
+    OK_SIGNATURE(1057, "OkSignature", "File signature verification completed successfully.", Level.INFO),
+    NO_CERTIFICATE_IN_WRAPPER(1058, "NoCertificateInWrapper", "No actual certificate is kept under alias {0}."),
+    CSR_IMPORT_EXCEPTION(1059, "CsrImportException", "Unexpected exception during CSR import: {0}");
 
     private final int number;
     private final String key;

@@ -54,7 +54,7 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new CSRImporter(thesaurus, properties, securityManagementService, caService);
+        return new CSRImporter(properties, thesaurus, securityManagementService, caService, ftpClientService);
     }
 
     @Override

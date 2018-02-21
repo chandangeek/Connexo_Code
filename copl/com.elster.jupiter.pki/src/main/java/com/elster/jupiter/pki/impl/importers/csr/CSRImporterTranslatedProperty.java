@@ -52,7 +52,6 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
         return CSRImporterFactory.NAME + "." + getKey();
     }
 
-
     public static CSRImporterTranslatedProperty from(String key) {
         if (key != null) {
             for (CSRImporterTranslatedProperty translationKey : CSRImporterTranslatedProperty.values()) {

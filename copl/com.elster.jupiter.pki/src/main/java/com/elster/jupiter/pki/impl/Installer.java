@@ -1,15 +1,12 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.impl.importers.csr.CSRImporterMessageHandlerFactory;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterQueueInstaller;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -28,16 +25,16 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final EventService eventService;
     private final UserService userService;
     private final PrivilegesProviderV10_4 privilegesProviderV10_4;
-    private final MessageService messageService;
+    private final CSRImporterQueueInstaller csrImporterQueueInstaller;
 
     @Inject
     Installer(DataModel dataModel, EventService eventService, UserService userService,
-              PrivilegesProviderV10_4 privilegesProviderV10_4, MessageService messageService) {
+              PrivilegesProviderV10_4 privilegesProviderV10_4, CSRImporterQueueInstaller csrImporterQueueInstaller) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
         this.privilegesProviderV10_4 = privilegesProviderV10_4;
-        this.messageService = messageService;
+        this.csrImporterQueueInstaller = csrImporterQueueInstaller;
     }
 
     @Override
@@ -46,7 +43,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry("Install event types", this::createEventTypes, logger);
         doTry("Install privileges", () -> userService.addModulePrivileges(this), logger);
         doTry("Install privileges for 10.4", privilegesProviderV10_4::install, logger);
-        doTry("Create queue for CSR importer", this::createQueueForCSRImporter, logger);
+        doTry("Create queue for CSR importer", csrImporterQueueInstaller::installIfNotPresent, logger);
     }
 
     private void createEventTypes() {
@@ -78,15 +75,5 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                                 .map(SecurityAccessorUserAction::getPrivilege)
                                 .collect(toList()))
         );
-    }
-
-    private void createQueueForCSRImporter() {
-        if (!messageService.getDestinationSpec(CSRImporterMessageHandlerFactory.DESTINATION_NAME).isPresent()) {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(CSRImporterMessageHandlerFactory.DESTINATION_NAME, 60);
-            destinationSpec.save();
-            destinationSpec.activate();
-            destinationSpec.subscribe(TranslationKeys.CSR_IMPORTER_MESSAGE_HANDLER, SecurityManagementService.COMPONENTNAME, new SecurityManagementServiceImpl().getLayer());
-        }
     }
 }
