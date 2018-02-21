@@ -41,7 +41,7 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, MessageSeeds message) {
-        return meterConfigFaultMessage(messageSeed, message.translate(thesaurus));
+        return meterConfigFaultMessage(messageSeed, message.translate(thesaurus), message.getErrorCode());
     }
 
     private FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, ReplyType replyType) {
