@@ -244,7 +244,6 @@ Ext.define('Usr.controller.UserDirectories', {
                 }
             })
         } else {
-            debugger
             formErrorsPanel.show();
         }
 
