@@ -6,6 +6,7 @@ Ext.define('Usr.model.Certificate', {
     extend: 'Ext.data.Model',
     fields: [
         'id',
-        'alias'
+        'alias',
+        'status'
     ]
 });
