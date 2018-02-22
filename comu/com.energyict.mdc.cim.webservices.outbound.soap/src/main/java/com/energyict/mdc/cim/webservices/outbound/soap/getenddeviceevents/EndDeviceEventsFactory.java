@@ -11,9 +11,12 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
+import ch.iec.tc57._2011.enddeviceevents.Name;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
 
 public class EndDeviceEventsFactory {
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
 
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
@@ -60,6 +63,16 @@ public class EndDeviceEventsFactory {
     private Asset createAsset(EndDevice endDevice) {
         Asset asset = payloadObjectFactory.createAsset();
         asset.setMRID(endDevice.getMRID());
+        asset.getNames().add(createName(endDevice));
         return asset;
+    }
+
+    private Name createName(EndDevice endDevice) {
+        NameType nameType = payloadObjectFactory.createNameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        Name name = payloadObjectFactory.createName();
+        name.setNameType(nameType);
+        name.setName(endDevice.getName());
+        return name;
     }
 }
