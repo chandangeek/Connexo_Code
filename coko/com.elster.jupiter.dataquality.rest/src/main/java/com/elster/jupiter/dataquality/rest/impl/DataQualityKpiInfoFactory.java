@@ -76,7 +76,8 @@ public class DataQualityKpiInfoFactory {
         UsagePointGroup usagePointGroup = findUsagePointGroupOrThrowException(info.usagePointGroup);
         MetrologyPurpose metrologyPurpose = findMetrologyPurposeOrThrowException(info.metrologyPurpose);
         TemporalAmount calculationFrequency = extractFromInfo(info.frequency);
-        return dataQualityKpiService.newDataQualityKpi(usagePointGroup, metrologyPurpose, calculationFrequency);
+        List<RecurrentTask> nextRecurrentTasks = findRecurrentTaskOrThrowException(info.nextRecurrentTasks);
+        return dataQualityKpiService.newDataQualityKpi(usagePointGroup, metrologyPurpose, calculationFrequency, nextRecurrentTasks);
     }
 
     private TemporalAmount extractFromInfo(TemporalExpressionInfo frequency) {
