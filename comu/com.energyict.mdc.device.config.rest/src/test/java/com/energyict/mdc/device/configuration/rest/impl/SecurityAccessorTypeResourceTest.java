@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
@@ -30,6 +31,7 @@ import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTrans
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import javax.ws.rs.client.Entity;
@@ -46,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -1015,6 +1018,35 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
         verify(certificateAccessor).delete();
         verify(certificateAccessorType).delete();
+    }
+
+    @Test
+    public void testAliasSource() throws Exception {
+        CertificateWrapper cert1 = mock(CertificateWrapper.class);
+        CertificateWrapper cert2 = mock(CertificateWrapper.class);
+        CertificateWrapper cert3 = mock(CertificateWrapper.class);
+
+        when(cert1.getWrapperStatus()).thenReturn(CertificateWrapperStatus.NATIVE);
+        when(cert2.getWrapperStatus()).thenReturn(CertificateWrapperStatus.OBSOLETE);
+        when(cert3.getWrapperStatus()).thenReturn(CertificateWrapperStatus.REVOKED);
+        when(cert1.getAlias()).thenReturn("al1");
+        when(cert2.getAlias()).thenReturn("al2");
+        when(cert3.getAlias()).thenReturn("al3");
+
+        Finder<CertificateWrapper> finder = mockFinder(Arrays.asList(cert1, cert2, cert3));
+        when(securityManagementService.getAliasesByFilter(any(SecurityManagementService.AliasSearchFilter.class)))
+                .thenReturn(finder);
+
+        Response response = target("/securityaccessors/certificates/aliases").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        List<String> aliases = model.<JSONArray>get("aliases").stream()
+                .map(o -> (String)(((JSONObject) o).get("alias")))
+                .sorted()
+                .collect(Collectors.toList());
+
+        assertThat(aliases).hasSize(2).contains("al1", "al2");
     }
 
     @Test
