@@ -66,6 +66,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -132,6 +133,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile Publisher publisher;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile CalendarService calendarService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -166,7 +168,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
                                         LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService, Publisher publisher,
                                         UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
-                                        CalendarService calendarService) {
+                                        CalendarService calendarService, ThreadPrincipalService threadPrincipalService) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -187,6 +189,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setPublisher(publisher);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setCalendarService(calendarService);
+        setThreadPrincipalService(threadPrincipalService);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -281,6 +284,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(DestinationSpec.class)
                         .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
                         .toProvider(() -> calendarTimeSeriesCacheHandlerMessageDestination);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
     }
@@ -500,6 +504,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public final void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
+    }
+
+    @Reference
+    public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
