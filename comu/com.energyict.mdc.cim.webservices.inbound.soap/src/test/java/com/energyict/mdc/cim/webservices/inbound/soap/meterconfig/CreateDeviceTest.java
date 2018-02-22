@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -24,6 +26,7 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -195,7 +198,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
     }
 
     @Test
-    public void testWarningIfMoreThanOneMeterSpecified() throws Exception {
+    public void testSyncModeNotSupported() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -204,19 +207,24 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         meterConfig.getMeter().add(meter);
         meterConfig.getMeter().add(meter);
         MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meterConfigRequest.getHeader().setAsyncReplyFlag(false);
 
-        // Business method
-        MeterConfigResponseMessageType response = getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
-
-        // Asserts
-        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
-        assertThat(response.getHeader().getNoun()).isEqualTo("MeterConfig");
-        ReplyType reply = response.getReply();
-        assertThat(reply.getResult()).isEqualTo(ReplyType.Result.PARTIAL);
-        assertThat(reply.getError()).hasSize(1);
-        assertThat(reply.getError().get(0).getCode()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.getErrorCode());
-        assertThat(reply.getError().get(0).getLevel()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.getErrorTypeLevel());
-        assertThat(reply.getError().get(0).getDetails()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.translate(thesaurus, "MeterConfig.Meter"));
+        try {
+            // Business method
+            getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.SYNC_MODE_NOT_SUPPORTED.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
     }
 
     @Test
@@ -292,7 +300,10 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
     @Test
     public void testDeviceTypeNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
-        Meter meter = createMeter(DEVICE_NAME, RECEIVED_DATE, "no such device type");
+        SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
+        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
+        Meter meter = createDefaultMeter();
+        meter.setType("no such device type");
         meterConfig.getMeter().add(meter);
         MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
 
@@ -373,7 +384,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorCode());
-            assertThat(error.getDetails()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter[0].lifecycle.receivedDate"));
+            assertThat(error.getDetails()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter.lifecycle.receivedDate"));
 
             verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
@@ -403,7 +414,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus,
-                    "MeterConfig.Meter[0].SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
+                    "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
 
             verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
@@ -433,7 +444,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorCode());
-            assertThat(error.getDetails()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter[0].SimpleEndDeviceFunction.ref"));
+            assertThat(error.getDetails()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter.SimpleEndDeviceFunction.ref"));
 
             verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
@@ -469,6 +480,62 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
 
             verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testNoReplyAddress() throws Exception {
+        MeterConfig meterConfig = new MeterConfig();
+        meterConfig.getMeter().add(createDefaultMeter());
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meterConfigRequest.getHeader().setAsyncReplyFlag(true);
+
+        try {
+            // Business method
+            getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_REPLY_ADDRESS.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testOutboundNotConfigured() throws Exception {
+        MeterConfig meterConfig = new MeterConfig();
+        meterConfig.getMeter().add(createDefaultMeter());
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meterConfigRequest.getHeader().setAsyncReplyFlag(true);
+        meterConfigRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
+
+        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
+        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS + "_1");
+        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+
+        try {
+            // Business method
+            getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus));
+            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.getErrorCode());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }

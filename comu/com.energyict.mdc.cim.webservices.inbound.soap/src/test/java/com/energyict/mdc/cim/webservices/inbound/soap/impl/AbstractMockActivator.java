@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -161,5 +162,13 @@ public abstract class AbstractMockActivator {
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;
+    }
+
+    protected EndPointConfiguration mockEndPointConfiguration(String name) {
+        EndPointConfiguration mock = mock(EndPointConfiguration.class);
+        when(mock.getName()).thenReturn(name);
+        when(mock.isActive()).thenReturn(true);
+        when(mock.isInbound()).thenReturn(false);
+        return mock;
     }
 }

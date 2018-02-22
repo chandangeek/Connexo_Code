@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GetEndDeviceEventsTest extends AbstractMockActivator {
@@ -80,7 +79,6 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
     @Before
     public void setUp() throws Exception {
-//        Finder<EndDevice> finder = mockFinder(Collections.singletonList(endDevice));
         when(meteringService.findEndDevices(anySetOf(String.class))).thenReturn(Collections.singletonList(endDevice));
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
@@ -96,19 +94,12 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         when(endDeviceEvent.getIssuerTrackingID()).thenReturn(END_DEVICE_EVENT_ISSUER_TRACKING_ID);
         when(endDeviceEvent.getSeverity()).thenReturn(END_DEVICE_EVENT_SEVERIRY);
         when(endDeviceEvent.getStatus()).thenReturn(Status.builder().value(END_DEVICE_EVENT_STATUS).build());
+        when(endDeviceEvent.getEndDevice()).thenReturn(endDevice);
         when(endDeviceEventType.getMRID()).thenReturn(END_DEVICE_EVENT_TYPE);
 
         HashMap<String, String> eventData = new HashMap<>();
         eventData.put("A", "B");
         when(endDeviceEvent.getProperties()).thenReturn(eventData);
-    }
-
-    private EndPointConfiguration mockEndPointConfiguration(String name) {
-        EndPointConfiguration mock = mock(EndPointConfiguration.class);
-        when(mock.getName()).thenReturn(name);
-        when(mock.isActive()).thenReturn(true);
-        when(mock.isInbound()).thenReturn(false);
-        return mock;
     }
 
     @Test
