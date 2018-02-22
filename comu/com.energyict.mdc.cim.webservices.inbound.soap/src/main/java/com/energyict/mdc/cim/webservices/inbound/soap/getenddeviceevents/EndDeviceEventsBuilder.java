@@ -16,6 +16,7 @@ import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
 import ch.iec.tc57._2011.getenddeviceevents.DateTimeInterval;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
@@ -36,6 +37,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public class EndDeviceEventsBuilder {
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
+
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
     private final Clock clock;
@@ -160,7 +163,17 @@ public class EndDeviceEventsBuilder {
     private Asset createAsset(EndDevice endDevice) {
         Asset asset = payloadObjectFactory.createAsset();
         asset.setMRID(endDevice.getMRID());
+        asset.getNames().add(createName(endDevice));
         return asset;
+    }
+
+    private ch.iec.tc57._2011.enddeviceevents.Name createName(EndDevice endDevice) {
+        NameType nameType = payloadObjectFactory.createNameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        ch.iec.tc57._2011.enddeviceevents.Name name = payloadObjectFactory.createName();
+        name.setNameType(nameType);
+        name.setName(endDevice.getName());
+        return name;
     }
 
     private Range<Instant> getTimeInterval(TimeSchedule timeSchedule) throws FaultMessage {
