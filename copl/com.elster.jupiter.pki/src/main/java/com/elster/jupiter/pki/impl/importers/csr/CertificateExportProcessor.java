@@ -1,17 +1,24 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
-import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.impl.MessageSeeds;
 import sun.security.provider.X509Factory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -20,44 +27,58 @@ public class CertificateExportProcessor {
 
     private static final int PEM_CHARACTERS_ALIGNMENT = 64;
 
-    private final FtpClientService ftpClientService;
     private final Map<String, Object> properties;
+    private final CertificateExportDestination exportDestination;
+    private final CSRImporterLogger logger;
 
-    public CertificateExportProcessor(FtpClientService ftpClientService, Map<String, Object> properties) {
-        this.ftpClientService = ftpClientService;
+    public CertificateExportProcessor(Map<String, Object> properties,
+                                      CertificateExportDestination exportDestination,
+                                      CSRImporterLogger logger) {
         this.properties = properties;
+        this.exportDestination = exportDestination;
+        this.logger = logger;
     }
 
-    public void processExport(LinkedHashMap<String, LinkedHashMap<String, X509Certificate>> certificates) {
+    public void processExport(Map<String, Map<String, X509Certificate>> certificates) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
-
-        for (Map.Entry<String, LinkedHashMap<String, X509Certificate>> stringLinkedHashMapEntry : certificates.entrySet()) {
-            LinkedHashMap<String, X509Certificate> certificatesMap = stringLinkedHashMapEntry.getValue();
-            for (Map.Entry<String, X509Certificate> stringX509CertificateEntry : certificatesMap.entrySet()) {
-                X509Certificate x509Certificate = stringX509CertificateEntry.getValue();
-                String dirName = stringLinkedHashMapEntry.getKey();
-                String fileName = dirName + '/' + stringX509CertificateEntry.getKey() + ".pem";
-                try {
-                    storeDlmsKeyStoreCertificate(zipOutputStream, x509Certificate, fileName);
-                } catch (CertificateEncodingException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        TrustStore trustStore = (TrustStore) properties.get(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey());
+        try {
+            for (Map.Entry<String, Map<String, X509Certificate>> certificatesForDevice : certificates.entrySet()) {
+                Map<String, X509Certificate> certificatesMap = certificatesForDevice.getValue();
+                String dirName = certificatesForDevice.getKey();
+                for (Map.Entry<String, X509Certificate> stringX509CertificateEntry : certificatesMap.entrySet()) {
+                    X509Certificate x509Certificate = stringX509CertificateEntry.getValue();
+                    storeDlmsKeyStoreCertificate(zipOutputStream, x509Certificate, dirName, stringX509CertificateEntry.getKey());
+                }
+                if (trustStore != null) {
+                    for (TrustedCertificate trustedCertificate : trustStore.getCertificates()) {
+                        if (trustedCertificate.getCertificate().isPresent()) {
+                            storeDlmsKeyStoreCertificate(zipOutputStream, trustedCertificate.getCertificate().get(), dirName, trustedCertificate.getAlias());
+                        }
+                    }
                 }
             }
-        }
-        try {
             zipOutputStream.finish();
             zipOutputStream.close();
-            exportToFtpTest(byteArrayOutputStream.toByteArray());
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            byte[] signature = getSignature(bytes);
+            exportDestination.export(bytes, signature);
+        } catch (CertificateEncodingException e) {
+            logger.log(e);
+            logger.markFailure();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e);
+            logger.markFailure();
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+            logger.log(e);
+            logger.markFailure();
         }
     }
 
-    private void storeDlmsKeyStoreCertificate(ZipOutputStream zipOutputStream, X509Certificate x509Certificate, String fileName)
+    private void storeDlmsKeyStoreCertificate(ZipOutputStream zipOutputStream, X509Certificate x509Certificate, String dirName, String alias)
             throws CertificateEncodingException, IOException {
+        String fileName = dirName + '/' + alias + ".pem";
         try {
             zipOutputStream.putNextEntry(new ZipEntry(fileName));
             zipOutputStream.write(pemEncode(x509Certificate).getBytes());
@@ -78,7 +99,7 @@ public class CertificateExportProcessor {
 
         String encodeToString = Base64.getEncoder().encodeToString(certificate.getEncoded());
         int encodeToStringLength = encodeToString.length();
-        for (int index = 0; index < encodeToStringLength; index++) {
+        for (int index = 1; index < encodeToStringLength; index++) {
             pem.append(encodeToString.charAt(index));
             if (index % PEM_CHARACTERS_ALIGNMENT == 0 && index > 0) {
                 pem.append('\n');
@@ -88,31 +109,18 @@ public class CertificateExportProcessor {
         return pem.toString();
     }
 
-    private void exportToFtp(byte[] bytes) throws IOException {
-        String host = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey());
-        Integer port = (Integer) properties.get(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey());
-        String username = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_USER.getPropertyKey());
-        String password = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_PASSWORD.getPropertyKey());
-        String filename = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey());
-        String directory = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey());
-        String extension = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION.getPropertyKey());
-        ftpClientService.getSftpFactory(host, port, username, password).runInSession(fileSystem -> {
-            Path file = fileSystem.getPath(directory.replaceAll("/$", "") + "/" + filename + "/" + extension);
-            Files.write(file, bytes);
-        });
-    }
-
-    private void exportToFtpTest(byte[] bytes) throws IOException {
-        String host = "192.168.99.100";
-        Integer port = 2222;
-        String username = "foo";
-        String password = "pass";
-        String filename = "test1234";
-        String directory = "upload";
-        String extension = "zip";
-        ftpClientService.getSftpFactory(host, port, username, password).runInSession(fileSystem -> {
-            Path file = fileSystem.getPath(directory.replaceAll("/$", "") + "/" + filename + "." + extension);
-            Files.write(file, bytes);
-        });
+    private byte[] getSignature(byte[] bytes) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
+        SecurityAccessor securityAccessor = (SecurityAccessor) properties.get(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey());
+        Optional optional = securityAccessor.getActualValue();
+        if (optional.isPresent() && ((CertificateWrapper) optional.get()).hasPrivateKey() && ((ClientCertificateWrapper) optional.get()).getPrivateKeyWrapper()
+                .getPrivateKey()
+                .isPresent()) {
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(((ClientCertificateWrapper) optional.get()).getPrivateKeyWrapper().getPrivateKey().get());
+            signature.update(bytes);
+            return signature.sign();
+        } else {
+            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.CERTIFICATE_EXPORT_NO_PRIVATE_KEY);
+        }
     }
 }

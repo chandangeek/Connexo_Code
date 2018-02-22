@@ -8,6 +8,7 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
@@ -15,6 +16,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.properties.PropertySpec;
@@ -24,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,7 @@ public class CSRImporterFactory implements FileImporterFactory {
     private volatile SecurityManagementService securityManagementService;
     private volatile CaService caService;
     private volatile FtpClientService ftpClientService;
+    private volatile Clock clock;
 
     public CSRImporterFactory() {
     }
@@ -46,15 +50,19 @@ public class CSRImporterFactory implements FileImporterFactory {
     @Inject
     public CSRImporterFactory(NlsService nlsService,
                               PropertySpecService propertySpecService,
-                              SecurityManagementService securityManagementService) {
+                              SecurityManagementService securityManagementService,
+                              FtpClientService ftpClientService,
+                              Clock clock) {
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setSecurityManagementService(securityManagementService);
+        setFtpClientService(ftpClientService);
+        setClock(clock);
     }
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new CSRImporter(properties, thesaurus, securityManagementService, caService, ftpClientService);
+        return new CSRImporter(properties, thesaurus, securityManagementService, caService, ftpClientService, clock);
     }
 
     @Override
@@ -74,7 +82,12 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public void validateProperties(List<FileImporterProperty> properties) {
-        // TODO: validate properties
+        if(properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey())  && ((Boolean) prop.getValue()))){
+                FileImporterProperty property = properties.stream().filter(prop -> prop.getName().contains("export") && prop.getValue() == null).findFirst().orElse(null);
+            if(property != null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "properties." + property.getName());
+            }
+        }
     }
 
     @Override
@@ -178,5 +191,10 @@ public class CSRImporterFactory implements FileImporterFactory {
     @Reference
     public void setFtpClientService(FtpClientService ftpClientService) {
         this.ftpClientService = ftpClientService;
+    }
+
+    @Reference
+    public void setClock(Clock clock){
+        this.clock = clock;
     }
 }

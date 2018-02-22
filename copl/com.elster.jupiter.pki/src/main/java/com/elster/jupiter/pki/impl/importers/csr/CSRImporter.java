@@ -26,6 +26,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -37,25 +38,29 @@ class CSRImporter implements FileImporter {
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
     private final FtpClientService ftpClientService;
+    private final Clock clock;
 
     CSRImporter(Map<String, Object> properties,
                 Thesaurus thesaurus,
                 SecurityManagementService securityManagementService,
                 CaService caService,
-                FtpClientService ftpClientService) {
+                FtpClientService ftpClientService,
+                Clock clock) {
         this.thesaurus = thesaurus;
         this.properties = properties;
         this.securityManagementService = securityManagementService;
         this.caService = caService;
         this.ftpClientService = ftpClientService;
+        this.clock = clock;
     }
 
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
+        CSRImporterLogger logger = new CSRImporterLogger(fileImportOccurrence, thesaurus);
         try {
             ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
             verifyInputFileSignature(reusableInputStream);
-            log(fileImportOccurrence, MessageSeeds.OK_SIGNATURE);
+            logger.log(MessageSeeds.OK_SIGNATURE);
 
             Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
                     .parseInputStream(reusableInputStream.stream());
@@ -80,19 +85,19 @@ class CSRImporter implements FileImporter {
             boolean shouldExport = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey());
             if (csrMap.size() == certificateMap.size()) {
                 if (shouldExport) {
-                    new CertificateExportProcessor(ftpClientService, properties).processExport(certificateMap);
+                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger).processExport(certificateMap);
                 }
             } else {
                 // TODO error
             }
 
-            markSuccess(fileImportOccurrence);
+            logger.markSuccess();
         } catch (LocalizedException e) {
-            log(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
+            logger.log( e);
+            logger.markFailure();
         } catch (ConstraintViolationException | IOException e) {
-            log(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
+            logger.log(e);
+            logger.markFailure();
         }
     }
 
@@ -118,38 +123,5 @@ class CSRImporter implements FileImporter {
         } catch (Exception e) {
             throw new SignatureCheckFailedException(thesaurus, e);
         }
-    }
-
-//    private void logCreation(FileImportOccurrence fileImportOccurrence) {
-//        log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
-//    }
-//
-//    private void logUpdate(FileImportOccurrence fileImportOccurrence) {
-//        log(fileImportOccurrence, MessageSeeds.CALENDAR_UPDATED);
-//    }
-//
-    private void log(FileImportOccurrence fileImportOccurrence, LocalizedException exception) {
-        Throwable cause = exception.getCause();
-        if (cause == null) {
-            fileImportOccurrence.getLogger().log(exception.getMessageSeed().getLevel(), exception.getLocalizedMessage());
-        } else {
-            fileImportOccurrence.getLogger().log(exception.getMessageSeed().getLevel(), exception.getLocalizedMessage(), cause);
-        }
-    }
-
-    private void log(FileImportOccurrence fileImportOccurrence, Throwable exception) {
-        log(fileImportOccurrence, MessageSeeds.CSR_IMPORT_EXCEPTION, exception.getLocalizedMessage());
-    }
-
-    private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds, Object... args) {
-        fileImportOccurrence.getLogger().log(messageSeeds.getLevel(), thesaurus.getFormat(messageSeeds).format(args));
-    }
-
-    private void markFailure(FileImportOccurrence fileImportOccurrence) {
-        fileImportOccurrence.markFailure(thesaurus.getFormat(TranslationKeys.CSR_IMPORT_FAILED).format());
-    }
-
-    private void markSuccess(FileImportOccurrence fileImportOccurrence) {
-        fileImportOccurrence.markSuccess(thesaurus.getFormat(TranslationKeys.CSR_IMPORT_SUCCESS).format());
     }
 }
