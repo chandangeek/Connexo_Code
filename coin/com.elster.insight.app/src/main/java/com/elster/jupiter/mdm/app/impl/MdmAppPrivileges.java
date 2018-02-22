@@ -117,7 +117,10 @@ class MdmAppPrivileges {
 
                 //usage point validation/estimation configuration
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION,
-                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
+
+                //tasks
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW
         );
     }
 }
