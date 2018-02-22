@@ -218,9 +218,6 @@ public class CertificateWrapperResource {
     public Response removeCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-        if (!findDirectoryCertificateUsages(certificateWrapper).isEmpty()) {
-            throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
-        }
         certificateWrapper.delete();
         return Response.status(Response.Status.OK).build();
     }
