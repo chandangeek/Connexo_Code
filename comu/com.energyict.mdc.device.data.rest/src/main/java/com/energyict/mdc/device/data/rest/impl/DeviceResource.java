@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
@@ -11,7 +13,9 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -31,6 +35,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
@@ -50,6 +55,8 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
+import com.energyict.mdc.device.data.rest.Errors;
+import com.energyict.mdc.device.data.rest.LocalizedFieldException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -163,6 +170,11 @@ public class DeviceResource {
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
+    private final BpmService bpmService;
+    private final JsonService jsonService;
+
+    private static final String DEVICE_ASSOCIATION = "device";
+    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
 
     @Inject
     public DeviceResource(
@@ -208,7 +220,9 @@ public class DeviceResource {
             DeviceMessageService deviceMessageService,
             Clock clock,
             Thesaurus thesaurus,
-            DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
+            DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory,
+            BpmService bpmService,
+            JsonService jsonService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -253,6 +267,8 @@ public class DeviceResource {
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
+        this.bpmService = bpmService;
+        this.jsonService = jsonService;
     }
 
     @GET
@@ -340,6 +356,56 @@ public class DeviceResource {
                 request.deviceIds.stream().toArray(Long[]::new));
         return Response.ok().build();
     }
+
+    @PUT
+    @Transactional
+    @Path("/validatedevices")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public Response validateDevices(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
+        List<Errors> err = new ArrayList<>();
+        if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
+            err.add(new Errors("invalid action", MessageSeeds.BAD_ACTION.getDefaultFormat()));
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        }
+        for (PropertyInfo property : request.properties) {
+            if (property.required) {
+                if (property.propertyValueInfo == null || property.propertyValueInfo.value == null || "".equals(property.propertyValueInfo.value)) {
+                    err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                }
+            }
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        }
+
+        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getAllBpmProcessDefinitions()
+                .stream()
+                .filter(definition -> definition.getProcessName().equalsIgnoreCase(request.name))
+                .findAny();
+        if (!bpmProcessDefinition.isPresent()) {
+            err.add(new Errors("process",MessageSeeds.NO_SUCH_PROCESS_DEFINITION.getDefaultFormat()));
+        }
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity(new LocalizedFieldException(err)).build();
+        }
+
+        DevicesForConfigChangeSearch devicesForConfigChangeSearch = null;
+        if (request.filter != null) {
+            devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
+        }
+        Stream<Device> deviceStream = resourceHelper.getDeviceStream(devicesForConfigChangeSearch, request.deviceIds);
+        List<String> deviceList = deviceStream
+                .filter(device -> deviceStateMatches(device, bpmProcessDefinition.get()))
+                .map(Device::getmRID)
+                .collect(Collectors.toList());
+
+        return Response.ok(deviceList).build();
+    }
+
 
     @PUT//the method designed like 'PATCH'
     @Path("/{id}")
@@ -1384,4 +1450,18 @@ public class DeviceResource {
                 || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME)
                 || deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE);
     }
+
+    private boolean deviceStateMatches(Device device, BpmProcessDefinition bpmProcessDefinition) {
+        if (bpmProcessDefinition.getAssociation().equals(DEVICE_ASSOCIATION)) {
+            if (List.class.isInstance(bpmProcessDefinition.getProperties().get(PROCESS_KEY_DEVICE_STATES))) {
+                List<Object> deviceStates = (List<Object>) bpmProcessDefinition.getProperties().get(PROCESS_KEY_DEVICE_STATES);
+                return deviceStates.stream().filter(HasIdAndName.class::isInstance).anyMatch(
+                        v -> String.valueOf(device.getState().getId()).equalsIgnoreCase(((HasIdAndName) v).getId().toString())
+                );
+            }
+        }
+        return false;
+    }
+
+
 }
