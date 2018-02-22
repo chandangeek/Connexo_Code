@@ -41,6 +41,7 @@ Ext.define('Imt.controller.Main', {
     ],
     controllers: [
         'Imt.controller.Dashboard',
+        'Imt.controller.TaskManagement',
         'Imt.dashboard.controller.OperatorDashboard',
         'Imt.dashboard.controller.FavoriteUsagePointGroups',
         'Imt.usagepointmanagement.controller.View',
@@ -158,6 +159,9 @@ Ext.define('Imt.controller.Main', {
     },
 
     initMenu: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
     	if (Imt.privileges.UsagePoint.canAdministrate()) {
 	        var menuItem = Ext.create('Uni.model.MenuItem', {
 	            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
@@ -261,6 +265,23 @@ Ext.define('Imt.controller.Main', {
                     }
                 ]
             }));
+        }
+
+        if (Imt.privileges.TaskManagement.canView()) {
+            var taskManagement = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.taskManagement', 'IMT', 'Task management'),
+                portal: 'administration',
+                route: 'taskmanagement',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'IMT', 'Tasks'),
+                        href: router.getRoute('administration/taskmanagement').buildUrl({}, {application: this.getController('Imt.controller.TaskManagement').applicationKey}),
+                        route: 'taskmanagement',
+                        itemId: 'taskmanagement'
+                    }
+                ]
+            });
+            Uni.store.PortalItems.add(taskManagement);
         }
     }
 });
