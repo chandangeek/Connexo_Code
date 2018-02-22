@@ -20,10 +20,12 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -52,6 +54,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -539,6 +542,35 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
     }
 
+    @Override
+    public Optional<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+        return this.dataModel.mapper(SecurityAccessorTypeOnDeviceType.class).find()
+                .stream()
+                .filter(securityAccessorTypeOnDeviceType ->
+                        securityAccessorTypeOnDeviceType.getDeviceType() != null &&
+                        securityAccessorTypeOnDeviceType.getDeviceType().getId() == deviceType.getId() &&
+                        securityAccessorTypeOnDeviceType.getSecurityAccessorType() != null &&
+                        securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorType.getId())
+                .findAny();
+    }
+
+    @Override
+    public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+        Optional<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceType = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType);
+        if (securityAccessorTypeOnDeviceType.isPresent()) {
+            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).update();
+        }
+        this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).save();
+    }
+
+    @Override
+    public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+        Optional<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceType = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType);
+        if (securityAccessorTypeOnDeviceType.isPresent()) {
+            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).delete();
+        }
+    }
+
     private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
         return Stream.of(
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
@@ -581,7 +613,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     Installer.class,
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
-                            version(10, 4), V10_4SimpleUpgrader.class
+                            version(10, 4), V10_4SimpleUpgrader.class,
+                            version(10, 4, 1), V10_4_1SimpleUpgrader.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();

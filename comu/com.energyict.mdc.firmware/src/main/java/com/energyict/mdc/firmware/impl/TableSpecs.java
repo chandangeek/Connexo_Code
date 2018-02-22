@@ -7,8 +7,8 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -18,8 +18,10 @@ import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -28,7 +30,7 @@ public enum TableSpecs {
     FWC_FIRMWAREVERSION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FirmwareVersion> table = dataModel.addTable(name(),FirmwareVersion.class).alsoReferredToAs(BaseFirmwareVersion.class);
+            Table<FirmwareVersion> table = dataModel.addTable(name(), FirmwareVersion.class).alsoReferredToAs(BaseFirmwareVersion.class);
             table.map(FirmwareVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column firmwareVersion = table.column("FIRMWAREVERSION").varChar(Table.NAME_LENGTH).map(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()).notNull().add();
@@ -40,12 +42,12 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
             table
-                .foreignKey("FWC_FK_DEVICETYPE")
-                .on(deviceTypeColumn)
-                .references(DeviceType.class)
-                .map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName())
-                .onDelete(DeleteRule.CASCADE)
-                .add();
+                    .foreignKey("FWC_FK_DEVICETYPE")
+                    .on(deviceTypeColumn)
+                    .references(DeviceType.class)
+                    .map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
             table.unique("FWC_UK_VERSIONTYPE").on(firmwareVersion, firmwareType, deviceTypeColumn).add();
         }
     },
@@ -63,17 +65,17 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
             table
-                .foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
-                .on(deviceTypeColumn)
-                .references(DeviceType.class)
-                .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
-                .add();
+                    .foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
+                    .on(deviceTypeColumn)
+                    .references(DeviceType.class)
+                    .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
         }
     },
 
     FWC_ACTIVATEDFIRMWAREVERSION {
         @Override
-        void addTo(DataModel dataModel){
+        void addTo(DataModel dataModel) {
             Table<ActivatedFirmwareVersion> table = dataModel.addTable(name(), ActivatedFirmwareVersion.class);
             table.map(ActivatedFirmwareVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -84,25 +86,25 @@ public enum TableSpecs {
             table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.primaryKey("FWC_PK_ACTIVATEDVERSION").on(idColumn).add();
             table
-                .foreignKey("FWC_ACTIVATED_FK_DEVICE")
-                .on(deviceColumn)
-                .map("device")
-                .references(Device.class)
-                .onDelete(DeleteRule.CASCADE)
-                .add();
+                    .foreignKey("FWC_ACTIVATED_FK_DEVICE")
+                    .on(deviceColumn)
+                    .map("device")
+                    .references(Device.class)
+                    .onDelete(CASCADE)
+                    .add();
             table
-                .foreignKey("FWC_ACTIVATED_FK_FIRMWARE")
-                .on(firmwareVersionColumn)
-                .references(FWC_FIRMWAREVERSION.name())
-                .map("firmwareVersion")
-                .onDelete(DeleteRule.CASCADE)
-                .add();
+                    .foreignKey("FWC_ACTIVATED_FK_FIRMWARE")
+                    .on(firmwareVersionColumn)
+                    .references(FWC_FIRMWAREVERSION.name())
+                    .map("firmwareVersion")
+                    .onDelete(CASCADE)
+                    .add();
         }
     },
 
     FWC_PASSIVEFIRMWAREVERSION {
         @Override
-        void addTo(DataModel dataModel){
+        void addTo(DataModel dataModel) {
             Table<PassiveFirmwareVersion> table = dataModel.addTable(name(), PassiveFirmwareVersion.class);
             table.map(PassiveFirmwareVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -114,19 +116,19 @@ public enum TableSpecs {
             table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.primaryKey("FWC_PK_PASSIVEFIRMWAREVERSION").on(idColumn).add();
             table
-                .foreignKey("FWC_PASSIVE_FK_DEVICE")
-                .on(deviceColumn)
-                .references(Device.class)
-                .map("device")
-                .onDelete(DeleteRule.CASCADE)
-                .add();
+                    .foreignKey("FWC_PASSIVE_FK_DEVICE")
+                    .on(deviceColumn)
+                    .references(Device.class)
+                    .map("device")
+                    .onDelete(CASCADE)
+                    .add();
             table
-                .foreignKey("FWC_PASSIVE_FK_FIRMWARE")
-                .on(firmwareVersionColumn)
-                .references(FWC_FIRMWAREVERSION.name())
-                .map("firmwareVersion")
-                .onDelete(DeleteRule.CASCADE)
-                .add();
+                    .foreignKey("FWC_PASSIVE_FK_FIRMWARE")
+                    .on(firmwareVersionColumn)
+                    .references(FWC_FIRMWAREVERSION.name())
+                    .map("firmwareVersion")
+                    .onDelete(CASCADE)
+                    .add();
         }
     },
 
@@ -180,13 +182,13 @@ public enum TableSpecs {
                     .references(FWC_CAMPAIGN.name())
                     .map(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName())
                     .reverseMap(FirmwareCampaignImpl.Fields.DEVICES.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
+                    .onDelete(CASCADE)
                     .add();
             table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
                     .on(device)
                     .references(Device.class)
                     .map(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
+                    .onDelete(CASCADE)
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_DEVICES").on(campaign, device).add();
         }
@@ -234,14 +236,42 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(DevicesInFirmwareCampaignStatusImpl.Fields.CAMPAIGN.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
+                    .onDelete(CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.DEVICES_STATUS.fieldName())
                     .composition()
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_STATUS").on(campaign).add();
         }
     },
-    ;
+
+    FWC_SECACCTYPE_ON_DEVICETYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SecurityAccessorTypeOnDeviceType> table = dataModel.addTable(name(), SecurityAccessorTypeOnDeviceType.class)
+                    .since(version(10, 4, 1))
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
+            Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
+            Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
+            table.setJournalTableName(Constants.FWC_SECACCTYPE_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4, 1));
+            table.addAuditColumns();
+            table.primaryKey("FWC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn).add();
+            table.foreignKey("FWC_FK_SECACTYPEONDEVTYPE2DT")
+                    .references(DeviceType.class)
+                    .on(deviceTypeColumn)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+            table.foreignKey("FWC_FK_SECACTYPEONDEVTYPE2SAT")
+                    .references(SecurityAccessorType.class)
+                    .on(secAccTypeColumn)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel dataModel);
+
+    interface Constants {
+        String FWC_SECACCTYPE_ON_DEVICETYPE_JOURNAL_TABLE = "FWC_SECACCTYPEONDEVTYPE_JRNL";
+    }
+
 }
