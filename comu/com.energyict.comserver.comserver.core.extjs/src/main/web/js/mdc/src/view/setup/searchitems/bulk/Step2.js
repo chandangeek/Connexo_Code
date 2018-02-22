@@ -42,6 +42,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 name: 'operation',
                 inputValue: 'remove',
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication
+            },
+            {
+                itemId: 'searchitemsstartprocess',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.startProcess', 'MDC', 'Start process') + '</b>',
+                name: 'operation',
+                inputValue: 'startprocess',
+                privileges: Mdc.privileges.Device.administrateDevice
             }
         ]
     }
