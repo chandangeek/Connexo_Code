@@ -17,6 +17,7 @@ import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
 import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
 import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
+import com.elster.jupiter.bpm.rest.BusinessObject;
 import com.elster.jupiter.bpm.rest.DeploymentInfo;
 import com.elster.jupiter.bpm.rest.DeploymentInfos;
 import com.elster.jupiter.bpm.rest.Errors;
@@ -794,9 +795,7 @@ public class BpmResource {
                                 .filter(f -> List.class.isInstance(p.getProperties().get(f)))
                                 .allMatch(f -> ((List<Object>) p.getProperties().get(f)).stream()
                                         .filter(HasIdAndName.class::isInstance)
-                                        .anyMatch(v -> ((HasIdAndName) v).getId()
-                                                .toString()
-                                                .equals(filterProperties.get(f).get(0)))))
+                                        .anyMatch(v -> filterProperties.get(f).contains(((HasIdAndName) v).getId().toString()))))
                         .collect(Collectors.toList());
 
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
@@ -1179,10 +1178,20 @@ public class BpmResource {
         if (!err.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
-        if (taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
-            expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
-            bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+        if (taskContentInfos.deploymentId != null) {
+            if (taskContentInfos.businessObject != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
+                expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
+                bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+            } else {
+                for (BusinessObject bo : taskContentInfos.bulkBusinessObjects) {
+                    if (bo.id != null && bo.value != null) {
+                        expectedParams.put(bo.id, bo.value);
+                        bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+                    }
+                }
+            }
         }
+
         return Response.ok().build();
     }
 
