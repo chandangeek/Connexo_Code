@@ -11,8 +11,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_SUCH_TRUSTSTORE(1, "NoSuchTrustStore", "The trust store could not be found"),
-    NO_SUCH_CERTIFICATE(2, "NoSuchCertificate", "The certificate could be found"),
+    NO_SUCH_TRUSTSTORE(1, "NoSuchTrustStore", "The trust store couldn''t be found."),
+    NO_SUCH_CERTIFICATE(2, "NoSuchCertificate", "The certificate couldn''t be found."),
     ;
 
     private final int number;
