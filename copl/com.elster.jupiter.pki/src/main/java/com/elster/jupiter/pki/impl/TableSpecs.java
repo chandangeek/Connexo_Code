@@ -131,6 +131,7 @@ public enum TableSpecs {
                     .add();
             table.column("OBSOLETE")
                     .bool()
+                    .installValue("'N'")
                     .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
                     .since(Version.version(10, 4, 1))
                     .add();
