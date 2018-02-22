@@ -1,31 +1,42 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.controller.DataQualityKpiManagement', {
-    extend: 'Cfg.controller.DataValidationKpi',
+Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
+    extend: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
 
     views: [
-        'Cfg.view.datavalidationkpis.Add',
-        'Cfg.view.taskmanagement.DetailsDataQualityKpi',
-        'Cfg.view.taskmanagement.AddDataQualityKpiManagement'
+        'Cfg.insight.dataqualitykpi.view.AddManagement'
     ],
 
     stores: [
-        'Cfg.store.AllTasks'
+        'Cfg.store.AllTasks',
+        'Cfg.insight.dataqualitykpi.store.DataQualityKpis'
     ],
 
     refs: [
-        {ref: 'dataValidationKpiEditForm', selector: 'cfg-data-validation-kpi-add-mgm'}
+        {ref: 'dataValidationKpiEditForm', selector: 'ins-data-quality-kpi-add-mgm'},
+        {ref: 'dataQualityKpiForm', selector: 'ins-data-quality-kpi-add-mgm'}
     ],
 
     init: function () {
-        if (Uni.util.Application.getAppName() == 'MdcApp') {
+        var me = this;
+
+        if (Uni.util.Application.getAppName() == 'MdmApp') {
             Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
                 name: Uni.I18n.translate('general.dataqualitykpi.', 'CFG', 'Data quality KPI'),
                 controller: this
             });
         }
+
+        me.control({
+            'ins-data-quality-kpi-add-mgm #cmb-usage-point-group': {
+                change: me.onUsagePointGroupChange
+            },
+            'ins-data-quality-kpi-add-mgm #add-button': {
+                click: me.addDataQualityKpi
+            }
+        });
     },
 
     canAdministrate: function () {
@@ -62,19 +73,17 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
 
     getTaskForm: function (caller, completedFunc) {
         var me = this,
-            form = Ext.create('Cfg.view.taskmanagement.AddDataQualityKpiManagement'),
-            deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
-            followByStore = form.down('#followedBy-combo').getStore(),
-            kpiModel = Ext.ModelManager.getModel('Cfg.model.DataValidationKpi'),
-            deviceGroupCombo = form.down('#cmb-device-group');
+            form = Ext.create('Cfg.insight.dataqualitykpi.view.AddManagement'),
+            usagePointGroup = form.down('combobox[name=usagePointGroup]').getStore(),
+            followByStore = form.down('#followedBy-combo').getStore();
 
         followByStore.load({
             callback: function () {
-                deviceGroupStore.load({
+                usagePointGroup.load({
                     callback: function () {
-                        if (deviceGroupStore.getCount() > 0) {
+                        if (usagePointGroup.getCount() > 0) {
                             completedFunc.call(caller, form);
-                            //form.loadRecord(Ext.create(kpiModel));
+                            form.loadRecord(new Cfg.insight.dataqualitykpi.model.DataQualityKpi);
                         }
                     }
                 });
@@ -87,11 +96,11 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = me.getDataValidationKpiEditForm(),
-            record = editForm.getRecord() || Ext.create('Cfg.model.DataValidationKpi'),
+            record = editForm.getRecord() || Ext.create('Cfg.insight.dataqualitykpi.model.DataQualityKpi'),
             frequency = editForm.down('[name=frequency]').getValue(),
             backUrl = router.getRoute('administration/dataqualitykpis').buildUrl(),
-            deviceGroup = {
-                id: editForm.down('[name=deviceGroup]').getValue()
+            usagePointGroup = {
+                id: editForm.down('[name=usagePointGroup]').getValue()
             };
 
         editForm.getForm().clearInvalid();
@@ -100,13 +109,15 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
         }
 
         editForm.setLoading();
+
+        editForm.updateRecord();
         record.beginEdit();
         if (!record.getId()) {
-            record.set('deviceGroup', deviceGroup);
+            record.set('usagePointGroup', usagePointGroup);
         } else {
-            record.set('deviceGroup', {
-                id: record.get('deviceGroup').id,
-                name: record.get('deviceGroup').name
+            record.set('usagePointGroup', {
+                id: record.get('usagePointGroup').id,
+                name: record.get('usagePointGroup').name
             });
         }
         if (frequency) {
@@ -117,7 +128,7 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
         var selectedTask = [];
         Ext.Array.each(editForm.down('#followedBy-combo').getValue(), function (value) {
             selectedTask.push({id: value});
-        })
+        });
         record.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
             fields: ['id'],
             data: selectedTask
@@ -144,9 +155,8 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
                             Ext.each(json.errors, function (error) {
-
-                                if (error.id === 'endDeviceGroup') {
-                                    editForm.down('[name=deviceGroup]').markInvalid(error.msg);
+                                if (error.id === 'endUsagePointGroup') {
+                                    editForm.down('[name=usagePointGroup]').markInvalid(error.msg);
                                 }
                             });
                             editForm.getForm().markInvalid(json.errors);
@@ -171,17 +181,17 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
 
         operationStartFunc.call(controller);
         Ext.Ajax.request({
-            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementId,
+            url: '/api/dqk/usagePointKpis/recurrenttask/' + taskManagementId,
             method: 'GET',
             success: function (operation) {
                 var response = Ext.JSON.decode(operation.responseText),
-                    store = Ext.create('Cfg.store.DataValidationKpis');
+                    store = Ext.create('Cfg.insight.dataqualitykpi.store.DataQualityKpis');
                 store.loadRawData([response]);
                 store.each(function (record) {
-                    setTitleFunc.call(controller, record.get('deviceGroup').name);
+                    setTitleFunc.call(controller, record.get('usagePointGroup').name);
                     Ext.suspendLayouts();
                     form.loadRecord(record);
-                    form.down('[name=deviceGroup]').disable();
+                    form.down('[name=usagePointGroup]').disable();
                     form.down('[name=frequency]').disable();
                     Ext.resumeLayouts(true);
                     editOperationCompleteLoading.call(controller)
@@ -198,11 +208,11 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementId,
+            url: '/api/dqk/usagePointKpis/recurrenttask/' + taskManagementId,
             method: 'GET',
             success: function (operation) {
                 var response = Ext.JSON.decode(operation.responseText),
-                    store = Ext.create('Cfg.store.DataValidationKpis');
+                    store = Ext.create('Cfg.insight.dataqualitykpi.store.DataQualityKpis');
                 store.loadRawData([response]);
                 store.each(function (record) {
                     operationCompleted.call(controller, me, taskManagementId, record);
@@ -216,15 +226,15 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
 
         startRemovingFunc.call(controller);
         Ext.Ajax.request({
-            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagement.get('id'),
+            url: '/api/dqk/usagePointKpis/recurrenttask/' + taskManagement.get('id'),
             method: 'GET',
             success: function (operation) {
                 var response = Ext.JSON.decode(operation.responseText),
-                    store = Ext.create('Cfg.store.DataValidationKpis');
+                    store = Ext.create('Cfg.insight.dataqualitykpi.store.DataQualityKpis');
                 store.loadRawData([response]);
                 store.each(function (record) {
                     Ext.create('Uni.view.window.Confirmation').show({
-                        title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", [record.get('deviceGroup').name]),
+                        title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", [record.get('usagePointGroup').name]),
                         msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system. Already calculated data will not be removed.'),
                         fn: function (state) {
                             switch (state) {
@@ -267,22 +277,22 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
         pageMainContent.setLoading(true);
 
         Ext.Ajax.request({
-            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementRecord.get('id'),
+            url: '/api/dqk/usagePointKpis/recurrenttask/' + taskManagementRecord.get('id'),
             method: 'GET',
             success: function (operation) {
                 var response = Ext.JSON.decode(operation.responseText),
-                    store = Ext.create('Cfg.store.DataValidationKpis');
+                    store = Ext.create('Cfg.insight.dataqualitykpi.store.DataQualityKpis');
                 store.loadRawData([response]);
                 store.each(function (record) {
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.down('#data-collection-kpi-details-side-menu').setHeader(record.get('deviceGroup').name);
-                    me.getApplication().fireEvent('loadTask', record.get('deviceGroup').name);
+                    widget.down('#data-collection-kpi-details-side-menu').setHeader(record.get('usagePointGroup').name);
+                    me.getApplication().fireEvent('loadTask', record.get('usagePointGroup').name);
 
                     var frequency = record.get('frequency');
                     widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
                     widget.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
 
-                    widget.down('#data-quality-kpi-device-group').setValue(record.get('deviceGroup').name);
+                    widget.down('#data-quality-kpi-usagePoint-group').setValue(record.get('usagePointGroup').name);
                     widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');
                     widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
@@ -291,6 +301,5 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
                 pageMainContent.setLoading(false);
             }
         })
-
     }
 });

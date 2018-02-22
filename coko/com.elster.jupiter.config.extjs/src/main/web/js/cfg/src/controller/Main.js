@@ -26,7 +26,8 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
         'Cfg.controller.TaskManagement',
-        'Cfg.controller.DataQualityKpiManagement'
+        'Cfg.controller.DataQualityKpiManagement',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement'
     ],
 
     refs: [
