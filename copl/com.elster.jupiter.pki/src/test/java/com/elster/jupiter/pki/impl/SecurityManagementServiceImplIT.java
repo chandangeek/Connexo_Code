@@ -750,7 +750,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s subject distinguished name does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's subject distinguished name doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
@@ -781,7 +781,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
@@ -807,7 +807,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s extended key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's extended key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
@@ -833,7 +833,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s public key does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's public key doesn't match the CSR.")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
