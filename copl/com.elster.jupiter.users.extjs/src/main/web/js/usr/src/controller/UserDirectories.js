@@ -209,10 +209,14 @@ Ext.define('Usr.controller.UserDirectories', {
                 switch (addPage.down('#rdo-security-protocol-source').getValue()['source']) {
                     case 'certificates': {
                         userDirectoryRecord.set('certificateAlias', addPage.down('#cbo-certificate-alias').getRawValue());
-                    } break;
+                        userDirectoryRecord.set('trustStore', null);
+                        break;
+                    }
                     case 'trustStores': {
                         userDirectoryRecord.set('trustStore', {id: addPage.down('#cbo-trust-store').getValue()});
-                    } break;
+                        userDirectoryRecord.set('certificateAlias', null);
+                        break;
+                    }
                 }
             }
 
