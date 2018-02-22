@@ -1,5 +1,6 @@
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -15,17 +16,27 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MeterConfigFactory {
 
     public MeterConfig asMeterConfig(List<Device> devices) {
+        Set<String> deviceConfigRefs = new HashSet<>();
         MeterConfig meterConfig = new MeterConfig();
         devices.forEach(device -> {
             Meter meter = createMeter(device);
             meterConfig.getMeter().add(meter);
-            SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
-            meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
+
+            DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+            String deviceConfigRef = "" + deviceConfiguration.getId();
+            if (!deviceConfigRefs.contains(deviceConfigRef)) {
+                meterConfig.getSimpleEndDeviceFunction().add(createSimpleEndDeviceFunction(deviceConfigRef, deviceConfiguration.getName()));
+                deviceConfigRefs.add(deviceConfigRef);
+            }
+            Meter.SimpleEndDeviceFunction endDeviceFunctionRef = createEndDeviceFunctionRef(deviceConfigRef);
+            meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(endDeviceFunctionRef);
         });
         return meterConfig;
     }
@@ -39,12 +50,7 @@ public class MeterConfigFactory {
         meter.setEndDeviceInfo(createEndDeviceInfo(device));
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
-
-        String stateKey = device.getState().getName();
-        String stateName = DefaultState.fromKey(stateKey)
-                .map(DefaultState::getDefaultFormat)
-                .orElse(stateKey);
-        meter.setStatus(createStatus(stateName));
+        meter.setStatus(createStatus(device));
         return meter;
     }
 
@@ -74,11 +80,11 @@ public class MeterConfigFactory {
         return manufacturer;
     }
 
-    private SimpleEndDeviceFunction createSimpleEndDeviceFunction(Device device, Meter meter) {
-        String deviceConfigRef = "" + device.getDeviceConfiguration().getId();
-        Meter.SimpleEndDeviceFunction endDeviceFunctionRef = createEndDeviceFunctionRef(deviceConfigRef);
-        meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(endDeviceFunctionRef);
-        return createEndDeviceFunction(deviceConfigRef, device);
+    private SimpleEndDeviceFunction createSimpleEndDeviceFunction(String deviceConfigRef, String deviceConfigName) {
+        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
+        simpleEndDeviceFunction.setMRID(deviceConfigRef);
+        simpleEndDeviceFunction.setConfigID(deviceConfigName);
+        return simpleEndDeviceFunction;
     }
 
     private Meter.SimpleEndDeviceFunction createEndDeviceFunctionRef(String deviceConfigRef) {
@@ -87,22 +93,19 @@ public class MeterConfigFactory {
         return simpleEndDeviceFunctionRef;
     }
 
-    private SimpleEndDeviceFunction createEndDeviceFunction(String deviceConfigRef, Device device) {
-        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
-        simpleEndDeviceFunction.setMRID(deviceConfigRef);
-        simpleEndDeviceFunction.setConfigID(device.getDeviceConfiguration().getName());
-        return simpleEndDeviceFunction;
-    }
-
     private Name createName(String name) {
         Name nameBean = new Name();
         nameBean.setName(name);
         return nameBean;
     }
 
-    private Status createStatus(String state) {
+    private Status createStatus(Device device) {
+        String stateKey = device.getState().getName();
+        String stateName = DefaultState.fromKey(stateKey)
+                .map(DefaultState::getDefaultFormat)
+                .orElse(stateKey);
         Status status = new Status();
-        status.setValue(state);
+        status.setValue(stateName);
         return status;
     }
 
