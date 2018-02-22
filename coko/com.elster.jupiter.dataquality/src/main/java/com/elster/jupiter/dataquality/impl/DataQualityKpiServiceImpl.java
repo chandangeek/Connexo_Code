@@ -246,6 +246,13 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     }
 
     @Override
+    public UsagePointDataQualityKpi newDataQualityKpi(UsagePointGroup usagePointGroup, MetrologyPurpose metrologyPurpose, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks) {
+        UsagePointDataQualityKpiImpl kpi = dataModel.getInstance(UsagePointDataQualityKpiImpl.class).init(usagePointGroup, metrologyPurpose, calculationFrequency, nextRecurrentTasks);
+        kpi.save();
+        return kpi;
+    }
+
+    @Override
     public DeviceDataQualityKpiFinder deviceDataQualityKpiFinder() {
         return dataModel.getInstance(DeviceDataQualityKpiFinderImpl.class);
     }
@@ -264,6 +271,12 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     public Optional<DeviceDataQualityKpi> findDeviceDataQualityKpiByRecurrentTaskId(long id) {
         Condition condition = where("dataQualityKpiTask.id").isEqualTo(id);
         return dataModel.query(DeviceDataQualityKpi.class, RecurrentTask.class).select(condition).stream().findFirst();
+    }
+
+    @Override
+    public Optional<UsagePointDataQualityKpi> findUsagePointDataQualityKpiByRecurrentTaskId(long id) {
+        Condition condition = where("dataQualityKpiTask.id").isEqualTo(id);
+        return dataModel.query(UsagePointDataQualityKpi.class, RecurrentTask.class).select(condition).stream().findFirst();
     }
 
     @Override

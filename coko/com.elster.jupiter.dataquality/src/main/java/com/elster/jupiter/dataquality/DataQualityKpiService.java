@@ -37,6 +37,8 @@ public interface DataQualityKpiService {
 
     Optional<UsagePointDataQualityKpi> findUsagePointDataQualityKpi(long id);
 
+    Optional<UsagePointDataQualityKpi> findUsagePointDataQualityKpiByRecurrentTaskId(long id);
+
     Optional<? extends DataQualityKpi> findAndLockDataQualityKpiByIdAndVersion(long id, long version);
 
     @ProviderType
@@ -56,4 +58,6 @@ public interface DataQualityKpiService {
     }
 
     DeviceDataQualityKpi newDataQualityKpi(EndDeviceGroup endDeviceGroup, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks);
+
+    UsagePointDataQualityKpi newDataQualityKpi(UsagePointGroup usagePointGroup, MetrologyPurpose metrologyPurpose, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks);
 }

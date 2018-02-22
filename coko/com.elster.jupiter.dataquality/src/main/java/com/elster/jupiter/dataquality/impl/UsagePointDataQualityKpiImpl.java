@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
@@ -86,6 +87,14 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
         this.usagePointGroup.set(usagePointGroup);
         this.metrologyPurpose.set(metrologyPurpose);
         super.setFrequency(calculationFrequency);
+        return this;
+    }
+
+    UsagePointDataQualityKpiImpl init(UsagePointGroup usagePointGroup, MetrologyPurpose metrologyPurpose, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks) {
+        this.usagePointGroup.set(usagePointGroup);
+        this.metrologyPurpose.set(metrologyPurpose);
+        super.setFrequency(calculationFrequency);
+        super.setNextRecurrentTasks(nextRecurrentTasks);
         return this;
     }
 
