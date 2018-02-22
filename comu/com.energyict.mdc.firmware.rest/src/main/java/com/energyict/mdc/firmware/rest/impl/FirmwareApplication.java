@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -22,6 +23,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -58,6 +60,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
+    private volatile SecurityManagementService securityManagementService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -72,7 +75,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 FirmwareComTaskResource.class,
                 MultiPartFeature.class,
                 RestValidationExceptionMapper.class,
-                DeviceStateAccessFeature.class
+                DeviceStateAccessFeature.class,
+                SecurityAccessorResource.class
         );
     }
 
@@ -110,6 +114,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(DeviceFirmwareLifecycleHistoryInfoFactory.class).to(DeviceFirmwareLifecycleHistoryInfoFactory.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
+            bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
         }
     }
 
@@ -195,5 +201,10 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 }

@@ -5,6 +5,10 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -16,13 +20,16 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
@@ -32,9 +39,10 @@ public class ResourceHelper {
     private final FirmwareService firmwareService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, SecurityManagementService securityManagementService) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
@@ -42,6 +50,7 @@ public class ResourceHelper {
         this.firmwareService = firmwareService;
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
+        this.securityManagementService = securityManagementService;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -146,6 +155,36 @@ public class ResourceHelper {
             return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
         } else {
             return Optional.empty();
+        }
+    }
+
+    public List<SecurityAccessor> getCertificatesWithFileOperations() {
+        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getActualValue().isPresent() && sa.getActualValue().get() instanceof CertificateWrapper)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<SecurityAccessor> getCertificateWithFileOperations(long id) {
+        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getActualValue().isPresent() && sa.getActualValue().get() instanceof CertificateWrapper && sa.getKeyAccessorType().getId() == id)
+                .findAny();
+    }
+
+   public void deleteSecurityAccessors (long id, long deviceTypeId) {
+       Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+       Optional<SecurityAccessorType> securityAccessorType = securityManagementService.findSecurityAccessorTypeById(id);
+       if (deviceType.isPresent() && securityAccessorType.isPresent()) {
+           firmwareService.deleteSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessorType.get());
+       }
+   }
+
+    public void addSecurityAccessors (long id, long deviceTypeId) {
+        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+        Optional<SecurityAccessorType> securityAccessorType = securityManagementService.findSecurityAccessorTypeById(id);
+        if (deviceType.isPresent() && securityAccessorType.isPresent()) {
+            firmwareService.addSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessorType.get());
         }
     }
 
