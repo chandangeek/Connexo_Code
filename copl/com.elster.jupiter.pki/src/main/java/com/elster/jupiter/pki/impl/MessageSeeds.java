@@ -73,7 +73,7 @@ public enum MessageSeeds implements MessageSeed {
     OK_SIGNATURE(1057, "OkSignature", "File signature verification completed successfully.", Level.INFO),
     NO_CERTIFICATE_IN_WRAPPER(1058, "NoCertificateInWrapper", "No actual certificate is kept under alias {0}."),
     CSR_IMPORT_EXCEPTION(1059, "CsrImportException", "Unexpected exception during CSR import: {0}"),
-    CERTIFICATE_EXPORT_NO_PRIVATE_KEY(1060, "CertificateExportNoPrivateKey", "Import has failed since the certificate on the export doesn''t contain a private key for signing the exported file or has a type other than RSA 1024"),
+    CERTIFICATE_EXPORT_NO_PRIVATE_KEY(1060, "CertificateExportNoPrivateKey", "Import has failed since the certificate on the export doesn''t contain a private key for signing the exported file or has a type other than RSA 2048"),
     ;
 
     private final int number;

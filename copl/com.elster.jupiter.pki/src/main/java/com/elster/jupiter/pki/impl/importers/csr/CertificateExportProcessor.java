@@ -112,15 +112,17 @@ public class CertificateExportProcessor {
     private byte[] getSignature(byte[] bytes) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
         SecurityAccessor securityAccessor = (SecurityAccessor) properties.get(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey());
         Optional optional = securityAccessor.getActualValue();
-        if (optional.isPresent() && ((CertificateWrapper) optional.get()).hasPrivateKey() && ((ClientCertificateWrapper) optional.get()).getPrivateKeyWrapper()
-                .getPrivateKey()
-                .isPresent()) {
+        if (optional.isPresent()
+                && ((CertificateWrapper) optional.get()).hasPrivateKey()
+                && ((ClientCertificateWrapper) optional.get()).getPrivateKeyWrapper().getPrivateKey().isPresent()) {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(((ClientCertificateWrapper) optional.get()).getPrivateKeyWrapper().getPrivateKey().get());
             signature.update(bytes);
-            return signature.sign();
-        } else {
-            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.CERTIFICATE_EXPORT_NO_PRIVATE_KEY);
+            byte [] signatureBytes =  signature.sign();
+            if(signatureBytes.length == 256){
+                return signatureBytes;
+            }
         }
+        throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.CERTIFICATE_EXPORT_NO_PRIVATE_KEY);
     }
 }
