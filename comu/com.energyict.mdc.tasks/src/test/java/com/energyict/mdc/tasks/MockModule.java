@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ public class MockModule extends AbstractModule {
         bind(SearchService.class).toInstance(mock(SearchService.class));
         bind(LicenseService.class).toInstance(mock(LicenseService.class));
         bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        bind(HttpService.class).toInstance(mock(HttpService.class));
     }
 
 }

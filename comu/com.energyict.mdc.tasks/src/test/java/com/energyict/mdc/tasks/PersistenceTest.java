@@ -31,6 +31,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -105,7 +106,8 @@ public class PersistenceTest {
                 new TransactionModule(false),
                 new TasksModule(),
                 new TaskModule(),// TaskService from c.e.j.tasks
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new WebServicesModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
