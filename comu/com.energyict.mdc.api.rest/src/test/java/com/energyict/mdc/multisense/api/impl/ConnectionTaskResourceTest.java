@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -339,7 +340,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(builder.setProperty(stringArgumentCaptor.capture(), objectArgumentCaptor.capture())).thenReturn(builder);
         when(builder.add()).thenReturn(scheduledConnectionTask);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(property);
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(property.getPropertyValueInfo().getValue());
+        when(propertyValueInfoService.findPropertyValue(Matchers.any(PropertySpec.class), Matchers.anyCollection())).thenReturn(property.getPropertyValueInfo().getValue());
         // ACTUAL CALL
         Response response = target("devices/XAS/connectiontasks").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -404,12 +405,11 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         // ACTUAL CALL
         PropertyInfo propertyInfo = new PropertyInfo("decimal.property", "decimal.property", new PropertyValueInfo<>(BigDecimal.valueOf(8080), 8080), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), true);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
-        when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
+        when(propertyValueInfoService.findPropertyValue(Matchers.any(PropertySpec.class), Matchers.anyCollection())).thenReturn(property.getPropertyValueInfo().getValue());
         Response response = target("devices/XAS/connectiontasks/123456789").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(existing).setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         verify(existing).setNumberOfSimultaneousConnections(2);
-        verify(existing).setProperty("decimal.property", BigDecimal.valueOf(8080));
         verify(connectionTaskService).setDefaultConnectionTask(existing);
         verify(connectionTaskService, never()).clearDefaultConnectionTask(any());
         verify(existing).save();
