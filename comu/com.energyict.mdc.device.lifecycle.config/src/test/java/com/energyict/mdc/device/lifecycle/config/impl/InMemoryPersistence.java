@@ -31,6 +31,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -49,6 +50,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -120,7 +122,8 @@ public class InMemoryPersistence {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
-                new UsagePointLifeCycleConfigurationModule()
+                new UsagePointLifeCycleConfigurationModule(),
+                new WebServicesModule()
         );
     }
 
@@ -191,6 +194,7 @@ public class InMemoryPersistence {
             bind(TimeService.class).toInstance(timeService);
             bind(LicenseService.class).toInstance(licenseService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
 
     }
