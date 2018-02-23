@@ -41,6 +41,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -101,6 +102,7 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -195,7 +197,8 @@ public class InMemoryPersistence {
                 new SearchModule(),
                 new BpmModule(),
                 new CalendarModule(),
-                new PkiModule()
+                new PkiModule(),
+                new WebServicesModule()
         );
     }
 
@@ -298,7 +301,7 @@ public class InMemoryPersistence {
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 
-            bind(EndPointConfigurationService.class).toInstance(mock(EndPointConfigurationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
 
     }
