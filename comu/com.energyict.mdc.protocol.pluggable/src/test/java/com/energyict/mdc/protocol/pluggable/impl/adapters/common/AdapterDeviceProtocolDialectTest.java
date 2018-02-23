@@ -30,6 +30,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -71,6 +72,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.http.HttpService;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
@@ -135,7 +137,8 @@ public class AdapterDeviceProtocolDialectTest {
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
                 new TaskModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new WebServicesModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
@@ -213,6 +216,7 @@ public class AdapterDeviceProtocolDialectTest {
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
