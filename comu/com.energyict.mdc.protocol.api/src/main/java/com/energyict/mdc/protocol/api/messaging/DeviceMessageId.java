@@ -163,10 +163,12 @@ public enum DeviceMessageId {
     PLC_CONFIGURATION_PATH_REQUEST_WITH_TIMEOUT(3087),
     PLC_CONFIGURATION_SET_LOW_LQI_VALUE_ATTRIBUTE_NAME(3088),
     PLC_CONFIGURATION_SET_HIGH_LQI_VALUE_ATTRIBUTE_NAME(3089),
-    ReadBlacklist(3089),
-    SetHighLowLQI(3090),
-    SetAdpLBPAssociationSetup_7_Parameters(3091),
-    SetAdpLBPAssociationSetup_5_Parameters(3092),
+    // Following lines do not respect naming convention and should be renamed yet unfortunately changing them requires version change in bundle ...
+    //  anyway the entire construction for these messages is error prone and should be improved, check: CXO-8535
+    ReadBlacklist(3090),
+    SetHighLowLQI(3091),
+    SetAdpLBPAssociationSetup_7_Parameters(3092),
+    SetAdpLBPAssociationSetup_5_Parameters(3093),
 
     NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM(4001),
     NETWORK_CONNECTIVITY_DEACTIVATE_SMS_WAKEUP(4002),
