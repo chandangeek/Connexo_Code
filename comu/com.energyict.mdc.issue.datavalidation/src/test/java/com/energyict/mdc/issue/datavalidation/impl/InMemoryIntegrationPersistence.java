@@ -44,6 +44,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -98,6 +99,7 @@ import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
@@ -249,7 +251,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new IssueModule(),
                 new IssueDataValidationModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new WebServicesModule());
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());
         }
@@ -314,7 +317,7 @@ public class InMemoryIntegrationPersistence {
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
 
-            bind(EndPointConfigurationService.class).toInstance(mock(EndPointConfigurationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
