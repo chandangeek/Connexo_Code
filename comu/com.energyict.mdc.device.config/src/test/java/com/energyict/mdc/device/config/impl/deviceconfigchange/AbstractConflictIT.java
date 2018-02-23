@@ -41,6 +41,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -113,6 +114,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -177,6 +179,7 @@ public abstract class AbstractConflictIT {
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
 
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -230,7 +233,8 @@ public abstract class AbstractConflictIT {
                     new SchedulingModule(),
                     new TimeModule(),
                     new CustomPropertySetsModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

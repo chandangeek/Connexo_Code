@@ -40,6 +40,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -117,6 +118,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.http.HttpService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -171,6 +173,7 @@ public class PartialInboundConnectionTaskCrudIT {
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
 
     }
@@ -227,7 +230,8 @@ public class PartialInboundConnectionTaskCrudIT {
                     new PluggableModule(),
                     new SchedulingModule(),
                     new TimeModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

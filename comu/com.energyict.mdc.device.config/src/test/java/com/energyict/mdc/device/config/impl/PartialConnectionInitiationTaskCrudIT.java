@@ -40,6 +40,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -95,6 +96,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -150,6 +152,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -206,7 +209,8 @@ public class PartialConnectionInitiationTaskCrudIT {
                     new PluggableModule(),
                     new SchedulingModule(),
                     new TimeModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

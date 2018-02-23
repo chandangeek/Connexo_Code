@@ -41,6 +41,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -94,6 +95,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -258,7 +260,8 @@ public class InMemoryPersistence {
                 new SchedulingModule(),
                 new TimeModule(),
                 new CustomPropertySetsModule(),
-                new CalendarModule()));
+                new CalendarModule(),
+                new WebServicesModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new BasicPropertiesModule());
@@ -462,6 +465,7 @@ public class InMemoryPersistence {
             }
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 }

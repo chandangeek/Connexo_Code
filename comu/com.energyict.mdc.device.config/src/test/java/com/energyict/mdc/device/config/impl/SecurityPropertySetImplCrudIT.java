@@ -45,6 +45,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -124,6 +125,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.http.HttpService;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -181,6 +183,7 @@ public class SecurityPropertySetImplCrudIT {
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -241,7 +244,8 @@ public class SecurityPropertySetImplCrudIT {
                     new SchedulingModule(),
                     new TimeModule(),
                     new CustomPropertySetsModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

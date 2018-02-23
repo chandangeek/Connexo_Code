@@ -33,6 +33,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -88,6 +89,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -188,7 +190,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new TasksModule(),
                 new TimeModule(),
                 new CustomPropertySetsModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new WebServicesModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -324,6 +327,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 }
