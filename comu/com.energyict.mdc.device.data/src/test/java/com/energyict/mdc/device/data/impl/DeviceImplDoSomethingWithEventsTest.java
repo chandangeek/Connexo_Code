@@ -55,6 +55,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -121,6 +122,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
@@ -332,7 +334,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new TaskModule(),
                     new TasksModule(),
                     new SchedulingModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
@@ -471,6 +474,7 @@ public class DeviceImplDoSomethingWithEventsTest {
 
                 bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
                 bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+                bind(HttpService.class).toInstance(mock(HttpService.class));
             }
 
         }
