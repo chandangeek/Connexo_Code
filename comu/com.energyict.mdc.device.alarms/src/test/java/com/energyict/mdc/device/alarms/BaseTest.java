@@ -35,6 +35,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -58,7 +59,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -115,12 +116,12 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -142,7 +143,6 @@ public abstract class BaseTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    protected static EndPointConfigurationService endPointConfigurationService;
 
     protected static IssueService issueService;
     protected static DeviceAlarmService deviceAlarmService;
@@ -174,8 +174,7 @@ public abstract class BaseTest {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 
-            endPointConfigurationService = mock(EndPointConfigurationService.class);
-            bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -228,7 +227,8 @@ public abstract class BaseTest {
                 new CalendarModule(),
                 new TimeModule(),
                 new BpmModule(),
-                new PkiModule()
+                new PkiModule(),
+                new WebServicesModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -427,12 +427,5 @@ public abstract class BaseTest {
         return baseIssue;
     }
 
-    private CreationRuleTemplate mockCreationRuleTemplate() {
-        CreationRuleTemplate creationRuleTemplate = mock(CreationRuleTemplate.class);
-        when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
-        when(creationRuleTemplate.getName()).thenReturn("Template");
-        when(creationRuleTemplate.getContent()).thenReturn("Content");
-        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
-        return creationRuleTemplate;
-    }
+
 }
