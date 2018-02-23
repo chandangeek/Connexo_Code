@@ -11,7 +11,8 @@ Ext.define('Cfg.insight.dataqualitykpi.model.DataQualityKpi', {
         {name: 'purposes', type: 'auto', defaultValue: null},
         {name: 'frequency', type: 'auto', defaultValue: null},
         {name: 'latestCalculationDate', dateFormat: 'time', type: 'date', persist: false},
-        {name: 'previousRecurrentTasks'}, {name: 'nextRecurrentTasks'}
+        {name: 'previousRecurrentTasks', type: 'auto', defaultValue: null},
+        {name: 'nextRecurrentTasks', type: 'auto', defaultValue: null}
     ],
     associations: [
         {

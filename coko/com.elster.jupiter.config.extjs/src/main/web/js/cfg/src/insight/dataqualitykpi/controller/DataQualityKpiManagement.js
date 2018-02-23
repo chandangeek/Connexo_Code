@@ -6,7 +6,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
     extend: 'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
 
     views: [
-        'Cfg.insight.dataqualitykpi.view.AddManagement'
+        'Cfg.insight.dataqualitykpi.view.AddManagement',
+        'Cfg.insight.dataqualitykpi.view.DetailsDataQualityKpi'
     ],
 
     stores: [
@@ -83,7 +84,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
                     callback: function () {
                         if (usagePointGroup.getCount() > 0) {
                             completedFunc.call(caller, form);
-                            form.loadRecord(new Cfg.insight.dataqualitykpi.model.DataQualityKpi);
+                            form.loadRecord(Ext.create('Cfg.insight.dataqualitykpi.model.DataQualityKpi'));
+                            // form.loadRecord(new Cfg.insight.dataqualitykpi.model.DataQualityKpi);
                         }
                     }
                 });
@@ -193,6 +195,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
                     form.loadRecord(record);
                     form.down('[name=usagePointGroup]').disable();
                     form.down('[name=frequency]').disable();
+                    form.down('#view-purpose').disable();
                     Ext.resumeLayouts(true);
                     editOperationCompleteLoading.call(controller)
                 });
@@ -269,7 +272,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
     viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            widget = Ext.widget('data-quality-kpi-details', {
+            widget = Ext.widget('ins-data-quality-kpi-details', {
                 actionMenu: actionMenu,
                 canAdministrate: me.canAdministrate()
             });
@@ -292,7 +295,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
                     widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
                     widget.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
 
-                    widget.down('#data-quality-kpi-usagePoint-group').setValue(record.get('usagePointGroup').name);
+                    widget.down('#cmb-usage-point-group').setValue(record.get('usagePointGroup').name);
+                    widget.down('#view-purpose').setValue(record.get('metrologyPurpose').name);
                     widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');
                     widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });

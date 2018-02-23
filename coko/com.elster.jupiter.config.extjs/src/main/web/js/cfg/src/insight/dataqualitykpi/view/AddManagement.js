@@ -51,6 +51,13 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
                 hidden: true
             },
             {
+                xtype: 'displayfield',
+                itemId: 'view-purpose',
+                required: true,
+                fieldLabel: Uni.I18n.translate('general.Purpose', 'CFG', 'Purpose'),
+                hidden: true
+            },
+            {
                 xtype: 'combobox',
                 itemId: 'cmb-frequency',
                 name: 'frequency',
@@ -91,14 +98,17 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
 
     loadRecord: function (record) {
         var me = this,
-            deviceGroup = record.get('deviceGroup'),
+            usagePointGroup = record.get('usagePointGroup'),
             frequency = record.get('frequency'),
-            deviceGroupCombo = me.down('[name=deviceGroup]'),
+            usagePointGroupCombo = me.down('[name=usagePointGroup]'),
+            purpose = me.down('#view-purpose'),
             nextRecurrentTasks = record.get('nextRecurrentTasks');
 
         me.getForm().loadRecord(record);
-        if (deviceGroup) {
-            deviceGroupCombo.setRawValue(deviceGroup.name);
+        if (usagePointGroup) {
+            usagePointGroupCombo.setRawValue(usagePointGroup.name);
+            purpose.setVisible(true);
+            purpose.setValue(record.get('metrologyPurpose').name);
         }
         if (frequency) {
             me.down('[name=frequency]').setValue(frequency.every.count + frequency.every.timeUnit);
