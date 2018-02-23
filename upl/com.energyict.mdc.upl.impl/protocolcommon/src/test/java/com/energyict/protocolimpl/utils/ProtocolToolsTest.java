@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +60,7 @@ public class ProtocolToolsTest {
         if (fileToWrite.exists()) {
             fileToWrite.delete();
         }
+        Security.setProperty("crypto.policy", "unlimited");
     }
 
     /**
