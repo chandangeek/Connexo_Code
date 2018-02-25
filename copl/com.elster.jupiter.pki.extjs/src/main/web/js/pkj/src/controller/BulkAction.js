@@ -58,15 +58,9 @@ Ext.define('Pkj.controller.BulkAction', {
             'certificates-wizard #reading-types-bulk-cancel': {
                 click: this.goBack
             },
-            // 'reading-types-wizard #reading-types-bulk-finish': {
-            //     click: this.goBack
-            // },
-            // 'reading-types-wizard #failure-reading-types-bulk-finish': {
-            //     click: this.goBack
-            // },
-            // '#reading-types-bulk-navigation': {
-            //     movetostep: this.navigateToStep
-            // }
+            'certificates-wizard #reading-types-bulk-finish': {
+                click: this.goBack
+            }
         });
     },
 
@@ -169,11 +163,17 @@ Ext.define('Pkj.controller.BulkAction', {
 
                                 me.getConfirmPage().addErrorPanel(title, message)
                             }
-                            if(decoded.bulk.certificatesWithUsages && decoded.bulk.certificatesWithUsages.length > 0) {
-                                var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.certificatesWithUsages.length);
-                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeMsgx', 'PKJ', 'These certificates are used on a security accessor, firmware version, user directory or import service:');
+                            if (decoded.bulk.withUsages && decoded.bulk.withUsages.length > 0) {
+                                var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.withUsages.length);
+                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeUsagesMsgx', 'PKJ', 'These certificates are used on a security accessor, firmware version or user directory:');
                                 me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
-                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.certificatesWithUsages)
+                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withUsages)
+                            }
+                            if (decoded.bulk.withWrongStatus && decoded.bulk.withWrongStatus.length > 0) {
+                                var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.withWrongStatus.length);
+                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeStatusMsgx', 'PKJ', "These certificates are in 'Requested' or 'Revoked' status:");
+                                me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
+                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withWrongStatus)
                             }
                             me.goNextStep();
                         },
@@ -207,7 +207,7 @@ Ext.define('Pkj.controller.BulkAction', {
                         certificatesIds: me.validationResult ? me.validationResult.bulk.certificatesIds : []
                     }
                 };
-                var withErrorsWidget, withUsagesWidget, router = me.getController('Uni.controller.history.Router');
+                var withErrorsWidget, withUsagesWidget, withWrongStatusWidget, router = me.getController('Uni.controller.history.Router');
                 Ext.Ajax.request({
                     url: '/api/pir/certificates/bulkRevoke',
                     method: 'POST',
@@ -219,7 +219,7 @@ Ext.define('Pkj.controller.BulkAction', {
                         var message = Uni.I18n.translate('certificates.bulk.step5RevokeMsgxdds',
                             'PKJ',
                             '{0} out of {1} certificates successfully revoked.', [decoded.revokedCount, decoded.totalCount]);
-                        if(decoded.withErrors.length > 0){
+                        if (decoded.withErrors.length > 0) {
                             withErrorsWidget = Ext.create('Ext.container.Container', {
                                 items: [{
                                     xtype: 'component',
@@ -229,7 +229,7 @@ Ext.define('Pkj.controller.BulkAction', {
 
                                 }]
                             });
-                            _.map(_.first(decoded.withErrors, 10), function(cert){
+                            _.map(_.first(decoded.withErrors, 10), function (cert) {
                                 var url = router.getRoute('administration/certificates/view').buildUrl({certificateId: cert.id});
                                 withErrorsWidget.add({
                                     xtype: 'component',
@@ -237,21 +237,21 @@ Ext.define('Pkj.controller.BulkAction', {
                                 });
                             });
                         }
-                        if(decoded.withUsages.length > 0){
+                        if (decoded.withUsages.length > 0) {
                             withUsagesWidget = Ext.create('Ext.container.Container', {
                                 items: [{
                                     xtype: 'component',
                                     html: '<h3 style="font-weight: 600; color: #EB5642">' +
-                                    Uni.I18n.translate('certificates.bulk.step5applyRevokeCAerrors', 'PKJ', 'Unable to revoke {0} certificates',decoded.withUsagesCount)
+                                    Uni.I18n.translate('certificates.bulk.step5applyRevokeCAerrors', 'PKJ', 'Unable to revoke {0} certificates', decoded.withUsagesCount)
                                     + '</h3>'
 
-                                },{
+                                }, {
                                     xtype: 'component',
-                                    html: Uni.I18n.translate('certificates.bulk.step5applyRevokeCAusages', 'PKJ', 'These certificates are used on a device security accessor, firmware version, user directory or import service:')
+                                    html: Uni.I18n.translate('certificates.bulk.step5applyRevokeCAusages', 'PKJ', 'These certificates are used on a device security accessor, firmware version or user directory:')
 
                                 }]
                             });
-                            _.map(_.first(decoded.withUsages, 10), function(cert){
+                            _.map(_.first(decoded.withUsages, 10), function (cert) {
                                 var url = router.getRoute('administration/certificates/view').buildUrl({certificateId: cert.id});
                                 withUsagesWidget.add({
                                     xtype: 'component',
@@ -259,7 +259,29 @@ Ext.define('Pkj.controller.BulkAction', {
                                 });
                             });
                         }
-                        me.getStatusPage().addNotificationPanel(title, message, [withUsagesWidget, withErrorsWidget]);
+                        if (decoded.withWrongStatus.length > 0) {
+                            withWrongStatusWidget = Ext.create('Ext.container.Container', {
+                                items: [{
+                                    xtype: 'component',
+                                    html: '<h3 style="font-weight: 600; color: #EB5642">' +
+                                    Uni.I18n.translate('certificates.bulk.step5applyRevokeCAerrors', 'PKJ', 'Unable to revoke {0} certificates', decoded.withWrongStatusCount)
+                                    + '</h3>'
+
+                                }, {
+                                    xtype: 'component',
+                                    html: Uni.I18n.translate('certificates.bulk.step5applyRevokeCAwrongStatus', 'PKJ', "These certificates are in 'Requested' or 'Revoked' status:")
+
+                                }]
+                            });
+                            _.map(_.first(decoded.withWrongStatus, 10), function (cert) {
+                                var url = router.getRoute('administration/certificates/view').buildUrl({certificateId: cert.id});
+                                withWrongStatusWidget.add({
+                                    xtype: 'component',
+                                    html: '<a href="' + url + '">' + Ext.String.htmlEncode(cert.name) + '</a>'
+                                });
+                            });
+                        }
+                        me.getStatusPage().addNotificationPanel(title, message, [withUsagesWidget, withWrongStatusWidget, withErrorsWidget]);
 
                         me.goNextStep();
                     },
