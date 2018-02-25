@@ -11,16 +11,19 @@ public class CertificateRevocationResultInfo {
     public long revokedCount;
     public long withErrorsCount;
     public long withUsagesCount;
+    public long withWrongStatusCount;
 
     public List<IdWithNameInfo> revoked = new ArrayList<>();
     public List<IdWithNameInfo> withErrors = new ArrayList<>();
     public List<IdWithNameInfo> withUsages = new ArrayList<>();
+    public List<IdWithNameInfo> withWrongStatus = new ArrayList<>();
 
     public void updateCounters(long total) {
         totalCount = total;
         revokedCount = revoked.size();
         withErrorsCount = withErrors.size();
         withUsagesCount = withUsages.size();
+        withWrongStatusCount = withWrongStatus.size();
     }
 
     public void addRevoked(CertificateWrapper certificate) {
@@ -33,5 +36,9 @@ public class CertificateRevocationResultInfo {
 
     public void addWithUsages(CertificateWrapper certificate) {
         withUsages.add(new IdWithNameInfo(certificate.getId(), certificate.getAlias()));
+    }
+
+    public void addWithWrongStatus(CertificateWrapper certificate) {
+        withWrongStatus.add(new IdWithNameInfo(certificate.getId(), certificate.getAlias()));
     }
 }

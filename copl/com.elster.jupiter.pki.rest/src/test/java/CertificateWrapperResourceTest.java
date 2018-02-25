@@ -16,7 +16,6 @@ import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
@@ -51,7 +50,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
@@ -468,6 +466,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         when(cert1.getId()).thenReturn(certId1);
         when(cert2.getId()).thenReturn(certId2);
+        when(cert1.getStatus()).thenReturn("Available");
+        when(cert2.getStatus()).thenReturn("Available");
         when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
         when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
@@ -487,7 +487,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
         assertThat(model.<Integer>get("bulk.valid")).isEqualTo(2);
         assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(0);
-        assertThat(model.<JSONArray>get("bulk.certificatesWithUsages")).isEmpty();
+        assertThat(model.<JSONArray>get("bulk.withUsages")).isEmpty();
+        assertThat(model.<JSONArray>get("bulk.withWrongStatus")).isEmpty();
         assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
     }
 
@@ -496,6 +497,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         //Prepare
         Long certId1 = 211L;
         Long certId2 = 212L;
+        Long certId3 = 213L;
         Long timeout = 10L;
         String accessorName = "accessor";
         String deviceName = "device";
@@ -507,22 +509,28 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
         CertificateWrapper cert1 = mock(CertificateWrapper.class);
         CertificateWrapper cert2 = mock(CertificateWrapper.class);
+        CertificateWrapper cert3 = mock(CertificateWrapper.class);
 
         CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
         requestInfo.timeout = timeout;
-        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2);
+        requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2, certId3);
 
         when(cert1.getId()).thenReturn(certId1);
         when(cert2.getId()).thenReturn(certId2);
-        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
+        when(cert3.getId()).thenReturn(certId3);
+        when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2, certId3))).thenReturn(Arrays.asList(cert1, cert2, cert3));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
+        when(cert1.getStatus()).thenReturn("Available");
+        when(cert2.getStatus()).thenReturn("Available");
+        when(cert3.getStatus()).thenReturn("Revoked");
         when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.singletonList(accessor));
+        when(securityManagementService.getAssociatedCertificateAccessors(cert3)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.singletonList(deviceName));
+        when(securityManagementService.getCertificateAssociatedDevicesNames(cert3)).thenReturn(Collections.emptyList());
         when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        //return empty for first call (first certificate) and something for second one
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList()).thenReturn(Collections.singletonList(dirUsage));
+        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(accessor.getKeyAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
@@ -534,12 +542,14 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Boolean>get("isOnline")).isTrue();
-        assertThat(model.<Integer>get("bulk.total")).isEqualTo(2);
+        assertThat(model.<Integer>get("bulk.total")).isEqualTo(3);
         assertThat(model.<Integer>get("bulk.valid")).isEqualTo(1);
-        assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(1);
-        assertThat(model.<JSONArray>get("bulk.certificatesWithUsages")).hasSize(1);
-        assertThat(model.<JSONObject>get("bulk.certificatesWithUsages[0]").get("id")).isEqualTo(certId2.intValue());
-        assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(2).contains(certId1.intValue(), certId2.intValue());
+        assertThat(model.<Integer>get("bulk.invalid")).isEqualTo(2);
+        assertThat(model.<JSONArray>get("bulk.withUsages")).hasSize(1);
+        assertThat(model.<JSONObject>get("bulk.withUsages[0]").get("id")).isEqualTo(certId2.intValue());
+        assertThat(model.<JSONArray>get("bulk.withWrongStatus")).hasSize(1);
+        assertThat(model.<JSONObject>get("bulk.withWrongStatus[0]").get("id")).isEqualTo(certId3.intValue());
+        assertThat(model.<JSONArray>get("bulk.certificatesIds")).hasSize(3).contains(certId1.intValue(), certId2.intValue(), certId3.intValue());
     }
 
     @Test
@@ -560,10 +570,13 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         when(cert1.getId()).thenReturn(certId1);
         when(cert1.getAlias()).thenReturn(certAlias1);
+        when(cert1.getStatus()).thenReturn("Available");
         when(cert2.getId()).thenReturn(certId2);
         when(cert2.getAlias()).thenReturn(certAlias2);
+        when(cert2.getStatus()).thenReturn("Available");
         when(cert3.getId()).thenReturn(certId3);
         when(cert3.getAlias()).thenReturn(certAlias3);
+        when(cert3.getStatus()).thenReturn("Available");
 
         Query mockQuery = mock(Query.class);
 

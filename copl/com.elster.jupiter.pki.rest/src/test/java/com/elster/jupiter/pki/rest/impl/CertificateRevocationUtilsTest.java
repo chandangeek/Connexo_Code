@@ -295,7 +295,7 @@ public class CertificateRevocationUtilsTest {
         assertThat(result.withErrors).isEmpty();
         assertThat(result.withUsages).isEmpty();
 
-        result.withErrors.sort(Comparator.comparing(o -> o.name));
+        result.revoked.sort(Comparator.comparing(o -> o.name));
 
         assertThat(result.revoked.get(0).id).isEqualTo(ID_1);
         assertThat(result.revoked.get(0).name).isEqualTo(ALIAS_1);
@@ -389,7 +389,7 @@ public class CertificateRevocationUtilsTest {
         assertThat(result.withErrors).isEmpty();
         assertThat(result.withUsages).isEmpty();
 
-        result.withErrors.sort(Comparator.comparing(o -> o.name));
+        result.revoked.sort(Comparator.comparing(o -> o.name));
 
         assertThat(result.revoked.get(0).id).isEqualTo(ID_1);
         assertThat(result.revoked.get(0).name).isEqualTo(ALIAS_1);

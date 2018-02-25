@@ -22,10 +22,17 @@ public class CertificateRevocationInfo {
     }
 
     public void addWithUsages(CertificateWrapper cert) {
-        if (bulk.certificatesWithUsages == null) {
-            bulk.certificatesWithUsages = new ArrayList<>();
+        if (bulk.withUsages == null) {
+            bulk.withUsages = new ArrayList<>();
         }
-        bulk.certificatesWithUsages.add(new IdWithNameInfo(cert.getId(), cert.getAlias()));
+        bulk.withUsages.add(new IdWithNameInfo(cert.getId(), cert.getAlias()));
+    }
+
+    public void addWithWrongStatus(CertificateWrapper cert) {
+        if (bulk.withWrongStatus == null) {
+            bulk.withWrongStatus = new ArrayList<>();
+        }
+        bulk.withWrongStatus.add(new IdWithNameInfo(cert.getId(), cert.getAlias()));
     }
 
     /**
@@ -42,11 +49,12 @@ public class CertificateRevocationInfo {
         public Long invalid = 0L;
 
         public List<Long> certificatesIds = new ArrayList<>();
-        public List<IdWithNameInfo> certificatesWithUsages = new ArrayList<>();
+        public List<IdWithNameInfo> withWrongStatus = new ArrayList<>();
+        public List<IdWithNameInfo> withUsages = new ArrayList<>();
 
         private void updateCounters() {
             total = (long) certificatesIds.size();
-            invalid = (long) certificatesWithUsages.size();
+            invalid = (long) (withWrongStatus.size() + withUsages.size());
             valid = total - invalid;
         }
     }

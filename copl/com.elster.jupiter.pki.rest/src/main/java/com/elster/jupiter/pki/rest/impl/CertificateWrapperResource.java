@@ -80,6 +80,9 @@ import static java.util.stream.Collectors.toList;
 @Path("/certificates")
 public class CertificateWrapperResource {
     private static final long MAX_FILE_SIZE = 2048;
+    private static final String CERTIFICATE_STATUS_REQUESTED = "Requested";
+    private static final String CERTIFICATE_STATUS_REVOKED = "Revoked";
+
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
     private final CertificateInfoFactory certificateInfoFactory;
@@ -383,7 +386,10 @@ public class CertificateWrapperResource {
         List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
         revocationInfo.isOnline = revocationUtils.isCAConfigured();
         certificates.forEach(cert -> {
-            if (findCertificateUsages(cert).isUsed) {
+            String status = cert.getStatus();
+            if (status.equalsIgnoreCase(CERTIFICATE_STATUS_REQUESTED) || status.equalsIgnoreCase(CERTIFICATE_STATUS_REVOKED)) {
+                revocationInfo.addWithWrongStatus(cert);
+            } else if (findCertificateUsages(cert).isUsed) {
                 revocationInfo.addWithUsages(cert);
             }
         });
@@ -401,9 +407,13 @@ public class CertificateWrapperResource {
 
         List<CertificateWrapper> toRevoke = new ArrayList<>();
         List<CertificateWrapper> withUsages = new ArrayList<>();
+        List<CertificateWrapper> withWrongStatus = new ArrayList<>();
 
         certificates.forEach(certificate -> {
-            if (findCertificateUsages(certificate).isUsed) {
+            String status = certificate.getStatus();
+            if (status.equalsIgnoreCase(CERTIFICATE_STATUS_REQUESTED) || status.equalsIgnoreCase(CERTIFICATE_STATUS_REVOKED)) {
+                withWrongStatus.add(certificate);
+            } else if (findCertificateUsages(certificate).isUsed) {
                 withUsages.add(certificate);
             } else {
                 toRevoke.add(certificate);
@@ -412,6 +422,7 @@ public class CertificateWrapperResource {
 
         CertificateRevocationResultInfo resultInfo = revocationUtils.bulkRevokeCertificates(toRevoke, revocationInfo.timeout);
         withUsages.forEach(resultInfo::addWithUsages);
+        withWrongStatus.forEach(resultInfo::addWithWrongStatus);
         resultInfo.updateCounters(certificates.size());
 
         return Response.status(Response.Status.OK).entity(resultInfo).build();
