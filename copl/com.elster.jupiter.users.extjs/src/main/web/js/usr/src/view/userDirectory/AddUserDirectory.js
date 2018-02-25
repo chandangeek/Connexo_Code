@@ -120,6 +120,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                     select: function (combo, records, eOpts) {
                                         var protocolSource = me.down('#security-protocol-source');
                                         protocolSource.setVisible(records[0].get('value') !== 'NONE');
+                                        protocolSource.setDisabled(records[0].get('value') == 'NONE');
                                     }
                                 }
                             },
@@ -182,7 +183,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('userDirectories.certificateAlias', 'USR', 'Certificate alias'),
                                 labelWidth: 250,
-                                required: true,
                                 store: 'Usr.store.Certificates',
                                 disabled: false,
                                 emptyText: Uni.I18n.translate('userDirectories.certificateAliasPrompt', 'USR', 'Start typing to select...'),
