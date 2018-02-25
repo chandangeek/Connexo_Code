@@ -23,6 +23,7 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
@@ -294,7 +295,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public void delete() {
         if (securityManagementService.isUsedByCertificateAccessors(this)) {
-            throw new VetoDeleteCertificateException(thesaurus, this);
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
+        }
+        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(this)).isEmpty()) {
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
         }
         this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
