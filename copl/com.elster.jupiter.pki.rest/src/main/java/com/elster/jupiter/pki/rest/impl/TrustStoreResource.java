@@ -317,9 +317,6 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
-        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("trustStore").isEqualTo(trustStore)).isEmpty()) {
-            throw exceptionFactory.newException(MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY, id);
-        }
         trustStore.delete();
         return Response.status(Response.Status.OK).build();
     }
