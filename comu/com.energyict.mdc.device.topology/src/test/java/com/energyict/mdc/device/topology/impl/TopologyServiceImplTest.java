@@ -153,13 +153,15 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void switchToAnotherMaster() {
+    public void switchToAnotherMaster() throws InterruptedException {
         Device masterDevice1 = createSimpleDeviceWithName("Physical_MASTER_1", "m1");
         Device masterDevice2 = createSimpleDeviceWithName("Physical_MASTER_2", "m2");
         Device slave = createSimpleDeviceWithName("Origin", "o");
+        Thread.sleep(1000L);
         getTopologyService().setPhysicalGateway(slave, masterDevice1);
 
         // Business method
+        Thread.sleep(1000L);
         getTopologyService().setPhysicalGateway(slave, masterDevice2);
 
         // Asserts
