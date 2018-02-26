@@ -12,6 +12,7 @@ Ext.define('MdmApp.controller.Main', {
         'Sam.privileges.DeploymentInfo',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
+        'Apr.TaskManagementApp',
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
         'Scs.privileges.ServiceCall',
