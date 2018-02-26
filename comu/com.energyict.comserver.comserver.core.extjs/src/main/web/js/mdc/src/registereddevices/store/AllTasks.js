@@ -12,7 +12,7 @@ Ext.define('Mdc.registereddevices.store.AllTasks', {
         limitParam: false,
         url: '/api/tsk/task/byapplication',
         extraParams: {
-            application: "MultiSense"
+            application: Uni.util.Application.getAppName() == 'MultiSense' ? 'MultiSense' : Uni.util.Application.getAppName() == 'MdmApp' ? 'Insight' : ''
         },
         reader: {
             type: 'json'
