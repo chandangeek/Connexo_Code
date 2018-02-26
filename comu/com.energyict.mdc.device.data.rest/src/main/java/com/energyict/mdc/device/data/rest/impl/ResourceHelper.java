@@ -22,11 +22,17 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.search.SearchBuilder;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
@@ -39,9 +45,13 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
+import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
@@ -79,6 +89,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -112,6 +123,7 @@ public class ResourceHelper {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ValidationService validationService;
     private final MeteringService meteringService;
+    private final SearchService searchService;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
@@ -120,7 +132,7 @@ public class ResourceHelper {
                           ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, RegisteredDevicesKpiService registeredDevicesKpiService, EstimationService estimationService,
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
                           TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService) {
+                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -147,6 +159,7 @@ public class ResourceHelper {
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.searchService = searchService;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -1251,5 +1264,27 @@ public class ResourceHelper {
                 .filter(readingType -> readingType.getMRID().equals(readingTypeMrid))
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READINGTYPE_ON_CHANNEL, readingTypeMrid));
+    }
+
+    public Stream<Device> getDeviceStream(DevicesForConfigChangeSearch devicesForConfigChangeSearch, List<Long> deviceIds) {
+        if (deviceIds.isEmpty() && devicesForConfigChangeSearch != null) {
+            SearchDomain searchDomain = searchService.findDomain(Device.class.getName())
+                    .orElseThrow(() -> new InvalidSearchDomain(thesaurus, Device.class.getName()));
+            SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+            for (SearchablePropertyValue propertyValue : searchDomain.getPropertiesValues(getPropertyMapper(devicesForConfigChangeSearch))) {
+                try {
+                    propertyValue.addAsCondition(searchBuilder);
+                } catch (InvalidValueException e) {
+                    throw DeviceConfigurationChangeException.invalidSearchValueForBulkConfigChange(thesaurus, propertyValue.getProperty().getName());
+                }
+            }
+            return searchBuilder.toFinder().stream().map(Device.class::cast);
+        } else {
+            return deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
+        }
+    }
+
+    private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(DevicesForConfigChangeSearch devicesForConfigChangeSearch) {
+        return searchableProperty -> new SearchablePropertyValue(searchableProperty, devicesForConfigChangeSearch.searchItems.get(searchableProperty.getName()));
     }
 }
