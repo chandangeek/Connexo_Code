@@ -164,7 +164,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
-                <version>7.0.0${revision}</version>
+                <version>6.2.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
