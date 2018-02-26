@@ -11,11 +11,14 @@ Ext.define('Cfg.store.AllTasks', {
         startParam: false,
         limitParam: false,
         url: '/api/tsk/task/byapplication',
-        extraParams: {
-            application: Uni.util.Application.getAppName() == 'MultiSense' ? 'MultiSense' : Uni.util.Application.getAppName() == 'MdmApp' ? 'Insight' : ''
-        },
         reader: {
             type: 'json'
+        }
+    },
+    listeners: {
+        beforeload: function (store, operation, options) {
+            store.getProxy().setExtraParam('application', Uni.util.Application.getAppName() == 'MultiSense'
+                ? 'MultiSense' : Uni.util.Application.getAppName() == 'MdmApp' ? 'Insight' : '');
         }
     }
 });
