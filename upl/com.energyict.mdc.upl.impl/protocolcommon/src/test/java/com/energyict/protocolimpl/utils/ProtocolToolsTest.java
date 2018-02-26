@@ -6,8 +6,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-
-import org.junit.Ignore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,7 +13,6 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URL;
 import java.security.Security;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -55,7 +52,6 @@ public class ProtocolToolsTest {
     private static final byte[] MERGE_ARRAY2 = "GHI678JKL012".getBytes();
     private static final byte[] MERGED_ARRAY = "ABC012DEF345GHI678JKL012".getBytes();
     private final String NON_EXISTING_FILE_NAME = "nonexistingfilename_" + System.currentTimeMillis();
-
 
     @BeforeClass
     @AfterClass
@@ -786,7 +782,6 @@ public class ProtocolToolsTest {
 
     }
 
-    @Ignore("Hardcoded CET date. Needs refactoring")
     @Test
     public void testGetFormattedDate() {
         Date dateToFormat = new Date(1234567890123L);
