@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.messaging.MessageService;
@@ -22,7 +22,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
+import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
+import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
+import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceResource;
+import com.energyict.mdc.processes.keyrenewal.api.impl.HeadEndController;
+import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -139,7 +144,7 @@ public class DeviceResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_ERROR_URI_NOT_SPECIFIED.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.CALL_BACK_ERROR_URI_NOT_SPECIFIED.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -155,7 +160,7 @@ public class DeviceResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -169,7 +174,7 @@ public class DeviceResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_ERROR_URI_NOT_SPECIFIED.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.CALL_BACK_ERROR_URI_NOT_SPECIFIED.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -185,7 +190,7 @@ public class DeviceResourceTest {
         // Asserts
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -208,7 +213,7 @@ public class DeviceResourceTest {
         Response response = deviceResource.renewKey(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -219,7 +224,7 @@ public class DeviceResourceTest {
         Response response = deviceResource.testCommunication(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -231,7 +236,7 @@ public class DeviceResourceTest {
         Response response = deviceResource.testCommunication(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
 
         // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
@@ -37,6 +37,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
+import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
+import com.energyict.mdc.processes.keyrenewal.api.impl.HeadEndController;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;

@@ -1,4 +1,4 @@
-package com.energyict.mdc.processes.keyrenewal.api.csr;
+package com.energyict.mdc.processes.keyrenewal.api.impl.csr;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -9,7 +9,6 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;

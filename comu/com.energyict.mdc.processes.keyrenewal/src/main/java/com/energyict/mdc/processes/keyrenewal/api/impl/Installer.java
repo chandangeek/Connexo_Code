@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -14,10 +14,10 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.OperationHandler;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
+import com.energyict.mdc.processes.keyrenewal.api.impl.csr.CertificateRequestForCSRHandlerFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.OperationHandler;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -54,7 +54,7 @@ public class Installer implements FullInstaller {
     }
 
     private void createServiceCallTypes() {
-        for (ServiceCallCommands.ServiceCallTypes serviceCallType : com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands.ServiceCallTypes.values()) {
+        for (ServiceCallCommands.ServiceCallTypes serviceCallType : com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands.ServiceCallTypes.values()) {
             createServiceCallType(serviceCallType);
         }
     }

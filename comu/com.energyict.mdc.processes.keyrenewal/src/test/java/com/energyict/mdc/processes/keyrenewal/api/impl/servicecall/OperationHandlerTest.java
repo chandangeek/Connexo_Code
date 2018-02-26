@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api.servicecall;
+package com.energyict.mdc.processes.keyrenewal.api.impl.servicecall;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.energyict.mdc.processes.keyrenewal.api.CompletionOptionsMessageHandlerFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

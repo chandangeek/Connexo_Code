@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api.servicecall;
+package com.energyict.mdc.processes.keyrenewal.api.impl.servicecall;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -11,7 +11,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.processes.keyrenewal.api.MessageSeeds;
+import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 

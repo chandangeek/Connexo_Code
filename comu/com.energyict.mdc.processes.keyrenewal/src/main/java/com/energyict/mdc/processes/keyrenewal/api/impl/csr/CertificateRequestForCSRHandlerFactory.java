@@ -1,4 +1,4 @@
-package com.energyict.mdc.processes.keyrenewal.api.csr;
+package com.energyict.mdc.processes.keyrenewal.api.impl.csr;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -10,7 +10,7 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory",
+@Component(name = "com.energyict.mdc.processes.keyrenewal.api.impl.csr.CertificateRequestForCSRHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_TASK_SUBSCRIBER,
                 "destination=" + CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION},

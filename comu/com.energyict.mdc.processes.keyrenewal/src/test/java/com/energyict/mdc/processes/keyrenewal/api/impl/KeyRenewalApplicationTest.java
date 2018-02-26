@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -18,7 +18,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
+import com.energyict.mdc.processes.keyrenewal.api.impl.KeyRenewalApplication;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.ws.rs.core.Application;

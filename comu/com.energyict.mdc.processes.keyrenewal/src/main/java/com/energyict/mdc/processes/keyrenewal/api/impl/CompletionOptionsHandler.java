@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.Message;
@@ -14,8 +14,8 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalDomainExtension;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalDomainExtension;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.joda.time.DateTimeConstants;

@@ -1,4 +1,4 @@
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 public enum Command {
     RENEW_KEY,

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api.servicecall;
+package com.energyict.mdc.processes.keyrenewal.api.impl.servicecall;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
@@ -13,8 +13,8 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.processes.keyrenewal.api.DeviceCommandInfo;
-import com.energyict.mdc.processes.keyrenewal.api.MessageSeeds;
+import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
+import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;

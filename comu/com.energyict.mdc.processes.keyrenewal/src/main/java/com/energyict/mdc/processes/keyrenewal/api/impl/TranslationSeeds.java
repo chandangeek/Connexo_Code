@@ -2,11 +2,11 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.csr.CertificateRequestForCSRHandlerFactory;
 
 public enum TranslationSeeds implements TranslationKey {
 

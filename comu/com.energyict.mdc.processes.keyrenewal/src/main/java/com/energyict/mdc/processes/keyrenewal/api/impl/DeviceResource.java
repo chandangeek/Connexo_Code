@@ -2,8 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -21,9 +22,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRHandlerFactory;
-import com.energyict.mdc.processes.keyrenewal.api.csr.CertificateRequestForCSRMessage;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
+import com.energyict.mdc.processes.keyrenewal.api.impl.csr.CertificateRequestForCSRHandlerFactory;
+import com.energyict.mdc.processes.keyrenewal.api.impl.csr.CertificateRequestForCSRMessage;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.inject.Inject;
