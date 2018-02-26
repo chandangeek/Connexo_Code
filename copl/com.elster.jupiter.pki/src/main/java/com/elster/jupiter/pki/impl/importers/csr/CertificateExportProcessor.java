@@ -112,7 +112,7 @@ public class CertificateExportProcessor {
                 if (signatureBytes.length == CSRImporter.SIGNATURE_LENGTH) {
                     return signatureBytes;
                 } else {
-                    throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA 2048");
+                    throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH);
                 }
             }
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {

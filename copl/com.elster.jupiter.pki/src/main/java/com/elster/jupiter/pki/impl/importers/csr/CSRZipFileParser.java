@@ -21,13 +21,10 @@ class CSRZipFileParser {
         this.thesaurus = thesaurus;
     }
 
-    Map<String, Map<String, PKCS10CertificationRequest>> parseInputStream(InputStream inputStream) {
+    Map<String, Map<String, PKCS10CertificationRequest>> parseInputStream(InputStream inputStream) throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             // TODO
             return Collections.emptyMap();
-        } catch (IOException e) {
-            // TODO
-            throw new RuntimeException(e);
         }
     }
 }

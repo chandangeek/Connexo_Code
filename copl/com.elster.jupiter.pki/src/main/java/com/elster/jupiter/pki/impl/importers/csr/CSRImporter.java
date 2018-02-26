@@ -26,13 +26,14 @@ import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
 
 class CSRImporter implements FileImporter {
-    // TODO: can hardcode?
     public static final int SIGNATURE_LENGTH = 256;
+    public static final int RSA_MODULUS_BIT_LENGTH = 2048;
     private final Thesaurus thesaurus;
     private final Map<String, Object> properties;
     private final SecurityManagementService securityManagementService;
@@ -108,7 +109,11 @@ class CSRImporter implements FileImporter {
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         Certificate certificate = certificateWrapper.getCertificate()
                 .orElseThrow(() -> new SignatureCheckFailedException(thesaurus, MessageSeeds.NO_CERTIFICATE_IN_WRAPPER, certificateWrapper.getAlias()));
-        if (!inputFileHasValidSignature(reusableInputStream.getBytes(), certificate.getPublicKey())) {
+        PublicKey publicKey = certificate.getPublicKey();
+        if (!(publicKey instanceof RSAPublicKey) || ((RSAPublicKey) publicKey).getModulus().bitLength() != RSA_MODULUS_BIT_LENGTH) {
+            throw new SignatureCheckFailedException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + RSA_MODULUS_BIT_LENGTH);
+        }
+        if (!inputFileHasValidSignature(reusableInputStream.getBytes(), publicKey)) {
             throw new SignatureCheckFailedException(thesaurus);
         }
     }

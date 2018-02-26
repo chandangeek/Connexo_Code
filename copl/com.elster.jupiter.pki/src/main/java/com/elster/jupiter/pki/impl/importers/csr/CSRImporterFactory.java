@@ -98,6 +98,7 @@ public class CSRImporterFactory implements FileImporterFactory {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         // TODO: add a check for certificate usage as import/export certificate somewhere
+        // TODO: think of support for dependent properties
         return Arrays.asList(
                 propertySpecService.referenceSpec(SecurityAccessor.class)
                         .named(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey(), CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR)
@@ -105,6 +106,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .markExhaustive()
+                        // TODO: with RSA 2048 only
                         .addValues(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS))
                         .finish(),
                 propertySpecService.booleanSpec()
@@ -119,6 +121,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markExhaustive()
+                        // TODO: with RSA 2048 only
                         .addValues(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS))
                         .finish(),
                 propertySpecService.referenceSpec(TrustStore.class)
