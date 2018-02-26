@@ -15,7 +15,6 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.SignatureCheckFailedException;
-import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.util.streams.ReusableInputStream;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.Arrays;
@@ -85,17 +85,18 @@ class CSRImporter implements FileImporter {
             boolean shouldExport = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey());
             if (csrMap.size() == certificateMap.size()) {
                 if (shouldExport) {
-                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger).processExport(certificateMap);
+                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger)
+                            .processExport(certificateMap);
                 }
             } else {
-                // TODO error
+                throw new CSRImporterException(thesaurus, MessageSeeds.SOME_CERTIFICATES_NOT_SIGNED);
             }
 
             logger.markSuccess();
         } catch (LocalizedException e) {
-            logger.log( e);
+            logger.log(e);
             logger.markFailure();
-        } catch (ConstraintViolationException | IOException e) {
+        } catch (ConstraintViolationException | IOException | CertificateEncodingException e) {
             logger.log(e);
             logger.markFailure();
         }

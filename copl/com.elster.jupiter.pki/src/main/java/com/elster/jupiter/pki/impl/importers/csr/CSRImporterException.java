@@ -9,4 +9,8 @@ public class CSRImporterException extends LocalizedException {
     protected CSRImporterException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
     }
+
+    protected CSRImporterException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause, Object... args) {
+        super(thesaurus, messageSeed, cause, args);
+    }
 }
