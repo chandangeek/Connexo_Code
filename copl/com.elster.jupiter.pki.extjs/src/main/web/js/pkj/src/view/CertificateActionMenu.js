@@ -76,7 +76,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
-                text: Uni.I18n.translate('general.request', 'PKJ', 'Request certificate'),
+                text: Uni.I18n.translate('general.requestCertificate', 'PKJ', 'Request certificate'),
                 itemId: 'pkj-request-certificate-menu-item',
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'requestCertificate',
