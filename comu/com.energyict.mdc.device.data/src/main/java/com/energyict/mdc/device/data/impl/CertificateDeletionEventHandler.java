@@ -10,16 +10,13 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.VetoDeleteCertificateException;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Listens for delete events of {@link com.elster.jupiter.pki.CertificateWrapper}s
@@ -43,12 +40,11 @@ public class CertificateDeletionEventHandler implements TopicHandler {
         this.setNlsService(nlsService);
     }
 
-    //TODO: might be dropped at all
     @Override
     public void handle(LocalEvent localEvent) {
         CertificateWrapper source = (CertificateWrapper) localEvent.getSource();
         if (!deviceService.getAssociatedKeyAccessors(source).isEmpty()) {
-            throw new VetoDeleteCertificateException(thesaurus, source);
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
         }
     }
 
@@ -64,7 +60,7 @@ public class CertificateDeletionEventHandler implements TopicHandler {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }

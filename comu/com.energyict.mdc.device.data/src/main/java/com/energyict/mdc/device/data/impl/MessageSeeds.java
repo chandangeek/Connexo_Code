@@ -187,7 +187,8 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(2161, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
     NOT_ALLOWED_TO_EDIT_CENTRALLY_MANAGED_SECURITY_ACCESSOR(2162, "NotAllowedToEditCentrallyManagedSecurityAccessor",
             "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level."),
-    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(2163, "VetoSecurityAccessorRemovalFromDeviceType", "The security accessor couldn''t be removed from the device type because keys/certificates are specified on devices of this device type.");
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(2163, "VetoSecurityAccessorRemovalFromDeviceType", "The security accessor couldn''t be removed from the device type because keys/certificates are specified on devices of this device type."),
+    CERTIFICATE_USED_ON_SECURITY_ACCESSOR(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor.");
 
     private final int number;
     private final String key;
