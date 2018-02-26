@@ -38,7 +38,8 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group'),
                 fieldStyle: 'color: #eb5642;',
-                value: Uni.I18n.translate('ins.dataqualitykpi.noUsagePointGroup', 'CFG', 'No usage point group available.')
+                value: Uni.I18n.translate('ins.dataqualitykpi.noUsagePointGroup', 'CFG', 'No usage point group available.'),
+                hidden: true
             },
             {
                 xtype: 'purpose-field',
