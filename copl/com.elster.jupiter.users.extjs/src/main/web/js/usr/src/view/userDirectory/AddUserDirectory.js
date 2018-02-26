@@ -346,7 +346,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
         protocolSource.setVisible(record.get('securityProtocol') !== 'NONE');
         if (record.get('certificateAlias')) {
             protocolSourceRadio.setValue({source: 'certificates'});
-            certificateCombo.setRawValue(record.get('certificateAlias'));
+            certificateCombo.setValue(record.get('certificateAlias'));
         } else if (record.get('trustStore')) {
             protocolSourceRadio.setValue({source: 'trustStores'});
             trustStoreCombo.getStore().load({
