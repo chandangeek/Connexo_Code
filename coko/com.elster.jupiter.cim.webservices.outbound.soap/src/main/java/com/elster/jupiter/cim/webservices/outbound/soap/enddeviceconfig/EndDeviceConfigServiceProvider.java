@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
         immediate = true,
         property = {"name=" + StateTransitionWebServiceClient.NAME})
 public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider {
+    private static final String NOUN = "EndDeviceConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory endDeviceConfigMessageObjectFactory = new ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory();
@@ -171,9 +172,9 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
                                     endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
                                 });
                                 if (isCreated) {
-                                    endDeviceConfigPortService.createdEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CREATED));
+                                    endDeviceConfigPortService.createdEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CREATE));
                                 } else {
-                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED));
+                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGE));
                                 }
                                 endPointConfiguration.log(LogLevel.INFO, String.format("State %s was %s on end device %s", state, isCreated ? "created" : "changed", endDevice.getName()));
                             } catch (FaultMessage faultMessage) {
@@ -214,7 +215,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(getWebServiceName());
+        header.setNoun(NOUN);
         header.setVerb(verb);
         endDeviceConfigEventMessageType.setHeader(header);
 

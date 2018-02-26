@@ -85,7 +85,6 @@ class EndDeviceConfigDataFactory {
         Status status = new Status();
         status.setValue(state);
         status.setDateTime(effectiveDate);
-        status.setReason("changeStatus");
         return status;
     }
 }
