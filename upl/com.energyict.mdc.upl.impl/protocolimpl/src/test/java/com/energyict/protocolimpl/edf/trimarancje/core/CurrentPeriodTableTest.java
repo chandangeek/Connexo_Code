@@ -15,6 +15,7 @@ import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -37,7 +38,8 @@ public class CurrentPeriodTableTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
+
+	@Ignore("Hardcoded CET date. Needs refactoring")
 	@Test
 	public final void parseTest(){
 		

@@ -10,6 +10,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import static junit.framework.Assert.assertEquals;
  * Date: 20.04.11
  * Time: 16:34
  */
+@Ignore("Hardcoded CET date. Needs refactoring")
 public class TestEk260_V111Test extends AbstractDl2xxTest {
 
     private Locale savedLocale;

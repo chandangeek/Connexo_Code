@@ -80,6 +80,7 @@ public class Lis200ProfileTest implements ProtocolLink {
         return false;
     }
 
+    @Ignore("Hardcoded CET date. Needs refactoring")
     @Test
     public void dl220processingTest() throws IOException {
 

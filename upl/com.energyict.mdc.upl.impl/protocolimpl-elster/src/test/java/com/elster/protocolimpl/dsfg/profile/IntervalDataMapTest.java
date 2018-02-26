@@ -4,6 +4,7 @@ import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.protocol.IntervalData;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -32,6 +33,7 @@ public class IntervalDataMapTest {
         }
     }
 
+    @Ignore("Hardcoded CET date. Needs refactoring")
 	@Test
 	public void testBuildMap1() throws ParseException
     {
@@ -47,7 +49,8 @@ public class IntervalDataMapTest {
         String s = idm.toString();
         assertEquals(c, s);
 	}
-	
+
+    @Ignore("Hardcoded CET date. Needs refactoring")
 	@Test
 	public void testBuildMap2() throws ParseException
     {
@@ -65,7 +68,8 @@ public class IntervalDataMapTest {
         String s = idm.toString();
         assertEquals(c, s);
 	}
-	
+
+    @Ignore("Hardcoded CET date. Needs refactoring")
 	@Test
 	public void testBuildMap3() throws ParseException
     {
@@ -87,7 +91,8 @@ public class IntervalDataMapTest {
         String s = idm.toString();
         assertEquals(c, s);
 	}
-	
+
+    @Ignore("Hardcoded CET date. Needs refactoring")
 	@Test
 	public void testBuildMap4() throws ParseException
     {
@@ -118,6 +123,7 @@ public class IntervalDataMapTest {
         assertEquals(c, s);
 	}
 
+    @Ignore("Hardcoded CET date. Needs refactoring")
     @Test
     public void testBuildMap5() throws ParseException
     {
