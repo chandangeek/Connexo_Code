@@ -165,7 +165,7 @@ Ext.define('Pkj.controller.BulkAction', {
                             }
                             if (decoded.bulk.withUsages && decoded.bulk.withUsages.length > 0) {
                                 var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.withUsages.length);
-                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeUsagesMsgx', 'PKJ', 'These certificates are used on a security accessor, firmware version or user directory:');
+                                var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeUsagesMsgx', 'PKJ', 'These certificates are used on a device, security accessor or user directory:');
                                 me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
                                 me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withUsages)
                             }
@@ -247,7 +247,7 @@ Ext.define('Pkj.controller.BulkAction', {
 
                                 }, {
                                     xtype: 'component',
-                                    html: Uni.I18n.translate('certificates.bulk.step5applyRevokeCAusages', 'PKJ', 'These certificates are used on a device security accessor, firmware version or user directory:')
+                                    html: Uni.I18n.translate('certificates.bulk.step5applyRevokeCAusages', 'PKJ', 'These certificates are used on a device, security accessor or user directory:')
 
                                 }]
                             });
