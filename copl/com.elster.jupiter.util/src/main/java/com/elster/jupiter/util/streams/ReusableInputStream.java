@@ -18,6 +18,7 @@ public class ReusableInputStream {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(100);
         ByteStreams.copy(inputStream, byteArrayOutputStream);
         bytes = byteArrayOutputStream.toByteArray();
+        inputStream.close();
     }
 
     public static ReusableInputStream from(InputStream inputStream) throws IOException {
