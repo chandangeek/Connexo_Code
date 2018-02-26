@@ -12,6 +12,7 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -55,8 +56,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
-import com.energyict.mdc.device.data.rest.Errors;
-import com.energyict.mdc.device.data.rest.LocalizedFieldException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -364,35 +363,23 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response validateDevices(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
-        List<Errors> err = new ArrayList<>();
         if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
-            err.add(new Errors("invalid action", MessageSeeds.BAD_ACTION.getDefaultFormat()));
-        }
-        if (!err.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+            throw new LocalizedFieldValidationException(MessageSeeds.BAD_ACTION, "action");
         }
         for (PropertyInfo property : request.properties) {
             if (property.required) {
                 if (property.propertyValueInfo == null || property.propertyValueInfo.value == null || "".equals(property.propertyValueInfo.value)) {
-                    err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties " + property.key);
                 }
             }
         }
-        if (!err.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
-        }
-
         Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getAllBpmProcessDefinitions()
                 .stream()
                 .filter(definition -> definition.getProcessName().equalsIgnoreCase(request.name))
                 .findAny();
         if (!bpmProcessDefinition.isPresent()) {
-            err.add(new Errors("process",MessageSeeds.NO_SUCH_PROCESS_DEFINITION.getDefaultFormat()));
+            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_PROCESS_DEFINITION, "name " + request.name);
         }
-        if (!err.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(new LocalizedFieldException(err)).build();
-        }
-
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = null;
         if (request.filter != null) {
             devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
@@ -402,7 +389,6 @@ public class DeviceResource {
                 .filter(device -> deviceStateMatches(device, bpmProcessDefinition.get()))
                 .map(Device::getmRID)
                 .collect(Collectors.toList());
-
         return Response.ok(deviceList).build();
     }
 
