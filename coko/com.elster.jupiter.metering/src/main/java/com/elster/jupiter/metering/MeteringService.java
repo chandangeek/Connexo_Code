@@ -86,6 +86,9 @@ public interface MeteringService {
 
     List<EndDevice> findEndDevices(Set<String> ids);
 
+    @Deprecated
+    Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames);
+
     Finder<Meter> findMeters(MeterFilter filter);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
