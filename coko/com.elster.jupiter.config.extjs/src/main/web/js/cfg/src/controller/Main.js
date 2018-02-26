@@ -9,7 +9,8 @@ Ext.define('Cfg.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.Auth',
         'Cfg.privileges.Validation',
-        'Apr.TaskManagementApp'
+        'Apr.TaskManagementApp',
+        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement'
     ],
 
     controllers: [
@@ -26,8 +27,7 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
         'Cfg.controller.TaskManagement',
-        'Cfg.controller.DataQualityKpiManagement',
-        'Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement'
+        'Cfg.controller.DataQualityKpiManagement'
     ],
 
     refs: [
@@ -48,6 +48,7 @@ Ext.define('Cfg.controller.Main', {
         });
         this.getController('Cfg.controller.TaskManagement');
         this.getController('Cfg.controller.DataQualityKpiManagement');
+        this.getController('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement');
         this.callParent();
     },
 

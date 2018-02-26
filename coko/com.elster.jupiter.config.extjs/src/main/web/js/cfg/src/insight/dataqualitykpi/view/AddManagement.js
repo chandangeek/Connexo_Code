@@ -25,7 +25,6 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
                 name: 'usagePointGroup',
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group'),
-                privileges: me.usagePointGroupsIsDefined,
                 emptyText: Uni.I18n.translate('ins.dataqualitykpi.selectUsagePointGroup', 'CFG', 'Select a usage point group...'),
                 store: 'Cfg.insight.dataqualitykpi.store.UsagePointGroups',
                 queryMode: 'local',
@@ -38,7 +37,6 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
                 itemId: 'no-usage-point-group-msg',
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.uagePointGroup', 'CFG', 'Usage point group'),
-                privileges: !me.usagePointGroupsIsDefined,
                 fieldStyle: 'color: #eb5642;',
                 value: Uni.I18n.translate('ins.dataqualitykpi.noUsagePointGroup', 'CFG', 'No usage point group available.')
             },
@@ -110,6 +108,12 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
             purpose.setVisible(true);
             purpose.setValue(record.get('metrologyPurpose').name);
         }
+
+        if (usagePointGroupCombo.getStore().getCount() == 0) {
+            usagePointGroupCombo.setVisible(false);
+            me.down('#no-usage-point-group-msg').setVisible(true);
+        }
+
         if (frequency) {
             me.down('[name=frequency]').setValue(frequency.every.count + frequency.every.timeUnit);
         }
@@ -123,19 +127,4 @@ Ext.define('Cfg.insight.dataqualitykpi.view.AddManagement', {
         }
     }
 
-    /*listeners: {
-     afterrender: {
-     scope: me,
-     fn: me.onAfterRender
-     }
-     },
-
-     onAfterRender: function () {
-     var me = this,
-     usagePointGroupCombo = me.down('#cmb-usage-point-group');
-
-     if (usagePointGroupCombo) {
-     usagePointGroupCombo.focus();
-     }
-     }*/
 });

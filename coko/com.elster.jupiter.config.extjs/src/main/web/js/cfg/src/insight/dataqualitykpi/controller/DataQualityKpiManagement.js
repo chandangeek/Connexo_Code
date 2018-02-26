@@ -82,11 +82,8 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
             callback: function () {
                 usagePointGroup.load({
                     callback: function () {
-                        if (usagePointGroup.getCount() > 0) {
-                            completedFunc.call(caller, form);
-                            form.loadRecord(Ext.create('Cfg.insight.dataqualitykpi.model.DataQualityKpi'));
-                            // form.loadRecord(new Cfg.insight.dataqualitykpi.model.DataQualityKpi);
-                        }
+                        completedFunc.call(caller, form);
+                        form.loadRecord(Ext.create('Cfg.insight.dataqualitykpi.model.DataQualityKpi'));
                     }
                 });
             }
@@ -139,7 +136,6 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiManagement', {
         record.endEdit();
         record.save({
             success: function (record, operation) {
-                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
                 saveOperationComplete.call(controller);
                 switch (operation.action) {
                     case 'update':
