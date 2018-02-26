@@ -5,15 +5,13 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateAuthorityRuntimeException;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.EnumLookupValueException;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.PropertyValueRequiredException;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
@@ -147,24 +145,31 @@ public class CaServiceImpl implements CaService {
 
     private void getPkiProperties(BundleContext bundleContext) {
         pkiHost = getPkiProperty(bundleContext, PKI_HOST_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_HOST_PROPERTY));
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_HOST_PROPERTY) {
+                });
         String port = getPkiProperty(bundleContext, PKI_PORT_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_PORT_PROPERTY));
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_PORT_PROPERTY) {
+                });
         pkiPort = Integer.parseInt(port);
 
         pkiTrustStore = getPkiProperty(bundleContext, PKI_CXO_TRUSTSTORE_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CXO_TRUSTSTORE_PROPERTY));
+                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CXO_TRUSTSTORE_PROPERTY) {
+                });
         pkiSuperAdminClientAlias = getPkiProperty(bundleContext, PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY));
+                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
+                        PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY) {
+                });
         pkiCaName = getPkiProperty(bundleContext, PKI_CA_NAME_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CA_NAME_PROPERTY));
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CA_NAME_PROPERTY) {
+                });
         pkiCertificateProfileName = getPkiProperty(bundleContext, PKI_CERTIFICATE_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_CERTIFICATE_PROFILE_NAME_PROPERTY));
+                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
+                        PKI_CERTIFICATE_PROFILE_NAME_PROPERTY) {
+                });
         pkiEndEntityProfileName = getPkiProperty(bundleContext, PKI_END_ENTITY_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_END_ENTITY_PROFILE_NAME_PROPERTY));
+                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
+                        PKI_END_ENTITY_PROFILE_NAME_PROPERTY) {
+                });
     }
 
     private Optional<String> getPkiProperty(BundleContext context, String property) {
@@ -196,8 +201,8 @@ public class CaServiceImpl implements CaService {
     @Override
     public void revokeCertificate(CertificateSearchFilter certificateTemplate, int reason) {
         lazyInit();
-        if (RevokeStatus.fromValue(reason) == null) {
-            throw new EnumLookupValueException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
+        if (!RevokeStatus.fromValue(reason).isPresent()) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
         }
         try {
             ejbcaWS.revokeCert(certificateTemplate.getIssuerDN(), certificateTemplate.getSerialNumber().toString(SN_HEX), reason);
@@ -209,15 +214,13 @@ public class CaServiceImpl implements CaService {
     @Override
     public RevokeStatus checkRevocationStatus(CertificateSearchFilter searchFilter) {
         lazyInit();
-        RevokeStatus revokeStatus;
         org.ejbca.core.protocol.ws.client.gen.RevokeStatus rs;
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
-            revokeStatus = RevokeStatus.fromValue(rs.getReason());
-        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception | EnumLookupValueException e) {
+        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
         }
-        return revokeStatus;
+        return RevokeStatus.fromValue(rs.getReason()).orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR));
     }
 
     @Override
@@ -402,5 +405,4 @@ public class CaServiceImpl implements CaService {
     void init(EjbcaWS ejbcaWS) {
         this.ejbcaWS = ejbcaWS;
     }
-
 }

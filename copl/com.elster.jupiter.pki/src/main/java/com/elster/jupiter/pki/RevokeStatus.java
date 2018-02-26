@@ -4,9 +4,14 @@
 
 package com.elster.jupiter.pki;
 
-import java.math.BigDecimal;
+import aQute.bnd.annotation.ProviderType;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
+@ProviderType
 public enum RevokeStatus {
+
     NOT_REVOKED(-1),
     REVOCATION_REASON_UNSPECIFIED(0),
     REVOCATION_REASON_KEYCOMPROMISE(1),
@@ -20,7 +25,6 @@ public enum RevokeStatus {
     REVOCATION_REASON_AACOMPROMISE(10);
 
     private int val;
-    public static final String REVOKE_STATUS = "RevokeStatus";
 
     RevokeStatus(int val) {
         this.val = val;
@@ -30,17 +34,16 @@ public enum RevokeStatus {
         return val;
     }
 
-    public static RevokeStatus fromValue(BigDecimal value) throws EnumLookupValueException {
-        return fromValue(value.intValue());
+    public static Optional<RevokeStatus> fromValue(BigDecimal value) {
+        return value == null ? Optional.empty() : fromValue(value.intValue());
     }
 
-    public static RevokeStatus fromValue(int value) throws EnumLookupValueException {
+    public static Optional<RevokeStatus> fromValue(int value) {
         for (RevokeStatus action : values()) {
             if (value == action.getVal()) {
-                return action;
+                return Optional.of(action);
             }
         }
-        return null;
+        return Optional.empty();
     }
-
 }
