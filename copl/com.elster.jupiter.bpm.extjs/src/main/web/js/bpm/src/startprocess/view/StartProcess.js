@@ -162,7 +162,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             if (!visible) {
                 me.down('combobox[name=startProcessCombo]').bindStore(me.availableStore);
             }
-            callback(visible);
+            callback && callback(visible);
             viewport.setLoading(false);
 
         });
