@@ -40,6 +40,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private long locationId;
     private SpatialCoordinates spatialCoordinates;
 
+    private long lifeCycle;
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
     private Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetsValues = new HashMap<>();
@@ -72,6 +73,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates) {
         this.spatialCoordinates = geoCoordinates;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withLifeCycle(long lifeCycle) {
+        this.lifeCycle = lifeCycle;
         return this;
     }
 
@@ -159,7 +166,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     private UsagePointImpl build() {
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, lifeCycle, serviceCategory);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);
@@ -171,7 +178,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
-        usagePoint.setLifeCycle(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle());
         State initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
                 .stream()
                 .filter(State::isInitial)

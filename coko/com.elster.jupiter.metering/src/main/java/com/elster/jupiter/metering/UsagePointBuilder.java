@@ -23,6 +23,8 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withIsSdp(boolean isSdp);
 
+    UsagePointBuilder withLifeCycle(long lifeCycle);
+
     UsagePointBuilder withIsVirtual(boolean isVirtual);
 
     UsagePointBuilder withOutageRegion(String outageRegion);

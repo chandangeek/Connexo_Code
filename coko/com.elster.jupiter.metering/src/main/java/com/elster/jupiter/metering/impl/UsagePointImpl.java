@@ -241,11 +241,14 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    UsagePointImpl init(String name, ServiceCategory serviceCategory) {
+    UsagePointImpl init(String name, long lifecycle, ServiceCategory serviceCategory) {
         this.name = name;
         this.mRID = UUID.randomUUID().toString();
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
+        this.usagepointLifeCycle.set(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .findUsagePointLifeCycle(lifecycle)
+                .get());
         return this;
     }
 
@@ -1255,10 +1258,6 @@ public class UsagePointImpl implements ServerUsagePoint {
     @Override
     public void setLocation(long locationId) {
         this.location = locationId;
-    }
-
-    protected void setLifeCycle(UsagePointLifeCycle usagePointLifeCycle) {
-        this.usagepointLifeCycle.set(usagePointLifeCycle);
     }
 
     @Override
