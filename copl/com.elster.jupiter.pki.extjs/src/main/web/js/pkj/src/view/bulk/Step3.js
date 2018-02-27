@@ -47,6 +47,7 @@ Ext.define('Pkj.view.bulk.Step3', {
                     itemId: 'timeout',
                     name: 'timeout',
                     valueField: 'value',
+                    value: 30000,
                     displayField: 'displayValue',
                     queryMode: 'local'
                 }
