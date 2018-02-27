@@ -173,6 +173,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.RemoveLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.ResetLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
 
                 PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
 
@@ -738,6 +740,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.resetRouter(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.FETCH_LOGGING)) {
                         this.fetchLogging(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG)) {
+                        this.setRemoteSyslogConfig(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED)) {
                         this.setVpnState(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_TYPE)) {
@@ -2568,6 +2572,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             fileOutputStream.close();
         } catch (IOException e) {
             this.getLogger().log(Level.WARNING, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setRemoteSyslogConfig(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int transportServiceType = DeviceActionMessage.TransportServiceType.valueForDescription(getStringAttributeValue(pendingMessage, remoteSyslogTransportServiceType)).getId();
+        String destination = getStringAttributeValue(pendingMessage, remoteSyslogDestination);
+        int port = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, remoteSyslogPort).getValue());
+        int ipVersion = DeviceActionMessage.IPVersion.valueForDescription(getStringAttributeValue(pendingMessage, remoteSyslogIpVersion)).getId();
+
+        try {
+            Structure remoteSyslogConfig = new Structure();
+            remoteSyslogConfig.addDataType(new TypeEnum(transportServiceType));
+            remoteSyslogConfig.addDataType(UTF8String.fromString(destination));
+            remoteSyslogConfig.addDataType(new Unsigned16(port));
+            remoteSyslogConfig.addDataType(new TypeEnum(ipVersion));
+            getDebugLogIC(pendingMessage, collectedMessage).writeRemoteSyslogConfig(remoteSyslogConfig);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to write the remote syslog configuration using Debug log IC : [" + e.getMessage() + "]", e);
             throw e;
         }
     }

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Provides a summary of all messages related to general Device Actions.
@@ -475,9 +476,102 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
-    }
+    },
+
+    SET_REMOTE_SYSLOG_CONFIG(8070, "Configure an external logging server") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.remoteSyslogTransportServiceType, DeviceMessageConstants.remoteSyslogTransportServiceTypeDefaultTranslation)
+                            .addValues(TransportServiceType.getDescriptionValues())
+                            .finish(),
+                    this.stringSpec(service, DeviceMessageConstants.remoteSyslogDestination, DeviceMessageConstants.remoteSyslogDestinationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remoteSyslogPort, DeviceMessageConstants.remoteSyslogPortDefaultTranslation),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.remoteSyslogIpVersion, DeviceMessageConstants.remoteSyslogIpVersionDefaultTranslation)
+                            .addValues(IPVersion.getDescriptionValues())
+                            .finish());
+        }
+    },
 
     ;
+
+    public enum IPVersion {
+        IPv4(0, "IPv4"),
+        IPv6(1, "IPv6")
+        ;
+
+        private final int id;
+        private final String description;
+
+        IPVersion(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static IPVersion valueForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            IPVersion[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum TransportServiceType {
+        TCP(0, "TCP"),
+        UDP(1, "UDP")
+        ;
+
+        private final int id;
+        private final String description;
+
+        TransportServiceType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static TransportServiceType valueForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            TransportServiceType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 
     private final long id;
     private final String defaultNameTranslation;

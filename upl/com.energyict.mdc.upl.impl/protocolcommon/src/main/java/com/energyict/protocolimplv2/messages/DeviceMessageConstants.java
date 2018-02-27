@@ -1683,4 +1683,14 @@ public final class DeviceMessageConstants {
     public static final String vpnVirtualIPEnabledDefaultTranslation = "Set virtual IP enabled";
     public static final String vpnIPCompressionEnabled = "NetworkConnectivityMessage.vpnIPCompressionEnabled";
     public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
+
+    //Debug log IC
+    public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";
+    public static final String remoteSyslogTransportServiceTypeDefaultTranslation = "Transport service type";
+    public static final String remoteSyslogDestination = "DeviceActionMessage.remoteSyslogDestination";
+    public static final String remoteSyslogDestinationDefaultTranslation = "Destination";
+    public static final String remoteSyslogPort = "DeviceActionMessage.remoteSyslogPort";
+    public static final String remoteSyslogPortDefaultTranslation = "Port";
+    public static final String remoteSyslogIpVersion = "DeviceActionMessage.remoteSyslogIpVersion";
+    public static final String remoteSyslogIpVersionDefaultTranslation = "IP version";
 }

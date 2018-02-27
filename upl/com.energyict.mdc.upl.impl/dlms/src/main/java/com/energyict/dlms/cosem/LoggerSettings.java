@@ -1,10 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.LoggerSettingsAttributes;
 import com.energyict.dlms.cosem.methods.LoggerSettingsMethods;
 import com.energyict.obis.ObisCode;
@@ -119,6 +116,16 @@ public class LoggerSettings extends AbstractCosemObject {
         if (logLevel.getValue() < 0 || logLevel.getValue() > 0x07) {
             throw new IOException("Invalid log level (" + logLevel.getValue() + "). Log level should be in range in range 0 to 7");
         }
+    }
+
+    /**
+     * Setter for the remote syslog configuration
+     *
+     * @param remoteSyslogConfig the new remote syslog configuration
+     * @throws java.io.IOException
+     */
+    public void writeRemoteSyslogConfig(Structure remoteSyslogConfig) throws IOException {
+        write(LoggerSettingsAttributes.REMOTE_SYSLOG_CONFIG, remoteSyslogConfig.getBEREncodedByteArray());
     }
 
     /**
