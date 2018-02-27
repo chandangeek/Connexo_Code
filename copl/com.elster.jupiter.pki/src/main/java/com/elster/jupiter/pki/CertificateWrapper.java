@@ -138,14 +138,10 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     Optional<String> getStringifiedKeyUsages();
 
     /**
-     * Set or remove obsolete flag for certificate
-     *
-     * @param obsolete bool value to be set as obsolete flag
+     * Set {@link CertificateWrapperStatus}, that will be used over X509Certificate statuses
+     * @param status to be set
      */
-    void setObsolete(boolean obsolete);
+    void setWrapperStatus(CertificateWrapperStatus status);
 
-    /**
-     * @return boolean value that specifies obsolete status for this certificate
-     */
-    boolean isObsolete();
+    CertificateWrapperStatus getWrapperStatus();
 }
