@@ -44,7 +44,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
             });
         }
 
-        if (!config.caOnline) {
+        if (config.caOnline) {
             me.timeout = 30000;
 
             me.insert(1, [{
@@ -82,18 +82,18 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
 
     confirm: function () {
         var me = this,
-            url = '/api/pir/certificates/' + me.bindRecordId + '/revoke';
+            url = '/api/pir/certificates/' + me.bindRecordId + '/revoke' + '?timeout=';
 
         if (me.timeout) {
             me.disableClickables();
-            url = url + '?timeout=' + me.timeout;
+            url = url + (me.timeout ? me.timeout : 30000);
             var pb = me.down('#pnl-revocation-progress').add(Ext.create('Ext.ProgressBar', {
                 xtype: 'progressbar',
-                itemId: 'revocation-progressbar',
+                itemId: 'revocation-progressbar'
             })).wait({
-                duration: me.timeout,
+                duration: me.timeout ? me.timeout : 30000,
                 interval: 100,
-                increment: me.timeout / 100,
+                increment: me.timeout ? me.timeout : 30000 / 100,
                 text: Uni.I18n.translate('certificate.revoke.progress.test', 'PKJ', 'Request to CA is in progress. Please wait...')
             });
         } else {

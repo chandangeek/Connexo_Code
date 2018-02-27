@@ -461,24 +461,25 @@ Ext.define('Pkj.controller.Certificates', {
     },
 
     requestCertificate: function (menuItem) {
-        var recordId = menuItem.up('certificate-action-menu').record.get('id');
+        var me = this,
+            recordId = menuItem.up('certificate-action-menu').record.get('id');
 
         Ext.widget('certificate-request-window', {
             confirmText: Uni.I18n.translate('general.request', 'PKJ', 'Request'),
             confirmation: function () {
-                var me = this,
+                var self = this,
                     combobox = this.down('combobox'),
                     timeout = combobox.getValue();
 
-                me.down('#request-progress').add(Ext.create('Ext.ProgressBar'))
+                self.down('#request-progress').add(Ext.create('Ext.ProgressBar'))
                     .wait({
                         duration: timeout,
                         interval: 100,
                         increment: timeout / 100,
                         text: Uni.I18n.translate('certificate.revoke.progress.test', 'PKJ', 'Request to CA is in progress. Please wait...')
                     });
-                me.down('#confirm-button').disable();
-                me.down('#cancel-button').disable();
+                self.down('#confirm-button').disable();
+                self.down('#cancel-button').disable();
                 combobox.disable();
 
                 Ext.Ajax.request({
@@ -486,19 +487,18 @@ Ext.define('Pkj.controller.Certificates', {
                     method: 'POST',
                     timeout: timeout,
 
-                    callback: function (response) {
-
-                        if (!Ext.isEmpty(response.responseText)) {
+                    callback: function (config, success, response) {
+                        if (success) {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('certificate.requestSuccess', 'PKJ', "Certificate requested"));
+                            me.navigateToCertificatesOverview();
+                        } else if (!Ext.isEmpty(response.responseText)) {
                             var responseObject = JSON.parse(response.responseText);
-                            if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === true) {
-                                var errorMsg = me.constructUsagesList(responseObject,
-                                    Uni.I18n.translate('certificateRequest.usages.error', 'PKJ', 'A time out occurred. Certificate couldn\'t be received from the Certification authority') + ':');
+                            if (responseObject.isUsed) {
                                 me.getApplication().getController('Uni.controller.Error').showHtmlSensitiveError(
-                                    Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), errorMsg);
-                                return;
+                                    Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), Uni.I18n.translate('certificateRequest.usagesError', 'PKJ', 'A time out occurred. Certificate couldn\'t be received from the Certification authority.'));
                             }
                         }
-                        me.superclass.confirmation.call(me);
+                        self.superclass.confirmation.call(self);
                     }
                 });
             },
