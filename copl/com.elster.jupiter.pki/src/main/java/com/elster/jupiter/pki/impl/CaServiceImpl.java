@@ -145,31 +145,20 @@ public class CaServiceImpl implements CaService {
 
     private void getPkiProperties(BundleContext bundleContext) {
         pkiHost = getPkiProperty(bundleContext, PKI_HOST_PROPERTY)
-                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_HOST_PROPERTY) {
-                });
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_HOST_PROPERTY));
         String port = getPkiProperty(bundleContext, PKI_PORT_PROPERTY)
-                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_PORT_PROPERTY) {
-                });
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_PORT_PROPERTY));
         pkiPort = Integer.parseInt(port);
-
-        pkiTrustStore = getPkiProperty(bundleContext, PKI_CXO_TRUSTSTORE_PROPERTY).orElseThrow(
-                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CXO_TRUSTSTORE_PROPERTY) {
-                });
-        pkiSuperAdminClientAlias = getPkiProperty(bundleContext, PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY).orElseThrow(
-                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY) {
-                });
+        pkiTrustStore = getPkiProperty(bundleContext, PKI_CXO_TRUSTSTORE_PROPERTY)
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CXO_TRUSTSTORE_PROPERTY));
+        pkiSuperAdminClientAlias = getPkiProperty(bundleContext, PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY)
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY));
         pkiCaName = getPkiProperty(bundleContext, PKI_CA_NAME_PROPERTY)
-                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CA_NAME_PROPERTY) {
-                });
-        pkiCertificateProfileName = getPkiProperty(bundleContext, PKI_CERTIFICATE_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_CERTIFICATE_PROFILE_NAME_PROPERTY) {
-                });
-        pkiEndEntityProfileName = getPkiProperty(bundleContext, PKI_END_ENTITY_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new LocalizedException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_END_ENTITY_PROFILE_NAME_PROPERTY) {
-                });
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CA_NAME_PROPERTY));
+        pkiCertificateProfileName = getPkiProperty(bundleContext, PKI_CERTIFICATE_PROFILE_NAME_PROPERTY)
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CERTIFICATE_PROFILE_NAME_PROPERTY));
+        pkiEndEntityProfileName = getPkiProperty(bundleContext, PKI_END_ENTITY_PROFILE_NAME_PROPERTY)
+                .orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_END_ENTITY_PROFILE_NAME_PROPERTY));
     }
 
     private Optional<String> getPkiProperty(BundleContext context, String property) {
@@ -266,10 +255,9 @@ public class CaServiceImpl implements CaService {
                         .append("CPs in profile: ").append(cpInProfile).append('\n');
             }
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getMessage());
         }
         return result.toString();
-
     }
 
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
