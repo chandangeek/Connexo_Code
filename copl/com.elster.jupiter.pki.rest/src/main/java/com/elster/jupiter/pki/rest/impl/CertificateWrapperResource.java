@@ -80,6 +80,7 @@ import static java.util.stream.Collectors.toList;
 @Path("/certificates")
 public class CertificateWrapperResource {
     private static final long MAX_FILE_SIZE = 2048;
+    private static final long DEFAULT_TIMEOUT = 30000;
     private static final String CERTIFICATE_STATUS_REQUESTED = "Requested";
     private static final String CERTIFICATE_STATUS_REVOKED = "Revoked";
 
@@ -371,7 +372,7 @@ public class CertificateWrapperResource {
         if (findCertificateUsages(cert).isUsed) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Revocation called with certificate usages").build();
         }
-        revocationUtils.revokeCertificate(cert, timeout);
+        revocationUtils.revokeCertificate(cert, timeout == 0 ? DEFAULT_TIMEOUT : timeout);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -416,8 +417,8 @@ public class CertificateWrapperResource {
                 toRevoke.add(certificate);
             }
         });
-
-        CertificateRevocationResultInfo resultInfo = revocationUtils.bulkRevokeCertificates(toRevoke, revocationInfo.timeout);
+        long timeout = revocationInfo.timeout == null || revocationInfo.timeout == 0 ? DEFAULT_TIMEOUT : revocationInfo.timeout;
+        CertificateRevocationResultInfo resultInfo = revocationUtils.bulkRevokeCertificates(toRevoke, timeout);
         withUsages.forEach(resultInfo::addWithUsages);
         withWrongStatus.forEach(resultInfo::addWithWrongStatus);
         resultInfo.updateCounters(certificates.size());
