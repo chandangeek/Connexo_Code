@@ -14,12 +14,17 @@ Ext.define('Apr.model.Task', {
                 } else if (record.get('queueStatus')==='Planned'){
                     return Uni.I18n.translate('general.plannedOn','APR','Planned on {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('queueStatusDate'))),false);
                 }
+                else {
+                    return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+                }
             }
         },
         {
             name: 'nextRun',
+            type: 'number',
+            defaultValue: null,
             convert: function(value){
-                return Uni.DateTime.formatDateTimeLong(new Date(value));
+                return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
             }
         },
         {
