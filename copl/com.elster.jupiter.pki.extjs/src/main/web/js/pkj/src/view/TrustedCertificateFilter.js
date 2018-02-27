@@ -28,6 +28,7 @@ Ext.define('Pkj.view.TrustedCertificateFilter', {
         keyUsageStore.getProxy().setUrl(me.trustStoreId);
         issuersStore.getProxy().setUrl(me.trustStoreId);
         subjectsStore.getProxy().setUrl(me.trustStoreId);
+        statusStore.getProxy().setUrl(me.trustStoreId);
         me.filters = [
             {
                 type: 'combobox',
