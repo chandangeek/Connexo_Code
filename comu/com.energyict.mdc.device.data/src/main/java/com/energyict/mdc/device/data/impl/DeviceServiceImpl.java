@@ -25,7 +25,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
@@ -619,8 +618,8 @@ class DeviceServiceImpl implements ServerDeviceService {
     public boolean usedByKeyAccessor(CertificateWrapper certificate) {
         return !deviceDataModelService.dataModel()
                 .query(SecurityAccessor.class)
-                .select(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
-                        .or(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .select(where(AbstractDeviceSecurityAccessorImpl .Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(where(AbstractDeviceSecurityAccessorImpl .Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
                 .isEmpty();
     }
 
