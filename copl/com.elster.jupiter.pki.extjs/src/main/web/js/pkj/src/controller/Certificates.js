@@ -498,7 +498,7 @@ Ext.define('Pkj.controller.Certificates', {
                                     Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), Uni.I18n.translate('certificateRequest.usagesError', 'PKJ', 'A time out occurred. Certificate couldn\'t be received from the Certification authority.'));
                             }
                         }
-                        self.superclass.confirmation.call(self);
+                        self.close();
                     }
                 });
             },

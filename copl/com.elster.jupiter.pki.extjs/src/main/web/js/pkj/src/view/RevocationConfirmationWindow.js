@@ -9,7 +9,6 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
         'Pkj.store.CertificateTimeouts'
     ],
 
-    itemId: 'revocation-confirmation-window',
     bindRecordId: undefined,
     certificatesView: undefined,
     //default
@@ -96,7 +95,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
                 text: Uni.I18n.translate('certificate.revoke.progress.test', 'PKJ', 'Request to CA is in progress. Please wait...')
             });
         } else {
-            me.hide();
+            me.close();
         }
 
         Ext.Ajax.request({
@@ -107,7 +106,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
             callback: function (config, success, response) {
                 if (pb) {
                     pb.destroy();
-                    me.hide();
+                    me.close();
                 }
                 if (success) {
                     me.certificatesView.getApplication().fireEvent('acknowledge', Uni.I18n.translate('certificate.revoked', 'PKJ', "Certificate revoked"));
