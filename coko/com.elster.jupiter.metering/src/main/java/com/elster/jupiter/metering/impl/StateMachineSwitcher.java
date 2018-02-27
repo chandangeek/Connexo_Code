@@ -13,6 +13,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.orm.DataModel;

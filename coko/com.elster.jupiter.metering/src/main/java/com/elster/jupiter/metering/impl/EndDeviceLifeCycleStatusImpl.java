@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
