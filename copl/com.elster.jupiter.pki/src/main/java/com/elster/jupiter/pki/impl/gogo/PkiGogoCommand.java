@@ -212,7 +212,6 @@ public class PkiGogoCommand {
     }
 
 
-    //TODO: To be removed
     private PKCS10CertificationRequest generateTestCsr(String cn) throws NoSuchAlgorithmException, OperatorCreationException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, new SecureRandom());
@@ -224,7 +223,6 @@ public class PkiGogoCommand {
         return p10Builder.build(signer);
     }
 
-    //TODO: To be removed
     public void signCsr() throws NoSuchAlgorithmException, OperatorCreationException {
         List<List<?>> collect = new ArrayList<>();
         PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
@@ -244,7 +242,7 @@ public class PkiGogoCommand {
 
     public void signCsrAndRevoke() throws NoSuchAlgorithmException, OperatorCreationException, IOException {
         List<List<?>> collect = new ArrayList<>();
-        PKCS10CertificationRequest csr = generateTestCsr();
+        PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
         collect.add(0, Arrays.asList("Sending CSR with X500 name"));
         collect.add(1, Arrays.asList(csr.getSubject()));
         MYSQL_PRINT.printTable(collect);
@@ -258,7 +256,7 @@ public class PkiGogoCommand {
                         x509Certificate.getSerialNumber()));
         MYSQL_PRINT.printTable(collect);
         collect.clear();
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
         certificateSearchFilter.setSerialNumber(x509Certificate.getSerialNumber());
         certificateSearchFilter.setIssuerDN(x509Certificate.getIssuerDN().getName());
         collect.add(0, Arrays.asList("Checking certificate revocation status"));
