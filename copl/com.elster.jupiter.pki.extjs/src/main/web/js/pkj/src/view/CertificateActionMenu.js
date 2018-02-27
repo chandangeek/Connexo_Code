@@ -81,7 +81,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'requestCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && (record.get('status') !== 'Requested');
+                    return !Ext.isEmpty(record) && (record.get('status') === 'Requested');
                 },
                 section: this.SECTION_ACTION
             }
