@@ -15,6 +15,37 @@ import java.util.stream.Collectors;
 
 public class ReadingTypeFilterUtil {
 
+
+    private final static String DELIMITER = "\\\\.";
+    private final static String NUMBER_REGEX = "[0-9]+";
+    private final static String DOT= ".";
+    public final static String DEFAULT_VALUE = "0";
+
+
+    /**
+     * Check every MRID field for multiple matches. If there is a single match,
+     * we return the unchanged value, otherwise we return a default value.
+     * Example:
+     * IN : 0\.0\.0.\.0\.1\.1\.(12|37)\.0\.0\.0\.0\.0\.[0-9]+\.[0-9]+\.0\.-?[0-9]+\.[0-9]+\.[0-9]+
+     * OUT: 0.0.0.0.1.1.0.0.0.0.0.0.0.0.0.0.0.0
+     * @param regex MRID regex that matches one or multiple reading types
+     * @return String
+     */
+    public static String extractUniqueFromRegex(String regex) {
+        String values[] = regex.split(DELIMITER);
+        StringBuilder mrid = new StringBuilder();
+        int i = 1;
+        String code;
+        for(String value : values){
+            code = value.matches(NUMBER_REGEX) ? value : DEFAULT_VALUE;
+            mrid.append(code);
+
+            if (i++ != values.length)
+                mrid.append(DOT);
+        }
+        return mrid.toString();
+    }
+
     /**
      * The only supported wildcards are "*" and "?"
      * We're trying to match the Where.toOracleSql behavior so:
@@ -45,7 +76,7 @@ public class ReadingTypeFilterUtil {
      * @param readingTypes list of reading types that we've filtered from the database using a MRID regex
      * @return Input reading type list if search text is missing, otherwise a new list filtered by the search text.
      */
-    static List<ReadingType> getFilteredList(String searchText, List<ReadingType> readingTypes) {
+    public static List<ReadingType> getFilteredList(String searchText, List<ReadingType> readingTypes) {
         if (searchText == null || searchText.isEmpty())
             return readingTypes;
 
@@ -75,7 +106,7 @@ public class ReadingTypeFilterUtil {
      * @param mRID regular expression to match mRID values
      * @return Condition to query the database
      */
-    static Condition getMRIDFilterCondition(String mRID){
+    public static Condition getMRIDFilterCondition(String mRID){
         return Where.where("mRID").matches(mRID, "").and(mridMatchOfRegisters());
     }
 

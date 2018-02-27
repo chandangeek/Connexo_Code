@@ -94,7 +94,7 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
 
     protected ReadingType mockReadingType(){
         ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getAliasName()).thenReturn("register type");
+        when(readingType.getAliasName()).thenReturn("reading type");
         when(readingType.getMRID()).thenReturn("mrid");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
