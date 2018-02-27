@@ -5,11 +5,9 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateAuthorityRuntimeException;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -158,7 +156,7 @@ public class CaServiceImpl implements CaService {
         pkiPort = StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
         pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
         pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
-        pkiManagementClientAlias= bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
+        pkiManagementClientAlias= bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
         pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
         pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
         pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
