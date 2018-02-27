@@ -420,6 +420,7 @@ public enum DeviceMessageId {
     ProgramPulseInputParametersAndConstants(8067),
     ResetLogicalDevice(8068),
     FETCH_LOGGING(8069),
+    SET_REMOTE_SYSLOG_CONFIG(8070),
 
     PRICING_GET_INFORMATION(9001),
     PRICING_SET_INFORMATION(9002),
