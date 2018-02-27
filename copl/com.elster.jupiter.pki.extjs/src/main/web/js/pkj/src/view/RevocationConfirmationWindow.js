@@ -82,11 +82,10 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
 
     confirm: function () {
         var me = this,
-            url = '/api/pir/certificates/' + me.bindRecordId + '/revoke' + '?timeout=';
+            url = '/api/pir/certificates/' + me.bindRecordId + '/revoke' + '?timeout=' + (me.timeout ? me.timeout : 30000);
 
         if (me.timeout) {
             me.disableClickables();
-            url = url + (me.timeout ? me.timeout : 30000);
             var pb = me.down('#pnl-revocation-progress').add(Ext.create('Ext.ProgressBar', {
                 xtype: 'progressbar',
                 itemId: 'revocation-progressbar'
@@ -104,7 +103,7 @@ Ext.define('Pkj.view.RevocationConfirmationWindow', {
             url: url,
             method: 'POST',
             //ajax request timeout increased to specified one by user plus 5 sec extra
-            timeout: me.timeout ? me.timeout + 5000 : undefined,
+            timeout: me.timeout ? me.timeout + 5000 : 30000,
             callback: function (config, success, response) {
                 if (pb) {
                     pb.destroy();
