@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
@@ -26,6 +27,7 @@ import com.elster.jupiter.users.UserDirectory;
 import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -128,9 +130,12 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .since(Version.version(10, 4))
                     .add();
-            table.column("OBSOLETE")
-                    .bool()
-                    .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
+            table.column("STATUS")
+                    .varChar(Table.NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .notNull()
+                    .installValue("'" + CertificateWrapperStatus.NATIVE.name() + "'")
+                    .map(AbstractCertificateWrapperImpl.Fields.WRAPPER_STATUS.fieldName())
                     .since(Version.version(10, 4, 1))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
