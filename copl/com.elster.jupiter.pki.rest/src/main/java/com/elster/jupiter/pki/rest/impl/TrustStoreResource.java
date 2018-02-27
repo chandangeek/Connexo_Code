@@ -19,7 +19,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.conditions.Where;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -109,7 +109,7 @@ public class TrustStoreResource {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<? extends CertificateWrapper> certificates;
         if (jsonQueryFilter.hasFilters()) {
-            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter,id);
+            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter, id);
             certificates = securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter);
         } else {
             certificates = trustStore.getCertificates();
@@ -117,8 +117,8 @@ public class TrustStoreResource {
         return asPagedInfoList(certificateInfoFactory.asInfo(certificates), "certificates", queryParameters);
     }
 
-    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter,long trustStoreId) {
-        return dataSearchFilterFactory.asFilter(jsonQueryFilter,securityManagementService.findTrustStore(trustStoreId));
+    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter, long trustStoreId) {
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter, securityManagementService.findTrustStore(trustStoreId));
     }
 
     @GET
@@ -181,16 +181,30 @@ public class TrustStoreResource {
         return PagedInfoList.fromPagedList("keyUsages", collect, queryParameters);
     }
 
+    @GET
+    @Path("/{id}/certificates/statuses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList statusSource(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<StatusInfo> statuses = findTrustStoreOrThrowException(id).getCertificates().stream()
+                .map(CertificateWrapper::getStatus)
+                .distinct()
+                .map(StatusInfo::new)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("statuses", statuses, queryParameters);
+    }
+
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     public Response downloadCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         if (!TrustedCertificate.class.isAssignableFrom(certificateWrapper.getClass()) ||
-                ((TrustedCertificate)certificateWrapper).getTrustStore().getId()!=trustStoreId) {
+                ((TrustedCertificate) certificateWrapper).getTrustStore().getId() != trustStoreId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE);
         }
         if (!certificateWrapper.getCertificate().isPresent()) {
@@ -204,7 +218,7 @@ public class TrustStoreResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
@@ -230,7 +244,7 @@ public class TrustStoreResource {
             TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            if (certificate==null) {
+            if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, "file");
             }
             trustStore.addCertificate(alias, certificate);
@@ -301,9 +315,9 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
         TrustStore trustStore = securityManagementService.findAndLockTrustStoreByIdAndVersion(id, info.version)
-            .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                    .withActualVersion(() -> getCurrentTrustStoreVersion(info.id))
-                    .supplier());
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentTrustStoreVersion(info.id))
+                        .supplier());
         trustStore.setName(info.name);
         trustStore.setDescription(info.description);
         trustStore.save();
@@ -328,8 +342,8 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
-            .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );
-        if ( ((TrustedCertificate)certificateWrapper).getTrustStore().getId() != trustStoreId ) {
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId));
+        if (((TrustedCertificate) certificateWrapper).getTrustStore().getId() != trustStoreId) {
             throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE_IN_STORE, certificateId, trustStoreId).get();
         }
         certificateWrapper.delete();
