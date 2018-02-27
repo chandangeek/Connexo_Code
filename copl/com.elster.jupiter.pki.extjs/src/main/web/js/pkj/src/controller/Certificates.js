@@ -486,7 +486,18 @@ Ext.define('Pkj.controller.Certificates', {
                     method: 'POST',
                     timeout: timeout,
 
-                    callback: function () {
+                    callback: function (response) {
+
+                        if (!Ext.isEmpty(response.responseText)) {
+                            var responseObject = JSON.parse(response.responseText);
+                            if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === true) {
+                                var errorMsg = me.constructUsagesList(responseObject,
+                                    Uni.I18n.translate('certificateRequest.usages.error', 'PKJ', 'A time out occurred. Certificate couldn\'t be received from the Certification authority') + ':');
+                                me.getApplication().getController('Uni.controller.Error').showHtmlSensitiveError(
+                                    Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), errorMsg);
+                                return;
+                            }
+                        }
                         me.superclass.confirmation.call(me);
                     }
                 });
