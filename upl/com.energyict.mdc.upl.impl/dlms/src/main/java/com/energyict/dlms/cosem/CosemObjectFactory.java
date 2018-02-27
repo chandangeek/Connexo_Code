@@ -838,4 +838,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public BorderRouterIC getBorderRouterIC(ObisCode obisCode) throws NotInObjectListException {
         return new BorderRouterIC(this.protocolLink, this.getObjectReference(obisCode));
     }
+
+    public VPNSetupIC getVPNSetupIC(ObisCode obisCode) throws NotInObjectListException {
+        return new VPNSetupIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
 }

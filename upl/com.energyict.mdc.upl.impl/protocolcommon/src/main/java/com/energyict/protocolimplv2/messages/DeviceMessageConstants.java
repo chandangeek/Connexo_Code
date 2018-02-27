@@ -1661,4 +1661,26 @@ public final class DeviceMessageConstants {
     public static final String compressionContextMulticastDefaultTranslation = "Compression context multicast";
     public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
     public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
+
+    //VPN Setup IC
+    public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";
+    public static final String vpnEnabledDefaultTranslation = "Set VPN enabled";
+    public static final String vpnType = "NetworkConnectivityMessage.vpnType";
+    public static final String vpnTypeDefaultTranslation = "Set VPN type";
+    public static final String vpnGatewayAddress = "NetworkConnectivityMessage.vpnGatewayAddress";
+    public static final String vpnGatewayAddressDefaultTranslation = "Remote VPN endpoint. Can be either ip address or hostname";
+    public static final String vpnAuthenticationType = "NetworkConnectivityMessage.vpnAuthenticationType";
+    public static final String vpnAuthenticationTypeDefaultTranslation = "Authentication type";
+    public static final String vpnLocalIdentifier = "NetworkConnectivityMessage.vpnLocalIdentifier";
+    public static final String vpnLocalIdentifierDefaultTranslation = "Local identifier used during IKE SA";
+    public static final String vpnRemoteIdentifier = "NetworkConnectivityMessage.vpnRemoteIdentifier";
+    public static final String vpnRemoteIdentifierDefaultTranslation = "Remote identifier expected during IKE SA";
+    public static final String vpnRemoteCertificate = "NetworkConnectivityMessage.vpnRemoteCertificate";
+    public static final String vpnRemoteCertificateDefaultTranslation = "Remote certificate expected during IKE.";
+    public static final String vpnSharedSecret = "NetworkConnectivityMessage.vpnSharedSecret";
+    public static final String vpnSharedSecretDefaultTranslation = "Shared secret used during IKE.";
+    public static final String vpnVirtualIPEnabled = "NetworkConnectivityMessage.vpnVirtualIPEnabled";
+    public static final String vpnVirtualIPEnabledDefaultTranslation = "Set virtual IP enabled";
+    public static final String vpnIPCompressionEnabled = "NetworkConnectivityMessage.vpnIPCompressionEnabled";
+    public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
 }

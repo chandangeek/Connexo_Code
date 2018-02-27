@@ -224,6 +224,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.RESET_ROUTER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_GATEWAY_ADDRESS.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_AUTHENTICATION_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_LOCAL_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_REMOTE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_REMOTE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_SHARED_SECRET.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.REFRESH_VPN_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+
                 ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetAuthenticationMechanism.get(this.propertySpecService, this.nlsService, this.converter),
@@ -726,6 +738,26 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.resetRouter(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.FETCH_LOGGING)) {
                         this.fetchLogging(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED)) {
+                        this.setVpnState(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_TYPE)) {
+                        this.setVpnType(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_GATEWAY_ADDRESS)) {
+                        this.setVpnGatewayAddress(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_AUTHENTICATION_TYPE)) {
+                        this.setVPNAuthenticationType(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_LOCAL_IDENTIFIER)) {
+                        this.setVPNLocalIdentifier(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_REMOTE_IDENTIFIER)) {
+                        this.setVPNRemoteIdentifier(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_REMOTE_CERTIFICATE)) {
+                        this.setVPNRemoteCertificate(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_SHARED_SECRET)) {
+                        this.setVPNSharedSecret(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED)) {
+                        this.setVPNVirtualIPState(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED)) {
+                        this.setVpnIPCompressionEnabledState(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -2545,6 +2577,116 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return this.getCosemObjectFactory().getLoggerSettings(LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE);
         } catch (NotInObjectListException e) {
             this.setNotInObjectListMessage(collectedMessage, LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE.toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private void setVpnState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean setVPNEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setVPNEnabled(setVPNEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnType(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int vpnTypeId = NetworkConnectivityMessage.VPNType.entryForDescription(getStringAttributeValue(pendingMessage, vpnType)).getId();
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setVPNType(vpnTypeId);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN type using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnGatewayAddress(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String gatewayAddress = getStringAttributeValue(pendingMessage, vpnGatewayAddress);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setGatewayAddress(gatewayAddress);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN gateway address using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNAuthenticationType(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int vpnAuthenticationTypeId = NetworkConnectivityMessage.VPNAuthenticationType.entryForDescription(getStringAttributeValue(pendingMessage, vpnAuthenticationType)).getId();
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setAuthenticationType(vpnAuthenticationTypeId);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN authentication type using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNLocalIdentifier(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String localIdentifier = getStringAttributeValue(pendingMessage, vpnLocalIdentifier);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setLocalIdentifier(localIdentifier);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN local identifier using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNRemoteIdentifier(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String remoteIdentifier = getStringAttributeValue(pendingMessage, vpnRemoteIdentifier);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRemoteIdentifier(remoteIdentifier);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN remote identifier using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNRemoteCertificate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        //TODO: see how this user info should be sent toward protocol....as der encoded string or using a connexo specific certificate placeholder
+        String remoteCertificate = getStringAttributeValue(pendingMessage, vpnRemoteCertificate);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRemoteCertificate(remoteCertificate);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN remote certificate using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNSharedSecret(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String sharedSecret = getStringAttributeValue(pendingMessage, vpnSharedSecret);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setSharedSecret(sharedSecret);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN shared secret using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNVirtualIPState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean virtualIPEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnVirtualIPEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRequestVirtualIP(virtualIPEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN virtual IP enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnIPCompressionEnabledState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean ipCompressionEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnIPCompressionEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setCompressionEnabled(ipCompressionEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN IP compression enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private VPNSetupIC getVPNSetupIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return getCosemObjectFactory().getVPNSetupIC(VPNSetupIC.getDefaultObisCode());
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, VPNSetupIC.getDefaultObisCode().toString(), pendingMessage, e);
             throw e;
         }
     }

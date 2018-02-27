@@ -52,6 +52,15 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the vpn enabled state
+     * @param vpnEnabledState the new VPN state. Can be true (enabled) or false (disabled)
+     * @throws IOException
+     */
+    public void setVPNEnabled(boolean vpnEnabledState) throws IOException {
+        write(VPNSetupAttributes.VPN_ENABLED, new BooleanObject(vpnEnabledState).getBEREncodedByteArray());
+    }
+
+    /**
      * @return the VPN type:
      * vpn_type_enum ::= enum:
      * (0) IPSec/IKEv2,
@@ -65,11 +74,29 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the VPN type
+     * @param vpnType the new VPN type
+     * @throws IOException
+     */
+    public void setVPNType(int vpnType) throws IOException {
+        write(VPNSetupAttributes.VPN_TYPE, new TypeEnum(vpnType).getBEREncodedByteArray());
+    }
+
+    /**
      * @return Remote VPN endpoint; Can be either ip address or hostname.
      * @throws java.io.IOException
      */
     public OctetString gatewayAddress() throws IOException {
         return readDataType(VPNSetupAttributes.GATEWAY_ADDRESS, OctetString.class);
+    }
+
+    /**
+     * Will change the gateway address
+     * @param gatewayAddress the new gateway address
+     * @throws IOException
+     */
+    public void setGatewayAddress(String gatewayAddress) throws IOException {
+        write(VPNSetupAttributes.GATEWAY_ADDRESS, OctetString.fromString(gatewayAddress).getBEREncodedByteArray());
     }
 
     /**
@@ -85,6 +112,15 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the authentication type
+     * @param authenticationType the new authentication type
+     * @throws IOException
+     */
+    public void setAuthenticationType(int authenticationType) throws IOException {
+        write(VPNSetupAttributes.AUTHENTICATION_TYPE, new TypeEnum(authenticationType).getBEREncodedByteArray());
+    }
+
+    /**
      *
      * @return Local identifier used during IKE SA
      * @throws java.io.IOException
@@ -94,12 +130,30 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the local identifier
+     * @param localIdentifier the new local identifier
+     * @throws IOException
+     */
+    public void setLocalIdentifier(String localIdentifier) throws IOException {
+        write(VPNSetupAttributes.LOCAL_IDENTIFIER, OctetString.fromString(localIdentifier).getBEREncodedByteArray());
+    }
+
+    /**
      *
      * @return Remote identifier expected during IKE SA
      * @throws java.io.IOException
      */
     public OctetString remoteIdentifier() throws IOException {
         return readDataType(VPNSetupAttributes.REMOTE_IDENTIFIER, OctetString.class);
+    }
+
+    /**
+     * Will change the remote identifier
+     * @param remoteIdentifier the new local identifier
+     * @throws IOException
+     */
+    public void setRemoteIdentifier(String remoteIdentifier) throws IOException {
+        write(VPNSetupAttributes.REMOTE_IDENTIFIER, OctetString.fromString(remoteIdentifier).getBEREncodedByteArray());
     }
 
     /**
@@ -121,12 +175,30 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the remote certificate
+     * @param remoteCertificate the new local identifier
+     * @throws IOException
+     */
+    public void setRemoteCertificate(String remoteCertificate) throws IOException {
+        write(VPNSetupAttributes.REMOTE_CERTIFICATE, OctetString.fromString(remoteCertificate).getBEREncodedByteArray());
+    }
+
+    /**
      *
      * @return Shared secret used during IKE.
      * @throws java.io.IOException
      */
     public OctetString sharedSecret() throws IOException {
         return readDataType(VPNSetupAttributes.SHARED_SECRET, OctetString.class);
+    }
+
+    /**
+     * Will change the shared secret
+     * @param sharedSecret the new local identifier
+     * @throws IOException
+     */
+    public void setSharedSecret(String sharedSecret) throws IOException {
+        write(VPNSetupAttributes.SHARED_SECRET, OctetString.fromString(sharedSecret).getBEREncodedByteArray());
     }
 
     /**
@@ -139,12 +211,30 @@ public class VPNSetupIC extends AbstractCosemObject {
     }
 
     /**
+     * Will change the 'request virtual IP' state
+     * @param requestVirtualIP the new 'request virtual IP' state. Can be true (enabled) or false (disabled)
+     * @throws IOException
+     */
+    public void setRequestVirtualIP(boolean requestVirtualIP) throws IOException {
+        write(VPNSetupAttributes.REQUEST_VIRTUAL_IP, new BooleanObject(requestVirtualIP).getBEREncodedByteArray());
+    }
+
+    /**
      *
      * @return IPCompression enabled/disabled state.
      * @throws java.io.IOException
      */
     public BooleanObject compressionEnabled() throws IOException {
         return readDataType(VPNSetupAttributes.COMPRESSION_ENABLED, BooleanObject.class);
+    }
+
+    /**
+     * Will change the 'compression enabled' state
+     * @param compressionEnabled the new 'request virtual IP' state. Can be true (enabled) or false (disabled)
+     * @throws IOException
+     */
+    public void setCompressionEnabled(boolean compressionEnabled) throws IOException {
+        write(VPNSetupAttributes.COMPRESSION_ENABLED, new BooleanObject(compressionEnabled).getBEREncodedByteArray());
     }
 
     /**

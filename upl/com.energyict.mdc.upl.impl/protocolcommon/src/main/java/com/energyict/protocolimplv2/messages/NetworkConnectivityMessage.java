@@ -463,7 +463,181 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
-    };
+    },
+    SET_VPN_ENABLED_OR_DISABLED(4058, "Set VPN enabled or disabled") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.vpnEnabled, DeviceMessageConstants.vpnEnabledDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_TYPE(4059, "Set VPN type") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.vpnType, DeviceMessageConstants.vpnTypeDefaultTranslation)
+                            .addValues(VPNType.getDescriptionValues())
+                            .finish()
+            );
+        }
+    },
+    SET_VPN_GATEWAY_ADDRESS(4060, "Set gateway address") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.vpnGatewayAddress, DeviceMessageConstants.vpnGatewayAddressDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_AUTHENTICATION_TYPE(4061, "Set authentication type") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.vpnAuthenticationType, DeviceMessageConstants.vpnAuthenticationTypeDefaultTranslation)
+                            .addValues(VPNAuthenticationType.getDescriptionValues())
+                            .finish()
+            );
+        }
+    },
+    SET_VPN_LOCAL_IDENTIFIER(4062, "Set local identifier used during IKE SA") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.vpnLocalIdentifier, DeviceMessageConstants.vpnLocalIdentifierDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_REMOTE_IDENTIFIER(4063, "Set remote identifier expected during IKE SA") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.vpnRemoteIdentifier, DeviceMessageConstants.vpnRemoteIdentifierDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_REMOTE_CERTIFICATE(4065, "Set remote certificate expected during IKE") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_SHARED_SECRET(4066, "Set shared secret used during IKE") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED(4067, "Set virtual IP, enabled or disabled") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.vpnVirtualIPEnabled, DeviceMessageConstants.vpnVirtualIPEnabledDefaultTranslation)
+            );
+        }
+    },
+    SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED(4068, "Set IP compression, enabled or disabled") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.vpnIPCompressionEnabled, DeviceMessageConstants.vpnIPCompressionEnabledDefaultTranslation)
+            );
+        }
+    },
+    REFRESH_VPN_CONFIG(4069, "Refresh VPN config") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+
+    ;
+
+    public enum VPNAuthenticationType {
+        IKEv2_With_PSK(0, "IKEv2 with PSK"),
+        IKEv2_With_Certificates(1, "IKEv2 with certificates"),
+        IKEv2_Using_EAP_TLS(1, "IKEv2 using EAP-TLS"),
+        ;
+
+        private final int id;
+        private final String description;
+
+        VPNAuthenticationType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static VPNAuthenticationType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            VPNAuthenticationType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum VPNType {
+        IPSec_IKEv2(0, "IPSec/IKEv2"),
+        PPTP(1, "PPTP"),
+        OpenVPN(2, "OpenVPN"),
+        OpenVPN_NL(3, "OpenVPN-NL"),
+
+        ;
+
+        private final int id;
+        private final String description;
+
+        VPNType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static VPNType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            VPNType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 
     public enum RoutingEntryType {
         G3_PLC(1, "G3 PLC");
