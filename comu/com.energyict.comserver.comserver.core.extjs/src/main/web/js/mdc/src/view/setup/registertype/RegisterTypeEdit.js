@@ -162,7 +162,6 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 
                     {
                         xtype: 'component',
-                        html: Uni.I18n.translate('general.readingtype.obisCodeToReadingTypeMessage', 'MDC', 'The OBIS code cannot be mapped to a reading type. Displaying the full reading type list.'),
                         itemId: 'obisCodeToReadingTypeMessage',
                         style: {
                             'font': 'italic 13px/17px Lato',
