@@ -34,8 +34,8 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                 certificateCombo.setVisible(value);
                 trustStoreCombo.setVisible(!value);
 
-                certificateCombo.setValue('');
-                trustStoreCombo.setValue(null);
+                certificateCombo.setDisabled(!value);
+                trustStoreCombo.setDisabled(value);
 
                 certificateCombo.allowBlank = !value;
                 trustStoreCombo.allowBlank = value;
