@@ -16,6 +16,12 @@ Ext.define('Usr.store.Certificates', {
         limitParam : undefined,
         pageParam : undefined,
         startParam : undefined
+    },
+    listeners: {
+        load: function() {
+            this.filter(function(rec){
+                return rec.get('status').toUpperCase() !== 'REVOKED';
+            });
+        }
     }
-
 });
