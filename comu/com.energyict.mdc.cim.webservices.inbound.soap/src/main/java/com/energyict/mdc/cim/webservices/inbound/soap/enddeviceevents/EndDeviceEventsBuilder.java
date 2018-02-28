@@ -106,7 +106,7 @@ public class EndDeviceEventsBuilder {
         Optional<String> endDeviceName = extractDeviceName(asset);
 
         if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM);
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
         }
 
         Optional<String> mrid = extractMrid(endDeviceEvent);
@@ -154,7 +154,7 @@ public class EndDeviceEventsBuilder {
         Optional<String> endDeviceName = extractDeviceName(asset);
 
         if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM);
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM).get();
         }
 
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
@@ -198,7 +198,8 @@ public class EndDeviceEventsBuilder {
 
     private Optional<String> extractDeviceName(Asset asset) {
         return Optional.ofNullable(asset.getNames())
-                .map(names -> names.stream().map(Name::getName))
+                .map(names -> names.stream().filter(name -> !Checks.is(name.getName()).emptyOrOnlyWhiteSpace())
+                        .map(Name::getName))
                 .flatMap(Stream::findFirst);
     }
 
