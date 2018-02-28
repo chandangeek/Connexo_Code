@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.SecurityManagementService;
 
 import org.bouncycastle.operator.ContentSigner;
@@ -41,11 +42,11 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +62,7 @@ public class CaServiceImplTest {
     private static final String PKI_PORT_PROPERTY = "com.elster.jupiter.pki.port";
     private static final String CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
+    private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
     private static final String CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
     private static final String CERT_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
     private static final String EE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
@@ -69,6 +71,7 @@ public class CaServiceImplTest {
     private static final String PKI_PORT_PROPERTY_VALUE = "8443";
     private static final String CXO_TRUSTSTORE_PROPERTY_VALUE = "catruststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE = "superadmin";
+    private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE = "managementca";
     private static final String CA_NAME_PROPERTY_VALUE = "TestCA";
     private static final String CERT_PROFILE_NAME_PROPERTY_VALUE = "SUBCA";
     private static final String EE_PROFILE_NAME_PROPERTY_VALUE = "TEST_EE";
@@ -97,7 +100,7 @@ public class CaServiceImplTest {
     @Mock
     private X509Certificate x509Certificate;
     @Mock
-    private CertificateSearchFilter certificateSearchFilter;
+    private CertificateAuthoritySearchFilter certificateAuthoritySearchFilter;
     @Mock
     private RevokeStatus rs;
 
@@ -108,6 +111,8 @@ public class CaServiceImplTest {
         when(bundleContext.getProperty(CXO_TRUSTSTORE_PROPERTY)).thenReturn(CXO_TRUSTSTORE_PROPERTY_VALUE);
         when(bundleContext.getProperty(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY))
                 .thenReturn(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE);
+        when(bundleContext.getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY))
+                .thenReturn(MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE);
         when(bundleContext.getProperty(CA_NAME_PROPERTY)).thenReturn(CA_NAME_PROPERTY_VALUE);
         when(bundleContext.getProperty(CERT_PROFILE_NAME_PROPERTY)).thenReturn(CERT_PROFILE_NAME_PROPERTY_VALUE);
         when(bundleContext.getProperty(EE_PROFILE_NAME_PROPERTY)).thenReturn(EE_PROFILE_NAME_PROPERTY_VALUE);
@@ -124,26 +129,24 @@ public class CaServiceImplTest {
         when(ejbcaWS
                 .certificateRequest(any(UserDataVOWS.class), any(String.class), any(Integer.class), any(String.class), any(String.class)))
                 .thenReturn(certificateResponse);
-        when(certificateSearchFilter.getIssuerDN()).thenReturn("testIssuerDN");
-        when(certificateSearchFilter.getSerialNumber()).thenReturn(new BigInteger("1"));
+        when(certificateAuthoritySearchFilter.getIssuerDN()).thenReturn("testIssuerDN");
+        when(certificateAuthoritySearchFilter.getSerialNumber()).thenReturn(new BigInteger("1"));
         when(rs.getReason()).thenReturn(REVOCATION_REASON_CERTIFICATEHOLD);
         when(ejbcaWS.checkRevokationStatus(any(String.class), any(String.class))).thenReturn(rs);
         caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Test
+    public void testActivation_configured() throws Exception{
+        assertThat(caService.isConfigured()).isEqualTo(true);
     }
 
-    private PKCS10CertificationRequest generateCsr() throws NoSuchAlgorithmException, OperatorCreationException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048, new SecureRandom());
-        KeyPair pair = keyGen.genKeyPair();
-        PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
-                new X500Principal("CN=Requested Test Certificate"), pair.getPublic());
-        JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
-        ContentSigner signer = csBuilder.build(pair.getPrivate());
-        return p10Builder.build(signer);
+    @Test
+    public void testActivation_unConfigured() throws Exception{
+        Mockito.reset(bundleContext);
+        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
+
+        assertThat(caService.isConfigured()).isEqualTo(false);
     }
 
     @Test
@@ -164,6 +167,11 @@ public class CaServiceImplTest {
     @Test
     public void testGetSuperAdminAliasProperty() {
         verify(bundleContext, times(1)).getProperty(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY);
+    }
+
+    @Test
+    public void testGetManagementClientAliasProperty() {
+        verify(bundleContext, times(1)).getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY);
     }
 
     @Test
@@ -230,7 +238,7 @@ public class CaServiceImplTest {
             WaitingForApprovalException_Exception, NotFoundException_Exception, ApprovalException_Exception,
             AuthorizationDeniedException_Exception {
         caService.init(ejbcaWS);
-        caService.revokeCertificate(certificateSearchFilter, REVOCATION_REASON_CERTIFICATEHOLD);
+        caService.revokeCertificate(certificateAuthoritySearchFilter, REVOCATION_REASON_CERTIFICATEHOLD);
         verify(ejbcaWS, times(1)).revokeCert("testIssuerDN", "1", REVOCATION_REASON_CERTIFICATEHOLD);
     }
 
@@ -238,9 +246,19 @@ public class CaServiceImplTest {
     public void testCheckRevocationStatus()
             throws EjbcaException_Exception, CADoesntExistsException_Exception, AuthorizationDeniedException_Exception {
         caService.init(ejbcaWS);
-        com.elster.jupiter.pki.RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
+        com.elster.jupiter.pki.RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateAuthoritySearchFilter);
         verify(ejbcaWS, times(1)).checkRevokationStatus("testIssuerDN", "1");
         assertThat(revokeStatus).isEqualTo(com.elster.jupiter.pki.RevokeStatus.REVOCATION_REASON_CERTIFICATEHOLD);
     }
 
+    private PKCS10CertificationRequest generateCsr() throws NoSuchAlgorithmException, OperatorCreationException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048, new SecureRandom());
+        KeyPair pair = keyGen.genKeyPair();
+        PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
+                new X500Principal("CN=Requested Test Certificate"), pair.getPublic());
+        JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
+        ContentSigner signer = csBuilder.build(pair.getPrivate());
+        return p10Builder.build(signer);
+    }
 }

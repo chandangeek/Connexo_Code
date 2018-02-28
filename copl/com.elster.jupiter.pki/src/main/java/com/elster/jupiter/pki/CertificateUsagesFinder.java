@@ -1,7 +1,10 @@
 package com.elster.jupiter.pki;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface CertificateUsagesFinder {
 
     /**

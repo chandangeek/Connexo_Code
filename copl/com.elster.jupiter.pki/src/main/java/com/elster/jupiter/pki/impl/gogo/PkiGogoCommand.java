@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.gogo;
 
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
@@ -12,13 +13,13 @@ import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.CertificateSearchFilterImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 
 import com.google.common.io.ByteStreams;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -29,10 +30,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.security.auth.x500.X500Principal;
+import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -55,6 +59,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -77,7 +83,10 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=checkRevocationStatus",
                 "osgi.command.function=getLatestCRL",
                 "osgi.command.function=importSuperadmin",
-                "osgi.command.function=printTrustedCertificates"
+                "osgi.command.function=printTrustedCertificates",
+                "osgi.command.function=generateSignedCertificates",
+                "osgi.command.function=printTrustedCertificates",
+                "osgi.command.function=signCsrAndRevoke",
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -155,12 +164,60 @@ public class PkiGogoCommand {
         System.out.println(result);
     }
 
-    private PKCS10CertificationRequest generateTestCsr() throws NoSuchAlgorithmException, OperatorCreationException {
+    //TODO: To be removed
+    public void generateSignedCertificates() throws Exception {
+        System.out.println("usage: generateSignedCertificates <CN Base> <FS path> <count of certificates in range [1-100]>");
+
+    }
+
+    //TODO: To be removed
+    public void generateSignedCertificates(String cnBase, String saveToPath, int count) throws Exception {
+        if (count < 1 && count > 100) {
+            throw new IllegalArgumentException("Count of generated certificates should be in range [1 - 100]");
+        }
+        if (!StringUtils.startsWith(cnBase, "CN=")){
+            cnBase = "CN=" + cnBase;
+        }
+        List<PKCS10CertificationRequest> csrs = generateTestCsr(count, cnBase);
+
+        for (int i = 0; i < csrs.size(); i++) {
+            PKCS10CertificationRequest csr = csrs.get(i);
+            List<List<?>> collect = new ArrayList<>();
+            collect.add(0, Arrays.asList("Sending CSR with X500 name"));
+            collect.add(1, Arrays.asList(csr.getSubject()));
+            MYSQL_PRINT.printTable(collect);
+            X509Certificate x509Certificate = caService.signCsr(csr);
+
+            byte[] encoded = x509Certificate.getEncoded();
+            FileOutputStream output = new FileOutputStream(new File(saveToPath + "/cert_" + i));
+            output.write(encoded);
+            output.close();
+
+            collect.clear();
+            collect.add(0, Arrays.asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
+                    "Received  certificate S/N"));
+            collect.add(1, Arrays.asList(x509Certificate.getIssuerDN(), x509Certificate.getIssuerX500Principal(), x509Certificate.getSubjectDN(),
+                    x509Certificate.getSerialNumber()));
+            MYSQL_PRINT.printTable(collect);
+        }
+    }
+
+    //TODO: To be removed
+    private List<PKCS10CertificationRequest> generateTestCsr(int count, String cnBase) throws NoSuchAlgorithmException, OperatorCreationException {
+        List<PKCS10CertificationRequest> csrs = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            csrs.add(generateTestCsr(cnBase + "_" + ThreadLocalRandom.current().nextInt()));
+        }
+        return csrs;
+    }
+
+
+    private PKCS10CertificationRequest generateTestCsr(String cn) throws NoSuchAlgorithmException, OperatorCreationException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, new SecureRandom());
         KeyPair pair = keyGen.genKeyPair();
         PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
-                new X500Principal("CN=Requested Test Certificate"), pair.getPublic());
+                new X500Principal(cn), pair.getPublic());
         JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
         ContentSigner signer = csBuilder.build(pair.getPrivate());
         return p10Builder.build(signer);
@@ -168,7 +225,7 @@ public class PkiGogoCommand {
 
     public void signCsr() throws NoSuchAlgorithmException, OperatorCreationException {
         List<List<?>> collect = new ArrayList<>();
-        PKCS10CertificationRequest csr = generateTestCsr();
+        PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
         collect.add(0, Arrays.asList("Sending CSR with X500 name"));
         collect.add(1, Arrays.asList(csr.getSubject()));
         MYSQL_PRINT.printTable(collect);
@@ -178,21 +235,104 @@ public class PkiGogoCommand {
                 .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
                         "Received  certificate S/N"));
         collect.add(1, Arrays
-                .asList(x509Certificate.getIssuerDN(), x509Certificate.getIssuerX500Principal(), x509Certificate.getSubjectDN(),
+                .asList(x509Certificate.getIssuerDN().getName(), x509Certificate.getIssuerX500Principal().getName(), x509Certificate.getSubjectDN().getName(),
                         x509Certificate.getSerialNumber()));
         MYSQL_PRINT.printTable(collect);
+    }
+
+    public void signCsrAndRevoke() throws NoSuchAlgorithmException, OperatorCreationException, IOException {
+        List<List<?>> collect = new ArrayList<>();
+        PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
+        collect.add(0, Arrays.asList("Sending CSR with X500 name"));
+        collect.add(1, Arrays.asList(csr.getSubject()));
+        MYSQL_PRINT.printTable(collect);
+        X509Certificate x509Certificate = caService.signCsr(csr);
+        collect.clear();
+        collect.add(0, Arrays
+                .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
+                        "Received  certificate S/N"));
+        collect.add(1, Arrays
+                .asList(x509Certificate.getIssuerDN().getName(), x509Certificate.getIssuerX500Principal().getName(), x509Certificate.getSubjectDN().getName(),
+                        x509Certificate.getSerialNumber()));
+        MYSQL_PRINT.printTable(collect);
+        collect.clear();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
+        certificateSearchFilter.setSerialNumber(x509Certificate.getSerialNumber());
+        certificateSearchFilter.setIssuerDN(x509Certificate.getIssuerDN().getName());
+        collect.add(0, Arrays.asList("Checking certificate revocation status"));
+        MYSQL_PRINT.printTable(collect);
+        RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
+        collect.clear();
+        collect.add(0, Arrays.asList("Received revocation status"));
+        collect.add(1, Arrays.asList(revokeStatus));
+        MYSQL_PRINT.printTable(collect);
+        System.out.println("Revoke? (y/n):");
+        if (analyseResponse(readInput())) {
+            printRevocationReason();
+            System.out.println("\nRevocation reason?([0-6],[8-10]):");
+            String reason = readInput();
+            if (!analyseRevocationReason(reason)) {
+                System.out.println("Specify valid revocation reason");
+            }
+            collect.clear();
+            collect.add(0, Arrays.asList("Revoking certificate with reason " + reason));
+            MYSQL_PRINT.printTable(collect);
+            caService.revokeCertificate(certificateSearchFilter, Integer.parseInt(reason));
+            collect.clear();
+            collect.add(0, Arrays.asList("Checking certificate revocation status"));
+            MYSQL_PRINT.printTable(collect);
+            revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
+            collect.clear();
+            collect.add(0, Arrays.asList("Received revocation status"));
+            collect.add(1, Arrays.asList(revokeStatus));
+            MYSQL_PRINT.printTable(collect);
+        }
+    }
+
+    private String readInput() throws IOException {
+        return new BufferedReader(new InputStreamReader(System.in)).readLine();
+    }
+
+    private boolean analyseResponse(String response) {
+        String[] ok = {"", "y", "yes"};
+        return Stream.of(ok).anyMatch(option -> option.equalsIgnoreCase(response));
+    }
+
+    private boolean analyseRevocationReason(String reason) {
+        String[] ok = {"0", "1", "2", "3", "4", "5", "6", "8", "9", "10"};
+        return Stream.of(ok).anyMatch(option -> option.equalsIgnoreCase(reason));
+    }
+
+    private void printRevocationReason() {
+        StringBuilder sb = new StringBuilder()
+                .append("Reasons to revoke a certificate according to RFC 5280 p69:")
+                .append('\n')
+                .append("unspecified (0), ")
+                .append("keyCompromise (1), ")
+                .append("CACompromise (2), ")
+                .append("affiliationChanged (3)")
+                .append('\n')
+                .append("superseded (4), ")
+                .append("cessationOfOperation (5), ")
+                .append("certificateHold (6), ")
+                .append("removeFromCRL (8)")
+                .append('\n')
+                .append("privilegeWithdrawn (9), ")
+                .append("AACompromise (10)");
+        System.out.println(sb);
     }
 
     public void revokeCertificate() {
         System.out.println("Revokes certificate");
         System.out.println("usage: revokeCertificate <certificate s/n> <issuer DN> <revocation reason [0-6, 8-10]>");
+        printRevocationReason();
     }
 
     public void revokeCertificate(String serialNumber, String issuerDN, String reason) {
         BigInteger sn;
         Integer r;
         List<List<?>> collect = new ArrayList<>();
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
         try {
             sn = new BigInteger(serialNumber);
         } catch (NumberFormatException e) {
@@ -223,7 +363,7 @@ public class PkiGogoCommand {
     public void checkRevocationStatus(String serialNumber, String issuerDN) {
         BigInteger sn;
         List<List<?>> collect = new ArrayList<>();
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
         try {
             sn = new BigInteger(serialNumber);
         } catch (NumberFormatException e) {

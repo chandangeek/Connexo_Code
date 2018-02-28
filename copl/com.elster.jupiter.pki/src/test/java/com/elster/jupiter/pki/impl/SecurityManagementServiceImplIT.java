@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -750,7 +751,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s subject distinguished name does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's subject distinguished name doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
@@ -781,7 +782,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
@@ -807,7 +808,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s extended key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's extended key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
@@ -833,7 +834,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s public key does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate's public key doesn't match the CSR.")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
@@ -1364,7 +1365,7 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    public void testMarkUnmarkCertificateObsolete() throws Exception {
+    public void testChangeCertificateWrapperStatus() throws Exception {
         cleanupCertificates();
         SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         String alias = "certAlias";
@@ -1375,15 +1376,15 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
 
-        wrapper.setObsolete(true);
+        wrapper.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
         wrapper.save();
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.OBSOLETE.getKey());
 
-        wrapper.setObsolete(false);
+        wrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
         wrapper.save();
 
-        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.REVOKED.getKey());
     }
 
     private SecurityManagementService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {

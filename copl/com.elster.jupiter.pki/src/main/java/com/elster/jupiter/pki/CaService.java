@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.pki.impl.CertificateSearchFilter;
-
 import aQute.bnd.annotation.ProviderType;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
@@ -25,6 +23,11 @@ public interface CaService {
     String COMPONENTNAME = "PKI";
 
     /**
+     * Indicates whether the service is configured or not.
+     */
+    boolean isConfigured();
+
+    /**
      * Sends a PKCS#10 CSR to the CA, using the parameters as defined in felix config.
      *
      * @param pkcs10 PKCS10 CSR with valid signature
@@ -40,7 +43,7 @@ public interface CaService {
      * may have been filled in, those can be used to identify the certificate in the CA.
      * @param reason Values are defined in org.bouncycastle.asn1.x509.CRLReason
      */
-    void revokeCertificate(CertificateSearchFilter certificateTemplate, int reason);
+    void revokeCertificate(CertificateAuthoritySearchFilter certificateTemplate, int reason);
 
     /**
      * Checks the revocation status of a certificate as defined by the template. If the template has e.g. serialnumber
@@ -51,7 +54,7 @@ public interface CaService {
      * @return If a unique certificate was identified by the searchFilter, returns the revocation reason if the certificate
      * was revoked.
      */
-    RevokeStatus checkRevocationStatus(CertificateSearchFilter searchFilter);
+    RevokeStatus checkRevocationStatus(CertificateAuthoritySearchFilter searchFilter);
 
     /**
      * Retrieves the latest CRL issued by the given CA.

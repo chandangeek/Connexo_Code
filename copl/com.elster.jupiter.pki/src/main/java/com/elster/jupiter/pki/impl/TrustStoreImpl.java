@@ -10,6 +10,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
@@ -56,6 +57,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final EventService eventService;
+    private final SecurityManagementService securityManagementService;
 
     public enum Fields {
         NAME("name"),
@@ -94,10 +96,11 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
     @Inject
-    public TrustStoreImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
+    public TrustStoreImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService, SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.eventService = eventService;
+        this.securityManagementService = securityManagementService;
     }
 
     @Override
@@ -231,7 +234,10 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
         Condition referencesThisTrustStore = Where.where(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                 .isEqualTo(this);
         if (dataModel.stream(SecurityAccessorTypeImpl.class).anyMatch(referencesThisTrustStore)) {
-            throw new VetoDeleteTrustStoreException(thesaurus, this);
+            throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_ON_SECURITY_ACCESSOR);
+        }
+        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("trustStore").isEqualTo(this)).isEmpty()) {
+            throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
         }
         eventService.postEvent(EventType.TRUSTSTORE_VALIDATE_DELETE.topic(), this);
         getCertificates().forEach(TrustedCertificate::delete);
