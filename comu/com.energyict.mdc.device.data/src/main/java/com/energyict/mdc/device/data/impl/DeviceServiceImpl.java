@@ -53,7 +53,6 @@ import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
@@ -616,6 +615,15 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public boolean usedByKeyAccessor(CertificateWrapper certificate) {
+        return !deviceDataModelService.dataModel()
+                .query(SecurityAccessor.class)
+                .select(where(AbstractDeviceSecurityAccessorImpl .Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(where(AbstractDeviceSecurityAccessorImpl .Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .isEmpty();
+    }
+
+    @Override
     public List<SecurityAccessor> getAssociatedKeyAccessors(CertificateWrapper certificate) {
         return deviceDataModelService.dataModel()
                 .stream(SecurityAccessor.class)
@@ -659,5 +667,4 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     private static class UnsupportedDeviceIdentifierTypeName extends RuntimeException {
     }
-
 }
