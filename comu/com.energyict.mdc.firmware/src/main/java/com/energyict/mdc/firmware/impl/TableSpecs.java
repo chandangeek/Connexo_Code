@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -18,7 +18,7 @@ import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
-import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -244,26 +244,26 @@ public enum TableSpecs {
         }
     },
 
-    FWC_SECACCTYPE_ON_DEVICETYPE {
+    FWC_SECACCESSOR_ON_DEVICETYPE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<SecurityAccessorTypeOnDeviceType> table = dataModel.addTable(name(), SecurityAccessorTypeOnDeviceType.class)
+            Table<SecurityAccessorOnDeviceType> table = dataModel.addTable(name(), SecurityAccessorOnDeviceType.class)
                     .since(version(10, 4, 1))
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
-            Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
-            Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
-            table.setJournalTableName(Constants.FWC_SECACCTYPE_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4, 1));
+                    .map(SecurityAccessorOnDeviceTypeImpl.class);
+            Column deviceTypeColumn = table.column(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
+            Column secAccColumn = table.column(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.name()).number().notNull().add();
+            table.setJournalTableName(Constants.FWC_SECACC_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4, 1));
             table.addAuditColumns();
-            table.primaryKey("FWC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn).add();
-            table.foreignKey("FWC_FK_SECACTYPEONDEVTYPE2DT")
+            table.primaryKey("FWC_PK_SECACCONDEVTYPE").on(deviceTypeColumn).add();
+            table.foreignKey("FWC_FK_SECACCONDEVTYPE2DT")
                     .references(DeviceType.class)
                     .on(deviceTypeColumn)
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName())
+                    .map(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName())
                     .add();
-            table.foreignKey("FWC_FK_SECACTYPEONDEVTYPE2SAT")
-                    .references(SecurityAccessorType.class)
-                    .on(secAccTypeColumn)
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
+            table.foreignKey("FWC_FK_SECACCONDEVTYPE2SA")
+                    .references(SecurityAccessor.class)
+                    .on(secAccColumn)
+                    .map(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName())
                     .add();
         }
     };
@@ -271,7 +271,7 @@ public enum TableSpecs {
     abstract void addTo(DataModel dataModel);
 
     interface Constants {
-        String FWC_SECACCTYPE_ON_DEVICETYPE_JOURNAL_TABLE = "FWC_SECACCTYPEONDEVTYPE_JRNL";
+        String FWC_SECACC_ON_DEVICETYPE_JOURNAL_TABLE = "FWC_SECACCESSORONDEVTYPE_JRNL";
     }
 
 }

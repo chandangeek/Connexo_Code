@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
@@ -80,9 +81,9 @@ public interface FirmwareService {
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
     DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
-    Finder<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
-    void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
-    void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
+    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessorType);
+    void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
+    void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
 
     /**
      * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution

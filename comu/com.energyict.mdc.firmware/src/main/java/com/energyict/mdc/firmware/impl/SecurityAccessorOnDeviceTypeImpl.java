@@ -5,26 +5,24 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.impl.EventType;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 
 import com.google.inject.Inject;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
+public class SecurityAccessorOnDeviceTypeImpl implements SecurityAccessorOnDeviceType {
     private final DataModel dataModel;
 
     enum Fields {
         DEVICETYPE("deviceType"),
-        SECACCTYPE("securityAccessorType");
+        SECACCESSOR("securityAccessor");
 
         private final String javaFieldName;
 
@@ -38,14 +36,14 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Inject
-    public SecurityAccessorTypeOnDeviceTypeImpl(DataModel dataModel) {
+    public SecurityAccessorOnDeviceTypeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
+    private Reference<SecurityAccessor> securityAccessor = Reference.empty();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -56,9 +54,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     private Instant modTime;
 
     @Override
-    public SecurityAccessorTypeOnDeviceType init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+    public SecurityAccessorOnDeviceType init(DeviceType deviceType, SecurityAccessor securityAccessor) {
         this.deviceType.set(deviceType);
-        this.securityAccessorType.set(securityAccessorType);
+        this.securityAccessor.set(securityAccessor);
         return this;
     }
     @Override
@@ -80,21 +78,21 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
-    public SecurityAccessorType getSecurityAccessorType() {
-        return securityAccessorType.orNull();
+    public SecurityAccessor getSecurityAccessor() {
+        return securityAccessor.orNull();
     }
 
     @Override
     public boolean equals(Object obj) {
         return this == obj
-                || obj instanceof SecurityAccessorTypeOnDeviceTypeImpl
-                && getDeviceType().equals(((SecurityAccessorTypeOnDeviceTypeImpl) obj).getDeviceType())
-                && getSecurityAccessorType().equals(((SecurityAccessorTypeOnDeviceTypeImpl) obj).getSecurityAccessorType());
+                || obj instanceof SecurityAccessorOnDeviceTypeImpl
+                && getDeviceType().equals(((SecurityAccessorOnDeviceTypeImpl) obj).getDeviceType())
+                && getSecurityAccessor().equals(((SecurityAccessorOnDeviceTypeImpl) obj).getSecurityAccessor());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDeviceType(), getSecurityAccessorType());
+        return Objects.hash(getDeviceType(), getSecurityAccessor());
     }
 }
 

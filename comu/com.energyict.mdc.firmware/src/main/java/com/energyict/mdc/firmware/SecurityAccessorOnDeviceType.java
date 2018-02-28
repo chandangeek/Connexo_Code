@@ -4,17 +4,17 @@
 
 package com.energyict.mdc.firmware;
 
-import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.energyict.mdc.device.config.DeviceType;
 
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface SecurityAccessorTypeOnDeviceType {
+public interface SecurityAccessorOnDeviceType {
     DeviceType getDeviceType();
-    SecurityAccessorType getSecurityAccessorType();
+    SecurityAccessor getSecurityAccessor();
     void delete();
     void save();
     void update();
-    SecurityAccessorTypeOnDeviceType init(DeviceType deviceType, SecurityAccessorType securityAccessorType);
+    SecurityAccessorOnDeviceType init(DeviceType deviceType, SecurityAccessor securityAccessor);
 }

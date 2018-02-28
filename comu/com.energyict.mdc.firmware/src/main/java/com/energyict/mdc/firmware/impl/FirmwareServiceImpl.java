@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -54,7 +55,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
-import com.energyict.mdc.firmware.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -543,25 +544,25 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Finder<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        Condition deviceCondition = where(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
-        Condition securityAccessorTypeCondition = where(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName()).isEqualTo(securityAccessorType);
-        Condition condition = deviceCondition.and(securityAccessorTypeCondition);
-        return DefaultFinder.of(SecurityAccessorTypeOnDeviceType.class, condition, dataModel);
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        Condition deviceCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
+        Condition condition = deviceCondition.and(securityAccessorCondition);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, condition, dataModel);
     }
 
     @Override
-    public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType).find();
-        if (securityAccessorTypeOnDeviceTypeList.isEmpty()) {
-            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceType.class).init(deviceType, securityAccessorType).save();
+    public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
+        if (securityAccessorOnDeviceTypeList.isEmpty()) {
+            this.dataModel.getInstance(SecurityAccessorOnDeviceType.class).init(deviceType, securityAccessor).save();
         }
     }
 
     @Override
-    public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType).find();
-        securityAccessorTypeOnDeviceTypeList.forEach(SecurityAccessorTypeOnDeviceType::delete);
+    public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
+        securityAccessorOnDeviceTypeList.forEach(SecurityAccessorOnDeviceType::delete);
     }
 
     private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
