@@ -21,7 +21,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -552,6 +551,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(SecurityAccessor securityAccessor) {
+        Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, securityAccessorCondition, dataModel);
+    }
+
+    @Override
     public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
         List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
         if (securityAccessorOnDeviceTypeList.isEmpty()) {
@@ -563,6 +568,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
         List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
         securityAccessorOnDeviceTypeList.forEach(SecurityAccessorOnDeviceType::delete);
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
