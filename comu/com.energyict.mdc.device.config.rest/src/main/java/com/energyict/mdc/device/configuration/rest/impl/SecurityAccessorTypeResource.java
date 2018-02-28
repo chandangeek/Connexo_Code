@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -171,6 +172,7 @@ public class SecurityAccessorTypeResource {
         List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilterFactory.from(uriInfo))
                 .from(queryParameters)
                 .stream()
+                .filter(certificateWrapper -> certificateWrapper.getWrapperStatus() != CertificateWrapperStatus.REVOKED)
                 .map(CertificateWrapper::getAlias)
                 .map(AliasInfo::new)
                 .collect(toList());
