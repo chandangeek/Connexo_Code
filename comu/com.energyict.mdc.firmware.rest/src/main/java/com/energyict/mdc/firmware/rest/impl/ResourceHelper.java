@@ -166,25 +166,22 @@ public class ResourceHelper {
     }
 
     public Optional<SecurityAccessor> getCertificateWithFileOperations(long id) {
-        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
-                .stream()
-                .filter(sa -> sa.getActualValue().isPresent() && sa.getActualValue().get() instanceof CertificateWrapper && sa.getKeyAccessorType().getId() == id)
-                .findAny();
+        return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
     }
 
    public void deleteSecurityAccessors (long id, long deviceTypeId) {
        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-       Optional<SecurityAccessorType> securityAccessorType = securityManagementService.findSecurityAccessorTypeById(id);
-       if (deviceType.isPresent() && securityAccessorType.isPresent()) {
-           firmwareService.deleteSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessorType.get());
+       Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(id);
+       if (deviceType.isPresent() && securityAccessor.isPresent()) {
+           firmwareService.deleteSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessor.get().getKeyAccessorType());
        }
    }
 
     public void addSecurityAccessors (long id, long deviceTypeId) {
         Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-        Optional<SecurityAccessorType> securityAccessorType = securityManagementService.findSecurityAccessorTypeById(id);
-        if (deviceType.isPresent() && securityAccessorType.isPresent()) {
-            firmwareService.addSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessorType.get());
+        Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(id);
+        if (deviceType.isPresent() && securityAccessor.isPresent()) {
+            firmwareService.addSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessor.get().getKeyAccessorType());
         }
     }
 
