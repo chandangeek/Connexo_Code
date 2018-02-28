@@ -71,9 +71,9 @@ public class SecurityAccessorResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    @Path("/deletecertificate/{id}/{deviceTypeId}")
-    public Response deleteCertificate(@PathParam("id") long id, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
-        resourceHelper.deleteSecurityAccessors(id, deviceTypeId);
+    @Path("/deletecertificate/{securityAccessorId}/{deviceTypeId}")
+    public Response deleteCertificate(@PathParam("securityAccessorId") long securityAccessorId, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
+        resourceHelper.deleteSecurityAccessors(securityAccessorId, deviceTypeId);
         return Response.ok().build();
     }
 
@@ -82,9 +82,9 @@ public class SecurityAccessorResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    @Path("/addcertificate/{id}/{deviceTypeId}")
-    public Response addCertificate(@PathParam("id") long id, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
-        resourceHelper.addSecurityAccessors(id,deviceTypeId);
+    @Path("/addcertificate/{securityAccessorId}/{deviceTypeId}")
+    public Response addCertificate(@PathParam("securityAccessorId") long securityAccessorId, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
+        resourceHelper.addSecurityAccessors(securityAccessorId,deviceTypeId);
         return Response.ok().build();
     }
 
