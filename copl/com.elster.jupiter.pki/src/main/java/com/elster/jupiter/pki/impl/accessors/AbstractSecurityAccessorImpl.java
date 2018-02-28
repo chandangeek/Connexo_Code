@@ -4,11 +4,14 @@
 
 package com.elster.jupiter.pki.impl.accessors;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,6 +22,8 @@ import java.util.Map;
 
 public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrapper> implements SecurityAccessor<T> {
     private final SecurityManagementService securityManagementService;
+    private final DataModel dataModel;
+    private final EventService eventService;
 
     private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private boolean swapped;
@@ -37,8 +42,10 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
                     "C", CertificateAccessorImpl.class
             );
 
-    protected AbstractSecurityAccessorImpl(SecurityManagementService securityManagementService) {
+    protected AbstractSecurityAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, EventService eventService) {
+        this.dataModel = dataModel;
         this.securityManagementService = securityManagementService;
+        this.eventService = eventService;
     }
 
     public enum Fields {
@@ -96,5 +103,11 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
     @Override
     public Instant getModTime() {
         return modTime;
+    }
+
+    @Override
+    public void delete() {
+        eventService.postEvent(EventType.SECURITY_ACCESSOR_VALIDATE_DELETE.topic(), this);
+        dataModel.remove(this);
     }
 }

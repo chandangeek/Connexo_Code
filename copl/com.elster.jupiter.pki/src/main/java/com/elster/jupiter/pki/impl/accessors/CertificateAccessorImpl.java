@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -27,16 +28,18 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     private final DataModel dataModel;
     private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;
+    private final EventService eventService;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.pki.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();
 
     @Inject
-    public CertificateAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
-        super(securityManagementService);
+    public CertificateAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, EventService eventService, Thesaurus thesaurus) {
+        super(dataModel, securityManagementService, eventService);
         this.dataModel = dataModel;
         this.securityManagementService = securityManagementService;
+        this.eventService = eventService;
         this.thesaurus = thesaurus;
     }
 
@@ -124,11 +127,6 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     private X500Name getDNFromCertificate(CertificateWrapper original) throws CertificateEncodingException {
         JcaX509CertificateHolder certificateHolder = new JcaX509CertificateHolder(original.getCertificate().get());
         return certificateHolder.getSubject();
-    }
-
-    @Override
-    public void delete() {
-        dataModel.remove(this);
     }
 
     @Override
