@@ -5,7 +5,9 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.impl.MessageSeeds;
 
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.io.BufferedReader;
@@ -58,15 +60,22 @@ class CSRZipFileParser {
         return new PKCS10CertificationRequest(Base64.getDecoder().decode(encodedCsr));
     }
 
-    private int  getLastIndexOfPathSeparator(String entryName) {
-        return entryName.lastIndexOf("/");
-    }
-
     private String getFolderName(String entryName) {
-        return entryName.substring(0, getLastIndexOfPathSeparator(entryName));
+        return entryName.substring(0, entryName.lastIndexOf("/"));
     }
 
     private String getFileName(String entryName) {
-        return entryName.substring(getLastIndexOfPathSeparator(entryName) + 1);
+        String filePath = getFolderName(entryName);
+        String fileName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.lastIndexOf("."));
+
+        if (filePath.isEmpty()) {
+            throw new CSRImporterException(thesaurus, MessageSeeds.NO_DIRECTORY_FOR_CSR_FILE, fileName);
+        } else if (StringUtils.countMatches(filePath, "/") > 0) {
+            throw new CSRImporterException(thesaurus, MessageSeeds.SUBDIRECTORIES_IN_ZIP_FILE, filePath);
+        } else if (!entryName.substring(entryName.lastIndexOf(".") + 1).toLowerCase().equals("csr")) {
+            throw new CSRImporterException(thesaurus, MessageSeeds.NOT_CSR_FILE_EXTENSION, entryName);
+        }
+
+        return fileName;
     }
 }

@@ -76,7 +76,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_PRIVATE_KEY_FOR_SIGNING(1060, "NoPrivateKeyForCertificate", "The certificate {0} doesn''t contain a private key for signing the exported file."),
     INAPPROPRIATE_CERTIFICATE_TYPE(1061, "InappropriateCertificateType", "The certificate {0} isn''t of type {1}."),
     FAILED_TO_SIGN(1062, "FailedToSign", "Failed to sign the exported file."),
-    SOME_CERTIFICATES_NOT_SIGNED(1063, "CertificatesNotSigned", "Some certificates from the imported file haven''t been signed by CA.")
+    SOME_CERTIFICATES_NOT_SIGNED(1063, "CertificatesNotSigned", "Some certificates from the imported file haven''t been signed by CA."),
+    SUBDIRECTORIES_IN_ZIP_FILE(1064, "IncorrectFileStructureSubdirectories", "Subdirectory '{0}' is found in csr entry directory"),
+    NO_DIRECTORY_FOR_CSR_FILE(1065, "IncorrectFileStructureNoDirectory", "No directory is found for csr file '{0}'"),
+    NOT_CSR_FILE_EXTENSION(1066, "IncorrectFileExtensionCSR", "Incorrect extension is found for csr file '{0}'")
     ;
 
     private final int number;

@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.FileInputStream;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,9 +37,17 @@ public class CSRZipFileParserTest {
 
     @Test
     public void testParserSuccessful() throws Exception {
-        ReusableInputStream reusableInputStream = ReusableInputStream.from(new FileInputStream(getClass().getClassLoader().getResource("testCSR.zip").getPath()));
+        int expectedSize = 2;
+        String expectedPath1 = "670-001122-1636";
+        String expectedPath2 = "670-001123-1637";
 
         Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
-                .parseInputStream(reusableInputStream.stream());
+                .parseInputStream(ReusableInputStream.from(new FileInputStream(getClass().getClassLoader().getResource("testCSR.zip").getPath())).stream());
+
+        assertThat(csrMap.size()).isEqualTo(expectedSize);
+        assertThat(csrMap.get(expectedPath1)).isNotNull();
+        assertThat(csrMap.get(expectedPath2)).isNotNull();
+        assertThat(csrMap.get(expectedPath1).size()).isEqualTo(expectedSize);
+        assertThat(csrMap.get(expectedPath2).size()).isEqualTo(expectedSize);
     }
 }
