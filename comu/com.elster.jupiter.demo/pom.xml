@@ -37,14 +37,14 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.parent</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.parent</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -164,7 +164,15 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -412,11 +420,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.cps.examples</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.pluggable.rest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
