@@ -8,11 +8,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateAuthorityRuntimeException;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.EnumLookupValueException;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -88,17 +86,17 @@ public class CaServiceImpl implements CaService {
     private static final String PKI_PORT_PROPERTY = "com.elster.jupiter.pki.port";
     private static final String PKI_CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
+    private static final String PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
     private static final String PKI_CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
     private static final String PKI_CERTIFICATE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
     private static final String PKI_END_ENTITY_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
-
-    private static final String MANAGEMENT_CA_ALIAS = "managementca";
 
     private boolean configured;
     private String pkiHost;
     private Integer pkiPort;
     private String pkiTrustStore;
     private String pkiSuperAdminClientAlias;
+    private String pkiManagementClientAlias;
     private String pkiCaName;
     private String pkiCertificateProfileName;
     private String pkiEndEntityProfileName;
@@ -144,6 +142,7 @@ public class CaServiceImpl implements CaService {
         pkiPort = null;
         pkiTrustStore = null;
         pkiSuperAdminClientAlias = null;
+        pkiManagementClientAlias = null;
         pkiCaName = null;
         pkiCertificateProfileName = null;
         pkiEndEntityProfileName = null;
@@ -157,6 +156,7 @@ public class CaServiceImpl implements CaService {
         pkiPort = StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
         pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
         pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
+        pkiManagementClientAlias= bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
         pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
         pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
         pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
@@ -206,8 +206,8 @@ public class CaServiceImpl implements CaService {
     public void revokeCertificate(CertificateAuthoritySearchFilter certificateTemplate, int reason) {
         checkConfiguration();
         lazyInit();
-        if (RevokeStatus.fromValue(reason) == null) {
-            throw new EnumLookupValueException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
+        if (!RevokeStatus.fromValue(reason).isPresent()) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
         }
         try {
             ejbcaWS.revokeCert(certificateTemplate.getIssuerDN(), certificateTemplate.getSerialNumber().toString(SN_HEX), reason);
@@ -220,15 +220,13 @@ public class CaServiceImpl implements CaService {
     public RevokeStatus checkRevocationStatus(CertificateAuthoritySearchFilter searchFilter) {
         checkConfiguration();
         lazyInit();
-        RevokeStatus revokeStatus;
         org.ejbca.core.protocol.ws.client.gen.RevokeStatus rs;
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
-            revokeStatus = RevokeStatus.fromValue(rs.getReason());
-        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception | EnumLookupValueException e) {
+        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
         }
-        return revokeStatus;
+        return RevokeStatus.fromValue(rs.getReason()).orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR));
     }
 
     @Override
@@ -278,10 +276,9 @@ public class CaServiceImpl implements CaService {
                         .append("CPs in profile: ").append(cpInProfile).append('\n');
             }
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getMessage());
         }
         return result.toString();
-
     }
 
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
@@ -323,13 +320,13 @@ public class CaServiceImpl implements CaService {
         TrustedCertificate mgmtCaCertificate = requiredTrustStore
                 .getCertificates()
                 .stream()
-                .filter(p -> p.getAlias().trim().equalsIgnoreCase(MANAGEMENT_CA_ALIAS))
+                .filter(p -> p.getAlias().trim().equalsIgnoreCase(pkiManagementClientAlias))
                 .findFirst()
                 .orElseThrow(
                         () -> new CertificateAuthorityRuntimeException(
                                 thesaurus,
                                 MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
-                                MANAGEMENT_CA_ALIAS)
+                                pkiManagementClientAlias)
                 );
         X509Certificate x509MgmtCaCertificate = mgmtCaCertificate
                 .getCertificate()
@@ -337,7 +334,7 @@ public class CaServiceImpl implements CaService {
                         () -> new CertificateAuthorityRuntimeException(
                                 thesaurus,
                                 MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
-                                MANAGEMENT_CA_ALIAS)
+                                pkiManagementClientAlias)
                 );
         CertificateWrapper certificateWrapper = securityManagementService
                 .findCertificateWrapper(pkiSuperAdminClientAlias)
@@ -374,7 +371,7 @@ public class CaServiceImpl implements CaService {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null, null);
             trustStore.load(null, null);
-            trustStore.setCertificateEntry(pkiSuperAdminClientAlias, x509MgmtCaCertificate);
+            trustStore.setCertificateEntry(pkiManagementClientAlias, x509MgmtCaCertificate);
             keyStore.setCertificateEntry(pkiSuperAdminClientAlias, superAdminCertificate);
             X509Certificate[] certChain = new X509Certificate[2];
             certChain[0] = superAdminCertificate;

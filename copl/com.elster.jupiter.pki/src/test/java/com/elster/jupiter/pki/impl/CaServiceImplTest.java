@@ -62,6 +62,7 @@ public class CaServiceImplTest {
     private static final String PKI_PORT_PROPERTY = "com.elster.jupiter.pki.port";
     private static final String CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
+    private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
     private static final String CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
     private static final String CERT_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
     private static final String EE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
@@ -70,6 +71,7 @@ public class CaServiceImplTest {
     private static final String PKI_PORT_PROPERTY_VALUE = "8443";
     private static final String CXO_TRUSTSTORE_PROPERTY_VALUE = "catruststore";
     private static final String SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE = "superadmin";
+    private static final String MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE = "managementca";
     private static final String CA_NAME_PROPERTY_VALUE = "TestCA";
     private static final String CERT_PROFILE_NAME_PROPERTY_VALUE = "SUBCA";
     private static final String EE_PROFILE_NAME_PROPERTY_VALUE = "TEST_EE";
@@ -109,6 +111,8 @@ public class CaServiceImplTest {
         when(bundleContext.getProperty(CXO_TRUSTSTORE_PROPERTY)).thenReturn(CXO_TRUSTSTORE_PROPERTY_VALUE);
         when(bundleContext.getProperty(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY))
                 .thenReturn(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY_VALUE);
+        when(bundleContext.getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY))
+                .thenReturn(MANAGEMENT_CLIENT_ALIAS_PROPERTY_VALUE);
         when(bundleContext.getProperty(CA_NAME_PROPERTY)).thenReturn(CA_NAME_PROPERTY_VALUE);
         when(bundleContext.getProperty(CERT_PROFILE_NAME_PROPERTY)).thenReturn(CERT_PROFILE_NAME_PROPERTY_VALUE);
         when(bundleContext.getProperty(EE_PROFILE_NAME_PROPERTY)).thenReturn(EE_PROFILE_NAME_PROPERTY_VALUE);
@@ -163,6 +167,11 @@ public class CaServiceImplTest {
     @Test
     public void testGetSuperAdminAliasProperty() {
         verify(bundleContext, times(1)).getProperty(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY);
+    }
+
+    @Test
+    public void testGetManagementClientAliasProperty() {
+        verify(bundleContext, times(1)).getProperty(MANAGEMENT_CLIENT_ALIAS_PROPERTY);
     }
 
     @Test
