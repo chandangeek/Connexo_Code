@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1519817871906
+Build-Jdk: 1.8.0_121
+Build-timestamp: 2018-02-28T13:37:42.824+0200
+Built-By: h165708
+Bundle-Description: Demo client issue action REST bundle for web service
+ s -- Outbound REST bundle
+Bundle-DocURL: http://www.honeywell.com
+Bundle-ManifestVersion: 2
+Bundle-Name: [Jupiter] com.elster.jupiter.webservices.outbound.rest.issu
+ e.actions
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: com.elster.jupiter.webservices.outbound.rest.issue.
+ actions
+Bundle-Vendor: Elster
+Bundle-Version: 1.1.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Git-branch: master
+Git-SHA-1: 224aa9aafee4b94825f893433147444ae46e5459
+Import-Package: com.elster.jupiter.issue.share;version="[3.2,4)",com.els
+ ter.jupiter.issue.share.entity;version="[2.3,3)",com.elster.jupiter.met
+ ering;version="[6.1,7)",com.elster.jupiter.soap.whiteboard.cxf;version=
+ "[2.3,3)",com.elster.jupiter.users;version="[3.2,4)",javax.ws.rs.client
+ ;version="[2.0,3)"
+Provide-Capability: osgi.service;objectClass:List<String>="com.elster.ju
+ piter.soap.whiteboard.cxf.OutboundRestEndPointProvider"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Service-Component: OSGI-INF/com.elster.jupiter.webservices.rest.outbound
+ .service.action.client.provider.xml
+Tool: Bnd-3.0.0.201509101326
