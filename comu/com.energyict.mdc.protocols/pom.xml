@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
@@ -9,12 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.0${revision}</version>
+        <version>1.4.1${revision}</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.protocols</artifactId>
-    <version>2.1.0${revision}</version>
+    <version>2.1.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocols [init PR1]</name>
     <description>
