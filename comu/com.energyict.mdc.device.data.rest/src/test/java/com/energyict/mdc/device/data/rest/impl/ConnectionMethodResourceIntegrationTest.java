@@ -44,6 +44,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -179,6 +180,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private static TrustStoreValuesProvider trustStoreValuesProvider;
     private static AliasSearchFilterFactory aliasSearchFilterFactory;
+    private static CommandRuleService cmdRuleService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -224,6 +226,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         registerConnectionTypePluggableClasses();
+        cmdRuleService = mock(CommandRuleService.class);
         initializeMocks();
     }
 
@@ -443,6 +446,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
+        application.setCommandRuleService(cmdRuleService);
         return application;
     }
 

@@ -65,6 +65,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
@@ -266,6 +267,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
 
+    @Mock
+    private CommandRuleService cmdRuleService;
+
     @Provider
     @Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
@@ -384,6 +388,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         aliasSearchFilterFactory = new AliasSearchFilterFactoryImpl(securityManagementService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
+        application.setCommandRuleService(cmdRuleService);
         return application;
     }
 
