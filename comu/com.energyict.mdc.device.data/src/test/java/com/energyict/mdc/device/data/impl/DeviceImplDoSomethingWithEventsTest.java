@@ -474,6 +474,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(HttpService.class).toInstance(mock(HttpService.class));
                 bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
                 bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+                bind(HttpService.class).toInstance(mock(HttpService.class));
             }
 
         }

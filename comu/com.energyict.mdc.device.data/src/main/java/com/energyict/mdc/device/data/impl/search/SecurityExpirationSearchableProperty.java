@@ -89,7 +89,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
             //Devices having an actual certificate that is expired
             sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
             if (Expiration.Type.OBSOLETE == expiration.getType()) {
-                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.OBSOLETE", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.OBSOLETE")));
+                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.STATUS", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.STATUS")));
             } else {
                 sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
             }
@@ -220,7 +220,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
                 "  INNER JOIN PKI_CERTIFICATE ON (PKI_SECACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
 
         if (Expiration.Type.OBSOLETE == expiration.getType()) {
-            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.OBSOLETE", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.OBSOLETE")));
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.STATUS", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.STATUS")));
         } else {
             sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", when)));
         }

@@ -16,6 +16,8 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageH
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -43,7 +45,9 @@ public enum SubscriberTranslationKeys implements TranslationKey {
     METER_READING_EVENT(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, MeterReadingEventHandlerFactory.SUBSCRIBER_DISPLAYNAME),
     TEST_COMMUNICATION_COMPLETED_EVENT(CommunicationTestEventHandlerFactory.SUBSCRIBER_NAME, CommunicationTestEventHandlerFactory.SUBSCRIBER_DISPLAYNAME),
     BULK_DEVICE_MESSAGES(DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_SUBSCRIBER, DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DISPLAYNAME),
-    DEVICE_MESSAGES(DeviceMessageService.DEVICE_MESSAGE_QUEUE_SUBSCRIBER, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DISPLAYNAME);
+    DEVICE_MESSAGES(DeviceMessageService.DEVICE_MESSAGE_QUEUE_SUBSCRIBER, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DISPLAYNAME),
+    CERTIFICATE_RENEWAL_TASK_SUBSCRIBER(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_DISPLAY_NAME),
+    KEY_RENEWAL_TASK_SUBSCRIBER(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_SUBSCRIBER, KeyRenewalHandlerFactory.KEY_RENEWAL_DISPLAY_NAME);
 
     private String key;
     private String defaultFormat;
