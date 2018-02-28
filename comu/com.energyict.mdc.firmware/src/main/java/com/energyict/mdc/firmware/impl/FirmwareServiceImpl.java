@@ -543,32 +543,25 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        return this.dataModel.mapper(SecurityAccessorTypeOnDeviceType.class).find()
-                .stream()
-                .filter(securityAccessorTypeOnDeviceType ->
-                        securityAccessorTypeOnDeviceType.getDeviceType() != null &&
-                        securityAccessorTypeOnDeviceType.getDeviceType().getId() == deviceType.getId() &&
-                        securityAccessorTypeOnDeviceType.getSecurityAccessorType() != null &&
-                        securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorType.getId())
-                .findAny();
+    public Finder<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+        Condition deviceCondition = where(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        Condition securityAccessorTypeCondition = where(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName()).isEqualTo(securityAccessorType);
+        Condition condition = deviceCondition.and(securityAccessorTypeCondition);
+        return DefaultFinder.of(SecurityAccessorTypeOnDeviceType.class, condition, dataModel);
     }
 
     @Override
     public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        Optional<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceType = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType);
-        if (securityAccessorTypeOnDeviceType.isPresent()) {
-            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).update();
+        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType).find();
+        if (securityAccessorTypeOnDeviceTypeList.isEmpty()) {
+            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceType.class).init(deviceType, securityAccessorType).save();
         }
-        this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).save();
     }
 
     @Override
     public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
-        Optional<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceType = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType);
-        if (securityAccessorTypeOnDeviceType.isPresent()) {
-            this.dataModel.getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class).init(deviceType, securityAccessorType).delete();
-        }
+        List<SecurityAccessorTypeOnDeviceType> securityAccessorTypeOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessorType).find();
+        securityAccessorTypeOnDeviceTypeList.forEach(SecurityAccessorTypeOnDeviceType::delete);
     }
 
     private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {

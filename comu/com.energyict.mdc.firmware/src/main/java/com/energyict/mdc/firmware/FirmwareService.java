@@ -80,7 +80,7 @@ public interface FirmwareService {
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
     DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
-    Optional<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
+    Finder<SecurityAccessorTypeOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
     void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
     void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessorType securityAccessorType);
 

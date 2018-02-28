@@ -55,20 +55,21 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+    @Override
+    public SecurityAccessorTypeOnDeviceType init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
         this.securityAccessorType.set(securityAccessorType);
         return this;
     }
-
+    @Override
     public void delete() {
         dataModel.remove(this);
     }
-
+    @Override
     public void save() {
         Save.CREATE.save(dataModel, this, Save.Create.class);
     }
-
+    @Override
     public void update() {
         Save.UPDATE.save(dataModel, this, Save.Create.class);
     }

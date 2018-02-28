@@ -13,4 +13,8 @@ import aQute.bnd.annotation.ProviderType;
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
     SecurityAccessorType getSecurityAccessorType();
+    void delete();
+    void save();
+    void update();
+    SecurityAccessorTypeOnDeviceType init(DeviceType deviceType, SecurityAccessorType securityAccessorType);
 }
