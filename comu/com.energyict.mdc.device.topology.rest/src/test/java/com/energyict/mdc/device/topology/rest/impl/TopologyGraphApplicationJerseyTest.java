@@ -11,13 +11,12 @@ import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 
 import javax.ws.rs.core.Application;
-
 import java.time.Clock;
 
+import org.junit.Ignore;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.spy;
-
+@Ignore
 public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
