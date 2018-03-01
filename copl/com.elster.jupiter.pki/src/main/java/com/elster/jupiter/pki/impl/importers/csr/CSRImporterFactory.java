@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -21,15 +23,23 @@ import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeDuration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.security.InvalidKeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory",
         service = FileImporterFactory.class,
@@ -82,11 +92,13 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public void validateProperties(List<FileImporterProperty> properties) {
-        if(properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey())  && ((Boolean) prop.getValue()))){
-                FileImporterProperty property = properties.stream().filter(prop -> prop.getName().contains("export") && prop.getValue() == null).findFirst().orElse(null);
-            if(property != null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "properties." + property.getName());
-            }
+        if (properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()) && ((Boolean) prop.getValue()))) {
+            properties.stream()
+                    .filter(prop -> prop.getName().contains("export") && prop.getValue() == null)
+                    .findFirst()
+                    .ifPresent(property -> {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "properties." + property.getName());
+                    });
         }
     }
 
@@ -97,17 +109,31 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        // TODO: add a check for certificate usage as import/export certificate somewhere
         // TODO: think of support for dependent properties
+        List<SecurityAccessor> securityAccessors = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS);
+        List<SecurityAccessor> securityAccessorsForSignatureCheck = securityAccessors.stream()
+                .filter(forSignatureCheck())
+                .collect(Collectors.toList());
+        List<SecurityAccessor> securityAccessorsForSigning = securityAccessorsForSignatureCheck.stream()
+                .filter(forSigning())
+                .collect(Collectors.toList());
         return Arrays.asList(
+                propertySpecService.durationSpec()
+                        .named(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey(), CSRImporterTranslatedProperty.TIMEOUT)
+                        .describedAs(CSRImporterTranslatedProperty.TIMEOUT_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .markExhaustive()
+                        .addValues(TimeDuration.seconds(30), TimeDuration.minutes(1), TimeDuration.minutes(2), TimeDuration.minutes(5))
+                        .setDefaultValue(TimeDuration.seconds(30))
+                        .finish(),
                 propertySpecService.referenceSpec(SecurityAccessor.class)
                         .named(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey(), CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR)
                         .describedAs(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .markExhaustive()
-                        // TODO: with RSA 2048 only
-                        .addValues(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS))
+                        .addValues(securityAccessorsForSignatureCheck)
                         .finish(),
                 propertySpecService.booleanSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_CERTIFICATES)
@@ -121,8 +147,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markExhaustive()
-                        // TODO: with RSA 2048 only
-                        .addValues(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS))
+                        .addValues(securityAccessorsForSigning)
                         .finish(),
                 propertySpecService.referenceSpec(TrustStore.class)
                         .named(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_TRUST_STORE)
@@ -169,6 +194,48 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .fromThesaurus(thesaurus)
                         .finish()
         );
+    }
+
+    private Predicate<SecurityAccessor> forSignatureCheck() {
+        return securityAccessor -> {
+            Optional actual = securityAccessor.getActualValue();
+            if (actual.isPresent()) {
+                Object object = actual.get();
+                if (object instanceof CertificateWrapper) {
+                    Optional<X509Certificate> certificateOptional = ((CertificateWrapper) object).getCertificate();
+                    if (certificateOptional.isPresent()) {
+                        PublicKey publicKey = certificateOptional.get().getPublicKey();
+                        if (CSRImporter.isSupportedType(publicKey)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        };
+    }
+
+    private Predicate<SecurityAccessor> forSigning() {
+        return securityAccessor -> {
+            try {
+                Optional actual = securityAccessor.getActualValue();
+                if (actual.isPresent()) {
+                    Object object = actual.get();
+                    if (object instanceof CertificateWrapper && ((CertificateWrapper) object).hasPrivateKey() && object instanceof ClientCertificateWrapper) {
+                        Optional<PrivateKey> privateKeyOptional = ((ClientCertificateWrapper) object).getPrivateKeyWrapper().getPrivateKey();
+                        if (privateKeyOptional.isPresent()) {
+                            PrivateKey privateKey = privateKeyOptional.get();
+                            if (CSRImporter.isSupportedType(privateKey)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } catch (InvalidKeyException e) {
+                // return false
+            }
+            return false;
+        };
     }
 
     @Reference

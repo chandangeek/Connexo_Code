@@ -236,7 +236,10 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
         if (dataModel.stream(SecurityAccessorTypeImpl.class).anyMatch(referencesThisTrustStore)) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_ON_SECURITY_ACCESSOR);
         }
-        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("trustStore").isEqualTo(this)).isEmpty()) {
+        if (securityManagementService.streamDirectoryCertificateUsages()
+                .filter(Where.where("trustStore").isEqualTo(this))
+                .findAny()
+                .isPresent()) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
         }
         eventService.postEvent(EventType.TRUSTSTORE_VALIDATE_DELETE.topic(), this);

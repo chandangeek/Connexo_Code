@@ -4,8 +4,8 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.util.Pair;
 
 import sun.security.provider.X509Factory;
 
@@ -18,12 +18,14 @@ import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
-public class CertificateExportProcessor {
+class CertificateExportProcessor {
 
     private static final int PEM_CHARACTERS_ALIGNMENT = 64;
 
@@ -31,7 +33,7 @@ public class CertificateExportProcessor {
     private final CertificateExportDestination exportDestination;
     private final CSRImporterLogger logger;
 
-    public CertificateExportProcessor(Map<String, Object> properties,
+    CertificateExportProcessor(Map<String, Object> properties,
                                       CertificateExportDestination exportDestination,
                                       CSRImporterLogger logger) {
         this.properties = properties;
@@ -39,27 +41,26 @@ public class CertificateExportProcessor {
         this.logger = logger;
     }
 
-    public void processExport(Map<String, Map<String, X509Certificate>> certificates) throws IOException, CertificateEncodingException {
+    void processExport(Map<String, Map<String, X509Certificate>> certificates) throws IOException, CertificateEncodingException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
-        TrustStore trustStore = (TrustStore) properties.get(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey());
-        for (Map.Entry<String, Map<String, X509Certificate>> certificatesForDevice : certificates.entrySet()) {
-            Map<String, X509Certificate> certificatesMap = certificatesForDevice.getValue();
-            String dirName = certificatesForDevice.getKey();
-            for (Map.Entry<String, X509Certificate> stringX509CertificateEntry : certificatesMap.entrySet()) {
-                X509Certificate x509Certificate = stringX509CertificateEntry.getValue();
-                storeDlmsKeyStoreCertificate(zipOutputStream, x509Certificate, dirName, stringX509CertificateEntry.getKey());
-            }
-            if (trustStore != null) {
-                for (TrustedCertificate trustedCertificate : trustStore.getCertificates()) {
-                    if (trustedCertificate.getCertificate().isPresent()) {
-                        storeDlmsKeyStoreCertificate(zipOutputStream, trustedCertificate.getCertificate().get(), dirName, trustedCertificate.getAlias());
-                    }
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+            TrustStore trustStore = (TrustStore) properties.get(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey());
+            Map<String, X509Certificate> trustedCertificatesMap = trustStore == null ? Collections.emptyMap() : trustStore.getCertificates().stream()
+                    .map(certificateWrapper -> Pair.of(certificateWrapper.getAlias(), certificateWrapper.getCertificate().orElse(null)))
+                    .filter(Pair::hasLast)
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+            for (Map.Entry<String, Map<String, X509Certificate>> certificatesForDevice : certificates.entrySet()) {
+                Map<String, X509Certificate> certificatesMap = certificatesForDevice.getValue();
+                String dirName = certificatesForDevice.getKey();
+                for (Map.Entry<String, X509Certificate> fullAliasAndCertificate : certificatesMap.entrySet()) {
+                    storeDlmsKeyStoreCertificate(zipOutputStream, fullAliasAndCertificate.getValue(), dirName, fullAliasAndCertificate.getKey());
+                }
+                for (Map.Entry<String, X509Certificate> fullAliasAndCertificate : trustedCertificatesMap.entrySet()) {
+                    storeDlmsKeyStoreCertificate(zipOutputStream, fullAliasAndCertificate.getValue(), dirName, fullAliasAndCertificate.getKey());
                 }
             }
+            zipOutputStream.finish();
         }
-        zipOutputStream.finish();
-        zipOutputStream.close();
         byte[] bytes = byteArrayOutputStream.toByteArray();
         byte[] signature = getSignature(bytes);
         exportDestination.export(bytes, signature);
@@ -84,15 +85,15 @@ public class CertificateExportProcessor {
 
     private String pemEncode(X509Certificate certificate) throws CertificateEncodingException {
         StringBuilder pem = new StringBuilder();
-        pem.append(X509Factory.BEGIN_CERT).append('\n');
+        pem.append(X509Factory.BEGIN_CERT);
 
         String encodeToString = Base64.getEncoder().encodeToString(certificate.getEncoded());
         int encodeToStringLength = encodeToString.length();
-        for (int index = 1; index < encodeToStringLength; index++) {
-            pem.append(encodeToString.charAt(index));
-            if (index % PEM_CHARACTERS_ALIGNMENT == 0 && index > 0) {
+        for (int index = 0; index < encodeToStringLength; ++index) {
+            if (index % PEM_CHARACTERS_ALIGNMENT == 0) {
                 pem.append('\n');
             }
+            pem.append(encodeToString.charAt(index));
         }
         pem.append('\n').append(X509Factory.END_CERT);
         return pem.toString();

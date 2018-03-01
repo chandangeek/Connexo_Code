@@ -7,6 +7,7 @@ package com.elster.jupiter.pki;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.UserDirectory;
@@ -433,7 +434,7 @@ public interface SecurityManagementService {
      */
     List<CertificateWrapper> findTrustedCertificatesByFilter(DataSearchFilter dataSearchFilter);
 
-    Query<DirectoryCertificateUsage> getDirectoryCertificateUsagesQuery();
+    QueryStream<DirectoryCertificateUsage> streamDirectoryCertificateUsages();
 
     DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory);
 

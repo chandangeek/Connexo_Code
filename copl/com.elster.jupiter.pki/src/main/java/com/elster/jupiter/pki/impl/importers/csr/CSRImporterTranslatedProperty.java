@@ -7,6 +7,8 @@ package com.elster.jupiter.pki.impl.importers.csr;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum CSRImporterTranslatedProperty implements TranslationKey {
+    TIMEOUT("timeout", "Timeout"),
+    TIMEOUT_DESCRIPTION("timeout.description", "Timeout for one CSR signing"),
     IMPORT_SECURITY_ACCESSOR("importSecurityAccessor", "Import security accessor"),
     IMPORT_SECURITY_ACCESSOR_DESCRIPTION("importSecurityAccessor.description", "Security accessor used to decrypt imported zip"),
     EXPORT_CERTIFICATES("exportCertificates", "Export certificates"),

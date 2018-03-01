@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -38,6 +39,7 @@ import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
@@ -510,7 +512,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
 
     @Override
-    public CertificateWrapper newCertificateWrapper(String alias) {
+    public RequestableCertificateWrapper newCertificateWrapper(String alias) {
         RequestableCertificateWrapperImpl renewableCertificate = getDataModel().getInstance(RequestableCertificateWrapperImpl.class);
         renewableCertificate.setAlias(alias);
         renewableCertificate.save();
@@ -876,8 +878,10 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public Query<DirectoryCertificateUsage> getDirectoryCertificateUsagesQuery() {
-        return getQueryService().wrap(dataModel.query(DirectoryCertificateUsage.class, TrustStore.class, CertificateWrapper.class));
+    public QueryStream<DirectoryCertificateUsage> streamDirectoryCertificateUsages() {
+        return dataModel.stream(DirectoryCertificateUsage.class)
+                .join(TrustStore.class)
+                .join(CertificateWrapper.class);
     }
 
     @Override

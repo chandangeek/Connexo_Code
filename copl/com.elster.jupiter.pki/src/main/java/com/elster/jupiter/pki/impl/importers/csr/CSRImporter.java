@@ -21,11 +21,13 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.util.Arrays;
@@ -66,25 +68,11 @@ class CSRImporter implements FileImporter {
             Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
                     .parseInputStream(reusableInputStream.stream());
 
-            Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, thesaurus)
+            Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger)
                     .process(csrMap);
 
-//            processor.addListener(new CSRProcessor.ImportListener() {
-//                @Override
-//                public void created(String mrid) {
-//                    logCreation(fileImportOccurrence);
-//                }
-//
-//                @Override
-//                public void updated(String mrid) {
-//                    logUpdate(fileImportOccurrence);
-//                }
-//            });
-//
-//            processor.process(xmlContents);
-
             boolean shouldExport = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey());
-            if (csrMap.size() == certificateMap.size()) {
+            if (deepSize(csrMap) == deepSize(certificateMap)) {
                 if (shouldExport) {
                     new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger)
                             .processExport(certificateMap);
@@ -103,6 +91,13 @@ class CSRImporter implements FileImporter {
         }
     }
 
+    private static int deepSize(Map<?, ? extends Map<?, ?>> mapOfMaps) {
+        return mapOfMaps.values().stream()
+                .mapToInt(Map::size)
+                .reduce((a, b) -> a + b)
+                .orElse(0);
+    }
+
     private void verifyInputFileSignature(ReusableInputStream reusableInputStream) {
         SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) properties.get(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey());
         CertificateWrapper certificateWrapper = certificateAccessor.getActualValue()
@@ -110,12 +105,20 @@ class CSRImporter implements FileImporter {
         Certificate certificate = certificateWrapper.getCertificate()
                 .orElseThrow(() -> new SignatureCheckFailedException(thesaurus, MessageSeeds.NO_CERTIFICATE_IN_WRAPPER, certificateWrapper.getAlias()));
         PublicKey publicKey = certificate.getPublicKey();
-        if (!(publicKey instanceof RSAPublicKey) || ((RSAPublicKey) publicKey).getModulus().bitLength() != RSA_MODULUS_BIT_LENGTH) {
+        if (!isSupportedType(publicKey)) {
             throw new SignatureCheckFailedException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + RSA_MODULUS_BIT_LENGTH);
         }
         if (!inputFileHasValidSignature(reusableInputStream.getBytes(), publicKey)) {
             throw new SignatureCheckFailedException(thesaurus);
         }
+    }
+
+    static boolean isSupportedType(PublicKey publicKey) {
+        return publicKey instanceof RSAPublicKey && ((RSAPublicKey) publicKey).getModulus().bitLength() == RSA_MODULUS_BIT_LENGTH;
+    }
+
+    static boolean isSupportedType(PrivateKey privateKey) {
+        return privateKey instanceof RSAPrivateKey && ((RSAPrivateKey) privateKey).getModulus().bitLength() == RSA_MODULUS_BIT_LENGTH;
     }
 
     private boolean inputFileHasValidSignature(byte[] allBytes, PublicKey publicKey) {

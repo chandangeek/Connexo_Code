@@ -78,11 +78,17 @@ public enum MessageSeeds implements MessageSeed {
     NO_PRIVATE_KEY_FOR_SIGNING(1063, "NoPrivateKeyForCertificate", "The certificate {0} doesn''t contain a private key for signing the exported file."),
     INAPPROPRIATE_CERTIFICATE_TYPE(1064, "InappropriateCertificateType", "The certificate {0} isn''t of type {1}."),
     FAILED_TO_SIGN(1065, "FailedToSign", "Failed to sign the exported file."),
-    SOME_CERTIFICATES_NOT_SIGNED(1066, "CertificatesNotSigned", "Some certificates from the imported file haven''t been signed by CA."),
-    SUBDIRECTORIES_IN_ZIP_FILE(1067, "IncorrectFileStructureSubdirectories", "Subdirectory '{0}' is found in csr entry directory"),
-    NO_DIRECTORY_FOR_CSR_FILE(1068, "IncorrectFileStructureNoDirectory", "No directory is found for csr file '{0}'"),
-    NOT_CSR_FILE_EXTENSION(1069, "IncorrectFileExtensionCSR", "Incorrect extension is found for csr file '{0}'")
-    ;
+    SOME_CERTIFICATES_NOT_SIGNED(1066, "CertificatesNotSigned", "Some certificates from the imported file haven''t been signed by the CA."),
+    SUBDIRECTORIES_IN_ZIP_FILE(1067, "IncorrectFileStructureSubdirectories", "Subdirectory ''{0}'' is found in CSR entry directory."),
+    NO_DIRECTORY_FOR_CSR_FILE(1068, "IncorrectFileStructureNoDirectory", "No directory is found for CSR file ''{0}''."),
+    NOT_CSR_FILE_EXTENSION(1069, "IncorrectFileExtensionCSR", "Incorrect extension is found for CSR file ''{0}''."),
+    WRONG_FILE_NAME_FORMAT(1070, "WrongFileNameFormat", "Unexpected file name format in the imported zip. File name should contain non-empty file prefix and file system separated with a hyphen."),
+    CSR_IS_IN_USE(1071, "CsrIsInUse", "Can''t import CSR for certificate with alias {0}: it is currently in use.", Level.WARNING),
+    CSR_IMPORTED_SUCCESSFULLY(1072, "CsrImportedSuccessfully", "CSR {0} has been imported to Connexo.", Level.INFO),
+    SIGN_CSR_BY_CA_TIMED_OUT(1073, "SignCsrByCaTimedOut", "Certificate signing request to CA has timed out for alias {0}. The certificate is not signed.", Level.WARNING),
+    SIGN_CSR_BY_CA_FAILED(1074, "SignCsrByCaFailed", "Certificate signing request to CA has failed for alias {0}: {1}", Level.WARNING),
+    CSR_SIGNED_SUCCESSFULLY(1075, "SignCsrByCaSucceeded", "Certificate {0} has been signed.", Level.INFO),
+    CERTIFICATE_IMPORTED_SUCCESSFULLY(1076, "CertificateImportedSuccessfully", "Signed certificate {0} has been imported to Connexo.", Level.INFO);
 
     private final int number;
     private final String key;
