@@ -543,7 +543,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
         Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
         Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
         Condition condition = deviceTypeCondition.and(securityAccessorCondition);
@@ -551,28 +551,28 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(SecurityAccessor securityAccessor) {
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(SecurityAccessor securityAccessor) {
         Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
         return DefaultFinder.of(SecurityAccessorOnDeviceType.class, securityAccessorCondition, dataModel);
     }
 
     @Override
-    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType) {
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType) {
         Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
         return DefaultFinder.of(SecurityAccessorOnDeviceType.class, deviceTypeCondition, dataModel);
     }
 
     @Override
-    public void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
-        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
+    public void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureValidation(deviceType, securityAccessor).find();
         if (securityAccessorOnDeviceTypeList.isEmpty()) {
             this.dataModel.getInstance(SecurityAccessorOnDeviceType.class).init(deviceType, securityAccessor).save();
         }
     }
 
     @Override
-    public void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
-        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureChecking(deviceType, securityAccessor).find();
+    public void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureValidation(deviceType, securityAccessor).find();
         securityAccessorOnDeviceTypeList.forEach(SecurityAccessorOnDeviceType::delete);
     }
 

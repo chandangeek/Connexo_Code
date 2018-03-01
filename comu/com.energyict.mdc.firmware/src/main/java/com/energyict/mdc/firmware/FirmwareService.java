@@ -40,6 +40,12 @@ public interface FirmwareService {
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
+    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(SecurityAccessor securityAccessor);
+    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType);
+    void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+    void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+    Thesaurus getThesaurus();
 
 
     // Firmware upgrade options on a device type
@@ -82,12 +88,6 @@ public interface FirmwareService {
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
     DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
-    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
-    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(SecurityAccessor securityAccessor);
-    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType);
-    void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
-    void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
-    Thesaurus getThesaurus();
 
     /**
      * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution

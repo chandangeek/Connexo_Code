@@ -37,7 +37,7 @@ public class SecurityAccessorDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         SecurityAccessor securityAccessor = (SecurityAccessor) localEvent.getSource();
-        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = firmwareService.findSecurityAccessorForSignatureChecking(securityAccessor).find();
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = firmwareService.findSecurityAccessorForSignatureValidation(securityAccessor).find();
         if (!securityAccessorOnDeviceTypeList.isEmpty()) {
             throw new VetoDeleteSecurityAccessorException(getThesaurus(), securityAccessorOnDeviceTypeList);
         }
