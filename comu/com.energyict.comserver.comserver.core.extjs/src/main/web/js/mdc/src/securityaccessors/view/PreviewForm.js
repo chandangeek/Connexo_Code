@@ -39,6 +39,13 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'description'
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.purpose', 'MDC', 'Purpose'),
+                        name: 'purpose',
+                        renderer: function (value) {
+                            return value ? value.name : '-';
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.accessorType', 'MDC', 'Accessor type'),
                         name: 'isKey',
                         renderer: function (value) {

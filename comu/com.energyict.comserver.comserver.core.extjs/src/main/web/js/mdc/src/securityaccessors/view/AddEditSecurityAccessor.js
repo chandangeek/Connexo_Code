@@ -50,7 +50,34 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 },
                 {
                     xtype: 'radiogroup',
+                    fieldLabel: Uni.I18n.translate('general.category', 'MDC', 'Category'),
+                    itemId: 'mdc-security-accessor-purpose-radio',
+                    name: 'purpose',
+                    columns: 1,
+                    required: true,
+                    vertical: true,
+                    disabled: me.isEdit,
+                    listeners: {
+                        change: me.manageCentrallyChange
+                    },
+                    items: [
+                        {
+                            boxLabel: Uni.I18n.translate('general.communication', 'MDC', 'Communication'),
+                            name: 'purpose',
+                            checked : true,
+                            inputValue: {id: "COMMUNICATION", name: "Communication"}
+                        },
+                        {
+                            boxLabel: Uni.I18n.translate('general.fileOperations', 'MDC', 'File operations'),
+                            name: 'purpose',
+                            inputValue: {id: "FILE_OPERATIONS", name: "File operations"}
+                        }
+                    ]
+                },
+                {
+                    xtype: 'radiogroup',
                     fieldLabel: Uni.I18n.translate('general.accessorType', 'MDC', 'Accessor type'),
+                    itemId: 'mdc-security-accessor-key-radio',
                     columns: 1,
                     required: true,
                     vertical: true,
@@ -93,8 +120,11 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...'),
                     listeners: {
                         change: function(){
-                            var manageCentrally = me.down('#mdc-security-accessor-manage-centrally-checkbox');
-                            manageCentrally && me.down('#mdc-security-accessor-manage-centrally-checkbox').setValue(false);
+                            var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
+
+                            if (!checkbox.isDisabled()) {
+                                checkbox.setValue(false);
+                            }
                         }
                     }
                 },
@@ -124,7 +154,11 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...'),
                             listeners: {
                                 change: function(){
-                                    me.down('#mdc-security-accessor-manage-centrally-checkbox').setValue(false);
+                                    var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
+
+                                    if (!checkbox.isDisabled()) {
+                                        checkbox.setValue(false);
+                                    }
                                 }
                             }
 
@@ -250,16 +284,33 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         }
     },
 
+    manageCentrallyChange: function(target) {
+        var form = target.up('form'),
+            keyRadio = form.down('#mdc-security-accessor-key-radio'),
+            manageCentrallyCheck = form.down('#mdc-security-accessor-manage-centrally-checkbox');
+
+        if (target.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key) {
+            manageCentrallyCheck.setValue(true);
+            manageCentrallyCheck.setDisabled(true);
+        } else {
+            manageCentrallyCheck.setValue(false);
+            manageCentrallyCheck.setDisabled(false);
+        }
+
+    },
+
     onAccessorTypeChange: function(radioBtn, newValue) {
         var me = this,
-            errorMsgPnl = me.up('form').down('#mdc-security-accessor-error-message'),
+            form = me.up('form'),
+            errorMsgPnl = form.down('#mdc-security-accessor-error-message'),
             key = radioBtn.itemId === 'mdc-security-accessor-key',
-            typeCombo = me.up('form').down('#mdc-security-accessor-key-type-combobox'),
-            storageMethodCombo = me.up('form').down('#mdc-security-accessor-storage-method-combobox'),
-            trustStoreCombo = me.up('form').down('#mdc-security-accessor-trust-store-combobox'),
-            trustStoreContainer = me.up('form').down('#mdc-security-accessor-trust-store-container'),
-            manageCentrallyCheckbox = me.up('form').down('#mdc-security-accessor-manage-centrally-checkbox'),
-            noTrustStoreMsg = me.up('form').down('#mdc-security-accessor-no-trust-store-msg'),
+            typeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            purposesRadio = form.down('#mdc-security-accessor-purpose-radio'),
+            storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
+            trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox'),
+            trustStoreContainer = form.down('#mdc-security-accessor-trust-store-container'),
+            manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
+            noTrustStoreMsg = form.down('#mdc-security-accessor-no-trust-store-msg'),
             accessorTypeIsKey = ( (radioBtn.itemId === 'mdc-security-accessor-key' && newValue) ||
                                   (radioBtn.itemId === 'mdc-security-accessor-certificate' && !newValue) );
 
@@ -270,6 +321,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         } else {
             storageMethodCombo.hide();
         }
+
+        form.up('security-accessor-add-form').manageCentrallyChange(purposesRadio);
 
         if (newValue) {
             errorMsgPnl.hide();
