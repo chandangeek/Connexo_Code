@@ -51,6 +51,8 @@ public final class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeDefaultTranslation = "Version number";
     public static final String firmwareUpdateFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateUserFileAttributeDefaultTranslation = "Firmware file";
+    public static final String configurationCAImageFileAttributeName = "FirmwareDeviceMessage.configurationCAImageFileAttributeName";
+    public static final String configurationCAImageFileDefaultTranslation = "CA configuration image";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
     public static final String firmwareUpdateImageIdentifierAttributeDefaultTranslation = "Image identifier";
     public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";

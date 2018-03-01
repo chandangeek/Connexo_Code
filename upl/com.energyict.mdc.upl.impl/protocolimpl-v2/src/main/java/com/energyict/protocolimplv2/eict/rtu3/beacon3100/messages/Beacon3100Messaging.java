@@ -186,6 +186,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE.get(this.propertySpecService, this.nlsService, this.converter),
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
@@ -370,6 +371,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.currentEndDate:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+            case DeviceMessageConstants.configurationCAImageFileAttributeName:
                 return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case DeviceMessageConstants.encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
@@ -534,6 +536,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, nlsService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE)) {
+                        transferCAConfigImage(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
                         collectedMessage = configurePartialMulticastBlockTransfer(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR)) {
@@ -1785,8 +1789,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
     }
 
-    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
+    private void imageTransfer(OfflineDeviceMessage pendingMessage, String attributeName) throws IOException {
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, attributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
@@ -1808,6 +1812,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 throw e;
             }
         }
+    }
+
+    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
+        imageTransfer(pendingMessage, firmwareUpdateFileAttributeName);
+    }
+
+    private void transferCAConfigImage(OfflineDeviceMessage pendingMessage) throws IOException {
+        imageTransfer(pendingMessage, configurationCAImageFileAttributeName);
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
