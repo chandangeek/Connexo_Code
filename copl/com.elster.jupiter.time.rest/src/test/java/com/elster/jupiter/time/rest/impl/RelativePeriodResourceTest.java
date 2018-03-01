@@ -4,32 +4,26 @@
 
 package com.elster.jupiter.time.rest.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.RelativePeriodCategory;
-import com.elster.jupiter.time.RelativePeriodUsageInfo;
-import com.elster.jupiter.time.RelativePeriodUsageProvider;
 import com.elster.jupiter.time.rest.RelativeDateInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.conditions.Order;
-import com.jayway.jsonpath.JsonModel;
 
-import org.junit.Test;
+import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
