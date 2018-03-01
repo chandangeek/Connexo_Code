@@ -5,6 +5,8 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -19,6 +21,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -35,9 +38,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -128,8 +138,9 @@ public class FirmwareVersionResource {
         }else {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         }
-
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
+        Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureChecking(deviceTypeId);
+        securityAccessor.ifPresent(sa -> checkSignature(firmwareFile, sa));
         setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);
         FirmwareVersion version = firmwareVersionBuilder.create();
         setFirmwareFile(version, firmwareFile);
@@ -190,6 +201,8 @@ public class FirmwareVersionResource {
         }
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
+        Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureChecking(deviceTypeId);
+        securityAccessor.ifPresent(sa -> checkSignature(firmwareFile, sa));
         setExpectedFirmwareSize(firmwareVersion, firmwareFile);
         firmwareVersion.update();
         setFirmwareFile(firmwareVersion, firmwareFile);
@@ -319,5 +332,47 @@ public class FirmwareVersionResource {
             }
         }
         return null;
+    }
+
+    private void checkSignature(byte[] firmwareFile, SecurityAccessor securityAccessor)  throws  Exception{
+        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
+            if (certificateWrapper.getCertificate().isPresent()) {
+                X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
+                String sigAlgName = x509Certificate.getSigAlgName(); //SHA256withECDSA (suite 1) or SHA384withECDSA (suite 2)
+                Signature sig = Signature.getInstance(sigAlgName);
+                sig.initVerify(x509Certificate);
+                addDataToVerify(sig, firmwareFile);
+
+            }
+        }
+
+        return;
+    }
+
+    private void addDataToVerify(Signature signature, byte[] firmwareFile) throws IOException, SignatureException {
+        int length = (int) firmwareFile.length - 256; // getValidationAttributes().getSignatureLength();
+
+        byte[] buffer = new byte[1024];
+        try (ByteArrayInputStream stream = new ByteArrayInputStream(firmwareFile)) {
+
+            int currentBytesRead = stream.read(buffer);
+            int totalBytesRead = 0;
+
+            while (currentBytesRead != -1 && (length == -1 || totalBytesRead < length)) {
+                int bytesToConsider;
+
+                if (length != -1 && totalBytesRead + currentBytesRead > length) {
+                    bytesToConsider = length - totalBytesRead;
+                } else {
+                    bytesToConsider = currentBytesRead;
+                }
+
+                signature.update(buffer, 0, bytesToConsider);
+
+                totalBytesRead += currentBytesRead;
+                currentBytesRead = stream.read(buffer);
+            }
+        }
     }
 }
