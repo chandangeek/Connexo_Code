@@ -169,27 +169,25 @@ public class ResourceHelper {
         return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
     }
 
-   public void deleteSecurityAccessorForSignatureChecking(long securityAccessorId, long deviceTypeId) {
+   public void deleteSecurityAccessorForSignatureValidation(long securityAccessorId, long deviceTypeId) {
        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
        Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(securityAccessorId);
        if (deviceType.isPresent() && securityAccessor.isPresent()) {
-           firmwareService.deleteSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessor.get());
+           firmwareService.deleteSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
        }
    }
 
-    public void addSecurityAccessorForSignatureChecking(long securityAccessorId, long deviceTypeId) {
+    public void addSecurityAccessorForSignatureValidation(long securityAccessorId, long deviceTypeId) {
         Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
         Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(securityAccessorId);
         if (deviceType.isPresent() && securityAccessor.isPresent()) {
-            firmwareService.addSecurityAccessorForSignatureChecking(deviceType.get(), securityAccessor.get());
+            firmwareService.addSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
         }
     }
 
-    public Optional<SecurityAccessor> findSecurityAccessorForSignatureChecking(long deviceTypeId) {
+    public Optional<SecurityAccessor> findSecurityAccessorForSignatureValidation(long deviceTypeId) {
         Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-        return deviceType.flatMap(dt -> firmwareService.findSecurityAccessorForSignatureChecking(dt)
-                .find()
-                .stream()
+        return deviceType.flatMap(dt -> firmwareService.findSecurityAccessorForSignatureValidation(dt).find().stream()
                 .filter(securityAccessorOnDeviceType -> securityAccessorOnDeviceType.getDeviceType().getId() == deviceTypeId)
                 .findAny()
                 .map(SecurityAccessorOnDeviceType::getSecurityAccessor));

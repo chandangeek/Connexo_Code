@@ -73,7 +73,7 @@ public class SecurityAccessorResource {
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/deletecertificate/{securityAccessorId}/{deviceTypeId}")
     public Response deleteCertificate(@PathParam("securityAccessorId") long securityAccessorId, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
-        resourceHelper.deleteSecurityAccessorForSignatureChecking(securityAccessorId, deviceTypeId);
+        resourceHelper.deleteSecurityAccessorForSignatureValidation(securityAccessorId, deviceTypeId);
         return Response.ok().build();
     }
 
@@ -84,7 +84,7 @@ public class SecurityAccessorResource {
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/addcertificate/{securityAccessorId}/{deviceTypeId}")
     public Response addCertificate(@PathParam("securityAccessorId") long securityAccessorId, @PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
-        resourceHelper.addSecurityAccessorForSignatureChecking(securityAccessorId,deviceTypeId);
+        resourceHelper.addSecurityAccessorForSignatureValidation(securityAccessorId,deviceTypeId);
         return Response.ok().build();
     }
 
