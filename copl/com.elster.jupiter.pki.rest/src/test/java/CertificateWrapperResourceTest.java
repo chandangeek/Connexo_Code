@@ -2,7 +2,8 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -16,7 +17,6 @@ import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
-import com.elster.jupiter.util.conditions.Condition;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONArray;
@@ -270,15 +270,14 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testMarkCertificateObsolete() throws Exception {
         //Prepare
-        Query mockQuery = mock(Query.class);
         Long certId = 111L;
         ClientCertificateWrapper cert = mock(ClientCertificateWrapper.class);
 
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
         when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
 
         //Act
         Response response = target("/certificates/" + certId + "/markObsolete").request().post(null);
@@ -299,7 +298,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         String dirUsageName1 = "dirUsage_1";
         String dirUsageName2 = "dirUsage_2";
 
-        Query mockQuery = mock(Query.class);
         List<String> deviceNames = Arrays.asList(deviceName1, deviceName2, deviceName3, deviceName4);
         DirectoryCertificateUsage dirUsage1 = mock(DirectoryCertificateUsage.class);
         DirectoryCertificateUsage dirUsage2 = mock(DirectoryCertificateUsage.class);
@@ -312,8 +310,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
         when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Arrays.asList(accessor));
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(deviceNames);
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Arrays.asList(dirUsage1, dirUsage2));
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Arrays.asList(dirUsage1, dirUsage2), QueryStream.class));
         when(accessor.getKeyAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage1.getDirectoryName()).thenReturn(dirUsageName1);
@@ -366,17 +364,14 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testCheckRevokeCertificate() throws Exception {
         //Prepare
-
-        Query mockQuery = mock(Query.class);
-
         Long certId = 222L;
         CertificateWrapper cert = mock(CertificateWrapper.class);
 
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
         when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
 
 
@@ -397,7 +392,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         String deviceName = "device";
         String dirUsageName = "dirUsage";
 
-        Query mockQuery = mock(Query.class);
         DirectoryCertificateUsage dirUsage = mock(DirectoryCertificateUsage.class);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
@@ -408,8 +402,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
         when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.singletonList(accessor));
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.singletonList(deviceName));
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(dirUsage));
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.singletonList(dirUsage), QueryStream.class));
         when(accessor.getKeyAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
@@ -432,14 +426,12 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Long timeout = 10L;
         Long certId = 222L;
         CertificateWrapper cert = mock(CertificateWrapper.class);
-        Query mockQuery = mock(Query.class);
 
         when(securityManagementService.findCertificateWrapper(certId)).thenReturn(Optional.of(cert));
         when(securityManagementService.getAssociatedCertificateAccessors(cert)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.emptyList());
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
-
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
 
         //Act
         Response response = target("/certificates/" + certId + "/revoke").queryParam("timeout", timeout).request().post(null);
@@ -456,7 +448,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Long certId2 = 212L;
         Long timeout = 10L;
 
-        Query mockQuery = mock(Query.class);
         CertificateWrapper cert1 = mock(CertificateWrapper.class);
         CertificateWrapper cert2 = mock(CertificateWrapper.class);
 
@@ -474,8 +465,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.emptyList());
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
 
         //Act
         Response response = target("/certificates/checkBulkRevoke").request().post(Entity.json(requestInfo));
@@ -503,7 +494,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         String deviceName = "device";
         String dirUsageName = "directory";
 
-        Query mockQuery = mock(Query.class);
         DirectoryCertificateUsage dirUsage = mock(DirectoryCertificateUsage.class);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityAccessorType accessorType = mock(SecurityAccessorType.class);
@@ -529,8 +519,9 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.singletonList(deviceName));
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert3)).thenReturn(Collections.emptyList());
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
         when(accessor.getKeyAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
@@ -578,8 +569,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(cert3.getAlias()).thenReturn(certAlias3);
         when(cert3.getStatus()).thenReturn("Available");
 
-        Query mockQuery = mock(Query.class);
-
         CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
         requestInfo.timeout = timeout;
         requestInfo.bulk.certificatesIds = Arrays.asList(certId1, certId2, certId3);
@@ -596,8 +585,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert2)).thenReturn(Collections.emptyList());
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert3)).thenReturn(Collections.singletonList("device"));
-        when(securityManagementService.getDirectoryCertificateUsagesQuery()).thenReturn(mockQuery);
-        when(mockQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        when(securityManagementService.streamDirectoryCertificateUsages())
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
         when(revocationUtils.bulkRevokeCertificates(captor.capture(), eq(timeout))).thenReturn(resultInfo);
 
         //Act

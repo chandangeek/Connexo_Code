@@ -578,7 +578,9 @@ public class CertificateWrapperResource {
     }
 
     private List<DirectoryCertificateUsage> findDirectoryCertificateUsages(CertificateWrapper cert) {
-        return securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(cert));
+        return securityManagementService.streamDirectoryCertificateUsages()
+                .filter(Where.where("certificate").isEqualTo(cert))
+                .select();
     }
 
     private CertificateUsagesInfo findCertificateUsages(CertificateWrapper certificateWrapper) {

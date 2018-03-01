@@ -33,14 +33,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_PUBLIC_KEY_PRESENT(20, "NoPublicKeyPresent", "No public key found."),
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "The file doesn''t contain a valid public key."),
     INVALID_KEY(22, "InvalidKey", "Invalid key."),
-    CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
-    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),
-    REVOCATION_FAILED(25, "RevocationFailed", "Certificate couldn't be revoked by the Certification Authority"),
-    NO_CERTIFICATES_WITH_IDS(26, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}"),
-    CERTIFICATE_ALREADY_REVOKED(27, "CertificateAlreadyRevoked", "The certificate has already been revoked by Certification Authority. The status has been updated to ''revoked''"),
-    COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(28, "CertificateRequestFromCAFailedTimeout", "'A time out occurred. Certificate couldn''t be received from the Certification authority"),
-    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The file has been received from the CA but an error has occurred while saving"),
-    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(30, "CertificateRequestFromCAFailed", "Certificate couldn''t be received from the Certification authority: {0}"),
+    REVOCATION_FAILED(25, "RevocationFailed", "The certificate couldn''t be revoked by the CA."),
+    NO_CERTIFICATES_WITH_IDS(26, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}."),
+    CERTIFICATE_ALREADY_REVOKED(27, "CertificateAlreadyRevoked", "The certificate has already been revoked by the CA. The status has been updated to ''revoked''."),
+    COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(28, "CertificateRequestFromCAFailedTimeout", "A timeout has occurred. The certificate couldn''t be received from the CA."),
+    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The certificate has been received from the CA but an error has occurred while saving."),
+    COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(30, "CertificateRequestFromCAFailed", "The certificate couldn''t be received from the CA: {0}"),
     ;
 
     private final int number;
