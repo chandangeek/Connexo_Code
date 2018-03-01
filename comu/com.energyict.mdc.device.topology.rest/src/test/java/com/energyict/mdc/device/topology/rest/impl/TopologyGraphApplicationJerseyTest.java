@@ -17,6 +17,7 @@ import org.junit.Ignore;
 import org.mockito.Mock;
 
 @Ignore
+// This test is ignored while failing due to geo-location POC code that should not be there!!! Useless to fix this test against POC code
 public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
