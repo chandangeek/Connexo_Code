@@ -84,6 +84,7 @@ public interface FirmwareService {
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(SecurityAccessor securityAccessor);
+    Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType);
     void addSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
     void deleteSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor);
     Thesaurus getThesaurus();

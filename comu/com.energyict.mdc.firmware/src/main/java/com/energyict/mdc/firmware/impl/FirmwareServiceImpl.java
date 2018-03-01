@@ -544,9 +544,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType, SecurityAccessor securityAccessor) {
-        Condition deviceCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
         Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
-        Condition condition = deviceCondition.and(securityAccessorCondition);
+        Condition condition = deviceTypeCondition.and(securityAccessorCondition);
         return DefaultFinder.of(SecurityAccessorOnDeviceType.class, condition, dataModel);
     }
 
@@ -554,6 +554,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(SecurityAccessor securityAccessor) {
         Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
         return DefaultFinder.of(SecurityAccessorOnDeviceType.class, securityAccessorCondition, dataModel);
+    }
+
+    @Override
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureChecking(DeviceType deviceType) {
+        Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, deviceTypeCondition, dataModel);
     }
 
     @Override
