@@ -6,7 +6,8 @@ package com.energyict.mdc.firmware.rest;
 
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.TrustStore;
+
+import java.sql.Date;
 
 public class SecurityAccessorInfoFactory {
 
@@ -14,20 +15,24 @@ public class SecurityAccessorInfoFactory {
         // for OSGI
     }
 
+    private static final String NOT_DEFINED = "Not Defined";
+
     public SecurityAccessorInfo from(SecurityAccessor<?> securityAccessor) {
         SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.id = securityAccessor.getKeyAccessorType().getId();
         info.name = securityAccessor.getKeyAccessorType().getName();
+        info.type = securityAccessor.getKeyAccessorType().getKeyType().getName();
         info.description = securityAccessor.getKeyAccessorType().getDescription();
-        if (securityAccessor.getKeyAccessorType().getTrustStore().isPresent()) {
-            TrustStore trustStore = securityAccessor.getKeyAccessorType().getTrustStore().get();
-            info.truststore = trustStore.getName();
-        }
+        info.truststore = securityAccessor.getKeyAccessorType().getTrustStore().isPresent() ?
+                securityAccessor.getKeyAccessorType().getTrustStore().get().getName() :
+                NOT_DEFINED;
         if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
             CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
-            if (certificateWrapper.getExpirationTime().isPresent()) {
-                info.expirationTime = certificateWrapper.getExpirationTime().get();
-            }
+            info.expirationTime = certificateWrapper.getExpirationTime().isPresent() ?
+                    Date.from(certificateWrapper.getExpirationTime().get()).toString() :
+                    NOT_DEFINED;
+        } else {
+            info.expirationTime = NOT_DEFINED;
         }
         return info;
     }
