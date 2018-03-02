@@ -5,6 +5,8 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -19,12 +21,28 @@ import java.util.Optional;
  * process (TempValue).
  */
 @ProviderType
-public interface SecurityAccessor<T extends SecurityValueWrapper> {
+public interface SecurityAccessor<T extends SecurityValueWrapper> extends HasName, HasId {
 
     /**
      * Get the KeyAccessorType this value belongs to
      */
     SecurityAccessorType getKeyAccessorType();
+
+    /**
+     * Returns the name of the security accessor.
+     */
+    @Override
+    default String getName() {
+        return getKeyAccessorType().getName();
+    }
+
+    /**
+     * Returns the id of the security accessor.
+     */
+    @Override
+    default long getId() {
+        return getKeyAccessorType().getId();
+    }
 
     /**
      * The actual value is the value to be used at present. A KeyAccessor could also exist with only a tempValue, without
