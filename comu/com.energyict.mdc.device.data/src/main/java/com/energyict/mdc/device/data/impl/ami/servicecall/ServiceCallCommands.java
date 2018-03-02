@@ -14,7 +14,12 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.*;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ArmServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisableLoadLimitServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLimitServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.KeyRenewalServiceCallHandler;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -36,7 +41,10 @@ public class ServiceCallCommands {
         loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
         loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),
 
-        renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.KEY_RENEWAL)
+        renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.KEY_RENEWAL),
+        generateKeyPair(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.GENERATE_KEY_PAIR),
+        generateCsr(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.GENERATE_CSR),
+        importCertificate(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.IMPORT_CERTIFICATE),
         ;
 
         private final String typeName;

@@ -9,7 +9,15 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ami.commands.*;
+import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.GenerateCSRCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.GenerateKeyPairCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.ImportCertificateCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -86,6 +94,24 @@ public enum EndDeviceControlTypeMapping {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new KeyRenewalCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+    GENERATE_KEY_PAIR("0.12.32.83", Collections.singletonList(DeviceMessageId.SECURITY_GENERATE_KEY_PAIR)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new GenerateKeyPairCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+    GENERATE_CSR("0.12.21.82", Collections.singletonList(DeviceMessageId.SECURITY_GENERATE_CSR)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new GenerateCSRCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+    IMPORT_CERTIFICATE("0.12.21.105", Arrays.asList(DeviceMessageId.SECURITY_IMPORT_CERTIFICATE, DeviceMessageId.IMPORT_CLIENT_END_DEVICE_CERTIFICATE, DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new ImportCertificateCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     };
 

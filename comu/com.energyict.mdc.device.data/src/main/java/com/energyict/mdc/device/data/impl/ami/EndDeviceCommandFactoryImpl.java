@@ -12,9 +12,11 @@ import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
@@ -23,8 +25,6 @@ import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.energyict.cbo.Unit;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -194,6 +194,35 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
         command.setPropertyValue(getKeyAccessorTypePropertySpec(command), securityAccessorType);
         return command;
+    }
+
+    @Override
+    public EndDeviceCommand createGenerateKeyPairCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.GENERATE_KEY_PAIR));
+        command.setPropertyValue(getKeyTypePropertySpec(command), certificateType.getName());
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createGenerateCSRCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.GENERATE_KEY_PAIR));
+        command.setPropertyValue(getKeyTypePropertySpec(command), certificateType.getName());
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createImportCertificateCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.IMPORT_CERTIFICATE));
+        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), securityAccessorType);
+        return command;
+    }
+
+    private PropertySpec getKeyTypePropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE)
+                        .format(command.getEndDeviceControlType().getName())));
     }
 
     private PropertySpec getKeyAccessorTypePropertySpec(EndDeviceCommand command) {
