@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -117,6 +119,62 @@ public class KeyAccessorTypeResource {
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         device.getSecurityAccessor(securityAccessorType).get().clearTempValue();
 
+        return Response.ok().build();
+    }
+
+    /**
+     * Unmark obsolete the actual value of the certificates for the devices for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeId Identifier of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary clears the temp value of the key for the device / keyAccessorType
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorTypeId}/unmarkobsoleteactive")
+    public Response unmarkObsoleteActualValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
+                                              @Context UriInfo uriInfo) {
+
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
+        Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getActualValue();
+        if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
+            ((CertificateWrapper) wrapper.get()).setObsolete(false);
+            ((CertificateWrapper) wrapper.get()).save();
+        }
+        return Response.ok().build();
+    }
+
+    /**
+     * Obsolete the temp value of the certificates for the devices for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeId Identifier of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary clears the temp value of the key for the device / keyAccessorType
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorTypeId}/obsolete")
+    public Response markObsoleteTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
+                                          @Context UriInfo uriInfo) {
+
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
+        Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getTempValue();
+        if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
+            ((CertificateWrapper) wrapper.get()).setObsolete(true);
+            ((CertificateWrapper) wrapper.get()).save();
+        }
         return Response.ok().build();
     }
 

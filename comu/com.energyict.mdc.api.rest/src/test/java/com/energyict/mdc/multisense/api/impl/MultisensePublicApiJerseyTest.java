@@ -52,6 +52,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -220,6 +221,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     ThreadPrincipalService threadPrincipalService;
     @Mock
     MeteringGroupsService meteringGroupsService;
+    @Mock
+    SecurityManagementService securityManagementService;
 
     static ProtocolPluggableService protocolPluggableService;
     static PropertyValueInfoService propertyValueInfoService;
@@ -293,6 +296,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService));
+        application.setSecurityManagementService(securityManagementService);
         return application;
     }
 

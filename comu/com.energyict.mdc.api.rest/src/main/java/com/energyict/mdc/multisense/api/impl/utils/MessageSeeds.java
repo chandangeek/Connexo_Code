@@ -86,6 +86,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_REQUEST_SECURITY_DEVICE_ACCESS_LEVEL(85, "NoSuchReqDevAccessLevel" , "The device protocol does not have a request security access level with that id"),
     NO_SUCH_RESPONSE_SECURITY_DEVICE_ACCESS_LEVEL(86, "NoSuchRespDevAccessLevel" , "The device protocol does not have a response security  access level with that id"),
     NO_SUCH_CONNECTION_FUNCTION(87, "NoSuchConnectionFunction" , "The device protocol does not have a connection function with that id"),
+    NO_SUCH_CERTIFCATE_WRAPPER(8, "NoSuchCertificateWrapper" , "Certificate wrapper does not exist"),
     ;
 
     private final int number;
