@@ -189,8 +189,9 @@ public enum MessageSeeds implements MessageSeed {
             "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level."),
     VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(2163, "VetoSecurityAccessorRemovalFromDeviceType", "The security accessor couldn''t be removed from the device type because keys/certificates are specified on devices of this device type."),
     CERTIFICATE_USED_ON_SECURITY_ACCESSOR(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
-    COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE,
-            "The device command ''{0}'' should have a ''key type'' attribute"),;
+    COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE, "The device command ''{0}'' should have a ''key type'' attribute"),
+    PROPERTY_VALUE_REQUIRED(2166, "InvalidPropertyValue", "Value for property {0} is required"),
+    ;
 
     private final int number;
     private final String key;
