@@ -16,6 +16,8 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
+import ch.iec.tc57._2011.enddeviceevents.Name;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
@@ -42,7 +44,7 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
     static final String NAME = "CIM SendEndDeviceEvents";
 
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
-    private static final String END_DEVICE_EVENT_SEVERITY = "Alarm";
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -138,13 +140,7 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
     private EndDeviceEvent createEndDeviceEvent(Issue issue) {
         EndDevice device = issue.getDevice();
         EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
-
-        Asset asset = new Asset();
-        asset.setMRID(device.getMRID());
-        endDeviceEvent.setAssets(asset);
-
-        endDeviceEvent.setSeverity(END_DEVICE_EVENT_SEVERITY);
-
+        endDeviceEvent.setAssets(createAsset(device));
         if (issue instanceof OpenDeviceAlarm) {
             ((OpenDeviceAlarm) issue).getDeviceAlarmRelatedEvents().stream().findFirst().ifPresent(event -> {
                 EndDeviceEventRecord record = event.getEventRecord();
@@ -154,12 +150,28 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
                 endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
                 endDeviceEvent.setReason(record.getDescription());
                 endDeviceEvent.setUserID(record.getUserID());
-
+                endDeviceEvent.setSeverity(record.getSeverity());
                 EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
                 eventType.setRef(record.getEventTypeCode());
                 endDeviceEvent.setEndDeviceEventType(eventType);
             });
         }
         return endDeviceEvent;
+    }
+
+    private Asset createAsset(EndDevice endDevice) {
+        Asset asset = new Asset();
+        asset.setMRID(endDevice.getMRID());
+        asset.getNames().add(createName(endDevice));
+        return asset;
+    }
+
+    private Name createName(EndDevice endDevice) {
+        NameType nameType = new NameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        Name name = new Name();
+        name.setNameType(nameType);
+        name.setName(endDevice.getName());
+        return name;
     }
 }
