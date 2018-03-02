@@ -40,6 +40,8 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTask;
+import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -1122,6 +1124,58 @@ public enum TableSpecs {
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
             table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
+        }
+    },
+
+    DDC_CRL_REQUEST {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<CrlRequestTask> table = dataModel.addTable(name(), CrlRequestTask.class).since(version(10,4,1));
+            table.map(CrlRequestTaskImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+
+            Column endDeviceGroup = table.column(CrlRequestTaskImpl.Fields.END_DEVICE_GROUP.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column securityAccessor = table.column(CrlRequestTaskImpl.Fields.SECURITY_ACCESSOR.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column certificate = table.column(CrlRequestTaskImpl.Fields.CERTIFICATE.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.column(CrlRequestTaskImpl.Fields.CA_NAME.name())
+                    .map(CrlRequestTaskImpl.Fields.CA_NAME.fieldName())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            table.column(CrlRequestTaskImpl.Fields.FREQUENCY.name())
+                    .map(CrlRequestTaskImpl.Fields.FREQUENCY.fieldName())
+                    .varChar(40)
+                    .notNull()
+                    .add();
+
+            table.primaryKey("PK_DDC_CRLREQUEST").
+                    on(id)
+                    .add();
+            table.foreignKey("FK_DDC_CRL_ENDDEVICEGROUP").
+                    on(endDeviceGroup).
+                    references(EndDeviceGroup.class).
+                    map(CrlRequestTaskImpl.Fields.END_DEVICE_GROUP.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CRL_SECURITYACCESSOR").
+                    on(securityAccessor).
+                    references(com.elster.jupiter.pki.SecurityAccessor.class).
+                    map(CrlRequestTaskImpl.Fields.SECURITY_ACCESSOR.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CRL_CERTIFICATE").
+                    on(certificate).
+                    references(CertificateWrapper .class).
+                    map(CrlRequestTaskImpl.Fields.CERTIFICATE.fieldName()).
+                    add();
         }
     };
 
