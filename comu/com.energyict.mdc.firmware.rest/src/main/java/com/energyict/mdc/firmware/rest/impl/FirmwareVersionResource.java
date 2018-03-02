@@ -139,7 +139,7 @@ public class FirmwareVersionResource {
         }
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> checkSignatureOrThrowException(firmwareFile, sa));
+        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareSignature(firmwareType, securityAccessor.get(), firmwareFile));
         setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);
         FirmwareVersion version = firmwareVersionBuilder.create();
         setFirmwareFile(version, firmwareFile);
@@ -201,7 +201,7 @@ public class FirmwareVersionResource {
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> checkSignatureOrThrowException(firmwareFile, sa));
+        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareSignature(firmwareVersion.getFirmwareType(), securityAccessor.get(), firmwareFile));
         setExpectedFirmwareSize(firmwareVersion, firmwareFile);
         firmwareVersion.update();
         setFirmwareFile(firmwareVersion, firmwareFile);
@@ -331,71 +331,6 @@ public class FirmwareVersionResource {
             }
         }
         return null;
-    }
-
-    private void checkSignatureOrThrowException(byte[] firmwareFile, SecurityAccessor securityAccessor) {
-        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
-            if (certificateWrapper.getCertificate().isPresent()) {
-                X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
-                String sigAlgName = x509Certificate.getSigAlgName(); //SHA256withECDSA (suite 1) or SHA384withECDSA (suite 2)
-                if (!sigAlgName.contains("SHA256withECDSA") || !sigAlgName.contains("SHA384withECDSA")) {
-                    throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
-                }
-                Integer signatureLength = sigAlgName.contains("SHA256withECDSA") ? 64 : 96;
-                try {
-                    Signature sig = Signature.getInstance(sigAlgName);
-                    sig.initVerify(x509Certificate);
-                    addDataToVerify(sig, firmwareFile, signatureLength);
-                    byte[] signature = getFileSignature(firmwareFile, signatureLength);
-                    if (!sig.verify(signature)) {
-                        throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
-                    }
-                } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException e) {
-                    throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VALIDATION_FAILED, e);
-                }
-            }
-        }
-    }
-
-    private void addDataToVerify(Signature signature, byte[] firmwareFile, Integer signatureLength) throws IOException, SignatureException {
-        int length = firmwareFile.length - signatureLength;
-
-        byte[] buffer = new byte[1024];
-        try (ByteArrayInputStream stream = new ByteArrayInputStream(firmwareFile)) {
-
-            int currentBytesRead = stream.read(buffer);
-            int totalBytesRead = 0;
-
-            while (currentBytesRead != -1 && (length == -1 || totalBytesRead < length)) {
-                int bytesToConsider;
-
-                if (length != -1 && totalBytesRead + currentBytesRead > length) {
-                    bytesToConsider = length - totalBytesRead;
-                } else {
-                    bytesToConsider = currentBytesRead;
-                }
-
-                signature.update(buffer, 0, bytesToConsider);
-
-                totalBytesRead += currentBytesRead;
-                currentBytesRead = stream.read(buffer);
-            }
-        }
-    }
-
-    private byte[] getFileSignature(byte[] firmwareFile, Integer signatureLength) {
-        byte[] signature = new byte[signatureLength];
-        System.arraycopy(firmwareFile,firmwareFile.length - signatureLength, signature, 0, signatureLength);
-        return trim(signature);
-    }
-
-    private byte[] trim(byte[] bytes) {
-        int i = bytes.length - 1;
-        while (i >= 0 && bytes[i] == 0) {
-            --i;
-        }
-        return Arrays.copyOf(bytes, i + 1);
     }
 
 }

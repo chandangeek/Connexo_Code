@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -191,6 +192,14 @@ public class ResourceHelper {
                 .filter(securityAccessorOnDeviceType -> securityAccessorOnDeviceType.getDeviceType().getId() == deviceTypeId)
                 .findAny()
                 .map(SecurityAccessorOnDeviceType::getSecurityAccessor));
+    }
+
+    public void validateFirmwareSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        if (firmwareType == FirmwareType.COMMUNICATION) {
+            firmwareService.validateBeaconFirmwareSignature(securityAccessor, firmwareFile);
+        }
+        else if (firmwareType == FirmwareType.METER) {
+        }
     }
 
     Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {

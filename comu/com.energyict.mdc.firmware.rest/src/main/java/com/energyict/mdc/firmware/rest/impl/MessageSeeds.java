@@ -66,9 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY (1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
     FIRMWARE_COMMUNICATION_TASK_NAME (1014, "FirmwareTaskName", "Firmware communication task"),
     NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information"),
-    NO_SUCH_SECURITY_ACCESSOR(1016, "NoSuchSecurityAccessor", "No such security accessor"),
-    SIGNATURE_VALIDATION_FAILED(1017, "SignatureValidationFailed", "Signature validation failed {0}"),
-    SIGNATURE_VERIFICATION_FAILED(1018, "SignatureVerificationFailed", "Signature verification failed")
+    NO_SUCH_SECURITY_ACCESSOR(1016, "NoSuchSecurityAccessor", "No such security accessor")
     ;
     private final int number;
     private final String key;
