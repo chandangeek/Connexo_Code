@@ -566,7 +566,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
         List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureValidation(deviceType, securityAccessor).find();
         if (securityAccessorOnDeviceTypeList.isEmpty()) {
-            this.dataModel.getInstance(SecurityAccessorOnDeviceType.class).init(deviceType, securityAccessor).save();
+            this.dataModel.getInstance(SecurityAccessorOnDeviceTypeImpl.class).init(deviceType, securityAccessor).save();
         }
     }
 
