@@ -18,6 +18,16 @@ import aQute.bnd.annotation.ProviderType;
 public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.elster.jupiter.pki.SecurityAccessor<T> {
 
     /**
+     * Returns id of {@link com.elster.jupiter.pki.SecurityAccessor}, not the id of security accessor on device.
+     * To identify the instance of this class please use this id together with {@link #getDevice()}.{@link Device#getId() getId()}.
+     * @return Id of {@link com.elster.jupiter.pki.SecurityAccessor}.
+     */
+    @Override
+    default long getId() {
+        return com.elster.jupiter.pki.SecurityAccessor.super.getId();
+    }
+
+    /**
      * Get the device this KeyAccessor holds a value for
      */
     Device getDevice();
