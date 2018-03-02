@@ -24,6 +24,7 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
         'Mdc.privileges.DataCollectionKpi',
+        'Mdc.privileges.CrlRequest',
         'Dxp.privileges.DataExport',
         'Est.privileges.EstimationConfiguration',
         'Dlc.privileges.DeviceLifeCycle',
