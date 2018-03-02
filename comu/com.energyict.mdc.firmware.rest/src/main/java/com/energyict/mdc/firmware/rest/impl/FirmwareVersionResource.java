@@ -339,8 +339,10 @@ public class FirmwareVersionResource {
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 String sigAlgName = x509Certificate.getSigAlgName(); //SHA256withECDSA (suite 1) or SHA384withECDSA (suite 2)
+                if (!sigAlgName.contains("SHA256withECDSA") || !sigAlgName.contains("SHA384withECDSA")) {
+                    throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
+                }
                 Integer signatureLength = sigAlgName.contains("SHA256withECDSA") ? 64 : 96;
-
                 try {
                     Signature sig = Signature.getInstance(sigAlgName);
                     sig.initVerify(x509Certificate);
@@ -352,7 +354,6 @@ public class FirmwareVersionResource {
                 } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException e) {
                     throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VALIDATION_FAILED, e);
                 }
-
             }
         }
     }
