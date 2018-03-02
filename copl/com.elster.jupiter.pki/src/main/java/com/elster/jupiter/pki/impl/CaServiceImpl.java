@@ -8,17 +8,16 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateAuthorityRuntimeException;
+import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.EnumLookupValueException;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.PropertyValueRequiredException;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -73,10 +72,13 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component(name = "CaService", service = {CaService.class}, property = "name=" + CaService.COMPONENTNAME, immediate = true)
 public class CaServiceImpl implements CaService {
+    private static final Logger LOGGER = Logger.getLogger(CaServiceImpl.class.getName());
+
     private static final Integer SN_HEX = 16;
     private static final String PROTOCOL = "TLS";
     // felix config properties
@@ -84,16 +86,17 @@ public class CaServiceImpl implements CaService {
     private static final String PKI_PORT_PROPERTY = "com.elster.jupiter.pki.port";
     private static final String PKI_CXO_TRUSTSTORE_PROPERTY = "com.elster.jupiter.ca.truststore";
     private static final String PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.certificate";
+    private static final String PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY = "com.elster.jupiter.ca.clientcertificate";
     private static final String PKI_CA_NAME_PROPERTY = "com.elster.jupiter.ca.name";
     private static final String PKI_CERTIFICATE_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.certprofilename";
     private static final String PKI_END_ENTITY_PROFILE_NAME_PROPERTY = "com.elster.jupiter.ca.eeprofilename";
 
-    private static final String MANAGEMENT_CA_ALIAS = "managementca";
-
+    private boolean configured;
     private String pkiHost;
     private Integer pkiPort;
     private String pkiTrustStore;
     private String pkiSuperAdminClientAlias;
+    private String pkiManagementClientAlias;
     private String pkiCaName;
     private String pkiCertificateProfileName;
     private String pkiEndEntityProfileName;
@@ -130,7 +133,7 @@ public class CaServiceImpl implements CaService {
     public void activate(BundleContext bundleContext) {
         ejbcaWS = null;
         Security.addProvider(new BouncyCastleProvider());
-        getPkiProperties(bundleContext);
+        initPkiProperties(bundleContext);
     }
 
     @Deactivate
@@ -139,40 +142,46 @@ public class CaServiceImpl implements CaService {
         pkiPort = null;
         pkiTrustStore = null;
         pkiSuperAdminClientAlias = null;
+        pkiManagementClientAlias = null;
         pkiCaName = null;
         pkiCertificateProfileName = null;
         pkiEndEntityProfileName = null;
         ejbcaWS = null;
+        configured = false;
     }
 
-    private void getPkiProperties(BundleContext bundleContext) {
-        pkiHost = getPkiProperty(bundleContext, PKI_HOST_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_HOST_PROPERTY));
-        String port = getPkiProperty(bundleContext, PKI_PORT_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_PORT_PROPERTY));
-        pkiPort = Integer.parseInt(port);
+    private void initPkiProperties(BundleContext bundleContext) {
+        pkiHost = bundleContext.getProperty(PKI_HOST_PROPERTY);
+        String port = bundleContext.getProperty(PKI_PORT_PROPERTY);
+        pkiPort = StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
+        pkiTrustStore = bundleContext.getProperty(PKI_CXO_TRUSTSTORE_PROPERTY);
+        pkiSuperAdminClientAlias = bundleContext.getProperty(PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY);
+        pkiManagementClientAlias= bundleContext.getProperty(PKI_MANAGEMENT_CLIENT_ALIAS_PROPERTY);
+        pkiCaName = bundleContext.getProperty(PKI_CA_NAME_PROPERTY);
+        pkiCertificateProfileName = bundleContext.getProperty(PKI_CERTIFICATE_PROFILE_NAME_PROPERTY);
+        pkiEndEntityProfileName = bundleContext.getProperty(PKI_END_ENTITY_PROFILE_NAME_PROPERTY);
 
-        pkiTrustStore = getPkiProperty(bundleContext, PKI_CXO_TRUSTSTORE_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CXO_TRUSTSTORE_PROPERTY));
-        pkiSuperAdminClientAlias = getPkiProperty(bundleContext, PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_SUPER_ADMIN_CLIENT_ALIAS_PROPERTY));
-        pkiCaName = getPkiProperty(bundleContext, PKI_CA_NAME_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, PKI_CA_NAME_PROPERTY));
-        pkiCertificateProfileName = getPkiProperty(bundleContext, PKI_CERTIFICATE_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_CERTIFICATE_PROFILE_NAME_PROPERTY));
-        pkiEndEntityProfileName = getPkiProperty(bundleContext, PKI_END_ENTITY_PROFILE_NAME_PROPERTY).orElseThrow(
-                () -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED,
-                        PKI_END_ENTITY_PROFILE_NAME_PROPERTY));
+        configured = pkiPort != null
+                && StringUtils.isNotBlank(pkiHost)
+                && StringUtils.isNotBlank(pkiTrustStore)
+                && StringUtils.isNotBlank(pkiSuperAdminClientAlias)
+                && StringUtils.isNotBlank(pkiCaName)
+                && StringUtils.isNotBlank(pkiCertificateProfileName)
+                && StringUtils.isNotBlank(pkiEndEntityProfileName);
+
+        if (!configured) {
+            LOGGER.info("#CaServiceImpl started in offline mode. Any service usages will be rejected until all properties will be specified");
+        }
     }
 
-    private Optional<String> getPkiProperty(BundleContext context, String property) {
-        return Optional.ofNullable(context.getProperty(property));
+    @Override
+    public boolean isConfigured() {
+        return configured;
     }
 
     @Override
     public X509Certificate signCsr(PKCS10CertificationRequest pkcs10) {
+        checkConfiguration();
         lazyInit();
         X509Certificate x509Cert;
         CertificateResponse certificateResponse;
@@ -194,10 +203,11 @@ public class CaServiceImpl implements CaService {
     }
 
     @Override
-    public void revokeCertificate(CertificateSearchFilter certificateTemplate, int reason) {
+    public void revokeCertificate(CertificateAuthoritySearchFilter certificateTemplate, int reason) {
+        checkConfiguration();
         lazyInit();
-        if (RevokeStatus.fromValue(reason) == null) {
-            throw new EnumLookupValueException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
+        if (!RevokeStatus.fromValue(reason).isPresent()) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, String.valueOf(reason));
         }
         try {
             ejbcaWS.revokeCert(certificateTemplate.getIssuerDN(), certificateTemplate.getSerialNumber().toString(SN_HEX), reason);
@@ -207,33 +217,35 @@ public class CaServiceImpl implements CaService {
     }
 
     @Override
-    public RevokeStatus checkRevocationStatus(CertificateSearchFilter searchFilter) {
+    public RevokeStatus checkRevocationStatus(CertificateAuthoritySearchFilter searchFilter) {
+        checkConfiguration();
         lazyInit();
-        RevokeStatus revokeStatus;
         org.ejbca.core.protocol.ws.client.gen.RevokeStatus rs;
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
-            revokeStatus = RevokeStatus.fromValue(rs.getReason());
-        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception | EnumLookupValueException e) {
+        } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
         }
-        return revokeStatus;
+        return RevokeStatus.fromValue(rs.getReason()).orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR));
     }
 
     @Override
     public Optional<X509CRL> getLatestCRL(String caname) {
+        checkConfiguration();
         lazyInit();
         return getCrl(caname, false);
     }
 
     @Override
     public Optional<X509CRL> getLatestDeltaCRL(String caname) {
+        checkConfiguration();
         lazyInit();
         return getCrl(caname, true);
     }
 
     @Override
     public List<String> getPkiCaNames() {
+        checkConfiguration();
         lazyInit();
         try {
             return ejbcaWS.getAvailableCAs().stream().map(NameAndId::getName).collect(Collectors.toList());
@@ -244,6 +256,7 @@ public class CaServiceImpl implements CaService {
 
     @Override
     public String getPkiInfo() {
+        checkConfiguration();
         StringBuilder result = new StringBuilder();
         lazyInit();
         result.append("Version: ");
@@ -263,10 +276,9 @@ public class CaServiceImpl implements CaService {
                         .append("CPs in profile: ").append(cpInProfile).append('\n');
             }
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getMessage());
         }
         return result.toString();
-
     }
 
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
@@ -308,13 +320,13 @@ public class CaServiceImpl implements CaService {
         TrustedCertificate mgmtCaCertificate = requiredTrustStore
                 .getCertificates()
                 .stream()
-                .filter(p -> p.getAlias().trim().equalsIgnoreCase(MANAGEMENT_CA_ALIAS))
+                .filter(p -> p.getAlias().trim().equalsIgnoreCase(pkiManagementClientAlias))
                 .findFirst()
                 .orElseThrow(
                         () -> new CertificateAuthorityRuntimeException(
                                 thesaurus,
                                 MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
-                                MANAGEMENT_CA_ALIAS)
+                                pkiManagementClientAlias)
                 );
         X509Certificate x509MgmtCaCertificate = mgmtCaCertificate
                 .getCertificate()
@@ -322,7 +334,7 @@ public class CaServiceImpl implements CaService {
                         () -> new CertificateAuthorityRuntimeException(
                                 thesaurus,
                                 MessageSeeds.CA_RUNTIME_ERROR_NO_SELF_SIGNED_CERTIFICATE,
-                                MANAGEMENT_CA_ALIAS)
+                                pkiManagementClientAlias)
                 );
         CertificateWrapper certificateWrapper = securityManagementService
                 .findCertificateWrapper(pkiSuperAdminClientAlias)
@@ -359,7 +371,7 @@ public class CaServiceImpl implements CaService {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null, null);
             trustStore.load(null, null);
-            trustStore.setCertificateEntry(pkiSuperAdminClientAlias, x509MgmtCaCertificate);
+            trustStore.setCertificateEntry(pkiManagementClientAlias, x509MgmtCaCertificate);
             keyStore.setCertificateEntry(pkiSuperAdminClientAlias, superAdminCertificate);
             X509Certificate[] certChain = new X509Certificate[2];
             certChain[0] = superAdminCertificate;
@@ -403,4 +415,9 @@ public class CaServiceImpl implements CaService {
         this.ejbcaWS = ejbcaWS;
     }
 
+    private void checkConfiguration() {
+        if (!configured) {
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "Invoked unconfigured #CaServiceImpl component");
+        }
+    }
 }
