@@ -577,6 +577,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public void validateBeaconFirmwareSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        BeaconFirmwareFileSignatureValidator beaconFirmwareFileSignatureValidator =
+                new BeaconFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
+        beaconFirmwareFileSignatureValidator.validateSignature();
+    }
+
+    @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
     }
