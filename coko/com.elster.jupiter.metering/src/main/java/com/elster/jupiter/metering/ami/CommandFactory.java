@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.ami;
 import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -29,4 +30,9 @@ public interface CommandFactory {
 
     EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessortype) throws UnsupportedCommandException;
 
+    EndDeviceCommand createGenerateKeyPairCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException;
+
+    EndDeviceCommand createGenerateCSRCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException;
+
+    EndDeviceCommand createImportCertificateCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) throws UnsupportedCommandException;
 }

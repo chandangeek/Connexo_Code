@@ -23,3 +23,6 @@ n/a,n/a,n/a,n/a
 *,RCDSwitch,SupplyCapacityLimit,Disable
 *,RCDSwitch,SupplyCapacityLimit,Enable
 *,Security,Securitykey,Change
+*,Security,Securitykey,Created
+*,Security,Certificate,Create
+*,Security,Certificate,Installed
