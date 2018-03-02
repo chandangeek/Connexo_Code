@@ -9,6 +9,7 @@ import ch.iec.tc57._2011.enddeviceconfig.EndDevice;
 import ch.iec.tc57._2011.enddeviceconfig.EndDeviceConfig;
 import ch.iec.tc57._2011.enddeviceconfig.LifecycleDate;
 import ch.iec.tc57._2011.enddeviceconfig.Name;
+import ch.iec.tc57._2011.enddeviceconfig.NameType;
 import ch.iec.tc57._2011.enddeviceconfig.Status;
 
 import java.time.Instant;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 class EndDeviceConfigDataFactory {
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
 
     private enum DefaultState {
 
@@ -70,6 +72,9 @@ class EndDeviceConfigDataFactory {
     private Name createName(String name) {
         Name nameBean = new Name();
         nameBean.setName(name);
+        NameType nameType = new NameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        nameBean.setNameType(nameType);
         return nameBean;
     }
 
