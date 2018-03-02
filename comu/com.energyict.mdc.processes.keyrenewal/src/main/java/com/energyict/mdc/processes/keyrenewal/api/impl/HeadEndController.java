@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -56,7 +58,15 @@ public class HeadEndController {
             case RENEW_KEY:
                 performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
-            // TODO: 29.01.2018 Implement certificate renewal commands
+            case UPLOAD_CERTIFICATE:
+                performUploadCertificateOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                break;
+            case GENERATE_KEYPAIR:
+                performGenerateKeyPairOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                break;
+            case REQUEST_CSR:
+                performRequestCsrOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                break;
             default:
                 performDummyOperation(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
         }
@@ -70,6 +80,46 @@ public class HeadEndController {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
         }
         deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorType);
+        CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
+        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
+    }
+
+    private void performUploadCertificateOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        serviceCall.log(LogLevel.INFO, "Handling upload certificate.");
+        EndDeviceCommand deviceCommand;
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
+        if (securityAccessorType == null) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+        }
+        deviceCommand = headEndInterface.getCommandFactory().createImportCertificateCommand(endDevice, securityAccessorType);
+        CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
+        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
+    }
+
+    private void performRequestCsrOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        serviceCall.log(LogLevel.INFO, "Handling request CSR from device.");
+        EndDeviceCommand deviceCommand;
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
+        if (securityAccessorType == null) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+        }
+        CertificateType certificateType = Stream.of(CertificateType.values()).filter(e -> e.isApplicableTo(securityAccessorType.getKeyType()))
+                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_APPLICABLE_CERTIFICATE_TYPE, securityAccessorType.getName()));
+        deviceCommand = headEndInterface.getCommandFactory().createGenerateCSRCommand(endDevice, certificateType);
+        CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
+        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
+    }
+
+    private void performGenerateKeyPairOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        serviceCall.log(LogLevel.INFO, "Handling generate key pair.");
+        EndDeviceCommand deviceCommand;
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
+        if (securityAccessorType == null) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
+        }
+        CertificateType certificateType = Stream.of(CertificateType.values()).filter(e -> e.isApplicableTo(securityAccessorType.getKeyType()))
+                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_APPLICABLE_CERTIFICATE_TYPE, securityAccessorType.getName()));
+        deviceCommand = headEndInterface.getCommandFactory().createGenerateKeyPairCommand(endDevice, certificateType);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }

@@ -7,6 +7,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.DeviceService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -25,6 +26,7 @@ public class CertificateRequestForCSRHandlerFactory implements MessageHandlerFac
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
     private volatile ServiceCallService serviceCallService;
+    private volatile DeviceService deviceService;
 
     @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
@@ -51,8 +53,13 @@ public class CertificateRequestForCSRHandlerFactory implements MessageHandlerFac
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     @Override
     public MessageHandler newMessageHandler() {
-        return new CertificateRequestForCSRHandler(securityManagementService, caService, transactionService, jsonService, serviceCallService);
+        return new CertificateRequestForCSRHandler(securityManagementService, caService, transactionService, jsonService, serviceCallService, deviceService);
     }
 }

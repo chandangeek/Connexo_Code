@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.processes.keyrenewal.api.impl;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -129,6 +128,8 @@ public class DeviceResource {
                 CertificateRequestForCSRMessage message = new CertificateRequestForCSRMessage();
                 message.alias = certificateWrapper.getAlias();
                 message.serviceCall = serviceCall.getId();
+                message.device = device.getId();
+                message.securityAccessor = deviceCommandInfo.keyAccessorType;
                 destinationSpec.message(jsonService.serialize(message)).send();
                 context.commit();
                 return Response.accepted().build();
