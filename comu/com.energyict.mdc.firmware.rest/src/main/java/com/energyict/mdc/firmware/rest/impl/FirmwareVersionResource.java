@@ -5,7 +5,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -37,16 +36,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -139,7 +131,7 @@ public class FirmwareVersionResource {
         }
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareSignature(firmwareType, securityAccessor.get(), firmwareFile));
+        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareFileSignature(firmwareType, securityAccessor.get(), firmwareFile));
         setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);
         FirmwareVersion version = firmwareVersionBuilder.create();
         setFirmwareFile(version, firmwareFile);
@@ -201,7 +193,7 @@ public class FirmwareVersionResource {
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareSignature(firmwareVersion.getFirmwareType(), securityAccessor.get(), firmwareFile));
+        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareFileSignature(firmwareVersion.getFirmwareType(), securityAccessor.get(), firmwareFile));
         setExpectedFirmwareSize(firmwareVersion, firmwareFile);
         firmwareVersion.update();
         setFirmwareFile(firmwareVersion, firmwareFile);

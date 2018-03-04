@@ -194,12 +194,9 @@ public class ResourceHelper {
                 .map(SecurityAccessorOnDeviceType::getSecurityAccessor));
     }
 
-    public void validateFirmwareSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        if (firmwareType == FirmwareType.COMMUNICATION) {
-            firmwareService.validateBeaconFirmwareSignature(securityAccessor, firmwareFile);
-        }
-        else if (firmwareType == FirmwareType.METER) {
-        }
+    public void validateFirmwareFileSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        firmwareService.validateFirmwareFileSignature(firmwareType, securityAccessor, firmwareFile);
+
     }
 
     Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {
