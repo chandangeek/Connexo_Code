@@ -44,6 +44,7 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareFileSignatureValidator;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -577,10 +578,16 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public void validateBeaconFirmwareSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        BeaconFirmwareFileSignatureValidator beaconFirmwareFileSignatureValidator =
-                new BeaconFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
-        beaconFirmwareFileSignatureValidator.validateSignature();
+    public void validateFirmwareFileSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        FirmwareFileSignatureValidator firmwareFileSignatureValidator;
+        if (firmwareType == FirmwareType.COMMUNICATION) {
+            firmwareFileSignatureValidator = new BeaconFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
+            firmwareFileSignatureValidator.validateSignature();
+        }
+        else if (firmwareType == FirmwareType.METER) {
+            firmwareFileSignatureValidator = new MeterFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
+            firmwareFileSignatureValidator.validateSignature();
+        }
     }
 
     @Override

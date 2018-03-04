@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 
+import com.energyict.mdc.firmware.FirmwareFileSignatureValidator;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -17,20 +19,21 @@ import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-public class BeaconFirmwareFileSignatureValidator {
-    Thesaurus thesaurus;
+public class BeaconFirmwareFileSignatureValidator  implements FirmwareFileSignatureValidator{
+    private Thesaurus thesaurus;
     private SecurityAccessor securityAccessor;
     private byte[] firmwareFile;
 
     private static final int BUFFER_SIZE = 1024;
 
-    public BeaconFirmwareFileSignatureValidator(Thesaurus thesaurus, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+    BeaconFirmwareFileSignatureValidator(Thesaurus thesaurus, SecurityAccessor securityAccessor, byte[] firmwareFile) {
         this.thesaurus = thesaurus;
         this.securityAccessor = securityAccessor;
         this.firmwareFile = firmwareFile;
 
     }
 
+    @Override
     public void validateSignature() throws SignatureValidationFailedException {
         if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
             CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
