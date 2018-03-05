@@ -93,7 +93,7 @@ public class ReadingTypeResourceTest extends MasterDataApplicationJerseyTest {
     }
 
     @Test
-    public void whenInvalidMRIDParamThenNoErrorAndNoEmptyResponse() {
+    public void whenInvalidMRIDParamThenNoErrorAndEmptyResponse() {
         when(meteringService.getReadingType(invalidMRID)).thenReturn(Optional.empty());
 
         String response = target("/unusedreadingtypes").queryParam("mRID", invalidMRID).request().get(String.class);
