@@ -23,8 +23,18 @@ Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
         var me = this;
         me.columns = [
             {
+                xtype: 'uni-default-column',
+                dataIndex: 'isDefault',
+                flex: 0.1
+            },
+            {
                 header: Uni.I18n.translate('general.name', 'APR', 'Name'),
                 dataIndex: 'name',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.type', 'APR', 'Type'),
+                dataIndex: 'type',
                 flex: 1
             },
             {
@@ -49,6 +59,22 @@ Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
                 renderer: function(value){
                     return Uni.I18n.translatePlural('general.minute',value,'APR', '{0} minutes','{0} minute','{0} minutes')
                 }
+            },
+            {
+                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
+                xtype: 'uni-actioncolumn-remove',
+                width: 120,
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
+                    return !Apr.privileges.AppServer.canAdministrate() || record.get('isDefault');
+                },
+                handler: function (grid, rowIndex, colIndex, column, event, queueRecord) {
+                    me.fireEvent('queueRemoveEvent', queueRecord);
+                }
+                // },
+                // menu: {
+                //     xtype: 'queue-action-menu',
+                //     itemId: 'queue-action-menu'
+                // }
             }
         ];
 

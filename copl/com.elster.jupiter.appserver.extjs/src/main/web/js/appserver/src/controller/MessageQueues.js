@@ -12,17 +12,27 @@ Ext.define('Apr.controller.MessageQueues',{
         'Apr.view.messagequeues.MonitorPreviewForm',
         'Apr.view.messagequeues.MonitorActionMenu',
         'Apr.view.messagequeues.Setup',
-        'Apr.view.messagequeues.MessageQueuesGrid'
+        'Apr.view.messagequeues.MessageQueuesGrid',
+        'Apr.view.messagequeues.QueuePreview',
+        'Apr.view.messagequeues.QueuePreviewForm',
+        'Apr.view.messagequeues.QueueActionMenu',
+        'Apr.view.messagequeues.AddMessageQueueForm'
+
     ],
     stores: [
         'Apr.store.MessageQueues',
-        'Apr.store.MessageQueuesWithState'
+        'Apr.store.MessageQueuesWithState',
+        'Apr.store.QueuesType'
     ],
 
     refs: [
         {
             ref: 'preview',
             selector: '#monitor-preview'
+        },
+        {
+            ref: 'queuePreview',
+            selector: '#queue-preview'
         },
         {
             ref: 'saveButton',
@@ -50,7 +60,20 @@ Ext.define('Apr.controller.MessageQueues',{
             },
             '#save-message-queues-button':{
                 click: this.onSaveChanges
+            },
+            'message-queue-setup message-queues-grid': {
+                select: this.showQueuePreview
+            },
+            'queue-action-menu': {
+                click: this.chooseAction
+            },
+            'add-queue-message-form #add-button': {
+                click: this.addMessageQueue
+            },
+            'message-queue-setup #message-queues-grid': {
+                queueRemoveEvent: this.removeMessageQueue
             }
+
         });
     },
 
@@ -63,8 +86,18 @@ Ext.define('Apr.controller.MessageQueues',{
             });
         me.getApplication().fireEvent('changecontentevent', view);
         this.getStore('Apr.store.MessageQueuesWithState').load(function(){
-
+            // view.down('#message-queues-grid').select(0);
         });
+    },
+
+    addMessageQueue: function () {
+        // var me = this,
+        //     router = me.getController('Uni.controller.history.Router');
+        alert('ADDDDDD');
+    },
+
+    removeMessageQueue: function () {
+        alert('Remmmmoooveee');
     },
 
 
@@ -128,6 +161,9 @@ Ext.define('Apr.controller.MessageQueues',{
             case 'clearErrorQueue':
                 this.clearErrorQueue(menu.record);
                 break;
+            case 'remove':
+                alert('remove');
+                break;
         }
     },
 
@@ -146,6 +182,35 @@ Ext.define('Apr.controller.MessageQueues',{
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.queueCleared', 'APR', 'Error queue cleared'));
             }
         });
+    },
+    showQueuePreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getQueuePreview(),
+            previewForm = preview.down('queue-preview-form'),
+            tasksField = previewForm.down('[name=queueTasks]'),
+            tasksList = [];
+
+
+        Ext.suspendLayouts();
+        preview.setTitle(Ext.htmlEncode(record.get('name')));
+        previewForm.loadRecord(record);
+        preview.down('queue-action-menu').record = record;
+        preview.down('#queue-button-action').setVisible(!record.get('isDefault'));
+        record.tasks().each(function (task) {
+            tasksList.push('- ' + Ext.htmlEncode(task.get('name')));
+        });
+        tasksField.setValue((tasksList.length == 0) ? tasksList = '-' : tasksList.join('<br/>'));
+        Ext.resumeLayouts();
+    },
+
+    showAddMessageQueue: function () {
+        var me = this;
+        router = me.getController('Uni.controller.history.Router');
+        // view = Ext.widget('add-queue-message-form');
+        view = Ext.create('Apr.view.messagequeues.AddMessageQueueForm', {
+            router: router
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
     }
 
 

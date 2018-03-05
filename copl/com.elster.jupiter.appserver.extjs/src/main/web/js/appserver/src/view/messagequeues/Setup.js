@@ -51,6 +51,13 @@ Ext.define('Apr.view.messagequeues.Setup', {
                                 items: [
                                     {
                                         xtype: 'button',
+                                        text: Uni.I18n.translate('general.addmessagequeue', 'APR', 'Add message queue'),
+                                        itemId: 'add-message-queue-button',
+                                        href: '#/administration/messagequeues/add',
+                                        privileges: Apr.privileges.AppServer.admin
+                                    },
+                                    {
+                                        xtype: 'button',
                                         text: Uni.I18n.translate('general.saveSettings', 'APR', 'Save settings'),
                                         itemId: 'save-message-queues-button',
                                         privileges: Apr.privileges.AppServer.admin,
@@ -71,6 +78,11 @@ Ext.define('Apr.view.messagequeues.Setup', {
                         xtype: 'uni-form-empty-message',
                         itemId: 'ctr-no-app-server',
                         text: Uni.I18n.translate('messageQueues.empty', 'APR', 'There are no message queues in the system')
+                    },
+                    previewComponent: {
+                        xtype: 'queue-preview',
+                        itemId: 'queue-preview',
+                        router: me.router
                     }
                 }
             ]

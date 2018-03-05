@@ -179,10 +179,19 @@ Ext.define('Apr.controller.history.AppServer', {
                             privileges: Apr.privileges.AppServer.view,
                             title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
                             controller: 'Apr.controller.MessageQueues',
-                            action: 'showMessageQueues'
+                            action: 'showMessageQueues',
+
+                        },
+                        add: {
+                            route: 'add',
+                            privileges: Apr.privileges.AppServer.view,
+                            title: Uni.I18n.translate('general.overview.add', 'APR', 'Add queue message'),
+                            controller: 'Apr.controller.MessageQueues',
+                            action: 'showAddMessageQueue',
                         }
 
                     }
+
                 }
             }
         }

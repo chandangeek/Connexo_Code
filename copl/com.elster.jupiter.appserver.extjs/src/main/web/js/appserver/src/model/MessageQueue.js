@@ -6,10 +6,11 @@ Ext.define('Apr.model.MessageQueue', {
     extend: 'Uni.model.Version',
     idProperty: 'name',
     requires: [
-        'Apr.model.Subscriber'
+        'Apr.model.Subscriber',
+        'Apr.model.TaskQueue'
     ],
     fields: [
-        'name', 'type', 'active', 'buffered', 'retryDelayInSeconds',
+        'name', 'active', 'buffered', 'retryDelayInSeconds',
         {
             name: 'numberOfRetries',
             type: 'int'
@@ -32,13 +33,36 @@ Ext.define('Apr.model.MessageQueue', {
             }
         },
         {
+            name: 'isDefault',
+            mapping: function (data) {
+                return data.name != 'AdHocSearch';
+            }
+        },
+        {
+            name: 'type',   //converter
+            mapping: function (data) {
+                return data.type;
+            }
+        },
+        {
             name: 'subscriberSpecInfos'
+        },
+        {
+            name: 'tasks'
         }
     ],
     hasMany: {
         model: 'Apr.model.Subscriber',
         name: 'subscriberSpecInfos'
     },
+    associations: [
+        {
+            type: 'hasMany',
+            model: 'Apr.model.TaskQueue',
+            associationKey: 'tasks',
+            name: 'tasks'
+        }
+    ],
 
     proxy: {
         type: 'rest',
