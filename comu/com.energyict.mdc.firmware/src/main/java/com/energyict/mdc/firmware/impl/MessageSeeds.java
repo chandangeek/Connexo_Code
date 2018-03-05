@@ -26,8 +26,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_FILE_IO(13, Keys.FIRMWARE_FILE_IO, "Exception while doing IO on firmware file: {0}", Level.SEVERE),
     FIELD_TOO_LONG(14, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_SECURITY_ACCESSOR_DELETION(15, "securityAccessorStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is used for firmware signature validation by the following device type(s): {0}", Level.SEVERE),
-    SIGNATURE_VALIDATION_FAILED(16, "SignatureValidationFailed", "Signature validation failed {0}", Level.SEVERE),
-    SIGNATURE_VERIFICATION_FAILED(17, "SignatureVerificationFailed", "Signature verification failed", Level.SEVERE);
+    SIGNATURE_VALIDATION_FAILED(16, "SignatureValidationFailed", "Signature validation failed {0}", Level.SEVERE);
 
     private final int number;
     private final String key;

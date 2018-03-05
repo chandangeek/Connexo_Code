@@ -48,7 +48,7 @@ public class MeterFirmwareFileSignatureValidator implements FirmwareFileSignatur
                     return;
                 }
                 if (!sigAlgName.contains(SHA256_WITH_ECDSA_ALGORITHM) || !sigAlgName.contains(SHA384_WITH_ECDSA_ALGORITHM)) {
-                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
+                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED, sigAlgName);
                 }
                 Integer signatureLength = sigAlgName.contains(SHA256_WITH_ECDSA_ALGORITHM) ? SECP256R1_CURVE_SIGNATURE_LENGTH : SECP384R1_CURVE_SIGNATURE_LENGTH;
                 int signatureType = getSignatureType(firmwareFile);
@@ -56,10 +56,10 @@ public class MeterFirmwareFileSignatureValidator implements FirmwareFileSignatur
                     return;
                 }
                 if (signatureType != ECDSA_SIGNATURE_TYPE) {
-                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
+                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED, signatureType);
                 }
                 if (firmwareFile.length < HEADER_SIZE) {
-                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
+                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED, firmwareFile.length);
                 }
 
                 /* verifyHeaderSignature */
@@ -108,11 +108,12 @@ public class MeterFirmwareFileSignatureValidator implements FirmwareFileSignatur
             Signature sig = Signature.getInstance(x509Certificate.getSigAlgName());
             sig.initVerify(x509Certificate);
             sig.update(message);
-            if (!sig.verify(signature)) {
-                throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
+            boolean validationResult = sig.verify(signature);
+            if (!validationResult) {
+                throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED, validationResult);
             }
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException e) {
-            throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED, e);
+            throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED, e);
         }
     }
 
