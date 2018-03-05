@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
-
 import com.energyict.mdc.firmware.FirmwareFileSignatureValidator;
 
 import java.io.ByteArrayInputStream;
@@ -19,7 +18,7 @@ import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-public class BeaconFirmwareFileSignatureValidator  implements FirmwareFileSignatureValidator{
+public class BeaconFirmwareFileSignatureValidator implements FirmwareFileSignatureValidator {
     private Thesaurus thesaurus;
     private SecurityAccessor securityAccessor;
     private byte[] firmwareFile;
@@ -40,10 +39,10 @@ public class BeaconFirmwareFileSignatureValidator  implements FirmwareFileSignat
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 String sigAlgName = x509Certificate.getSigAlgName(); //SHA256withECDSA (suite 1) or SHA384withECDSA (suite 2)
-                if (!sigAlgName.contains("SHA256withECDSA") || !sigAlgName.contains("SHA384withECDSA")) {
+                if (!sigAlgName.contains(SHA256_WITH_ECDSA_ALGORITHM) || !sigAlgName.contains(SHA384_WITH_ECDSA_ALGORITHM)) {
                     throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
                 }
-                Integer signatureLength = sigAlgName.contains("SHA256withECDSA") ? 64 : 96;
+                Integer signatureLength = sigAlgName.contains(SHA256_WITH_ECDSA_ALGORITHM) ? SECP256R1_CURVE_SIGNATURE_LENGTH : SECP384R1_CURVE_SIGNATURE_LENGTH;
                 try {
                     Signature sig = Signature.getInstance(sigAlgName);
                     sig.initVerify(x509Certificate);
