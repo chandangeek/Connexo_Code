@@ -26,10 +26,10 @@ public class TaskInfos {
 
     public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         for (RecurrentTask each : allTasks) {
-            if (each.getNextExecution() != null)  {
+            // if (each.getNextExecution() != null)  {
                 tasks.add(new TaskInfo(each, thesaurus, timeService, locale, clock));
                 total++;
-            }
+            // }
         }
     }
 
