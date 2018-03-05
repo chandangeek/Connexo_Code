@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceCSR;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -630,6 +631,19 @@ class DeviceServiceImpl implements ServerDeviceService {
                 .filter(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
                         .or(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DeviceCSR newDeviceCSRFrom(Device device, byte[] encodedCSR) {
+        return DeviceCSRImpl.from(deviceDataModelService.dataModel(), device, encodedCSR);
+    }
+
+    @Override
+    public Optional<DeviceCSR> getDeviceCSR(Device device) {
+        return deviceDataModelService.dataModel().query(DeviceCSR.class)
+                .select(where("device").isEqualTo(device))
+                .stream()
+                .findFirst();
     }
 
     private SqlBuilder deleteOutdatedComTaskExecutionTriggersSqlBuilder() {
