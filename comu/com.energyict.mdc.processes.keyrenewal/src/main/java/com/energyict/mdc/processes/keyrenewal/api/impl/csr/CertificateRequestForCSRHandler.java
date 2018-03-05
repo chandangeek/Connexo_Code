@@ -4,7 +4,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -14,10 +14,12 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceCSR;
 import com.energyict.mdc.device.data.DeviceService;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 public class CertificateRequestForCSRHandler implements MessageHandler {
 
@@ -44,17 +46,28 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
         ServiceCall serviceCall = serviceCallService.getServiceCall(certificateRequestForCSRMessage.serviceCall).get();
         try {
 
-            CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateRequestForCSRMessage.alias).get();
+            ClientCertificateWrapper certificateWrapper;//securityManagementService.findCertificateWrapper(certificateRequestForCSRMessage.alias).get();
             Device device = deviceService.findDeviceById(certificateRequestForCSRMessage.device).get();
             SecurityAccessor securityAccessor = device.getSecurityAccessors().stream()
                     .filter(sa -> sa.getKeyAccessorType()
                             .equals(securityManagementService.findSecurityAccessorTypeByName(certificateRequestForCSRMessage.securityAccessor).get()))
                     .findFirst().get();
-            if (!certificateWrapper.hasCSR()) {
-                throw new IllegalAccessException();
+            Optional<DeviceCSR> collectedDeviceCSR = deviceService.getDeviceCSR(device);
+            if (collectedDeviceCSR.isPresent()) {
+                certificateWrapper = securityManagementService.findClientCertificateWrapper(certificateRequestForCSRMessage.alias).orElseGet(() ->
+                        securityManagementService.newClientCertificateWrapper(securityAccessor.getKeyAccessorType().getKeyType(), securityAccessor.getKeyAccessorType()
+                                .getKeyEncryptionMethod())
+                                .alias(device.getSerialNumber())
+                                .add());
+                certificateWrapper.setCSR(collectedDeviceCSR.get().getCSR().get(), securityAccessor.getKeyAccessorType()
+                        .getKeyType()
+                        .getKeyUsages(), securityAccessor.getKeyAccessorType().getKeyType().getExtendedKeyUsages());
+                certificateWrapper.save();
+            } else {
+                certificateWrapper = securityManagementService.findClientCertificateWrapper(certificateRequestForCSRMessage.alias).orElseThrow(IllegalStateException::new);
             }
-            PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
 
+            PKCS10CertificationRequest pkcs10CertificationRequest = certificateWrapper.getCSR().get();
             if (securityAccessor instanceof CertificateAccessor) {
                 executeSignCSR(pkcs10CertificationRequest, certificateWrapper, securityAccessor, serviceCall);
             } else {
