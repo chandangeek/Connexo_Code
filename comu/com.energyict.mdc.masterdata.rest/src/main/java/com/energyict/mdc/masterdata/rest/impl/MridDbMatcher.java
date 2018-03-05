@@ -13,7 +13,6 @@ import com.elster.jupiter.util.conditions.Where;
  */
 final class MridDbMatcher {
 
-    private static final String PERIOD_RELATED_REGISTERS ="^(11|13)\\.([1-9]|1[0-9]|2[0-4])\\.0";
     private static final String BILLING_OR_NORMAL_REGISTERS = "^[08]\\.\\d+\\.0";
 
     private MridDbMatcher(){}
@@ -31,15 +30,6 @@ final class MridDbMatcher {
     }
 
     private static Condition mridMatchOfRegisters() {
-        return mrIdMatchOfBillingOrNormalRegisters()
-                .or(mrIdMatchOfPeriodRelatedRegisters());
-    }
-
-    private static Condition mrIdMatchOfPeriodRelatedRegisters() {
-        return Where.where("mRID").matches(PERIOD_RELATED_REGISTERS, "");
-    }
-
-    private static Condition mrIdMatchOfBillingOrNormalRegisters() {
         return Where.where("mRID").matches(BILLING_OR_NORMAL_REGISTERS, "");
     }
 

@@ -9,13 +9,12 @@ package com.energyict.mdc.masterdata.rest.impl;
  */
 public final class MridStringMatcher {
 
-    private static final String PERIOD_RELATED_REGISTERS = "^(11|13)\\.([1-9]|1[0-9]|2[0-4])\\.0.*";
     private static final String BILLING_OR_NORMAL_REGISTERS = "^[08]\\.\\d+\\.0.*";
 
     private MridStringMatcher(){}
 
     public static boolean isValid(String mRID){
-        return mRID.matches(BILLING_OR_NORMAL_REGISTERS) || mRID.matches(PERIOD_RELATED_REGISTERS);
+        return mRID.matches(BILLING_OR_NORMAL_REGISTERS);
     }
 }
 
