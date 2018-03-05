@@ -44,6 +44,9 @@ public class MeterFirmwareFileSignatureValidator implements FirmwareFileSignatur
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 String sigAlgName = x509Certificate.getSigAlgName(); //SHA256withECDSA (suite 1) or SHA384withECDSA (suite 2)
+                if (sigAlgName == null || sigAlgName.isEmpty()) {
+                    return;
+                }
                 if (!sigAlgName.contains(SHA256_WITH_ECDSA_ALGORITHM) || !sigAlgName.contains(SHA384_WITH_ECDSA_ALGORITHM)) {
                     throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VERIFICATION_FAILED);
                 }
