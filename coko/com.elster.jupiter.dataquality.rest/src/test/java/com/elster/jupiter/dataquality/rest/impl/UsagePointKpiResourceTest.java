@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -193,7 +194,7 @@ public class UsagePointKpiResourceTest extends DataQualityApplicationJerseyTest 
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, billing, FREQUENCY);
-        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, information, FREQUENCY);
+        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, billing, FREQUENCY, new ArrayList<>());
+        verify(dataQualityKpiService).newDataQualityKpi(usagePointGroup, information, FREQUENCY, new ArrayList<>());
     }
 }
