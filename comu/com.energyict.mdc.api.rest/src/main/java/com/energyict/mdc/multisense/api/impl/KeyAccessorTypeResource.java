@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
@@ -144,7 +145,7 @@ public class KeyAccessorTypeResource {
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getActualValue();
         if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
-            ((CertificateWrapper) wrapper.get()).setObsolete(false);
+            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
             ((CertificateWrapper) wrapper.get()).save();
         }
         return Response.ok().build();
@@ -172,7 +173,7 @@ public class KeyAccessorTypeResource {
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getTempValue();
         if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
-            ((CertificateWrapper) wrapper.get()).setObsolete(true);
+            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
             ((CertificateWrapper) wrapper.get()).save();
         }
         return Response.ok().build();
