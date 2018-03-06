@@ -123,7 +123,7 @@ class CSRImporter implements FileImporter {
 
     private boolean inputFileHasValidSignature(byte[] allBytes, PublicKey publicKey) {
         try {
-            final Signature signer = Signature.getInstance("sha" + SIGNATURE_LENGTH + "withrsa");
+            final Signature signer = Signature.getInstance("SHA256withRSA");
             signer.initVerify(publicKey);
             signer.update(Arrays.copyOf(allBytes, allBytes.length - SIGNATURE_LENGTH));
             byte[] signature = new byte[SIGNATURE_LENGTH];

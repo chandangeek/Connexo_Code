@@ -106,7 +106,7 @@ class CertificateExportProcessor {
         try {
             if (certificateWrapper.hasPrivateKey()
                     && ((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().isPresent()) {
-                Signature signature = Signature.getInstance("SHA" + CSRImporter.SIGNATURE_LENGTH + "withRSA");
+                Signature signature = Signature.getInstance("SHA256withRSA");
                 signature.initSign(((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().get());
                 signature.update(bytes);
                 byte[] signatureBytes = signature.sign();
