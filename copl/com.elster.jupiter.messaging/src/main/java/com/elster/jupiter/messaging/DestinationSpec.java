@@ -129,4 +129,9 @@ public interface DestinationSpec extends HasName {
     }
 
     long getVersion();
+
+    boolean isDefault();
+
+    String getQueueTypeName();
+
 }
