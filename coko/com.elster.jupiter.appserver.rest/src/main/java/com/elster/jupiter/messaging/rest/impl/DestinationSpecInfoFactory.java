@@ -36,6 +36,8 @@ public class DestinationSpecInfoFactory {
         info.numberOfRetries = destinationSpec.numberOfRetries();
         info.active = destinationSpec.isActive();
         info.version = destinationSpec.getVersion();
+        info.isDefault = destinationSpec.isDefault();
+        info.queueTypeName = destinationSpec.getQueueTypeName();
         return info;
     }
 

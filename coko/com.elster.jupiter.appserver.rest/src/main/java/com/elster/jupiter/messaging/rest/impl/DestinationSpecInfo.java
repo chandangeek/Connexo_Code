@@ -18,5 +18,7 @@ public class DestinationSpecInfo {
     public Long numberOfMessages;
     public Long numberOFErrors;
     public List<SubscriberSpecInfo> subscriberSpecInfos;
+    public boolean isDefault;
+    public String queueTypeName;
 
 }
