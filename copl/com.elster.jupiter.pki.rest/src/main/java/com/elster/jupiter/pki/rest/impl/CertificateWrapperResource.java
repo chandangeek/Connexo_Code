@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateStatus;
@@ -23,6 +24,7 @@ import com.elster.jupiter.pki.SubjectParameterFilter;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -81,8 +83,6 @@ import static java.util.stream.Collectors.toList;
 public class CertificateWrapperResource {
     private static final long MAX_FILE_SIZE = 2048;
     private static final long DEFAULT_TIMEOUT = 30000;
-    private static final String CERTIFICATE_STATUS_REQUESTED = "Requested";
-    private static final String CERTIFICATE_STATUS_REVOKED = "Revoked";
 
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
@@ -90,6 +90,7 @@ public class CertificateWrapperResource {
     private final ExceptionFactory exceptionFactory;
     private final DataSearchFilterFactory dataSearchFilterFactory;
     private final CertificateRevocationUtils revocationUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
     public CertificateWrapperResource(SecurityManagementService securityManagementService,
@@ -97,47 +98,39 @@ public class CertificateWrapperResource {
                                       CertificateInfoFactory certificateInfoFactory,
                                       ExceptionFactory exceptionFactory,
                                       DataSearchFilterFactory dataSearchFilterFactory,
-                                      CertificateRevocationUtils certificateRevocationUtils) {
+                                      CertificateRevocationUtils certificateRevocationUtils,
+                                      Thesaurus thesaurus) {
         this.securityManagementService = securityManagementService;
         this.caService = caService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
         this.revocationUtils = certificateRevocationUtils;
+        this.thesaurus = thesaurus;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList;
-        if (queryParameters.getLike() != null && !queryParameters.getLike().isEmpty()) {
-            infoList = securityManagementService.findCertificatesByFilter(dataSearchFilterFactory.asLikeFilter(queryParameters.getLike()))
-                    .from(queryParameters)
-                    .stream()
-                    .filter(wr -> statusFilter(wr, jsonQueryFilter))
-                    .map(certificateInfoFactory::asInfo)
-                    .collect(toList());
-        } else {
-            infoList = findCertificates(jsonQueryFilter)
-                    .from(queryParameters)
-                    .stream()
-                    .filter(wr -> statusFilter(wr, jsonQueryFilter))
-                    .map(certificateInfoFactory::asInfo)
-                    .collect(toList());
-        }
-
+        List<CertificateWrapperInfo> infoList = (Checks.is(queryParameters.getLike()).empty() ?
+                findCertificates(jsonQueryFilter) :
+                securityManagementService.findCertificatesByFilter(dataSearchFilterFactory.asLikeFilter(queryParameters.getLike())))
+                .from(queryParameters)
+                .stream()
+                .filter(wr -> statusFilter(wr, jsonQueryFilter))
+                .map(certificateInfoFactory::asInfo)
+                .collect(toList());
         return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
     }
-
 
     /**
      * Specific custom filter for certificate statuses
      * Status is not a DB stored property. Certificate status depends on several sources (e.g. actual X509Certificate state or extra obsolete flag)
      */
-    private boolean statusFilter(CertificateWrapper wr, JsonQueryFilter jsonQueryFilter) {
+    static boolean statusFilter(CertificateWrapper wr, JsonQueryFilter jsonQueryFilter) {
         List<String> statuses = jsonQueryFilter.getStringList("status");
-        return CollectionUtils.isEmpty(statuses) || statuses.contains(wr.getStatus());
+        return CollectionUtils.isEmpty(statuses) || wr.getCertificateStatus().map(CertificateStatus::getName).filter(statuses::contains).isPresent();
     }
 
     private Finder<CertificateWrapper> findCertificates(JsonQueryFilter jsonQueryFilter) {
@@ -221,8 +214,8 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList statusSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<StatusInfo> statuses = Stream.of(CertificateStatus.values())
-                .map(st -> new StatusInfo(st.getName()))
+        List<IdWithNameInfo> statuses = Stream.of(CertificateStatus.values())
+                .map(st -> new IdWithNameInfo(st.getName(), st.getDisplayName(thesaurus)))
                 .collect(toList());
         return PagedInfoList.fromPagedList("statuses", statuses, queryParameters);
     }
@@ -384,8 +377,7 @@ public class CertificateWrapperResource {
         List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
         revocationInfo.isOnline = revocationUtils.isCAConfigured();
         certificates.forEach(cert -> {
-            String status = cert.getStatus();
-            if (status.equalsIgnoreCase(CERTIFICATE_STATUS_REQUESTED) || status.equalsIgnoreCase(CERTIFICATE_STATUS_REVOKED)) {
+            if (isRequestedOrRevoked(cert)) {
                 revocationInfo.addWithWrongStatus(cert);
             } else if (findCertificateUsages(cert).isUsed) {
                 revocationInfo.addWithUsages(cert);
@@ -408,8 +400,7 @@ public class CertificateWrapperResource {
         List<CertificateWrapper> withWrongStatus = new ArrayList<>();
 
         certificates.forEach(certificate -> {
-            String status = certificate.getStatus();
-            if (status.equalsIgnoreCase(CERTIFICATE_STATUS_REQUESTED) || status.equalsIgnoreCase(CERTIFICATE_STATUS_REVOKED)) {
+            if (isRequestedOrRevoked(certificate)) {
                 withWrongStatus.add(certificate);
             } else if (findCertificateUsages(certificate).isUsed) {
                 withUsages.add(certificate);
@@ -424,6 +415,12 @@ public class CertificateWrapperResource {
         resultInfo.updateCounters(certificates.size());
 
         return Response.status(Response.Status.OK).entity(resultInfo).build();
+    }
+
+    private static boolean isRequestedOrRevoked(CertificateWrapper cert) {
+        return cert.getCertificateStatus()
+                .filter(status -> status == CertificateStatus.REQUESTED || status == CertificateStatus.REVOKED)
+                .isPresent();
     }
 
     @POST // This should be PUT but has to be POST due to some 3th party issue
