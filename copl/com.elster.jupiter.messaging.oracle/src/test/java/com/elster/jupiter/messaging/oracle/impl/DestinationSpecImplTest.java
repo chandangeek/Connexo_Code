@@ -116,7 +116,7 @@ public class DestinationSpecImplTest {
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
-        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY, RETRIES, false);
+        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY, RETRIES, false, true, queueTableSpec.getName());
     }
 
     @After
