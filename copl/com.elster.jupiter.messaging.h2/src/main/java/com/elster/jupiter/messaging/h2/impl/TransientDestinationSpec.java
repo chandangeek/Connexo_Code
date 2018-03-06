@@ -33,12 +33,16 @@ class TransientDestinationSpec implements DestinationSpec {
     private final String name;
     private final Thesaurus thesaurus;
     private final boolean buffered;
+    private boolean isDefault;
+    private String queueTypeName;
 
-    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
+    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered, boolean isDefault, String queueTypeName) {
         this.queueTableSpec = queueTableSpec;
         this.thesaurus = thesaurus;
         this.name = name;
         this.buffered = buffered;
+        this.isDefault = isDefault;
+        this.queueTypeName = queueTypeName;
     }
 
     @Override
@@ -195,6 +199,16 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public long getVersion() {
         return 0;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    @Override
+    public String getQueueTypeName() {
+        return queueTypeName;
     }
 
     private class TransientMessageBuilder implements MessageBuilder {

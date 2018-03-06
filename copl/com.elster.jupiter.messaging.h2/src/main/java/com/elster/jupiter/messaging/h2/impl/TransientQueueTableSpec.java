@@ -102,23 +102,34 @@ class TransientQueueTableSpec implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, false);
+        return createDestinationSpec(name, retryDelay, false, true, name);
     }
 
     @Override
     public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, true);
+        return createDestinationSpec(name, retryDelay, true, true, name);
+    }
+
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered, boolean isDefault, String queueTypeName) {
+        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name, buffered, isDefault, queueTypeName);
+        destinations.add(destinationSpec);
+        return destinationSpec;
+    }
+
+    @Override
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault,String queueTypeName) {
+        return createDestinationSpec(name, retryDelay, false, isDefault, queueTypeName);
+    }
+
+    @Override
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault,String queueTypeName) {
+        return createDestinationSpec(name, retryDelay, true, isDefault, queueTypeName);
     }
 
     List<TransientDestinationSpec> getDestinations() {
         return destinations;
     }
 
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered) {
-    	 TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name,buffered);
-         destinations.add(destinationSpec);
-         return destinationSpec;
-    }
     @Override
     public boolean isJms() {
         return state.isJms();
