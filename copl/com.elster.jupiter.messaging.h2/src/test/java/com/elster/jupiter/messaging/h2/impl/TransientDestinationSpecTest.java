@@ -53,7 +53,7 @@ public class TransientDestinationSpecTest {
     public void setUp() throws Exception {
         when(queueTableSpec.isMultiConsumer()).thenReturn(true);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
-        destinationSpec = new TransientDestinationSpec(queueTableSpec, thesaurus, NAME,false);
+        destinationSpec = new TransientDestinationSpec(queueTableSpec, thesaurus, NAME,false, true, queueTableSpec.getName());
     }
 
     @After
