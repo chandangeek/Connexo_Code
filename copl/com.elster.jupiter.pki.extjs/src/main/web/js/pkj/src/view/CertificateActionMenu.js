@@ -9,6 +9,12 @@ Ext.define('Pkj.view.CertificateActionMenu', {
     ],
     initComponent: function () {
         var me = this;
+        const STATUS_FIELD = 'status',
+            STATUS_AVAILABLE = 'Available',
+            STATUS_REQUESTED = 'Requested',
+            STATUS_EXPIRED = 'Expired',
+            STATUS_OBSOLETE = 'Obsolete',
+            STATUS_REVOKED = 'Revoked';
 
         me.items = [
             {
@@ -51,7 +57,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'obsoleteCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && record.get('status') === 'Available';
+                    return !Ext.isEmpty(record) && record.get(STATUS_FIELD).id === STATUS_AVAILABLE;
                 },
                 section: this.SECTION_ACTION
             },
@@ -61,7 +67,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'cancelObsoleteCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && record.get('status') === 'Obsolete';
+                    return !Ext.isEmpty(record) && record.get(STATUS_FIELD).id === STATUS_OBSOLETE;
                 },
                 section: this.SECTION_ACTION
             },
@@ -71,7 +77,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'revokeCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && (record.get('status') !== 'Requested' && record.get('status') !== 'Revoked');
+                    return !Ext.isEmpty(record) && (record.get(STATUS_FIELD).id !== STATUS_REQUESTED && record.get(STATUS_FIELD).id !== STATUS_REVOKED);
                 },
                 section: this.SECTION_ACTION
             },
@@ -81,7 +87,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'requestCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && (record.get('status') === 'Requested');
+                    return !Ext.isEmpty(record) && (record.get(STATUS_FIELD).id === STATUS_REQUESTED);
                 },
                 section: this.SECTION_ACTION
             }

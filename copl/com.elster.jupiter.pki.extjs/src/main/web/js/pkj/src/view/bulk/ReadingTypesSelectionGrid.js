@@ -36,13 +36,16 @@ Ext.define('Pkj.view.bulk.ReadingTypesSelectionGrid', {
         {
             header: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
             dataIndex: 'status',
-            flex: 1
+            flex: 1,
+            renderer: function(value) {
+                return value ? value.name : value;
+            }
         },
         {
             header: Uni.I18n.translate('general.expirationDate', 'PKJ', 'Expiration date'),
             dataIndex: 'expirationDate',
             flex: 1,
-            renderer: function(value){
+            renderer: function(value) {
                 if (Ext.isEmpty(value)) {
                     return '-';
                 }

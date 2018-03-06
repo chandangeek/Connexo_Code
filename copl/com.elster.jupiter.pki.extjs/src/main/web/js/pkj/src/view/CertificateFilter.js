@@ -64,8 +64,8 @@ Ext.define('Pkj.view.CertificateFilter', {
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
                 multiSelect: true,
-                displayField: 'status',
-                valueField: 'status',
+                displayField: 'name',
+                valueField: 'id',
                 store: 'Pkj.store.CertificateStatuses'
             },
             {

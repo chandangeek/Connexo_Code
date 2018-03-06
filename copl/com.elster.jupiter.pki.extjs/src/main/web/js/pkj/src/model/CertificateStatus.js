@@ -4,6 +4,6 @@
 Ext.define('Pkj.model.CertificateStatus', {
     extend: 'Ext.data.Model',
     fields: [
-        'status'
+        'id', 'name'
     ]
 });
