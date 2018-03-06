@@ -36,7 +36,7 @@ Ext.define('Pkj.view.bulk.Step4', {
 
         Ext.resumeLayouts(true);
     },
-    addErrorPanel: function (title, message, certs) {
+    addErrorPanel: function (title, message, certs, itemId) {
         var me = this;
 
         Ext.suspendLayouts();
@@ -45,7 +45,8 @@ Ext.define('Pkj.view.bulk.Step4', {
             noStepItems: true,
             title: title,
             reasonsText: '',
-            margin: '0 0 16 0'
+            margin: '0 0 16 0',
+            itemId: itemId ? itemId : undefined
 
         });
 

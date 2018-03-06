@@ -161,19 +161,19 @@ Ext.define('Pkj.controller.BulkAction', {
                                     '<br>' +
                                     'but you need to manually send them to the Certificate Authority that will change their revocation status');
 
-                                me.getConfirmPage().addErrorPanel(title, message)
+                                me.getConfirmPage().addErrorPanel(title, message, undefined,'errorPanelCAOff')
                             }
                             if (decoded.bulk.withUsages && decoded.bulk.withUsages.length > 0) {
                                 var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.withUsages.length);
                                 var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeUsagesMsgx', 'PKJ', 'These certificates are used on a device, security accessor or user directory:');
                                 me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
-                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withUsages)
+                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withUsages, 'errorPanelInUsed')
                             }
                             if (decoded.bulk.withWrongStatus && decoded.bulk.withWrongStatus.length > 0) {
                                 var title = Uni.I18n.translate('certificates.bulk.step4UnableRevoke', 'PKJ', 'Unable to revoke {0} certificates', decoded.bulk.withWrongStatus.length);
                                 var message = Uni.I18n.translate('certificates.bulk.step4UnableRevokeStatusMsgx', 'PKJ', "These certificates are in 'Requested' or 'Revoked' status:");
                                 me.getConfirmPage().router = me.getController('Uni.controller.history.Router');
-                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withWrongStatus)
+                                me.getConfirmPage().addErrorPanel(title, message, decoded.bulk.withWrongStatus, 'errorPanelInWrongStatus')
                             }
                             me.goNextStep();
                         },
