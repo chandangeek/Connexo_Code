@@ -47,7 +47,7 @@ import java.util.Map;
         property = {"name=" + ReplyMeterConfigWebService.NAME})
 public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
-    private static final String NOUN = "ReplyMeterConfig";
+    private static final String NOUN = "MeterConfig";
     private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
