@@ -75,6 +75,8 @@ class DestinationSpecImpl implements DestinationSpec {
     @Range(min = 0, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY + "}")
     private int retries;
     private boolean buffered;
+    private boolean isDefault;
+    private String queueTypeName;
 
     @SuppressWarnings("unused")
     private long version;
@@ -102,8 +104,8 @@ class DestinationSpecImpl implements DestinationSpec {
         this.thesaurus = thesaurus;
     }
 
-    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered);
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName);
     }
 
     @Override
@@ -296,13 +298,15 @@ class DestinationSpecImpl implements DestinationSpec {
                 '}';
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
         this.retryDelay = retryDelay;
         this.retries = retries;
         this.buffered = buffered;
+        this.isDefault = isDefault;
+        this.queueTypeName = queueTypeName;
         this.fromDB = false;
         return this;
     }
@@ -475,4 +479,15 @@ class DestinationSpecImpl implements DestinationSpec {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
+    @Override
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    @Override
+    public String getQueueTypeName() {
+        return queueTypeName;
+    }
+    
 }

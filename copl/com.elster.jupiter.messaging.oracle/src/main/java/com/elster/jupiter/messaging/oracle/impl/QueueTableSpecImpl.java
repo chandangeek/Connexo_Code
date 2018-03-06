@@ -185,20 +185,30 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, retries, false);
+        return createDestinationSpec(name, retryDelay, retries, false, true, name);
     }
 
     @Override
     public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, retries, true);
+        return createDestinationSpec(name, retryDelay, retries, true, true, name);
     }
 
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered) {
-        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered);
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
+        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName);
         spec.save();
         return spec;
     }
-    
+
+    @Override
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName) {
+        return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName);
+    }
+
+    @Override
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName) {
+        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName);
+    }
+
     @Override
     public boolean isJms() {
         return payloadType.toUpperCase().startsWith("SYS.AQ$_JMS_");

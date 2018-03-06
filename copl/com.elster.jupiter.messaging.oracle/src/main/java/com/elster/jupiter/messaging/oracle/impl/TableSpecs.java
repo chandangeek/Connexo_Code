@@ -42,6 +42,8 @@ public enum TableSpecs {
             table.column("RETRIES").number().notNull().conversion(NUMBER2INT).map("retries").add();
             table.column("ACTIVE").bool().map("active").add();
             table.column("BUFFERED").bool().map("buffered").add();
+            table.column("ISDEFAULT").bool().map("isDefault").add();
+            table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
             table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTableSpec").on(queueTableNameColumn).add();
@@ -59,16 +61,16 @@ public enum TableSpecs {
             table.column("SYSTEMMANAGED").bool().map("systemManaged").add();
             table.column("filter").varChar().map("filter").add();
             table.addAuditColumns();
-            table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn , nameColumn).add();
+            table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn, nameColumn).add();
             table
-                .foreignKey("MSG_FK_SUBSCRIBERSPEC")
-                .references(MSG_DESTINATIONSPEC.name())
-                .onDelete(CASCADE)
-                .map("destination")
-                .reverseMap("subscribers")
-                .on(destinationColumn)
-                .composition()
-                .add();
+                    .foreignKey("MSG_FK_SUBSCRIBERSPEC")
+                    .references(MSG_DESTINATIONSPEC.name())
+                    .onDelete(CASCADE)
+                    .map("destination")
+                    .reverseMap("subscribers")
+                    .on(destinationColumn)
+                    .composition()
+                    .add();
         }
     };
 
