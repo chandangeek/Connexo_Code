@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateFormatter;
+import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -196,6 +197,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public String getStatus() {
         return getInternalStatus().map(tk -> thesaurus.getFormat(tk).format()).orElse("");
+    }
+
+    @Override
+    public Optional<CertificateStatus> getCertificateStatus() {
+        return getInternalStatus()
+                .flatMap(CertificateStatus::getByTranslationKey);
     }
 
     /**
