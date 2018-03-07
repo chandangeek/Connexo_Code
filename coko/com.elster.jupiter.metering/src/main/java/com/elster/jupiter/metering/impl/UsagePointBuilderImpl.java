@@ -40,7 +40,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private long locationId;
     private SpatialCoordinates spatialCoordinates;
 
-    private long lifeCycle;
+    private String lifeCycleName;
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
     private Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetsValues = new HashMap<>();
@@ -77,8 +77,17 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withLifeCycle(long lifeCycle) {
-        this.lifeCycle = lifeCycle;
+    public UsagePointBuilder withLifeCycle(String lifeCycleName) {
+        this.lifeCycleName = lifeCycleName;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withLifeCycle(long lifeCycleID) {
+        this.lifeCycleName = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .findUsagePointLifeCycle(lifeCycleID)
+                .get()
+                .getName();
         return this;
     }
 
@@ -166,7 +175,8 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     private UsagePointImpl build() {
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, lifeCycle, serviceCategory);
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
+        usagePoint.setLifeCycle(lifeCycleName);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);

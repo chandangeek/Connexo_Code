@@ -87,8 +87,6 @@ public class UsagePointImplTest {
     @Mock
     private ServiceCategory serviceCategory;
     @Mock
-    private long lifeCycle;
-    @Mock
     private DataMapper<UsagePoint> usagePointFactory;
     @Mock
     private MeterActivation activation1, activation2;
@@ -175,7 +173,7 @@ public class UsagePointImplTest {
         when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,
                 customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService)
-                .init(NAME, lifeCycle, serviceCategory);
+                .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }
 

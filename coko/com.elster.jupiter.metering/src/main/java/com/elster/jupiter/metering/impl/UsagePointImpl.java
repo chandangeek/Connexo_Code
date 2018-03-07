@@ -241,14 +241,11 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    UsagePointImpl init(String name, long lifecycle, ServiceCategory serviceCategory) {
+    UsagePointImpl init(String name, ServiceCategory serviceCategory) {
         this.name = name;
         this.mRID = UUID.randomUUID().toString();
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
-        this.usagepointLifeCycle.set(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
-                .findUsagePointLifeCycle(lifecycle)
-                .get());
         return this;
     }
 
@@ -365,6 +362,20 @@ public class UsagePointImpl implements ServerUsagePoint {
     @Override
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
+    }
+
+    @Override
+    public void setLifeCycle(String lifeCycle) {
+        if (lifeCycle == null || lifeCycle == dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .getDefaultLifeCycle()
+                .getName()) {
+            this.usagepointLifeCycle.set(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                    .getDefaultLifeCycle());
+        } else {
+            this.usagepointLifeCycle.set(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                    .findUsagePointLifeCycleByName(lifeCycle)
+                    .get());
+        }
     }
 
     @Override
