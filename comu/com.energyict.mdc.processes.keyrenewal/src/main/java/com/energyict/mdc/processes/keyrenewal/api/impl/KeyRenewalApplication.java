@@ -29,6 +29,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.processes.keyrenewal.api.Installer;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
