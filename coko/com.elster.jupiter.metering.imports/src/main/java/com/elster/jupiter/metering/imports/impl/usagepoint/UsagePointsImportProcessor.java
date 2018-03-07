@@ -121,12 +121,14 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values())
                 .filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString))
                 .findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
         Optional<UsagePoint> foundUsagePoint = findUsagePointByIdentifier(identifier);
         Optional<ServiceCategory> serviceCategory = getContext().getMeteringService().getServiceCategory(serviceKind);
+
         if (foundUsagePoint.isPresent()) {
             UsagePoint usagePoint = foundUsagePoint.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {

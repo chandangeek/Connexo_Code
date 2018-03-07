@@ -50,7 +50,8 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION(2012, Constants.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION, "Transition date must be greater or equal to 'Created' date of usage point", Level.WARNING),
     PRE_TRANSITION_CHECK_FAILED(2013, Constants.PRE_TRANSITION_CHECK_FAILED, "Pre-transition check failed {0}", Level.WARNING),
     CALENDAR_DOES_NOT_EXIST(2014, Constants.CALENDAR_DOES_NOT_EXIST, "Can''t process line {0}: No such {1} calendar"),
-    NO_SUCH_MANDATORY_CPS_VALUE(2015, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}");
+    NO_SUCH_MANDATORY_CPS_VALUE(2015, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}"),
+    IMPORT_USAGEPOINT_LIFE_CYCLE(2016, Constants.IMPORT_USAGEPOINT_INVALID_LIFE_CYCLE, "Can''t process line {0}: Invalid life cycle");
 
     private final int number;
     private final String key;
@@ -115,6 +116,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_INVALID_DATA = "up.invalid.date";
         public static final String IMPORT_USAGEPOINT_SERVICEKIND_INVALID = "up.no.service.kind";
         public static final String IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND = "up.invalid.service.kind";
+        public static final String IMPORT_USAGEPOINT_INVALID_LIFE_CYCLE = "up.invalid.lifecycle";
         public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID = "up.invalid.service.category";
         public static final String IMPORT_USAGEPOINT_INVALID_SERVICELOCATION = "up.invalid.service.location";
         public static final String IMPORT_PARSER_INVALID = "up.invalid.parser";

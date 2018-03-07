@@ -46,6 +46,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePointBuilder.withReadRoute(data.getReadRoute());
         usagePointBuilder.withServicePriority(data.getServicePriority());
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        usagePointBuilder.withLifeCycle(data.getLifeCycle());
         addCustomPropertySetsValues(usagePointBuilder, data);
         UsagePoint usagePoint = usagePointBuilder.create();
         this.addCalendars(data, usagePoint);
@@ -56,6 +57,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
     public UsagePoint createUsagePointForMultiSense(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
+        usagePointBuilder.withLifeCycle(data.getLifeCycle());
         setLocation(usagePointBuilder, data);
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
