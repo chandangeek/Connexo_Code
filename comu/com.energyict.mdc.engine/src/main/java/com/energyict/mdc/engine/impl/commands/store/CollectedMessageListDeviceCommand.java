@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
@@ -12,14 +13,15 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEven
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
 
@@ -58,7 +60,19 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
             }
 
             // execute the 'executable' ones
-            messagesToExecute.stream().filter(x -> x instanceof ServerCollectedData).forEach(y -> executeMessage(comServerDAO, y));
+            List<CollectedMessage> executedMessages = messagesToExecute.stream()
+                    .filter(x -> x instanceof ServerCollectedData)
+                    .peek(y -> executeMessage(comServerDAO, y))
+                    .collect(Collectors.toList());
+
+            //process csr
+            if (offlineDeviceMessage.getDeviceMessageAttributes().stream().anyMatch(e -> e.getDeviceMessageId() == 7048)) {
+                executedMessages.stream()
+                        .filter(e -> e.getNewDeviceMessageStatus().equals(DeviceMessageStatus.CONFIRMED) && Checks.is(e.getDeviceProtocolInformation()).emptyOrOnlyWhiteSpace())
+                        .forEach(e -> comServerDAO.updateDeviceCSR(offlineDeviceMessage.getDeviceIdentifier(), offlineDeviceMessage.getDeviceMessageAttributes()
+                                .get(0)
+                                .getValue(), e.getDeviceProtocolInformation()));
+            }
         }
     }
 

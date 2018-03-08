@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
@@ -151,6 +152,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private DeviceService getDeviceService() {
         return this.serviceProvider.deviceService();
+    }
+
+    private SecurityManagementService getSecurityManagementService() {
+        return this.serviceProvider.securityManagementService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {
@@ -1172,6 +1177,15 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(deviceIdentifier);
+        optionalDevice.ifPresent(device -> {
+            DeviceCertificateStorage certificateStorage = new DeviceCertificateStorage(getSecurityManagementService());
+            certificateStorage.updateDeviceCSR(device, certificateType, csr);
+        });
+    }
+
+    @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
         LoadProfile loadProfile = this.findLoadProfileOrThrowException(loadProfileIdentifier);
         // Refresh the device and the LoadProfile to avoid OptimisticLockException
@@ -1411,6 +1425,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         FirmwareService firmwareService();
 
         DeviceConfigurationService deviceConfigurationService();
+
+        SecurityManagementService securityManagementService();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
