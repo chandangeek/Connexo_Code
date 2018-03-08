@@ -366,9 +366,11 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public void setLifeCycle(String lifeCycle) {
-        if (lifeCycle == null || lifeCycle == dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+        if (lifeCycle == null || lifeCycle.equals(this.thesaurus.getString(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
                 .getDefaultLifeCycle()
-                .getName()) {
+                .getName(), dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .getDefaultLifeCycle()
+                .getName()))) {
             this.usagepointLifeCycle.set(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
                     .getDefaultLifeCycle());
         } else {
