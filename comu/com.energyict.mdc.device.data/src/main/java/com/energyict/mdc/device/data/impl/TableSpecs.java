@@ -30,17 +30,16 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceCSR;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -82,7 +81,6 @@ import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
@@ -880,34 +878,6 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_DDC_BREAKER_STATUS").on(idColumn).add();
             table.foreignKey("FK_DDC_BREAKER_STATUS_DEVICE")
-                    .on(deviceColumn)
-                    .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
-                    .references(DDC_DEVICE.name())
-                    .onDelete(DeleteRule.CASCADE)
-                    .add();
-        }
-    },
-
-    DDC_DEVICECSR {
-        @Override
-        void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<DeviceCSR> table = dataModel.addTable(name(), DeviceCSR.class);
-            table.since(version(10, 4, 1));
-            table.map(DeviceCSRImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column deviceColumn = table.column("DEVICEID")
-                    .number()
-                    .notNull()
-                    .add();
-            table.column("CSR")
-                    .map(DeviceCSRImpl.Fields.CSR.fieldName())
-                    .type("blob")
-                    .conversion(BLOB2BYTE)
-                    .notNull()
-                    .add();
-            table.addAuditColumns();
-            table.primaryKey("PK_DDC_DEVICECSR").on(idColumn).add();
-            table.foreignKey("FK_DDC_DEVICECSR_DEVICE")
                     .on(deviceColumn)
                     .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
                     .references(DDC_DEVICE.name())

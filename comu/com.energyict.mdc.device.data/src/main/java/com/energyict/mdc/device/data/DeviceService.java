@@ -194,8 +194,4 @@ public interface DeviceService {
       * @return Collection of associated {@link SecurityAccessor} objects
       */
     List<SecurityAccessor> getAssociatedKeyAccessors(CertificateWrapper certificate);
-
-    DeviceCSR newDeviceCSRFrom(Device device, byte[] encodedCSR);
-
-    Optional<DeviceCSR> getDeviceCSR(Device device);
 }
