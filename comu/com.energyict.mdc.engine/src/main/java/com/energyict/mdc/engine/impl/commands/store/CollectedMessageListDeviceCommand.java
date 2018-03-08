@@ -68,7 +68,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
             //process csr
             if (offlineDeviceMessage.getDeviceMessageAttributes().stream().anyMatch(e -> e.getDeviceMessageId() == 7048)) {
                 executedMessages.stream()
-                        .filter(e -> e.getNewDeviceMessageStatus().equals(DeviceMessageStatus.CONFIRMED) && Checks.is(e.getDeviceProtocolInformation()).emptyOrOnlyWhiteSpace())
+                        .filter(e -> e.getNewDeviceMessageStatus().equals(DeviceMessageStatus.CONFIRMED) && !Checks.is(e.getDeviceProtocolInformation()).emptyOrOnlyWhiteSpace())
                         .forEach(e -> comServerDAO.updateDeviceCSR(offlineDeviceMessage.getDeviceIdentifier(), offlineDeviceMessage.getDeviceMessageAttributes()
                                 .get(0)
                                 .getValue(), e.getDeviceProtocolInformation()));

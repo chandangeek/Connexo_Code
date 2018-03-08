@@ -853,7 +853,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
         @Override
         public SecurityManagementService securityManagementService() {
-            return null;
+            return securityManagementService;
         }
     }
 

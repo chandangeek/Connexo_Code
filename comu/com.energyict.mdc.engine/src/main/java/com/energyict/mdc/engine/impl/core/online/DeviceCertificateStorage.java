@@ -29,13 +29,8 @@ public class DeviceCertificateStorage {
         getKeyType(certificateType).ifPresent(keyType -> {
                     ClientCertificateWrapper certificateWrapper = securityManagementService.findClientCertificateWrapper(alias)
                             .orElseGet(() -> securityManagementService.newClientCertificateWrapper(keyType, "DataVault").alias(alias).add());
-                    try {
-                        PKCS10CertificationRequest certificationRequest = new PKCS10CertificationRequest(BaseEncoding.base16().decode(csr));
-                        certificateWrapper.setCSR(certificationRequest, keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
-                        certificateWrapper.save();
-                    } catch (IOException e) {
-                        //do nothing
-                    }
+                    certificateWrapper.setCSR(BaseEncoding.base16().decode(csr), keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
+                    certificateWrapper.save();
                 }
         );
 
