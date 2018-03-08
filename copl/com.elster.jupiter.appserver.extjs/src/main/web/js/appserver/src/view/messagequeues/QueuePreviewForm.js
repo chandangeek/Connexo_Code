@@ -62,7 +62,7 @@ Ext.define('Apr.view.messagequeues.QueuePreviewForm', {
                                         {
                                             xtype: 'displayfield',
                                             fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
-                                            name: 'type',
+                                            name: 'queueTypeName',
                                             itemId: 'queue-type'
 
                                         }

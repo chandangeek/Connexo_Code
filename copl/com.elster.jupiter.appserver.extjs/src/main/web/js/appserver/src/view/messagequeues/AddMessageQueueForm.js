@@ -26,6 +26,13 @@ Ext.define('Apr.view.messagequeues.AddMessageQueueForm', {
                 },
                 items: [
                     {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true
+                    },
+                    {
                         xtype: 'textfield',
                         name: 'name',
                         itemId: 'name-queue',
@@ -33,11 +40,6 @@ Ext.define('Apr.view.messagequeues.AddMessageQueueForm', {
                         allowBlank: false,
                         required: true,
                         width: 600
-                        // listeners: {
-                        //     afterrender: function(field) {
-                        //         field.focus(false, 200);
-                        //     }
-                        // }
                     },
                     {
                         xtype: 'combobox',

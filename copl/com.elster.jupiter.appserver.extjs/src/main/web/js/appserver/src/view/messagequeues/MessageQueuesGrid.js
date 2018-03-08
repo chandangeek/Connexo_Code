@@ -34,7 +34,7 @@ Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.type', 'APR', 'Type'),
-                dataIndex: 'type',
+                dataIndex: 'queueTypeName',
                 flex: 1
             },
             {

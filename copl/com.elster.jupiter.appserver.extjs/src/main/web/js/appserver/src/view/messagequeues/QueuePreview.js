@@ -22,7 +22,8 @@ Ext.define('Apr.view.messagequeues.QueuePreview', {
             }
         ];
         me.items = {
-            xtype: 'queue-preview-form'
+            xtype: 'queue-preview-form',
+            itemId: 'queue-preview-form'
         };
         me.callParent(arguments);
     }

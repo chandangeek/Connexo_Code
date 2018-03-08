@@ -41,6 +41,22 @@ Ext.define('Apr.controller.MessageQueues',{
         {
             ref: 'undoButton',
             selector: '#undo-message-queues-changes-button'
+        },
+        {
+            ref: 'addQueuePage',
+            selector: 'add-queue-message-form'
+        },
+        {
+            ref: 'queueGrid',
+            selector: '#message-queues-grid'
+        },
+        {
+            ref: 'queuePreviewContainer',
+            selector: '#queue-preview-form'
+        },
+        {
+            ref: 'page',
+            selector: 'message-queue-setup'
         }
     ],
 
@@ -71,7 +87,7 @@ Ext.define('Apr.controller.MessageQueues',{
                 click: this.addMessageQueue
             },
             'message-queue-setup #message-queues-grid': {
-                queueRemoveEvent: this.removeMessageQueue
+                queueRemoveEvent: this.remove
             }
 
         });
@@ -86,18 +102,83 @@ Ext.define('Apr.controller.MessageQueues',{
             });
         me.getApplication().fireEvent('changecontentevent', view);
         this.getStore('Apr.store.MessageQueuesWithState').load(function(){
-            // view.down('#message-queues-grid').select(0);
         });
     },
 
     addMessageQueue: function () {
-        // var me = this,
-        //     router = me.getController('Uni.controller.history.Router');
-        alert('ADDDDDD');
+
+        var me = this,
+            addQueuePage = me.getAddQueuePage(),
+            form = addQueuePage.down('#add-queue-form'),
+            queueRecord = addQueuePage.queueRecord || Ext.create('Apr.model.AddMessageQueue'),
+            addQueueForm = addQueuePage.down('#add-queue-form'),
+            formErrorsPanel = addQueueForm.down('#form-errors');
+
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+
+            addQueueForm.updateRecord(queueRecord);
+            queueRecord.beginEdit();
+            queueRecord.set('queueTypeName', addQueueForm.down('#queue-type').getRawValue());
+            queueRecord.endEdit();
+
+            queueRecord.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/messagequeues').forward();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.addQueue', 'APR', 'Queue added'));
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        addQueueForm.getForm().markInvalid(json.errors);
+                    }
+                    formErrorsPanel.show();
+                }
+            })
+        } else {
+            formErrorsPanel.show();
+        }
+
     },
 
-    removeMessageQueue: function () {
-        alert('Remmmmoooveee');
+    remove: function (record) {
+        var me = this;
+
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.remove', 'APR', 'Remove')
+        }).show({
+            title: Uni.I18n.translate('messageQueue.remove.title', 'APR', 'Remove \'{0}\'?', record.get('name')),
+            msg: Uni.I18n.translate('messageQueue.remove.message', 'APR', 'This queue will no longer be available.'),
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.removeMessageQueue(record);
+                }
+            }
+        });
+    },
+
+    removeMessageQueue: function (record) {
+
+        var me = this,
+            queueGrid = me.getQueueGrid(),
+            queuePreviewContainerPanel = me.getQueuePreviewContainer(),
+            view = queueGrid || queuePreviewContainerPanel;
+
+        view.setLoading();
+
+        record.destroy({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute('administration/messagequeues').forward();
+                view.setLoading(false);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('messageQueue.remove.confirmation', 'APR', 'Queue removed'));
+            },
+            failure: function (object, operation) {
+                view.setLoading(false);
+            }
+        });
     },
 
 
@@ -157,12 +238,15 @@ Ext.define('Apr.controller.MessageQueues',{
     },
 
     chooseAction: function(menu, item) {
+        var me = this,
+            record = menu.record || me.getQueueGrid().getSelectionModel().getLastSelected();
+
         switch (item.action) {
             case 'clearErrorQueue':
                 this.clearErrorQueue(menu.record);
                 break;
             case 'remove':
-                alert('remove');
+                this.remove(record);
                 break;
         }
     },

@@ -10,7 +10,7 @@ Ext.define('Apr.model.MessageQueue', {
         'Apr.model.TaskQueue'
     ],
     fields: [
-        'name', 'active', 'buffered', 'retryDelayInSeconds',
+        'name', 'type', 'active', 'buffered', 'retryDelayInSeconds',
         {
             name: 'numberOfRetries',
             type: 'int'
@@ -35,13 +35,13 @@ Ext.define('Apr.model.MessageQueue', {
         {
             name: 'isDefault',
             mapping: function (data) {
-                return data.name != 'AdHocSearch';
+                return data.isDefault;
             }
         },
         {
-            name: 'type',   //converter
+            name: 'queueTypeName',   //converter
             mapping: function (data) {
-                return data.type;
+                return data.queueTypeName;
             }
         },
         {
