@@ -125,22 +125,23 @@ public class DestinationSpecResource {
 
     @POST
     @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response doCreateDestinationSpec(@FormParam("destinationSpecName") String destinationSpecName, @FormParam("destinationSpecTypeName") String destinationSpecTypeName) {
-        if (destinationSpecName == null || destinationSpecName.isEmpty()) {
+    public Response doCreateDestinationSpec(DestinationSpecInfo info) {
+        if (info.name == null || info.name.isEmpty()) {
             throwException("error.destinationspec.name.empty", "Queue name is missing from request.", Response.Status.BAD_REQUEST);
         }
 
-        if (destinationSpecTypeName == null || destinationSpecTypeName.isEmpty()) {
+        if (info.queueTypeName == null || info.queueTypeName.isEmpty()) {
             throwException("error.destinationspec.type.empty", "Queue type is missing from request.", Response.Status.BAD_REQUEST);
         }
 
-        if (messageService.getDestinationSpec(destinationSpecName).isPresent()) {
+        if (messageService.getDestinationSpec(info.name).isPresent()) {
             throwException("error.destinationspec.duplicate", "Queue name is already used.", Response.Status.BAD_REQUEST);
         }
 
-        createQueue(destinationSpecName, destinationSpecTypeName);
+        createQueue(info.name, info.queueTypeName);
 
         return Response.status(Response.Status.OK).build();
     }
