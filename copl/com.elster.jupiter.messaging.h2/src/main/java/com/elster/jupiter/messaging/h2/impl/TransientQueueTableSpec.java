@@ -143,4 +143,9 @@ class TransientQueueTableSpec implements QueueTableSpec {
     @Override
     public void save() {
     }
+
+    @Override
+    public void delete() {
+
+    }
 }
