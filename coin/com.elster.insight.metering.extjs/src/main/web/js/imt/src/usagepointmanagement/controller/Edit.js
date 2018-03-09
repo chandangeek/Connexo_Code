@@ -126,14 +126,19 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 isPossibleAdd: isPossibleAdd
             }));
             if (isPossibleAdd) {
-                me.getStore('Imt.usagepointmanagement.store.UsagePointLifeCycles').load();
                 me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load();
                 me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load();
                 me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
                 me.getWizard().loadRecord(Ext.create('Imt.usagepointmanagement.model.UsagePoint'));
             }
+
             mainView.setLoading(false);
-        });
+        }),
+
+            me.getStore('Imt.usagepointmanagement.store.UsagePointLifeCycles').load(function (records) {
+                usagePointLifeCycleCombo = mainView.down('#usage-point-life-cycle-combo');
+                usagePointLifeCycleCombo.setValue(usagePointLifeCycleCombo.store.findRecord('isDefault', true));
+            });
     },
 
     moveTo: function (button) {

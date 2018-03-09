@@ -4,10 +4,10 @@
 
 Ext.define('Imt.usagepointmanagement.model.UsagePointLifeCycle', {
     extend: 'Ext.data.Model',
-    extend: 'Ext.data.Model',
     fields: [
         'id',
         'name',
-        'version'
+        'version',
+        'isDefault'
     ]
 });

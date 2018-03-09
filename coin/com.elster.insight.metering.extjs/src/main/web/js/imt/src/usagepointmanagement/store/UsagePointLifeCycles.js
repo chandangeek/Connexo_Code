@@ -5,10 +5,6 @@
 Ext.define('Imt.usagepointmanagement.store.UsagePointLifeCycles', {
     extend: 'Ext.data.Store',
     model: 'Imt.usagepointmanagement.model.UsagePointLifeCycle',
-    sorters: [{
-        property: 'name',
-        direction: 'ASC'
-    }],
     proxy: {
         type: 'rest',
         url: '/api/upl/lifecycle',
@@ -20,4 +16,5 @@ Ext.define('Imt.usagepointmanagement.store.UsagePointLifeCycles', {
         startParam: false,
         limitParam: false
     }
+
 });
