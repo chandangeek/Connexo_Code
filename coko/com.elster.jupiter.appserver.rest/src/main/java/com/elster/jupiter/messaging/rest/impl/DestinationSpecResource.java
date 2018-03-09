@@ -6,18 +6,18 @@ package com.elster.jupiter.messaging.rest.impl;
 
 import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Path("/destinationspec")
 public class DestinationSpecResource {
 
-    private static final String QUEUE_TABLE_NAME = "MSG_RAWQUEUETABLE_";
+    private static final String QUEUE_TABLE_NAME = "MSG_QUEUE_";
 
     private final MessageService messageService;
     private final TransactionService transactionService;
@@ -130,32 +130,28 @@ public class DestinationSpecResource {
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response doCreateDestinationSpec(DestinationSpecInfo info) {
         if (info.name == null || info.name.isEmpty()) {
-            throwException("error.destinationspec.name.empty", "Queue name is missing from request.", Response.Status.BAD_REQUEST);
+            return buildErrorResponse4("name", MessageSeeds.EMPTY_QUEUE_NAME);
         }
 
         if (info.queueTypeName == null || info.queueTypeName.isEmpty()) {
-            throwException("error.destinationspec.type.empty", "Queue type is missing from request.", Response.Status.BAD_REQUEST);
+            return buildErrorResponse4("queueTypeName", MessageSeeds.EMPTY_QUEUE_TYPE_NAME);
         }
 
         if (messageService.getDestinationSpec(info.name).isPresent()) {
-            throwException("error.destinationspec.duplicate", "Queue name is already used.", Response.Status.BAD_REQUEST);
+            return buildErrorResponse4("name", MessageSeeds.DUPLICATE_QUEUE);
         }
 
-        createQueue(info.name, info.queueTypeName);
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + info.name.toUpperCase(), "RAW", false);
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(info.name, 60, 5, false, info.queueTypeName);
+        destinationSpec.activate();
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private void throwException(String key, String defaultMessage, Response.Status status) {
-        throw new WebApplicationException(Response.status(status).entity(thesaurus.getString(key, defaultMessage)).build());
-    }
-
-    private void createQueue(String destinationSpecName, String destinationSpecTypeName) {
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + destinationSpecName, "RAW", false);
-
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(destinationSpecName, 60, 5, false, destinationSpecTypeName);
-        destinationSpec.save();
-        destinationSpec.activate();
+    private Response buildErrorResponse4(String field, MessageSeeds message) {
+        LocalizedFieldValidationException fieldValidationException = new LocalizedFieldValidationException(message, field);
+        ConstraintViolationInfo constraintViolationInfo = new ConstraintViolationInfo(thesaurus).from(fieldValidationException);
+        return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
     }
 
     @DELETE
@@ -164,29 +160,22 @@ public class DestinationSpecResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response deleteDestinationSpec(@PathParam("destinationSpecName") String destinationSpecName) {
+    public Response deleteDestinationSpec(@PathParam("destinationSpecName") String
+                                                  destinationSpecName, DestinationSpecInfo info) {
         if (!messageService.getDestinationSpec(destinationSpecName).isPresent()) {
-            throwException("error.destinationspec.queue.missing", "Queue is missing.", Response.Status.NOT_FOUND);
-        }
-
-        if (!messageService.getQueueTableSpec(QUEUE_TABLE_NAME + destinationSpecName).isPresent()) {
-            throwException("error.destinationspec.queuetable.missing", "Queue table is missing.", Response.Status.NOT_FOUND);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         if (messageService.getDestinationSpec(destinationSpecName).get().isDefault()) {
-            throwException("error.destinationspec.queue.isdefault", "Default queue cannot be deleted.", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
 
-        deleteQueue(destinationSpecName);
-
-        return Response.status(Response.Status.OK).build();
-    }
-
-    private void deleteQueue(String destinationSpecName) {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destinationSpecName).get();
         QueueTableSpec queueTableSpec = destinationSpec.getQueueTableSpec();
         destinationSpec.delete();
-        queueTableSpec.deactivate();
+        queueTableSpec.delete();
+
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET
