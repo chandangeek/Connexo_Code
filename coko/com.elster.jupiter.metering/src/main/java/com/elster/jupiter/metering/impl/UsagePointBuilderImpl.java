@@ -83,15 +83,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withLifeCycle(long lifeCycleID) {
-        this.lifeCycleName = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
-                .findUsagePointLifeCycle(lifeCycleID)
-                .get()
-                .getName();
-        return this;
-    }
-
-    @Override
     public UsagePointBuilder withIsSdp(boolean isSdp) {
         this.isSdp = isSdp;
         return this;
