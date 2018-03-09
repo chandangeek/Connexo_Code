@@ -18,8 +18,9 @@ public enum MessageSeeds implements MessageSeed {
     UNDERLYING_JMS_EXCEPTION(1004, "jms.failed", "Underlying JMS Exception"),
     UNDERLYING_AQ_EXCEPTION(1005, "aq.failed", "Underlying AQ Exception"),
     MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE(1006, Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY, "The number of retries of a queue should be between {min} and {max}"),
-    RETRY_DELAY_OUT_OF_RANGE(1007, Keys.RETRY_DELAY_OUT_OF_RANGE_KEY, "The retry delay of a queue should be between {min} and {max} seconds")
-    ;
+    EMPTY_QUEUE_NAME(1007, Keys.EMPTY_QUEUE_NAME, "Queue name is missing from request."),
+    EMPTY_QUEUE_TYPE_NAME(1008, Keys.EMPTY_QUEUE_TYPE_NAME, "Queue type is missing from request."),
+    DUPLICATE_QUEUE(1009, Keys.DUPLICATE_QUEUE, "Queue is already defined");
 
     private final int number;
     private final String key;
@@ -75,5 +76,8 @@ public enum MessageSeeds implements MessageSeed {
     public static interface Keys {
         String MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY = "queue.retries.outofrange";
         String RETRY_DELAY_OUT_OF_RANGE_KEY = "queue.retrydelay.outofrange";
+        String EMPTY_QUEUE_NAME = "queue.name.empty";
+        String EMPTY_QUEUE_TYPE_NAME = "queue.type.empty";
+        String DUPLICATE_QUEUE = "queue.duplicate.name";
     }
 }

@@ -33,6 +33,8 @@ public interface QueueTableSpec extends HasName {
 
     void save();
 
+    void delete();
+
     default DestinationSpec createDestinationSpec(String name, int retryDelay) {
         return createDestinationSpec(name, retryDelay, 5, true, name);
     }
