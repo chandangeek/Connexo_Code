@@ -4,10 +4,7 @@
 
 package com.elster.jupiter.messaging.oracle.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.UnderlyingAqException;
-import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -141,6 +138,14 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         dataModel.mapper(QueueTableSpec.class).update(this, "active");
     }
 
+    @Override
+    public void delete() {
+        if (isActive()) {
+            deactivate();
+        }
+        dataModel.mapper(QueueTableSpec.class).remove(this);
+    }
+
     private String createSql() {
         return
                 "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
@@ -227,4 +232,5 @@ public class QueueTableSpecImpl implements QueueTableSpec {
             fromDB = true;
         }
     }
+
 }

@@ -6,15 +6,8 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
-import com.elster.jupiter.messaging.InactiveDestinationException;
-import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.messaging.MessageSeeds;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.domain.util.Unique;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -22,7 +15,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
-
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
@@ -201,7 +193,6 @@ class DestinationSpecImpl implements DestinationSpec {
             Save.CREATE.save(dataModel, this);
             fromDB = true;
         }
-
     }
 
     @Override
@@ -489,5 +480,5 @@ class DestinationSpecImpl implements DestinationSpec {
     public String getQueueTypeName() {
         return queueTypeName;
     }
-    
+
 }
