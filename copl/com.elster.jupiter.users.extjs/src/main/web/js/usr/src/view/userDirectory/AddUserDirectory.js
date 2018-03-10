@@ -39,9 +39,8 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
 
                 certificateCombo.allowBlank = !value;
                 trustStoreCombo.allowBlank = value;
-
-
             };
+
         me.content = [
             {
                 xtype: 'form',
@@ -118,9 +117,14 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 valueField: 'value',
                                 listeners: {
                                     select: function (combo, records, eOpts) {
-                                        var protocolSource = me.down('#security-protocol-source');
-                                        protocolSource.setVisible(records[0].get('value') !== 'NONE');
-                                        protocolSource.setDisabled(records[0].get('value') == 'NONE');
+                                        var protocolSource = me.down('#security-protocol-source'),
+                                            value = records[0].get('value') !== 'NONE';
+                                        protocolSource.setVisible(value);
+                                        protocolSource.setDisabled(!value);
+
+                                        if (value) {
+                                            switchCombos(value);
+                                        }
                                     }
                                 }
                             },
@@ -158,6 +162,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                     {
                                         boxLabel: Uni.I18n.translate('userDirectories.protocol.source.certificates', 'USR', 'Certificates'),
                                         inputValue: 'certificates',
+                                        checked: true,
                                         listeners: {
                                             change: function (rb, newValue, oldValue, eOpts) {
                                                 switchCombos(newValue);
@@ -344,6 +349,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
         addUserDirectoryForm.loadRecord(record);
 
         protocolSource.setVisible(record.get('securityProtocol') !== 'NONE');
+        protocolSource.setDisabled(record.get('securityProtocol') === 'NONE');
         if (record.get('certificateAlias')) {
             protocolSourceRadio.setValue({source: 'certificates'});
             certificateCombo.setValue(record.get('certificateAlias'));
