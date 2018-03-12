@@ -14,6 +14,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.Status;
@@ -110,6 +111,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     private final Object delayedSchedulerLock = new Object();
     @GuardedBy("delayedSchedulerLock")
     private Set<DelayedScheduler> delayedSchedulers = new HashSet<>();
+    private final FileImportServiceReferenceUsages referenceUsages = new FileImportServiceReferenceUsages();
 
     public FileImportServiceImpl() {
     }
@@ -208,10 +210,10 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         fileUtils = new FileUtilsImpl(thesaurus);
     }
 
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.add(fileImporterFactory);
+        referenceUsages.registerFileImportFactory(fileImporterFactory);
         synchronized (delayedSchedulerLock) {
             Set<DelayedScheduler> canBeLaunched = delayedSchedulers.stream()
                     .filter(delayedScheduler -> delayedScheduler.matches(fileImporterFactory))
@@ -233,6 +235,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
 
     public void removeFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.remove(fileImporterFactory);
+        referenceUsages.unregisterFileImportFactory(fileImporterFactory);
     }
 
     @Activate
@@ -297,7 +300,6 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     public Optional<ImportSchedule> findAndLockImportScheduleByIdAndVersion(long id, long version) {
         return importScheduleFactory().lockObjectIfVersion(version, id);
     }
-
 
     private DataMapper<ImportSchedule> importScheduleFactory() {
         return dataModel.mapper(ImportSchedule.class);
@@ -442,6 +444,14 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public boolean doImportersUse(Object object) {
+        return dataModel.stream(FileImporterProperty.class)
+                .filter(referenceUsages.getUsedByPropertiesCondition(object))
+                .findAny()
+                .isPresent();
     }
 
     private void register(DelayedScheduler delayedScheduler) {
