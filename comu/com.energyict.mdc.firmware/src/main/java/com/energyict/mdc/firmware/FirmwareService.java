@@ -45,7 +45,7 @@ public interface FirmwareService {
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType);
     void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
     void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
-    void validateFirmwareFileSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile);
+    void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile);
     Thesaurus getThesaurus();
 
 

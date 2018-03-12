@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -44,7 +45,6 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
-import com.energyict.mdc.firmware.FirmwareFileSignatureValidator;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -78,6 +78,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -578,15 +580,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public void validateFirmwareFileSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        FirmwareFileSignatureValidator firmwareFileSignatureValidator;
-        if (firmwareType == FirmwareType.COMMUNICATION) {
-            firmwareFileSignatureValidator = new BeaconFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
-            firmwareFileSignatureValidator.validateSignature();
-        }
-        else if (firmwareType == FirmwareType.METER) {
-            firmwareFileSignatureValidator = new MeterFirmwareFileSignatureValidator(thesaurus, securityAccessor, firmwareFile);
-            firmwareFileSignatureValidator.validateSignature();
+    public void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
+            if (certificateWrapper.getCertificate().isPresent()) {
+                X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
+                PublicKey publicKey = x509Certificate.getPublicKey();
+            }
         }
     }
 
