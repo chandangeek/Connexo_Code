@@ -7,15 +7,21 @@ package com.elster.jupiter.properties.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.NoSuchPropertyException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.properties.ValueFactory} interface
@@ -186,19 +192,54 @@ public class ReferenceValueFactory<T> implements ValueFactory<T> {
             try {
                 this.dataMapper = dataModel.mapper(domainClass);
                 // Would be nice if DataMapper#getTable() would exists or be public
-                this.table = (Table<T>) dataModel.getTables().stream().filter(table -> table.maps(domainClass)).findAny().get();
-            }
-            catch (IllegalArgumentException e) {
+                this.table = (Table<T>) dataModel.getTables().stream()
+                        .filter(table -> table.maps(domainClass))
+                        .findAny()
+                        .get();
+            } catch (IllegalArgumentException e) {
                 // DataModel throws IllegalArgumentException when domainClass is not mapped by any of its Tables
                 return false;
             }
-            if (this.table.getPrimaryKeyColumns().size() > 1) {
+            List<? extends Column> primaryKeyColumns = table.getPrimaryKeyColumns();
+            if (primaryKeyColumns.size() > 1) {
                 throw new IllegalArgumentException(ReferenceValueFactory.class.getSimpleName() + " does not support persistent entities with multi valued primary keys");
             }
-            this.primaryKeyColumn = this.table.getPrimaryKeyColumns().get(0);
-            this.primaryKeyType = this.getPropertyType(domainClass, this.primaryKeyColumn.getFieldName());
+            this.primaryKeyColumn = primaryKeyColumns.get(0);
+            this.primaryKeyType = this.getPropertyType(domainClass, this.primaryKeyColumn);
             this.initConverterAndPrimaryKeyCheckerIfSupported();
             return true;
+        }
+
+        private Class<?> getPropertyType(Class<?> domainClass, Column primaryKeyColumn) {
+            Optional<? extends ForeignKeyConstraint> foreignKeyOptional = primaryKeyColumn.getForeignKeyConstraint();
+            if (foreignKeyOptional.isPresent()) {
+                ForeignKeyConstraint foreignKey = foreignKeyOptional.get();
+                List<? extends Column> referencedPrimaryKeyColumns = foreignKey.getReferencedTable().getPrimaryKeyColumns();
+                if (referencedPrimaryKeyColumns.size() == 1) {
+                    Class<?> referenced;
+                    Pair<String, String> namesToCheck = resolveNameWithoutAndWithReference(foreignKey.getFieldName());
+                    try {
+                        referenced = getPropertyType(domainClass, namesToCheck.getFirst());
+                    } catch (NoSuchPropertyException fieldGetterNotFound) {
+                        // give it a try with another getter name, if no such either, no chance, throw an exception...
+                        try {
+                            referenced = getPropertyType(domainClass, namesToCheck.getLast());
+                        } catch (NoSuchPropertyException referencedFieldGetterNotFound) {
+                            throw fieldGetterNotFound;
+                        }
+                    }
+                    return getPropertyType(referenced, referencedPrimaryKeyColumns.get(0));
+                }
+                throw new IllegalArgumentException(ReferenceValueFactory.class.getSimpleName() + " does not support persistent entities with multi valued primary keys");
+            }
+            return getPropertyType(domainClass, primaryKeyColumn.getFieldName());
+        }
+
+        private Pair<String, String> resolveNameWithoutAndWithReference(String name) {
+            String referenceName = Reference.class.getSimpleName();
+            return name.endsWith(referenceName) ?
+                    Pair.of(name.substring(0, name.length() - referenceName.length()), name) :
+                    Pair.of(name, name + referenceName);
         }
 
         private void initConverterAndPrimaryKeyCheckerIfSupported() {
