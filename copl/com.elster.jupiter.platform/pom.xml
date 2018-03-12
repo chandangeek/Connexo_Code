@@ -247,7 +247,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm</artifactId>
-                <version>4.1.1${revision}</version>
+                <version>4.2.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
