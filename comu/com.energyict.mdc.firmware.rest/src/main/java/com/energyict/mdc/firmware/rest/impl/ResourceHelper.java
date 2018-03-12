@@ -194,8 +194,8 @@ public class ResourceHelper {
                 .map(SecurityAccessorOnDeviceType::getSecurityAccessor));
     }
 
-    public void validateFirmwareFileSignature(FirmwareType firmwareType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        firmwareService.validateFirmwareFileSignature(firmwareType, securityAccessor, firmwareFile);
+    public void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        firmwareService.validateFirmwareFileSignature(securityAccessor, firmwareFile);
 
     }
 
