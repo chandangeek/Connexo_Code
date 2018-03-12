@@ -4,11 +4,16 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.pki.CertificateType;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -25,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -38,12 +44,14 @@ public class CertificateWrapperResource {
     private final SecurityManagementService securityManagementService;
     private final CertificateWrapperInfoFactory certificateWrapperInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceService deviceService;
 
     @Inject
-    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateWrapperInfoFactory certificateWrapperInfoFactory, ExceptionFactory exceptionFactory) {
+    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateWrapperInfoFactory certificateWrapperInfoFactory, ExceptionFactory exceptionFactory, DeviceService deviceService) {
         this.securityManagementService = securityManagementService;
         this.certificateWrapperInfoFactory = certificateWrapperInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.deviceService = deviceService;
     }
 
     /**
@@ -80,6 +88,35 @@ public class CertificateWrapperResource {
         return securityManagementService.findCertificateWrapper(alias)
                 .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
+    }
+
+    /**
+     * @param mRID The device's mRID
+     * @param keyAccessorType The key accessor type name
+     * @param uriInfo uriInfo
+     * @param fields fields
+     * @return Uniquely identofied certificate wrapper
+     * @summary Fetch certificate wrapper by alias name
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/device/{mRID}/keyAccessorType/{keyAccessorType}")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public CertificateWrapperInfo getCertificateWrapperByDeviceAndSecurityAccessor(@PathParam("mRID") String mRID, @PathParam("keyAccessorType") String keyAccessorType, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor securityAccessor = device.getSecurityAccessors().stream()
+                .filter(sa -> sa.getKeyAccessorType()
+                        .equals(securityManagementService.findSecurityAccessorTypeByName(keyAccessorType).get()))
+                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+        return securityManagementService.findClientCertificateWrapper(getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber())
+                .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
+    }
+
+    private CertificateType getCertificateType(SecurityAccessorType securityAccessorType) {
+        return Arrays.stream(CertificateType.values()).filter(ct -> ct.isApplicableTo(securityAccessorType.getKeyType())).findFirst().orElse(CertificateType.OTHER);
     }
 
     /**
