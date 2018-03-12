@@ -205,7 +205,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
 
     @Override
     public EndDeviceCommand createGenerateCSRCommand(EndDevice endDevice, CertificateType certificateType) throws UnsupportedCommandException {
-        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.GENERATE_KEY_PAIR));
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.GENERATE_CSR));
         command.setPropertyValue(getKeyTypePropertySpec(command), certificateType.getName());
         return command;
     }
