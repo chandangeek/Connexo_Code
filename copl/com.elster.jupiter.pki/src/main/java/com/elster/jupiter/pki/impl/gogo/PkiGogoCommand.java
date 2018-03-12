@@ -167,12 +167,11 @@ public class PkiGogoCommand {
     //TODO: To be removed
     public void generateSignedCertificates() throws Exception {
         System.out.println("usage: generateSignedCertificates <CN Base> <FS path> <count of certificates in range [1-100]>");
-
     }
 
     //TODO: To be removed
     public void generateSignedCertificates(String cnBase, String saveToPath, int count) throws Exception {
-        if (count < 1 && count > 100) {
+        if (count < 1 || count > 100) {
             throw new IllegalArgumentException("Count of generated certificates should be in range [1 - 100]");
         }
         if (!StringUtils.startsWith(cnBase, "CN=")){

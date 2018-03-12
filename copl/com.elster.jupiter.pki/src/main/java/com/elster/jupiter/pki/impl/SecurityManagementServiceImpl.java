@@ -11,6 +11,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -133,12 +134,19 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile MessageService messageService;
+    private volatile FileImportService fileImportService;
 
     @Inject
-    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                         EventService eventService, UserService userService, QueryService queryService,
-                                         MessageService messageService) {
+    public SecurityManagementServiceImpl(OrmService ormService,
+                                         UpgradeService upgradeService,
+                                         NlsService nlsService,
+                                         DataVaultService dataVaultService,
+                                         PropertySpecService propertySpecService,
+                                         EventService eventService,
+                                         UserService userService,
+                                         QueryService queryService,
+                                         MessageService messageService,
+                                         FileImportService fileImportService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -148,6 +156,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setUserService(userService);
         this.setQueryService(queryService);
         this.setMessageService(messageService);
+        this.setFileImportService(fileImportService);
         this.activate();
     }
 
@@ -281,6 +290,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
+    }
+
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
@@ -310,6 +324,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(UserService.class).toInstance(userService);
                 bind(QueryService.class).toInstance(queryService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(FileImportService.class).toInstance(fileImportService);
             }
         };
     }
