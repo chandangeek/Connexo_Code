@@ -466,6 +466,7 @@ Ext.define('Pkj.controller.Certificates', {
 
         Ext.widget('certificate-request-window', {
             confirmText: Uni.I18n.translate('general.request', 'PKJ', 'Request'),
+            itemId: 'request-window',
             confirmation: function () {
                 var self = this,
                     combobox = this.down('combobox'),

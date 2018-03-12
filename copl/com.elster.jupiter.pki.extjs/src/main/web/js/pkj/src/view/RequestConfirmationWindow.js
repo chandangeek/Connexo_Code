@@ -5,7 +5,6 @@
 Ext.define('Pkj.view.RequestConfirmationWindow', {
     extend: 'Uni.view.window.Confirmation',
 
-    itemId: 'request-window',
     alias: 'widget.certificate-request-window',
     modal: true,
     minWidth: 400,
