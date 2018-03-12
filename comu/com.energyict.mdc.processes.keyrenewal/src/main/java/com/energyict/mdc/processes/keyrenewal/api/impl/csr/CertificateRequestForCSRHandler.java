@@ -70,7 +70,9 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
 
     private void executeSignCSR(PKCS10CertificationRequest pkcs10CertificationRequest, CertificateWrapper certificateWrapper, SecurityAccessor securityAccessor, ServiceCall serviceCall) {
         try {
-            serviceCall.requestTransition(DefaultState.ONGOING);
+            if(serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+                serviceCall.requestTransition(DefaultState.ONGOING);
+            }
             X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest);
             certificateWrapper.setCertificate(certificate);
             certificateWrapper.save();

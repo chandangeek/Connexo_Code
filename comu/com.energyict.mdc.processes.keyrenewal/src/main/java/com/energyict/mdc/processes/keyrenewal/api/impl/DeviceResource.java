@@ -111,22 +111,11 @@ public class DeviceResource {
 
                 serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
 
-                CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(device.getSerialNumber())
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-                if (!certificateWrapper.hasCSR()) {
-                    throw exceptionFactory.newException(MessageSeeds.NO_CSR_PRESENT);
-                }
-                PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
-                if (!serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
-                    serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
-                }
-
                 serviceCall = serviceCallService.getServiceCall(serviceCall.getId())
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL));
                 DestinationSpec destinationSpec = messageService.getDestinationSpec(CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_DESTINATION_SPEC, CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION));
-                CertificateRequestForCSRMessage message = new CertificateRequestForCSRMessage();
-                message.alias = certificateWrapper.getAlias();
+                CertificateRequestForCSRMessage message = new CertificateRequestForCSRMessage();;
                 message.serviceCall = serviceCall.getId();
                 message.device = device.getId();
                 message.securityAccessor = deviceCommandInfo.keyAccessorType;

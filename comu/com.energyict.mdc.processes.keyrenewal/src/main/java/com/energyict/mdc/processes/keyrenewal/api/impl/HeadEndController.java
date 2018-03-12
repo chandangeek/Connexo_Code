@@ -31,6 +31,7 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -177,6 +178,10 @@ public class HeadEndController {
         return comTaskExecution.getDevice()
                 .getDeviceConfiguration().getComTaskEnablements()
                 .stream().filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()).findFirst();
+    }
+
+    private CertificateType getCertificateType(SecurityAccessorType securityAccessorType) {
+        return Arrays.stream(CertificateType.values()).filter(ct -> ct.isApplicableTo(securityAccessorType.getKeyType())).findFirst().orElse(CertificateType.OTHER);
     }
 
     protected List<ComTaskExecution> getFilteredList(List<ComTaskExecution> comTaskExecutions) {
