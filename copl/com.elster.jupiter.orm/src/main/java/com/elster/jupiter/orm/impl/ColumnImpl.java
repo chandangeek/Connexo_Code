@@ -69,7 +69,8 @@ public class ColumnImpl implements Column {
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
     private transient RangeSet<Version> versionsIntersectedWithTable;
     private transient ColumnImpl predecessor;
-    private Boolean isForeignKeyPart = null;
+    private transient Boolean isForeignKeyPart;
+    private transient ForeignKeyConstraintImpl foreignKey;
 
     // associations
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -427,18 +428,27 @@ public class ColumnImpl implements Column {
 
     boolean isForeignKeyPart() {
         if (isForeignKeyPart == null) {
-            isForeignKeyPart = getForeignKeyConstraint().isPresent();
+            initForeignKeyConstraint();
         }
         return isForeignKeyPart;
     }
 
     @Override
     public Optional<ForeignKeyConstraintImpl> getForeignKeyConstraint() {
-        return this.getTable()
+        if (isForeignKeyPart == null) {
+            initForeignKeyConstraint();
+        }
+        return Optional.ofNullable(foreignKey);
+    }
+
+    private void initForeignKeyConstraint() {
+        foreignKey = this.getTable()
                 .getForeignKeyConstraints()
                 .stream()
                 .filter(this::containsSelf)
-                .findFirst();
+                .findAny()
+                .orElse(null);
+        isForeignKeyPart = foreignKey != null;
     }
 
     private boolean containsSelf(ForeignKeyConstraintImpl constraint) {

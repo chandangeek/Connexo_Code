@@ -412,7 +412,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
         String mac = null;
 
         for (ColumnImpl column : this.getRealColumns()) {
-            Object value = column.convertFromDb(rs, startIndex++);
+            Object value = convertFromDb(column, rs, startIndex++);
             if (column.isForeignKeyPart()) {
                 columnValues.add(Pair.of(column, rs.wasNull() ? null : value));
             }
@@ -438,8 +438,25 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 throw new MacException();
             }
         }
-
         return result;
+    }
+
+    private Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
+        Optional<ForeignKeyConstraintImpl> foreignKeyConstraintOptional = column.getForeignKeyConstraint();
+        if (foreignKeyConstraintOptional.isPresent()) {
+            return convertFromDb(findReferencedColumn(foreignKeyConstraintOptional.get().getReferencedTable().getPrimaryKeyConstraint().getColumns(), column), rs, index);
+        }
+        return column.convertFromDb(rs, index);
+    }
+
+    private ColumnImpl findReferencedColumn(List<ColumnImpl> columns, ColumnImpl referenceColumn) {
+        // TODO: we may need a better referenced column selector in case of multi-column foreign key
+        return columns.size() == 1 ?
+                columns.get(0) : // one-column foreign key
+                columns.stream() // multi-column foreign key
+                        .filter(column -> column.getName().equals(referenceColumn.getName())) // looking for a referenced column with the same name as reference one
+                        .findAny()
+                        .orElseGet(() -> columns.get(0)); // no idea what to do if not found by name
     }
 
     private List<ColumnImpl> getRealColumns() {
