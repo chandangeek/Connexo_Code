@@ -120,7 +120,8 @@ class UsagePointBuilder {
         com.elster.jupiter.metering.UsagePointBuilder builder = serviceCategory
                 .newUsagePoint(retrieveMandatoryName(usagePointConfig), creationDate)
                 .withIsSdp(retrieveMandatoryParameter("isSdp", usagePointConfig::isIsSdp))
-                .withIsVirtual(retrieveMandatoryParameter("isVirtual", usagePointConfig::isIsVirtual));
+                .withIsVirtual(retrieveMandatoryParameter("isVirtual", usagePointConfig::isIsVirtual))
+                .withLifeCycle(retrieveOptionalLifeCycle(usagePointConfig));
         String mRID = usagePointConfig.getMRID();
         if (mRID != null) {
             // no API to create usage point with a given UUID
@@ -331,22 +332,55 @@ class UsagePointBuilder {
     }
 
     private String retrieveMandatoryName(UsagePoint usagePointConfig) throws FaultMessage {
-        return retrieveName(retrieveOneMandatoryElement("Names", usagePointConfig::getNames));
+        return retrieveName(usagePointConfig.getNames());
     }
 
     private Optional<String> retrieveOptionalName(UsagePoint usagePointConfig) throws FaultMessage {
-        Optional<Name> name = retrieveOneOptionalElement("Names", usagePointConfig::getNames);
-        if (name.isPresent()) {
-            return Optional.of(retrieveName(name.get()));
+        List<Name> names = usagePointConfig.getNames();
+        if (!names.isEmpty()) {
+            return Optional.of(retrieveName(names));
         }
         return Optional.empty();
     }
 
-    private String retrieveName(Name name) throws FaultMessage {
-        String nameString = name.getName();
+    private String retrieveName(List<Name> names) throws FaultMessage {
+        String nameString;
+        if (names.size() > 1) {
+            if (names.stream().filter(name -> name.getNameType().getName().equals("UsagePointName")).count() > 0) {
+                nameString = names.stream()
+                        .filter(name -> name.getNameType().getName().equals("UsagePointName"))
+                        .findFirst()
+                        .orElse(null)
+                        .getName();
+            } else {
+                nameString = names.stream()
+                        .filter(name -> name.getNameType().getName().equals(null))
+                        .findFirst()
+                        .orElse(null)
+                        .getName();
+            }
+        } else {
+            nameString = names.get(0).getName();
+        }
         if (Checks.is(nameString).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("Names[0].name").get();
         }
+        return nameString;
+    }
+
+    private String retrieveOptionalLifeCycle(UsagePoint usagePointConfig) throws FaultMessage {
+        return retrieveLifeCycle(usagePointConfig.getNames());
+    }
+
+    private String retrieveLifeCycle(List<Name> names) throws FaultMessage {
+
+        String nameString = null;
+        if (names.size() > 1) {
+            nameString = names.stream()
+                    .filter(name -> name.getNameType().getName().equals("UsagePointLifecycleName"))
+                    .findFirst().orElse(null).getName();
+        }
+
         return nameString;
     }
 
