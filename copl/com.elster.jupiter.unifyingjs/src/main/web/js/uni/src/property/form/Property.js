@@ -61,7 +61,7 @@ Ext.define('Uni.property.form.Property', {
      * @param record
      */
     loadRecord: function (record, requestUrl) {
-        this.initProperties(record.properties(), 'some');
+        this.initProperties(record.properties(), requestUrl);
         this.callParent(arguments);
     },
 
@@ -155,6 +155,7 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
+        debugger
         if(me.getRecord()){
             me.getRecord().properties().each(function (property) {
                 var key = property.get('key');

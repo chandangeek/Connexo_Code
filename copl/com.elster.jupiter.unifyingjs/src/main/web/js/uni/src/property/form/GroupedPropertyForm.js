@@ -14,7 +14,7 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
             description = null,
             groups = {};
         me.removeAll();
-        me.requestUrl = requestUrl;
+        me.requestUrl = typeof requestUrl === 'string' ? requestUrl : null;
         properties.each(function (property) {
             description = property.get('description');
 
@@ -50,53 +50,48 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                     });
                     //groupName = partitions.join('.');
 
-                if (description) {
-                    control.add(control.extraCmp);
-                }
-
-                function setListeners(items) {
+                function setRequestListeners(items) {
 
                     if (!Ext.isArray(items)) {
                         items = [items];
                     }
 
-                    items.forEach(
-                        function (item) {
-                            if (item.setValue) {
-                                item.on({
-                                    focus: function (item) {
-                                            item.on({
-                                                change: function (item, newValue, oldValue) {
-                                                    Ext.Ajax.request({
-                                                        // url: Ext.String.format(),
-                                                        url: item.up('form').requestUrl,
-                                                        method: 'POST',
-                                                        params: {
-                                                            name: item.name,
-                                                            value: newValue
-                                                        },
-                                                        success: function (response, success) {
-                                                            if (success) {
-                                                                me.updateRecord(Ext.merge(response.records, me.getFieldValues(true)));
-                                                            }
-                                                        }
-                                                    });
-                                                }
-                                            });
-                                        item.events.focus.clearListeners();
+                    items.forEach(function (item) {
+                        if (item.setValue) {
+                            item.on({focus: function (item) {
+                                item.on({change: function (item, newValue) {
+                                    Ext.Ajax.request({
+                                        url: item.up('form').requestUrl,
+                                        method: 'POST',
+                                        params: {
+                                            name: item.name,
+                                            value: newValue,
+                                            records: me.getFieldValues(true),
+                                            description: 'This should be done on frontend side'
+                                        },
+                                        success: function (response, success) {
+                                            if (success) {
+                                                // me.loadRecord(response.records); // TODO
+                                            }
                                         }
                                     });
-                            }
-
-                            if (item.items) {
-                                setListeners(item.items);
-                            }
+                                }});
+                                item.events.focus.clearListeners();
+                            }});
                         }
-                    );
+
+                        if (item.items) {
+                            setListeners(item.items);
+                        }
+                    });
                 }
 
-                if (requestUrl) {
-                    setListeners(control);
+                if (description) {
+                    control.add(control.extraCmp);
+                }
+
+                if (requestUrl && property.get('hasDependentProperties')) {
+                    setRequestListeners(control);
                 }
 
                 if (type === 'BOOLEAN') {
@@ -172,7 +167,9 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                 });
             } else {
                 field = me.getPropertyField(firstKey);
-                values[firstKey] = field.getValue(firstValue); //
+                if (field !== undefined) {
+                    values[firstKey] = field.getValue(firstValue);
+                }
             }
         });
         this.getForm().hydrator.hydrate(values, me.getRecord());

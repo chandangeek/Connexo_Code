@@ -59,7 +59,7 @@ Ext.define('Uni.property.view.property.Period', {
                 {name: 'value', type: 'string'}
             ]
         });
-
+        debugger
         //clear store
         store.loadData([], false);
         this.getProperty().getPossibleValues().each(function (item) {
