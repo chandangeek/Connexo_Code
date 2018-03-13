@@ -145,7 +145,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean isPossibleValue(Object value) {
+    protected boolean isPossibleValue(Object value) {
         if (value instanceof Collection && this.supportsMultiValues()) {
             Collection valueCollection = (Collection) value;
             ListValueFactory listValueFactory = (ListValueFactory) this.valueFactory;
