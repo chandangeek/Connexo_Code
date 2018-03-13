@@ -118,13 +118,14 @@ public class CSRImporterFactory implements FileImporterFactory {
                 .filter(forSigning())
                 .collect(Collectors.toList());
         return Arrays.asList(
-                propertySpecService.durationSpec()
+                // TODO: is it possible to show this as list of values?
+                propertySpecService.timeDurationSpec()
                         .named(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey(), CSRImporterTranslatedProperty.TIMEOUT)
                         .describedAs(CSRImporterTranslatedProperty.TIMEOUT_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
-                        .markExhaustive()
-                        .addValues(TimeDuration.seconds(30), TimeDuration.minutes(1), TimeDuration.minutes(2), TimeDuration.minutes(5))
+//                        .markExhaustive()
+//                        .addValues(TimeDuration.seconds(30), TimeDuration.minutes(1), TimeDuration.minutes(2), TimeDuration.minutes(5))
                         .setDefaultValue(TimeDuration.seconds(30))
                         .finish(),
                 propertySpecService.referenceSpec(SecurityAccessor.class)

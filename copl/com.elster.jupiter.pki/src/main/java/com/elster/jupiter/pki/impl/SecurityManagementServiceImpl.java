@@ -940,7 +940,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<SecurityAccessorType> getSecurityAccessorTypes(SecurityAccessorType.Purpose purpose) {
         return dataModel.stream(SecurityAccessorType.class)
                 .filter(Where.where(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName()).isEqualTo(purpose))
-                .collect(Collectors.toList());
+                .select();
     }
 
     @Override
@@ -1032,7 +1032,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 .join(SecurityAccessorType.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName() + '.' + SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
                         .isEqualTo(purpose))
-                .collect(Collectors.toList());
+                .select();
     }
 
     @Override
