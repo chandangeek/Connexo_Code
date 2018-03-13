@@ -100,7 +100,6 @@ class CSRProcessor {
     }
 
     private boolean isInUse(CertificateWrapper certificateWrapper) {
-        // TODO: add a check for security accessor usage as import/export one
         return securityManagementService.isUsedByCertificateAccessors(certificateWrapper)
                 || securityManagementService.streamDirectoryCertificateUsages()
                 .filter(Where.where("certificate").isEqualTo(certificateWrapper))

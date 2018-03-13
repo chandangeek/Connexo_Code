@@ -981,7 +981,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
         if (!securityAccessorType.isManagedCentrally()) {
-            throw new UnsupportedOperationException("Cannot set default values for security accessor type that is not managed centrally.");
+            throw new UnsupportedOperationException("Can't set default values for security accessor type that isn't managed centrally.");
         }
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
@@ -995,7 +995,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                     Save.CREATE.save(dataModel, certificateAccessor);
                     return certificateAccessor;
                 } else {
-                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName());
+                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName() + '.');
                 }
             default:
                 throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
