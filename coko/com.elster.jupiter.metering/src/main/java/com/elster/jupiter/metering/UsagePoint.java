@@ -58,8 +58,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void setAliasName(String aliasName);
 
-    void setLifeCycle(String lifeCycle);
-
     String getDescription();
 
     void setDescription(String description);
