@@ -2,13 +2,13 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
+Ext.define('Fwc.view.firmware.FirmwareOptionsSignatureEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Fwc.model.FirmwareManagementOptions'
     ],
-    alias: 'widget.firmware-options-edit',
-    itemId: 'firmware-options-edit',
+    alias: 'widget.firmware-options-signature-edit',
+    itemId: 'firmware-options-signature-edit',
     deviceType: null,
 
     initComponent: function () {

@@ -2,17 +2,18 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
+Ext.define('Fwc.view.firmware.FirmwareOptionsSignatureAccessorClear', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Fwc.model.FirmwareManagementOptions'
     ],
-    alias: 'widget.firmware-options-edit',
-    itemId: 'firmware-options-edit',
+    alias: 'widget.firmware-options-sugnature-accessor-clear',
+    itemId: 'firmware-options-sugnature-accessor-clear',
     deviceType: null,
 
     initComponent: function () {
         var me = this;
+
         me.side = [
             {
                 xtype: 'panel',

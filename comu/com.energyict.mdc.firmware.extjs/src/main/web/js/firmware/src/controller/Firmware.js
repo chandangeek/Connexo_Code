@@ -9,6 +9,8 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.view.firmware.FirmwareVersions',
         'Fwc.view.firmware.FirmwareOptions',
         'Fwc.view.firmware.FirmwareOptionsEdit',
+        'Fwc.view.firmware.FirmwareOptionsSignatureEdit',
+        'Fwc.view.firmware.FirmwareOptionsSignatureAccessorClear',
         'Fwc.view.firmware.FirmwareAdd',
         'Fwc.view.firmware.FirmwareEdit',
         'Fwc.view.firmware.FirmwareVersionsOverview',
@@ -39,6 +41,7 @@ Ext.define('Fwc.controller.Firmware', {
     tab2Activate: undefined,
 
     init: function () {
+        var me = this;
         this.control({
             'firmware-versions [action=addFirmware]': {
                 click: function () {
@@ -65,15 +68,26 @@ Ext.define('Fwc.controller.Firmware', {
             'firmware-options [action=editFirmwareOptions]': {
                 click: function () {
                     this.getController('Uni.controller.history.Router')
-                        .getRoute('administration/devicetypes/view/firmwareoptions/edit')
+                        .getRoute('administration/devicetypes/view/firmwareversions/editOptions', {deviceTypeId: me.deviceTypeId})
+                        .forward();
+                }
+            },
+            'firmware-options [action=editFirmwareOptionsSignature]': {
+                click: function () {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('administration/devicetypes/view/firmwareversions/editSignature', {deviceTypeId: me.deviceTypeId})
+                        .forward();
+                }
+            },
+            'firmware-options [action=clearAccessorFirmwareSignatureOptions]': {
+                click: function () {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('administration/devicetypes/view/firmwareversions/clearAccessor', {deviceTypeId: me.deviceTypeId})
                         .forward();
                 }
             },
             'firmware-options-edit [action=saveOptionsAction]': {
                 click: this.saveOptionsAction
-            },
-            'firmware-options #mdc-edit-options-btn': {
-                click: this.chooseOptionsAction
             },
             'firmware-options-edit #cancelLink': {
                 click: function() {
@@ -499,6 +513,60 @@ Ext.define('Fwc.controller.Firmware', {
         });
     },
 
+    editFirmwareOptionsSignature: function (deviceTypeId) {
+        var me = this,
+            container = this.getContainer(),
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
+
+        model.getProxy().setUrl(deviceTypeId);
+        me.loadDeviceType(deviceTypeId, function (deviceType) {
+            me.getApplication().fireEvent('changecontentevent', 'firmware-options-signature-edit', {deviceType: deviceType});
+            // var widget = container.down('firmware-options-edit');
+            // if (widget) {
+            //     widget.setLoading();
+            //     model.load(1, {
+            //         success: function (record) {
+            //             var form = widget.down('form');
+            //             if (form) {
+            //                 form.loadRecord(record);
+            //             }
+            //         },
+            //         callback: function () {
+            //             widget.setLoading(false);
+            //         }
+            //     });
+            // }
+            // me.reconfigureMenu(deviceType, widget);
+        });
+    },
+
+    clearAccessorFirmwareSignatureOptions: function (deviceTypeId) {
+        var me = this,
+            container = this.getContainer(),
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
+
+        model.getProxy().setUrl(deviceTypeId);
+        me.loadDeviceType(deviceTypeId, function (deviceType) {
+            me.getApplication().fireEvent('changecontentevent', 'firmware-options-sugnature-accessor-clear', {deviceType: deviceType});
+            var widget = container.down('firmware-options-edit');
+            if (widget) {
+                widget.setLoading();
+                model.load(1, {
+                    success: function (record) {
+                        var form = widget.down('form');
+                        if (form) {
+                            form.loadRecord(record);
+                        }
+                    },
+                    callback: function () {
+                        widget.setLoading(false);
+                    }
+                });
+            }
+            me.reconfigureMenu(deviceType, widget);
+        });
+    },
+
     saveOptionsAction: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
@@ -538,22 +606,5 @@ Ext.define('Fwc.controller.Firmware', {
                 form.setLoading(false);
             }
         });
-    },
-
-    chooseOptionsAction: function(button) {
-        var me = this;
-        switch (button.action) {
-            case 'editFirmwareOptions':
-                me.goToEditOptions();
-                break;
-        }
-    },
-
-    goToEditOptions: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('administration/devicetypes/view/firmwareversions/editOptions', {deviceTypeId: me.deviceTypeId}).forward();
     }
-
 });
