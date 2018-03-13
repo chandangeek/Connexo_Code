@@ -31,6 +31,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String name;
     private boolean isSdp;
     private boolean isVirtual;
+    private String lifeCycle;
     private String outageRegion;
     private String readRoute;
     private String servicePriority;
@@ -84,6 +85,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withIsVirtual(boolean isVirtual) {
         this.isVirtual = isVirtual;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withLifeCycle(String lifeCycle) {
+        this.lifeCycle = lifeCycle;
         return this;
     }
 
@@ -162,6 +169,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
+        usagePoint.setLifeCycle(lifeCycle);
         usagePoint.setOutageRegion(outageRegion);
         usagePoint.setReadRoute(readRoute);
         usagePoint.setServicePriority(servicePriority);
@@ -171,7 +179,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
-        usagePoint.setLifeCycle(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle());
         State initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
                 .stream()
                 .filter(State::isInitial)

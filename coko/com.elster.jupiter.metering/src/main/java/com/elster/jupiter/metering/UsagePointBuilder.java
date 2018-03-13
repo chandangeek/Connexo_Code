@@ -25,6 +25,8 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withIsVirtual(boolean isVirtual);
 
+    UsagePointBuilder withLifeCycle(String lifeCycle);
+
     UsagePointBuilder withOutageRegion(String outageRegion);
 
     UsagePointBuilder withReadRoute(String readRoute);
