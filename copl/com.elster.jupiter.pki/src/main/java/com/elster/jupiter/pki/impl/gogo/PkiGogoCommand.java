@@ -31,10 +31,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -58,6 +60,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -82,6 +85,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=importSuperadmin",
                 "osgi.command.function=printTrustedCertificates",
                 "osgi.command.function=generateSignedCertificates",
+                "osgi.command.function=printTrustedCertificates",
+                "osgi.command.function=signCsrAndRevoke",
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -207,7 +212,6 @@ public class PkiGogoCommand {
     }
 
 
-    //TODO: To be removed
     private PKCS10CertificationRequest generateTestCsr(String cn) throws NoSuchAlgorithmException, OperatorCreationException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, new SecureRandom());
@@ -219,7 +223,6 @@ public class PkiGogoCommand {
         return p10Builder.build(signer);
     }
 
-    //TODO: To be removed
     public void signCsr() throws NoSuchAlgorithmException, OperatorCreationException {
         List<List<?>> collect = new ArrayList<>();
         PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
@@ -232,14 +235,97 @@ public class PkiGogoCommand {
                 .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
                         "Received  certificate S/N"));
         collect.add(1, Arrays
-                .asList(x509Certificate.getIssuerDN(), x509Certificate.getIssuerX500Principal(), x509Certificate.getSubjectDN(),
+                .asList(x509Certificate.getIssuerDN().getName(), x509Certificate.getIssuerX500Principal().getName(), x509Certificate.getSubjectDN().getName(),
                         x509Certificate.getSerialNumber()));
         MYSQL_PRINT.printTable(collect);
+    }
+
+    public void signCsrAndRevoke() throws NoSuchAlgorithmException, OperatorCreationException, IOException {
+        List<List<?>> collect = new ArrayList<>();
+        PKCS10CertificationRequest csr = generateTestCsr("CN=Requested Test Certificate");
+        collect.add(0, Arrays.asList("Sending CSR with X500 name"));
+        collect.add(1, Arrays.asList(csr.getSubject()));
+        MYSQL_PRINT.printTable(collect);
+        X509Certificate x509Certificate = caService.signCsr(csr);
+        collect.clear();
+        collect.add(0, Arrays
+                .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
+                        "Received  certificate S/N"));
+        collect.add(1, Arrays
+                .asList(x509Certificate.getIssuerDN().getName(), x509Certificate.getIssuerX500Principal().getName(), x509Certificate.getSubjectDN().getName(),
+                        x509Certificate.getSerialNumber()));
+        MYSQL_PRINT.printTable(collect);
+        collect.clear();
+        CertificateAuthoritySearchFilter certificateSearchFilter = new CertificateAuthoritySearchFilter();
+        certificateSearchFilter.setSerialNumber(x509Certificate.getSerialNumber());
+        certificateSearchFilter.setIssuerDN(x509Certificate.getIssuerDN().getName());
+        collect.add(0, Arrays.asList("Checking certificate revocation status"));
+        MYSQL_PRINT.printTable(collect);
+        RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
+        collect.clear();
+        collect.add(0, Arrays.asList("Received revocation status"));
+        collect.add(1, Arrays.asList(revokeStatus));
+        MYSQL_PRINT.printTable(collect);
+        System.out.println("Revoke? (y/n):");
+        if (analyseResponse(readInput())) {
+            printRevocationReason();
+            System.out.println("\nRevocation reason?([0-6],[8-10]):");
+            String reason = readInput();
+            if (!analyseRevocationReason(reason)) {
+                System.out.println("Specify valid revocation reason");
+            }
+            collect.clear();
+            collect.add(0, Arrays.asList("Revoking certificate with reason " + reason));
+            MYSQL_PRINT.printTable(collect);
+            caService.revokeCertificate(certificateSearchFilter, Integer.parseInt(reason));
+            collect.clear();
+            collect.add(0, Arrays.asList("Checking certificate revocation status"));
+            MYSQL_PRINT.printTable(collect);
+            revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
+            collect.clear();
+            collect.add(0, Arrays.asList("Received revocation status"));
+            collect.add(1, Arrays.asList(revokeStatus));
+            MYSQL_PRINT.printTable(collect);
+        }
+    }
+
+    private String readInput() throws IOException {
+        return new BufferedReader(new InputStreamReader(System.in)).readLine();
+    }
+
+    private boolean analyseResponse(String response) {
+        String[] ok = {"", "y", "yes"};
+        return Stream.of(ok).anyMatch(option -> option.equalsIgnoreCase(response));
+    }
+
+    private boolean analyseRevocationReason(String reason) {
+        String[] ok = {"0", "1", "2", "3", "4", "5", "6", "8", "9", "10"};
+        return Stream.of(ok).anyMatch(option -> option.equalsIgnoreCase(reason));
+    }
+
+    private void printRevocationReason() {
+        StringBuilder sb = new StringBuilder()
+                .append("Reasons to revoke a certificate according to RFC 5280 p69:")
+                .append('\n')
+                .append("unspecified (0), ")
+                .append("keyCompromise (1), ")
+                .append("CACompromise (2), ")
+                .append("affiliationChanged (3)")
+                .append('\n')
+                .append("superseded (4), ")
+                .append("cessationOfOperation (5), ")
+                .append("certificateHold (6), ")
+                .append("removeFromCRL (8)")
+                .append('\n')
+                .append("privilegeWithdrawn (9), ")
+                .append("AACompromise (10)");
+        System.out.println(sb);
     }
 
     public void revokeCertificate() {
         System.out.println("Revokes certificate");
         System.out.println("usage: revokeCertificate <certificate s/n> <issuer DN> <revocation reason [0-6, 8-10]>");
+        printRevocationReason();
     }
 
     public void revokeCertificate(String serialNumber, String issuerDN, String reason) {

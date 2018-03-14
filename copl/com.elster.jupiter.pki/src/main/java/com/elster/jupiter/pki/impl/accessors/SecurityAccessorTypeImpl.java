@@ -61,6 +61,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private Set<SecurityAccessorUserAction> userActions = EnumSet.noneOf(SecurityAccessorUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private boolean managedCentrally;
+    private Purpose purpose;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -82,7 +83,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         DURATION("duration"),
         KEYTYPE("keyType"),
         TRUSTSTORE("trustStore"),
-        MANAGED_CENTRALLY("managedCentrally");
+        MANAGED_CENTRALLY("managedCentrally"),
+        PURPOSE("purpose");
 
         private final String javaFieldName;
         Fields(String javaFieldName) {
@@ -192,6 +194,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         this.managedCentrally = managedCentrally;
     }
 
+    protected void setPurpose(Purpose purpose) {
+        this.purpose = purpose;
+    }
+
     @Override
     public Set<SecurityAccessorUserAction> getUserActions() {
         return Collections.unmodifiableSet(userActions);
@@ -277,6 +283,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @Override
     public boolean isManagedCentrally() {
         return managedCentrally;
+    }
+
+    @Override
+    public Purpose getPurpose() {
+        return purpose;
     }
 
     @Override

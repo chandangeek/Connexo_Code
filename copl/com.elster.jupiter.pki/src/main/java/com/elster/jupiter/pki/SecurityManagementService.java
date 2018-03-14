@@ -480,6 +480,12 @@ public interface SecurityManagementService {
     List<SecurityAccessorType> getSecurityAccessorTypes();
 
     /**
+     * Returns all security accessor types configured for a given purpose.
+     * @return All security accessor types configured for a given purpose.
+     */
+    List<SecurityAccessorType> getSecurityAccessorTypes(SecurityAccessorType.Purpose purpose);
+
+    /**
      * Returns security accessor type with a given id if exists.
      *
      * @param id
@@ -524,6 +530,8 @@ public interface SecurityManagementService {
     boolean isUsedByCertificateAccessors(CertificateWrapper certificate);
 
     List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate);
+
+    List<SecurityAccessor> getSecurityAccessors(SecurityAccessorType.Purpose purpose);
 
     List<String> getCertificateAssociatedDevicesNames(CertificateWrapper certificateWrapper);
 

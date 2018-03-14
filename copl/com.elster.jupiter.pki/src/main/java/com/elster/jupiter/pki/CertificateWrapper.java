@@ -84,11 +84,18 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     long getVersion();
 
     /**
-     * Status describes the content of the wrapper. Currently 3 statuses are defined: Requested, Available and Expired
+     * Status describes the content of the wrapper.
      *
-     * @return CertificateWrapper status.
+     * @return Translated CertificateWrapper status.
      */
     String getStatus();
+
+    /**
+     * Returns the certificate status.
+     *
+     * @return {@link CertificateStatus}
+     */
+    Optional<CertificateStatus> getCertificateStatus();
 
     /**
      * Sets a value for the certificate. Any existing value will be overridden.
@@ -121,7 +128,6 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      * @return lastReadDate is the certificate was ever read, empty() otherwise
      */
     Optional<Instant> getLastReadDate();
-
 
     String getSubject();
 
