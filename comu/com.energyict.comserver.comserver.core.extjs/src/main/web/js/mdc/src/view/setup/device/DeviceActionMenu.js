@@ -24,12 +24,6 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 },
                 section: me.SECTION_EDIT
             };
-
-        if (me.disableChangeConfigSinceSlave) {
-            changeConfigItem.disabled = true;
-            changeConfigItem.tooltip = Uni.I18n.translate('deviceconfiguration.changeImpossible.new.reason', 'MDC', 'The device configuration of slave devices cannot be changed.');
-        }
-
         me.items = [
             {
                 itemId: 'deviceDeviceAttributesShowEdit',
