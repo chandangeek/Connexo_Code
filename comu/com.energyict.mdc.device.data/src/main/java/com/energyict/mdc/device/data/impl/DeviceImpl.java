@@ -1062,9 +1062,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (destinationDeviceConfiguration.getDeviceType().getId() != getDeviceType().getId()) {
             throw DeviceConfigurationChangeException.cannotChangeToConfigOfOtherDeviceType(thesaurus);
         }
-        if (getDeviceType().isDataloggerSlave()) {
-            throw DeviceConfigurationChangeException.cannotChangeConfigOfDataLoggerSlave(thesaurus);
-        }
         if (getDeviceType().isMultiElementSlave()) {
             throw DeviceConfigurationChangeException.cannotChangeConfigOfMultiElementSubmeterDevice(thesaurus);
         }
