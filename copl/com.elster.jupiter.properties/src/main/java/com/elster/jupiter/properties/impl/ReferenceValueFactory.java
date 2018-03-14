@@ -288,7 +288,7 @@ public class ReferenceValueFactory<T> implements ValueFactory<T> {
         }
 
         public String toStringValue(T object) {
-            return String.valueOf(this.valueToDatabase(object));
+            return object == null ? null : String.valueOf(this.valueToDatabase(object));
         }
 
         public T valueFromDatabase(Object value) {
