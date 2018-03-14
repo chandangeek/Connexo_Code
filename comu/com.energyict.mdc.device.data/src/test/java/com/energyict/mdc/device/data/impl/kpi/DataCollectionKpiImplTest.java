@@ -188,7 +188,7 @@ public class DataCollectionKpiImplTest {
             bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
             bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class).in(Scopes.SINGLETON);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));

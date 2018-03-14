@@ -471,7 +471,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(DataModel.class).toProvider(() -> dataModel);
                 bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
                 bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+                bind(HttpService.class).toInstance(mock(HttpService.class));
                 bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
                 bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
                 bind(HttpService.class).toInstance(mock(HttpService.class));

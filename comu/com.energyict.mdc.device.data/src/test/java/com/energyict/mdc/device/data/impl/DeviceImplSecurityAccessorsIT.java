@@ -97,10 +97,12 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
                 .add();
         certificateTypeOnDevice = securityManagementService.addSecurityAccessorType(SA_ON_DEVICE, keyType)
                 .keyEncryptionMethod("DataVault")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .trustStore(trustStore)
                 .add();
         certificateTypeManagedCentrally = securityManagementService.addSecurityAccessorType(SA_CENTRALLY_MANAGED, keyType)
                 .keyEncryptionMethod("DataVault")
+                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .trustStore(trustStore)
                 .managedCentrally()
                 .add();

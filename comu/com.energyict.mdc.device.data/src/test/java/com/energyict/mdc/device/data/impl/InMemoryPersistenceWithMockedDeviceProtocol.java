@@ -335,7 +335,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));

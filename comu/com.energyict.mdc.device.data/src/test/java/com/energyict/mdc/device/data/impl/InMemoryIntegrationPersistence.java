@@ -700,7 +700,7 @@ public class InMemoryIntegrationPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(AppService.class).toInstance(mock(AppService.class));
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             bind(HttpService.class).toInstance(mock(HttpService.class));
