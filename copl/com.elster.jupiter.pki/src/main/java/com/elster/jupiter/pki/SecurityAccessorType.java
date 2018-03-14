@@ -88,6 +88,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     Purpose getPurpose();
 
+    @ProviderType
     interface Builder {
         /**
          * Provide a user understandable description of this key's function
@@ -128,6 +129,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
         SecurityAccessorType add();
     }
 
+    @ProviderType
     interface Updater {
         Updater name(String name);
 
