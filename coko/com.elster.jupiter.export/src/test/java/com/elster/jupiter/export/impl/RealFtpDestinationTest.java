@@ -14,14 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,8 +30,18 @@ import java.time.Clock;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,9 +72,11 @@ public class RealFtpDestinationTest {
     private IExportTask exportTask;
     private TransactionService transactionService = new TransactionVerifier();
     private Logger logger = Logger.getAnonymousLogger();
+    @Mock BundleContext bundleContext;
 
     @Before
     public void setUp() throws IOException {
+        when(bundleContext.getProperty("com.elster.jupiter.ftpclient.knownhosts")).thenReturn("");
 
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
             NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
@@ -102,7 +109,7 @@ public class RealFtpDestinationTest {
         ftpFileSystem = FileSystems.getDefault();
 
         FtpClientServiceImpl ftpClientService = new FtpClientServiceImpl();
-        ftpClientService.activate();
+        ftpClientService.activate(bundleContext);
         this.ftpClientService = ftpClientService;
 
         when(dataVaultService.decrypt(anyString())).thenAnswer(invocation -> ((String) invocation.getArguments()[0]).getBytes());
