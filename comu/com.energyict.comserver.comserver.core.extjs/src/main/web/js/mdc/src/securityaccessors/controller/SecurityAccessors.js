@@ -62,7 +62,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'securityAccessorsActionMenu',
             selector: 'security-accessors-action-menu'
-        },
+        }
 
     ],
 
@@ -361,6 +361,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         // viewport.setLoading();
         form.updateRecord();
         record = form.getRecord();
+
         record.beginEdit();
         if (record.get('keyType') && record.get('keyType').requiresDuration) {
             record.set('duration', {
@@ -441,6 +442,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     onManageCentrallyCheck: function(fld, newValue, oldValue, eOpts) {
         var me = this;
         me.isManageCentrallyChecked = newValue;
+
         if(newValue){
             me.getSecurityAccessorPreviewProperties()
         } else {
@@ -587,17 +589,26 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     keyTypeChanged: function (combobox, newValue) {
         var me = this,
+            form = combobox.up('form'),
+            purposeRadio = form.down('#mdc-security-accessor-purpose-radio'),
+            keyRadio = form.down('#mdc-security-accessor-key-radio'),
             keyEncryptionMethodStore = me.getStore('Mdc.securityaccessors.store.KeyEncryptionMethods'),
-            storageMethodCombo = combobox.up('form').down('#mdc-security-accessor-storage-method-combobox'),
-            manageCentrallyCheckbox = combobox.up('form').down('#mdc-security-accessor-manage-centrally-checkbox'),
-            validityPeriod = combobox.up('form').down('#mdc-security-accessor-validity-period'),
+            storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
+            manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
+            validityPeriod = form.down('#mdc-security-accessor-validity-period'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
         validityPeriod.setVisible(requiresDuration);
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
-        manageCentrallyCheckbox.enable();
+
+        if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
+            manageCentrallyCheckbox.enable();
+        } else {
+            me.getActivePassiveCertContainer().removeAll();
+            me.getSecurityAccessorPreviewProperties();
+        }
         if (!Ext.isEmpty(newValue)) {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
             keyEncryptionMethodStore.on('load', function (store, records, successful) {
