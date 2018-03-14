@@ -4,6 +4,7 @@
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -13,7 +14,6 @@ import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationInfo;
 import com.elster.jupiter.pki.rest.impl.CertificateRevocationResultInfo;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -133,6 +132,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(securityManagementService.newClientCertificateWrapper(keyType, "vault")).thenReturn(builder);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.empty());
+        when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.empty());
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.empty());
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.empty());
         PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
@@ -164,6 +164,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("myRootCA.cert")));
+        when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.EXPIRED));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
@@ -196,6 +197,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("honeywell.com.cert")));
+        when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
@@ -217,6 +219,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("fishy.cert.pem")));
+        when(certificateWrapper.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now(clock)));
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.of("A, B, C"));
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
@@ -241,13 +244,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         InputStream entity = (InputStream) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(entity).hasSameContentAs(new ByteArrayInputStream(x509Certificate.getEncoded()));
-    }
-
-    @Test
-    public void testRenderSubject() throws Exception {
-        CertificateInfoFactory certificateInfoFactory = new CertificateInfoFactory(null);
-        String name = certificateInfoFactory.x500FormattedName("CN=Matthieu Deroo, OU=Software solutions, L=Kortrijk, ST=West-Vlaanderen, C=Belgium, O=Honeywell");
-        AssertionsForClassTypes.assertThat(name).isEqualTo("CN=Matthieu Deroo, OU=Software solutions, O=Honeywell, L=Kortrijk, ST=West-Vlaanderen, C=Belgium");
     }
 
     @Test
@@ -457,8 +453,8 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         when(cert1.getId()).thenReturn(certId1);
         when(cert2.getId()).thenReturn(certId2);
-        when(cert1.getStatus()).thenReturn("Available");
-        when(cert2.getStatus()).thenReturn("Available");
+        when(cert1.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
+        when(cert2.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2))).thenReturn(Arrays.asList(cert1, cert2));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
         when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
@@ -510,9 +506,9 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(cert3.getId()).thenReturn(certId3);
         when(revocationUtils.findAllCertificateWrappers(Arrays.asList(certId1, certId2, certId3))).thenReturn(Arrays.asList(cert1, cert2, cert3));
         when(revocationUtils.isCAConfigured()).thenReturn(true);
-        when(cert1.getStatus()).thenReturn("Available");
-        when(cert2.getStatus()).thenReturn("Available");
-        when(cert3.getStatus()).thenReturn("Revoked");
+        when(cert1.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
+        when(cert2.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
+        when(cert3.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.REVOKED));
         when(securityManagementService.getAssociatedCertificateAccessors(cert1)).thenReturn(Collections.emptyList());
         when(securityManagementService.getAssociatedCertificateAccessors(cert2)).thenReturn(Collections.singletonList(accessor));
         when(securityManagementService.getAssociatedCertificateAccessors(cert3)).thenReturn(Collections.emptyList());
@@ -561,13 +557,13 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         when(cert1.getId()).thenReturn(certId1);
         when(cert1.getAlias()).thenReturn(certAlias1);
-        when(cert1.getStatus()).thenReturn("Available");
+        when(cert1.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(cert2.getId()).thenReturn(certId2);
         when(cert2.getAlias()).thenReturn(certAlias2);
-        when(cert2.getStatus()).thenReturn("Available");
+        when(cert2.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
         when(cert3.getId()).thenReturn(certId3);
         when(cert3.getAlias()).thenReturn(certAlias3);
-        when(cert3.getStatus()).thenReturn("Available");
+        when(cert3.getCertificateStatus()).thenReturn(Optional.of(CertificateStatus.AVAILABLE));
 
         CertificateRevocationInfo requestInfo = new CertificateRevocationInfo();
         requestInfo.timeout = timeout;

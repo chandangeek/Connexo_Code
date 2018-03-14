@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -15,7 +17,7 @@ public class CertificateWrapperInfo {
     public boolean hasCertificate;
     public boolean hasPrivateKey;
 
-    public String status;
+    public IdWithNameInfo status;
     public String alias;
     public Instant expirationDate;
     public String keyEncryptionMethod;

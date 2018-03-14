@@ -4,12 +4,14 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
@@ -21,12 +23,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CertificateInfoFactory implements CertificateFormatter {
-
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public CertificateInfoFactory(ExceptionFactory exceptionFactory) {
+    public CertificateInfoFactory(ExceptionFactory exceptionFactory,
+                                  Thesaurus thesaurus) {
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
 
     public List<CertificateWrapperInfo> asInfo(List<? extends CertificateWrapper> certificates) {
@@ -45,7 +49,8 @@ public class CertificateInfoFactory implements CertificateFormatter {
         info.hasPrivateKey = certificateWrapper.hasPrivateKey();
 
         info.alias = certificateWrapper.getAlias();
-        info.status = certificateWrapper.getStatus();
+        certificateWrapper.getCertificateStatus()
+                .ifPresent(status -> info.status = new IdWithNameInfo(status.getName(), status.getDisplayName(thesaurus)));
         info.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
 
         if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
