@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterCon
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -162,6 +163,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.CONNECTION_TASK_VALIDATOR_AFTER_CONNECTION_FUNCTION_MODIFICATION);
         this.createMessageHandler(defaultQueueTableSpec, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {
