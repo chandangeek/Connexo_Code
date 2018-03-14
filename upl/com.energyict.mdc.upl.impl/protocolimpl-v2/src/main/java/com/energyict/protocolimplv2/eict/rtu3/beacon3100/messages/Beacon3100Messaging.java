@@ -228,7 +228,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.RESET_ROUTER.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
-                NetworkConnectivityMessage.SET_VPN_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+//              this attribute has a fixed value in the beacon, Enable it when writing will be allowed.
+//                NetworkConnectivityMessage.SET_VPN_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_GATEWAY_ADDRESS.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_AUTHENTICATION_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_LOCAL_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),

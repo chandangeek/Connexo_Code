@@ -560,7 +560,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     public enum VPNAuthenticationType {
         IKEv2_With_PSK(0, "IKEv2 with PSK"),
         IKEv2_With_Certificates(1, "IKEv2 with certificates"),
-        IKEv2_Using_EAP_TLS(1, "IKEv2 using EAP-TLS"),
+        IKEv2_Using_EAP_TLS(2, "IKEv2 using EAP-TLS"),
         ;
 
         private final int id;
