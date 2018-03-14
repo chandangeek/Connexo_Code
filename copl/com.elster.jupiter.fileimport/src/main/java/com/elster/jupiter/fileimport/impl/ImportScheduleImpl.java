@@ -272,17 +272,24 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public void setProperty(String name, Object value) {
-        FileImporterPropertyImpl fileImporterProperty = properties.stream()
+        Optional<FileImporterPropertyImpl> fileImporterPropertyOptional = properties.stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()
-                .map(FileImporterPropertyImpl.class::cast)
-                .orElseGet(() -> {
-                    FileImporterPropertyImpl property = FileImporterPropertyImpl.from(dataModel, this, name, value);
-                    properties.add(property);
-                    return property;
-                });
-        fileImporterProperty.setValue(value);
-        propertiesDirty = true;
+                .map(FileImporterPropertyImpl.class::cast);
+        if (value == null) {
+            fileImporterPropertyOptional.ifPresent(property -> {
+                properties.remove(property);
+                propertiesDirty = true;
+            });
+        } else {
+            FileImporterPropertyImpl fileImporterProperty = fileImporterPropertyOptional.orElseGet(() -> {
+                FileImporterPropertyImpl property = FileImporterPropertyImpl.from(dataModel, this, name, value);
+                properties.add(property);
+                return property;
+            });
+            fileImporterProperty.setValue(value);
+            propertiesDirty = true;
+        }
     }
 
     @Override
@@ -399,7 +406,6 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         return this.version;
     }
 
-
     @Override
     public FileImportOccurrenceImpl createFileImportOccurrence(Path file, Clock clock) {
         if (!Files.exists(file)) {
@@ -416,7 +422,6 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     }
 
     void save() {
-
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         optional.ifPresent(factory -> factory.validateProperties(properties));
         /*Map<String, Object> propertiesWithValuesMap =  properties
@@ -441,7 +446,6 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     }
 
     private void doUpdate() {
-
         if (propertiesDirty) {
             properties.stream().map(FileImporterPropertyImpl.class::cast).forEach(FileImporterPropertyImpl::save);
         }
