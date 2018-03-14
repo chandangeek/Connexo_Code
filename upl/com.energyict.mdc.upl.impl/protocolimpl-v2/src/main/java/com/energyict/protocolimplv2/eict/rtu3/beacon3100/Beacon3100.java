@@ -53,6 +53,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.firmware.BeaconFirmwareSignatureCheck;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -66,9 +67,14 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -859,5 +865,15 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         public ObisCode getAssociationLN() {
             return associationLnOBIS;
         }
+    }
+
+    @Override
+    public boolean firmwareSignatureCheckSupported() {
+        return BeaconFirmwareSignatureCheck.firmwareSignatureCheckSupported();
+    }
+
+    @Override
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+        return BeaconFirmwareSignatureCheck.verifyFirmwareSignature(firmwareFile, pubKey);
     }
 }
