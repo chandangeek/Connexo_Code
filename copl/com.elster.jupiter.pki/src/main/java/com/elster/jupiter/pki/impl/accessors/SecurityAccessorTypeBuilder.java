@@ -62,6 +62,12 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     }
 
     @Override
+    public SecurityAccessorType.Builder purpose(SecurityAccessorType.Purpose purpose) {
+        underConstruction.setPurpose(purpose);
+        return this;
+    }
+
+    @Override
     public SecurityAccessorType add() {
         if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
             if (underConstruction.isManagedCentrally()) {
