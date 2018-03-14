@@ -69,8 +69,9 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
-import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskInfo;
+import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
 import com.energyict.mdc.device.data.crlrequest.rest.impl.CrlRequestTaskResource;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
@@ -185,6 +186,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile OrmService ormService;
     private volatile com.elster.jupiter.tasks.TaskService tskService;
     private volatile CommandRuleService commandRuleService;
+    private volatile CrlRequestTaskProperty crlRequestTaskProperty;
     private volatile CrlRequestTaskService crlRequestTaskService;
 
 
@@ -619,6 +621,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setCrlRequestTaskProperty(CrlRequestTaskProperty crlRequestTaskProperty) {
+        this.crlRequestTaskProperty = crlRequestTaskProperty;
+    }
+
+    @Reference
     public void setCrlRequestTaskService(CrlRequestTaskService crlRequestTaskService) {
         this.crlRequestTaskService = crlRequestTaskService;
     }
@@ -738,8 +745,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
             bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
             bind(commandRuleService).to(CommandRuleService.class);
+            bind(crlRequestTaskProperty).to(CrlRequestTaskProperty.class);
             bind(crlRequestTaskService).to(CrlRequestTaskService.class);
-            bind(CrlRequestTaskInfo.class).to(CrlRequestTaskInfo.class);
+            bind(CrlRequestTaskPropertyInfo.class).to(CrlRequestTaskPropertyInfo.class);
 
         }
     }
