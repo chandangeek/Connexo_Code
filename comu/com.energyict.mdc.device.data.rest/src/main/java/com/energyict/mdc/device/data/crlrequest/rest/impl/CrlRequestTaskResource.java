@@ -11,8 +11,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.util.time.Never;
-import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
@@ -33,6 +33,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -182,13 +183,15 @@ public class CrlRequestTaskResource {
                 .setPayLoad("Crl Request")
                 .scheduleImmediately(true)
                 .build();
-        recurrentTask.setNextExecution(info.nextRun);
+        recurrentTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         return recurrentTask;
     }
 
-    private ScheduleExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
-        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
+    private TemporalExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
+        TimeDuration timeDuration = info.timeDurationInfo.asTimeDuration();
+        return new TemporalExpression(timeDuration);
     }
+
 
     private void deleteCrlPropsAndTask(CrlRequestTaskPropertyInfo info) {
         crlRequestTaskService.findCrlRequestTaskProperties().delete();

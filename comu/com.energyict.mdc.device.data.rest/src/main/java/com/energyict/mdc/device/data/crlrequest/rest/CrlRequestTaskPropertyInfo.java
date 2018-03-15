@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.crlrequest.rest;
 
-import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 
-import java.time.Instant;
 import java.util.List;
 
 public class CrlRequestTaskPropertyInfo {
@@ -11,6 +10,6 @@ public class CrlRequestTaskPropertyInfo {
     public String securityAccessorName;
     public List<String> securityAccessorNames;
     public String caName;
-    public PeriodicalExpressionInfo schedule;
-    public Instant nextRun;
+    public TimeDurationInfo timeDurationInfo;
+    public Long nextRun;
 }
