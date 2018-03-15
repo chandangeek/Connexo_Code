@@ -4,9 +4,9 @@ import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
-import org.osgi.service.component.annotations.Reference;
-
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
 
 
 public class CrlRequestTaskServiceImpl implements CrlRequestTaskService {
@@ -23,8 +23,9 @@ public class CrlRequestTaskServiceImpl implements CrlRequestTaskService {
     }
 
     @Override
-    public CrlRequestTaskProperty findCrlRequestTaskProperties() {
-        return deviceDataModelService.dataModel().mapper(CrlRequestTaskProperty.class).find().get(0);
+    public Optional<CrlRequestTaskProperty> findCrlRequestTaskProperties() {
+        List<CrlRequestTaskProperty> crlRequestTaskPropertyList = deviceDataModelService.dataModel().mapper(CrlRequestTaskProperty.class).find();
+        return crlRequestTaskPropertyList.isEmpty() ? Optional.empty() : Optional.of(crlRequestTaskPropertyList.get(0));
     }
 
 

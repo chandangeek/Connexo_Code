@@ -26,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.CertificateRenewalService;
+import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyRenewalService;
@@ -80,7 +81,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createEventType",
                 "osgi.command.function=setAccessorPassword",
                 "osgi.command.function=runCertificateRenewalTask",
-                "osgi.command.function=runKeyRenewalTask"
+                "osgi.command.function=runKeyRenewalTask",
+                "osgi.command.function=runCrlRequestTask"
         },
         immediate = true)
 public class KeyAccessorCommands {
@@ -93,6 +95,7 @@ public class KeyAccessorCommands {
     private volatile EventService eventService;
     private volatile CertificateRenewalService certificateRenewalService;
     private volatile KeyRenewalService keyRenewalService;
+    private volatile CrlRequestService crlRequestService;
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -127,6 +130,11 @@ public class KeyAccessorCommands {
     @Reference
     public void setKeyRenewalService(KeyRenewalService keyRenewalService) {
         this.keyRenewalService = keyRenewalService;
+    }
+
+    @Reference
+    public void setCrlRequestService(CrlRequestService crlRequestService) {
+        this.crlRequestService = crlRequestService;
     }
 
     public void keyAccessors() {
@@ -666,5 +674,20 @@ public class KeyAccessorCommands {
             threadPrincipalService.clear();
         }
         System.out.println("Device key renewal task has been started.");
+    }
+
+    public void runCrlRequestTask() {
+        threadPrincipalService.set(() -> "Console");
+        try {
+            transactionService.execute(() -> {
+                crlRequestService.runNow();
+                return null;
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+        System.out.println("Crl request task has been started.");
     }
 }
