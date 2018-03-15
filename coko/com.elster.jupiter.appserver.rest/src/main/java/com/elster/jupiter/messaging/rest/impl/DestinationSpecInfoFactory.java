@@ -8,8 +8,10 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.tasks.RecurrentTask;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -27,7 +29,7 @@ public class DestinationSpecInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public DestinationSpecInfo from(DestinationSpec destinationSpec) {
+    public DestinationSpecInfo from(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
         DestinationSpecInfo info = new DestinationSpecInfo();
         info.name = destinationSpec.getName();
         info.type = DestinationType.typeOf(destinationSpec);
@@ -38,18 +40,25 @@ public class DestinationSpecInfoFactory {
         info.version = destinationSpec.getVersion();
         info.isDefault = destinationSpec.isDefault();
         info.queueTypeName = destinationSpec.getQueueTypeName();
+        info.tasks = getTasksFrom(destinationSpec.getName(), allTasks);
+
         return info;
     }
 
-    public DestinationSpecInfo withStats(DestinationSpec destinationSpec) {
-        DestinationSpecInfo info = from(destinationSpec);
+    private List<TaskMinInfo> getTasksFrom(String queueName, List<RecurrentTask> allTasks) {
+        return allTasks.stream().filter(task -> queueName.equals(task.getDestination().getName()))
+                .map(rt -> TaskMinInfo.from(rt)).collect(Collectors.toList());
+    }
+
+    public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
+        DestinationSpecInfo info = from(destinationSpec, allTasks);
         info.numberOfMessages = destinationSpec.numberOfMessages();
         info.numberOFErrors = destinationSpec.errorCount();
         return info;
     }
 
-    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec) {
-        DestinationSpecInfo info = withStats(destinationSpec);
+    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
+        DestinationSpecInfo info = withStats(destinationSpec, allTasks);
         info.subscriberSpecInfos = destinationSpec.getSubscribers()
                 .stream()
                 .filter(not(SubscriberSpec::isSystemManaged))

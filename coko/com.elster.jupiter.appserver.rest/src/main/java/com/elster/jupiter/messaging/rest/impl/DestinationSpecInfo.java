@@ -20,5 +20,6 @@ public class DestinationSpecInfo {
     public List<SubscriberSpecInfo> subscriberSpecInfos;
     public boolean isDefault;
     public String queueTypeName;
+    public List<TaskMinInfo> tasks;
 
 }

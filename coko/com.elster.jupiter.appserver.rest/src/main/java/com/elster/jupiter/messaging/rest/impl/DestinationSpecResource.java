@@ -12,12 +12,13 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,7 +26,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Path("/destinationspec")
@@ -38,14 +38,16 @@ public class DestinationSpecResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DestinationSpecInfoFactory destinationSpecInfoFactory;
     private final Thesaurus thesaurus;
+    private final TaskService taskService;
 
     @Inject
-    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus) {
+    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus, TaskService taskService) {
         this.messageService = messageService;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
         this.destinationSpecInfoFactory = destinationSpecInfoFactory;
         this.thesaurus = thesaurus;
+        this.taskService = taskService;
     }
 
     @GET
@@ -53,20 +55,23 @@ public class DestinationSpecResource {
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public PagedInfoList getDestinationSpecs(@BeanParam JsonQueryParameters queryParameters, @QueryParam("state") boolean withState) {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
+        List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+
         List<DestinationSpecInfo> destinationSpecInfos = destinationSpecs
                 .stream()
                 .sorted(Comparator.comparing(DestinationSpec::getName))
-                .map(mapToInfo(withState))
+                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks))
                 .skip(queryParameters.getStart().orElse(0))
                 .limit(queryParameters.getLimit().map(i -> i++).orElse(Integer.MAX_VALUE))
                 .collect(Collectors.toList());
+
         return PagedInfoList.fromPagedList("destinationSpecs", destinationSpecInfos, queryParameters);
     }
 
-    private Function<? super DestinationSpec, ? extends DestinationSpecInfo> mapToInfo(@QueryParam("state") boolean withState) {
+    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks) {
         return withState
-                ? destinationSpecInfoFactory::withAppServers
-                : destinationSpecInfoFactory::from;
+                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks)
+                : destinationSpecInfoFactory.from(destinationSpec, tasks);
     }
 
     @GET
@@ -75,7 +80,8 @@ public class DestinationSpecResource {
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public DestinationSpecInfo getAppServer(@PathParam("destionationSpecName") String destinationSpecName, @QueryParam("state") boolean withState) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
-        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState).apply(destinationSpec);
+        List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks);
         return destinationSpecInfo;
     }
 
@@ -91,7 +97,6 @@ public class DestinationSpecResource {
                         .supplier());
     }
 
-
     @PUT
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -106,11 +111,12 @@ public class DestinationSpecResource {
 
     private Response doPurgeErrors(String destinationSpecName) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
+        List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec.purgeErrors();
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec)).build();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
     }
 
     private Response doUpdateDestinationSpec(String destinationSpecName, DestinationSpecInfo info) {
@@ -120,7 +126,9 @@ public class DestinationSpecResource {
             destinationSpec.updateRetryBehavior(info.numberOfRetries, Duration.ofSeconds(info.retryDelayInSeconds));
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec)).build();
+
+        List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
     }
 
     @POST
@@ -160,8 +168,7 @@ public class DestinationSpecResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response deleteDestinationSpec(@PathParam("destinationSpecName") String
-                                                  destinationSpecName, DestinationSpecInfo info) {
+    public Response deleteDestinationSpec(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info) {
         if (!messageService.getDestinationSpec(destinationSpecName).isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }

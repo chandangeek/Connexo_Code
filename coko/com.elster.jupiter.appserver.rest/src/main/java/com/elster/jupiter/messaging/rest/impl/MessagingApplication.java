@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -44,6 +45,7 @@ public class MessagingApplication extends Application implements MessageSeedProv
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile TaskService taskService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
@@ -83,6 +85,11 @@ public class MessagingApplication extends Application implements MessageSeedProv
         this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -99,6 +106,7 @@ public class MessagingApplication extends Application implements MessageSeedProv
                 bind(thesaurus).to(Thesaurus.class);
                 bind(appService).to(AppService.class);
                 bind(DestinationSpecInfoFactory.class).to(DestinationSpecInfoFactory.class);
+                bind(taskService).to(TaskService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
