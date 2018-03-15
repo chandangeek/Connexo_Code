@@ -56,6 +56,7 @@ import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -574,7 +575,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()),
-                Arrays.stream(SecurityAccessorTypePurposeTranslation.values()))
+                Arrays.stream(SecurityAccessorTypePurposeTranslation.values()),
+                Arrays.stream(CSRImporterTranslatedProperty.values())
+        )
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

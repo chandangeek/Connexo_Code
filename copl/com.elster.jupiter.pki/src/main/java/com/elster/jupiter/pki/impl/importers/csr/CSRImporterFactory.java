@@ -177,7 +177,6 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_PASSWORD_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
-                // TODO: think of a tooltip with available tags
                 propertySpecService.stringSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FILE_NAME)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_NAME_DESCRIPTION)
@@ -188,7 +187,6 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
-                // TODO: think of a tooltip with available tags
                 propertySpecService.stringSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION_DESCRIPTION)
