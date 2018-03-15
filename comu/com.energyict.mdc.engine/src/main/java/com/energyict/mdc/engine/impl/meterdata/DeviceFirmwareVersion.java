@@ -25,6 +25,8 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     private Optional<String> activeCommunicationFirmwareVersion = Optional.empty();
     private Optional<String> passiveMeterFirmwareVersion = Optional.empty();
     private Optional<String> activeMeterFirmwareVersion = Optional.empty();
+    private Optional<String> passiveCaConfigImageVersion = Optional.empty();
+    private Optional<String> activeCaConfigImageVersion = Optional.empty();
     private ComTaskExecution comTaskExecution;
 
     public DeviceFirmwareVersion(DeviceIdentifier deviceIdentifier) {
@@ -39,6 +41,26 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     @Override
     public void setPassiveCommunicationFirmwareVersion(String passiveCommunicationFirmwareVersion) {
         this.passiveCommunicationFirmwareVersion = Optional.of(passiveCommunicationFirmwareVersion);
+    }
+
+    @Override
+    public Optional<String> getActiveCaConfigImageVersion() {
+        return activeCaConfigImageVersion;
+    }
+
+    @Override
+    public void setActiveCaConfigImageVersion(String activeCaConfigImageVersion) {
+        this.activeCaConfigImageVersion = Optional.of(activeCaConfigImageVersion);
+    }
+
+    @Override
+    public Optional<String> getPassiveCaConfigImageVersion() {
+        return passiveCaConfigImageVersion;
+    }
+
+    @Override
+    public void setPassiveCaConfigImageVersion(String passiveCaConfigImageVersion) {
+        this.passiveCaConfigImageVersion = Optional.of(passiveCaConfigImageVersion);
     }
 
     @Override
@@ -80,6 +102,7 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     public void setActiveMeterFirmwareVersion(String activeMeterFirmwareVersion) {
         this.activeMeterFirmwareVersion = Optional.of(activeMeterFirmwareVersion);
     }
+
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {

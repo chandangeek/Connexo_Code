@@ -12,7 +12,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-
 import com.google.common.collect.Range;
 
 import java.time.Clock;
@@ -42,6 +41,10 @@ class FirmwareStorage {
 
     void updateMeterFirmwareVersion(Optional<String> collectedMeterFirmwareVersion, Device device) {
         updateFirmwareVersionForType(collectedMeterFirmwareVersion, device, FirmwareType.METER);
+    }
+
+    void updateCaConfigImageVersion(Optional<String> collectedCaConfigImageVersion, Device device) {
+        updateFirmwareVersionForType(collectedCaConfigImageVersion, device, FirmwareType.CA_CONFIG_IMAGE);
     }
 
     private void updateFirmwareVersionForType(Optional<String> collectedFirmwareVersion, Device device, FirmwareType firmwareType) {
