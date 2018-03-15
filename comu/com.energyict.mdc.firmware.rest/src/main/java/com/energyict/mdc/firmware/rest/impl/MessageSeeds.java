@@ -21,9 +21,9 @@ public enum MessageSeeds implements MessageSeed {
     TYPE_METER(7, Keys.TYPE_METER, "Meter firmware"),
     TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, "Communication firmware"),
     // firmware upgrade options translation
-    UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware and activate later"),
-    UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware and activate immediately"),
-    UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
+    UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware/image and activate later"),
+    UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware/image and activate immediately"),
+    UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware/image with activation date"),
     // firmware upgrade options
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
 
@@ -35,7 +35,7 @@ public enum MessageSeeds implements MessageSeed {
         DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
     FIRMWARE_VERSION_NOT_FOUND(19, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
     FIRMWARE_VERSION_MISSING(20, Keys.FIRMWARE_VERSION_MISSING, "Firmware version is missing in the request"),
-    FIRMWARE_ACTION_CHECK_VERSION (21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version"),
+    FIRMWARE_ACTION_CHECK_VERSION(21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version/image"),
 
     FIRMWARE_CAMPAIGN_STATUS_PROCESSING(50, Keys.FIRMWARE_CAMPAIGN_STATUS_PROCESSING, "Processing"),
     FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED , "Scheduled"),
@@ -65,7 +65,9 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE (1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY (1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
     FIRMWARE_COMMUNICATION_TASK_NAME (1014, "FirmwareTaskName", "Firmware communication task"),
-    NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information")
+    NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information"),
+
+    TYPE_CA_CONFIG_IMAGE(1016, Keys.TYPE_CA_CONFIG_IMAGE, "Image"),
     ;
     private final int number;
     private final String key;
@@ -107,6 +109,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VERSION_IS_DEPRECATED = "VersionIsDeprecated";
         public static final String TYPE_METER = "meter";
         public static final String TYPE_COMMUNICATION = "communication";
+        public static final String TYPE_CA_CONFIG_IMAGE = "caConfigImage";
         public static final String UPGRADE_OPTION_INSTALL = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId();
         public static final String UPGRADE_OPTION_ACTIVATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId();
         public static final String UPGRADE_OPTION_ACTIVATE_ON_DATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId();
@@ -127,6 +130,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
         public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
 
-        public static final TranslationKey FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY = new SimpleTranslationKey("FirmwareActionCheckVersionNow", "Check firmware version now");
+        public static final TranslationKey FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY = new SimpleTranslationKey("FirmwareActionCheckVersionNow", "Check firmware version/image now");
     }
 }

@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -84,6 +86,7 @@ public class FirmwareCampaignInfoFactory {
                 .map(status -> new DeviceInFirmwareCampaignStatusInfo(status.getKey(), status.getValue(), thesaurus))
                 .collect(Collectors.toList());
         info.version = campaign.getVersion();
+        campaign.getValidationTimeout().ifPresent(timeDuration -> info.validationTimeout = new TimeDurationInfo(timeDuration, thesaurus));
         return info;
     }
 
@@ -100,7 +103,12 @@ public class FirmwareCampaignInfoFactory {
         if (info.managementOption == null || info.managementOption.id == null) {
             throw exceptionFactory.newException(MessageSeeds.NOT_ABLE_TO_CREATE_CAMPAIGN);
         }
-
+        TimeDuration validationTimeout = null;
+        if (info.validationTimeout != null && info.validationTimeout.count != 0 && info.validationTimeout.timeUnit != null) {
+            validationTimeout = info.validationTimeout.asTimeDuration();
+        } else {
+            validationTimeout = TimeDuration.NONE;
+        }
         Long firmwareVersionId = info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION)
                 .flatMap(resourceHelper::getPropertyInfoValueLong)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_VERSION_MISSING));
@@ -116,6 +124,7 @@ public class FirmwareCampaignInfoFactory {
 
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, deviceGroup);
         info.writeTo(firmwareCampaign, firmwareMessageInfoFactory);
+        firmwareCampaign.setValidationTimeout(validationTimeout);
         return firmwareCampaign;
     }
 }
