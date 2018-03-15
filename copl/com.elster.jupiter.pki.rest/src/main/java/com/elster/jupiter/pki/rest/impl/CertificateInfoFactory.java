@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -70,7 +71,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
                 info.notAfter = x509Certificate.getNotAfter().toInstant();
                 info.signatureAlgorithm = x509Certificate.getSigAlgName();
             } else if (certificateWrapper.hasCSR()) {
-                PKCS10CertificationRequest csr = ((ClientCertificateWrapper) certificateWrapper).getCSR().get();
+                PKCS10CertificationRequest csr = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
                 info.subject = x500FormattedName(csr.getSubject().toString());
             }
         } catch (InvalidNameException e) {
