@@ -10,7 +10,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
 
 import sun.security.x509.X509CRLImpl;
 
@@ -30,19 +30,19 @@ import java.util.logging.Logger;
 
 public class CrlRequestTaskExecutor implements TaskExecutor {
     private volatile CaService caService;
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile CrlRequestTaskService crlRequestTaskService;
     private final Logger logger;
 
-    public CrlRequestTaskExecutor(CaService caService, DeviceDataModelService deviceDataModelService) {
+    public CrlRequestTaskExecutor(CaService caService, CrlRequestTaskService crlRequestTaskService) {
         this.caService = caService;
-        this.deviceDataModelService = deviceDataModelService;
+        this.crlRequestTaskService = crlRequestTaskService;
         logger = Logger.getAnonymousLogger();
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
         logger.addHandler(occurrence.createTaskLogHandler().asHandler());
-        CrlRequestTaskProperty crlRequestTaskProperty = deviceDataModelService.dataModel().mapper(CrlRequestTaskProperty.class).find().get(0);
+        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
         String caName = crlRequestTaskProperty.getCaName();
         SecurityAccessor securityAccessor = crlRequestTaskProperty.getSecurityAccessor();
         PublicKey publicKey = null;

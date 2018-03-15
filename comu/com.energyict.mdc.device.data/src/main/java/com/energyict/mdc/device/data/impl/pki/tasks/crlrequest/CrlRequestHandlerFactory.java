@@ -8,7 +8,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.tasks.TaskService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 public class CrlRequestHandlerFactory implements MessageHandlerFactory {
     private volatile TaskService taskService;
     private volatile CaService caService;
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile CrlRequestTaskService crlRequestTaskService;
 
     public static final String CRL_REQUEST_TASK_SUBSCRIBER = "CrlRequestSubscriber";
     public static final String CRL_REQUEST_TASK_NAME = "Crl Request Task";
@@ -37,11 +37,11 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory {
     @Inject
     public CrlRequestHandlerFactory(TaskService taskService,
                                     CaService caService,
-                                    DeviceDataModelService deviceDataModelService) {
+                                    CrlRequestTaskService crlRequestTaskService) {
         this();
         setTaskService(taskService);
         setCaService(caService);
-        setDeviceDataModelService(deviceDataModelService);
+        setCrlRequestTaskService(crlRequestTaskService);
     }
 
     @Reference
@@ -55,12 +55,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory {
     }
 
     @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
+    public void setCrlRequestTaskService(CrlRequestTaskService crlRequestTaskService) {
+        this.crlRequestTaskService = crlRequestTaskService;
     }
+
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, deviceDataModelService));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskService));
     }
 }
