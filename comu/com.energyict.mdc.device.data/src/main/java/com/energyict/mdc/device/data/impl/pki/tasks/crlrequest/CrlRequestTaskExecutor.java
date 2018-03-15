@@ -8,6 +8,7 @@ import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -64,7 +65,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             Optional<X509Certificate> x509Certificate = certificateWrapper.getCertificate();
             if (x509Certificate.isPresent()) {
                 publicKey = x509Certificate.get().getPublicKey();
-                logger.log(Level.INFO, publicKey.toString());
+                logger.log(Level.INFO, "public key " + publicKey);
             }
         }
         Optional<X509CRL> x509CRL = caService.getLatestCRL(caName);
@@ -101,10 +102,15 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
                 .collect(Collectors.toList());
         certificateWrapperList.forEach(certificateWrapper -> {
             BigInteger sn = certificateWrapper.getCertificate().get().getSerialNumber();
-            boolean found = revokedSerialNumbers.stream().anyMatch(revokedSerialNumber -> revokedSerialNumber.compareTo(sn) == 0);
-            if (found) {
+            boolean toBeRevoked = revokedSerialNumbers.stream().anyMatch(revokedSerialNumber -> revokedSerialNumber.compareTo(sn) == 0);
+            boolean usedByFileOperations = usedByFileOperationSecurityAccessors(sn);
+            boolean usedByCommucation = usedByCommunicationSecurityAccessors(sn);
+            if (toBeRevoked) {
                 logger.log(Level.INFO, "Changing status to REVOKED for " + sn);
                 certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+                if (usedByFileOperations || usedByCommucation) {
+                    logger.log(Level.INFO, sn + "is still used by security accessors");
+                }
             }
         });
     }
@@ -121,12 +127,41 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
 
         certificateWrapperList.forEach(trustedCertificate -> {
             BigInteger sn = trustedCertificate.getCertificate().get().getSerialNumber();
-            boolean found = revokedSerialNumbers.stream().anyMatch(revokedSerialNumber -> revokedSerialNumber.compareTo(sn) == 0);
-            if (found) {
+            boolean toBeRevoked = revokedSerialNumbers.stream().anyMatch(revokedSerialNumber -> revokedSerialNumber.compareTo(sn) == 0);
+            boolean usedByFileOperations = usedByFileOperationSecurityAccessors(sn);
+            boolean usedByCommucation = usedByCommunicationSecurityAccessors(sn);
+            if (toBeRevoked) {
                 logger.log(Level.INFO, "Changing status to REVOKED for " + sn);
                 trustedCertificate.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+                if (usedByFileOperations || usedByCommucation) {
+                    logger.log(Level.INFO, sn + "is still used by security accessors");
+                }
             }
         });
+    }
+
+    private boolean usedByFileOperationSecurityAccessors(BigInteger sn) {
+        List<BigInteger> usedFileOperationsCertificates =
+                securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                        .stream()
+                        .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
+                                securityAccessor.getActualValue().get() instanceof CertificateWrapper)
+                        .filter(securityAccessor -> ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
+                        .map(securityAccessor -> ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().get().getSerialNumber())
+                        .collect(Collectors.toList());
+        return usedFileOperationsCertificates.stream().anyMatch(sernum -> sernum.compareTo(sn) == 0);
+    }
+
+    private boolean usedByCommunicationSecurityAccessors(BigInteger sn) {
+        List<BigInteger> usedCommunicationCertificates =
+                securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)
+                        .stream()
+                        .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
+                                securityAccessor.getActualValue().get() instanceof CertificateWrapper)
+                        .filter(securityAccessor -> ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
+                        .map(securityAccessor -> ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().get().getSerialNumber())
+                        .collect(Collectors.toList());
+        return usedCommunicationCertificates.stream().anyMatch(sernum -> sernum.compareTo(sn) == 0);
     }
 
 
