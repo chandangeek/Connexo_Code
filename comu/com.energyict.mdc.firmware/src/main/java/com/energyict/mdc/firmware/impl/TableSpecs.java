@@ -147,7 +147,18 @@ public enum TableSpecs {
             table.column("COMWINDOWSTART").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_START.fieldName()).add();
             table.column("COMWINDOWEND").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_END.fieldName()).add();
             table.column("NROFDEVICES").number().map(FirmwareCampaignImpl.Fields.NROFDEVICES.fieldName()).conversion(ColumnConversion.NUMBER2INT).add();
-
+            table.column("VALIDATION_TIMEOUT_VALUE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".count")
+                    .notNull()
+                    .add();
+            table.column("VALIDATION_TIMEOUT_UNIT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".timeUnitCode")
+                    .notNull()
+                    .add();
             table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
             table.addAuditColumns();
 

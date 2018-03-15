@@ -22,6 +22,7 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -218,6 +219,24 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         save();
     }
 
+    public void startValidation() {
+        setStatus(FirmwareManagementDeviceStatus.VERIFICATION_ONGOING);
+        scheduleCheckTheFirmwareVersion();
+        save();
+    }
+
+    public void validateFirmvareVersion(ActivatedFirmwareVersion activatedFirmwareVersion) {
+        if (activatedFirmwareVersion.getFirmwareVersion().getFirmwareVersion().equals(getFirmwareCampaign().getFirmwareVersion().getFirmwareVersion())) {
+            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+        } else if (getFirmwareCampaign().getFirmwareType().equals(FirmwareType.CA_CONFIG_IMAGE)
+                && activatedFirmwareVersion.getFirmwareVersion().getImageIdentifier().equals(getFirmwareCampaign().getFirmwareVersion().getImageIdentifier())) {
+            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+        } else {
+            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_FAILED);
+        }
+        save();
+    }
+
     @Override
     public void updateTimeBoundaries() {
         if (hasNonFinalStatus()) {
@@ -323,6 +342,22 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                     getDevice().save();
                     return firmwareComTaskExecution;
                 });
+    }
+
+    private void scheduleCheckTheFirmwareVersion() {
+        if (getFirmwareCampaign().getValidationTimeout().isPresent()) {
+            Instant when = clock.instant().atZone(clock.getZone()).plus(getFirmwareCampaign().getValidationTimeout().get().asTemporalAmount()).toInstant();
+            ComTaskExecution comTaskExecution = this.firmwareService.getFirmwareManagementDeviceUtilsFor(getDevice()).getComTaskExecutionToCheckTheFirmwareVersion()
+                    .orElseGet(() -> {
+                        ComTaskEnablement comTaskEnablement = this.firmwareService.getFirmwareManagementDeviceUtilsFor(getDevice())
+                                .getComTaskEnablementToCheckTheFirmwareVersion()
+                                .get();
+                        ComTaskExecution firmwareComTaskExecution = getDevice().newAdHocComTaskExecution(comTaskEnablement).add();
+                        getDevice().save();
+                        return firmwareComTaskExecution;
+                    });
+            comTaskExecution.schedule(when);
+        }
     }
 
     private boolean deviceAlreadyHasTheSameVersion() {

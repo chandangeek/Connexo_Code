@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
@@ -64,4 +65,8 @@ public interface FirmwareCampaign extends HasId, HasName{
     void setComWindow(ComWindow window);
 
     void decreaseCount();
+
+    Optional<TimeDuration> getValidationTimeout();
+
+    void setValidationTimeout(TimeDuration validationTimeout);
 }

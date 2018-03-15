@@ -390,7 +390,7 @@ public enum FirmwareManagementDeviceStatus {
      * <li>A firmware version from the message differs from the active firmware version</li>
      * </ul>
      */
-    VERIFICATION_FAILED(Constants.SUCCESS) {
+    VERIFICATION_FAILED(Constants.FAILED) {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             Optional<ComTaskExecution> statusInformationTask = helper.getComTaskExecutionToCheckTheFirmwareVersion();
