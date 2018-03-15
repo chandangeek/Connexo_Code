@@ -34,7 +34,6 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -301,6 +300,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return deviceProtocol.supportsCommunicationFirmwareVersion();
+    }
+
+    @Override
+    public boolean supportsCaConfigImageVersion() {
+        return deviceProtocol.supportsCaConfigImageVersion();
     }
 
     @Override
