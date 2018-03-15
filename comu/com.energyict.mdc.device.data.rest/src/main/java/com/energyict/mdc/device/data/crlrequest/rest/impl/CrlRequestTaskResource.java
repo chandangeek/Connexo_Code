@@ -82,8 +82,8 @@ public class CrlRequestTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CRL_REQUEST, Privileges.Constants.ADMINISTER_CRL_REQUEST,
-                   com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
-                   com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4})
     public Response gelSecurityAccessors(@BeanParam JsonQueryParameters queryParameters) {
         List<String> securityAccessorNamesList = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
@@ -172,9 +172,9 @@ public class CrlRequestTaskResource {
     }
 
     private RecurrentTask createCrlRequestRecurrentTask(CrlRequestTaskPropertyInfo info) {
-        Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME);
-        recurrentTask.ifPresent(RecurrentTask::delete);
-        return taskService.newBuilder()
+        Optional<RecurrentTask> currentRecurrentTask = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME);
+        currentRecurrentTask.ifPresent(RecurrentTask::delete);
+        RecurrentTask recurrentTask = taskService.newBuilder()
                 .setApplication("MultiSense")
                 .setName(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME)
                 .setScheduleExpression(getScheduleExpression(info))
@@ -182,6 +182,8 @@ public class CrlRequestTaskResource {
                 .setPayLoad("Crl Request")
                 .scheduleImmediately(true)
                 .build();
+        recurrentTask.setNextExecution(info.nextRun);
+        return recurrentTask;
     }
 
     private ScheduleExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
