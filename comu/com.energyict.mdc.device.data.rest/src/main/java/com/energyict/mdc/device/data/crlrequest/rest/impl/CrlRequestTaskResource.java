@@ -72,8 +72,9 @@ public class CrlRequestTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CRL_REQUEST, Privileges.Constants.ADMINISTER_CRL_REQUEST})
     public Response gelCrlRequestTaskProperties(@BeanParam JsonQueryParameters queryParameters) {
-        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
-        CrlRequestTaskPropertyInfo info = crlRequestTaskInfoFactory.asInfo(crlRequestTaskProperty);
+        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
+        CrlRequestTaskPropertyInfo info = crlRequestTaskProperty.isPresent() ?
+                crlRequestTaskInfoFactory.asInfo(crlRequestTaskProperty.get()) : new CrlRequestTaskPropertyInfo();
         return Response.ok(info).build();
     }
 
@@ -194,7 +195,8 @@ public class CrlRequestTaskResource {
 
 
     private void deleteCrlPropsAndTask(CrlRequestTaskPropertyInfo info) {
-        crlRequestTaskService.findCrlRequestTaskProperties().delete();
+        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
+        crlRequestTaskProperty.ifPresent(CrlRequestTaskProperty::delete);
         Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(info.recurrentTaskName);
         recurrentTask.ifPresent(RecurrentTask::delete);
     }
