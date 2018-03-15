@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki.impl.importers.csr;
 
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -58,18 +57,11 @@ class CSRProcessor {
 
     private Optional<X509Certificate> processCSR(String serial, String fullAlias, PKCS10CertificationRequest csr) {
         Matcher matcher = FULL_ALIAS_PATTERN.matcher(fullAlias);
-        try {
-            if (!matcher.matches()) {
-                throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.WRONG_FILE_NAME_FORMAT);
-            }
-            String alias = serial + '-' + matcher.group(1);
-            return Optional.of(processCSR(alias, csr));
-        } catch (LocalizedException e) {
-            logger.log(e);
-        } catch (Throwable e) {
-            logger.log(e);
+        if (!matcher.matches()) {
+            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.WRONG_FILE_NAME_FORMAT);
         }
-        return Optional.empty();
+        String alias = serial + '-' + matcher.group(1);
+        return Optional.of(processCSR(alias, csr));
     }
 
     private X509Certificate processCSR(String alias, PKCS10CertificationRequest csr) {

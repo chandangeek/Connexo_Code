@@ -19,13 +19,10 @@ import com.elster.jupiter.util.streams.ReusableInputStream;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
-import javax.validation.ConstraintViolationException;
-import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -83,11 +80,11 @@ class CSRImporter implements FileImporter {
 
             logger.markSuccess();
         } catch (LocalizedException e) {
-            logger.log(e);
             logger.markFailure();
-        } catch (ConstraintViolationException | IOException | CertificateEncodingException e) {
-            logger.log(e);
+            throw e;
+        } catch (Throwable e) {
             logger.markFailure();
+            throw new CSRImporterException(thesaurus, MessageSeeds.CSR_IMPORT_EXCEPTION, e.getLocalizedMessage());
         }
     }
 
