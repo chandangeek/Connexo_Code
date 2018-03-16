@@ -57,7 +57,15 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             logger.log(Level.INFO, "no CRL request task properties ");
             return;
         }
+        if (!caService.isConfigured()) {
+            logger.log(Level.INFO, "CA service is not configured");
+            return;
+        }
         String caName = crlRequestTaskProperty.get().getCaName();
+        if (!caService.getPkiCaNames().contains(caName)) {
+            logger.log(Level.INFO, caName + " is not configured");
+            return;
+        }
         SecurityAccessor securityAccessor = crlRequestTaskProperty.get().getSecurityAccessor();
         PublicKey publicKey = null;
         if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
@@ -99,6 +107,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         List<CertificateWrapper> certificateWrapperList = securityManagementService.findAllCertificates().find()
                 .stream()
                 .filter(certificateWrapper -> certificateWrapper.getCertificate().isPresent())
+                .filter(certificateWrapper -> certificateWrapper.getWrapperStatus() != CertificateWrapperStatus.REVOKED)
                 .collect(Collectors.toList());
         certificateWrapperList.forEach(certificateWrapper -> {
             BigInteger sn = certificateWrapper.getCertificate().get().getSerialNumber();
@@ -106,10 +115,10 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             boolean usedByFileOperations = usedByFileOperationSecurityAccessors(sn);
             boolean usedByCommucation = usedByCommunicationSecurityAccessors(sn);
             if (toBeRevoked) {
-                logger.log(Level.INFO, "Changing status to REVOKED for " + sn);
+                logger.log(Level.INFO, "Changing status to REVOKED for certificate " + sn);
                 certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
                 if (usedByFileOperations || usedByCommucation) {
-                    logger.log(Level.INFO, sn + "is still used by security accessors");
+                    logger.log(Level.INFO, "certificate " + sn + " is still used by security accessors");
                 }
             }
         });
@@ -123,6 +132,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         List<TrustedCertificate> certificateWrapperList = trustedCertificatesList
                 .stream()
                 .filter(trustedCertificate -> trustedCertificate.getCertificate().isPresent())
+                .filter(trustedCertificate -> trustedCertificate.getWrapperStatus() != CertificateWrapperStatus.REVOKED)
                 .collect(Collectors.toList());
 
         certificateWrapperList.forEach(trustedCertificate -> {
@@ -131,10 +141,10 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             boolean usedByFileOperations = usedByFileOperationSecurityAccessors(sn);
             boolean usedByCommucation = usedByCommunicationSecurityAccessors(sn);
             if (toBeRevoked) {
-                logger.log(Level.INFO, "Changing status to REVOKED for " + sn);
+                logger.log(Level.INFO, "Changing status to REVOKED for trusted certificate " + sn);
                 trustedCertificate.setWrapperStatus(CertificateWrapperStatus.REVOKED);
                 if (usedByFileOperations || usedByCommucation) {
-                    logger.log(Level.INFO, sn + "is still used by security accessors");
+                    logger.log(Level.INFO, "trusted certificate " + sn + " is still used by security accessors");
                 }
             }
         });
