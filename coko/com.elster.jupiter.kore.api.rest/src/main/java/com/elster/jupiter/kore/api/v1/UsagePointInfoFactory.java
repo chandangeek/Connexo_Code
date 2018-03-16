@@ -116,7 +116,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("servicePriority", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.servicePriority = usagePoint.getServicePriority());
         map.put("serviceKind", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceKind = usagePoint.getServiceCategory()
                 .getKind());
-        map.put("lifeCycle", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.lifeCycle = usagePoint.getLifeCycle());
         map.put("installationTime", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.installationTime = usagePoint
                 .getInstallationTime());
         map.put("serviceDeliveryRemark", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceDeliveryRemark = usagePoint
