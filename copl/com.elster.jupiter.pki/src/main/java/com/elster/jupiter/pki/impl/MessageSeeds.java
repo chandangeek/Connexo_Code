@@ -13,9 +13,9 @@ import java.util.logging.Level;
  * Defines all the {@link MessageSeed}s of the PKI module.
  */
 public enum MessageSeeds implements MessageSeed {
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
+    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required."),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
-    FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
+    FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required."),
     NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method for a secret value is unknown or not registered yet"),
     DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
     ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm isn''t supported in the environment at this time."),

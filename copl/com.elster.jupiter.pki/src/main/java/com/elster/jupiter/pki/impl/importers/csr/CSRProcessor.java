@@ -109,7 +109,7 @@ class CSRProcessor {
         } catch (CompletionException | InterruptedException | TimeoutException e) {
             throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.SIGN_CSR_BY_CA_TIMED_OUT, alias);
         } catch (ExecutionException e) {
-            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.SIGN_CSR_BY_CA_FAILED, alias, e.getCause().getLocalizedMessage());
+            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.SIGN_CSR_BY_CA_FAILED, e, alias, e.getCause().getLocalizedMessage());
         }
     }
 }
