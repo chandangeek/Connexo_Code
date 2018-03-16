@@ -90,7 +90,8 @@ public enum MessageSeeds implements MessageSeed {
     CSR_SIGNED_SUCCESSFULLY(1075, "SignCsrByCaSucceeded", "Certificate {0} has been signed.", Level.INFO),
     CERTIFICATE_IMPORTED_SUCCESSFULLY(1076, "CertificateImportedSuccessfully", "Signed certificate {0} has been imported to Connexo.", Level.INFO),
     SECURITY_ACCESSOR_USED_BY_IMPORT(1077, "SecurityAccessorUsedByImport", "The security accessor couldn''t be removed because it is used on import services."),
-    TRUSTSTORE_USED_BY_IMPORT(1078, "TrustStoreUsedByImport", "The trust store couldn''t be removed because it is used on import services.");
+    TRUSTSTORE_USED_BY_IMPORT(1078, "TrustStoreUsedByImport", "The trust store couldn''t be removed because it is used on import services."),
+    POSITIVE_VALUE_IS_REQUIRED(1079, "PositiveValueIsRequired", "Positive value is required.");
 
     private final int number;
     private final String key;

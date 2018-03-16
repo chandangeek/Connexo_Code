@@ -77,7 +77,7 @@ class CSRProcessor {
             throw new IllegalStateException("For some reason trusted certificate is found instead of a requestable one.");
         }
         RequestableCertificateWrapper csrWrapper = (RequestableCertificateWrapper) wrapper;
-        // TODO: what the heck is with this method? why not taking key usages from CSR?
+        // TODO: what the heck is with this method? should key usages be taken from CSR? or does indication of key usages here override them?
         csrWrapper.setCSR(csr, EnumSet.noneOf(KeyUsage.class), EnumSet.noneOf(ExtendedKeyUsage.class));
         csrWrapper.save();
         logger.log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, alias);

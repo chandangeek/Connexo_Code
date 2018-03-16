@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -92,12 +93,33 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     @Override
     public void validateProperties(List<FileImporterProperty> properties) {
+        properties.forEach(prop -> {
+            if (prop.getName().equals(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey())) {
+                TimeDuration timeout = (TimeDuration) prop.getValue();
+                if (timeout != null && timeout.isEmpty()) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
+                }
+            }
+            if (prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey())) {
+                Long port = (Long) prop.getValue();
+                if (port != null && port <= 0) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
+                }
+            }
+        });
         if (properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()) && ((Boolean) prop.getValue()))) {
+            Set<String> requiredExportProperties = getPropertySpecs().stream()
+                    .map(PropertySpec::getName)
+                    .filter(name -> name.contains("export"))
+                    .collect(Collectors.toSet());
             properties.stream()
-                    .filter(prop -> prop.getName().contains("export") && prop.getValue() == null)
+                    .filter(prop -> prop.getValue() != null)
+                    .map(FileImporterProperty::getName)
+                    .forEach(requiredExportProperties::remove);
+            requiredExportProperties.stream()
                     .findFirst()
                     .ifPresent(property -> {
-                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "properties." + property.getName());
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, property).fromSubField("properties");
                     });
         }
     }

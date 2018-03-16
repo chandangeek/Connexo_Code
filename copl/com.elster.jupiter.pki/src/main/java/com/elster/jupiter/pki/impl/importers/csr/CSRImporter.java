@@ -84,7 +84,7 @@ class CSRImporter implements FileImporter {
             throw e;
         } catch (Throwable e) {
             logger.markFailure();
-            throw new CSRImporterException(thesaurus, MessageSeeds.CSR_IMPORT_EXCEPTION, e.getLocalizedMessage());
+            throw new CSRImporterException(thesaurus, MessageSeeds.CSR_IMPORT_EXCEPTION, e, e.getLocalizedMessage());
         }
     }
 
