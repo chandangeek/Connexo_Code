@@ -17,7 +17,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.store.TrustStores',
         'Mdc.store.TimeUnitsYearsSeconds',
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
-        'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'
+        'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
     ],
 
     models: [

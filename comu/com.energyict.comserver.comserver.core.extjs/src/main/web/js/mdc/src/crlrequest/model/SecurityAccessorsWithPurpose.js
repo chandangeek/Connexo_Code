@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.crlrequest.model.CrlRequest', {
+Ext.define('Mdc.crlrequest.model.SecurityAccessorsWithPurpose', {
     extend: 'Uni.model.Version',
 
     fields: [
@@ -16,12 +16,6 @@ Ext.define('Mdc.crlrequest.model.CrlRequest', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddr/crlprops',
-        actionMethods: {
-            create: 'PUT',
-            read: 'GET',
-            update: 'PUT',
-            destroy: 'DELETE'
-        }
+        url: '/api/ddr/crlprops'
     }
 });
