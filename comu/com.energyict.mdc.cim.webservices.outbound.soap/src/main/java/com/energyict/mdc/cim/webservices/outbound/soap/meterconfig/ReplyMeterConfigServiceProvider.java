@@ -4,18 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
@@ -24,8 +12,21 @@ import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.Name;
+import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
@@ -39,7 +40,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
@@ -146,7 +146,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
         publish(endPointConfiguration);
         try {
             getMeterConfigPorts()
@@ -209,7 +209,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, Map<String, String> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
         MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
 
         // set reply
@@ -223,10 +223,17 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         }
 
         // set errors
-        failedDevices.forEach((key, value) -> {
+        failedDevices.forEach(failedMeterOperation -> {
             ErrorType errorType = new ErrorType();
-            errorType.setCode(key);
-            errorType.setDetails(value);
+            errorType.setCode(failedMeterOperation.getErrorCode());
+            errorType.setDetails(failedMeterOperation.getErrorMessage());
+            ObjectType objectType = new ObjectType();
+            objectType.setMRID(failedMeterOperation.getmRID());
+            objectType.setObjectType("EndDevice");
+            Name name = new Name();
+            name.setName(failedMeterOperation.getMeterName());
+            objectType.getName().add(name);
+            errorType.setObject(objectType);
             replyType.getError().add(errorType);
         });
 
