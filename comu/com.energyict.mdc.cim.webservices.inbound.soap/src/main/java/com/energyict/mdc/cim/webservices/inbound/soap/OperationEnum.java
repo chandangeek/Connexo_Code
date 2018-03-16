@@ -7,18 +7,24 @@ package com.energyict.mdc.cim.webservices.inbound.soap;
 import java.util.Arrays;
 
 public enum OperationEnum {
-    CREATE("Create"),
-    UPDATE("Update"),
-    UNDEFINED("-");
+    CREATE("Create", "SIM1001"),
+    UPDATE("Update", "SIM1002"),
+    UNDEFINED("-", "");
 
     private String operation;
+    private String defaultErrorCode;
 
-    OperationEnum(String operation) {
+    OperationEnum(String operation, String defaultErrorCode) {
         this.operation = operation;
+        this.defaultErrorCode = defaultErrorCode;
     }
 
     public String getOperation() {
         return operation;
+    }
+
+    public String getDefaultErrorCode() {
+        return defaultErrorCode;
     }
 
     public static OperationEnum getFromString(String operation) {

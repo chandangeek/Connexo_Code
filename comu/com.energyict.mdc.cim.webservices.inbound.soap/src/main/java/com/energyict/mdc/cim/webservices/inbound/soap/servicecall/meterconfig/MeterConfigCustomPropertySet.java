@@ -21,7 +21,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
-
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -140,6 +139,12 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
+                        .describedAs(TranslationKeys.ERROR_CODE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterConfigDomainExtension.FieldNames.OPERATION.javaName(), TranslationKeys.OPERATION)
                         .describedAs(TranslationKeys.OPERATION)
                         .fromThesaurus(thesaurus)
@@ -201,6 +206,10 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
             table.column(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.ERROR_CODE.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName())
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.OPERATION.databaseName())
                     .varChar()

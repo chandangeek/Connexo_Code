@@ -10,12 +10,12 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -23,9 +23,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -170,16 +168,21 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         return devices;
     }
 
-    private Map<String, String> getUnsuccessfullyProceededDevices(ServiceCall serviceCall) {
-        Map<String, String> map = new HashMap<>();
+    private List<FailedMeterOperation> getUnsuccessfullyProceededDevices(ServiceCall serviceCall) {
+        List<FailedMeterOperation> failedMeterOperations = new ArrayList<>();
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-                    map.put(meter.getDeviceName(), extensionFor.getErrorMessage());
+                    FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
+                    failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
+                    failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());
+                    failedMeterOperation.setmRID(meter.getmRID());
+                    failedMeterOperation.setMeterName(meter.getDeviceName());
+                    failedMeterOperations.add(failedMeterOperation);
                 });
-        return map;
+        return failedMeterOperations;
     }
 }

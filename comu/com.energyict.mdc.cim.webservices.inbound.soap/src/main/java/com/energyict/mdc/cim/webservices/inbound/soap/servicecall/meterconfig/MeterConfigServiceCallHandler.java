@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,12 +24,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -92,13 +93,20 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         } catch (Exception faultMessage) {
             MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
             if (faultMessage instanceof FaultMessage) {
                 Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
                 if (errorType.isPresent()) {
                     extension.setErrorMessage(errorType.get().getDetails());
+                    extension.setErrorCode(errorType.get().getCode());
                 } else {
                     extension.setErrorMessage(faultMessage.getLocalizedMessage());
                 }
+            } else if (faultMessage instanceof ConstraintViolationException) {
+                extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations().stream()
+                        .findFirst()
+                        .map(ConstraintViolation::getMessage)
+                        .orElseGet(faultMessage::getMessage));
             } else {
                 extension.setErrorMessage(faultMessage.getLocalizedMessage());
             }
