@@ -24,7 +24,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     models: [
         'Mdc.model.DeviceType',
         'Mdc.securityaccessors.model.SecurityAccessor',
-        'Mdc.securityaccessors.model.SecurityPreviewProperties'
+        'Mdc.securityaccessors.model.SecurityPreviewProperties',
+        'Mdc.crlrequest.model.SecurityAccessorsWithPurpose'
     ],
 
     refs: [

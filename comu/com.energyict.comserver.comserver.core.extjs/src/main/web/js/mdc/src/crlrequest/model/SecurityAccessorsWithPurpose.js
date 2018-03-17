@@ -3,11 +3,10 @@
  */
 
 Ext.define('Mdc.crlrequest.model.SecurityAccessorsWithPurpose', {
-    extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
 
     fields: [
         {name: 'id', type: 'auto', defaultValue: null},
         {name: 'name', type: 'auto', defaultValue: null}
-
     ]
 });

@@ -10,8 +10,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
 
     require: [
         'Cfg.store.DaysWeeksMonths',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
-        'Mdc.securityaccessors.store.SecurityAccessors'
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
     ],
 
     defaults: {
@@ -31,7 +30,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 width: 600,
                 fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
                 labelWidth: 250,
-                store: 'Mdc.securityaccessors.store.SecurityAccessors',
+                store: 'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
                 required: true,
                 emptyText: Uni.I18n.translate('crlrequest.securityAccessorPrompt', 'MDC', 'Select security accessor...'),
                 queryDelay: 500,
