@@ -85,7 +85,7 @@ public class CrlRequestTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public PagedInfoList gelSecurityAccessors(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getSecurityAccessors(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> securityAccessors = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
                 .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
