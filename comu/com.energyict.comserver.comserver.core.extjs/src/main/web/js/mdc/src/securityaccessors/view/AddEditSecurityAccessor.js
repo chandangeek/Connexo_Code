@@ -56,6 +56,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     columns: 1,
                     required: true,
                     vertical: true,
+                    editable : false,
                     disabled: me.isEdit,
                     listeners: {
                         change: me.manageCentrallyChange
@@ -116,6 +117,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     valueField: 'id',
                     forceSelection: true,
                     valueIsRecordData: true,
+                    editable : false,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...'),
                     listeners: {
@@ -150,6 +152,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             displayField: 'name',
                             valueField: 'id',
                             forceSelection: true,
+                            editable : false,
                             disabled: me.isEdit,
                             emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...'),
                             listeners: {
