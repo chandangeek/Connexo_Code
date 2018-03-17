@@ -50,7 +50,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 },
                 {
                     xtype: 'radiogroup',
-                    fieldLabel: Uni.I18n.translate('general.category', 'MDC', 'Category'),
+                    fieldLabel: Uni.I18n.translate('general.purpose', 'MDC', 'Purpose'),
                     itemId: 'mdc-security-accessor-purpose-radio',
                     name: 'purpose',
                     columns: 1,
