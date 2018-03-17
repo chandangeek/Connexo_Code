@@ -12,6 +12,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.CrlRequestService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
 
 import com.google.inject.Inject;
@@ -30,6 +31,7 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     private volatile CaService caService;
     private volatile CrlRequestTaskService crlRequestTaskService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile DeviceService deviceService;
 
     public static final String CRL_REQUEST_TASK_SUBSCRIBER = "CrlRequestSubscriber";
     public static final String CRL_REQUEST_TASK_NAME = "Crl Request Task";
@@ -45,12 +47,14 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     public CrlRequestHandlerFactory(TaskService taskService,
                                     CaService caService,
                                     CrlRequestTaskService crlRequestTaskService,
-                                    SecurityManagementService securityManagementService) {
+                                    SecurityManagementService securityManagementService,
+                                    DeviceService deviceService) {
         this();
         setTaskService(taskService);
         setCaService(caService);
         setCrlRequestTaskService(crlRequestTaskService);
         setSecurityManagementService(securityManagementService);
+        setDeviceService(deviceService);
     }
 
     @Reference
@@ -73,6 +77,11 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         this.securityManagementService = securityManagementService;
     }
 
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     @Override
     public Optional<RecurrentTask> getTask() {
         return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME);
@@ -81,13 +90,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Override
     public TaskOccurrence runNow() {
         if (getTask().isPresent()) {
-            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService));
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService, deviceService));
         }
         return null;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService, deviceService));
     }
 }
