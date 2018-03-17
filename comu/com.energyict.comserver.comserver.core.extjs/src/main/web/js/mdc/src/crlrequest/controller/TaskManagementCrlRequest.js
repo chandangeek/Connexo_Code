@@ -94,44 +94,48 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             recurrenceType = form.down('#crl-recurrence-type'),
             record = {};
 
-// TODO validation
-        form.setLoading();
-        form.updateRecord();
-        record = form.getRecord();
-        record.beginEdit();
+        if (form.isValid()) {
+            formErrorsPanel.setVisible(false);
+            form.setLoading();
+            form.updateRecord();
+            record = form.getRecord();
+            record.beginEdit();
 
-        record.set('nextRun', record.get('nextRun').getTime());
-        record.set('securityAccessorId', record.get('securityAccessorName'));
-        record.set('timeDurationInfo', {
-            count: recurrenceNumber.getValue(),
-            timeUnit: recurrenceType.getValue()
-        });
+            record.set('nextRun', record.get('nextRun').getTime());
+            record.set('securityAccessorId', record.get('securityAccessorName'));
+            record.set('timeDurationInfo', {
+                count: recurrenceNumber.getValue(),
+                timeUnit: recurrenceType.getValue()
+            });
 
-        record.endEdit();
-        record.save({
-            success: function (record, operation) {
-                var successMessage = operation.action === 'create'
-                    ? Uni.I18n.translate('crlRequest.added', 'MDC', 'CRL request task added')
-                    : Uni.I18n.translate('crlRequest.saved', 'MDC', 'CRL request task saved');
+            record.endEdit();
+            record.save({
+                success: function (record, operation) {
+                    var successMessage = operation.action === 'create'
+                        ? Uni.I18n.translate('crlRequest.added', 'MDC', 'CRL request task added')
+                        : Uni.I18n.translate('crlRequest.saved', 'MDC', 'CRL request task saved');
 
-                saveOperationComplete.call(controller);
-                me.getApplication().fireEvent('acknowledge', successMessage);
-            },
-            failure: function (record, operation) {
-                if (operation.response.status == 400) {
-                    formErrorsPanel.show();
-                    if (!Ext.isEmpty(operation.response.responseText)) {
-                        var json = Ext.decode(operation.response.responseText, true);
-                        if (json && json.errors) {
-                            editForm.getForm().markInvalid(json.errors);
+                    saveOperationComplete.call(controller);
+                    me.getApplication().fireEvent('acknowledge', successMessage);
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        formErrorsPanel.show();
+                        if (!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.errors) {
+                                editForm.getForm().markInvalid(json.errors);
+                            }
                         }
                     }
+                },
+                callback: function () {
+                    form.setLoading(false);
                 }
-            },
-            callback: function () {
-                form.setLoading(false);
-            }
-        });
+            });
+        } else {
+            formErrorsPanel.setVisible(true);
+        }
     },
 
     runTaskManagement: function (taskManagement) {
