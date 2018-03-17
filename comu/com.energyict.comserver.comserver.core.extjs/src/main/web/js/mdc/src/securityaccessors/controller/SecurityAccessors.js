@@ -105,6 +105,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessor-manage-centrally-checkbox': {
                 change: this.onManageCentrallyCheck
+            },
+            '#mdc-security-accessor-trust-store-combobox': {
+                change: this.onTrustStoreChange
             }
         });
     },
@@ -439,18 +442,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         });
     },
 
-    onManageCentrallyCheck: function(fld, newValue, oldValue, eOpts) {
-        var me = this;
-        me.isManageCentrallyChecked = newValue;
-
-        if(newValue){
-            me.getSecurityAccessorPreviewProperties()
-        } else {
-            me.getActivePassiveCertContainer().removeAll();
-        }
-
-    },
-
     getSecurityAccessorPreviewProperties: function () {
         var me = this,
             form = me.getAddEditForm(),
@@ -587,11 +578,43 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         );
     },
 
+    onTrustStoreChange: function(combobox, newValue, oldValue) {
+        var me = this,
+            form = combobox.up('form'),
+            keyTypeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox');
+
+        if (manageCentrallyCheckbox.getValue()
+            && !oldValue && keyTypeCombo.getValue()) { // ???
+            // me.getActivePassiveCertContainer().removeAll(); // ???
+            me.getSecurityAccessorPreviewProperties();
+        }
+    },
+
+    onManageCentrallyCheck: function(fld, newValue) {
+        var me = this,
+            form = fld.up('form'),
+            keyTypeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox');
+
+        me.isManageCentrallyChecked = newValue;
+
+        if (trustStoreCombo.getValue()
+            && newValue && keyTypeCombo.getValue()) { // ???
+            // me.getActivePassiveCertContainer().removeAll(); // ???
+            me.getSecurityAccessorPreviewProperties();
+        } else {
+            me.getActivePassiveCertContainer().removeAll();
+        }
+
+    },
+
     keyTypeChanged: function (combobox, newValue, oldValue) {
         var me = this,
             form = combobox.up('form'),
             purposeRadio = form.down('#mdc-security-accessor-purpose-radio'),
             keyRadio = form.down('#mdc-security-accessor-key-radio'),
+            trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox'),
             keyEncryptionMethodStore = me.getStore('Mdc.securityaccessors.store.KeyEncryptionMethods'),
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
@@ -606,7 +629,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
             manageCentrallyCheckbox.enable();
             if (manageCentrallyCheckbox.getValue()
-                && !oldValue) { // ???
+                && !oldValue && trustStoreCombo.getValue()) { // ???
                     // me.getActivePassiveCertContainer().removeAll(); // ???
                 me.getSecurityAccessorPreviewProperties();
             }

@@ -115,6 +115,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
+                    editable : false,
                     valueIsRecordData: true,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
@@ -137,6 +138,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             width: 285,
                             hidden: true,
                             required: true,
+                            editable : false,
                             allowBlank: false,
                             displayField: 'name',
                             valueField: 'id',
