@@ -187,7 +187,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removeCrlRequestTask', 'MDC', "Remove the CRL request task?"),
-            msg: Uni.I18n.translate('crl.deleteConfirmation.msg', 'MDC', 'This CRL request will no longer be available.'),
+            msg: Uni.I18n.translate('crlRequest.deleteConfirmation.msg', 'MDC', 'This CRL request will no longer be available.'),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
