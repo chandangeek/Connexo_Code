@@ -187,7 +187,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removeCrlRequestTask', 'MDC', "Remove the CRL request task?"),
-            msg: Uni.I18n.translate('registeredDevicesKPIs.deleteConfirmation.msg', 'MDC', 'This CRL request will no longer be available.'),
+            msg: Uni.I18n.translate('crl.deleteConfirmation.msg', 'MDC', 'This CRL request will no longer be available.'),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -205,7 +205,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         model.destroy({
             success: function () {
                 removeCompleted.call(controller, true);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registeredDevicesKPIs.removed', 'MDC', 'Registered devices KPI removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('crlRequest.removed', 'MDC', 'Registered devices KPI removed'));
             },
             failure: function (record, operation) {
                 removeCompleted.call(controller, false);
