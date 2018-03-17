@@ -229,8 +229,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     layout: 'vbox',
                     labelWidth: 0,
                     width: 500,
-                    items: [
-                    ]
+                    items: []
                 },
                 {
                     xtype: 'fieldcontainer',

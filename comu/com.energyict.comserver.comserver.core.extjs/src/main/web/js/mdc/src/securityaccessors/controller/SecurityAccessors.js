@@ -628,12 +628,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
             manageCentrallyCheckbox.enable();
-            if (manageCentrallyCheckbox.getValue()
-                && !oldValue && trustStoreCombo.getValue()) { // ???
-                    // me.getActivePassiveCertContainer().removeAll(); // ???
-                me.getSecurityAccessorPreviewProperties();
-            }
         }
+
+        if (manageCentrallyCheckbox.getValue()
+            && !oldValue && trustStoreCombo.getValue()) { // ???
+                // me.getActivePassiveCertContainer().removeAll(); // ???
+            me.getSecurityAccessorPreviewProperties();
+        }
+
         if (!Ext.isEmpty(newValue)) {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
             keyEncryptionMethodStore.on('load', function (store, records, successful) {
