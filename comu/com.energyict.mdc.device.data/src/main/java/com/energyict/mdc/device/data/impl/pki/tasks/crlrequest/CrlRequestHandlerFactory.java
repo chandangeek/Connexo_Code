@@ -18,6 +18,8 @@ import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Optional;
+
 @Component(name = "com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory",
         service = {CrlRequestService.class, MessageHandlerFactory.class},
         property = {"subscriber=" + CrlRequestHandlerFactory.CRL_REQUEST_TASK_SUBSCRIBER,
@@ -72,13 +74,16 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     }
 
     @Override
-    public RecurrentTask getTask() {
-        return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME).get();
+    public Optional<RecurrentTask> getTask() {
+        return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME);
     }
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService));
+        if (getTask().isPresent()) {
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService));
+        }
+        return null;
     }
 
     @Override

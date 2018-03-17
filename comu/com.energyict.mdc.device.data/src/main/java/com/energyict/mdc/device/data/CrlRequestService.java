@@ -9,12 +9,14 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Optional;
+
 @ProviderType
 public interface CrlRequestService {
 
     String COMPONENT_NAME = "CRR";
 
-    RecurrentTask getTask();
+    Optional<RecurrentTask> getTask();
 
     TaskOccurrence runNow();
 
