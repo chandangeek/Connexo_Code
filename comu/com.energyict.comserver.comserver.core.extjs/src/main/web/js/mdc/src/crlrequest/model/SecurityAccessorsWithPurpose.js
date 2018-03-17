@@ -7,7 +7,7 @@ Ext.define('Mdc.crlrequest.model.SecurityAccessorsWithPurpose', {
 
     fields: [
         {name: 'securityAccessorName', type: 'auto', defaultValue: null, persist:false},
-        {name: 'securityAccessorId', type: 'auto', defaultValue: null},
+        {name: 'securityAccessor', type: 'auto', defaultValue: null},
         {name: 'caName', type: 'string', defaultValue: null},
         {name: 'timeDurationInfo', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'auto', defaultValue: new Date().getTime()}

@@ -102,7 +102,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record.beginEdit();
 
             record.set('nextRun', record.get('nextRun').getTime());
-            record.set('securityAccessorId', record.get('securityAccessorName'));
+            record.set('securityAccessor', { id: record.get('securityAccessorName')});
             record.set('timeDurationInfo', {
                 count: recurrenceNumber.getValue(),
                 timeUnit: recurrenceType.getValue()
