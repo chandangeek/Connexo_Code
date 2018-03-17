@@ -633,9 +633,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     // me.getActivePassiveCertContainer().removeAll(); // ???
                 me.getSecurityAccessorPreviewProperties();
             }
-        } else {
-            me.getActivePassiveCertContainer().removeAll();
-            me.getSecurityAccessorPreviewProperties();
         }
         if (!Ext.isEmpty(newValue)) {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
