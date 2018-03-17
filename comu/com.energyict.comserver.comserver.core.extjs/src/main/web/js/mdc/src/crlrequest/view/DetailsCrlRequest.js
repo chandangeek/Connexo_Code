@@ -32,7 +32,7 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 xtype: 'displayfield',
                                 itemId: 'crl-name',
-                                value: Uni.I18n.translate('general.crlRequest', 'MDC', 'Crl request')
+                                value: Uni.I18n.translate('general.crlRequest', 'MDC', 'Crl Request')
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
