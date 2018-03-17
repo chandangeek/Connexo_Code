@@ -587,7 +587,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         );
     },
 
-    keyTypeChanged: function (combobox, newValue) {
+    keyTypeChanged: function (combobox, newValue, oldValue) {
         var me = this,
             form = combobox.up('form'),
             purposeRadio = form.down('#mdc-security-accessor-purpose-radio'),
@@ -605,6 +605,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
             manageCentrallyCheckbox.enable();
+            if (manageCentrallyCheckbox.getValue()
+                && !oldValue) { // ???
+                    // me.getActivePassiveCertContainer().removeAll(); // ???
+                me.getSecurityAccessorPreviewProperties();
+            }
         } else {
             me.getActivePassiveCertContainer().removeAll();
             me.getSecurityAccessorPreviewProperties();

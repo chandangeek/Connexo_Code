@@ -117,16 +117,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     forceSelection: true,
                     valueIsRecordData: true,
                     disabled: me.isEdit,
-                    emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...'),
-                    listeners: {
-                        change: function(){
-                            var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
-
-                            if (!checkbox.isDisabled()) {
-                                checkbox.setValue(false);
-                            }
-                        }
-                    }
+                    emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -151,16 +142,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             valueField: 'id',
                             forceSelection: true,
                             disabled: me.isEdit,
-                            emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...'),
-                            listeners: {
-                                change: function(){
-                                    var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
-
-                                    if (!checkbox.isDisabled()) {
-                                        checkbox.setValue(false);
-                                    }
-                                }
-                            }
+                            emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...')
 
                         },
                         {
