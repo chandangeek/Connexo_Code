@@ -13,7 +13,7 @@ Ext.define('Mdc.crlrequest.store.SecurityAccessorsWithPurpose', {
         url: '/api/ddr/crlprops/securityaccessors',
         reader: {
             type: 'json',
-            root: 'securityaccessors'
+            root: 'securityAccessors'
         }
     }
 });
