@@ -103,7 +103,8 @@ public class CrlRequestTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
     public Response deleteCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info) {
-        deleteCrlRequestTaskAndProperties();
+        crlRequestTaskService.deleteCrlRequestTaskProperties();
+        taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).ifPresent(RecurrentTask::delete);
         return Response.noContent().build();
     }
 
@@ -148,25 +149,17 @@ public class CrlRequestTaskResource {
     private void createOrUpdateCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
         SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
-                .filter(sa -> sa.getKeyAccessorType().getId() == (Long) info.securityAccessor.id)
+                .filter(sa -> sa.getKeyAccessorType().getId() == (Integer) info.securityAccessor.id)
                 .filter(sa -> sa.getActualValue().isPresent() &&
                         sa.getActualValue().get() instanceof CertificateWrapper &&
                         ((CertificateWrapper) sa.getActualValue().get()).getCertificate().isPresent())
                 .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.name));
-        CrlRequestTaskProperty crlRequestTaskProperty;
-        if (!crlRequestTaskService.findCrlRequestTaskProperties().isPresent()) {
-            crlRequestTaskProperty = crlRequestTaskService.newCrlRequestTaskProperties();
-            crlRequestTaskProperty.setRecurrentTask(recurrentTask);
-            crlRequestTaskProperty.setCaName(info.caName);
-            crlRequestTaskProperty.setSecurityAccessor(securityAccessor);
-            crlRequestTaskProperty.save();
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
+
+        if (crlRequestTaskService.findCrlRequestTaskProperties().isPresent()) {
+            crlRequestTaskService.updateCrlRequestTaskProperties(recurrentTask, securityAccessor, info.caName);
         } else {
-            crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties().get();
-            crlRequestTaskProperty.setRecurrentTask(recurrentTask);
-            crlRequestTaskProperty.setCaName(info.caName);
-            crlRequestTaskProperty.setSecurityAccessor(securityAccessor);
-            crlRequestTaskProperty.update();
+            crlRequestTaskService.createCrlRequestTaskProperties(recurrentTask, securityAccessor, info.caName);
         }
     }
 
@@ -174,14 +167,5 @@ public class CrlRequestTaskResource {
         TimeDuration timeDuration = info.timeDurationInfo.asTimeDuration();
         return new TemporalExpression(timeDuration);
     }
-
-
-    private void deleteCrlRequestTaskAndProperties() {
-        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
-        crlRequestTaskProperty.ifPresent(CrlRequestTaskProperty::delete);
-        Optional<RecurrentTask> recurrentTask = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME);
-        recurrentTask.ifPresent(RecurrentTask::delete);
-    }
-
 
 }
