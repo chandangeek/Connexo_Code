@@ -11,6 +11,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     frame: true,
     minButtonWidth: 50,
     itemId : null,
+    image: false,
     requires: [
         'Uni.util.FormErrorMessage',
         'Fwc.devicefirmware.view.ActionMenu',
@@ -351,5 +352,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
             imageIdentifierField.setVisible(false);
         }
+        me.down('#firmware-version-field').setVisible(!me.image);
     }
+
 });

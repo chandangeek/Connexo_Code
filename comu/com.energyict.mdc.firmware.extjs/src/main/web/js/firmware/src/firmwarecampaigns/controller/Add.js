@@ -6,7 +6,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.controller.history.Router',
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
     ],
 
     views: [
@@ -16,14 +17,16 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
     models: [
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
-        'Fwc.firmwarecampaigns.model.FirmwareCampaign'
+        'Fwc.firmwarecampaigns.model.FirmwareCampaign',
+        'Fwc.firmwarecampaigns.model.DayWeekMonth'
     ],
 
     stores: [
         'Fwc.store.DeviceTypes',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.store.Firmwares',
-        'Fwc.store.DeviceGroups'
+        'Fwc.store.DeviceGroups',
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
     ],
 
     refs: [
@@ -80,6 +83,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             page = me.getPage(),
             form = me.getForm(),
             errorMessage = form.down('uni-form-error-message'),
+            periodCombo = form.down('#period-combo'),
+            periodCount = form.down('#period-number'),
             baseForm = form.getForm();
 
         if (!form.isValid()) {
@@ -92,7 +97,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         Ext.resumeLayouts(true);
         form.updateRecord();
         page.setLoading();
-        form.getRecord().save({
+        var record = form.getRecord();
+
+        record.set('validationTimeout', {
+            count: periodCount.getValue(),
+            timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')
+        });
+        record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.addSuccess', 'FWC', 'Firmware campaign added'));

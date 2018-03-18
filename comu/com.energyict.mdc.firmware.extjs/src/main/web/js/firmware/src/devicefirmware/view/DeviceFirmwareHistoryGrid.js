@@ -28,6 +28,16 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 }
             },
             {
+                dataIndex: 'imageIdentifier',
+                header: Uni.I18n.translate('device.firmware.history.imageIdentifier', 'FWC', 'Image identifier'),
+                itemId: 'imageIdentifierHistory',
+                fixed: true,
+                flex: 3,
+                renderer: function (value) {
+                    return value ? value : '-'
+                }
+            },
+            {
                 header: Uni.I18n.translate('device.firmware.history.UploadedOn', 'FWC', 'Uploaded on'),
                 dataIndex: 'uploadedOn',
                 fixed: true,
