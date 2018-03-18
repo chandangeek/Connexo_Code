@@ -6,7 +6,7 @@ Ext.define('Mdc.crlrequest.store.SecurityAccessorsWithPurpose', {
     extend: 'Ext.data.Store',
     require: ['Mdc.crlrequest.model.SecurityAccessorsWithPurpose'],
     model: 'Mdc.crlrequest.model.SecurityAccessorsWithPurpose',
-    autoLoad: false,
+    autoLoad: true,
 
     proxy: {
         type: 'rest',

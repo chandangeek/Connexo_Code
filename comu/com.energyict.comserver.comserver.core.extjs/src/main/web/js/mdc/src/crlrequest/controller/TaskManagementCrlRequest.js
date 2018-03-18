@@ -14,25 +14,13 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         'Mdc.crlrequest.view.DetailsCrlRequest'
     ],
     stores: [
-        // 'Mdc.model.MeterGroup'
+        'Mdc.model.MeterGroup'
     ],
     refs: [
         {ref: 'crlRequestAddEditForm', selector: 'crl-request-addedit-tgm'}
     ],
 
     init: function () {
-        this.control({
-            // 'data-collection-kpi-addedit-tgm #cmb-frequency': {
-            //     change: this.onFrequencyChange
-            // },
-            // 'data-collection-kpi-addedit-tgm #cmb-collectionType': {
-            //     change: this.onCollectionTypeChange
-            // },
-            // 'data-collection-kpi-addedit-tgm #cmb-device-group': {
-            //     change: this.onGroupChange
-            // },
-        });
-
         Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.crlRequest', 'MDC', 'CRL Request'),
             controller: this
@@ -65,11 +53,11 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
     },
 
     canRun: function () {
-        return false;
+        return true;
     },
 
     canHistory: function () {
-        return false;
+        return true;
     },
 
     getType: function () {
@@ -102,7 +90,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record.beginEdit();
 
             record.set('nextRun', record.get('nextRun').getTime());
-            record.set('securityAccessor', { id: record.get('securityAccessorName')});
+            record.set('securityAccessor', { id: record.get('securityAccessor')});
             record.set('timeDurationInfo', {
                 count: recurrenceNumber.getValue(),
                 timeUnit: recurrenceType.getValue()
@@ -124,7 +112,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
                         if (!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
-                                editForm.getForm().markInvalid(json.errors);
+                                form.getForm().markInvalid(json.errors);
                             }
                         }
                     }
@@ -156,10 +144,12 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         model.load('', {
             success: function (record) {
                 var timeDurationInfo = record.get('timeDurationInfo') ? record.get('timeDurationInfo') : {};
+                record.set('securityAccessor', record.get('securityAccessor').id);
                 form.loadRecord(record);
                 recurrenceNumber.setValue(timeDurationInfo.count);
                 recurrenceType.setValue(timeDurationInfo.timeUnit);
                 form.form.clearInvalid();
+                editOperationCompleteLoading.call(controller);
             }
         });
     },
@@ -174,6 +164,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load('', {
             success: function (record) {
+                record.set('id', me.getType());
                 operationCompleted.call(controller, me, taskManagementId, record);
             }
         });
@@ -191,18 +182,20 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        me.removeOperation(record, startRemovingFunc, removeCompleted, controller);
+                        me.removeOperation(null, startRemovingFunc, removeCompleted, controller);
                         break;
                 }
             }
         });
     },
 
-    removeOperation: function (record, type, startRemovingFunc, removeCompleted, controller) {
+    removeOperation: function (record, startRemovingFunc, removeCompleted, controller) {
         var me = this,
-            model = Ext.ModelManager.getModel('Mdc.crlrequest.model.CrlRequest');
+            model = Ext.create('Mdc.crlrequest.model.CrlRequest');
 
-        model.destroy({
+        Ext.Ajax.request({
+            url: '/api/ddr/crlprops',
+            method: 'DELETE',
             success: function () {
                 removeCompleted.call(controller, true);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('crlRequest.removed', 'MDC', 'Registered devices KPI removed'));
@@ -226,7 +219,13 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load('', {
             success: function (record) {
+                var timeDurationInfo = record.get('timeDurationInfo');
+
+                record.set('id', me.getType());
+                record.set('securityAccessor', record.get('securityAccessor').name);
                 widget.loadRecord(record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadTask', me.getType());
             },
             callback: function () {
                 pageMainContent.setLoading(false);

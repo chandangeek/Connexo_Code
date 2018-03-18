@@ -26,7 +26,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
             {
                 xtype: 'combobox',
                 itemId: 'crl-security-accessor-purpose',
-                name: 'securityAccessorName',
+                name: 'securityAccessor',
                 width: 600,
                 fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
                 labelWidth: 250,
@@ -38,6 +38,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 minChars: 0,
                 allowBlank: false,
                 forceSelection: false,
+                editable: false,
                 displayField: 'name',
                 queryMode: 'remote',
                 valueField: 'id'

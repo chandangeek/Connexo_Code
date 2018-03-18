@@ -38,7 +38,7 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
                                 xtype: 'displayfield',
                                 itemId: 'crl-security-accessor',
-                                name: 'securityAccessorName'
+                                name: 'securityAccessor'
                             },
                             {
                                 xtype: 'displayfield',
@@ -48,24 +48,29 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('crlrequest.requestFrequency', 'MDC', 'Request frequency'),
-                                itemId: 'crl-request-frequency',
-                                name: 'frequency'
-                            },
-                            {
-                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('crlrequest.nextRun', 'MDC', 'Next run'),
                                 itemId: 'crl-next-run',
                                 name: 'nextRun',
                                 listeners: {
-                                    render: function(item) {
-                                        item.setValue(Date(item.getValue()));
+                                    afterrender: function(item) {
+                                        var record = item.up('form').getRecord();
+                                        item.setValue(Date(record.get('nextRun')));
                                     }
                                 }
 
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('crlrequest.requestFrequency', 'MDC', 'Request frequency'),
+                                itemId: 'crl-request-frequency',
+                                name: 'timeDurationInfo',
+                                listeners: {
+                                    afterrender: function(item) {
+                                        var record = item.up('form').getRecord();
+                                        item.setValue(record.get('timeDurationInfo').count + ' ' + record.get('timeDurationInfo').timeUnit);
+                                    }
+                                }
                             }
-
-
                         ]
                     }
                 },
@@ -104,13 +109,18 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
         me.callParent(arguments);
     },
 
-    // setRecurrentTasks: function (itemId, recurrentTasks) {
-    //     var me = this,
-    //         recurrentTaskList = [];
-    //
-    //     Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
-    //         recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
-    //     });
-    //     me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
-    // }
+    loadRecord: function (record) {
+        var me = this;
+        me.down('#crl-request-details-form').loadRecord(record);
+    },
+
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+    }
 });
