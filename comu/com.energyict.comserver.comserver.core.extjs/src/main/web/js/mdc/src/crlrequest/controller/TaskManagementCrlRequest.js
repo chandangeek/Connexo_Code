@@ -28,36 +28,36 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
     },
 
     canView: function () {
-        return true;
-        // return Mdc.privileges.CrlRequest.canView();
+        // return true;
+        return Mdc.privileges.CrlRequest.canView();
     },
 
     canAdministrate: function () {
-        return true;
-        // return Mdc.privileges.CrlRequest.canEdit();
+        // return true;
+        return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canEdit: function () {
-        return true;
-        // return Mdc.privileges.CrlRequest.canEdit();
+        // return true;
+        return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canSetTriggers: function () {
-        return true;
-        // return Mdc.privileges.CrlRequest.canEdit();
+        // return true;
+        return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canRemove: function () {
-        return true;
-        // return Mdc.privileges.CrlRequest.canEdit();
+        // return true;
+        return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canRun: function () {
-        return true;
+        return false;
     },
 
     canHistory: function () {
-        return true;
+        return false;
     },
 
     getType: function () {

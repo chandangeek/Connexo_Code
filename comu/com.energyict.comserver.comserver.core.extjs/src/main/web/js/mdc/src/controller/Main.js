@@ -14,6 +14,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.property.UsagePoint',
         'Mdc.dynamicprivileges.DeviceTypeCapability',
         'Mdc.privileges.RegisteredDevicesKpi',
+        'Mdc.privileges.CrlRequest',
         'Apr.controller.TaskManagement'
     ],
 
