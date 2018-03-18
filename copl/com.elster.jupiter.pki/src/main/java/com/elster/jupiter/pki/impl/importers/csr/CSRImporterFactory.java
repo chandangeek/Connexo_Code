@@ -35,6 +35,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,8 +100,7 @@ public class CSRImporterFactory implements FileImporterFactory {
                 if (timeout != null && timeout.isEmpty()) {
                     throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
                 }
-            }
-            if (prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey())) {
+            } else if (prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey())) {
                 Long port = (Long) prop.getValue();
                 if (port != null && port <= 0) {
                     throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
@@ -111,7 +111,7 @@ public class CSRImporterFactory implements FileImporterFactory {
             Set<String> requiredExportProperties = getPropertySpecs().stream()
                     .map(PropertySpec::getName)
                     .filter(name -> name.contains("export"))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
             properties.stream()
                     .filter(prop -> prop.getValue() != null)
                     .map(FileImporterProperty::getName)
