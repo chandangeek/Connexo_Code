@@ -54,7 +54,8 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 listeners: {
                                     afterrender: function(item) {
                                         var record = item.up('form').getRecord();
-                                        item.setValue(Date(record.get('nextRun')));
+                                        item.setValue(new Date(record.get('nextRun')));
+
                                     }
                                 }
 
