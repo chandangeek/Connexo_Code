@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface FirmwareCampaign extends HasId, HasName{
     void setName(String name);
 
