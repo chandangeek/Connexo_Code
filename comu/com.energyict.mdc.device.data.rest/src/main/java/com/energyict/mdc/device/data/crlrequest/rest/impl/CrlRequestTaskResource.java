@@ -152,12 +152,12 @@ public class CrlRequestTaskResource {
                     .setPayLoad("Crl Request")
                     .scheduleImmediately(true)
                     .build();
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun /*Instant.ofEpochMilli(info.nextRun)*/);
+            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
             task.save();
         } else {
             task = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).get();
             task.setScheduleExpression(getScheduleExpression(info));
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun /*Instant.ofEpochMilli(info.nextRun)*/);
+            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
             task.save();
             task.updateNextExecution();
         }
