@@ -5,10 +5,12 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Instant;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CrlRequestTaskPropertyInfo {
     public IdWithNameInfo securityAccessor;
     public String caName;
     public TimeDurationInfo timeDurationInfo;
-    public Long nextRun;
+    public Instant nextRun;
 }

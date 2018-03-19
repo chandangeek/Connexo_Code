@@ -65,11 +65,12 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
 import com.energyict.mdc.device.data.crlrequest.rest.impl.CrlRequestTaskInfoFactory;
 import com.energyict.mdc.device.data.crlrequest.rest.impl.CrlRequestTaskResource;
@@ -194,7 +195,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
-    private volatile CrlRequestTaskService crlRequestTaskService;
+    private volatile CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
+    private volatile CrlRequestService crlRequestService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -621,8 +623,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setCrlRequestTaskService(CrlRequestTaskService crlRequestTaskService) {
-        this.crlRequestTaskService = crlRequestTaskService;
+    public void setCrlRequestTaskPropertiesService(CrlRequestTaskPropertiesService crlRequestTaskPropertiesService) {
+        this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
+    }
+
+    @Reference
+    public void setCrlRequestService(CrlRequestService crlRequestService) {
+        this.crlRequestService = crlRequestService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -741,8 +748,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
             bind(commandRuleService).to(CommandRuleService.class);
             bind(CrlRequestTaskInfoFactory.class).to(CrlRequestTaskInfoFactory.class);
-            bind(crlRequestTaskService).to(CrlRequestTaskService.class);
+            bind(crlRequestTaskPropertiesService).to(CrlRequestTaskPropertiesService.class);
             bind(CrlRequestTaskPropertyInfo.class).to(CrlRequestTaskPropertyInfo.class);
+            bind(crlRequestService).to(CrlRequestService.class);
 
         }
     }

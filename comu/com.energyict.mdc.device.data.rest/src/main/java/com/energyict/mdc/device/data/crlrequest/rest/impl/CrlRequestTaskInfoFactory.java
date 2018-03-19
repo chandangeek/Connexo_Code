@@ -17,7 +17,7 @@ public class CrlRequestTaskInfoFactory {
         info.caName = crlRequestTaskProperty.getCaName();
         TemporalExpression temporalExpression = (TemporalExpression) crlRequestTaskProperty.getRecurrentTask().getScheduleExpression();
         info.timeDurationInfo = TimeDurationInfo.of(temporalExpression.getEvery());
-        info.nextRun = crlRequestTaskProperty.getRecurrentTask().getNextExecution().toEpochMilli();
+        info.nextRun = crlRequestTaskProperty.getRecurrentTask().getNextExecution();
         return info;
     }
 }
