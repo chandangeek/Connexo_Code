@@ -110,7 +110,7 @@ public class CSRImporterFactory implements FileImporterFactory {
         if (properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()) && ((Boolean) prop.getValue()))) {
             Set<String> requiredExportProperties = getPropertySpecs().stream()
                     .map(PropertySpec::getName)
-                    .filter(name -> name.contains("export"))
+                    .filter(name -> name.contains("export") && !name.equals(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey()))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             properties.stream()
                     .filter(prop -> prop.getValue() != null)
