@@ -177,9 +177,9 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getContainer().down('firmware-form-add #radio-firmware-type').setValue({id: id});
                     }
                     if (!deviceType.get('needsImageIdentifierForFirmware')) {
-                        me.getFirmwareForm().down('#text-image-identifier').hide();
+                        me.getFirmwareForm().down('#text-image-identifier') && me.getFirmwareForm().down('#text-image-identifier').hide();
                     }else{
-                        me.getFirmwareForm().down('#text-image-identifier').show();
+                        me.getFirmwareForm().down('#text-image-identifier') && me.getFirmwareForm().down('#text-image-identifier').show();
                     }
                 }
             });

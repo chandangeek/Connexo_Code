@@ -287,7 +287,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         Ext.suspendLayouts();
                         container.removeAll();
                         container.add(records.map(function (record) {
-                            console.log(record);
                             return Ext.create('Fwc.devicefirmware.view.FirmwareForm', {
                                 record: record,
                                 router: router,

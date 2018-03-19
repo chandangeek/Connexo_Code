@@ -40,5 +40,14 @@ Ext.define('Fwc.view.firmware.Form', {
 
         me.callParent(arguments);
         me.loadRecord(me.record);
+    },
+    updateRecord: function(record){
+        var form = this.getForm().updateRecord(record),
+        updatedRecord = this.getForm().getRecord();
+        if(this.down('#radio-firmware-type').getValue()
+            &&  this.down('#radio-firmware-type').getValue().firmwareType === 'caConfigImage'){
+            updatedRecord.set('imageIdentifier', updatedRecord.get('firmwareVersion'))
+        }
+        return form;
     }
 });
