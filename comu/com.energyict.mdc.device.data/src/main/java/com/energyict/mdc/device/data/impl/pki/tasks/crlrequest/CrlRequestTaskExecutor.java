@@ -15,8 +15,8 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 
 import sun.security.x509.X509CRLImpl;
 
@@ -58,7 +58,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         logger.addHandler(occurrence.createTaskLogHandler().asHandler());
         Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties();
         if (!crlRequestTaskProperty.isPresent()) {
-            logger.log(Level.INFO, "no CRL request task properties ");
+            logger.log(Level.INFO, "No CRL request task properties ");
             return;
         }
         if (!caService.isConfigured()) {
@@ -72,7 +72,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         }
         SecurityAccessor securityAccessor = crlRequestTaskProperty.get().getSecurityAccessor();
         if (securityAccessor == null) {
-            logger.log(Level.INFO, "no security accessor configured");
+            logger.log(Level.INFO, "No security accessor configured");
             return;
         }
         PublicKey publicKey = null;
@@ -81,19 +81,18 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             Optional<X509Certificate> x509Certificate = certificateWrapper.getCertificate();
             if (x509Certificate.isPresent()) {
                 publicKey = x509Certificate.get().getPublicKey();
-                logger.log(Level.INFO, "public key " + publicKey.getAlgorithm());
-            }
-            else {
+                logger.log(Level.INFO, "Public key " + publicKey.getAlgorithm());
+            } else {
                 logger.log(Level.INFO, "No certificate with public key configured");
                 return;
             }
         } else {
-            logger.log(Level.INFO, "wrong security accessor configured");
+            logger.log(Level.INFO, "Wrong security accessor configured");
             return;
         }
         Optional<X509CRL> x509CRL = caService.getLatestCRL(caName);
         if (!x509CRL.isPresent()) {
-            logger.log(Level.INFO, "no CRL from " + caName);
+            logger.log(Level.INFO, "No CRL from " + caName);
             return;
         }
         X509CRL crl = x509CRL.get();
@@ -110,9 +109,8 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         Set<X509CRLEntry> x509CRLEntries = ((X509CRLImpl) crl).getRevokedCertificates();
         x509CRLEntries.forEach(x509CRLEntry -> {
             revokedSerialNumbers.add(x509CRLEntry.getSerialNumber());
-            logger.log(Level.INFO, x509CRLEntry.getSerialNumber().toString());
         });
-
+        printCrl(revokedSerialNumbers);
         processNonTrustedCertificates(revokedSerialNumbers);
         processTrustedCertificates(revokedSerialNumbers);
 
@@ -181,6 +179,14 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         return certificateWrapperList.stream().anyMatch(certificateWrapper -> certificateWrapper.getId() == wrapper.getId());
 
     }
+
+    private void printCrl(List<BigInteger> revokedSerialNumbers) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CRL\n");
+        revokedSerialNumbers.forEach(sn -> sb.append("sn=").append(sn).append('\n'));
+        logger.log(Level.INFO, sb.toString());
+    }
+
 
     @Override
     public void postExecute(TaskOccurrence occurrence) {
