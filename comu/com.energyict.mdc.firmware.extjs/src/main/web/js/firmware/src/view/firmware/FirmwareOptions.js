@@ -139,7 +139,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             itemId: 'mdc-edit-options-btn',
                                             text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
                                             privileges: Mdc.privileges.DeviceType.admin,
-                                            action: 'editFirmwareOptionsSignature'
+                                            action: 'editFirmwareOptionsSecurityAccessor'
                                         },
                                         {
                                             itemId: 'mdc-clear-accessor-options-btn',
@@ -155,8 +155,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             {
                                 xtype: 'form',
                                 padding: '15 0 0 0',
-                                itemId: 'form',
-                                model: 'FirmwareManagementOptions',
+                                itemId: 'security-check-form',
                                 flex: 1,
                                 defaults: {
                                     labelWidth: 250
@@ -194,7 +193,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     }
                                 ],
                                 loadRecord: function (record) {
-                                    this.getForm().loadRecord(record);
+                                    console.log(record);
+                                    var securityCheckForm = me.down('#security-check-form');
+                                    if(!record.get('securityAccessor')){
+                                        securityCheckForm.down('#certificate-type').hide();
+                                        securityCheckForm.down('#trust-store').hide();
+                                        securityCheckForm.down('#certificate').hide();
+                                        securityCheckForm.down('#valid-until').hide();
+                                    }
+                                    // this.getForm().loadRecord(record);
                                 }
                             }
                         ]

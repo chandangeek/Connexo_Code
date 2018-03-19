@@ -28,7 +28,8 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.Firmwares',
         'Fwc.store.FirmwareStatuses',
         'Fwc.store.FirmwareTypes',
-        'Fwc.store.SupportedFirmwareTypes'
+        'Fwc.store.SupportedFirmwareTypes',
+        'Fwc.store.SecurityAccessors'
     ],
 
     refs: [
@@ -72,7 +73,7 @@ Ext.define('Fwc.controller.Firmware', {
                         .forward();
                 }
             },
-            'firmware-options [action=editFirmwareOptionsSignature]': {
+            'firmware-options [action=editFirmwareOptionsSecurityAccessor]': {
                 click: function () {
                     this.getController('Uni.controller.history.Router')
                         .getRoute('administration/devicetypes/view/firmwareversions/editSignature', {deviceTypeId: me.deviceTypeId})
@@ -80,11 +81,7 @@ Ext.define('Fwc.controller.Firmware', {
                 }
             },
             'firmware-options [action=clearAccessorFirmwareSignatureOptions]': {
-                click: function () {
-                    this.getController('Uni.controller.history.Router')
-                        .getRoute('administration/devicetypes/view/firmwareversions/clearAccessor', {deviceTypeId: me.deviceTypeId})
-                        .forward();
-                }
+                click: this.clearAccessorFirmwareSignatureOptions
             },
             'firmware-options-edit [action=saveOptionsAction]': {
                 click: this.saveOptionsAction
@@ -448,7 +445,7 @@ Ext.define('Fwc.controller.Firmware', {
                     me.tab2Activate = undefined;
 
                     var widget = view.down('firmware-options'),
-                        form = widget ? widget.down('form') : null;
+                        form = widget ? widget.down('#form') : null;
                     if (form) {
                         form.loadRecord(optionsRecord);
 
@@ -460,6 +457,10 @@ Ext.define('Fwc.controller.Firmware', {
                                 }
                             }
                         });
+                    }
+                    var signatureCheckForm = widget ? widget.down('#security-check-form') : null;
+                    if (signatureCheckForm) {
+                        signatureCheckForm.loadRecord(deviceType);
                     }
 
                     view.setLoading(true);
@@ -541,30 +542,30 @@ Ext.define('Fwc.controller.Firmware', {
     },
 
     clearAccessorFirmwareSignatureOptions: function (deviceTypeId) {
-        var me = this,
-            container = this.getContainer(),
-            model = me.getModel('Fwc.model.FirmwareManagementOptions');
-
-        model.getProxy().setUrl(deviceTypeId);
-        me.loadDeviceType(deviceTypeId, function (deviceType) {
-            me.getApplication().fireEvent('changecontentevent', 'firmware-options-sugnature-accessor-clear', {deviceType: deviceType});
-            var widget = container.down('firmware-options-edit');
-            if (widget) {
-                widget.setLoading();
-                model.load(1, {
-                    success: function (record) {
-                        var form = widget.down('form');
-                        if (form) {
-                            form.loadRecord(record);
-                        }
-                    },
-                    callback: function () {
-                        widget.setLoading(false);
-                    }
-                });
-            }
-            me.reconfigureMenu(deviceType, widget);
-        });
+        // var me = this,
+        //     container = this.getContainer(),
+        //     model = me.getModel('Fwc.model.FirmwareManagementOptions');
+        //
+        // model.getProxy().setUrl(deviceTypeId);
+        // me.loadDeviceType(deviceTypeId, function (deviceType) {
+        //     me.getApplication().fireEvent('changecontentevent', 'firmware-options-sugnature-accessor-clear', {deviceType: deviceType});
+        //     var widget = container.down('firmware-options-edit');
+        //     if (widget) {
+        //         widget.setLoading();
+        //         model.load(1, {
+        //             success: function (record) {
+        //                 var form = widget.down('form');
+        //                 if (form) {
+        //                     form.loadRecord(record);
+        //                 }
+        //             },
+        //             callback: function () {
+        //                 widget.setLoading(false);
+        //             }
+        //         });
+        //     }
+        //     me.reconfigureMenu(deviceType, widget);
+        // });
     },
 
     saveOptionsAction: function () {

@@ -50,12 +50,6 @@ Ext.define('Fwc.controller.History', {
                     controller: 'Fwc.controller.Firmware',
                     action: 'editFirmwareOptionsSignature'
                 },
-                clearAccessor: {
-                    title: Uni.I18n.translate('general.firmwareManagementSpecification.clearAccessor', 'FWC', 'Clear accessor firmware version'),
-                    route: 'clearaccessor',
-                    controller: 'Fwc.controller.Firmware',
-                    action: 'clearAccessorFirmwareSignatureOptions'
-                },
                 editOptions: {
                     title: Uni.I18n.translate('general.firmwareManagementSpecification.edit', 'FWC', 'Edit firmware management specifications'),
                     route: 'editoptions',
