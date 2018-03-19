@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.Name;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -49,7 +51,7 @@ public class DeviceBuilder {
     }
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
-        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter.getDeviceConfigurationName(), meter.getDeviceType());
+        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(), meter.getDeviceType());
         Optional<String> batch = Optional.ofNullable(meter.getBatch());
         Optional<String> serialNumber = Optional.ofNullable(meter.getSerialNumber());
         Optional<String> manufacturer = Optional.ofNullable(meter.getManufacturer());
@@ -86,9 +88,9 @@ public class DeviceBuilder {
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
 
         return () -> {
-            Device changedDevice = mrid.isPresent() ? findDeviceByMRID(mrid.get()) :
+            Device changedDevice = mrid.isPresent() ? findDeviceByMRID(meter, mrid.get()) :
                     deviceService.findDeviceByName(meter.getDeviceName())
-                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
 
             String currentModelNumber = changedDevice.getModelNumber();
             String currentModelVersion = changedDevice.getModelVersion();
@@ -97,28 +99,28 @@ public class DeviceBuilder {
             if (statusReason.isPresent()) {
                 EventReason.forReason(statusReason.get())
                         .filter(EventReason.CHANGE_STATUS::equals)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_STATUS_REASON, statusReason
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NOT_VALID_STATUS_REASON, statusReason
                                 .get()));
-                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
+                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
                 Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
                 ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
                         .stream()
                         .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
                         .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
                         .findFirst()
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue
                                 .orElse("")));
                 executableAction.execute(effectiveDate, Collections.emptyList());
                 changedDevice.save();
-                changedDevice = findDeviceByMRID(changedDevice.getmRID());
+                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
             }
 
             if (multiplierReason.isPresent()) {
                 EventReason.forReason(multiplierReason.get())
                         .filter(EventReason.CHANGE_MULTIPLIER::equals)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_MULTIPLIER_REASON, multiplierReason
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NOT_VALID_MULTIPLIER_REASON, multiplierReason
                                 .get()));
-                changedDevice.setMultiplier(multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
+                changedDevice.setMultiplier(multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
                         multiplierEffectiveDate.orElse(clock.instant()));
             }
 
@@ -147,20 +149,20 @@ public class DeviceBuilder {
         Device build() throws FaultMessage;
     }
 
-    private Device findDeviceByMRID(String mrid) throws FaultMessage {
+    private Device findDeviceByMRID(MeterInfo meter, String mrid) throws FaultMessage {
         return deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
     }
 
-    private DeviceConfiguration findDeviceConfiguration(String deviceConfigurationName, String deviceType) throws
+    private DeviceConfiguration findDeviceConfiguration(MeterInfo meter, String deviceConfigurationName, String deviceType) throws
             FaultMessage {
         return deviceConfigurationService.findDeviceTypeByName(deviceType)
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceType))
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceType))
                 .getConfigurations()
                 .stream()
                 .filter(config -> deviceConfigurationName.equals(config.getName()))
                 .findAny()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION,
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION,
                         deviceConfigurationName));
     }
 

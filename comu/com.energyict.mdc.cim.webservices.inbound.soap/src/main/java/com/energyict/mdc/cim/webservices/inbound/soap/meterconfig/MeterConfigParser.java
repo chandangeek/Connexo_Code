@@ -145,10 +145,10 @@ public class MeterConfigParser {
                 .stream()
                 .filter(endDeviceFunc -> comFuncReference.equals(endDeviceFunc.getMRID()))
                 .findAny()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
                         "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
         return Optional.ofNullable(endDeviceFunction.getConfigID())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT,
                         "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].configID"));
     }
 
@@ -156,18 +156,18 @@ public class MeterConfigParser {
         return Stream.of(extractName(meter.getNames()), extractSerialNumber(meter), extractMrid(meter))
                 .flatMap(Functions.asStream())
                 .findFirst()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CREATE_DEVICE_IDENTIFIER_MISSING));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.CREATE_DEVICE_IDENTIFIER_MISSING));
     }
 
     public String extractDeviceNameForUpdate(Meter meter) throws FaultMessage {
         return extractName(meter.getNames())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CHANGE_DEVICE_IDENTIFIER_MISSING));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.CHANGE_DEVICE_IDENTIFIER_MISSING));
     }
 
     public String extractDeviceTypeName(Meter meter) throws FaultMessage {
         return Optional.ofNullable(meter.getType())
                 .filter(deviceTypeName -> !Checks.is(deviceTypeName).emptyOrOnlyWhiteSpace())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.type"));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.type"));
     }
 
     public String extractEndDeviceFunctionRef(Meter meter) throws FaultMessage {
@@ -178,13 +178,13 @@ public class MeterConfigParser {
                 .map(Meter.SimpleEndDeviceFunction::getRef)
                 .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
                 .findFirst()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.SimpleEndDeviceFunction.ref"));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.SimpleEndDeviceFunction.ref"));
     }
 
     public Instant extractShipmentDate(Meter meter) throws FaultMessage {
         return Optional.ofNullable(meter.getLifecycle())
                 .map(LifecycleDate::getReceivedDate)
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.lifecycle.receivedDate"));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.lifecycle.receivedDate"));
     }
 
     public Optional<String> extractBatch(Meter meter) {
@@ -209,5 +209,9 @@ public class MeterConfigParser {
 
     private Optional<ConfigurationEvent> extractConfigurationEvent(Meter meter) {
         return Optional.ofNullable(meter.getConfigurationEvents());
+    }
+
+    private String getMeterName(Meter meter){
+        return meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
     }
 }

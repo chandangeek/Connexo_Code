@@ -4,14 +4,13 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 
 import javax.inject.Inject;
 import java.util.function.Supplier;
@@ -28,20 +27,20 @@ public class MeterConfigFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    public Supplier<FaultMessage> meterConfigFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(messageSeed, args));
+    public Supplier<FaultMessage> meterConfigFaultMessageSupplier(String meterName, MessageSeeds messageSeed, Object... args) {
+        return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(meterName, messageSeed, args));
     }
 
-    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, String message, String errorCode) {
-        return meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, String message, String errorCode) {
+        return meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(meterName, message, errorCode));
     }
 
-    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, String message) {
-        return meterConfigFaultMessage(messageSeed, message, null);
+    FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, String message) {
+        return meterConfigFaultMessage(meterName, messageSeed, message, null);
     }
 
-    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, MessageSeeds message) {
-        return meterConfigFaultMessage(messageSeed, message.translate(thesaurus), message.getErrorCode());
+    FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, MessageSeeds message) {
+        return meterConfigFaultMessage(meterName, messageSeed, message.translate(thesaurus), message.getErrorCode());
     }
 
     private FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, ReplyType replyType) {
