@@ -28,27 +28,22 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
     },
 
     canView: function () {
-        // return true;
         return Mdc.privileges.CrlRequest.canView();
     },
 
     canAdministrate: function () {
-        // return true;
         return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canEdit: function () {
-        // return true;
         return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canSetTriggers: function () {
-        // return true;
         return Mdc.privileges.CrlRequest.canEdit();
     },
 
     canRemove: function () {
-        // return true;
         return Mdc.privileges.CrlRequest.canEdit();
     },
 
@@ -80,6 +75,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             form = me.getCrlRequestAddEditForm(),
             recurrenceNumber = form.down('#crl-recurrence-number'),
             recurrenceType = form.down('#crl-recurrence-type'),
+            editTask = panel.up('#frm-add-task').down('#task-management-task-type').isDisabled(),
             record = {};
 
         if (form.isValid()) {
@@ -99,9 +95,9 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record.endEdit();
             record.save({
                 success: function (record, operation) {
-                    var successMessage = operation.action === 'create'
-                        ? Uni.I18n.translate('crlRequest.added', 'MDC', 'CRL request task added')
-                        : Uni.I18n.translate('crlRequest.saved', 'MDC', 'CRL request task saved');
+                    var successMessage = editTask
+                        ? Uni.I18n.translate('crlRequest.saved', 'MDC', 'CRL request task saved')
+                        : Uni.I18n.translate('crlRequest.added', 'MDC', 'CRL request task added');
 
                     saveOperationComplete.call(controller);
                     me.getApplication().fireEvent('acknowledge', successMessage);
@@ -198,7 +194,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             method: 'DELETE',
             success: function () {
                 removeCompleted.call(controller, true);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('crlRequest.removed', 'MDC', 'Registered devices KPI removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('crlRequest.removed', 'MDC', 'Crl request task removed'));
             },
             failure: function (record, operation) {
                 removeCompleted.call(controller, false);

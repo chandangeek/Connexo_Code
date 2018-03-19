@@ -67,7 +67,7 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 listeners: {
                                     afterrender: function(item) {
                                         var record = item.up('form').getRecord();
-                                        item.setValue(record.get('timeDurationInfo').count + ' ' + record.get('timeDurationInfo').timeUnit);
+                                        item.setValue(record.get('timeDurationInfo').count + ' ' + record.get('timeDurationInfo').localizedTimeUnit);
                                     }
                                 }
                             }
