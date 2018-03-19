@@ -8,7 +8,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -18,6 +17,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,7 +45,7 @@ public interface FirmwareService {
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType);
     void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
     void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
-    void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile);
+    void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile);
     Thesaurus getThesaurus();
 
 

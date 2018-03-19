@@ -59,6 +59,7 @@ import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -78,7 +79,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -580,12 +586,21 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+    public void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile) {
+        Optional<DeviceProtocolPluggableClass> protocol = deviceType.getDeviceProtocolPluggableClass();
+        if (protocol.isPresent() && securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
             CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 PublicKey publicKey = x509Certificate.getPublicKey();
+                try {
+                    if (protocol.get().getDeviceProtocol().firmwareSignatureCheckSupported()
+                            && !protocol.get().getDeviceProtocol().verifyFirmwareSignature(firmwareFile, publicKey)) {
+                        throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+                    }
+                } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException | IOException e) {
+                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+                }
             }
         }
     }
