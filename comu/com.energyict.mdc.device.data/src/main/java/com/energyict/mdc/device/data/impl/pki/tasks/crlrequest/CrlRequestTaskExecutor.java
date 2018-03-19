@@ -30,7 +30,9 @@ import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,13 +45,15 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
     private volatile CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
+    private volatile Clock clock;
     private final Logger logger;
 
-    public CrlRequestTaskExecutor(CaService caService, CrlRequestTaskPropertiesService crlRequestTaskPropertiesService, SecurityManagementService securityManagementService, DeviceService deviceService) {
+    public CrlRequestTaskExecutor(CaService caService, CrlRequestTaskPropertiesService crlRequestTaskPropertiesService, SecurityManagementService securityManagementService, DeviceService deviceService, Clock clock) {
         this.caService = caService;
         this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
         this.securityManagementService = securityManagementService;
         this.deviceService = deviceService;
+        this.clock = clock;
         logger = Logger.getAnonymousLogger();
     }
 
@@ -58,51 +62,54 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         logger.addHandler(occurrence.createTaskLogHandler().asHandler());
         Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties();
         if (!crlRequestTaskProperty.isPresent()) {
-            logger.log(Level.INFO, "No CRL request task properties ");
+            logger.log(Level.WARNING, "No CRL request task properties ");
             return;
         }
         if (!caService.isConfigured()) {
-            logger.log(Level.INFO, "CA service is not configured");
+            logger.log(Level.WARNING, "CA service is not configured");
             return;
         }
         String caName = crlRequestTaskProperty.get().getCaName();
         if (!caService.getPkiCaNames().contains(caName)) {
-            logger.log(Level.INFO, caName + " is not configured");
+            logger.log(Level.WARNING, "CA " + caName + " is not configured");
             return;
         }
         SecurityAccessor securityAccessor = crlRequestTaskProperty.get().getSecurityAccessor();
         if (securityAccessor == null) {
-            logger.log(Level.INFO, "No security accessor configured");
+            logger.log(Level.WARNING, "No security accessor configured");
             return;
         }
-        PublicKey publicKey = null;
+        PublicKey publicKey;
         if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
             CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
             Optional<X509Certificate> x509Certificate = certificateWrapper.getCertificate();
             if (x509Certificate.isPresent()) {
+                boolean expired = x509Certificate.get().getNotAfter().before(Date.from(clock.instant()));
+                if (expired) {
+                    logger.log(Level.WARNING, "Security accessor certificate is expired");
+                    return;
+                }
                 publicKey = x509Certificate.get().getPublicKey();
                 logger.log(Level.INFO, "Public key " + publicKey.getAlgorithm());
             } else {
-                logger.log(Level.INFO, "No certificate with public key configured");
+                logger.log(Level.WARNING, "No certificate with public key configured");
                 return;
             }
         } else {
-            logger.log(Level.INFO, "Wrong security accessor configured");
+            logger.log(Level.WARNING, "Wrong security accessor configured");
             return;
         }
         Optional<X509CRL> x509CRL = caService.getLatestCRL(caName);
         if (!x509CRL.isPresent()) {
-            logger.log(Level.INFO, "No CRL from " + caName);
+            logger.log(Level.WARNING, "No CRL from " + caName);
             return;
         }
         X509CRL crl = x509CRL.get();
-        if (publicKey != null) {
-            try {
-                crl.verify(publicKey);
-            } catch (CRLException | NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException | SignatureException e) {
-                logger.log(Level.SEVERE, e.getMessage());
-                return;
-            }
+        try {
+            crl.verify(publicKey);
+        } catch (CRLException | NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException | SignatureException e) {
+            logger.log(Level.SEVERE, e.getMessage());
+            return;
         }
 
         List<BigInteger> revokedSerialNumbers = new ArrayList<>();
@@ -113,7 +120,6 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         printCrl(revokedSerialNumbers);
         processNonTrustedCertificates(revokedSerialNumbers);
         processTrustedCertificates(revokedSerialNumbers);
-
     }
 
     private void processNonTrustedCertificates(List<BigInteger> revokedSerialNumbers) {
@@ -156,11 +162,11 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         boolean isUsedByDirectory = !securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(certificateWrapper)).isEmpty();
         boolean isUsedByDevices = usedByDevices(certificateWrapper);
         if (isUsedByCertificateAccessors) {
-            logger.log(Level.INFO, certificateWrapper.getAlias() + " is still used by certificate accessors");
+            logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by certificate accessors");
         } else if (isUsedByDirectory) {
-            logger.log(Level.INFO, certificateWrapper.getAlias() + " is still used by user directory");
+            logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by user directory");
         } else if (isUsedByDevices) {
-            logger.log(Level.INFO, certificateWrapper.getAlias() + " is still used by devices");
+            logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by devices");
         } else {
             logger.log(Level.INFO, "Changing status to REVOKED for " + certificateWrapper.getAlias());
             certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
@@ -177,12 +183,11 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
                 .map(securityAccessor -> (CertificateWrapper) securityAccessor.getActualValue().get())
                 .collect(Collectors.toList());
         return certificateWrapperList.stream().anyMatch(certificateWrapper -> certificateWrapper.getId() == wrapper.getId());
-
     }
 
     private void printCrl(List<BigInteger> revokedSerialNumbers) {
         StringBuilder sb = new StringBuilder();
-        sb.append("CRL\n");
+        sb.append("Received CRL\n");
         revokedSerialNumbers.forEach(sn -> sb.append("sn=").append(sn).append('\n'));
         logger.log(Level.INFO, sb.toString());
     }

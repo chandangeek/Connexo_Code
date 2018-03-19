@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory",
@@ -32,6 +33,7 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     private volatile CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
+    private volatile Clock clock;
 
     public static final String CRL_REQUEST_TASK_SUBSCRIBER = "CrlRequestSubscriber";
     public static final String CRL_REQUEST_TASK_NAME = "Crl Request Task";
@@ -48,13 +50,15 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
                                     CaService caService,
                                     CrlRequestTaskPropertiesService crlRequestTaskPropertiesService,
                                     SecurityManagementService securityManagementService,
-                                    DeviceService deviceService) {
+                                    DeviceService deviceService,
+                                    Clock clock) {
         this();
         setTaskService(taskService);
         setCaService(caService);
         setCrlRequestTaskPropertiesService(crlRequestTaskPropertiesService);
         setSecurityManagementService(securityManagementService);
         setDeviceService(deviceService);
+        setClock(clock);
     }
 
     @Reference
@@ -82,6 +86,11 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Optional<RecurrentTask> getTask() {
         return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME);
@@ -90,13 +99,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Override
     public TaskOccurrence runNow() {
         if (getTask().isPresent()) {
-            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService));
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock));
         }
         return null;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock));
     }
 }
