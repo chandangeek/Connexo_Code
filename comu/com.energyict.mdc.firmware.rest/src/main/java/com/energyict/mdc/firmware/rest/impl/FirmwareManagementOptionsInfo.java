@@ -16,6 +16,7 @@ public class FirmwareManagementOptionsInfo {
     public List<ManagementOptionInfo> supportedOptions;
     public List<ManagementOptionInfo> allowedOptions;
     public long version;
+    public Boolean validateFirmwareFileSignature;
 
     public FirmwareManagementOptionsInfo() {
         supportedOptions = new ArrayList<>();

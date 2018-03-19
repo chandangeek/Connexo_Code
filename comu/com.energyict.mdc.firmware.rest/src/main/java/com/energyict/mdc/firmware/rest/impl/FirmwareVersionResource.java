@@ -38,9 +38,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -132,8 +137,8 @@ public class FirmwareVersionResource {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         }
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
-        Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareFileSignature(securityAccessor.get(), firmwareFile));
+        resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
+                .ifPresent(securityAccessor -> resourceHelper.checkFirmwareVersion(deviceType, securityAccessor, firmwareFile));
         setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);
         FirmwareVersion version = firmwareVersionBuilder.create();
         setFirmwareFile(version, firmwareFile);
@@ -194,8 +199,8 @@ public class FirmwareVersionResource {
         }
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
-        Optional<SecurityAccessor> securityAccessor = resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId);
-        securityAccessor.ifPresent(sa -> resourceHelper.validateFirmwareFileSignature(securityAccessor.get(), firmwareFile));
+        resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
+                .ifPresent(securityAccessor -> resourceHelper.checkFirmwareVersion(deviceType, securityAccessor, firmwareFile));
         setExpectedFirmwareSize(firmwareVersion, firmwareFile);
         firmwareVersion.update();
         setFirmwareFile(firmwareVersion, firmwareFile);
@@ -223,21 +228,6 @@ public class FirmwareVersionResource {
             default:
         }
         return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
-    }
-
-    @GET
-    @Transactional
-    @Path("/checkFirmwareSignatureSupported")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
-    public Response checkFirmwareSignatureSupported(@PathParam("deviceTypeId") long deviceTypeId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
-        if (deviceProtocolPluggableClass.isPresent()) {
-            DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
-            // deviceProtocol.supportFirmwareSignatureCheck();
-        }
-        return Response.ok().build();
     }
 
     private FirmwareVersionFilter getFirmwareFilter(JsonQueryFilter filter, DeviceType deviceType) {

@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -28,6 +27,9 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -194,9 +196,23 @@ public class ResourceHelper {
                 .map(SecurityAccessorOnDeviceType::getSecurityAccessor));
     }
 
-    public void validateFirmwareFileSignature(SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        firmwareService.validateFirmwareFileSignature(securityAccessor, firmwareFile);
-
+    public void checkFirmwareVersion(DeviceType deviceType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        if (deviceType.getDeviceProtocolPluggableClass().filter(p -> p.getDeviceProtocol().firmwareSignatureCheckSupported()).isPresent()) {
+            File tempFirmwareFile = null;
+            try {
+                tempFirmwareFile = File.createTempFile("tempFirmwareFile" + Instant.now().toEpochMilli(), ".tmp");
+                try (FileOutputStream fos = new FileOutputStream(tempFirmwareFile)) {
+                    fos.write(firmwareFile);
+                }
+                firmwareService.validateFirmwareFileSignature(deviceType, securityAccessor, tempFirmwareFile);
+            } catch (Exception e) {
+                throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+            } finally {
+                if (tempFirmwareFile != null && tempFirmwareFile.exists()) {
+                    tempFirmwareFile.delete();
+                }
+            }
+        }
     }
 
     Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {
