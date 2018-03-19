@@ -16,7 +16,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 
 import sun.security.x509.X509CRLImpl;
 
@@ -40,14 +40,14 @@ import java.util.stream.Collectors;
 
 public class CrlRequestTaskExecutor implements TaskExecutor {
     private volatile CaService caService;
-    private volatile CrlRequestTaskService crlRequestTaskService;
+    private volatile CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
     private final Logger logger;
 
-    public CrlRequestTaskExecutor(CaService caService, CrlRequestTaskService crlRequestTaskService, SecurityManagementService securityManagementService, DeviceService deviceService) {
+    public CrlRequestTaskExecutor(CaService caService, CrlRequestTaskPropertiesService crlRequestTaskPropertiesService, SecurityManagementService securityManagementService, DeviceService deviceService) {
         this.caService = caService;
-        this.crlRequestTaskService = crlRequestTaskService;
+        this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
         this.securityManagementService = securityManagementService;
         this.deviceService = deviceService;
         logger = Logger.getAnonymousLogger();
@@ -56,7 +56,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         logger.addHandler(occurrence.createTaskLogHandler().asHandler());
-        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskService.findCrlRequestTaskProperties();
+        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties();
         if (!crlRequestTaskProperty.isPresent()) {
             logger.log(Level.INFO, "no CRL request task properties ");
             return;
@@ -81,7 +81,11 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
             Optional<X509Certificate> x509Certificate = certificateWrapper.getCertificate();
             if (x509Certificate.isPresent()) {
                 publicKey = x509Certificate.get().getPublicKey();
-                logger.log(Level.INFO, "public key " + publicKey);
+                logger.log(Level.INFO, "public key " + publicKey.getAlgorithm());
+            }
+            else {
+                logger.log(Level.INFO, "No certificate with public key configured");
+                return;
             }
         } else {
             logger.log(Level.INFO, "wrong security accessor configured");
@@ -180,6 +184,6 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
 
     @Override
     public void postExecute(TaskOccurrence occurrence) {
-
+        logger.log(Level.INFO, "CRL request task has been triggered");
     }
 }

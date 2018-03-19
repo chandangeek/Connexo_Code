@@ -13,7 +13,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
@@ -29,7 +29,7 @@ import java.util.Optional;
 public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlRequestService {
     private volatile TaskService taskService;
     private volatile CaService caService;
-    private volatile CrlRequestTaskService crlRequestTaskService;
+    private volatile CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
 
@@ -46,13 +46,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Inject
     public CrlRequestHandlerFactory(TaskService taskService,
                                     CaService caService,
-                                    CrlRequestTaskService crlRequestTaskService,
+                                    CrlRequestTaskPropertiesService crlRequestTaskPropertiesService,
                                     SecurityManagementService securityManagementService,
                                     DeviceService deviceService) {
         this();
         setTaskService(taskService);
         setCaService(caService);
-        setCrlRequestTaskService(crlRequestTaskService);
+        setCrlRequestTaskPropertiesService(crlRequestTaskPropertiesService);
         setSecurityManagementService(securityManagementService);
         setDeviceService(deviceService);
     }
@@ -68,8 +68,8 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     }
 
     @Reference
-    public void setCrlRequestTaskService(CrlRequestTaskService crlRequestTaskService) {
-        this.crlRequestTaskService = crlRequestTaskService;
+    public void setCrlRequestTaskPropertiesService(CrlRequestTaskPropertiesService crlRequestTaskPropertiesService) {
+        this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
     }
 
     @Reference
@@ -90,13 +90,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Override
     public TaskOccurrence runNow() {
         if (getTask().isPresent()) {
-            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService, deviceService));
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService));
         }
         return null;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskService, securityManagementService, deviceService));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService));
     }
 }

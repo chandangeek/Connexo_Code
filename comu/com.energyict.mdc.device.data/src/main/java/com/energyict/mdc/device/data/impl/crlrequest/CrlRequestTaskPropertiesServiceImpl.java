@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.crlrequest;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import javax.inject.Inject;
@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class CrlRequestTaskServiceImpl implements CrlRequestTaskService {
+public class CrlRequestTaskPropertiesServiceImpl implements CrlRequestTaskPropertiesService {
     private volatile DeviceDataModelService deviceDataModelService;
 
     @Inject
-    public CrlRequestTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
+    public CrlRequestTaskPropertiesServiceImpl(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
     }
 
