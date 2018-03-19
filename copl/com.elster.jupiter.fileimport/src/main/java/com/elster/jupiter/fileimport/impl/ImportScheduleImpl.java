@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -296,7 +297,9 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     public Map<String, Object> getProperties() {
         if (fileImportService.getImportFactory(importerName).isPresent()) {
             return properties.stream()
-                    .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
+                    .map(property -> Pair.of(property.getName(), property.getValue()))
+                    .filter(Pair::hasLast)
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
         }
         return Collections.emptyMap();
     }
