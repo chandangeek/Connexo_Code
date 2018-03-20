@@ -21,6 +21,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.TranslationKeys;
+import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
@@ -287,5 +288,10 @@ public class CSRImporterFactory implements FileImporterFactory {
     @Reference
     public void setClock(Clock clock){
         this.clock = clock;
+    }
+
+    @Reference
+    public void setSoftwareSecurityDataModel(SoftwareSecurityDataModel ignored) {
+        // just wait for security data model to start
     }
 }
