@@ -191,7 +191,7 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_ON_SECURITY_ACCESSOR(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
     COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE, "The device command ''{0}'' should have a ''key type'' attribute"),
     PROPERTY_VALUE_REQUIRED(2166, "InvalidPropertyValue", "Value for property {0} is required"),
-    ;
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK(2167, "VetoSecurityAccessorRemovalFromCrlTask", "The security accessor couldn''t be removed since it is used by {0}"),;
 
     private final int number;
     private final String key;
@@ -385,8 +385,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED = "device.config.change.to.less.channels.provided";
         public static final String NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED = "device.config.not.data.logger.enabled";
         public static final String NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED = "device.config.not.multi.element.enabled";
-        public static final String NO_BASIC_CHECK_COMTASK ="No.comtask.for.basic.check";
-        public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE ="command.should.have.a.key.accessor.reference.attribute";
+        public static final String NO_BASIC_CHECK_COMTASK = "No.comtask.for.basic.check";
+        public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE = "command.should.have.a.key.accessor.reference.attribute";
         public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
         public static final String COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE = "command.should.have.a.key.type.attribute";
     }
