@@ -388,28 +388,37 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         }
 
         if(me.isManageCentrallyChecked){
-            var currentProperties = me.defaultPropertiesData.currentProperties;
-            _.map(currentProperties, function(property){
-                var key = property.key;
-                if (key === 'alias') {
-                    property.propertyValueInfo = {
-                        value: activeAliasCombo.getValue()
-                    };
-                }
-            });
-
-            var tempProperties = me.defaultPropertiesData.tempProperties;
-            _.forEach(tempProperties, function(property){
-                var key = property.key;
-                if (key === 'alias') {
-                    property.propertyValueInfo = {
-                        value: passiveAliasCombo.getValue()
-                    };
-                }
-            });
             var defaultValueData = me.defaultPropertiesData;
-            defaultValueData.tempProperties = tempProperties;
-            defaultValueData.currentProperties = currentProperties;
+
+            if (activeAliasCombo.getValue()) {
+                var currentProperties = me.defaultPropertiesData.currentProperties;
+                _.map(currentProperties, function(property){
+                    var key = property.key;
+                    if (key === 'alias') {
+                        property.propertyValueInfo = {
+                            value: activeAliasCombo.getValue()
+                        };
+                    }
+                });
+                defaultValueData.currentProperties = currentProperties;
+            } else {
+                defaultValueData.currentProperties = undefined;
+            }
+
+            if (passiveAliasCombo.getValue()) {
+                var tempProperties = me.defaultPropertiesData.tempProperties;
+                _.forEach(tempProperties, function(property){
+                    var key = property.key;
+                    if (key === 'alias') {
+                        property.propertyValueInfo = {
+                            value: passiveAliasCombo.getValue()
+                        };
+                    }
+                });
+                defaultValueData.tempProperties = tempProperties;
+            } else {
+                defaultValueData.tempProperties = undefined;
+            }
 
             record.set('defaultValue', defaultValueData);
         } else {
