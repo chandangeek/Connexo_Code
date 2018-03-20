@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -29,6 +30,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +45,10 @@ public class ResourceHelper {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
     private final SecurityManagementService securityManagementService;
+    private final Clock clock;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, SecurityManagementService securityManagementService) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, SecurityManagementService securityManagementService, Clock clock) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
@@ -54,6 +57,7 @@ public class ResourceHelper {
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
         this.securityManagementService = securityManagementService;
+        this.clock = clock;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -172,9 +176,9 @@ public class ResourceHelper {
         return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
     }
 
-   public void deleteSecurityAccessorForSignatureValidation(long securityAccessorId, long deviceTypeId) {
+   public void deleteSecurityAccessorForSignatureValidation(long deviceTypeId) {
        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-       Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(securityAccessorId);
+       Optional<SecurityAccessor> securityAccessor = findSecurityAccessorForSignatureValidation(deviceTypeId);
        if (deviceType.isPresent() && securityAccessor.isPresent()) {
            firmwareService.deleteSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
        }
@@ -197,6 +201,10 @@ public class ResourceHelper {
     }
 
     public void checkFirmwareVersion(DeviceType deviceType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        if(securityAccessor.getActualValue().isPresent()
+                && ((CertificateWrapper)securityAccessor.getActualValue().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()){
+            throw new LocalizedFieldValidationException(MessageSeeds.SECURITY_ACCESSOR_EXPIRED, "firmwareFile");
+        }
         if (deviceType.getDeviceProtocolPluggableClass().filter(p -> p.getDeviceProtocol().firmwareSignatureCheckSupported()).isPresent()) {
             File tempFirmwareFile = null;
             try {
@@ -206,7 +214,7 @@ public class ResourceHelper {
                 }
                 firmwareService.validateFirmwareFileSignature(deviceType, securityAccessor, tempFirmwareFile);
             } catch (Exception e) {
-                throw exceptionFactory.newException(MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+                throw new LocalizedFieldValidationException(MessageSeeds.SIGNATURE_VALIDATION_FAILED, "firmwareFile");
             } finally {
                 if (tempFirmwareFile != null && tempFirmwareFile.exists()) {
                     tempFirmwareFile.delete();

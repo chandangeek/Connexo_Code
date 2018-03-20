@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.firmware.rest.SecurityAccessorInfo;
@@ -22,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/devicetypes/{deviceTypeId}/securityaccessors")
@@ -42,7 +40,7 @@ public class SecurityAccessorResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    @Path("/securityaccessors")
+    @Path("/availablesecurityaccessors")
     public Response getSecurityAccessorsWithFileOperations(@PathParam("deviceTypeId") long deviceTypeId) {
         List<SecurityAccessorInfo> infoList = resourceHelper.getCertificatesWithFileOperations()
                 .stream()
@@ -57,10 +55,9 @@ public class SecurityAccessorResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    @Path("/securityaccessor/{id}")
-    public Response getSecurityAccessorInfo(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
-        Optional<SecurityAccessor> securityAccessor = resourceHelper.getCertificateWithFileOperations(id);
-        return securityAccessor.map(sa -> Response.ok(securityAccessorInfoFactory.from(sa)).build()).orElseGet(() -> Response.ok(new SecurityAccessorInfo()).build());
+    public Response getSecurityAccessorInfo(@PathParam("deviceTypeId") long deviceTypeId) {
+        return resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
+                .map(sa -> Response.ok(securityAccessorInfoFactory.from(sa)).build()).orElseGet(() -> Response.ok(new SecurityAccessorInfo()).build());
     }
 
     @DELETE
@@ -68,9 +65,8 @@ public class SecurityAccessorResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    @Path("/deletesecurityaccessor/{securityAccessorId}")
-    public Response deleteSecurityAccessor(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId) {
-        resourceHelper.deleteSecurityAccessorForSignatureValidation(securityAccessorId, deviceTypeId);
+    public Response deleteSecurityAccessor(@PathParam("deviceTypeId") long deviceTypeId) {
+        resourceHelper.deleteSecurityAccessorForSignatureValidation(deviceTypeId);
         return Response.ok().build();
     }
 
