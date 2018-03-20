@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -33,8 +34,9 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     public CertificateAccessorImpl(DataModel dataModel,
                                    SecurityManagementService securityManagementService,
                                    Thesaurus thesaurus,
-                                   FileImportService fileImportService) {
-        super(securityManagementService, dataModel, fileImportService, thesaurus);
+                                   FileImportService fileImportService,
+                                   EventService eventService) {
+        super(securityManagementService, dataModel, fileImportService, thesaurus, eventService);
     }
 
     @Override
