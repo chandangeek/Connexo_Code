@@ -43,6 +43,8 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl<Col
         collectedFirmwareVersions.getPassiveMeterFirmwareVersion().ifPresent(addBuilderProperty(builder, "passive meter firmware version"));
         collectedFirmwareVersions.getActiveCommunicationFirmwareVersion().ifPresent(addBuilderProperty(builder, "active communication firmware version"));
         collectedFirmwareVersions.getPassiveCommunicationFirmwareVersion().ifPresent(addBuilderProperty(builder, "passive communication firmware version"));
+        collectedFirmwareVersions.getActiveCaConfigImageVersion().ifPresent(addBuilderProperty(builder, "active CA config image"));
+        collectedFirmwareVersions.getPassiveCaConfigImageVersion().ifPresent(addBuilderProperty(builder, "passive CA config image"));
     }
 
     private Consumer<String> addBuilderProperty(DescriptionBuilder builder, String propertyName) {
