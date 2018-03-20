@@ -50,7 +50,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 },
                 {
                     xtype: 'radiogroup',
-                    fieldLabel: Uni.I18n.translate('general.category', 'MDC', 'Category'),
+                    fieldLabel: Uni.I18n.translate('general.purpose', 'MDC', 'Purpose'),
                     itemId: 'mdc-security-accessor-purpose-radio',
                     name: 'purpose',
                     columns: 1,
@@ -116,19 +116,11 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
+                    editable : false,
                     valueIsRecordData: true,
                     editable : false,
                     disabled: me.isEdit,
-                    emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...'),
-                    listeners: {
-                        change: function(){
-                            var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
-
-                            if (!checkbox.isDisabled()) {
-                                checkbox.setValue(false);
-                            }
-                        }
-                    }
+                    emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -148,22 +140,14 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             width: 285,
                             hidden: true,
                             required: true,
+                            editable : false,
                             allowBlank: false,
                             displayField: 'name',
                             valueField: 'id',
                             forceSelection: true,
                             editable : false,
                             disabled: me.isEdit,
-                            emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...'),
-                            listeners: {
-                                change: function(){
-                                    var checkbox = me.down('#mdc-security-accessor-manage-centrally-checkbox');
-
-                                    if (!checkbox.isDisabled()) {
-                                        checkbox.setValue(false);
-                                    }
-                                }
-                            }
+                            emptyText: Uni.I18n.translate('securityaccessors.selectTrustStore','MDC', 'Select a trust store...')
 
                         },
                         {
@@ -248,8 +232,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     layout: 'vbox',
                     labelWidth: 0,
                     width: 500,
-                    items: [
-                    ]
+                    items: []
                 },
                 {
                     xtype: 'fieldcontainer',
