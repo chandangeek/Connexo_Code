@@ -160,7 +160,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
     private void revoke(CertificateWrapper certificateWrapper) {
         logger.log(Level.INFO, "Processing " + certificateWrapper.getAlias());
         boolean isUsedByCertificateAccessors = securityManagementService.isUsedByCertificateAccessors(certificateWrapper);
-        boolean isUsedByDirectory = !securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(certificateWrapper)).isEmpty();
+        boolean isUsedByDirectory = securityManagementService.streamDirectoryCertificateUsages().anyMatch(Where.where("certificate").isEqualTo(certificateWrapper));
         boolean isUsedByDevices = usedByDevices(certificateWrapper);
         if (isUsedByCertificateAccessors) {
             logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by certificate accessors");
