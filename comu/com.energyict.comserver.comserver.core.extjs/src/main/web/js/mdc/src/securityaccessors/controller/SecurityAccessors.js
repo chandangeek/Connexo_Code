@@ -585,8 +585,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox');
 
         if (manageCentrallyCheckbox.getValue()
-            && !oldValue && keyTypeCombo.getValue()) { // ???
-            // me.getActivePassiveCertContainer().removeAll(); // ???
+            && newValue && keyTypeCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
             me.getSecurityAccessorPreviewProperties();
         }
     },
@@ -600,8 +600,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         me.isManageCentrallyChecked = newValue;
 
         if (trustStoreCombo.getValue()
-            && newValue && keyTypeCombo.getValue()) { // ???
-            // me.getActivePassiveCertContainer().removeAll(); // ???
+            && newValue && keyTypeCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
             me.getSecurityAccessorPreviewProperties();
         } else {
             me.getActivePassiveCertContainer().removeAll();
@@ -631,8 +631,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         }
 
         if (manageCentrallyCheckbox.getValue()
-            && !oldValue && trustStoreCombo.getValue()) { // ???
-                // me.getActivePassiveCertContainer().removeAll(); // ???
+            && newValue && trustStoreCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
             me.getSecurityAccessorPreviewProperties();
         }
 
