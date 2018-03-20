@@ -33,6 +33,8 @@ import com.energyict.mdc.processes.keyrenewal.api.Installer;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -48,6 +50,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.processes.keyrenewal.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -181,7 +185,10 @@ public class KeyRenewalApplication extends Application implements TranslationKey
                 bind(CaService.class).toInstance(caService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(
+                        version(10, 4, 1), UpgraderV10_4_1.class
+                ));
     }
 
     @Override
