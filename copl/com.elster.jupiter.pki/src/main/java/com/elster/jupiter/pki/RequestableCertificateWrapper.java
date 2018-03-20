@@ -33,4 +33,12 @@ public interface RequestableCertificateWrapper extends CertificateWrapper {
      */
     void setCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages);
 
+    /**
+     * Sets the CSR for this certificate wrapper. Most commonly this method will be called after having obtained a CSR from a device.
+     * Nothing is done with the CSR, it is merely stored so that it can be exported when needed.
+     *
+     * @param csr The encoded CSR to associate with this certificate wrapper.
+     */
+    void setCSR(byte [] encodedCsr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages);
+
 }
