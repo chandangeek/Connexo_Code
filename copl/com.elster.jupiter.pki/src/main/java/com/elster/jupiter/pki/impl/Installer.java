@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterQueueInstaller;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -20,18 +21,20 @@ import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
-
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
     private final PrivilegesProviderV10_4 privilegesProviderV10_4;
+    private final CSRImporterQueueInstaller csrImporterQueueInstaller;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, UserService userService, PrivilegesProviderV10_4 privilegesProviderV10_4) {
+    Installer(DataModel dataModel, EventService eventService, UserService userService,
+              PrivilegesProviderV10_4 privilegesProviderV10_4, CSRImporterQueueInstaller csrImporterQueueInstaller) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
         this.privilegesProviderV10_4 = privilegesProviderV10_4;
+        this.csrImporterQueueInstaller = csrImporterQueueInstaller;
     }
 
     @Override
@@ -40,6 +43,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry("Install event types", this::createEventTypes, logger);
         doTry("Install privileges", () -> userService.addModulePrivileges(this), logger);
         doTry("Install privileges for 10.4", privilegesProviderV10_4::install, logger);
+        doTry("Create queue for CSR importer", csrImporterQueueInstaller::installIfNotPresent, logger);
     }
 
     private void createEventTypes() {

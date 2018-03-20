@@ -4,9 +4,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.Expected;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
@@ -91,6 +90,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -114,7 +114,7 @@ public class SecurityManagementServiceImplIT {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
+    public ExpectedException expectedRule = ExpectedException.none();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
     private static CertificateFactory certificateFactory;
@@ -126,6 +126,7 @@ public class SecurityManagementServiceImplIT {
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
         Security.addProvider(new BouncyCastleProvider());
         certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
@@ -751,7 +752,6 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's subject distinguished name doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
@@ -777,12 +777,14 @@ public class SecurityManagementServiceImplIT {
         newName.addRDN(BCStyle.OU, "SmartEnergy");
 
         X509Certificate certificate = generateCertificateFromCSR(newName, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's subject distinguished name doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
@@ -803,12 +805,14 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's key usage extension doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's extended key usage extension doesn't match the CSR.")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
@@ -829,12 +833,14 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's extended key usage extension doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's public key doesn't match the CSR.")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
@@ -857,6 +863,9 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build()); // NEW CSR !!
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, originalCSR.getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's public key doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate); // Sets Certificate for original CSR, not most recent
     }
 
@@ -1212,28 +1221,6 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityValues.isEmpty()).isFalse();
     }
 
-    private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
-        // generate a key pair
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(4096, new SecureRandom());
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-        // build a certificate generator
-        X500Name dnName = new X500Name("cn=" + myself);
-        Date notBefore = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-        Date notAfter = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
-
-        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(AlgorithmIdentifier.getInstance("SHA256WithRSA"), keyPair
-                .getPublic()
-                .getEncoded());
-        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(dnName, BigInteger.TEN, notBefore, notAfter, dnName, subjectPublicKeyInfo);
-        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
-        X509Certificate certificate = new JcaX509CertificateConverter()
-                .setProvider("BC")
-                .getCertificate(certificateBuilder.build(contentSigner));
-        return certificate;
-    }
-
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
         return (X509Certificate) certificateFactory.generateCertificate(CertPathValidatorTest.class.getResourceAsStream(name));
     }
@@ -1396,7 +1383,6 @@ public class SecurityManagementServiceImplIT {
         filter.keyUsages = Optional.empty();
         filter.intervalFrom = Optional.empty();
         filter.intervalTo = Optional.empty();
-
         return filter;
     }
 

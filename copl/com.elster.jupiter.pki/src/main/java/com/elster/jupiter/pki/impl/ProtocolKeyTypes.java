@@ -63,7 +63,7 @@ public enum ProtocolKeyTypes {
             return securityManagementService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
         }
     },
-    RSA {
+    RSA_1024 {
         @Override
         public String getName() {
             return "RSA 1024";
@@ -76,6 +76,22 @@ public enum ProtocolKeyTypes {
                     .description("Client certificates with RSA 1024 bit keys. This certificate will be linked to a private key.")
                     .RSA()
                     .keySize(1024)
+                    .add();
+        }
+    },
+    RSA_2048 {
+        @Override
+        public String getName() {
+            return "RSA 2048";
+        }
+
+        @Override
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
+                    .newClientCertificateType(getName(), "SHA256withRSA")
+                    .description("Client certificates with RSA 2048 bit keys. This certificate will be linked to a private key.")
+                    .RSA()
+                    .keySize(2048)
                     .add();
         }
     },

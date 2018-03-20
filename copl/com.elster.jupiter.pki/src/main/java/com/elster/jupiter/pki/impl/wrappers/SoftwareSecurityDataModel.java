@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,6 +48,7 @@ public class SoftwareSecurityDataModel {
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile MessageService messageService;
     private SecurityManagementService securityManagementService;
 
     // OSGi
@@ -56,7 +58,8 @@ public class SoftwareSecurityDataModel {
     @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                     SecurityManagementService securityManagementService, EventService eventService, UserService userService) {
+                                     SecurityManagementService securityManagementService, EventService eventService,
+                                     UserService userService, MessageService messageService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -65,6 +68,7 @@ public class SoftwareSecurityDataModel {
         this.setSecurityManagementService(securityManagementService);
         this.setEventService(eventService);
         this.setUserService(userService);
+        this.setMessageService(messageService);
         activate();
     }
 
@@ -108,6 +112,11 @@ public class SoftwareSecurityDataModel {
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Activate
     public void activate() {
         registerDataModel();
@@ -135,6 +144,7 @@ public class SoftwareSecurityDataModel {
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }

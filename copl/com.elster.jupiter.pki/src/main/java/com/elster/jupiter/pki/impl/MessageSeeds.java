@@ -13,9 +13,9 @@ import java.util.logging.Level;
  * Defines all the {@link MessageSeed}s of the PKI module.
  */
 public enum MessageSeeds implements MessageSeed {
-    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
+    NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required."),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
-    FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
+    FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required."),
     NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method for a secret value is unknown or not registered yet"),
     DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
     ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm isn''t supported in the environment at this time."),
@@ -70,7 +70,28 @@ public enum MessageSeeds implements MessageSeed {
     CSR_EXCEPTION(1055, "CsrException", "Couldn''t read CSR."),
     CERTIFICATE_USED_BY_DIRECTORY(1056, "CertificateUsedByDirectory", "The certificate couldn''t be removed because it is used on a user directory."),
     TRUSTSTORE_USED_BY_DIRECTORY(1057, "TrustStoreUsedByDirectory", "The trust store couldn''t be removed because it is used on a user directory."),
-    CERTIFICATE_USED_ON_SECURITY_ACCESSOR(1058, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a centrally managed security accessor.");
+    CERTIFICATE_USED_ON_SECURITY_ACCESSOR(1058, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a centrally managed security accessor."),
+    BAD_SIGNATURE(1059, "BadSignature", "File signature verification failed."),
+    OK_SIGNATURE(1060, "OkSignature", "File signature verification completed successfully.", Level.INFO),
+    NO_CERTIFICATE_IN_WRAPPER(1061, "NoCertificateInWrapper", "No actual certificate is kept under alias {0}."),
+    CSR_IMPORT_EXCEPTION(1062, "CsrImportException", "Exception during CSR import: {0}"),
+    NO_PRIVATE_KEY_FOR_SIGNING(1063, "NoPrivateKeyForCertificate", "The certificate {0} doesn''t contain a private key for signing the exported file."),
+    INAPPROPRIATE_CERTIFICATE_TYPE(1064, "InappropriateCertificateType", "The certificate {0} isn''t of type {1}."),
+    FAILED_TO_SIGN(1065, "FailedToSign", "Failed to sign the exported file."),
+    SOME_CERTIFICATES_NOT_SIGNED(1066, "CertificatesNotSigned", "Some certificates from the imported file haven''t been signed by the CA."),
+    SUBDIRECTORIES_IN_ZIP_FILE(1067, "IncorrectFileStructureSubdirectories", "Subdirectory ''{0}'' is found in CSR entry directory."),
+    NO_DIRECTORY_FOR_CSR_FILE(1068, "IncorrectFileStructureNoDirectory", "No directory is found for CSR file ''{0}''."),
+    NOT_CSR_FILE_EXTENSION(1069, "IncorrectFileExtensionCSR", "Incorrect extension is found for CSR file ''{0}''."),
+    WRONG_FILE_NAME_FORMAT(1070, "WrongFileNameFormat", "Unexpected file name format in the imported zip. File name should contain non-empty file prefix and file system separated with a hyphen."),
+    CSR_IS_IN_USE(1071, "CsrIsInUse", "Can''t import CSR for certificate with alias {0}: it is currently in use."),
+    CSR_IMPORTED_SUCCESSFULLY(1072, "CsrImportedSuccessfully", "CSR {0} has been imported to Connexo.", Level.INFO),
+    SIGN_CSR_BY_CA_TIMED_OUT(1073, "SignCsrByCaTimedOut", "Certificate signing request to CA has timed out for alias {0}. The certificate is not signed."),
+    SIGN_CSR_BY_CA_FAILED(1074, "SignCsrByCaFailed", "Certificate signing request to CA has failed for alias {0}: {1}"),
+    CSR_SIGNED_SUCCESSFULLY(1075, "SignCsrByCaSucceeded", "Certificate {0} has been signed.", Level.INFO),
+    CERTIFICATE_IMPORTED_SUCCESSFULLY(1076, "CertificateImportedSuccessfully", "Signed certificate {0} has been imported to Connexo.", Level.INFO),
+    SECURITY_ACCESSOR_USED_BY_IMPORT(1077, "SecurityAccessorUsedByImport", "The security accessor couldn''t be removed because it is used on import services."),
+    TRUSTSTORE_USED_BY_IMPORT(1078, "TrustStoreUsedByImport", "The trust store couldn''t be removed because it is used on import services."),
+    POSITIVE_VALUE_IS_REQUIRED(1079, "PositiveValueIsRequired", "Positive value is required.");
 
     private final int number;
     private final String key;
