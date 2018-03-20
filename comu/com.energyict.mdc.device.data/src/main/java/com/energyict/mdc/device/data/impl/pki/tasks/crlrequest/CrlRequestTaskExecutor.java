@@ -158,6 +158,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
     }
 
     private void revoke(CertificateWrapper certificateWrapper) {
+        logger.log(Level.INFO, "Processing " + certificateWrapper.getAlias());
         boolean isUsedByCertificateAccessors = securityManagementService.isUsedByCertificateAccessors(certificateWrapper);
         boolean isUsedByDirectory = !securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(certificateWrapper)).isEmpty();
         boolean isUsedByDevices = usedByDevices(certificateWrapper);
@@ -187,8 +188,16 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
 
     private void printCrl(List<BigInteger> revokedSerialNumbers) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Received CRL\n");
-        revokedSerialNumbers.forEach(sn -> sb.append("sn=").append(sn).append('\n'));
+        int count = 0;
+        sb.append("CRL received for ").append(revokedSerialNumbers.size()).append(" certificates. Serial numbers are: ").append('\n');
+        for (BigInteger sn : revokedSerialNumbers) {
+            sb.append("s/n=").append(sn).append(';');
+            count++;
+            if (count == 3) {
+                sb.append('\n');
+                count = 0;
+            }
+        }
         logger.log(Level.INFO, sb.toString());
     }
 
