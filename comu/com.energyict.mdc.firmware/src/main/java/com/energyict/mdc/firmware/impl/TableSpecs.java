@@ -152,12 +152,14 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2INT)
                     .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".count")
                     .notNull()
+                    .since(version(10, 4, 1))
                     .add();
             table.column("VALIDATION_TIMEOUT_UNIT")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INT)
                     .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".timeUnitCode")
                     .notNull()
+                    .since(version(10, 4, 1))
                     .add();
             table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
             table.addAuditColumns();

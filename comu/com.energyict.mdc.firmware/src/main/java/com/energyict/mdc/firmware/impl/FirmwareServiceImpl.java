@@ -581,7 +581,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     Installer.class,
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
-                            version(10, 4), V10_4SimpleUpgrader.class
+                            version(10, 4), V10_4SimpleUpgrader.class,
+                            version(10, 4, 1), UpgraderV10_4_1.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
