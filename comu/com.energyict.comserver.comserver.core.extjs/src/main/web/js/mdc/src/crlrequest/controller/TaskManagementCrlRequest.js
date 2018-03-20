@@ -222,6 +222,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
                 widget.loadRecord(record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadTask', me.getType());
+                widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
             },
             callback: function () {
                 pageMainContent.setLoading(false);

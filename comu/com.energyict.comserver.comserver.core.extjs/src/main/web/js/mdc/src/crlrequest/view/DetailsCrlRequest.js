@@ -54,7 +54,7 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 listeners: {
                                     afterrender: function(item) {
                                         var record = item.up('form').getRecord();
-                                        item.setValue(new Date(record.get('nextRun')));
+                                        item.setValue(Uni.DateTime.formatDateTimeLong(new Date(record.get('nextRun'))));
 
                                     }
                                 }
@@ -67,8 +67,9 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 name: 'timeDurationInfo',
                                 listeners: {
                                     afterrender: function(item) {
-                                        var record = item.up('form').getRecord();
-                                        item.setValue(record.get('timeDurationInfo').count + ' ' + record.get('timeDurationInfo').localizedTimeUnit);
+                                        var record = item.up('form').getRecord(),
+                                            timeUnit = record.get('timeDurationInfo').timeUnit;
+                                        item.setValue(record.get('timeDurationInfo').count + ' ' + timeUnit.slice(0, --timeUnit.length) + '(s)');
                                     }
                                 }
                             }
@@ -94,8 +95,8 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                     {
                         xtype: 'uni-view-menu-side',
                         itemId: 'crl-request-details-side-menu',
-                        title: Uni.I18n.translate('general.datadataCollectionKPI', 'MDC', 'Data collection KPI'),
-                        objectType: Uni.I18n.translate('general.datadataCollectionKPI', 'MDC', 'Data collection KPI'),
+                        title: Uni.I18n.translate('general.crlRequest', 'MDC', 'CRL Request'),
+                        objectType: Uni.I18n.translate('general.crlRequest', 'MDC', 'CRL Request'),
                         menuItems: [
                             {
                                 text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
