@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.common.base.Joiner;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -26,7 +27,12 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class RequestableCertificateWrapperImpl extends AbstractCertificateWrapperImpl implements RequestableCertificateWrapper {
 
@@ -95,6 +101,16 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
         public void setCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) {
         try {
             doSetCSR(csr, keyUsages, extendedKeyUsages);
+        } catch (IOException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
+        }
+    }
+
+    @Override
+    public void setCSR(byte[] encodedCsr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) {
+        try {
+            PKCS10CertificationRequest csr = new PKCS10CertificationRequest(encodedCsr);
+            setCSR(csr, keyUsages, extendedKeyUsages);
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
         }
