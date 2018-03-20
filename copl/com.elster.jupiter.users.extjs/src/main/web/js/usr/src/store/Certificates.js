@@ -20,7 +20,7 @@ Ext.define('Usr.store.Certificates', {
     listeners: {
         load: function() {
             this.filter(function(rec){
-                return rec.get('status') && Ext.isString(rec.get('status').name) && rec.get('status').toUpperCase() !== 'REVOKED';
+                return rec.get('status') && Ext.isString(rec.get('status').name) && rec.get('status').name.toUpperCase() !== 'REVOKED';
             });
         }
     }
