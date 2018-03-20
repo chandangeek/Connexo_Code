@@ -76,6 +76,9 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsSignatureEdit', {
         ];
 
         this.callParent(arguments);
+    },
+    getSecurityAccessorId: function(){
+        return this.down('#securityAccessorCombo').getValue();
     }
 });
 

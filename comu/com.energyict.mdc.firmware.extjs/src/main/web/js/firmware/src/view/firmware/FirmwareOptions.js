@@ -121,6 +121,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
             },
             {
                 xtype: 'container',
+                itemId: 'security-check-container',
                 items: [
                     {
                         ui: 'medium',
@@ -163,19 +164,19 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        name: 'securityAccessor',
+                                        name: 'name',
                                         itemId: 'security-accessor',
                                         fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.securityAccessor', 'FWC', 'Security accessor')
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        name: 'certificateType',
+                                        name: 'type',
                                         itemId: 'certificate-type',
                                         fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.certificateType', 'FWC', 'Certificate type')
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        name: 'trustStore',
+                                        name: 'truststore',
                                         itemId: 'trust-store',
                                         fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.trustStore', 'FWC', 'Trust store')
                                     },
@@ -187,26 +188,26 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        name: 'validUntil',
+                                        name: 'expirationTime',
                                         itemId: 'valid-until',
                                         fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.validUntil', 'FWC', 'Valid until')
                                     }
-                                ],
-                                loadRecord: function (record) {
-                                    console.log(record);
-                                    var securityCheckForm = me.down('#security-check-form');
-                                    if(!record.get('securityAccessor')){
-                                        securityCheckForm.down('#certificate-type').hide();
-                                        securityCheckForm.down('#trust-store').hide();
-                                        securityCheckForm.down('#certificate').hide();
-                                        securityCheckForm.down('#valid-until').hide();
-                                    }
-                                    // this.getForm().loadRecord(record);
-                                }
+                                ]
                             }
                         ]
                     }
-                ]
+                ],
+                loadRecord: function (record) {
+                    var securityCheckForm = me.down('#security-check-form');
+                    if(!record.get('id')){
+                        securityCheckForm.down('#certificate-type').hide();
+                        securityCheckForm.down('#trust-store').hide();
+                        securityCheckForm.down('#certificate').hide();
+                        securityCheckForm.down('#valid-until').hide();
+                    } else {
+                        securityCheckForm.loadRecord(record);
+                    }
+                }
             }
 
         ];
