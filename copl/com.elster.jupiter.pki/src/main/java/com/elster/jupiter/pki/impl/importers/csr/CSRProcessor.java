@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
@@ -86,6 +87,7 @@ class CSRProcessor {
         logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
 
         csrWrapper.setCertificate(certificate);
+        csrWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
         csrWrapper.save();
         logger.log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, alias);
         return certificate;
