@@ -37,6 +37,12 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -305,6 +311,15 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public boolean supportsCaConfigImageVersion() {
         return deviceProtocol.supportsCaConfigImageVersion();
+        
+    @Override
+    public boolean firmwareSignatureCheckSupported() {
+        return deviceProtocol.firmwareSignatureCheckSupported();
+    }
+
+    @Override
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+        return deviceProtocol.verifyFirmwareSignature(firmwareFile, pubKey);
     }
 
     @Override
