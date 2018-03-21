@@ -108,7 +108,7 @@ public class CrlRequestTaskResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
     public Response deleteCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info) {
         crlRequestTaskPropertiesService.deleteCrlRequestTaskProperties();
-        taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).ifPresent(RecurrentTask::delete);
+        taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).ifPresent(RecurrentTask::suspend);
         return Response.noContent().build();
     }
 
