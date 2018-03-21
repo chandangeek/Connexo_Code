@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -13,6 +14,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,6 +30,7 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
     private final DataModel dataModel;
     private final FileImportService fileImportService;
     private final Thesaurus thesaurus;
+    private final EventService eventService;
 
     private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private boolean swapped;
@@ -49,11 +52,13 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
     protected AbstractSecurityAccessorImpl(SecurityManagementService securityManagementService,
                                            DataModel dataModel,
                                            FileImportService fileImportService,
-                                           Thesaurus thesaurus) {
+                                           Thesaurus thesaurus,
+                                           EventService eventService) {
         this.securityManagementService = securityManagementService;
         this.dataModel = dataModel;
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
     public enum Fields {
@@ -116,6 +121,7 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
 
     @Override
     public void delete() {
+        eventService.postEvent(EventType.SECURITY_ACCESSOR_VALIDATE_DELETE.topic(), this);
         if (fileImportService.doImportersUse(this)) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.SECURITY_ACCESSOR_USED_BY_IMPORT);
         }

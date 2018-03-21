@@ -952,6 +952,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public Optional<SecurityAccessor> findSecurityAccessorById(long id) {
+        return dataModel.mapper(SecurityAccessor.class).getOptional(id);
+    }
+
+    @Override
     public Optional<SecurityAccessorType> findSecurityAccessorTypeByName(String name) {
         return dataModel.mapper(SecurityAccessorType.class).getUnique(SecurityAccessorTypeImpl.Fields.NAME.fieldName(), name);
     }

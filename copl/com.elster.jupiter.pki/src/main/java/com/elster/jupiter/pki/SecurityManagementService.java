@@ -494,6 +494,15 @@ public interface SecurityManagementService {
      */
     Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id);
 
+
+    /**
+     * Returns security accessor with a given id if exists.
+     *
+     * @param id
+     * @return Security accessor with a given id if exists.
+     */
+    Optional<SecurityAccessor> findSecurityAccessorById(long id);
+
     /**
      * Returns security accessor type with a given name if exists.
      *
