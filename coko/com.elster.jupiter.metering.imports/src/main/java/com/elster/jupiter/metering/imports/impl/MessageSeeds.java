@@ -37,6 +37,7 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1022, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, "Can''t process line {0}: No service category found with name: {1}"),
     IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE(1023, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, "Can''t process line {0}: It''s not possible to change service category on usage point"),
     IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, "Can''t process line {0}: No such active versions for {1}"),
+    IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE(1024, Constants.IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE, "Can''t process line {0}: The life cycle: {1} doesn''t containt usage point state: {2}"),
     LINE_MISSING_LOCATION_VALUE(2002, Constants.LINE_MISSING_LOCATION_VALUE, "Format error for line {0}: missing mandatory value for field {1}."),
     BAD_METROLOGY_CONFIGURATION(2003, Constants.BAD_METROLOGY_CONFIGURATION, "Can''t process line {0}: No such active metrology configuration"),
     SERVICE_CATEGORIES_DO_NOT_MATCH(2004, Constants.SERVICE_CATEGORIES_DO_NOT_MATCH, "Can''t process line {0}: The service category of usage point doesn't match to service category of metrology configuration"),
@@ -126,6 +127,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_CONSTRAINT_VOLATION = "up.constraint.violation";
         public static final String IMPORT_QUANITITY_OUT_OF_BOUNDS = "quantity.out.of.bounds";
         public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE = "up.service.category.cannot.change";
+        public static final String IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE = "up.life.cycle.cannot.change";
         public static final String LINE_MISSING_LOCATION_VALUE = "line.missing.location.value";
         public static final String BAD_METROLOGY_CONFIGURATION = "bad.metrology.configuration";
         public static final String CALENDAR_DOES_NOT_EXIST = "calendar.does.not.exist";

@@ -93,6 +93,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePoint.setReadRoute(data.getReadRoute());
         usagePoint.setServicePriority(data.getServicePriority());
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        usagePoint.setLifeCycle(data.getLifeCycle());
         updateCustomPropertySetsValues(usagePoint, data);
         usagePoint.update();
         this.addCalendars(data, usagePoint);
