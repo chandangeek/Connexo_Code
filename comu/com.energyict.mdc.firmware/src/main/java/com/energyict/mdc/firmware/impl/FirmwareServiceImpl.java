@@ -20,10 +20,13 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -52,9 +55,11 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -74,6 +79,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -539,6 +551,65 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
     }
 
+    @Override
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
+        Condition condition = deviceTypeCondition.and(securityAccessorCondition);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, condition, dataModel);
+    }
+
+    @Override
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(SecurityAccessor securityAccessor) {
+        Condition securityAccessorCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.SECACCESSOR.fieldName()).isEqualTo(securityAccessor);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, securityAccessorCondition, dataModel);
+    }
+
+    @Override
+    public Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType) {
+        Condition deviceTypeCondition = where(SecurityAccessorOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType);
+        return DefaultFinder.of(SecurityAccessorOnDeviceType.class, deviceTypeCondition, dataModel);
+    }
+
+    @Override
+    public void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureValidation(deviceType, securityAccessor).find();
+        if (securityAccessorOnDeviceTypeList.isEmpty()) {
+            this.dataModel.getInstance(SecurityAccessorOnDeviceTypeImpl.class).init(deviceType, securityAccessor).save();
+        }
+    }
+
+    @Override
+    public void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor) {
+        List<SecurityAccessorOnDeviceType> securityAccessorOnDeviceTypeList = findSecurityAccessorForSignatureValidation(deviceType, securityAccessor).find();
+        securityAccessorOnDeviceTypeList.forEach(SecurityAccessorOnDeviceType::delete);
+    }
+
+    @Override
+    public void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile) {
+        Optional<DeviceProtocolPluggableClass> protocol = deviceType.getDeviceProtocolPluggableClass();
+        if (protocol.isPresent() && securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
+            if (certificateWrapper.getCertificate().isPresent()) {
+                X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
+                PublicKey publicKey = x509Certificate.getPublicKey();
+                try {
+                    if (protocol.get().getDeviceProtocol().firmwareSignatureCheckSupported()
+                            && !protocol.get().getDeviceProtocol().verifyFirmwareSignature(firmwareFile, publicKey)) {
+                        throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+                    }
+                } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException | IOException e) {
+                    throw new SignatureValidationFailedException(thesaurus, MessageSeeds.SIGNATURE_VALIDATION_FAILED);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
     private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
         return Stream.of(
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
@@ -582,7 +653,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 4), V10_4SimpleUpgrader.class,
-                            version(10, 4, 1), UpgraderV10_4_1.class
+                            version(10, 4, 1), V10_4_1SimpleUpgrader.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
