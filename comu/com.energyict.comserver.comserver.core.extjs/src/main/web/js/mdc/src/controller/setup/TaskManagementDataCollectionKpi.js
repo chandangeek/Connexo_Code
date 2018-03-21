@@ -7,7 +7,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     stores: [
         'Mdc.store.DataCollectionKpiType',
         'Mdc.store.AllTasks',
-        'Mdc.store.AvailableDeviceGroups'
+        'Mdc.store.AvailableDeviceGroups',
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
     ],
     views: [
         'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis',
@@ -27,7 +28,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             },
             'data-collection-kpi-addedit-tgm #cmb-device-group': {
                 change: this.onGroupChange
-            },
+            }
         });
         Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.datadataCollectionKPI', 'MDC', 'Data collection KPI'),
