@@ -139,13 +139,13 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         {
                                             itemId: 'mdc-edit-options-btn',
                                             text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
-                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            privileges: Mdc.privileges.SecurityAccessor.admin,
                                             action: 'editFirmwareOptionsSecurityAccessor'
                                         },
                                         {
                                             itemId: 'mdc-clear-accessor-options-btn',
                                             text: Uni.I18n.translate('general.clearAccessor', 'FWC', 'Clear accessor'),
-                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            privileges: Mdc.privileges.SecurityAccessor.admin,
                                             action: 'clearAccessorFirmwareSignatureOptions'
                                         }
                                     ]
