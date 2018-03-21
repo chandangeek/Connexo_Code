@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -14,8 +13,11 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import javax.validation.constraints.NotNull;
@@ -70,6 +72,8 @@ public interface MeteringService {
     Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
     Optional<UsagePoint> findUsagePointByName(String name);
+
+    UsagePointLifeCycle findUsagePointLifeCycleByName(String name);
 
     Optional<Meter> findMeterById(long id);
 

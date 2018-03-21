@@ -64,6 +64,8 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -75,6 +77,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -241,6 +244,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<UsagePoint> findUsagePointByName(String name) {
         return dataModel.mapper(UsagePoint.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public UsagePointLifeCycle findUsagePointLifeCycleByName(String name) {
+        return dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .findUsagePointLifeCycleByName(name)
+                .get();
     }
 
     @Override
