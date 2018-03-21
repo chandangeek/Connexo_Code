@@ -9,6 +9,8 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.view.firmware.FirmwareVersions',
         'Fwc.view.firmware.FirmwareOptions',
         'Fwc.view.firmware.FirmwareOptionsEdit',
+        'Fwc.view.firmware.FirmwareOptionsSignatureEdit',
+        'Fwc.view.firmware.FirmwareOptionsSignatureAccessorClear',
         'Fwc.view.firmware.FirmwareAdd',
         'Fwc.view.firmware.FirmwareEdit',
         'Fwc.view.firmware.FirmwareVersionsOverview',
@@ -19,26 +21,31 @@ Ext.define('Fwc.controller.Firmware', {
         'Mdc.model.DeviceType',
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.form.OptionsHydrator',
-        'Fwc.form.Hydrator'
+        'Fwc.form.Hydrator',
+        'Uni.view.window.Confirmation',
+        'Fwc.model.SecurityAccessor'
     ],
 
     stores: [
         'Fwc.store.Firmwares',
         'Fwc.store.FirmwareStatuses',
         'Fwc.store.FirmwareTypes',
-        'Fwc.store.SupportedFirmwareTypes'
+        'Fwc.store.SupportedFirmwareTypes',
+        'Fwc.store.SecurityAccessors'
     ],
 
     refs: [
         {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
-        {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'}
+        {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'},
+        {ref: 'firmwareSignatureEditForm', selector: '#firmware-options-signature-edit'}
     ],
 
     deviceTypeId: null,
     tab2Activate: undefined,
 
     init: function () {
+        var me = this;
         this.control({
             'firmware-versions [action=addFirmware]': {
                 click: function () {
@@ -65,15 +72,24 @@ Ext.define('Fwc.controller.Firmware', {
             'firmware-options [action=editFirmwareOptions]': {
                 click: function () {
                     this.getController('Uni.controller.history.Router')
-                        .getRoute('administration/devicetypes/view/firmwareoptions/edit')
+                        .getRoute('administration/devicetypes/view/firmwareversions/editOptions', {deviceTypeId: me.deviceTypeId})
                         .forward();
                 }
             },
+            'firmware-options [action=editFirmwareOptionsSecurityAccessor]': {
+                click: function () {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('administration/devicetypes/view/firmwareversions/editSignature', {deviceTypeId: me.deviceTypeId})
+                        .forward();
+                }
+            },
+            'firmware-options [action=clearAccessorFirmwareSignatureOptions]': {
+                click: this.clearAccessorFirmwareSignatureOptions
+            },
             'firmware-options-edit [action=saveOptionsAction]': {
                 click: this.saveOptionsAction
-            },
-            'firmware-options #mdc-edit-options-btn': {
-                click: this.chooseOptionsAction
+            },'firmware-options-signature-edit [action=saveOptionsAction]': {
+                click: this.saveSignatureAction
             },
             'firmware-options-edit #cancelLink': {
                 click: function() {
@@ -410,9 +426,11 @@ Ext.define('Fwc.controller.Firmware', {
             model = me.getModel('Fwc.model.FirmwareManagementOptions'),
             supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
             firmwareStore = Ext.getStore('Fwc.store.Firmwares'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             view;
 
         model.getProxy().setUrl(deviceTypeId);
+        viewport.setLoading(true);
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             Ext.getStore('Fwc.store.SupportedFirmwareTypes').getProxy().setUrl(deviceType.getId());
             Ext.getStore('Fwc.store.FirmwareStatuses').clearFilter(true);
@@ -432,9 +450,18 @@ Ext.define('Fwc.controller.Firmware', {
                     me.deviceTypeId = deviceTypeId;
                     me.getApplication().fireEvent('changecontentevent', view);
                     me.tab2Activate = undefined;
+                    var callbackFunc = function () {
+                        me.reconfigureMenu(deviceType, view);
+                        firmwareStore.getProxy().setUrl(deviceType.getId());
+                        firmwareStore.load({
+                            callback: function () {
+                                viewport.setLoading(false);
+                            }
+                        });
+                    };
 
                     var widget = view.down('firmware-options'),
-                        form = widget ? widget.down('form') : null;
+                        form = widget ? widget.down('#form') : null;
                     if (form) {
                         form.loadRecord(optionsRecord);
 
@@ -444,14 +471,28 @@ Ext.define('Fwc.controller.Firmware', {
                                 if (view.down('fwc-view-firmware-versions-topfilter')) {
                                     view.down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
                                 }
+                                var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
+                                if (signatureCheckContainer) {
+                                    if(optionsRecord.get('validateFirmwareFileSignature')){
+                                        var saModel = me.getModel('Fwc.model.SecurityAccessor');
+                                        saModel.getProxy().setUrl(deviceTypeId);
+                                        saModel.load(null,{
+                                            success: function (record) {
+                                                signatureCheckContainer.show();
+                                                signatureCheckContainer.loadRecord(record);
+                                                callbackFunc();
+                                            }
+                                        });
+
+                                    } else {
+                                        signatureCheckContainer.hide();
+                                        callbackFunc();
+                                    }
+                                }
                             }
                         });
                     }
 
-                    view.setLoading(true);
-                    me.reconfigureMenu(deviceType, view);
-                    firmwareStore.getProxy().setUrl(deviceType.getId());
-                    firmwareStore.load();
                 }
             });
         });
@@ -469,7 +510,6 @@ Ext.define('Fwc.controller.Firmware', {
             );
         }
         Ext.resumeLayouts(true);
-        view.setLoading(false);
     },
 
     editFirmwareOptions: function (deviceTypeId) {
@@ -496,6 +536,76 @@ Ext.define('Fwc.controller.Firmware', {
                 });
             }
             me.reconfigureMenu(deviceType, widget);
+        });
+    },
+
+    editFirmwareOptionsSignature: function (deviceTypeId) {
+        var me = this,
+            securityAccessorsStore = Ext.getStore('Fwc.store.SecurityAccessors'),
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
+
+        model.getProxy().setUrl(deviceTypeId);
+        me.loadDeviceType(deviceTypeId, function (deviceType) {
+            securityAccessorsStore.getProxy().setUrl(deviceTypeId);
+            var saModel = me.getModel('Fwc.model.SecurityAccessor');
+            saModel.getProxy().setUrl(deviceTypeId);
+            saModel.load(null,{
+                success: function (record) {
+                    securityAccessorsStore.load({
+                        callback: function () {
+                           if(record.get('id')){
+                               var form = me.getFirmwareSignatureEditForm();
+                               form.down('#securityAccessorCombo').setValue(record.get('id'));
+                               form.down('#securityAccessorCombo').setRawValue(record.get('name'));
+                           }
+                        }
+                    })
+                }
+            });
+            me.getApplication().fireEvent('changecontentevent', 'firmware-options-signature-edit', {deviceType: deviceType});
+        });
+    },
+
+    saveSignatureAction: function () {
+        var me = this,
+            form = me.getFirmwareSignatureEditForm(),
+            router = me.getController('Uni.controller.history.Router');
+
+
+        Ext.Ajax.request({
+            url: '/api/fwc/devicetypes/'+ router.arguments.deviceTypeId +'/securityaccessors/addsecurityaccessor/' + form.getSecurityAccessorId(),
+            isNotEdit: true,
+            method: 'PUT',
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.saedit.success', 'FWC', 'Security accessor has been saved'));
+                router.getRoute('administration/devicetypes/view/firmwareversions').forward(router.arguments);
+            }
+        });
+    },
+
+    clearAccessorFirmwareSignatureOptions: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.clear', 'FWC', 'Clear')
+        }).show({
+            width: 800,
+            msg: Uni.I18n.translate('firmware.clear.msg', 'FWC', 'Clear security accessor?'),
+            title: Uni.I18n.translate('firmware.clear.title', 'FWC', 'The security accessor will be removed from the firmware signature check of the device type'),
+            fn: function (btn) {
+                if (btn === 'confirm') {
+                    Ext.Ajax.request({
+                        url: '/api/fwc/devicetypes/'+ router.arguments.deviceTypeId +'/securityaccessors',
+                        isNotEdit: true,
+                        method: 'DELETE',
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.saedit.success', 'FWC', 'Security accessor has been saved'));
+                            Ext.ComponentQuery.query('viewport')[0].setLoading(true);
+                            router.getRoute().forward();
+                        }
+                    });
+                }
+            }
         });
     },
 
@@ -538,22 +648,5 @@ Ext.define('Fwc.controller.Firmware', {
                 form.setLoading(false);
             }
         });
-    },
-
-    chooseOptionsAction: function(button) {
-        var me = this;
-        switch (button.action) {
-            case 'editFirmwareOptions':
-                me.goToEditOptions();
-                break;
-        }
-    },
-
-    goToEditOptions: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('administration/devicetypes/view/firmwareversions/editOptions', {deviceTypeId: me.deviceTypeId}).forward();
     }
-
 });
