@@ -4,7 +4,12 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -16,13 +21,20 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
@@ -32,9 +44,11 @@ public class ResourceHelper {
     private final FirmwareService firmwareService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
+    private final SecurityManagementService securityManagementService;
+    private final Clock clock;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, SecurityManagementService securityManagementService, Clock clock) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
@@ -42,6 +56,8 @@ public class ResourceHelper {
         this.firmwareService = firmwareService;
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
+        this.securityManagementService = securityManagementService;
+        this.clock = clock;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -146,6 +162,64 @@ public class ResourceHelper {
             return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
         } else {
             return Optional.empty();
+        }
+    }
+
+    public List<SecurityAccessor> getCertificatesWithFileOperations() {
+        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getActualValue().isPresent() && sa.getActualValue().get() instanceof CertificateWrapper)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<SecurityAccessor> getCertificateWithFileOperations(long id) {
+        return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
+    }
+
+   public void deleteSecurityAccessorForSignatureValidation(long deviceTypeId) {
+       Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+       Optional<SecurityAccessor> securityAccessor = findSecurityAccessorForSignatureValidation(deviceTypeId);
+       if (deviceType.isPresent() && securityAccessor.isPresent()) {
+           firmwareService.deleteSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
+       }
+   }
+
+    public void addSecurityAccessorForSignatureValidation(long securityAccessorId, long deviceTypeId) {
+        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+        Optional<SecurityAccessor> securityAccessor = getCertificateWithFileOperations(securityAccessorId);
+        if (deviceType.isPresent() && securityAccessor.isPresent()) {
+            firmwareService.addSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
+        }
+    }
+
+    public Optional<SecurityAccessor> findSecurityAccessorForSignatureValidation(long deviceTypeId) {
+        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+        return deviceType.flatMap(dt -> firmwareService.findSecurityAccessorForSignatureValidation(dt).find().stream()
+                .filter(securityAccessorOnDeviceType -> securityAccessorOnDeviceType.getDeviceType().getId() == deviceTypeId)
+                .findAny()
+                .map(SecurityAccessorOnDeviceType::getSecurityAccessor));
+    }
+
+    public void checkFirmwareVersion(DeviceType deviceType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
+        if(securityAccessor.getActualValue().isPresent()
+                && ((CertificateWrapper)securityAccessor.getActualValue().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()){
+            throw new LocalizedFieldValidationException(MessageSeeds.SECURITY_ACCESSOR_EXPIRED, "firmwareFile");
+        }
+        if (deviceType.getDeviceProtocolPluggableClass().filter(p -> p.getDeviceProtocol().firmwareSignatureCheckSupported()).isPresent()) {
+            File tempFirmwareFile = null;
+            try {
+                tempFirmwareFile = File.createTempFile("tempFirmwareFile" + Instant.now().toEpochMilli(), ".tmp");
+                try (FileOutputStream fos = new FileOutputStream(tempFirmwareFile)) {
+                    fos.write(firmwareFile);
+                }
+                firmwareService.validateFirmwareFileSignature(deviceType, securityAccessor, tempFirmwareFile);
+            } catch (Exception e) {
+                throw new LocalizedFieldValidationException(MessageSeeds.SIGNATURE_VALIDATION_FAILED, "firmwareFile");
+            } finally {
+                if (tempFirmwareFile != null && tempFirmwareFile.exists()) {
+                    tempFirmwareFile.delete();
+                }
+            }
         }
     }
 
