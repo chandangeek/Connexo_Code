@@ -132,19 +132,21 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
         if (foundUsagePoint.isPresent()) {
             UsagePoint usagePoint = foundUsagePoint.get();
-            String usagePointStateName = usagePoint.getState().getName();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
 
-            UsagePointLifeCycle usagePointLifeCycle = getContext().getMeteringService()
-                    .findUsagePointLifeCycleByName(data.getLifeCycle());
+            if (data.getLifeCycle() != null) {
+                String usagePointStateName = usagePoint.getState().getName();
+                UsagePointLifeCycle usagePointLifeCycle = getContext().getMeteringService()
+                        .findUsagePointLifeCycleByName(data.getLifeCycle());
 
-            usagePointLifeCycle.getStates()
-                    .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE, data.getLineNumber(), data
-                            .getLifeCycle(), usagePointStateName));
-
+                usagePointLifeCycle.getStates()
+                        .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
+                        .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE, data
+                                .getLineNumber(), data
+                                .getLifeCycle(), usagePointStateName));
+            }
             usagePoint = getContext().getMeteringService()
                     .findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())
                     .get();
