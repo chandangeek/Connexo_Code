@@ -311,6 +311,7 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public boolean supportsCaConfigImageVersion() {
         return deviceProtocol.supportsCaConfigImageVersion();
+    }
         
     @Override
     public boolean firmwareSignatureCheckSupported() {
