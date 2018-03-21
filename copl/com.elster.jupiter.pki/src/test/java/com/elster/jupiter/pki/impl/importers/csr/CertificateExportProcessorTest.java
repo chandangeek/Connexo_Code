@@ -1,21 +1,12 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
-import certpathvalidator.CertPathValidatorTest;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
-import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
-import com.elster.jupiter.pki.impl.importers.csr.CertificateExportDestination;
-import com.elster.jupiter.pki.impl.importers.csr.CertificateExportProcessor;
+
+import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -35,10 +26,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,7 +40,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateExportProcessorTest {
-
     private static CertificateFactory certificateFactory;
 
     private byte [] resultBytes;
@@ -56,7 +47,6 @@ public class CertificateExportProcessorTest {
 
     private Clock clock = Clock.fixed(ZonedDateTime.of(2015, 6, 4, 14, 20, 55, 115451452, TimeZoneNeutral.getMcMurdo()).toInstant(), TimeZoneNeutral.getMcMurdo());
     private CertificateExportTagReplacer tagReplacer;
-
 
     @BeforeClass
     public static void initialize() throws Exception {
@@ -70,8 +60,7 @@ public class CertificateExportProcessorTest {
     }
 
     @Test
-    public void TestExportCertificate() throws Exception {
-
+    public void testExportCertificate() throws Exception {
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         ClientCertificateWrapper clientCertificateWrapper = mock(ClientCertificateWrapper.class);
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
@@ -87,16 +76,12 @@ public class CertificateExportProcessorTest {
         when(privateKeyWrapper.getPrivateKey()).thenReturn(Optional.of(privateKey));
         CertificateExportDestination certificateExportDestination = mock(CertificateExportDestination.class);
 
-        doAnswer(new Answer() {
-            @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Object[] args = invocationOnMock.getArguments();
-                resultBytes = (byte[]) args[0];
-                resultSignature = (byte[]) args[1];
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            final Object[] args = invocationOnMock.getArguments();
+            resultBytes = (byte[]) args[0];
+            resultSignature = (byte[]) args[1];
+            return null;
         }).when(certificateExportDestination).export(any(), any());
-
 
         Map<String,Map<String, X509Certificate>> dcerts = new LinkedHashMap<>();
         Map<String, X509Certificate> certs = new LinkedHashMap<>();

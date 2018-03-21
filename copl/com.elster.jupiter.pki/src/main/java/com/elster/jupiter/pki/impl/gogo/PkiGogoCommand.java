@@ -4,8 +4,12 @@
 
 package com.elster.jupiter.pki.impl.gogo;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
@@ -13,6 +17,7 @@ import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.importers.csr.CertificateExportProcessor;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -30,13 +35,15 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.security.auth.x500.X500Principal;
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -87,6 +94,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=generateSignedCertificates",
                 "osgi.command.function=printTrustedCertificates",
                 "osgi.command.function=signCsrAndRevoke",
+                "osgi.command.function=signFile"
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -96,6 +104,7 @@ public class PkiGogoCommand {
     private volatile CaService caService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile Thesaurus thesaurus;
 
     public PkiGogoCommand() {
     }
@@ -118,6 +127,11 @@ public class PkiGogoCommand {
     @Reference
     public void setCaService(CaService caService) {
         this.caService = caService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     public void keytypes() {
@@ -579,5 +593,25 @@ public class PkiGogoCommand {
         }
     }
 
+    public void signFile(String alias, String path) {
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(alias)
+                .orElseThrow(() -> new IllegalArgumentException("No such certificate: " + alias));
+        byte[] bytes;
+        try (InputStream input = new FileInputStream(path)) {
+            bytes = ByteStreams.toByteArray(input);
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("No such file: " + path);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error reading file: " + path + " : " + e);
+        }
+        byte[] signature = CertificateExportProcessor.getSignature(certificateWrapper, bytes, thesaurus);
+        String outputPath = path + ".signed";
+        try (OutputStream output = new FileOutputStream(outputPath, true)) {
+            output.write(bytes);
+            output.write(signature);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error writing file: " + outputPath + " : " + e);
+        }
+    }
 }
 

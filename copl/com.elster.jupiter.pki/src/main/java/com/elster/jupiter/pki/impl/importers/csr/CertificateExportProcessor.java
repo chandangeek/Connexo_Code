@@ -1,5 +1,6 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -25,7 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
-class CertificateExportProcessor {
+public class CertificateExportProcessor {
 
     private static final int PEM_CHARACTERS_ALIGNMENT = 64;
 
@@ -103,6 +104,11 @@ class CertificateExportProcessor {
         SecurityAccessor<CertificateWrapper> securityAccessor = (SecurityAccessor<CertificateWrapper>) properties.get(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey());
         CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
+        return getSignature(certificateWrapper, bytes, logger.getThesaurus());
+    }
+
+    // TODO: move to some utils
+    public static byte[] getSignature(CertificateWrapper certificateWrapper, byte[] bytes, Thesaurus thesaurus) {
         try {
             if (certificateWrapper.hasPrivateKey()
                     && ((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().isPresent()) {
@@ -113,12 +119,12 @@ class CertificateExportProcessor {
                 if (signatureBytes.length == CSRImporter.SIGNATURE_LENGTH) {
                     return signatureBytes;
                 } else {
-                    throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH);
+                    throw new CSRImporterException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH);
                 }
             }
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
-            throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.FAILED_TO_SIGN, e);
+            throw new CSRImporterException(thesaurus, MessageSeeds.FAILED_TO_SIGN, e);
         }
-        throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.NO_PRIVATE_KEY_FOR_SIGNING, certificateWrapper.getAlias());
+        throw new CSRImporterException(thesaurus, MessageSeeds.NO_PRIVATE_KEY_FOR_SIGNING, certificateWrapper.getAlias());
     }
 }
