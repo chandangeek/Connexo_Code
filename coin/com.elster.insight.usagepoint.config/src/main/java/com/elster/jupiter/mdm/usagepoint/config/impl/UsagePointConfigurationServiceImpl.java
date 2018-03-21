@@ -34,6 +34,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -81,6 +82,7 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CalendarService calendarService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringService meteringService;
@@ -98,12 +100,13 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
 
     // For testing purposes
     @Inject
-    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
+    public UsagePointConfigurationServiceImpl(Clock clock, ThreadPrincipalService threadPrincipalService, OrmService ormService, EventService eventService, UserService userService,
                                               ValidationService validationService, EstimationService estimationService, NlsService nlsService,
                                               CalendarService calendarService,
                                               MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
         this();
         setClock(clock);
+        setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
         setCalendarService(calendarService);
         setMetrologyConfigurationService(metrologyConfigurationService);
@@ -212,6 +215,11 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
     @Reference(target = "(com.elster.jupiter.checklist=Insight)")
     public void setCheckList(UpgradeCheckList upgradeCheckList) {
         // just explicitly depend
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
