@@ -802,6 +802,19 @@ public class ReferenceValueFactoryTest {
         assertThat(testInstance.isValid(null)).isFalse();
     }
 
+    @Test
+    public void nullsTreatmentForRawLong() {
+        when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
+        when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
+
+        assertThat(testInstance.valueFromDatabase(null)).isNull();
+        assertThat(testInstance.valueToDatabase(null)).isNull();
+        assertThat(testInstance.fromStringValue(null)).isNull();
+        assertThat(testInstance.toStringValue(null)).isNull();
+        assertThat(testInstance.isValid(null)).isFalse();
+    }
+
     private interface HasRawLongId {
         long getId();
     }
