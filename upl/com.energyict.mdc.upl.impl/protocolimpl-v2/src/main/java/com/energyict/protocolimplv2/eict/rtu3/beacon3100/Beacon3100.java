@@ -66,9 +66,14 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -752,6 +757,18 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         }
 
         return result;
+    }
+
+    // TODO: 19.03.2018 CXO-8215 for demo purposes
+    @Override
+    public boolean firmwareSignatureCheckSupported() {
+        return true;
+    }
+
+    // TODO: 19.03.2018 CXO-8215 for demo purposes
+    @Override
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+        return true;
     }
 
     /**
