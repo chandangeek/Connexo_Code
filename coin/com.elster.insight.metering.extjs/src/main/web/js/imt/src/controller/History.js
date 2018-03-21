@@ -184,6 +184,13 @@ Ext.define('Imt.controller.History', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointStartProcess'
                         },
+                        'change': {
+                            title: Uni.I18n.translate('usagePointLifeCycle.change', 'IMT', 'Change usage point life cycle'),
+                            route: 'change',
+                            controller: 'Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showChangeUsagePointLifeCycle'
+                        },
                         servicecalls: {
                             title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                             route: 'servicecalls',
