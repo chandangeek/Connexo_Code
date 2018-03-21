@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;

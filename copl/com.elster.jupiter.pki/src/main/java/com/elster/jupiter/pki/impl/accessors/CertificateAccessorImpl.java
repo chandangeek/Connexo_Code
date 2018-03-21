@@ -26,6 +26,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.Optional;
 
 public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<CertificateWrapper> {
+    private final EventService eventService;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.pki.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();

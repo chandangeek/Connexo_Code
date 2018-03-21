@@ -160,5 +160,6 @@ public class UpgraderV10_4 implements Upgrader {
     private void installNewEventTypes() {
         EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.createIfNotExists(eventService);
         EventType.SECURITY_ACCESSOR_TYPE_DELETED.createIfNotExists(eventService);
+        EventType.SECURITY_ACCESSOR_VALIDATE_DELETE.createIfNotExists(eventService);
     }
 }
