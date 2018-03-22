@@ -171,6 +171,7 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         } else {
             logger.log(Level.INFO, "Changing status to REVOKED for " + certificateWrapper.getAlias());
             certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+            certificateWrapper.save();
         }
     }
 
