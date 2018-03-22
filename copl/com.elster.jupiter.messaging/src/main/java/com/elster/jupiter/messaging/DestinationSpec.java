@@ -134,4 +134,6 @@ public interface DestinationSpec extends HasName {
 
     String getQueueTypeName();
 
+    boolean isExtraQueueCreationEnabled();
+
 }
