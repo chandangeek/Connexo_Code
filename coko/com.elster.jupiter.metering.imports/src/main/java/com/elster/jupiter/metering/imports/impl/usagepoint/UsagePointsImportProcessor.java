@@ -139,7 +139,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             if (data.getLifeCycle() != null) {
                 String usagePointStateName = usagePoint.getState().getName();
                 UsagePointLifeCycle usagePointLifeCycle = getContext().getMeteringService()
-                        .findUsagePointLifeCycleByName(data.getLifeCycle());
+                        .findUsagePointLifeCycle(data.getLifeCycle());
 
                 usagePointLifeCycle.getStates()
                         .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
