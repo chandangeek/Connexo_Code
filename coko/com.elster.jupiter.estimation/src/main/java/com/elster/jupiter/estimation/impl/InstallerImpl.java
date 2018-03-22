@@ -46,9 +46,12 @@ import static com.elster.jupiter.util.streams.Currying.perform;
 
 class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
-    private static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
+
+    private static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     private static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.estimation";
+    private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final MessageService messageService;
@@ -111,7 +114,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private void createDestinationAndSubscriber() {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, EstimationService.COMPONENTNAME, Layer.DOMAIN);
