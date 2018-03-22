@@ -37,6 +37,7 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("FIM_IMPORT_SCHEDULEJRNL");
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("LOGLEVEL").number().conversion(NUMBER2INT).map("logLevel").add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();

@@ -213,7 +213,8 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
     @Override
     public Finder<ImportLogEntry> getLogsFinder() {
-        Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
+
+        Condition condition = where("fileImportOccurrenceReference").isEqualTo(this).and(where("level").isGreaterThanOrEqual(this.getImportSchedule().getLogLevel()));
         //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
         return DefaultFinder.of(ImportLogEntry.class, condition, dataModel);
     }

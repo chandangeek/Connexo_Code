@@ -87,6 +87,8 @@ public interface ImportScheduleBuilder {
 
     ImportScheduleBuilder setName(String name);
 
+    ImportScheduleBuilder setLogLevel(int level);
+
      interface PropertyBuilder {
 
         ImportScheduleBuilder withValue(Object value);

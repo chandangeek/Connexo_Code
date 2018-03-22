@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -128,7 +129,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
             when(dataModel.getInstance(ImportScheduleImpl.class)).thenAnswer(invocation -> new ImportScheduleImpl(dataModel, fileImportService,
                     messageService, eventService, cronParser, nameResolver, fileSystem, thesaurus, testFileSystem, clock));
             when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
-            importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
+            importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", Level.WARNING.intValue(), false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory, false);
             super.equalsContractSetUp();
         } catch (IOException e) {
@@ -139,7 +140,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
+            instanceA = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", Level.WARNING.intValue(),false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory, false);
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
@@ -148,7 +149,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ImportScheduleImpl other = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
+        ImportScheduleImpl other = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", Level.WARNING.intValue(), false, scheduleExpression, "SYS", "importerName",
                 DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory, false);
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
@@ -156,7 +157,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ImportScheduleImpl other = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
+        ImportScheduleImpl other = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", Level.WARNING.intValue(),false, scheduleExpression, "SYS", "importerName",
                 DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory, false);
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
