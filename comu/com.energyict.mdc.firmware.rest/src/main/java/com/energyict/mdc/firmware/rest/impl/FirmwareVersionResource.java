@@ -133,7 +133,9 @@ public class FirmwareVersionResource {
         FirmwareVersionBuilder firmwareVersionBuilder;
         if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
-        }else {
+        } else if (firmwareType.equals(FirmwareType.CA_CONFIG_IMAGE)) {
+            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, firmwareVersion);
+        } else {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         }
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
