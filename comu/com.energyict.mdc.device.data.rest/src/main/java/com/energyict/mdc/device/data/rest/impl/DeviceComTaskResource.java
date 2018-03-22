@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -150,7 +151,11 @@ public class DeviceComTaskResource {
         if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
+                if(comTaskEnablement.getComTask().getProtocolTasks().stream().anyMatch(protocolTask -> protocolTask instanceof FirmwareManagementTask)){
+                    comTaskExecutions.add(device.newFirmwareComTaskExecution(comTaskEnablement).add());
+                } else {
+                    comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
+                }
             }
         }
         if (!comTaskExecutions.isEmpty()) {
