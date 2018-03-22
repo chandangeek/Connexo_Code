@@ -172,6 +172,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
     }
 
+    @Override
     public void setCertificate(X509Certificate certificate) {
         try {
             this.certificate = certificate.getEncoded();

@@ -85,7 +85,7 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_FILE_NAME_FORMAT(1070, "WrongFileNameFormat", "Unexpected file name format in the imported zip. File name should contain non-empty file prefix and file system separated with a hyphen."),
     CSR_IS_IN_USE(1071, "CsrIsInUse", "Can''t import CSR for certificate with alias {0}: it is currently in use."),
     CSR_IMPORTED_SUCCESSFULLY(1072, "CsrImportedSuccessfully", "CSR {0} has been imported to Connexo.", Level.INFO),
-    SIGN_CSR_BY_CA_TIMED_OUT(1073, "SignCsrByCaTimedOut", "Certificate signing request to CA has timed out for alias {0}. The certificate is not signed."),
+    SIGN_CSR_BY_CA_TIMED_OUT(1073, "SignCsrByCaTimedOut", "Certificate signing request to CA has timed out for alias {0}. The certificate isn''t signed."),
     SIGN_CSR_BY_CA_FAILED(1074, "SignCsrByCaFailed", "Certificate signing request to CA has failed for alias {0}: {1}"),
     CSR_SIGNED_SUCCESSFULLY(1075, "SignCsrByCaSucceeded", "Certificate {0} has been signed.", Level.INFO),
     CERTIFICATE_IMPORTED_SUCCESSFULLY(1076, "CertificateImportedSuccessfully", "Signed certificate {0} has been imported to Connexo.", Level.INFO),

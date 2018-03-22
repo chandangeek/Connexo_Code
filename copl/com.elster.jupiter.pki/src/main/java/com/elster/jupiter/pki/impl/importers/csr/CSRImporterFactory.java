@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki.impl.importers.csr;
 
-import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.ftpclient.FtpClientService;
@@ -74,7 +73,7 @@ public class CSRImporterFactory implements FileImporterFactory {
     }
 
     @Override
-    public FileImporter createImporter(Map<String, Object> properties) {
+    public CSRImporter createImporter(Map<String, Object> properties) {
         return new CSRImporter(properties, thesaurus, securityManagementService, caService, ftpClientService, clock);
     }
 
@@ -164,7 +163,6 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
-                        .setDefaultValue(false)
                         .finish(),
                 propertySpecService.referenceSpec(SecurityAccessor.class)
                         .named(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR)

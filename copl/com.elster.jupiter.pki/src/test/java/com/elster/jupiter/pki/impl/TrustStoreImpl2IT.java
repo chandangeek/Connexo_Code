@@ -7,6 +7,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
@@ -15,45 +16,22 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Never;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.OperatorCreationException;
-import sun.security.x509.AlgorithmId;
-import sun.security.x509.CertificateAlgorithmId;
-import sun.security.x509.CertificateSerialNumber;
-import sun.security.x509.CertificateValidity;
-import sun.security.x509.CertificateVersion;
-import sun.security.x509.CertificateX509Key;
-import sun.security.x509.X500Name;
-import sun.security.x509.X509CertImpl;
-import sun.security.x509.X509CertInfo;
 
-import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.FileSystems;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
-import java.security.SignatureException;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorResult;
 import java.security.cert.CertStore;
 import java.security.cert.CertStoreParameters;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -96,11 +74,11 @@ public class TrustStoreImpl2IT {
 
     @Before
     public void setUp() throws Exception {
-        rootCertificate = generateSelfSignedCertificate("CN=ROOT");
-        subCa1 = generateCertificate("CN=SubCA1", "CN=ROOT", rootCertificate.getLast());
-        subCa2 = generateCertificate("CN=SubCA2", "CN=ROOT", rootCertificate.getLast());
-        subCa3 = generateCertificate("CN=SubCA3", "CN=ROOT", rootCertificate.getLast());
-        device = generateCertificate("CN=Device", "CN=SubCA2", subCa2.getLast());
+        rootCertificate = SecurityTestUtils.generateSelfSignedCertificate("CN=ROOT");
+        subCa1 = SecurityTestUtils.generateCertificate("CN=SubCA1", "CN=ROOT", rootCertificate.getLast());
+        subCa2 = SecurityTestUtils.generateCertificate("CN=SubCA2", "CN=ROOT", rootCertificate.getLast());
+        subCa3 = SecurityTestUtils.generateCertificate("CN=SubCA3", "CN=ROOT", rootCertificate.getLast());
+        device = SecurityTestUtils.generateCertificate("CN=Device", "CN=SubCA2", subCa2.getLast());
     }
 
     @AfterClass
@@ -108,6 +86,8 @@ public class TrustStoreImpl2IT {
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).removeFileImporter(inMemoryPersistence.getCSRImporterFactory());
+        inMemoryPersistence.deactivate();
     }
 
     @Test
@@ -141,8 +121,8 @@ public class TrustStoreImpl2IT {
         trustStore.addCertificate("SubCa1", subCa1.getFirst());
         trustStore.addCertificate("SubCa2", subCa2.getFirst());
         trustStore.addCertificate("SubCa3", subCa3.getFirst());
-        Pair<X509Certificate, PrivateKey> subCa4 = generateCertificate("CN=SubCA4", "CN=ROOT", rootCertificate.getLast());
-        device = generateCertificate("CN=Device", "CN=SubCA4", subCa4.getLast());
+        Pair<X509Certificate, PrivateKey> subCa4 = SecurityTestUtils.generateCertificate("CN=SubCA4", "CN=ROOT", rootCertificate.getLast());
+        device = SecurityTestUtils.generateCertificate("CN=Device", "CN=SubCA4", subCa4.getLast());
 
         expectedRule.expect(CertPathValidatorException.class);
         trustStore.validate(device.getFirst());
@@ -237,86 +217,4 @@ public class TrustStoreImpl2IT {
         expectedRule.expectMessage("The trust store couldn't be removed because it is used on a security accessor.");
         trustStore.delete();
     }
-
-    static Pair<X509Certificate, PrivateKey> generateSelfSignedCertificate(String cn) throws
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            OperatorCreationException, CertificateException, IOException, SignatureException, InvalidKeyException {
-        // generate a key pair
-        KeyPair keyPair = generateKeyPair();
-
-        // build a certificate generator
-        X509Certificate certificate = generateAndSignX509Certificate(cn, keyPair.getPublic(), cn, keyPair.getPrivate());
-        return Pair.of(certificate, keyPair.getPrivate());
-    }
-
-    private Pair<X509Certificate, PrivateKey> generateCertificate(String subjectDN, String issuerDN, PrivateKey privateKey) throws
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            OperatorCreationException, CertificateException, IOException, SignatureException, InvalidKeyException {
-        // generate a key pair
-        KeyPair keyPair = generateKeyPair();
-
-        // build a certificate generator
-        X509Certificate certificate = generateAndSignX509Certificate(issuerDN, keyPair.getPublic(), subjectDN, privateKey);
-        return Pair.of(certificate, keyPair.getPrivate());
-    }
-
-//    private X509Certificate generateAndSignX509Certificate(String issuer, PublicKey publicKey, String subject, ContentSigner contentSigner) throws
-//            CertificateException, IOException {
-//        X500Name subjectDN = new X500Name("cn=" + subject);
-//        X500Name issuerDN = new X500Name("cn=" + issuer);
-//
-//        Date notBefore = Date.from(Instant.now().minusSeconds(1000));
-//        Date notAfter = Date.from(Instant.now().plusSeconds(3600));
-//
-//        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(new DefaultSignatureAlgorithmIdentifierFinder().find("SHA256WithRSA"), publicKey.getEncoded());
-//        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(issuerDN, BigInteger.TEN, notBefore, notAfter, subjectDN, subjectPublicKeyInfo);
-//        X509CertificateHolder certificateHolder = certificateBuilder.build(contentSigner);
-//
-//        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-//        InputStream in = new ByteArrayInputStream(certificateHolder.getEncoded());
-//        return (X509Certificate) certFactory.generateCertificate(in);
-//    }
-
-    private static X509Certificate generateAndSignX509Certificate(String issuerDN, PublicKey publicKey, String subjectDN, PrivateKey signingPrivateKey) throws
-            CertificateException,
-            IOException,
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            InvalidKeyException,
-            SignatureException {
-        X509CertInfo info = new X509CertInfo();
-        Date notBefore = Date.from(Instant.now().minusSeconds(1000));
-        Date notAfter = Date.from(Instant.now().plusSeconds(3600));
-        CertificateValidity interval = new CertificateValidity(notBefore, notAfter);
-        BigInteger sn = new BigInteger(64, new SecureRandom());
-
-        info.set(X509CertInfo.VALIDITY, interval);
-        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(sn));
-        info.set(X509CertInfo.SUBJECT, new X500Name(subjectDN));
-        info.set(X509CertInfo.ISSUER, new X500Name(issuerDN));
-        info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-        info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-        AlgorithmId algo = new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid);
-        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
-
-        // Sign the cert to identify the algorithm that's used.
-        X509CertImpl cert = new X509CertImpl(info);
-        cert.sign(signingPrivateKey, "sha256withrsa");
-
-        // Update the algorith, and resign.
-        algo = (AlgorithmId) cert.get(X509CertImpl.SIG_ALG);
-        info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algo);
-        cert = new X509CertImpl(info);
-        cert.sign(signingPrivateKey, "sha256withrsa");
-        return cert;
-    }
-
-    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(2048, new SecureRandom());
-        return keyPairGenerator.generateKeyPair();
-    }
-
 }

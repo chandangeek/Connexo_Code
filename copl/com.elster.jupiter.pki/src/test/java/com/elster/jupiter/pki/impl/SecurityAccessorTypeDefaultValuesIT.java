@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
@@ -121,6 +122,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         ((SecurityManagementServiceImpl) securityManagementService).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).removeFileImporter(inMemoryPersistence.getCSRImporterFactory());
         inMemoryPersistence.deactivate();
     }
 
@@ -380,7 +382,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         KeyType certificateType = securityManagementService.newCertificateType("Cert")
                 .add();
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("RSA-2048");
-        certificateWrapper.setCertificate(TrustStoreImpl2IT.generateSelfSignedCertificate("CN=IAm").getFirst());
+        certificateWrapper.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=IAm").getFirst());
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("SA", certificateType)
                 .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .managedCentrally()

@@ -96,9 +96,7 @@ class CSRProcessor {
     private boolean isInUse(CertificateWrapper certificateWrapper) {
         return securityManagementService.isUsedByCertificateAccessors(certificateWrapper)
                 || securityManagementService.streamDirectoryCertificateUsages()
-                .filter(Where.where("certificate").isEqualTo(certificateWrapper))
-                .findAny()
-                .isPresent()
+                .anyMatch(Where.where("certificate").isEqualTo(certificateWrapper))
                 || !securityManagementService.getCertificateAssociatedDevicesNames(certificateWrapper).isEmpty();
     }
 

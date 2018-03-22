@@ -593,6 +593,12 @@ public class PkiGogoCommand {
         }
     }
 
+    public void signFile() {
+        System.out.println("Signs a given file with a given certificate.");
+        System.out.println("usage: signFile <alias> <path_to_file>");
+        System.out.println("The signed content is exported as '<path_to_file>.signed'.");
+    }
+
     public void signFile(String alias, String path) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(alias)
                 .orElseThrow(() -> new IllegalArgumentException("No such certificate: " + alias));
