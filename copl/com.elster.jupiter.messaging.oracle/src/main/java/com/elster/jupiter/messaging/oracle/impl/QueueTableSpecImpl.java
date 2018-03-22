@@ -4,7 +4,10 @@
 
 package com.elster.jupiter.messaging.oracle.impl;
 
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.UnderlyingAqException;
+import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -18,6 +21,7 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
+import javax.validation.constraints.Size;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,6 +31,7 @@ import java.time.Instant;
 public class QueueTableSpecImpl implements QueueTableSpec {
 
     // persistent fields
+    @Size(max = 20)
     private String name;
     private String payloadType;
     private boolean multiConsumer;
@@ -188,30 +193,20 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         return active;
     }
 
-    @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, retries, false, true, name);
-    }
-
-    @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, retries, true, true, name);
-    }
-
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
-        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName);
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled);
         spec.save();
         return spec;
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName) {
-        return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName);
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
     @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName) {
-        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName);
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
     @Override

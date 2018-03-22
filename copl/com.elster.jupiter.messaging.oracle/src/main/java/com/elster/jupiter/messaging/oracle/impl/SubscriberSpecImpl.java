@@ -50,6 +50,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private Layer nlsLayer;
     @Size(max = 4000)
     private String filter;
+    private Condition filterCondition;
 
     @SuppressWarnings("unused")
     private long version;
@@ -82,6 +83,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         this.nlsLayer = layer;
         this.systemManaged = systemManaged;
         this.filter = toString(filter);
+        this.filterCondition = filter;
         return this;
     }
 
@@ -251,6 +253,9 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     public void unSubscribe() {
+        if (getDestination().isQueue()) {
+            return;
+        }
         try {
             doUnSubscribe(name);
         } catch (SQLException ex) {
@@ -282,6 +287,21 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                 "declare subscriber sys.aq$_agent;  " +
                         "begin subscriber := sys.aq$_agent(?,null,null); " +
                         "dbms_aqadm.remove_subscriber(?,subscriber); end;";
+    }
+
+    @Override
+    public Layer getNlsLayer() {
+        return nlsLayer;
+    }
+
+    @Override
+    public String getNlsComponent() {
+        return nlsComponent;
+    }
+
+    @Override
+    public Condition getFilterCondition() {
+        return filterCondition;
     }
 
 }

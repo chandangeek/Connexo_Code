@@ -6,7 +6,6 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
@@ -69,6 +68,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private boolean buffered;
     private boolean isDefault;
     private String queueTypeName;
+    private boolean isExtraQueueCreationEnabled;
 
     @SuppressWarnings("unused")
     private long version;
@@ -96,8 +96,8 @@ class DestinationSpecImpl implements DestinationSpec {
         this.thesaurus = thesaurus;
     }
 
-    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName);
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
     @Override
@@ -289,7 +289,7 @@ class DestinationSpecImpl implements DestinationSpec {
                 '}';
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
@@ -298,6 +298,7 @@ class DestinationSpecImpl implements DestinationSpec {
         this.buffered = buffered;
         this.isDefault = isDefault;
         this.queueTypeName = queueTypeName;
+        this.isExtraQueueCreationEnabled = isExtraQueueCreationEnabled;
         this.fromDB = false;
         return this;
     }
@@ -479,6 +480,11 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public String getQueueTypeName() {
         return queueTypeName;
+    }
+
+    @Override
+    public boolean isExtraQueueCreationEnabled() {
+        return isExtraQueueCreationEnabled;
     }
 
 }
