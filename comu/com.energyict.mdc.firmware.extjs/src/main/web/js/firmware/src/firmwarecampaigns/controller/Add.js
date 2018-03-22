@@ -99,10 +99,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         page.setLoading();
         var record = form.getRecord();
 
-        record.set('validationTimeout', {
-            count: periodCount.getValue(),
-            timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')
-        });
+        if(record.get('managementOption') && record.get('managementOption').id === 'activate'){
+            record.set('validationTimeout', {
+                count: periodCount.getValue(),
+                timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')
+            });
+        }
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
