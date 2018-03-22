@@ -1,16 +1,17 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.pki.CertificateType;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.Device;
 
 import com.google.common.io.BaseEncoding;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 public class DeviceCertificateStorage {
@@ -27,12 +28,32 @@ public class DeviceCertificateStorage {
         String alias = certificateType.getPrefix() + device.getSerialNumber();
 
         getKeyType(certificateType).ifPresent(keyType -> {
-                    ClientCertificateWrapper certificateWrapper = securityManagementService.findClientCertificateWrapper(alias)
-                            .orElseGet(() -> securityManagementService.newClientCertificateWrapper(keyType, "DataVault").alias(alias).add());
+                    ClientCertificateWrapper certificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, "DataVault")
+                            .alias(findAliasAndIncrement(alias))
+                            .add();
                     certificateWrapper.setCSR(BaseEncoding.base16().decode(csr), keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
                     certificateWrapper.save();
                 }
         );
+    }
+
+    private Integer getSequentialNumber(CertificateWrapper certificateWrapper, String alias) {
+        try {
+            return Integer.valueOf(certificateWrapper.getAlias().replace("-" + alias, ""));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private String findAliasAndIncrement(String alias) {
+        return securityManagementService
+                .findCertificateWrappers(Where.where("alias").like("*-" + alias))
+                .stream()
+                .filter(cw -> cw instanceof ClientCertificateWrapper)
+                .map(ClientCertificateWrapper.class::cast)
+                .max(Comparator.comparing(cw -> getSequentialNumber(cw, alias)))
+                .map(cw -> String.valueOf(getSequentialNumber(cw, alias) + 1) + "-" + alias)
+                .orElse("1-" + alias);
 
     }
 
