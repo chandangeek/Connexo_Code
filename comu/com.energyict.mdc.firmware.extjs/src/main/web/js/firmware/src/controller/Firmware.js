@@ -242,8 +242,18 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getFirmwareForm().down('#text-firmware-version').disable();
                         me.getFirmwareForm().down('#firmware-field-file').disable();
                         me.getFirmwareForm().down('#createEditButton').disable();
-
                     }
+
+                    if (firmware.getFirmwareType().getId() === 'caConfigImage') {
+                        me.getFirmwareForm().down('#text-image-identifier').hide();
+                        me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(
+                            Uni.I18n.translate('general.versionImageIdentifier', 'FWC', 'Version/Image identifier'));
+                    } else {
+                        me.getFirmwareForm().down('#text-image-identifier').show();
+                        me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(
+                            Uni.I18n.translate('general.version', 'FWC', 'Version'));
+                    }
+
                 },
                 callback: function () {
                     container.setLoading(false);
