@@ -1,7 +1,5 @@
 package com.energyict.mdc.upl;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -25,6 +23,6 @@ public interface FirmwareSignatureCheckSupport {
 
     default public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
         //By default do not provide support for firmware signature check. Where needed overwrite the method and provide proper implementation for this method
-        throw new NotImplementedException();
+        throw new IOException("NotImplementedException");
     }
 }
