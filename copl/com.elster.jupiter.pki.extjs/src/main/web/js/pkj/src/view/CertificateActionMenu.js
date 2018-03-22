@@ -57,7 +57,7 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'obsoleteCertificate',
                 visible: function(record) {
-                    return !Ext.isEmpty(record) && record.get(STATUS_FIELD).id === STATUS_AVAILABLE;
+                    return !Ext.isEmpty(record) && (record.get(STATUS_FIELD).id === STATUS_AVAILABLE || record.get(STATUS_FIELD).id === STATUS_EXPIRED);
                 },
                 section: this.SECTION_ACTION
             },
