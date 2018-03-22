@@ -34,7 +34,9 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller, PrivilegesProvider {
+
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -108,7 +110,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
             queue.activate();
             queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
         } else {
