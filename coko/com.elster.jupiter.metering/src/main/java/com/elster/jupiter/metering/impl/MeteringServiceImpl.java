@@ -254,6 +254,16 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public UsagePointLifeCycle findUsagePointLifeCycle(String name) {
+        Optional<UsagePointLifeCycle> usagePointLifeCycle = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)
+                .getUsagePointLifeCycles()
+                .stream()
+                .filter(lifeCycle -> this.thesaurus.getString(lifeCycle.getName(), lifeCycle.getName()).equals(name))
+                .findFirst();
+        return usagePointLifeCycle.get();
+    }
+
+    @Override
     public Optional<Meter> findMeterById(long id) {
         return dataModel.mapper(Meter.class).getOptional(id);
     }

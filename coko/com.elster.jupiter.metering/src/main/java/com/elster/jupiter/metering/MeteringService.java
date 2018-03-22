@@ -75,6 +75,8 @@ public interface MeteringService {
 
     UsagePointLifeCycle findUsagePointLifeCycleByName(String name);
 
+    UsagePointLifeCycle findUsagePointLifeCycle(String name);
+
     Optional<Meter> findMeterById(long id);
 
     Optional<Meter> findMeterByMRID(String mRID);
