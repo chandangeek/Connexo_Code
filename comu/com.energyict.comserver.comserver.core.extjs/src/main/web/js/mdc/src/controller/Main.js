@@ -14,6 +14,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.property.UsagePoint',
         'Mdc.dynamicprivileges.DeviceTypeCapability',
         'Mdc.privileges.RegisteredDevicesKpi',
+        'Mdc.privileges.CrlRequest',
         'Apr.controller.TaskManagement'
     ],
 
@@ -133,6 +134,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.registereddevices.controller.RegisteredDevices',
         'Mdc.controller.setup.TaskManagementDataCollectionKpi',
         'Mdc.controller.setup.TaskManagementRegisteredDevices',
+        'Mdc.crlrequest.controller.TaskManagementCrlRequest',
         'Mdc.controller.setup.TaskManagement'
     ],
 
@@ -158,6 +160,7 @@ Ext.define('Mdc.controller.Main', {
 
         me.getController('Mdc.controller.setup.TaskManagementDataCollectionKpi');
         me.getController('Mdc.controller.setup.TaskManagementRegisteredDevices');
+        me.getController('Mdc.crlrequest.controller.TaskManagementCrlRequest');
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {

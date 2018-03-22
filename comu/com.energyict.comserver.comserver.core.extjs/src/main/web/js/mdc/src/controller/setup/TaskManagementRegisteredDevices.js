@@ -124,7 +124,8 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         var selectedTask = [];
         Ext.Array.each(editForm.down('#followedBy-combo').getValue(), function (value) {
             selectedTask.push({id: value});
-        })
+        });
+
         record.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
             fields: ['id'],
             data: selectedTask
