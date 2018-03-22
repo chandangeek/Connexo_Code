@@ -35,14 +35,16 @@ class TransientDestinationSpec implements DestinationSpec {
     private final boolean buffered;
     private boolean isDefault;
     private String queueTypeName;
+    private boolean isExtraQueueCreationEnabled;
 
-    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered, boolean isDefault, String queueTypeName) {
+    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
         this.queueTableSpec = queueTableSpec;
         this.thesaurus = thesaurus;
         this.name = name;
         this.buffered = buffered;
         this.isDefault = isDefault;
         this.queueTypeName = queueTypeName;
+        this.isExtraQueueCreationEnabled = isExtraQueueCreationEnabled;
     }
 
     @Override
@@ -188,7 +190,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public void purgeCorrelationId(String correlationId) {
-       subscribers.forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
+        subscribers.forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
     }
 
     @Override
@@ -209,6 +211,11 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public String getQueueTypeName() {
         return queueTypeName;
+    }
+
+    @Override
+    public boolean isExtraQueueCreationEnabled() {
+        return isExtraQueueCreationEnabled;
     }
 
     private class TransientMessageBuilder implements MessageBuilder {

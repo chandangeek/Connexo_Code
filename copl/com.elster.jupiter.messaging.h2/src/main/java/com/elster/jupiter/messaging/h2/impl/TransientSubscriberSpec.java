@@ -7,6 +7,8 @@ package com.elster.jupiter.messaging.h2.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -86,4 +88,20 @@ class TransientSubscriberSpec implements SubscriberSpec {
     void removeMessagesWithCorrelationId(String correlationId) {
         messages.removeIf(message -> Objects.equals(message.getCorrelationId(), correlationId));
     }
+
+    @Override
+    public Layer getNlsLayer() {
+        return null;
+    }
+
+    @Override
+    public String getNlsComponent() {
+        return null;
+    }
+
+    @Override
+    public Condition getFilterCondition() {
+        return null;
+    }
+
 }

@@ -100,30 +100,20 @@ class TransientQueueTableSpec implements QueueTableSpec {
         return active;
     }
 
-    @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, false, true, name);
-    }
-
-    @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, true, true, name);
-    }
-
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered, boolean isDefault, String queueTypeName) {
-        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name, buffered, isDefault, queueTypeName);
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled);
         destinations.add(destinationSpec);
         return destinationSpec;
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault,String queueTypeName) {
-        return createDestinationSpec(name, retryDelay, false, isDefault, queueTypeName);
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return createDestinationSpec(name, retryDelay, false, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
     @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault,String queueTypeName) {
-        return createDestinationSpec(name, retryDelay, true, isDefault, queueTypeName);
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+        return createDestinationSpec(name, retryDelay, true, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
     List<TransientDestinationSpec> getDestinations() {
