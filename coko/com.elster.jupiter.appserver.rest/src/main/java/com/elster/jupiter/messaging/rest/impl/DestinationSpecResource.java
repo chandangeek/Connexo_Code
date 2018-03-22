@@ -5,10 +5,7 @@
 package com.elster.jupiter.messaging.rest.impl;
 
 import com.elster.jupiter.appserver.security.Privileges;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageSeeds;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
@@ -23,7 +20,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +28,10 @@ import java.util.stream.Collectors;
 public class DestinationSpecResource {
 
     private static final String QUEUE_TABLE_NAME = "MSG_QUEUE_";
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final int DEFAULT_RETRIES = 5;
+    private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final boolean IS_DEFAULT = false;
 
     private final MessageService messageService;
     private final TransactionService transactionService;
@@ -137,23 +137,32 @@ public class DestinationSpecResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response doCreateDestinationSpec(DestinationSpecInfo info) {
-        if (info.name == null || info.name.isEmpty()) {
+        DestinationSpecBean bean = new DestinationSpecBean(info.name, info.queueTypeName);
+        if (bean.isWrongNameDefined()) {
             return buildErrorResponse4("name", MessageSeeds.EMPTY_QUEUE_NAME);
         }
 
-        if (info.queueTypeName == null || info.queueTypeName.isEmpty()) {
+        if (bean.isWrongQueueTypeNameDefined()) {
             return buildErrorResponse4("queueTypeName", MessageSeeds.EMPTY_QUEUE_TYPE_NAME);
         }
 
-        if (messageService.getDestinationSpec(info.name).isPresent()) {
+        if (messageService.getDestinationSpec(bean.getName()).isPresent()) {
             return buildErrorResponse4("name", MessageSeeds.DUPLICATE_QUEUE);
         }
 
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + info.name.toUpperCase(), "RAW", false);
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(info.name, 60, 5, false, info.queueTypeName);
+        SubscriberSpec defaultSubscriber = getSubscriber4(bean.getQueueTypeName());
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", false);
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(bean.getName(), DEFAULT_RETRY_DELAY_IN_SECONDS, DEFAULT_RETRIES, IS_DEFAULT, bean.getQueueTypeName(), ENABLE_EXTRA_QUEUE_CREATION);
         destinationSpec.activate();
+        destinationSpec.subscribe(new SubscriberName(bean.getName()), defaultSubscriber.getNlsComponent(), defaultSubscriber.getNlsLayer(), defaultSubscriber.getFilterCondition());
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private SubscriberSpec getSubscriber4(String queueTypeName) {
+        return messageService.getSubscribers().stream()
+                .filter((SubscriberSpec s) -> s.getDestination().getName().equals(queueTypeName)).findFirst()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private Response buildErrorResponse4(String field, MessageSeeds message) {
@@ -177,8 +186,13 @@ public class DestinationSpecResource {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
 
+        if (!info.tasks.isEmpty()) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destinationSpecName).get();
         QueueTableSpec queueTableSpec = destinationSpec.getQueueTableSpec();
+        destinationSpec.unSubscribe(destinationSpecName);
         destinationSpec.delete();
         queueTableSpec.delete();
 
@@ -190,10 +204,10 @@ public class DestinationSpecResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response getDestinationSpecTypeNames() {
-        List<String> aList = Arrays.asList("DataExport", "EstimationTask", "DataValidation");
-
-        List<String> destinationSpecTypeNames = messageService.findDestinationSpecs().stream().map(DestinationSpec::getName)
-                .filter(queueName -> aList.contains(queueName)).collect(Collectors.toList());
+        List<DestinationSpecTypeNameInfo> destinationSpecTypeNames = messageService.findDestinationSpecs().stream()
+                .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .map(d -> new DestinationSpecTypeNameInfo(d.getQueueTypeName()))
+                .distinct().collect(Collectors.toList());
 
         return Response.status(Response.Status.OK).entity(destinationSpecTypeNames).build();
     }
