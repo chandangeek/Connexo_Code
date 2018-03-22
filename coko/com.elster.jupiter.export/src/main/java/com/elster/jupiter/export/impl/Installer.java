@@ -42,6 +42,9 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 class Installer implements FullInstaller, PrivilegesProvider {
 
     private static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
+    private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+
     static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
     static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.dataExport";
     static final String RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY = "relativeperiod.category.updateWindow";
@@ -110,7 +113,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private void createDestinationAndSubscriber() {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, DataExportService.COMPONENTNAME, Layer.DOMAIN);
@@ -170,13 +173,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private Stream<String> optionalExportCategoryRelativePeriodNames() {
         return Stream.of(
-                        GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
-                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
-                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
-                        GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
-                        GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
-                        GasDayOptions.RelativePeriodTranslationKey.TODAY,
-                        GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
+                GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
+                GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
+                GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
+                GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
+                GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
+                GasDayOptions.RelativePeriodTranslationKey.TODAY,
+                GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
     }
 
     private Stream<String> requiredUpdateWindowCategoryRelativePeriodNames() {
@@ -185,10 +188,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private Stream<String> optionalUpdateWindowCategoryRelativePeriodNames() {
         return Stream.of(
-                        GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
-                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
-                        GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
-                        GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
+                GasDayOptions.RelativePeriodTranslationKey.LAST_7_DAYS,
+                GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_MONTH,
+                GasDayOptions.RelativePeriodTranslationKey.PREVIOUS_WEEK,
+                GasDayOptions.RelativePeriodTranslationKey.YESTERDAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
     }
 
     private Stream<String> requiredUpdateTimeFrameCategoryRelativePeriodNames() {
@@ -197,10 +200,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private Stream<String> optionalUpdateTimeFrameCategoryRelativePeriodNames() {
         return Stream.of(
-                        GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
-                        GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
-                        GasDayOptions.RelativePeriodTranslationKey.THIS_YEAR,
-                        GasDayOptions.RelativePeriodTranslationKey.TODAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
+                GasDayOptions.RelativePeriodTranslationKey.THIS_MONTH,
+                GasDayOptions.RelativePeriodTranslationKey.THIS_WEEK,
+                GasDayOptions.RelativePeriodTranslationKey.THIS_YEAR,
+                GasDayOptions.RelativePeriodTranslationKey.TODAY).map(GasDayOptions.RelativePeriodTranslationKey::getDefaultFormat);
     }
 
 }
