@@ -141,6 +141,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             success: function (record) {
                 var timeDurationInfo = record.get('timeDurationInfo') ? record.get('timeDurationInfo') : {};
                 record.set('securityAccessor', record.get('securityAccessor').id);
+                setTitleFunc.call(controller, record.get('caName'));
                 form.loadRecord(record);
                 recurrenceNumber.setValue(timeDurationInfo.count);
                 recurrenceType.setValue(timeDurationInfo.timeUnit);
