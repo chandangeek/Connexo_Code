@@ -5,6 +5,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.pki.CertificateType;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -12,6 +14,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
@@ -31,6 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -110,13 +114,27 @@ public class CertificateWrapperResource {
                 .filter(sa -> sa.getKeyAccessorType()
                         .equals(securityManagementService.findSecurityAccessorTypeByName(keyAccessorType).get()))
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
-        return securityManagementService.findClientCertificateWrapper(getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber())
+        String alias = getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber();
+        return securityManagementService
+                .findCertificateWrappers(Where.where("alias").like("*-" + alias))
+                .stream()
+                .filter(cw -> cw instanceof ClientCertificateWrapper)
+                .map(ClientCertificateWrapper.class::cast)
+                .max(Comparator.comparing(cw -> getSequentialNumber(cw, alias)))
                 .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
     }
 
     private CertificateType getCertificateType(SecurityAccessorType securityAccessorType) {
         return Arrays.stream(CertificateType.values()).filter(ct -> ct.isApplicableTo(securityAccessorType.getKeyType())).findFirst().orElse(CertificateType.OTHER);
+    }
+
+    private Integer getSequentialNumber(CertificateWrapper certificateWrapper, String alias) {
+        try {
+            return Integer.valueOf(certificateWrapper.getAlias().replace("-" + alias, ""));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /**

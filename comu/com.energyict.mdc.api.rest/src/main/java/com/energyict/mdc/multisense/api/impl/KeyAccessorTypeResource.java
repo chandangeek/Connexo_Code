@@ -145,7 +145,7 @@ public class KeyAccessorTypeResource {
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getActualValue();
         if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
-            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.NATIVE);
             ((CertificateWrapper) wrapper.get()).save();
         }
         return Response.ok().build();
