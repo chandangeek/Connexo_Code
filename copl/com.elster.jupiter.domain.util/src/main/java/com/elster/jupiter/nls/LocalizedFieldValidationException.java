@@ -6,13 +6,15 @@ package com.elster.jupiter.nls;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.text.MessageFormat;
+
 /**
  * LocalizedException that can be linked to a specific field of an Impl
  */
 public class LocalizedFieldValidationException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
-	private final MessageSeed messageSeed;
+    private static final long serialVersionUID = 1L;
+    private final MessageSeed messageSeed;
     private final String javaFieldName;
     private final Object[] args;
 
@@ -21,6 +23,7 @@ public class LocalizedFieldValidationException extends RuntimeException {
     }
 
     public LocalizedFieldValidationException(MessageSeed messageSeed, String javaFieldName, Object... args) {
+        super(javaFieldName + ": " + MessageFormat.format(messageSeed.getDefaultFormat(), args));
         this.messageSeed = messageSeed;
         this.javaFieldName = javaFieldName;
         this.args = args;
@@ -37,10 +40,10 @@ public class LocalizedFieldValidationException extends RuntimeException {
      * @return new LocalizedFieldValidationException with the extended nodePath
      */
     public LocalizedFieldValidationException fromSubField(String nodeName) {
-        return new LocalizedFieldValidationException(this.messageSeed, nodeName+"."+this.javaFieldName, this.args);
+        return new LocalizedFieldValidationException(this.messageSeed, nodeName + "." + this.javaFieldName, this.args);
     }
 
-    public String getViolatingProperty(){
+    public String getViolatingProperty() {
         return javaFieldName;
     }
 
