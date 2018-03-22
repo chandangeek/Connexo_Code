@@ -257,6 +257,7 @@ public class FileImportScheduleResource {
             }
 
             importSchedule.setName(info.name);
+            importSchedule.setLogLevel(info.logLevel);
             importSchedule.setActive(info.active);
             importSchedule.setImportDirectory(getPath(info.importDirectory));
             importSchedule.setFailureDirectory(getPath(info.failureDirectory));
