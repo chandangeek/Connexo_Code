@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.Device;
@@ -22,6 +23,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class CertificateRequestForCSRHandler implements MessageHandler {
 
@@ -54,7 +56,13 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
                     .filter(sa -> sa.getKeyAccessorType()
                             .equals(securityManagementService.findSecurityAccessorTypeByName(certificateRequestForCSRMessage.securityAccessor).get()))
                     .findFirst().get();
-            certificateWrapper = securityManagementService.findClientCertificateWrapper(getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber())
+            String alias = getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber();
+            certificateWrapper = securityManagementService
+                    .findCertificateWrappers(Where.where("alias").like("*-" + alias))
+                    .stream()
+                    .filter(cw -> cw instanceof ClientCertificateWrapper)
+                    .map(ClientCertificateWrapper.class::cast)
+                    .max(Comparator.comparing(cw -> getSequentialNumber(cw, alias)))
                     .orElseThrow(IllegalStateException::new);
 
             PKCS10CertificationRequest pkcs10CertificationRequest = certificateWrapper.getCSR().get();
@@ -65,6 +73,14 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             }
         } catch (Exception e) {
             serviceCall.requestTransition(DefaultState.FAILED);
+        }
+    }
+
+    private Integer getSequentialNumber(CertificateWrapper certificateWrapper, String alias) {
+        try {
+            return Integer.valueOf(certificateWrapper.getAlias().replace("-" + alias, ""));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 
