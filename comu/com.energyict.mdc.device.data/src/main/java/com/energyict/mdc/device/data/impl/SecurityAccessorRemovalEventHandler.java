@@ -11,7 +11,6 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 
@@ -53,13 +52,12 @@ public class SecurityAccessorRemovalEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         SecurityAccessor source = (SecurityAccessor) localEvent.getSource();
-        if (crlRequestTaskPropertiesService.findCrlRequestTaskProperties().isPresent()) {
-            RecurrentTask recurrentTask = crlRequestTaskPropertiesService.findCrlRequestTaskProperties().get().getRecurrentTask();
-            SecurityAccessor securityAccessor = crlRequestTaskPropertiesService.findCrlRequestTaskProperties().get().getSecurityAccessor();
-            if (securityAccessor.getKeyAccessorType().getId()== source.getKeyAccessorType().getId()) {
-                throw new LocalizedException(thesaurus, MessageSeeds.VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK, recurrentTask.getName()) {};
+        crlRequestTaskPropertiesService.findCrlRequestTaskProperties().ifPresent(properties -> {
+            if (properties.getSecurityAccessor().getKeyAccessorType().getId() == source.getKeyAccessorType().getId()) {
+                throw new LocalizedException(thesaurus, MessageSeeds.VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK, properties.getRecurrentTask().getName()) {
+                };
             }
-        }
+        });
     }
 
     @Override
