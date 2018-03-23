@@ -26,6 +26,11 @@ public class SecurityAccessorInfoFactory {
         info.truststore = securityAccessor.getKeyAccessorType().getTrustStore().isPresent() ?
                 securityAccessor.getKeyAccessorType().getTrustStore().get().getName() :
                 NOT_DEFINED;
+        info.certificate = securityAccessor.getActualValue()
+                .filter(e -> e instanceof CertificateWrapper)
+                .map(CertificateWrapper.class::cast)
+                .map(CertificateWrapper::getAlias)
+                .orElse(null);
         if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
             CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
             info.expirationTime = certificateWrapper.getExpirationTime().isPresent() ?

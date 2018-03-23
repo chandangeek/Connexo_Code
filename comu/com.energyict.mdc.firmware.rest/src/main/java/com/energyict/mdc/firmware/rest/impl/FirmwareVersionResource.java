@@ -131,10 +131,10 @@ public class FirmwareVersionResource {
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
         FirmwareVersionBuilder firmwareVersionBuilder;
-        if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
-        } else if (firmwareType.equals(FirmwareType.CA_CONFIG_IMAGE)) {
+        if (FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType)) {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, firmwareVersion);
+        } else if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
+            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
         } else {
             firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         }

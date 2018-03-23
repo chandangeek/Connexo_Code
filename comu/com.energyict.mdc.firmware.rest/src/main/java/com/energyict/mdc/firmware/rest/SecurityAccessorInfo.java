@@ -13,5 +13,6 @@ public class SecurityAccessorInfo {
     public String type;
     public String description;
     public String truststore;
+    public String certificate;
     public String expirationTime;
 }

@@ -77,6 +77,7 @@ public class SecurityAccessorResource {
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/addsecurityaccessor/{securityAccessorId}")
     public Response addSecurityAccessor(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId) {
+        resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId).ifPresent(dt -> resourceHelper.deleteSecurityAccessorForSignatureValidation(deviceTypeId));
         resourceHelper.addSecurityAccessorForSignatureValidation(securityAccessorId, deviceTypeId);
         return Response.ok().build();
     }
