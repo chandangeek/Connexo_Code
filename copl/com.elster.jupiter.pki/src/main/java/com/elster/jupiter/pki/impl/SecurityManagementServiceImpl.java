@@ -638,6 +638,13 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public Finder<CertificateWrapper> findCertificateWrappers(Condition condition) {
+        return DefaultFinder.of(CertificateWrapper.class, condition, getDataModel())
+                .defaultSortColumn(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                .maxPageSize(thesaurus, 1000);
+    }
+
+    @Override
     public Optional<CertificateWrapper> findCertificateWrapper(String alias) {
         List<CertificateWrapper> certificateWrappers = getDataModel().
                 query(CertificateWrapper.class).

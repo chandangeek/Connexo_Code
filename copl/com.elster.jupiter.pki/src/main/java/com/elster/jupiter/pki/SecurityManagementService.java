@@ -283,6 +283,13 @@ public interface SecurityManagementService {
     Optional<ClientCertificateWrapper> findClientCertificateWrapper(long id);
 
     /**
+     * Returns the client certificates with the specific condition.
+     *
+     * @return The {@link Finder} of  {@link ClientCertificateWrapper}
+     */
+    Finder<CertificateWrapper> findCertificateWrappers(Condition condition);
+
+    /**
      * Returns the CertificateWrapper known by the provided alias, no tust store is searched by this method
      *
      * @param alias The certificate's alias
