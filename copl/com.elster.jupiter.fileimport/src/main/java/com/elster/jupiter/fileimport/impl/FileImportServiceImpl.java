@@ -449,6 +449,8 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @Override
     public boolean doImportersUse(Object object) {
         return dataModel.stream(FileImporterProperty.class)
+                .join(ImportSchedule.class)
+                .filter(Where.where("importScheduleReference.obsoleteTime").isNull())
                 .filter(referenceUsages.getUsedByPropertiesCondition(object))
                 .findAny()
                 .isPresent();
