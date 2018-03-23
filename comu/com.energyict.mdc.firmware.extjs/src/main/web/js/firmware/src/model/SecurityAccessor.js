@@ -4,7 +4,7 @@
 
 Ext.define('Fwc.model.SecurityAccessor', {
     extend: 'Ext.data.Model',
-    fields: ['id', 'name', 'type', 'truststore', 'expirationTime'],
+    fields: ['id', 'name', 'type', 'truststore', 'expirationTime', 'certificate'],
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/securityaccessors',
