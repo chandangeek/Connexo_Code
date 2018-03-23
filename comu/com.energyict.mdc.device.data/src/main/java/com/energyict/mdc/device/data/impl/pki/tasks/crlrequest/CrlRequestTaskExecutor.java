@@ -12,7 +12,6 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
@@ -161,29 +160,18 @@ public class CrlRequestTaskExecutor implements TaskExecutor {
         logger.log(Level.INFO, "Processing " + certificateWrapper.getAlias());
         boolean isUsedByCertificateAccessors = securityManagementService.isUsedByCertificateAccessors(certificateWrapper);
         boolean isUsedByDirectory = securityManagementService.streamDirectoryCertificateUsages().anyMatch(Where.where("certificate").isEqualTo(certificateWrapper));
-        boolean isUsedByDevices = usedByDevices(certificateWrapper);
+        boolean isUsedByDeviceCertificateAccessors = deviceService.usedByKeyAccessor(certificateWrapper);
         if (isUsedByCertificateAccessors) {
             logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by certificate accessors");
         } else if (isUsedByDirectory) {
             logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by user directory");
-        } else if (isUsedByDevices) {
+        } else if (isUsedByDeviceCertificateAccessors) {
             logger.log(Level.WARNING, certificateWrapper.getAlias() + " is still used by devices");
         } else {
             logger.log(Level.INFO, "Changing status to REVOKED for " + certificateWrapper.getAlias());
             certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+            certificateWrapper.save();
         }
-    }
-
-    private boolean usedByDevices(CertificateWrapper wrapper) {
-        List<SecurityAccessor> securityAccessorList = new ArrayList<>();
-        deviceService.findAllDevices(Condition.TRUE).stream().map(device -> securityAccessorList.addAll(device.getSecurityAccessors()));
-        List<CertificateWrapper> certificateWrapperList = securityAccessorList
-                .stream()
-                .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper)
-                .filter(securityAccessor -> ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
-                .map(securityAccessor -> (CertificateWrapper) securityAccessor.getActualValue().get())
-                .collect(Collectors.toList());
-        return certificateWrapperList.stream().anyMatch(certificateWrapper -> certificateWrapper.getId() == wrapper.getId());
     }
 
     private void printCrl(List<BigInteger> revokedSerialNumbers) {
