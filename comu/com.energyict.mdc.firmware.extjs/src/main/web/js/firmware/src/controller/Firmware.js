@@ -553,7 +553,7 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             securityAccessorsStore = Ext.getStore('Fwc.store.SecurityAccessors'),
             model = me.getModel('Fwc.model.FirmwareManagementOptions');
-
+        this.tab2Activate = 0;
         model.getProxy().setUrl(deviceTypeId);
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             securityAccessorsStore.getProxy().setUrl(deviceTypeId);
@@ -580,7 +580,7 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             form = me.getFirmwareSignatureEditForm(),
             router = me.getController('Uni.controller.history.Router');
-
+        this.tab2Activate = 0;
 
         Ext.Ajax.request({
             url: '/api/fwc/devicetypes/'+ router.arguments.deviceTypeId +'/securityaccessors/addsecurityaccessor/' + form.getSecurityAccessorId(),
@@ -596,6 +596,7 @@ Ext.define('Fwc.controller.Firmware', {
     clearAccessorFirmwareSignatureOptions: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
+        this.tab2Activate = 0;
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.clear', 'FWC', 'Clear')
         }).show({
