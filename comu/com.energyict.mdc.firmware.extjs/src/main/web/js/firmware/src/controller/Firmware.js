@@ -271,6 +271,19 @@ Ext.define('Fwc.controller.Firmware', {
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
+        record.setFirmwareType(
+            form.down('#radio-firmware-type')
+                .getStore()
+                .findRecord('id', form.down('#radio-firmware-type')
+                    .getValue().firmwareType)
+        );
+        record.setFirmwareStatus(
+            form.down('#radio-firmware-status')
+                .getStore()
+                .findRecord('id', form.down('#radio-firmware-status')
+                    .getValue().firmwareStatus)
+        );
+
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
             backUrl = form.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
