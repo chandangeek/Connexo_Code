@@ -483,15 +483,21 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     'No devices are queued to change their configuration.',
                     'One device is queued to change its configuration.',
                     '{0} devices are queued to change their configuration.'
-                );break;
+                );
+                break;
             case 'startprocess':
-                finalMessage = Ext.isEmpty(me.devices)
-                    ? Uni.I18n.translate('searchItems.bulk.startProcess.all', 'MDC', 'This process has been triggered for selected devices.')
-                    : Uni.I18n.translatePlural('searchItems.bulk.startProcess.devices', me.validatedForProcessDevices.length, 'MDC',
-                    'This process has been triggered for {0} devices.',
-                    'This process has been triggered for {0} device.',
-                    'This process has been triggered for {0} devices.'
-                );break;
+                if (me.allDevices) {
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.all', 'MDC', "The process has been triggered for {0} out of all selected devices.")
+                    finalMessage = Ext.String.format(pattern, me.validatedForProcessDevices.length, false);
+                } else {
+                    if (me.devices.length === 1) {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.device', 'MDC', "The process has been triggered for {0} out of {1} selected device.")
+                    } else {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.devices', 'MDC', "The process has been triggered for {0} out of {1} selected devices.")
+                    }
+                    finalMessage = Ext.String.format(pattern, me.validatedForProcessDevices.length, me.devices.length, false);
+                }
+                break;
         }
 
         return finalMessage;
@@ -700,8 +706,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
                 }
                 break;
-            case
-            'selectActionItems':
+            case 'selectActionItems':
                 if (me.operation == 'startprocess') {
                     var startProcessPanel = currentCmp.down('#bulk-start-processes-panel'),
                         url = startProcessPanel.properties.successLink,
@@ -938,7 +943,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
                     break;
                 case 'startprocess':
-                    titleText = Uni.I18n.translate('searchItems.bulk.startProcessOfAllDevices', 'MDC', 'Start process of all devices');
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.confirmMsg', 'MDC', 'Start {0} process for an appropriate subset of selected devices?');
+                    titleText = Ext.String.format(pattern, me.processRecord.name, false);
                     break;
 
             }
@@ -993,16 +999,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Ext.String.format(pattern);
                     break;
                 case 'startprocess':
-                    var startExactProcessText = Uni.I18n.translate('searchItems.bulk.startExactProcess', 'MDC', "Start {0} process", me.processRecord.name)
-                    var countOfDevicesText = Uni.I18n.translate('searchItems.bulk.countOfdevices', 'MDC', "{0} devices", me.devices.length);
-
-                    pattern = Uni.I18n.translatePlural('searchItems.bulk.startProcessForDevices', me.validatedForProcessDevices.length, 'MDC',
-                        "for 0 devices'?",
-                        "for 1 device'?",
-                        "{0} out of " + countOfDevicesText + "?"
-                    );
-
-                    titleText =Ext.String.format("{0} {1}", startExactProcessText, pattern, false);
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.confirmMsg', 'MDC', 'Start {0} process for an appropriate subset of selected devices?');
+                    titleText = Ext.String.format(pattern, me.processRecord.name, false);
                     break;
             }
         }
@@ -1018,7 +1016,17 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 bodyText = Uni.I18n.translate('searchItems.bulk.changeMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
                 break;
             case 'startprocess':
-                bodyText = Uni.I18n.translate('searchItems.bulk.startProcessMsg', 'MDC', 'The process will start for the selected devices.');
+                if (me.allDevices) {
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.all', 'MDC', "The process will start for {0} out of all selected devices.")
+                    bodyText = Ext.String.format(pattern, me.validatedForProcessDevices.length, false);
+                } else {
+                    if (me.devices.length === 1) {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.device', 'MDC', "The process will start for {0} out of {1} selected device.")
+                    } else {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.devices', 'MDC', "The process will start for {0} out of {1} selected devices.")
+                    }
+                    bodyText = Ext.String.format(pattern, me.validatedForProcessDevices.length, me.devices.length, false);
+                }
                 break;
         }
 
