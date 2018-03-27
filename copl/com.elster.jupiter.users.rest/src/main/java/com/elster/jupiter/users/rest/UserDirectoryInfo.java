@@ -23,6 +23,7 @@ public class UserDirectoryInfo {
     public String password;
     public String directoryUser;
     public LongIdWithNameInfo trustStore;
+    public boolean twoWaySsl;
     public String certificateAlias;
 
     public UserDirectoryInfo(){
