@@ -73,7 +73,7 @@ public class CertificateWrapperResource {
     public CertificateWrapperInfo getCertificateWrapper(@PathParam("certificateWrapperId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return securityManagementService.findCertificateWrapper(id)
                 .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFICATE_WRAPPER));
     }
 
     /**
@@ -91,7 +91,7 @@ public class CertificateWrapperResource {
     public CertificateWrapperInfo getCertificateWrapperByAlias(@PathParam("certificateWrapperAlias") String alias, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return securityManagementService.findCertificateWrapper(alias)
                 .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFICATE_WRAPPER));
     }
 
     /**
@@ -110,10 +110,7 @@ public class CertificateWrapperResource {
     public CertificateWrapperInfo getCertificateWrapperByDeviceAndSecurityAccessor(@PathParam("mRID") String mRID, @PathParam("keyAccessorType") String keyAccessorType, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessor securityAccessor = device.getSecurityAccessors().stream()
-                .filter(sa -> sa.getKeyAccessorType()
-                        .equals(securityManagementService.findSecurityAccessorTypeByName(keyAccessorType).get()))
-                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+        SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorType, device);
         String alias = getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber();
         return securityManagementService
                 .findCertificateWrappers(Where.where("alias").like("*-" + alias))
@@ -122,7 +119,16 @@ public class CertificateWrapperResource {
                 .map(ClientCertificateWrapper.class::cast)
                 .max(Comparator.comparing(cw -> getSequentialNumber(cw, alias)))
                 .map(d -> certificateWrapperInfoFactory.from(d, uriInfo, fields.getFields()))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFICATE_WRAPPER));
+    }
+
+    private SecurityAccessor getSecurityAccessor(String name, Device device) {
+        return device.getSecurityAccessors().stream()
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name))
+                .findAny()
+                .orElseThrow(() -> device.getDeviceType().getSecurityAccessorTypes().stream().anyMatch(sat -> sat.getName().equals(name)) ?
+                        exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE) :
+                        exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 
     private CertificateType getCertificateType(SecurityAccessorType securityAccessorType) {
@@ -152,7 +158,7 @@ public class CertificateWrapperResource {
     public Response deleteCertificateWrapper(@PathParam("certificateWrapperId") long id,
                                              @Context UriInfo uriInfo) {
         securityManagementService.findCertificateWrapper(id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFCATE_WRAPPER))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CERTIFICATE_WRAPPER))
                 .delete();
         return Response.noContent().build();
     }

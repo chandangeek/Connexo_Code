@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.impl;
 
-
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -13,6 +12,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -32,7 +32,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -67,9 +66,8 @@ public class KeyAccessorTypeResource {
     public Response renewKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                              @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getSecurityAccessor(securityAccessorType).get().renew();
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).renew();
         return Response.ok().build();
     }
 
@@ -89,12 +87,9 @@ public class KeyAccessorTypeResource {
     @Path("/{keyAccessorTypeId}/switch")
     public Response switchKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                               @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getSecurityAccessor(securityAccessorType).get().swapValues();
-
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).swapValues();
         return Response.ok().build();
     }
 
@@ -114,12 +109,9 @@ public class KeyAccessorTypeResource {
     @Path("/{keyAccessorTypeId}/clear")
     public Response clearTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                                    @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getSecurityAccessor(securityAccessorType).get().clearTempValue();
-
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).clearTempValue();
         return Response.ok().build();
     }
 
@@ -139,15 +131,15 @@ public class KeyAccessorTypeResource {
     @Path("/{keyAccessorTypeId}/unmarkobsoleteactive")
     public Response unmarkObsoleteActualValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                                               @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getActualValue();
-        if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
-            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.NATIVE);
-            ((CertificateWrapper) wrapper.get()).save();
-        }
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).getActualValue()
+                .filter(CertificateWrapper.class::isInstance)
+                .map(CertificateWrapper.class::cast)
+                .ifPresent(certificateWrapper -> {
+                    certificateWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
+                    certificateWrapper.save();
+                });
         return Response.ok().build();
     }
 
@@ -167,15 +159,15 @@ public class KeyAccessorTypeResource {
     @Path("/{keyAccessorTypeId}/obsolete")
     public Response markObsoleteTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                                           @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        Optional wrapper = device.getSecurityAccessor(securityAccessorType).get().getTempValue();
-        if (wrapper.isPresent() && wrapper.get() instanceof CertificateWrapper) {
-            ((CertificateWrapper) wrapper.get()).setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
-            ((CertificateWrapper) wrapper.get()).save();
-        }
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).getTempValue()
+                .filter(CertificateWrapper.class::isInstance)
+                .map(CertificateWrapper.class::cast)
+                .ifPresent(certificateWrapper -> {
+                    certificateWrapper.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+                    certificateWrapper.save();
+                });
         return Response.ok().build();
     }
 
@@ -195,7 +187,7 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<KeyAccessorTypeInfo> getKeyAccessorTypes(@PathParam("mrid") String mrid, String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType devicetype = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
 
         List<KeyAccessorTypeInfo> infos = devicetype.getSecurityAccessorTypes().stream()
@@ -225,22 +217,26 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public KeyAccessorTypeInfo getKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceType devicetype = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
-        SecurityAccessorType securityAccessorType = getKeyAccessorType(name, devicetype);
+        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(name, devicetype);
         return keyAccessorTypeInfoFactory.from(securityAccessorType, uriInfo, fieldSelection.getFields());
     }
 
-    private SecurityAccessorType getKeyAccessorType(String name, DeviceType devicetype) {
+    private SecurityAccessorType getSecurityAccessorTypeOrThrowException(String name, DeviceType devicetype) {
         return devicetype.getSecurityAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getName().equals(name)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 
-    private SecurityAccessorType getKeyAccessorType(long id, DeviceType devicetype) {
+    private SecurityAccessorType getSecurityAccessorTypeOrThrowException(long id, DeviceType devicetype) {
         return devicetype.getSecurityAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getId() == id).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 
+    private SecurityAccessor<?> getSecurityAccessorOrThrowException(long id, Device device) {
+        return device.getSecurityAccessor(getSecurityAccessorTypeOrThrowException(id, device.getDeviceType()))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+    }
 
     /**
      * List the fields available on this type of entity.
@@ -265,6 +261,5 @@ public class KeyAccessorTypeResource {
     public List<String> getFields() {
         return keyAccessorTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
 }
 
