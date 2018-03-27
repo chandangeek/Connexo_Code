@@ -326,6 +326,11 @@ public class G3RegisterMapper {
     public static final ObisCode NTP_SETUP_ATTR3 = ObisCode.fromString("0.3.25.10.0.255");
     public static final ObisCode NTP_SETUP_ATTR4 = ObisCode.fromString("0.4.25.10.0.255");
 
+    /**
+     * ObisCode mappers for NTP Setup
+     */
+    public static final ObisCode LAST_FIRMWARE_ACTIVATION_EXTENDED_ATTR2 = ObisCode.fromString("0.136.96.192.2.255");
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -816,6 +821,12 @@ public class G3RegisterMapper {
         schedulerMappings.add(new SchedulerMapping(deviceTimeZone, IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR3));
         schedulerMappings.add(new SchedulerMapping(deviceTimeZone, IMAGE_TRANSFER_ACTIVATION_SCHEDULER_ATTR4));
         return schedulerMappings;
+    }
+
+    protected final List<G3Mapping> getLastFirmwareActivationMappings() {
+        final List<G3Mapping> lastFirmwareActivationMappings = new ArrayList<G3Mapping>();
+        lastFirmwareActivationMappings.add(new LastFirmwareActivationMapping(LAST_FIRMWARE_ACTIVATION_EXTENDED_ATTR2));
+        return lastFirmwareActivationMappings;
     }
 
 }

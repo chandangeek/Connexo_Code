@@ -39,6 +39,7 @@ public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
         this.mappings.addAll(getMultiAPNConfigurationMappings());
         this.mappings.addAll(getConcentratorSetupMappings());
         this.mappings.addAll(getMemoryManagementMappings());
+        this.mappings.addAll(getLastFirmwareActivationMappings());
     }
 
     // for debug purposes
