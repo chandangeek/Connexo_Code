@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.kore.api.impl.servicecall;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
@@ -34,7 +35,7 @@ public class UsagePointCommandHandler implements ServiceCallHandler {
 
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
-    private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile BpmService bpmService;
 
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
@@ -47,8 +48,8 @@ public class UsagePointCommandHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
-        this.endPointConfigurationService = endPointConfigurationService;
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Override
@@ -72,52 +73,22 @@ public class UsagePointCommandHandler implements ServiceCallHandler {
 
     public void sendSuccessResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .ifPresent(extension -> sendResponse(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod()));
+                .ifPresent(extension -> sendResponse(extension.getCallbackSuccessURL()));
     }
 
     public void getPartiallySuccessResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .ifPresent(extension -> sendResponse(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod()));
+                .ifPresent(extension -> sendResponse(extension.getCallbackPartialSuccessURL()));
     }
 
     public void getFailureResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .ifPresent(extension -> sendResponse(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod()));
+                .ifPresent(extension -> sendResponse(extension.getCallbackFailureURL()));
     }
 
 
-    public void sendResponse(String targetURL, String method) {
+    public void sendResponse(String targetURL) {
+        this.bpmService.getBpmServer().doPost(targetURL, null);
 
-        EndPointConfiguration endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().stream()
-                .filter(epc -> targetURL.startsWith(epc.getUrl()))
-                .findFirst().orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_SUCH_ENDPOINT.getDefaultFormat()));
-
-        HttpURLConnection httpConnection = null;
-        try {
-            URL targetUrl = new URL(targetURL);
-            httpConnection = (HttpURLConnection) targetUrl.openConnection();
-            httpConnection.setConnectTimeout(60000);
-            httpConnection.setDoOutput(true);
-            httpConnection.setRequestMethod(method);
-            httpConnection.setRequestProperty("Content-Type", "application/json");
-            httpConnection.setRequestProperty("Accept", "application/json");
-            if (endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.BASIC_AUTHENTICATION)) {
-                httpConnection.setRequestProperty("Authorization",
-                        "Basic " + new String(Base64.getEncoder().encode((
-                                ((OutboundEndPointConfiguration) endPointConfiguration).getUsername()
-                                        + ":"
-                                        + ((OutboundEndPointConfiguration) endPointConfiguration).getPassword()).getBytes())));
-            }
-            int responseCode = httpConnection.getResponseCode();
-            if (responseCode != 200) {
-                throw new RuntimeException(Integer.toString(responseCode));
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(MessageSeeds.HTTP_CONNECTION_FAILED.getDefaultFormat());
-        } finally {
-            if (httpConnection != null) {
-                httpConnection.disconnect();
-            }
-        }
     }
 }

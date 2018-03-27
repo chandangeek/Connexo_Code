@@ -127,6 +127,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
