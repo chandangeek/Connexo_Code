@@ -821,9 +821,18 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
-    public Optional<KeyStore> findKeyStoreForUserDirectory(LdapUserDirectory userDirectory) {
+    public Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory) {
         return userDirectorySecurityProviders.stream()
-                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory))
+                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getTrustedKeyStore(userDirectory))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
+    @Override
+    public Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char[] password) {
+        return userDirectorySecurityProviders.stream()
+                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory, password))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();
