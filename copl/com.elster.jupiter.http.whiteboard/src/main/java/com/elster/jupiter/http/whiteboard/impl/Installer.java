@@ -5,6 +5,11 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -17,6 +22,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 import static com.elster.jupiter.util.Checks.is;
 
 class Installer implements FullInstaller {
@@ -26,14 +32,21 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final DataVaultService dataVaultService;
     private final BasicAuthentication basicAuthentication;
+    private final EventService eventService;
     private volatile UserService userService;
+    private final MessageService messageService;
 
     @Inject
-    public Installer(DataModel dataModel, DataVaultService dataVaultService, BasicAuthentication basicAuthentication, UserService userService) {
+    public Installer(DataModel dataModel, DataVaultService dataVaultService, BasicAuthentication basicAuthentication,
+                     UserService userService,
+                     EventService eventService,
+                     MessageService messageService) {
         this.dataModel = dataModel;
         this.dataVaultService = dataVaultService;
         this.basicAuthentication = basicAuthentication;
         this.userService = userService;
+        this.eventService = eventService;
+        this.messageService = messageService;
     }
 
     @Override
@@ -48,6 +61,11 @@ class Installer implements FullInstaller {
         doTry(
                 "Write public key to file " + PUBLIC_KEY_FILE_NAME,
                 this::dumpPublicKey,
+                logger
+        );
+        doTry(
+                "Create Events",
+                this::createEventTypes,
                 logger
         );
     }
@@ -76,4 +94,29 @@ class Installer implements FullInstaller {
         basicAuthentication.saveKeyToFile(conf);
     }
 
+    protected void createEventTypes() {
+        for (WhiteboardEvent eventType : WhiteboardEvent.values()) {
+            if (!this.eventService.getEventType(eventType.topic()).isPresent()) {
+                this.eventService.buildEventTypeWithTopic(eventType.topic())
+                        .name(eventType.name())
+                        .component(BasicAuthentication.COMPONENT_NAME)
+                        .category("Login")
+                        .scope("System")
+                        .shouldPublish()
+                        .create();
+            }
+        }
+        TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey("subscriber",
+        "Handle events to propagate login/logout into MSG_RAWTOPICTABLE");
+
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
+                    .subscribe(SUBSCRIBER_DISPLAYNAME,
+                            BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
+                            whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
+                            .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
+                            .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic()))
+                    );
+
+
+    }
 }
