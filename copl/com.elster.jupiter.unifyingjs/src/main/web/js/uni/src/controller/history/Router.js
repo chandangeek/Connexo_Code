@@ -284,7 +284,12 @@ Ext.define('Uni.controller.history.Router', {
                     };
 
                     var dispatch = function () {
-                        if (!Uni.Auth.checkPrivileges(config.privileges)) {
+                        if (config.haveDependenciesLoaded && !config.haveDependenciesLoaded.call(me)) {
+                            me.on('dependenciesLoaded', function () {
+                                dispatch();
+                            }, me);
+                        }
+                        else if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notvisible");
                         } else if(me.checkForDynamicPrivileges(config, applyAction)) {
                             //do nothing
