@@ -10,6 +10,7 @@ Ext.define('Fim.model.ImportService', {
     fields: [
         'id',
         'name',
+        'logLevel',
         'active',
         'deleted',
         'scheduled',

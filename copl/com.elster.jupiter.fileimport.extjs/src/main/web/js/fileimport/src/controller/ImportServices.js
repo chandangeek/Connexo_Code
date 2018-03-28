@@ -5,7 +5,8 @@
 Ext.define('Fim.controller.ImportServices', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Fim.privileges.DataImport'
+        'Fim.privileges.DataImport',
+        'Ldr.store.LogLevels'
     ],
     views: [
         'Fim.view.importservices.Setup',
@@ -20,7 +21,8 @@ Ext.define('Fim.controller.ImportServices', {
     models: [
         'Fim.model.ImportService',
         'Fim.model.ImportServiceDetails',
-        'Fim.model.FileImporter'
+        'Fim.model.FileImporter',
+        'Ldr.model.LogLevel'
     ],
     refs: [
         {
@@ -396,6 +398,9 @@ Ext.define('Fim.controller.ImportServices', {
             importServiceRecord.set('importerInfo', {
                 name: addImportServiceForm.down('#cbo-file-importer').getValue()
             });
+
+            importServiceRecord.set('logLevel', addImportServiceForm.down('#fim-data-logLevels').getValue());
+
             importServiceRecord.endEdit();
 
             importServiceRecord.save({
@@ -431,6 +436,9 @@ Ext.define('Fim.controller.ImportServices', {
             edit: false,
             returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/importservices').buildUrl()
         });
+
+        var logLevelCombo = addImportServiceView.down('#fim-data-logLevels');
+        logLevelCombo.store.load();
 
         var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');
         fileImporterCombo.store.load({
