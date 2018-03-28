@@ -138,6 +138,12 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
             if (data.getLifeCycle() != null) {
                 String usagePointStateName = usagePoint.getState().getName();
+
+                if (getContext().getMeteringService()
+                        .findUsagePointLifeCycle(data.getLifeCycle()) == null) {
+                    throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE, data.getLineNumber(), data.getLifeCycle());
+                }
+
                 UsagePointLifeCycle usagePointLifeCycle = getContext().getMeteringService()
                         .findUsagePointLifeCycle(data.getLifeCycle());
 
@@ -152,6 +158,10 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
+            if (getContext().getMeteringService()
+                    .findUsagePointLifeCycle(data.getLifeCycle()) == null) {
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE, data.getLineNumber(), data.getLifeCycle());
+            }
             UsagePoint usagePoint = usagePointImportHelper.createUsagePointForInsight(serviceCategory.get()
                     .newUsagePoint(identifier, data.getInstallationTime()
                             .orElse(getContext().getClock().instant())), data);
