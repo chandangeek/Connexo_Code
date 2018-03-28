@@ -37,10 +37,10 @@ public class FileImportUIInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-        //  HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
 
         // EXAMPLE: Below is how to enable local development mode.
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:/Users/H251454/git/jupiter/copl/com.elster.jupiter.fileimport.extjs/src/main/web/js/fileimport", new FileResolver());
+        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:/Users/H251454/git/jupiter/copl/com.elster.jupiter.fileimport.extjs/src/main/web/js/fileimport", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
