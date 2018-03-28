@@ -8,6 +8,8 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Thesaurus;
@@ -65,7 +67,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private final Object configureLock = new Object();
     @GuardedBy("configureLock")
-    private final Map<MessageHandlerFactory, CancellableTaskExecutorService> executors = new HashMap<>();
+    private final Map<SubscriberKey, MessageHandlerLauncherPojo> executors = new HashMap<>();
     @GuardedBy("configureLock")
     private final Map<CancellableTaskExecutorService, List<Future<?>>> futures = new HashMap<>();
     private final Queue<SubscriberKey> toBeLaunched = new LinkedList<>();
@@ -73,16 +75,18 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private Principal batchPrincipal;
     private Registration commandRegistration;
+    private MessageService messageService;
 
     public MessageHandlerLauncherService() {
     }
 
     @Inject
-    MessageHandlerLauncherService(IAppService appService, ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService) {
+    MessageHandlerLauncherService(IAppService appService, ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService, MessageService messageService) {
         this.appService = appService;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.messageService = messageService;
     }
 
     public AppService getAppService() {
@@ -108,6 +112,11 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Activate
@@ -184,12 +193,31 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
         SubscriberKey subscriberKey = getSubscriberKey(map);
-        handlerFactories.put(subscriberKey, factory);
+
+        addNewMessageHandlerFactory(subscriberKey, factory);
+        addExtraMessageHandlerFactories(subscriberKey, factory);
+    }
+
+    private void addNewMessageHandlerFactory(SubscriberKey key, MessageHandlerFactory factory) {
+        handlerFactories.put(key, factory);
         if (transactionService == null || threadPrincipalService == null) {
-            toBeLaunched.add(subscriberKey);
+            toBeLaunched.add(key);
             return;
         }
-        addMessageHandlerFactory(subscriberKey, factory);
+
+        addMessageHandlerFactory(key, factory);
+    }
+
+    private void addExtraMessageHandlerFactories(SubscriberKey key, MessageHandlerFactory factory) {
+        List<DestinationSpec> destinationSpecTypeNames = messageService.findDestinationSpecs().stream()
+                .filter(d -> !d.isDefault())
+                .filter(d -> d.getQueueTypeName().equals(key.getDestination()))
+                .distinct().collect(Collectors.toList());
+
+        if (!destinationSpecTypeNames.isEmpty()) {
+            destinationSpecTypeNames.stream().forEach(spec ->
+                    addNewMessageHandlerFactory(SubscriberKey.of(spec.getName(), spec.getName()), factory));
+        }
     }
 
     private SubscriberKey getSubscriberKey(Map<String, Object> map) {
@@ -198,47 +226,52 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         return SubscriberKey.of(destinationName, subscriberName);
     }
 
-    public void removeResource(MessageHandlerFactory factory) {
-        handlerFactories.entrySet().removeIf(entry -> entry.getValue().equals(factory));
+    public void removeResource(MessageHandlerFactory factory, Map<String, Object> map) {
+        SubscriberKey key = getSubscriberKey(map);
+        handlerFactories.remove(key);
         synchronized (configureLock) {
-            stopServing(factory);
+            stopServing(key);
         }
     }
 
-    private void stopServing(MessageHandlerFactory factory) {
-        CancellableTaskExecutorService executorService = executors.get(factory);
+    private void stopServing(SubscriberKey key) {
+        MessageHandlerLauncherPojo handlerPojo = executors.get(key);
+        CancellableTaskExecutorService executorService = handlerPojo.getCancellableTaskExecutorService();
         if (executorService != null) {
-            shutDownServiceWithCancelling(executorService);
+            shutDownServiceWithCancelling(handlerPojo);
             futures.remove(executorService);
         }
-        executors.remove(factory);
+        executors.remove(key);
     }
 
     Map<SubscriberKey, Integer> futureReport() {
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot;
+        Map<SubscriberKey, MessageHandlerLauncherPojo> executorsSnapshot;
         Map<CancellableTaskExecutorService, List<Future<?>>> futuresSnapshot;
         synchronized (configureLock) {
             executorsSnapshot = ImmutableMap.copyOf(this.executors);
             futuresSnapshot = ImmutableMap.copyOf(this.futures);
         }
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsCopy = executorsSnapshot;
+        Map<SubscriberKey, MessageHandlerLauncherPojo> executorsCopy = executorsSnapshot;
         Map<CancellableTaskExecutorService, List<Future<?>>> futuresCopy = futuresSnapshot;
         return handlerFactories.entrySet().stream()
-                .map(entry -> Pair.of(entry.getKey(), entry.getValue() == null ? null : executorsCopy.get(entry.getValue())))
+                .map(entry -> Pair.of(entry.getKey(),
+                        executorsCopy.containsKey(entry.getKey()) ? executorsCopy.get(entry.getKey()).getCancellableTaskExecutorService() : null))
                 .filter(pair -> pair.getLast() != null)
-                .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : futuresCopy.get(pair.getLast()).size()))
+                .map(pair -> Pair.of(pair.getFirst(),
+                        futuresCopy.containsKey(pair.getLast()) ? futuresCopy.get(pair.getLast()).size() : 0))
                 .filter(pair -> pair.getLast() != null)
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }
 
     Map<SubscriberKey, Integer> threadReport() {
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot;
+        Map<SubscriberKey, MessageHandlerLauncherPojo> executorsSnapshot;
         synchronized (configureLock) {
             executorsSnapshot = ImmutableMap.copyOf(this.executors);
         }
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsCopy = executorsSnapshot;
+        Map<SubscriberKey, MessageHandlerLauncherPojo> executorsCopy = executorsSnapshot;
         return handlerFactories.entrySet().stream()
-                .map(entry -> Pair.of(entry.getKey(), executorsCopy.get(entry.getValue())))
+                .map(entry -> Pair.of(entry.getKey(),
+                        executorsCopy.containsKey(entry.getKey()) ? executorsCopy.get(entry.getKey()).getCancellableTaskExecutorService() : null))
                 .filter(pair -> pair.getLast() != null)
                 .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : pair.getLast().getCorePoolSize()))
                 .filter(pair -> pair.getLast() != 0)
@@ -252,15 +285,15 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                     .filter(SubscriberExecutionSpec::isActive)
                     .ifPresent(executionSpec -> {
                         synchronized (configureLock) {
-                            launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
+                            launch(key, factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
                         }
                     });
         }
     }
 
-    private void launch(MessageHandlerFactory factory, int threadCount, SubscriberSpec subscriberSpec) {
+    private void launch(SubscriberKey key, MessageHandlerFactory factory, int threadCount, SubscriberSpec subscriberSpec) {
         CancellableTaskExecutorService executorService = newExecutorService(SubscriberKey.of(subscriberSpec), threadCount);
-        executors.put(factory, executorService);
+        executors.put(key, new MessageHandlerLauncherPojo(factory, executorService));
         List<Future<?>> submittedFutures = new ArrayList<>(threadCount);
         try {
             for (int i = 0; i < threadCount; i++) {
@@ -310,7 +343,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 .findFirst();
     }
 
-    private void shutDownServiceWithCancelling(CancellableTaskExecutorService executorService) {
+    private void shutDownServiceWithCancelling(MessageHandlerLauncherPojo pojo) {
+        CancellableTaskExecutorService executorService = pojo.getCancellableTaskExecutorService();
         for (Future<?> future : futures.get(executorService)) {
             future.cancel(false);
         }
@@ -361,15 +395,13 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 .stream()
                 .filter(not(SubscriberExecutionSpec::isActive))
                 .map(SubscriberKey::of)
-                .map(handlerFactories::get)
-                .filter(Objects::nonNull)
+                .filter(key -> handlerFactories.get(key) != null)
                 .forEach(this::stopServing);
-        Set<MessageHandlerFactory> toRemove = executors.keySet().stream()
-                .filter(factory -> subscriberExecutionSpec.stream()
+        Set<SubscriberKey> toRemove = executors.keySet().stream()
+                .filter(key -> subscriberExecutionSpec.stream()
                         .map(SubscriberKey::of)
-                        .map(handlerFactories::get)
-                        .filter(Objects::nonNull)
-                        .noneMatch(f -> f.equals(factory)))
+                        .filter(subKey -> handlerFactories.get(subKey) != null)
+                        .noneMatch(subKey -> subKey.equals(key)))
                 .collect(Collectors.toSet());
         toRemove.forEach(this::stopServing);
     }
@@ -377,32 +409,69 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private void doReconfigure(SubscriberExecutionSpec subscriberExecutionSpec) {
         SubscriberKey key = SubscriberKey.of(subscriberExecutionSpec);
         MessageHandlerFactory messageHandlerFactory = handlerFactories.get(key);
-        if (messageHandlerFactory != null) {
-            CancellableTaskExecutorService executorService = executors.get(messageHandlerFactory);
-            if (executorService == null) {
-                launch(messageHandlerFactory, subscriberExecutionSpec.getThreadCount(), subscriberExecutionSpec.getSubscriberSpec());
-                return;
+        CancellableTaskExecutorService executorService = null;
+
+        if (messageHandlerFactory == null) {
+            return;
+        }
+
+        if (executors.get(key) != null) {
+            executorService = executors.get(key).getCancellableTaskExecutorService();
+        }
+
+        if (executorService == null) {
+            launch(key, messageHandlerFactory, subscriberExecutionSpec.getThreadCount(), subscriberExecutionSpec.getSubscriberSpec());
+            return;
+        }
+
+        addFutureTask(subscriberExecutionSpec, executorService, messageHandlerFactory);
+    }
+
+    private void addFutureTask(SubscriberExecutionSpec subscriberExecutionSpec, CancellableTaskExecutorService executorService, MessageHandlerFactory messageHandlerFactory) {
+        int target = subscriberExecutionSpec.getThreadCount();
+        List<Future<?>> currentTasks = futures.get(executorService);
+        int current = currentTasks.size();
+        int change = target - current;
+
+        if (change > 0) {
+            executorService.setMaximumPoolSize(target);
+            executorService.setCorePoolSize(target);
+            for (int i = 0; i < change; i++) {
+                Future<?> future = submitTask(executorService, subscriberExecutionSpec.getSubscriberSpec(), messageHandlerFactory);
+                currentTasks.add(future);
             }
-            int target = subscriberExecutionSpec.getThreadCount();
-            List<Future<?>> currentTasks = futures.get(executorService);
-            int current = currentTasks.size();
-            int change = target - current;
-            if (change > 0) {
-                executorService.setMaximumPoolSize(target);
-                executorService.setCorePoolSize(target);
-                for (int i = 0; i < change; i++) {
-                    Future<?> future = submitTask(executorService, subscriberExecutionSpec.getSubscriberSpec(), messageHandlerFactory);
-                    currentTasks.add(future);
-                }
-            } else if (change < 0) {
-                for (int i = 0; i < -change; i++) {
-                    Future<?> removed = currentTasks.remove(0);
-                    removed.cancel(true);
-                }
-                executorService.setCorePoolSize(target);
-                executorService.setMaximumPoolSize(target);
+        }
+
+        if (change < 0) {
+            for (int i = 0; i < -change; i++) {
+                Future<?> removed = currentTasks.remove(0);
+                removed.cancel(true);
             }
+            executorService.setCorePoolSize(target);
+            executorService.setMaximumPoolSize(target);
         }
     }
 
+    private class MessageHandlerLauncherPojo {
+
+        private MessageHandlerFactory messageHandlerFactory;
+        private CancellableTaskExecutorService cancellableTaskExecutorService;
+
+        MessageHandlerLauncherPojo(MessageHandlerFactory messageHandlerFactory, CancellableTaskExecutorService cancellableTaskExecutorService) {
+            this.messageHandlerFactory = messageHandlerFactory;
+            this.cancellableTaskExecutorService = cancellableTaskExecutorService;
+        }
+
+        MessageHandlerFactory getMessageHandlerFactory() {
+            return messageHandlerFactory;
+        }
+
+        CancellableTaskExecutorService getCancellableTaskExecutorService() {
+            return cancellableTaskExecutorService;
+        }
+
+    }
+
 }
+
+

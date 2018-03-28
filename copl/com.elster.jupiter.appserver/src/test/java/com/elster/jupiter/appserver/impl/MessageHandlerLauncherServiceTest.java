@@ -384,7 +384,7 @@ public class MessageHandlerLauncherServiceTest {
 
             arrivalLatch.await();
 
-            messageHandlerLauncherService.removeResource(factory);
+            messageHandlerLauncherService.removeResource(factory, map);
 
             waitForCancel.countDown();
 
