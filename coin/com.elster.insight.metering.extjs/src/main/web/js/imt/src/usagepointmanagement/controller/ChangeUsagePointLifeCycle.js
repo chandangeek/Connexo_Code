@@ -58,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
                 view.down('#change-usage-point-life-cycle-combo').getStore().load({
                     callback: function () {
                         view.down('#change-usage-point-life-cycle-combo').getStore().filterBy(function (rec) {
-                            return rec.get('id') != usagePoint.get('usagePointLifeCycleId');
+                            return rec.get('id') != usagePoint.get('lifeCycle');
                         });
                         view.setLoading(false);
                     }
@@ -81,16 +81,10 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
         wizard.down('#form-errors').hide();
         wizard.setLoading();
         Ext.Ajax.request({
-            url: '/api/upl/usagepoints/{id}/usagepointlifecycle'.replace('{id}', router.arguments.usagePointId),
+            url: '/api/udr/usagepoints/{id}/usagepointlifecycle'.replace('{id}', router.arguments.usagePointId),
             method: 'PUT',
             backUrl: cancelBtn.href,
-            jsonData: {
-                version: me.usagePoint.get('version'),
-                name: me.usagePoint.get('name'),
-                targetUsagePointLifeCycle: {
-                    id: lifeCycleCombo.getValue()
-                }
-            },
+            jsonData: lifeCycleCombo.getDisplayValue(),
             callback: function (options, success, response) {
                 wizard.setLoading(false);
                 if (response.status === 409) {

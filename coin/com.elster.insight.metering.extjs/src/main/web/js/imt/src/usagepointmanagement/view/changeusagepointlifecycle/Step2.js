@@ -30,21 +30,13 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Step2', {
         me.callParent(arguments);
     },
     setResultMessage: function (result, success) {
-        var me = this,
-            states = '';
+        var me = this;
 
         if (success) {
             me.update('<h3>' + Uni.I18n.translate('usagePointLifeCycle.change.successMsg', 'IMT', 'Successfully changed usage point life cycle') + '</h3>');
         } else {
-            if (result.notMappableStates && result.notMappableStates.length) {
-                states = '<ul>';
-                Ext.Array.each(result.notMappableStates, function (state) {
-                    states += '<li style="margin-left: 20px">' + state.name + '</li>';
-                });
-                states += '</ul>';
-            }
 
-            me.down('#change-usage-point-life-cycle-failed').setText(Uni.I18n.translate('usagePointLifeCycle.change.errorMsg', 'IMT', '{0} has states that cannot be mapped to states of {1}', ['<h3>' + result.errorMessage + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>', '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>', states], false));
+            me.down('#change-usage-point-life-cycle-failed').setText('<h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg1', 'IMT', 'Cannot change life cycle.') + '</h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg2', 'IMT', 'The life cycle \'{0}\' doesn\'t contain the actual state \'{1}\'.', [result.newUsagePointLifeCycle, result.usagePointState], false));
             me.down('#change-usage-point-life-cycle-failed').show();
         }
     }

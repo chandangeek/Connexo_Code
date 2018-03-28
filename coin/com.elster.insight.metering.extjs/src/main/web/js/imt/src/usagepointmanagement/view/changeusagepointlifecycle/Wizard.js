@@ -16,7 +16,6 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Wizard', {
     router: null,
     initComponent: function () {
         var me = this;
-
         me.items = [
             {
                 xtype: 'change-usage-point-life-cycle-step1',
@@ -55,18 +54,21 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Wizard', {
                     action: 'finish',
                     itemId: 'change-usage-point-life-cycle-finish',
                     hidden: true,
-                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('administration/devicetypes').buildUrl()
+                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('usagepoints/view').buildUrl(me.router.arguments)
+
                 },
                 {
                     text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                     ui: 'link',
                     action: 'cancel',
                     itemId: 'change-usage-point-life-cycle-cancel',
-                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('administration/devicetypes').buildUrl()
+                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('usagepoints/view').buildUrl(me.router.arguments)
                 }
             ]
         };
 
         me.callParent(arguments);
+
     }
+
 });

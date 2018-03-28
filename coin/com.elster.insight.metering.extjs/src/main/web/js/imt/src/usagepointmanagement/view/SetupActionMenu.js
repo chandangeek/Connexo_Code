@@ -24,7 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
                     privileges: Dbp.privileges.DeviceProcesses.assignOrExecute,
                     text: Uni.I18n.translate('usagepoint.process.change.lifecycle', 'IMT', 'Change usage point lifecycle '),
                     href: me.router.getRoute('usagepoints/view/change').buildUrl(),
-                    section: this.SECTION_ACTION
+                    section: this.SECTION_EDIT
                 }
 
             ];
