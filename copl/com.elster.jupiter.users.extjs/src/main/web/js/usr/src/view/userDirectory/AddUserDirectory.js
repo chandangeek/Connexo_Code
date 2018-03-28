@@ -29,16 +29,10 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
     initComponent: function () {
         var me = this,
             switchCombos = function (value) {
-                var certificateCombo = me.down('#cbo-certificate-alias'),
-                    trustStoreCombo = me.down('#cbo-trust-store');
+                var certificateCombo = me.down('#cbo-certificate-alias');
                 certificateCombo.setVisible(value);
-                trustStoreCombo.setVisible(!value);
-
                 certificateCombo.setDisabled(!value);
-                trustStoreCombo.setDisabled(value);
-
                 certificateCombo.allowBlank = !value;
-                trustStoreCombo.allowBlank = value;
             };
 
         me.content = [
@@ -121,10 +115,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                             value = records[0].get('value') !== 'NONE';
                                         protocolSource.setVisible(value);
                                         protocolSource.setDisabled(!value);
-
-                                        if (value) {
-                                            switchCombos(value);
-                                        }
                                     }
                                 }
                             },
@@ -141,72 +131,11 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'container',
                         itemId: 'security-protocol-source',
                         hidden: true,
-                        listeners: {
-                            show: function (c) {
-                                c.down('#rdo-security-protocol-source').setValue({source: 'certificates'});
-                            }
-                        },
                         items: [
-                            {
-                                xtype: 'radiogroup',
-                                itemId: 'rdo-security-protocol-source',
-                                required: true,
-                                fieldLabel: Uni.I18n.translate('userDirectories.protocol.source', 'USR', 'Source'),
-                                columns: 1,
-                                labelWidth: 250,
-                                vertical: true,
-                                defaults: {
-                                    name: 'source'
-                                },
-                                items: [
-                                    {
-                                        boxLabel: Uni.I18n.translate('userDirectories.protocol.source.certificates', 'USR', 'Certificates'),
-                                        inputValue: 'certificates',
-                                        checked: true,
-                                        listeners: {
-                                            change: function (rb, newValue, oldValue, eOpts) {
-                                                switchCombos(newValue);
-                                            }
-                                        }
-                                    },
-                                    {
-                                        boxLabel: Uni.I18n.translate('userDirectories.protocol.source.trustStores', 'USR', 'Trust stores'),
-                                        inputValue: 'trustStores',
-                                        listeners: {
-                                            change: function (rb, newValue, oldValue, eOpts) {
-                                                switchCombos(!newValue);
-                                            }
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'combobox',
-                                itemId: 'cbo-certificate-alias',
-                                name: 'certificateAlias',
-                                hidden: true,
-                                width: 600,
-                                fieldLabel: Uni.I18n.translate('userDirectories.certificateAlias', 'USR', 'Certificate alias'),
-                                labelWidth: 250,
-                                store: 'Usr.store.Certificates',
-                                disabled: false,
-                                emptyText: Uni.I18n.translate('userDirectories.certificateAliasPrompt', 'USR', 'Start typing to select...'),
-                                queryDelay: 500,
-                                queryCaching: false,
-                                minChars: 0,
-                                allowBlank: false,
-                                loadStore: false,
-                                forceSelection: false,
-                                displayField: 'alias',
-                                queryMode: 'remote',
-                                queryParam: 'like',
-                                valueField: 'id'
-                            },
                             {
                                 xtype: 'combobox',
                                 itemId: 'cbo-trust-store',
                                 name: 'trustStore.id',
-                                hidden: true,
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('userDirectories.trustStore', 'USR', 'Trust store'),
                                 labelWidth: 250,
@@ -223,6 +152,41 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 queryMode: 'remote',
                                 queryParam: 'like',
                                 displayField: 'name',
+                                valueField: 'id'
+                            },
+                            {
+                                xtype: 'checkbox',
+                                fieldLabel: Uni.I18n.translate('userDirectories.authentication', 'USR', 'Two-way authentication'),
+                                itemId: 'authentication-checkbox',
+                                name: 'twoWaySsl',
+                                labelWidth: 250,
+                                listeners: {
+                                    change: function (rb, newValue, oldValue, eOpts) {
+                                        switchCombos(newValue);
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'combobox',
+                                itemId: 'cbo-certificate-alias',
+                                name: 'certificateAlias',
+                                hidden: true,
+                                required: true,
+                                width: 600,
+                                fieldLabel: Uni.I18n.translate('userDirectories.certificateAlias', 'USR', 'Certificate alias'),
+                                labelWidth: 250,
+                                store: 'Usr.store.Certificates',
+                                disabled: false,
+                                emptyText: Uni.I18n.translate('userDirectories.certificateAliasPrompt', 'USR', 'Start typing to select...'),
+                                queryDelay: 500,
+                                queryCaching: false,
+                                minChars: 0,
+                                allowBlank: true,
+                                loadStore: false,
+                                forceSelection: false,
+                                displayField: 'alias',
+                                queryMode: 'remote',
+                                queryParam: 'like',
                                 valueField: 'id'
                             }
                         ]
@@ -341,20 +305,22 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
     loadRecord: function (record) {
         var me = this,
             protocolSource = me.down('#security-protocol-source'),
-            protocolSourceRadio = me.down('#rdo-security-protocol-source'),
             addUserDirectoryForm = me.down('#frm-add-user-directory'),
             certificateCombo = me.down('#cbo-certificate-alias'),
+            certificateCheckbox = me.down('#authentication-checkbox'),
             trustStoreCombo = me.down('#cbo-trust-store');
 
         addUserDirectoryForm.loadRecord(record);
 
         protocolSource.setVisible(record.get('securityProtocol') !== 'NONE');
         protocolSource.setDisabled(record.get('securityProtocol') === 'NONE');
+
+        certificateCheckbox.setValue(!!record.get('certificateAlias'));
         if (record.get('certificateAlias')) {
-            protocolSourceRadio.setValue({source: 'certificates'});
             certificateCombo.setValue(record.get('certificateAlias'));
-        } else if (record.get('trustStore')) {
-            protocolSourceRadio.setValue({source: 'trustStores'});
+        }
+
+        if (record.get('trustStore')) {
             trustStoreCombo.getStore().load({
                 callback: function () {
                     trustStoreCombo.setValue(record.get('trustStore').id);
