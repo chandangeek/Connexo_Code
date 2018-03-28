@@ -206,8 +206,9 @@ public class DestinationSpecResource {
     public Response getDestinationSpecTypeNames() {
         List<DestinationSpecTypeNameInfo> destinationSpecTypeNames = messageService.findDestinationSpecs().stream()
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .filter(DestinationSpec::isDefault)
                 .map(d -> new DestinationSpecTypeNameInfo(d.getQueueTypeName()))
-                .distinct().collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         return Response.status(Response.Status.OK).entity(destinationSpecTypeNames).build();
     }

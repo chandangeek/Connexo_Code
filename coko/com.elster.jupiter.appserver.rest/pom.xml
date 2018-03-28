@@ -120,7 +120,6 @@
             <artifactId>export</artifactId>
         </dependency>
 
-
         <!-- TEST -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

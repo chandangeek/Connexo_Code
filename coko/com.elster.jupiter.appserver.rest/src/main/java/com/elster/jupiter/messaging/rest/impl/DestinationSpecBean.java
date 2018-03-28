@@ -11,7 +11,9 @@ class DestinationSpecBean {
     }
 
     String getName() {
-        return name.trim().toUpperCase();
+        String value = name.trim().toUpperCase();
+        value = value.replace(" ", "_");
+        return value;
     }
 
     String getQueueTypeName() {
