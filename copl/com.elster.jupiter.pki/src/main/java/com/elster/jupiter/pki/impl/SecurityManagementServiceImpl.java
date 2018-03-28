@@ -78,7 +78,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -910,7 +909,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory) {
+    public Optional<KeyStore> getTrustedKeyStore(LdapUserDirectory ldapUserDirectory) {
         return this.getUserDirectoryCertificateUsage(ldapUserDirectory)
                 .map(directoryCertificateUsage -> {
                     KeyStore keyStore = null;
@@ -918,16 +917,34 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                         keyStore = KeyStore.getInstance("JKS");
                         keyStore.load(null, null);
                         Optional<TrustStore> trustStore = directoryCertificateUsage.getTrustStore();
-                        Optional<CertificateWrapper> certificate = directoryCertificateUsage.getCertificate();
                         if (trustStore.isPresent()) {
                             for (TrustedCertificate cert : trustStore.get().getCertificates()) {
                                 if (cert.getCertificate().isPresent()) {
                                     keyStore.setCertificateEntry(cert.getAlias(), cert.getCertificate().get());
                                 }
                             }
-                        } else if (certificate.isPresent() && certificate.get().getCertificate().isPresent()) {
-                            X509Certificate trustedCertificate = certificate.get().getCertificate().get();
-                            keyStore.setCertificateEntry(certificate.get().getAlias(), trustedCertificate);
+                        }
+                        return keyStore;
+                    } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+                        return null;
+                    }
+                });
+    }
+
+    @Override
+    public Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory, char[] password) {
+        return this.getUserDirectoryCertificateUsage(ldapUserDirectory)
+                .map(directoryCertificateUsage -> {
+                    KeyStore keyStore = null;
+                    try {
+                        keyStore = KeyStore.getInstance("JKS");
+                        keyStore.load(null, password);
+                        Optional<CertificateWrapper> certificate = directoryCertificateUsage.getCertificate();
+                        if (certificate.isPresent() && certificate.get().getCertificate().isPresent()) {
+                            X509Certificate cert = certificate.get().getCertificate().get();
+                            keyStore.setCertificateEntry(certificate.get().getAlias(), cert);
+                        } else {
+                            return null;
                         }
                         return keyStore;
                     } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
