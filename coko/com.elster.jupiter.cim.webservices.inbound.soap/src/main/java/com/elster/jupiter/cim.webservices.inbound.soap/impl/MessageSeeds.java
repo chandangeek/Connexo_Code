@@ -48,6 +48,8 @@ public enum MessageSeeds implements MessageSeed {
     TRANSITION_CHECK_FAILED(2011, "TransitionCheckFailed", "Transition can''t be performed due to failed transition check ''{0}'': {1}"),
     TRANSITION_ACTION_FAILED(2012, "TransitionActionFailed", "Transition can''t be performed due to failed transition action ''{0}'': {1}"),
     NO_CONNECTION_STATE_FOUND(2013, "NoConnectionStateFound", "No supported connection state is found for ''{0}''."),
+    NO_STATE_FOUND_IN_LIFE_CYCLE(1024, "StateNotFound", "The life cycle: ''{0}'' doesn''t contain usage point state: ''{1}''"),
+    LIFE_CYCLE_NOT_FOUND(1024, "StateNotFound", "The life cycle: ''{0}'' doesn''t exist."),
     UNABLE_TO_GET_USAGE_POINT(2014, "UnableToGetUsagePoint", "Unable to get usage point"),
 
     // meter readings

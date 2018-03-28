@@ -75,6 +75,7 @@ class UsagePointConfigFactory {
             usagePoint.getDetail(clock.instant())
                     .filter(ElectricityDetail.class::isInstance)
                     .map(ElectricityDetail.class::cast)
+                    .filter(detail -> detail.getPhaseCode().getValue() != "Unknown") //not ok
                     .map(ElectricityDetail::getPhaseCode)
                     .flatMap(Optional::ofNullable)
                     .map(PhaseCode::getValue)
