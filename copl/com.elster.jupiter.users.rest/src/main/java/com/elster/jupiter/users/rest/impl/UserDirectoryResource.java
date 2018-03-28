@@ -134,7 +134,7 @@ public class UserDirectoryResource {
             if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
                 CertificateWrapper certificate = null;
                 TrustStore trustStore = null;
-                if (info.twoWaySsl && !Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
                     certificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
                             .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
                 }
@@ -190,7 +190,7 @@ public class UserDirectoryResource {
                         Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory);
                         CertificateWrapper certificate = null;
                         TrustStore trustStore = null;
-                        if (info.twoWaySsl && !Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                        if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
                             certificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
                                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
                         }
