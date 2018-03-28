@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -27,7 +28,8 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED(15, "field.required", "This field is required"),
     READINGTYPE_ALREADY_EXISTS_IN_GROUP(16, "readingtype.alreadyExistsinGroup", "Reading type {0} already exists in group {1}."),
     ALIAS_ALREADY_EXISTS(17, "readingtype.aliasAlreadyExists", "Alias {0} already exists."),
-    READINGTYPE_UPDATING_FAIL(18, "readingtype.updatingFail", "Failed updating reading types.");
+    READINGTYPE_UPDATING_FAIL(18, "readingtype.updatingFail", "Failed updating reading types."),
+    INVALID_LIFE_CYCLE(19, PrivateMessageSeeds.Constants.INVALID_END_DEVICE_STAGE, "Cannot change life cycle. ''{0}'' doesn''t contain the actual state ''{1}''.");
 
     private final int number;
     private final String key;
