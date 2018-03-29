@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -62,12 +63,11 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.framework.Constants;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.ComponentException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -134,6 +134,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile FirmwareService firmwareService;
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
@@ -156,7 +157,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             SerialComponentService serialATComponentService,
             IdentificationService identificationService,
             FirmwareService firmwareService,
-            UpgradeService upgradeService) {
+            UpgradeService upgradeService,
+            SecurityManagementService securityManagementService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -185,6 +187,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setManagementBeanFactory(managementBeanFactory);
         addIdentificationService(identificationService);
         setFirmwareService(firmwareService);
+        setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         activate(componentContext);
     }
@@ -408,6 +411,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @SuppressWarnings("unused")
@@ -841,6 +849,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public FirmwareService firmwareService() {
             return firmwareService;
+        }
+
+        @Override
+        public SecurityManagementService securityManagementService() {
+            return securityManagementService;
         }
     }
 

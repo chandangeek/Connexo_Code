@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
@@ -103,7 +104,6 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -151,6 +151,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private DeviceService getDeviceService() {
         return this.serviceProvider.deviceService();
+    }
+
+    private SecurityManagementService getSecurityManagementService() {
+        return this.serviceProvider.securityManagementService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {
@@ -1159,6 +1163,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+            firmwareStorage.updateCaConfigImageVersion(collectedFirmwareVersions.getActiveCaConfigImageVersion(), device);
         });
     }
 
@@ -1168,6 +1173,15 @@ public class ComServerDAOImpl implements ComServerDAO {
         optionalDevice.ifPresent(device -> {
             BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
             breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+        });
+    }
+
+    @Override
+    public void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(deviceIdentifier);
+        optionalDevice.ifPresent(device -> {
+            DeviceCertificateStorage certificateStorage = new DeviceCertificateStorage(getSecurityManagementService());
+            certificateStorage.updateDeviceCSR(device, certificateType, csr);
         });
     }
 
@@ -1411,6 +1425,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         FirmwareService firmwareService();
 
         DeviceConfigurationService deviceConfigurationService();
+
+        SecurityManagementService securityManagementService();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
