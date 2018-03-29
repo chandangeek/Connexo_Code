@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.bpm.rest;
+package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import org.json.JSONArray;

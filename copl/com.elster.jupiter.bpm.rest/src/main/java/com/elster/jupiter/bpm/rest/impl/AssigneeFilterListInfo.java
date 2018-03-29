@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.bpm.rest;
+package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.bpm.rest.TranslationKeys.TASK_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.bpm.rest.impl.TranslationKeys.TASK_ASSIGNEE_UNASSIGNED;
 
 public class AssigneeFilterListInfo {
     private List<TaskAssigneeInfo> data = new ArrayList<>();

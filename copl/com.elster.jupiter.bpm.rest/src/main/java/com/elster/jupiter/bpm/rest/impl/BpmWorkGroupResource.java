@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.bpm.rest.impl;
 
-import com.elster.jupiter.bpm.rest.SimplifiedUserInfo;
-import com.elster.jupiter.bpm.rest.WorkGroupInfo;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.bpm.rest.TranslationKeys.BPM_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.bpm.rest.impl.TranslationKeys.BPM_ASSIGNEE_UNASSIGNED;
 
 @Path("/workgroups")
 public class BpmWorkGroupResource {

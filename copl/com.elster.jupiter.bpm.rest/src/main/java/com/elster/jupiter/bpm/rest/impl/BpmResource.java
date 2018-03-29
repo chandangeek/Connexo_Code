@@ -14,33 +14,24 @@ import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.bpm.UserTaskInfos;
-import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
-import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
-import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
+import com.elster.jupiter.bpm.rest.exception.BpmProcessNotAvailable;
+import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
+import com.elster.jupiter.bpm.rest.BusinessObject;
 import com.elster.jupiter.bpm.rest.DeploymentInfo;
 import com.elster.jupiter.bpm.rest.DeploymentInfos;
 import com.elster.jupiter.bpm.rest.Errors;
-import com.elster.jupiter.bpm.rest.LocalizedFieldException;
-import com.elster.jupiter.bpm.rest.NoBpmConnectionException;
-import com.elster.jupiter.bpm.rest.NoTaskWithIdException;
-import com.elster.jupiter.bpm.rest.NodeInfos;
+import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
+import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
+import com.elster.jupiter.bpm.rest.exception.NoTaskWithIdException;
 import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
 import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
-import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
-import com.elster.jupiter.bpm.rest.StartupInfo;
-import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
-import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
-import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
-import com.elster.jupiter.bpm.rest.TopTaskInfo;
-import com.elster.jupiter.bpm.rest.TopTasksPayload;
-import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -794,9 +785,7 @@ public class BpmResource {
                                 .filter(f -> List.class.isInstance(p.getProperties().get(f)))
                                 .allMatch(f -> ((List<Object>) p.getProperties().get(f)).stream()
                                         .filter(HasIdAndName.class::isInstance)
-                                        .anyMatch(v -> ((HasIdAndName) v).getId()
-                                                .toString()
-                                                .equals(filterProperties.get(f).get(0)))))
+                                        .anyMatch(v -> filterProperties.get(f).contains(((HasIdAndName) v).getId().toString()))))
                         .collect(Collectors.toList());
 
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
@@ -1179,10 +1168,20 @@ public class BpmResource {
         if (!err.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
-        if (taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
-            expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
-            bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+        if (taskContentInfos.deploymentId != null) {
+            if (taskContentInfos.businessObject != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
+                expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
+                bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+            } else {
+                for (BusinessObject bo : taskContentInfos.bulkBusinessObjects) {
+                    if (bo.id != null && bo.value != null) {
+                        expectedParams.put(bo.id, bo.value);
+                        bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
+                    }
+                }
+            }
         }
+
         return Response.ok().build();
     }
 
