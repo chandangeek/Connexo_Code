@@ -4,6 +4,10 @@
 Ext.define('Pkj.controller.Certificates', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Pkj.view.RequestConfirmationWindow'
+    ],
+
     views: [
         'Pkj.view.CertificatesOverview',
         'Pkj.view.AddCertificate',
@@ -81,6 +85,18 @@ Ext.define('Pkj.controller.Certificates', {
             },
             '#pkj-remove-certificate-menu-item': {
                 click: this.removeCertificate
+            },
+            '#pkj-obsolete-certificate-menu-item': {
+                click: this.obsoleteCertificate
+            },
+            '#pkj-cancel-obsolete-certificate-menu-item': {
+                click: this.cancelObsoleteCertificate
+            },
+            '#pkj-revoke-certificate-menu-item': {
+                click: this.revokeCertificate
+            },
+            '#pkj-request-certificate-menu-item': {
+                click: this.requestCertificate
             }
         });
     },
@@ -346,6 +362,181 @@ Ext.define('Pkj.controller.Certificates', {
                 }
             }
         });
-    }
+    },
 
+    obsoleteCertificate: function (menuItem) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.confirm.obsolete', 'PKJ', 'Mark as obsolete')}),
+            certificateRecord = menuItem.up('certificate-action-menu').record;
+
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/markObsolete',
+            method: 'POST',
+            callback: function (config, success, response) {
+                if (!Ext.isEmpty(response.responseText)) {
+                    var responseObject = JSON.parse(response.responseText);
+
+                    var messageConstructed = me.constructUsagesList(responseObject,
+                        Uni.I18n.translate('certificate.usages.confirm.title', 'PKJ', 'Certificate is still used by the following objects') + ':',
+                        Uni.I18n.translate('certificate.obsolete.confirm.question', 'PKJ', 'Do you want to mark it as obsolete?'));
+
+                    confirmationWindow.insert(1,
+                        {
+                            xtype: 'displayfield',
+                            itemId: 'obsolete-confirmation-field',
+                            value: messageConstructed,
+                            htmlEncode: false,
+                            margin: '-15 0 10 50'
+                        }
+                    );
+
+                    confirmationWindow.show({
+                        title: Uni.I18n.translate('general.obsoleteX', 'PKJ', "Mark as obsolete '{0}'?", certificateRecord.get('alias')),
+                        headers: {'Content-type': 'multipart/form-data'},
+                        fn: function (state) {
+                            if (state === 'confirm') {
+                                Ext.Ajax.request({
+                                    url: '/api/pir/certificates/' + certificateRecord.get('id') + '/forceMarkObsolete',
+                                    method: 'POST',
+                                    success: function () {
+                                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateMarkedObsolete', 'PKJ', 'Certificate marked as obsolete'));
+                                        me.navigateToCertificatesOverview();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateMarkedObsolete', 'PKJ', 'Certificate marked as obsolete'));
+                    me.navigateToCertificatesOverview();
+                }
+
+            }
+        });
+    },
+
+    cancelObsoleteCertificate: function (menuItem) {
+        var me = this,
+            certificateRecord = menuItem.up('certificate-action-menu').record;
+
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/unmarkObsolete',
+            method: 'POST',
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateUnmarkedObsolete', 'PKJ', 'Certificate is no longer obsolete'));
+                me.navigateToCertificatesOverview();
+            }
+        });
+    },
+
+    revokeCertificate: function (menuItem) {
+        var me = this,
+            certificateRecord = menuItem.up('certificate-action-menu').record,
+            confirmationWindow = Ext.create('Pkj.view.RevocationConfirmationWindow', {
+                    bindRecordId: certificateRecord.get('id'),
+                    certificatesView: me
+            });
+
+        Ext.Ajax.request({
+            url: '/api/pir/certificates/' + certificateRecord.get('id') + '/checkRevoke',
+            method: 'POST',
+
+            callback: function (config, success, response) {
+                if (!Ext.isEmpty(response.responseText)) {
+                    var responseObject = JSON.parse(response.responseText);
+                    if (!Ext.isEmpty(responseObject.isUsed) && responseObject.isUsed === true) {
+                        var errorMsg = me.constructUsagesList(responseObject,
+                                Uni.I18n.translate('certificate.usages.error', 'PKJ', 'Certificate could not be revoked because it is still used on the following objects')+ ':');
+                        me.getApplication().getController('Uni.controller.Error').showHtmlSensitiveError(
+                            Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), errorMsg);
+                        return;
+                    }
+                    confirmationWindow.show({
+                        caOnline: !Ext.isEmpty(responseObject.isOnline) && responseObject.isOnline === true,
+                        headers: {'Content-type': 'multipart/form-data'}
+                    });
+                }
+            }
+        });
+    },
+
+    requestCertificate: function (menuItem) {
+        var me = this,
+            recordId = menuItem.up('certificate-action-menu').record.get('id');
+
+        Ext.widget('certificate-request-window', {
+            confirmText: Uni.I18n.translate('general.request', 'PKJ', 'Request'),
+            itemId: 'request-window',
+            confirmation: function () {
+                var self = this,
+                    combobox = this.down('combobox'),
+                    timeout = combobox.getValue();
+
+                self.down('#request-progress').add(Ext.create('Ext.ProgressBar'))
+                    .wait({
+                        duration: timeout,
+                        interval: 100,
+                        increment: timeout / 100,
+                        text: Uni.I18n.translate('certificate.revoke.progress.test', 'PKJ', 'Request to CA is in progress. Please wait...')
+                    });
+                self.down('#confirm-button').disable();
+                self.down('#cancel-button').disable();
+                combobox.disable();
+
+                Ext.Ajax.request({
+                    url: '/api/pir/certificates/' + recordId + '/requestCertificate?timeout=' + timeout,
+                    method: 'POST',
+                    timeout: timeout,
+
+                    callback: function (config, success, response) {
+                        if (success) {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('certificate.requestSuccess', 'PKJ', "Certificate requested"));
+                            me.navigateToCertificatesOverview();
+                        } else if (!Ext.isEmpty(response.responseText)) {
+                            var responseObject = JSON.parse(response.responseText);
+                            if (responseObject.isUsed) {
+                                me.getApplication().getController('Uni.controller.Error').showHtmlSensitiveError(
+                                    Uni.I18n.translate('general.actionUnavailableTitle', 'PKJ', "Couldn't perform your action"), Uni.I18n.translate('certificateRequest.usagesError', 'PKJ', 'A time out occurred. Certificate couldn\'t be received from the Certification authority.'));
+                            }
+                        }
+                        self.close();
+                    }
+                });
+            },
+            green: true
+        }).show({
+            title: Uni.I18n.translate('general.certificateRequestQuestion', 'PKJ', 'Request certificate?'),
+            msg: Uni.I18n.translate('general.requestCertificateWindowMsg', 'PKJ', 'The CSR will be sent to Certification authority'),
+        });
+
+    },
+
+    constructUsagesList: function (certificateUsages, prefix, suffix) {
+        var messageConstructed = '';
+        var rowTemplate = '<li><b>{0}:</b> {1}</li>';
+        if (prefix) {
+            messageConstructed += prefix;
+        }
+        messageConstructed += '<br/><ul>';
+        if (certificateUsages.securityAccessors.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.accessors', 'PKJ', 'Security accessors'),
+                certificateUsages.securityAccessors.join(', ') + (certificateUsages.securityAccessorsLimited === true ? '...' : ''));
+        }
+        if (certificateUsages.devices.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.devices', 'PKJ', 'Devices'),
+                certificateUsages.devices.join(', ') + (certificateUsages.devicesLimited === true ? '...' : ''));
+        }
+        if (certificateUsages.userDirectories.length !== 0) {
+            messageConstructed += Ext.String.format(rowTemplate,
+                Uni.I18n.translate('certificate.usages.confirm.directories', 'PKJ', 'User directories'),
+                certificateUsages.userDirectories.join(', ') + (certificateUsages.userDirectoriesLimited === true ? '...' : ''));
+        }
+        messageConstructed += '</ul>';
+        if (suffix) {
+            messageConstructed += suffix;
+        }
+        return messageConstructed;
+    }
 });

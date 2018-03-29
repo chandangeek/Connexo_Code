@@ -31,7 +31,10 @@ Ext.define('Pkj.view.TrustedCertificatePreviewForm', {
                         },
                         {
                             fieldLabel: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
-                            name: 'status'
+                            name: 'status',
+                            renderer: function(value) {
+                                return value ? value.name : value;
+                            }
                         }
                     ]
                 },
@@ -46,7 +49,7 @@ Ext.define('Pkj.view.TrustedCertificatePreviewForm', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('general.key usage', 'PKJ', 'Key usage'),
+                            fieldLabel: Uni.I18n.translate('general.keyUsage', 'PKJ', 'Key usage'),
                             name: 'type'
                         },
                         {

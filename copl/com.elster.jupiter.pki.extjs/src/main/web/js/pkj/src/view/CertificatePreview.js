@@ -27,7 +27,10 @@ Ext.define('Pkj.view.CertificatePreview', {
                         },
                         {
                             fieldLabel: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
-                            name: 'status'
+                            name: 'status',
+                            renderer: function(value) {
+                                return value ? value.name : value;
+                            }
                         }
                     ]
                 },

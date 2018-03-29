@@ -15,7 +15,8 @@ Ext.define('Pkj.controller.Main', {
         'Pkj.controller.history.Main',
         'Pkj.controller.TrustStores',
         'Pkj.controller.Certificates',
-        'Pkj.controller.KeyPairs'
+        'Pkj.controller.KeyPairs',
+        'Pkj.controller.BulkAction'
     ],
 
     stores: [

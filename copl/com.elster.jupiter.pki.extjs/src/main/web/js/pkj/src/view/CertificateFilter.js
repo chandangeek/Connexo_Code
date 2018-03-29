@@ -10,7 +10,8 @@ Ext.define('Pkj.view.CertificateFilter', {
         'Pkj.store.CertificateIssuers',
         'Pkj.store.CertificateAliases',
         'Pkj.store.CertificateKeyUsages',
-        'Pkj.store.CertificateSubjects'
+        'Pkj.store.CertificateSubjects',
+        'Pkj.store.CertificateStatuses'
     ],
 
     initComponent: function () {
@@ -19,6 +20,7 @@ Ext.define('Pkj.view.CertificateFilter', {
         me.filters = [
             {
                 type: 'combobox',
+                itemId: 'certificate-filter-alias',
                 dataIndex: 'alias',
                 emptyText: Uni.I18n.translate('general.alias', 'PKJ', 'Alias'),
                 multiSelect: true,
@@ -28,6 +30,7 @@ Ext.define('Pkj.view.CertificateFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'certificate-filter-keyUsages',
                 dataIndex: 'keyUsages',
                 emptyText: Uni.I18n.translate('general.keyUsage', 'PKJ', 'Key usage'),
                 multiSelect: true,
@@ -37,6 +40,7 @@ Ext.define('Pkj.view.CertificateFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'certificate-filter-issuer',
                 dataIndex: 'issuer',
                 emptyText: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
                 multiSelect: true,
@@ -46,6 +50,7 @@ Ext.define('Pkj.view.CertificateFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'certificate-filter-subject',
                 dataIndex: 'subject',
                 emptyText: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
                 multiSelect: true,
@@ -54,7 +59,18 @@ Ext.define('Pkj.view.CertificateFilter', {
                 store: 'Pkj.store.CertificateSubjects'
             },
             {
+                type: 'combobox',
+                itemId: 'certificate-filter-status',
+                dataIndex: 'status',
+                emptyText: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Pkj.store.CertificateStatuses'
+            },
+            {
                 type: 'interval',
+                itemId: 'certificate-filter-interval',
                 dataIndex: 'interval',
                 dataIndexFrom: 'intervalFrom',
                 dataIndexTo: 'intervalTo',

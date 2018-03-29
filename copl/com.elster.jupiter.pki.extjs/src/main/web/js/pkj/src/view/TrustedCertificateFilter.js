@@ -10,7 +10,8 @@ Ext.define('Pkj.view.TrustedCertificateFilter', {
         'Pkj.store.TrustedCertificateIssuers',
         'Pkj.store.TrustedCertificateAliases',
         'Pkj.store.TrustedCertificateKeyUsages',
-        'Pkj.store.TrustedCertificateSubjects'
+        'Pkj.store.TrustedCertificateSubjects',
+        'Pkj.store.TrustedCertificateStatuses'
     ],
 
     trustStoreId: undefined,
@@ -20,12 +21,14 @@ Ext.define('Pkj.view.TrustedCertificateFilter', {
             aliasStore = Ext.getStore('Pkj.store.TrustedCertificateAliases') || Ext.create('Pkj.store.TrustedCertificateAliases'),
             keyUsageStore = Ext.getStore('Pkj.store.TrustedCertificateKeyUsages') || Ext.create('Pkj.store.TrustedCertificateKeyUsages'),
             issuersStore = Ext.getStore('Pkj.store.TrustedCertificateIssuers') || Ext.create('Pkj.store.TrustedCertificateIssuers'),
-            subjectsStore = Ext.getStore('Pkj.store.TrustedCertificateSubjects') || Ext.create('Pkj.store.TrustedCertificateSubjects');
+            subjectsStore = Ext.getStore('Pkj.store.TrustedCertificateSubjects') || Ext.create('Pkj.store.TrustedCertificateSubjects'),
+            statusStore = Ext.getStore('Pkj.store.TrustedCertificateStatuses') || Ext.create('Pkj.store.TrustedCertificateStatuses');
 
         aliasStore.getProxy().setUrl(me.trustStoreId);
         keyUsageStore.getProxy().setUrl(me.trustStoreId);
         issuersStore.getProxy().setUrl(me.trustStoreId);
         subjectsStore.getProxy().setUrl(me.trustStoreId);
+        statusStore.getProxy().setUrl(me.trustStoreId);
         me.filters = [
             {
                 type: 'combobox',
@@ -62,6 +65,15 @@ Ext.define('Pkj.view.TrustedCertificateFilter', {
                 displayField: 'subject',
                 valueField: 'subject',
                 store: subjectsStore
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'status',
+                emptyText: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'id',
+                store: statusStore
             },
             {
                 type: 'interval',
