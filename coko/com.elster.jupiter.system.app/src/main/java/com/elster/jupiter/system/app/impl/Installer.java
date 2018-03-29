@@ -55,7 +55,9 @@ final class Installer implements FullInstaller, Upgrader {
                 com.elster.jupiter.license.security.Privileges.Constants.UPLOAD_LICENSE,
                 //users
                 com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
-                com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE
+                com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE,
+                //certificates
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_CERTIFICATES,
         };
     }
 
@@ -64,7 +66,8 @@ final class Installer implements FullInstaller, Upgrader {
                 //users
                 com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
                 com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE,
+                //certificates
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_CERTIFICATES,
         };
-
     }
 }
