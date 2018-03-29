@@ -413,7 +413,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     public int getLogLevel(Instant at) {
-        return getHistory().getVersionAt(at).get().getLogLevel();
+        Optional<? extends RecurrentTask> recurrentTask = getHistory().getVersionAt(at);
+        return recurrentTask.isPresent() ? recurrentTask.get().getLogLevel() : getLogLevel();
     }
 
     private void addAdHocExecution(Instant nextExecution, Instant triggerTime) {
