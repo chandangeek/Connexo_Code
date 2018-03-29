@@ -18,7 +18,7 @@ import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
-import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionProperty;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceMessage;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -34,10 +34,10 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedRegisterListEve
 import com.energyict.mdc.engine.impl.events.datastorage.MeterDataStorageEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.NoopCollectedDataEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
-import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceConnectionPropertyEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceMessageEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceProtocolPropertyEvent;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
+import com.energyict.mdc.engine.impl.meterdata.DeviceConnectionProperty;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
@@ -310,18 +310,18 @@ public class DeviceCommandImplTest {
     @Test
     public void ExecutingUpdateDeviceIpAddressDeviceCommandPublishesEvent() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        DeviceIpAddress deviceIpAddress = mock(DeviceIpAddress.class);
+        DeviceConnectionProperty deviceIpAddress = mock(DeviceConnectionProperty.class);
         when(deviceIpAddress.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
-        UpdateDeviceIpAddress updateDeviceIpAddress = new UpdateDeviceIpAddress(deviceIpAddress, comTaskExecution, serviceProvider);
+        UpdateDeviceConnectionProperty updateDeviceIpAddress = new UpdateDeviceConnectionProperty(deviceIpAddress, comTaskExecution, serviceProvider);
         updateDeviceIpAddress.logExecutionWith(executionLogger);
 
         // Business method
         updateDeviceIpAddress.execute(comServerDAO);
 
         // Asserts
-        verify(publisher, times(1)).publish(any(UpdateDeviceIpAddressEvent.class));
-        verify(publisher).publish(isA(UpdateDeviceIpAddressEvent.class));
+        verify(publisher, times(1)).publish(any(UpdateDeviceConnectionPropertyEvent.class));
+        verify(publisher).publish(isA(UpdateDeviceConnectionPropertyEvent.class));
     }
 
     @Test

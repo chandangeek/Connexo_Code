@@ -7,7 +7,8 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionProperty;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionPropertyForAllOutboundConnections;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -20,17 +21,17 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:29)
  */
-public class DeviceIpAddress extends CollectedDeviceData implements CollectedDeviceInfo {
+public class DeviceConnectionProperty extends CollectedDeviceData implements CollectedDeviceInfo {
 
     private DeviceIdentifier deviceIdentifier;
-    private String ipAddress;
+    private Object propertyValue;
     private ConnectionTask connectionTask;
     private String connectionTaskPropertyName;
 
-    public DeviceIpAddress (DeviceIdentifier deviceIdentifier, String ipAddress, String connectionTaskPropertyName) {
+    public DeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object propertyValue, String connectionTaskPropertyName) {
         super();
         this.deviceIdentifier = deviceIdentifier;
-        this.ipAddress = ipAddress;
+        this.propertyValue = propertyValue;
         this.connectionTaskPropertyName = connectionTaskPropertyName;
     }
 
@@ -46,11 +47,15 @@ public class DeviceIpAddress extends CollectedDeviceData implements CollectedDev
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new UpdateDeviceIpAddress(this, this.getComTaskExecution(), serviceProvider);
+        if (getConnectionTask().getConnectionType().getDirection().equals(ConnectionType.ConnectionTypeDirection.INBOUND)) {
+            return new UpdateDeviceConnectionPropertyForAllOutboundConnections(this, getComTaskExecution(), serviceProvider);
+        } else {
+            return new UpdateDeviceConnectionProperty(this, this.getComTaskExecution(), serviceProvider);
+        }
     }
 
-    public String getIpAddress () {
-        return ipAddress;
+    public Object getPropertyValue() {
+        return propertyValue;
     }
 
     public ConnectionTask getConnectionTask () {

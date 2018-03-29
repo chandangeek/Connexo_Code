@@ -398,15 +398,15 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
 
     /**
-     * Updates the ip address of the Device device
+     * Updates the connection task property of the Device device
      * that is configured in the specified ConnectionTask
      * only when the value has actually changed.
      *
-     * @param ipAddress                  The new ip address
+     * @param propertyValue              The new property value
      * @param connectionTask             The ConnectionTask
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
-    void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
+    void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
      * Updates a protocol property of the Device

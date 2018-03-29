@@ -390,7 +390,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         // Not updating device ip address in monitoring mode
     }
 
@@ -772,7 +772,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
 
         @Override
-        public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+        public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
             // No implementation required
         }
 

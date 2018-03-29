@@ -446,14 +446,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         try {
-            connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
+            connectionTask.setProperty(connectionTaskPropertyName, propertyValue);
             connectionTask.saveAllProperties();
         } catch (OptimisticLockException e) {
             Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
-                reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
+                reloaded.get().setProperty(connectionTaskPropertyName, propertyValue);
                 reloaded.get().saveAllProperties();
             }
         }

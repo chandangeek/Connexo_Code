@@ -5,19 +5,19 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
-import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
- * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceIpAddress}
+ * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceConnectionProperty}
  */
-public class UpdateDeviceIpAddressEvent extends AbstractCollectedDataProcessingEventImpl  {
+public class UpdateDeviceConnectionPropertyEvent extends AbstractCollectedDataProcessingEventImpl  {
 
     private DeviceIdentifier deviceIdentifier;
 
-    public UpdateDeviceIpAddressEvent(ServiceProvider serviceProvider, DeviceIdentifier deviceIdentifier) {
+    public UpdateDeviceConnectionPropertyEvent(ServiceProvider serviceProvider, DeviceIdentifier deviceIdentifier) {
         super(serviceProvider);
         if (deviceIdentifier == null){
             throw new IllegalArgumentException("Device identifier cannot be null");
@@ -27,11 +27,11 @@ public class UpdateDeviceIpAddressEvent extends AbstractCollectedDataProcessingE
 
     @Override
     public String getDescription() {
-        return UpdateDeviceIpAddress.DESCRIPTION_TITLE;
+        return UpdateDeviceConnectionProperty.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-        writer.key("updateDeviceIpAddress");
+        writer.key("updateConnectionProperty");
         writer.object();
         writer.key("deviceIdentifier").value(this.deviceIdentifier.toString());
         writer.endObject();
