@@ -1,20 +1,21 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.cim.webservices.outbound.soap.impl;
+package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
-import com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.EndDeviceFactory;
+import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.EndPointConfigurationReference;
-import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.HasName;
 
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
@@ -47,27 +48,31 @@ import java.util.stream.Collectors;
         immediate = true,
         property = {"name=" + StateTransitionWebServiceClient.NAME})
 public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider {
-
-    private final String RESOURCE_WSDL = "/enddeviceconfig/ReplyEndDeviceConfig.wsdl";
+    private static final String NOUN = "EndDeviceConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory endDeviceConfigMessageObjectFactory = new ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory();
 
     private final List<EndDeviceConfigPort> stateEndDeviceConfigPortServices = new ArrayList<>();
-    private final EndDeviceFactory endDeviceFactory = new EndDeviceFactory();
+    private final List<EndDeviceConfigExtendedDataFactory> endDeviceConfigExtendedDataFactories = new ArrayList<>();
+    private final EndDeviceConfigDataFactory endDeviceConfigDataFactory = new EndDeviceConfigDataFactory();
 
     private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile WebServicesService webServicesService;
 
     public EndDeviceConfigServiceProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceConfigServiceProvider(MeteringService meteringService, EndPointConfigurationService endPointConfigurationService) {
+    public EndDeviceConfigServiceProvider(MeteringService meteringService,
+                                          EndPointConfigurationService endPointConfigurationService,
+                                          WebServicesService webServicesService) {
         this();
-        this.meteringService = meteringService;
-        this.endPointConfigurationService = endPointConfigurationService;
+        setMeteringService(meteringService);
+        setEndPointConfigurationService(endPointConfigurationService);
+        setWebServicesService(webServicesService);
     }
 
     @Reference
@@ -78,6 +83,11 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -93,9 +103,22 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
         return Collections.unmodifiableList(this.stateEndDeviceConfigPortServices);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndDeviceConfigExtendedDataFactory(EndDeviceConfigExtendedDataFactory endDeviceConfigExtendedDataFactory) {
+        endDeviceConfigExtendedDataFactories.add(endDeviceConfigExtendedDataFactory);
+    }
+
+    public void removeEndDeviceConfigExtendedDataFactory(EndDeviceConfigExtendedDataFactory endDeviceConfigExtendedDataFactory) {
+        endDeviceConfigExtendedDataFactories.remove(endDeviceConfigExtendedDataFactory);
+    }
+
+    public List<EndDeviceConfigExtendedDataFactory> getEndDeviceConfigExtendedDataFactories() {
+        return Collections.unmodifiableList(this.endDeviceConfigExtendedDataFactories);
+    }
+
     @Override
     public Service get() {
-        return new ReplyEndDeviceConfig(this.getClass().getResource(RESOURCE_WSDL));
+        return new ReplyEndDeviceConfig(this.getClass().getResource("/enddeviceconfig/ReplyEndDeviceConfig.wsdl"));
     }
 
     @Override
@@ -136,25 +159,31 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     }
 
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
+        publish(endPointConfigurations);
         endPointConfigurations.forEach(endPointConfiguration -> {
             try {
-                stateEndDeviceConfigPortServices.stream()
-                        .filter(endDeviceConfigPort -> isValidReplyMeterConfigService(endDeviceConfigPort, endPointConfiguration))
+                getStateTransitionWebServiceClients().stream()
+                        .filter(endDeviceConfigPort -> isValidEndDeviceConfigPortService(endDeviceConfigPort, endPointConfiguration))
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
                             try {
+                                EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate);
+                                getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
+                                    endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
+                                });
                                 if (isCreated) {
-                                    endDeviceConfigPortService.createdEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate), HeaderType.Verb.CREATED));
+                                    endDeviceConfigPortService.createdEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CREATE));
                                 } else {
-                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceFactory.asEndDevice(endDevice, state, effectiveDate), HeaderType.Verb.CHANGED));
+                                    endDeviceConfigPortService.changedEndDeviceConfig(createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGE));
                                 }
-                                endPointConfiguration.log(LogLevel.INFO, (isCreated ? "Created" : "Changed") + " state " + state + " on " + endDevice.getName() + " message was sent");
+                                endPointConfiguration.log(LogLevel.INFO, String.format("State %s was %s on end device %s", state, isCreated ? "created" : "changed", endDevice.getName()));
                             } catch (FaultMessage faultMessage) {
                                 endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                             }
                         });
-            } catch (Exception ex) {
-                endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+            } catch (Exception e) {
+                endPointConfiguration.log(String.format("Failed to send end device data to web service %s with the URL: %s",
+                        endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
             }
         });
     }
@@ -167,7 +196,17 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
                 .collect(Collectors.toList());
     }
 
-    private boolean isValidReplyMeterConfigService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
+    private void publish(List<EndPointConfiguration> endPointConfigurations) {
+        endPointConfigurations.stream()
+                .filter(EndPointConfiguration::isActive)
+                .forEach(endPointConfiguration -> {
+                    if (!webServicesService.isPublished(endPointConfiguration)) {
+                        webServicesService.publishEndPoint(endPointConfiguration);
+                    }
+                });
+    }
+
+    private boolean isValidEndDeviceConfigPortService(EndDeviceConfigPort endDeviceConfigPort, EndPointConfiguration endPointConfiguration) {
         return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(endDeviceConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 
@@ -176,7 +215,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(getWebServiceName());
+        header.setNoun(NOUN);
         header.setVerb(verb);
         endDeviceConfigEventMessageType.setHeader(header);
 

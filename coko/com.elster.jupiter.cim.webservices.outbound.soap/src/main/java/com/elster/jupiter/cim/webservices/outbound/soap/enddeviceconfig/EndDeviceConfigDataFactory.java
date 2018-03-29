@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
@@ -9,13 +9,15 @@ import ch.iec.tc57._2011.enddeviceconfig.EndDevice;
 import ch.iec.tc57._2011.enddeviceconfig.EndDeviceConfig;
 import ch.iec.tc57._2011.enddeviceconfig.LifecycleDate;
 import ch.iec.tc57._2011.enddeviceconfig.Name;
+import ch.iec.tc57._2011.enddeviceconfig.NameType;
 import ch.iec.tc57._2011.enddeviceconfig.Status;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class EndDeviceFactory {
+class EndDeviceConfigDataFactory {
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
 
     private enum DefaultState {
 
@@ -50,7 +52,7 @@ public class EndDeviceFactory {
         }
     }
 
-    public EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate) {
+    EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate) {
         EndDeviceConfig endDeviceConfig = new EndDeviceConfig();
         EndDevice cimEndDevice = createEndDevice(endDevice);
         cimEndDevice.setLifecycle(createLifecycleDate(endDevice));
@@ -70,6 +72,9 @@ public class EndDeviceFactory {
     private Name createName(String name) {
         Name nameBean = new Name();
         nameBean.setName(name);
+        NameType nameType = new NameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        nameBean.setNameType(nameType);
         return nameBean;
     }
 
@@ -85,7 +90,6 @@ public class EndDeviceFactory {
         Status status = new Status();
         status.setValue(state);
         status.setDateTime(effectiveDate);
-        status.setReason("changeStatus");
         return status;
     }
 }
