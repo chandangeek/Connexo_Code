@@ -40,6 +40,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
@@ -104,6 +108,12 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
             <scope>test</scope>
         </dependency>
@@ -129,9 +139,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
+            <artifactId>users</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>

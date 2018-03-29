@@ -20,7 +20,14 @@ public class DataSearchFilterFactory {
         dataSearchFilter.keyUsages = params.getStringList("keyUsages");
         dataSearchFilter.intervalFrom = params.getInstant("intervalFrom");
         dataSearchFilter.intervalTo = params.getInstant("intervalTo");
+        dataSearchFilter.aliasContains = params.getString("aliasContains");
 
+        return dataSearchFilter;
+    }
+
+    public SecurityManagementService.DataSearchFilter asLikeFilter(String like) {
+        SecurityManagementService.DataSearchFilter dataSearchFilter = new SecurityManagementService.DataSearchFilter();
+        dataSearchFilter.aliasContains = Optional.ofNullable(like);
         return dataSearchFilter;
     }
 }

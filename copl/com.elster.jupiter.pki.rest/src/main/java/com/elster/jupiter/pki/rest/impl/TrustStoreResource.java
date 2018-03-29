@@ -5,16 +5,38 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.streams.Functions;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,7 +44,11 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,27 +65,43 @@ public class TrustStoreResource {
     private final DataSearchFilterFactory dataSearchFilterFactory;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final TrustStoreFilterFactory trustStoreFilterFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public TrustStoreResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory) {
+    public TrustStoreResource(SecurityManagementService securityManagementService,
+                              ExceptionFactory exceptionFactory,
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              TrustStoreInfoFactory trustStoreInfoFactory,
+                              CertificateInfoFactory certificateInfoFactory,
+                              DataSearchFilterFactory dataSearchFilterFactory,
+                              TrustStoreFilterFactory trustStoreFilterFactory,
+                              Thesaurus thesaurus) {
         this.securityManagementService = securityManagementService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.trustStoreInfoFactory = trustStoreInfoFactory;
         this.certificateInfoFactory = certificateInfoFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
+        this.trustStoreFilterFactory = trustStoreFilterFactory;
+        this.thesaurus = thesaurus;
     }
 
     private static List<KeyUsage> applyKeyUsages(TrustedCertificate x) {
-        return x.getKeyUsages().stream().collect(toList());
+        return new ArrayList<>(x.getKeyUsages());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
-                .getAllTrustStores()), queryParameters);
+        if (queryParameters.getLike() != null) {
+            return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
+                    .findTrustStores(trustStoreFilterFactory.asLike(queryParameters.getLike()))), queryParameters);
+        } else {
+            return PagedInfoList.fromCompleteList("trustStores", trustStoreInfoFactory.asInfoList(this.securityManagementService
+                    .getAllTrustStores()), queryParameters);
+        }
     }
 
     @GET
@@ -79,16 +121,18 @@ public class TrustStoreResource {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<? extends CertificateWrapper> certificates;
         if (jsonQueryFilter.hasFilters()) {
-            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter,id);
-            certificates = securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter);
+            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter, id);
+            certificates = securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter).stream()
+                    .filter(cw -> CertificateWrapperResource.statusFilter(cw, jsonQueryFilter))
+                    .collect(toList());
         } else {
             certificates = trustStore.getCertificates();
         }
         return asPagedInfoList(certificateInfoFactory.asInfo(certificates), "certificates", queryParameters);
     }
 
-    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter,long trustStoreId) {
-        return dataSearchFilterFactory.asFilter(jsonQueryFilter,securityManagementService.findTrustStore(trustStoreId));
+    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter, long trustStoreId) {
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter, securityManagementService.findTrustStore(trustStoreId));
     }
 
     @GET
@@ -98,7 +142,7 @@ public class TrustStoreResource {
     public PagedInfoList getCertificateAliases(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<AliasInfo> collect = trustStore.getCertificates().stream()
-                .map(cert -> cert.getAlias())
+                .map(CertificateWrapper::getAlias)
                 .map(AliasInfo::new)
                 .collect(Collectors.toList());
 
@@ -112,7 +156,7 @@ public class TrustStoreResource {
     public PagedInfoList getCertificateSubjects(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<SubjectInfo> collect = trustStore.getCertificates().stream()
-                .map(cert -> cert.getSubject())
+                .map(CertificateWrapper::getSubject)
                 .distinct()
                 .map(SubjectInfo::new)
                 .collect(Collectors.toList());
@@ -127,7 +171,7 @@ public class TrustStoreResource {
     public PagedInfoList getCertificateIssuers(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<IssuerInfo> collect = trustStore.getCertificates().stream()
-                .map(cert -> cert.getIssuer())
+                .map(CertificateWrapper::getIssuer)
                 .distinct()
                 .map(IssuerInfo::new)
                 .collect(Collectors.toList());
@@ -151,16 +195,30 @@ public class TrustStoreResource {
         return PagedInfoList.fromPagedList("keyUsages", collect, queryParameters);
     }
 
+    @GET
+    @Path("/{id}/certificates/statuses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList statusSource(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> statuses = findTrustStoreOrThrowException(id).getCertificates().stream()
+                .map(CertificateWrapper::getCertificateStatus)
+                .flatMap(Functions.asStream())
+                .distinct()
+                .map(status -> new IdWithNameInfo(status.getName(), status.getDisplayName(thesaurus)))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("statuses", statuses, queryParameters);
+    }
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     public Response downloadCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         if (!TrustedCertificate.class.isAssignableFrom(certificateWrapper.getClass()) ||
-                ((TrustedCertificate)certificateWrapper).getTrustStore().getId()!=trustStoreId) {
+                ((TrustedCertificate) certificateWrapper).getTrustStore().getId() != trustStoreId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CERTIFICATE);
         }
         if (!certificateWrapper.getCertificate().isPresent()) {
@@ -174,13 +232,12 @@ public class TrustStoreResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
         }
     }
-
 
     @POST
     @Path("/{id}/certificates/single")
@@ -200,7 +257,7 @@ public class TrustStoreResource {
             TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            if (certificate==null) {
+            if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, "file");
             }
             trustStore.addCertificate(alias, certificate);
@@ -244,12 +301,11 @@ public class TrustStoreResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response validateKeyStoreFile(TrustStoreInfo info) {
-        if (info.keyStoreFileSize != null && info.keyStoreFileSize.intValue() > MAX_FILE_SIZE) {
+        if (info.keyStoreFileSize != null && info.keyStoreFileSize > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "keyStoreFile");
         }
         return Response.ok().build();
     }
-
 
     @POST
     @Transactional
@@ -271,9 +327,9 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response editTrustStore(@PathParam("id") long id, TrustStoreInfo info) {
         TrustStore trustStore = securityManagementService.findAndLockTrustStoreByIdAndVersion(id, info.version)
-            .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                    .withActualVersion(() -> getCurrentTrustStoreVersion(info.id))
-                    .supplier());
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentTrustStoreVersion(info.id))
+                        .supplier());
         trustStore.setName(info.name);
         trustStore.setDescription(info.description);
         trustStore.save();
@@ -286,7 +342,8 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     public Response deleteTrustStore(@PathParam("id") long id) {
-        findTrustStoreOrThrowException(id).delete();
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        trustStore.delete();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -297,8 +354,8 @@ public class TrustStoreResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_TRUST_STORES})
     public Response removeTrustedCertificate(@PathParam("id") long trustStoreId, @PathParam("certificateId") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
-            .orElseThrow( exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId) );
-        if ( ((TrustedCertificate)certificateWrapper).getTrustStore().getId() != trustStoreId ) {
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE, certificateId));
+        if (((TrustedCertificate) certificateWrapper).getTrustStore().getId() != trustStoreId) {
             throw exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE_IN_STORE, certificateId, trustStoreId).get();
         }
         certificateWrapper.delete();

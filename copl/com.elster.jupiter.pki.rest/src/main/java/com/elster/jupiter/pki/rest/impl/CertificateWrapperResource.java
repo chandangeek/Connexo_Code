@@ -6,11 +6,33 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateStatus;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SubjectParameterFilter;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Where;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -21,7 +43,15 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,10 +63,17 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -44,35 +81,59 @@ import static java.util.stream.Collectors.toList;
 
 @Path("/certificates")
 public class CertificateWrapperResource {
-
     private static final long MAX_FILE_SIZE = 2048;
+    private static final long DEFAULT_TIMEOUT = 30000;
+
     private final SecurityManagementService securityManagementService;
+    private final CaService caService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final DataSearchFilterFactory dataSearchFilterFactory;
+    private final CertificateRevocationUtils revocationUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory,DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateWrapperResource(SecurityManagementService securityManagementService,
+                                      CaService caService,
+                                      CertificateInfoFactory certificateInfoFactory,
+                                      ExceptionFactory exceptionFactory,
+                                      DataSearchFilterFactory dataSearchFilterFactory,
+                                      CertificateRevocationUtils certificateRevocationUtils,
+                                      Thesaurus thesaurus) {
         this.securityManagementService = securityManagementService;
+        this.caService = caService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.dataSearchFilterFactory = dataSearchFilterFactory;
+        this.revocationUtils = certificateRevocationUtils;
+        this.thesaurus = thesaurus;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList = findCertficates(jsonQueryFilter)
+        List<CertificateWrapperInfo> infoList = (Checks.is(queryParameters.getLike()).empty() ?
+                findCertificates(jsonQueryFilter) :
+                securityManagementService.findCertificatesByFilter(dataSearchFilterFactory.asLikeFilter(queryParameters.getLike())))
                 .from(queryParameters)
                 .stream()
+                .filter(wr -> statusFilter(wr, jsonQueryFilter))
                 .map(certificateInfoFactory::asInfo)
                 .collect(toList());
-
         return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
     }
 
-    private Finder<CertificateWrapper> findCertficates(JsonQueryFilter jsonQueryFilter) {
+    /**
+     * Specific custom filter for certificate statuses
+     * Status is not a DB stored property. Certificate status depends on several sources (e.g. actual X509Certificate state or extra obsolete flag)
+     */
+    static boolean statusFilter(CertificateWrapper wr, JsonQueryFilter jsonQueryFilter) {
+        List<String> statuses = jsonQueryFilter.getStringList("status");
+        return CollectionUtils.isEmpty(statuses) || wr.getCertificateStatus().map(CertificateStatus::getName).filter(statuses::contains).isPresent();
+    }
+
+    private Finder<CertificateWrapper> findCertificates(JsonQueryFilter jsonQueryFilter) {
         if (jsonQueryFilter.hasFilters()) {
             SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter);
             return securityManagementService.findCertificatesByFilter(dataSearchFilter);
@@ -148,6 +209,17 @@ public class CertificateWrapperResource {
         return PagedInfoList.fromPagedList("keyUsages", infos, queryParameters);
     }
 
+    @GET
+    @Path("/statuses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList statusSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> statuses = Stream.of(CertificateStatus.values())
+                .map(st -> new IdWithNameInfo(st.getName(), st.getDisplayName(thesaurus)))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("statuses", statuses, queryParameters);
+    }
+
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
@@ -189,6 +261,168 @@ public class CertificateWrapperResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @POST
+    @Transactional
+    @Path("/{id}/requestCertificate")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response requestCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
+        timeout = timeout == 0 ? 30 : timeout;
+        try {
+            X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
+            try {
+                certificateWrapper.setCertificate(certificate);
+                certificateWrapper.save();
+            } catch (Exception e) {
+                throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
+            }
+        } catch (CompletionException | InterruptedException | TimeoutException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT);
+        } catch (ExecutionException e) {
+            throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA, e.getCause().getLocalizedMessage());
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/markObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response markCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+
+        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
+        if (certificateUsages.isUsed) {
+            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
+        }
+        cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        cert.save();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/forceMarkObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response forceMarkCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        cert.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        cert.save();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/unmarkObsolete")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response unMarkCertificateObsolete(@PathParam("id") long certificateId) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        cert.setWrapperStatus(CertificateWrapperStatus.NATIVE);
+        cert.save();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("/{id}/checkRevoke")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response checkRevokeCertificate(@PathParam("id") long certificateId) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+
+        CertificateUsagesInfo certificateUsages = findCertificateUsages(cert);
+        if (certificateUsages.isUsed) {
+            return Response.status(Response.Status.ACCEPTED).entity(certificateUsages).build();
+        }
+
+        return Response.status(Response.Status.OK)
+                .entity(new CertificateRevocationInfo(revocationUtils.isCAConfigured()))
+                .build();
+    }
+
+    @POST
+    @Path("/{id}/revoke")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response revokeCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
+        CertificateWrapper cert = securityManagementService.findCertificateWrapper(certificateId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+
+        //should never happen, but lets leave it here since force revocation (e.g. manual via rest client) can surely break something
+        if (findCertificateUsages(cert).isUsed) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Revocation called with certificate usages").build();
+        }
+        revocationUtils.revokeCertificate(cert, timeout == 0 ? DEFAULT_TIMEOUT : timeout);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("/checkBulkRevoke")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response checkBulkRevokeCertificate(CertificateRevocationInfo revocationInfo) {
+        List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
+        revocationInfo.isOnline = revocationUtils.isCAConfigured();
+        certificates.forEach(cert -> {
+            if (isRequestedOrRevoked(cert)) {
+                revocationInfo.addWithWrongStatus(cert);
+            } else if (findCertificateUsages(cert).isUsed) {
+                revocationInfo.addWithUsages(cert);
+            }
+        });
+        //do math on backend
+        revocationInfo.updateCounters();
+        return Response.status(Response.Status.OK).entity(revocationInfo).build();
+    }
+
+    @POST
+    @Path("/bulkRevoke")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public Response bulkRevokeCertificate(CertificateRevocationInfo revocationInfo) {
+        List<CertificateWrapper> certificates = revocationUtils.findAllCertificateWrappers(revocationInfo.bulk.certificatesIds);
+
+        List<CertificateWrapper> toRevoke = new ArrayList<>();
+        List<CertificateWrapper> withUsages = new ArrayList<>();
+        List<CertificateWrapper> withWrongStatus = new ArrayList<>();
+
+        certificates.forEach(certificate -> {
+            if (isRequestedOrRevoked(certificate)) {
+                withWrongStatus.add(certificate);
+            } else if (findCertificateUsages(certificate).isUsed) {
+                withUsages.add(certificate);
+            } else {
+                toRevoke.add(certificate);
+            }
+        });
+        long timeout = revocationInfo.timeout == null || revocationInfo.timeout == 0 ? DEFAULT_TIMEOUT : revocationInfo.timeout;
+        CertificateRevocationResultInfo resultInfo = revocationUtils.bulkRevokeCertificates(toRevoke, timeout);
+        withUsages.forEach(resultInfo::addWithUsages);
+        withWrongStatus.forEach(resultInfo::addWithWrongStatus);
+        resultInfo.updateCounters(certificates.size());
+
+        return Response.status(Response.Status.OK).entity(resultInfo).build();
+    }
+
+    private static boolean isRequestedOrRevoked(CertificateWrapper cert) {
+        return cert.getCertificateStatus()
+                .filter(status -> status == CertificateStatus.REQUESTED || status == CertificateStatus.REVOKED)
+                .isPresent();
+    }
+
     @POST // This should be PUT but has to be POST due to some 3th party issue
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
@@ -200,7 +434,7 @@ public class CertificateWrapperResource {
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("version") long version) {
-        if (contentDispositionHeader==null) {
+        if (contentDispositionHeader == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
@@ -219,16 +453,16 @@ public class CertificateWrapperResource {
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
-        if (csrInfo.keyTypeId==null) {
+        if (csrInfo.keyTypeId == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyTypeId");
         }
-        if (csrInfo.alias==null) {
+        if (csrInfo.alias == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "alias");
         }
-        if (csrInfo.keyEncryptionMethod==null) {
+        if (csrInfo.keyEncryptionMethod == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyEncryptionMethod");
         }
-        if (csrInfo.CN==null) {
+        if (csrInfo.CN == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
         }
         KeyType keyType = securityManagementService.getKeyType(csrInfo.keyTypeId)
@@ -242,7 +476,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/csr")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCsr(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
@@ -260,7 +494,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".csr")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".csr")
                     .build();
         } catch (IOException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CSR, e);
@@ -269,7 +503,7 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/certificate")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
@@ -285,7 +519,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
@@ -313,7 +547,7 @@ public class CertificateWrapperResource {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            if (certificate==null) {
+            if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
             certificateWrapper.setCertificate(certificate);
@@ -338,5 +572,18 @@ public class CertificateWrapperResource {
                 return Collections.emptyList();
             }
         };
+    }
+
+    private List<DirectoryCertificateUsage> findDirectoryCertificateUsages(CertificateWrapper cert) {
+        return securityManagementService.streamDirectoryCertificateUsages()
+                .filter(Where.where("certificate").isEqualTo(cert))
+                .select();
+    }
+
+    private CertificateUsagesInfo findCertificateUsages(CertificateWrapper certificateWrapper) {
+        List<String> devicesNames = securityManagementService.getCertificateAssociatedDevicesNames(certificateWrapper);
+        List<DirectoryCertificateUsage> directoryUsages = findDirectoryCertificateUsages(certificateWrapper);
+        List<SecurityAccessor> accessors = securityManagementService.getAssociatedCertificateAccessors(certificateWrapper);
+        return certificateInfoFactory.asCertificateUsagesInfo(accessors, devicesNames, directoryUsages);
     }
 }

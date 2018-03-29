@@ -29,4 +29,12 @@ public class JsonFilterParametersBean {
         }
         return Optional.empty();
     }
+
+    public Optional<String> getString(String key) {
+        String value = jsonQueryFilter.getString(key);
+        if (value != null) {
+            return Optional.of(value);
+        }
+        return Optional.empty();
+    }
 }
