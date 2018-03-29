@@ -2550,9 +2550,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //create the routing entry structure
             Structure routingEntryStructure = new Structure();
             routingEntryStructure.addDataType(routingEntryType);
-            routingEntryStructure.addDataType(new Integer16(routingEntryId.intValue()));
+            routingEntryStructure.addDataType(new Unsigned16(routingEntryId.intValue()));
             routingEntryStructure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(routingDestination, "")));
-            routingEntryStructure.addDataType(new Integer8(routingDestinationLength.intValue()));
+            routingEntryStructure.addDataType(new Unsigned8(routingDestinationLength.intValue()));
             routingEntryStructure.addDataType(new BooleanObject(compressionContextMulticast));
             routingEntryStructure.addDataType(new BooleanObject(compressionContextAllowed));
             //now, send it
