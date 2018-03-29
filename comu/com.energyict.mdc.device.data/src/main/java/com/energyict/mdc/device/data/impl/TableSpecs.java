@@ -34,12 +34,14 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
+import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertyImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -1122,6 +1124,41 @@ public enum TableSpecs {
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
             table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
+        }
+    },
+
+    DDC_CRL_REQUEST_TASK_PROPS {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<CrlRequestTaskProperty> table = dataModel.addTable(name(), CrlRequestTaskProperty.class).since(version(10,4,1));
+            table.map(CrlRequestTaskPropertyImpl.class);
+            Column task = table.column(CrlRequestTaskPropertyImpl.Fields.TASK.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column securityAccessor = table.column(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.column(CrlRequestTaskPropertyImpl.Fields.CA_NAME.name())
+                    .map(CrlRequestTaskPropertyImpl.Fields.CA_NAME.fieldName())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_CRLREQUEST")
+                    .on(task)
+                    .add();
+            table.foreignKey("FK_DDC_CRL_SECURITYACCESSOR")
+                    .on(securityAccessor)
+                    .references(com.elster.jupiter.pki.SecurityAccessor.class)
+                    .map(CrlRequestTaskPropertyImpl.Fields.SECURITY_ACCESSOR.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_CRL_TASK")
+                    .on(task)
+                    .references(RecurrentTask.class).
+                    map(CrlRequestTaskPropertyImpl.Fields.TASK.fieldName())
+                    .add();
         }
     };
 

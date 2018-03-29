@@ -15,14 +15,20 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CertificateRenewalService;
+import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyRenewalService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactoryImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
@@ -72,6 +78,8 @@ public class DeviceDataModule extends AbstractModule {
         bind(BatchService.class).to(BatchServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndDeviceCommandFactory.class).to(EndDeviceCommandFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(CertificateRenewalService.class).to(CertificateRenewalHandlerFactory.class).in(Scopes.SINGLETON);
+        bind(KeyRenewalService.class).to(KeyRenewalHandlerFactory.class).in(Scopes.SINGLETON);
+        bind(CrlRequestService.class).to(CrlRequestHandlerFactory.class).in(Scopes.SINGLETON);
     }
-
 }

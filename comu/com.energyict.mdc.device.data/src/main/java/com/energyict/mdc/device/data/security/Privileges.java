@@ -22,6 +22,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION("inventoryManagement.inventoryManagements.description", "Manage assets inventory"),
     RESOURCE_DATA_COLLECTION_KPI("dataCollectionKpi.dataCollectionKpis", "Data collection KPI"),
     RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION("dataCollectionKpi.dataCollectionKpis.description", "Manage data collection KPI"),
+    RESOURCE_CRL_REQUEST("crlRequest.crlRequests", "CRL request"),
+    RESOURCE_CRL_REQUEST_DESCRIPTION("crlRequest.crlRequests.description", "Manage CRL request"),
 
     //Privileges
     ADMINISTRATE_DEVICE(Constants.ADMINISTRATE_DEVICE, "Administrate"),
@@ -37,6 +39,8 @@ public enum Privileges implements TranslationKey {
     REVOKE_INVENTORY_MANAGEMENT(Constants.REVOKE_INVENTORY_MANAGEMENT, "Revoke"),
     ADMINISTRATE_DEVICE_ATTRIBUTE(Constants.ADMINISTRATE_DEVICE_ATTRIBUTE, "Administrate attribute"),
     ADMINISTER_DECOMMISSIONED_DEVICE_DATA(Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, "Administrate decomissioned device data"),
+    VIEW_CRL_REQUEST(Constants.VIEW_CRL_REQUEST, "View CRL request"),
+    ADMINISTER_CRL_REQUEST(Constants.ADMINISTER_CRL_REQUEST, "Administrate CRL request"),
     VIEW_DATA_COLLECTION_KPI(Constants.VIEW_DATA_COLLECTION_KPI, "View data collection KPI"),
     ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
     ADMINISTER_DEVICE_TIME_SLICED_CPS(Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS, "Administer device time-sliced CAS"),
@@ -96,6 +100,9 @@ public enum Privileges implements TranslationKey {
 
         String VIEW_DATA_COLLECTION_KPI = "privilege.view.dataCollectionKpi";
         String ADMINISTER_DATA_COLLECTION_KPI = "privilege.administer.dataCollectionKpi";
+
+        String VIEW_CRL_REQUEST = "privilege.view.crlRequest";
+        String ADMINISTER_CRL_REQUEST = "privilege.administer.crlRequest";
 
         String ADMINISTER_DEVICE_TIME_SLICED_CPS = "privilege.administer.device.time.sliced.cps";
 

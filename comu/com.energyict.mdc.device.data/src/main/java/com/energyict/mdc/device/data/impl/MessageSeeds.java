@@ -169,12 +169,12 @@ public enum MessageSeeds implements MessageSeed {
     GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
     CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2144, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
     CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED, "You cannot change the configuration of a multi-element enabled device"),
-    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ''{0}'' can’t be changed to device configuration ''{1}'' because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
+    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ''{0}'' can''t be changed to device configuration ''{1}'' because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
     NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2147, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ''{1}'' must be data logger enabled: The device ''{0}'' has channels linked to data logger slaves."),
     NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2148, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ''{1}'' must be multi-element enabled: The device ''{0}'' has channels linked to multi-element slave devices."),
     COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(2149, Keys.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE, "The device command ''{0}'' should have an 'Activation date' attribute"),
     COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE(2150, Keys.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE, "The device command ''{0}'' should have a 'Normal threshold' attribute"),
-    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2151, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command ''{0}'' should have a 'Unit' attribute"),
+    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2151, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command ''{0}'' should have a ''Unit'' attribute"),
     TEMP_VALUE_NOT_SET(2152, "NoTempValue", "The security accessor does not contain a temporary value"),
     NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
@@ -183,10 +183,15 @@ public enum MessageSeeds implements MessageSeed {
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
     COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE,
-            "The device command ''{0}'' should have a 'security accessor reference' attribute"),
+            "The device command ''{0}'' should have a ''security accessor reference'' attribute"),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(2161, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
     NOT_ALLOWED_TO_EDIT_CENTRALLY_MANAGED_SECURITY_ACCESSOR(2162, "NotAllowedToEditCentrallyManagedSecurityAccessor",
-            "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level.");
+            "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level."),
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(2163, "VetoSecurityAccessorRemovalFromDeviceType", "The security accessor couldn''t be removed from the device type because keys/certificates are specified on devices of this device type."),
+    CERTIFICATE_USED_ON_SECURITY_ACCESSOR(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
+    COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE, "The device command ''{0}'' should have a ''key type'' attribute"),
+    PROPERTY_VALUE_REQUIRED(2166, "InvalidPropertyValue", "Value for property {0} is required"),
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK(2167, "VetoSecurityAccessorRemovalFromCrlTask", "The security accessor couldn''t be removed since it is used by {0}"),;
 
     private final int number;
     private final String key;
@@ -380,8 +385,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED = "device.config.change.to.less.channels.provided";
         public static final String NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED = "device.config.not.data.logger.enabled";
         public static final String NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED = "device.config.not.multi.element.enabled";
-        public static final String NO_BASIC_CHECK_COMTASK ="No.comtask.for.basic.check";
-        public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE ="command.should.have.a.key.accessor.reference.attribute";
+        public static final String NO_BASIC_CHECK_COMTASK = "No.comtask.for.basic.check";
+        public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE = "command.should.have.a.key.accessor.reference.attribute";
         public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
+        public static final String COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE = "command.should.have.a.key.type.attribute";
     }
 }

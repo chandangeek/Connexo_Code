@@ -182,10 +182,16 @@ public interface DeviceService {
     void deleteOutdatedComTaskExecutionTriggers();
 
     /**
-     * Returns tue if the provided {@link CertificateWrapper} is still referenced by a KeyAccessor
+     * Returns true if the provided {@link CertificateWrapper} is still referenced by a KeyAccessor
      * @param certificate The to-be-checked for usage {@link CertificateWrapper}
      * @return true if in use, false otherwise
      */
     boolean usedByKeyAccessor(CertificateWrapper certificate);
 
+    /**
+      * Returns collection of {@link SecurityAccessor} objects used by the given {@link CertificateWrapper} object
+      * @param certificate The {@link CertificateWrapper} object
+      * @return Collection of associated {@link SecurityAccessor} objects
+      */
+    List<SecurityAccessor> getAssociatedKeyAccessors(CertificateWrapper certificate);
 }

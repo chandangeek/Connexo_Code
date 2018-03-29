@@ -76,28 +76,35 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        // TODO: update with default values, specific tech spike for this
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         Comparison comparison = (Comparison) condition;
         if (comparison.getValues().length == 1) {
-            // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS
+            // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK
+            // || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS || Expiration.Type.OBSOLETE
             Expiration expiration = (Expiration) comparison.getValues()[0];
 
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having an actual certificate that is expired
             sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
-            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
+            if (Expiration.Type.OBSOLETE == expiration.getType()) {
+                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.STATUS", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.STATUS")));
+            } else {
+                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
+            }
             sqlBuilder.closeBracket();
 
+            //todo: update central query / 'obsolete'
             appendCentralCertificateAccessorsClause(sqlBuilder, expiration, now);
 
-            // Devices having an actual passphrase that is expired
-            getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID", passPhraseTableName, expiration, now));
-            // Devices having an actual symmetric key that is expired
-            getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", "ACTUALSYMKEYID", symmetricKeyTableName, expiration, now));
-            //
+            if (expiration.getType() != Expiration.Type.OBSOLETE) {
+                // Devices having an actual passphrase that is expired
+                getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID", passPhraseTableName, expiration, now));
+                // Devices having an actual symmetric key that is expired
+                getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", "ACTUALSYMKEYID", symmetricKeyTableName, expiration, now));
+            }
+
             sqlBuilder.closeBracket();
         }
         return sqlBuilder;
@@ -105,9 +112,10 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     @Override
     public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
-        Long expirationDateAsEpochMillis = (Long) value;
-        if (expirationDateAsEpochMillis != null) {
-            statement.setLong(bindPosition, expirationDateAsEpochMillis);
+        if (value instanceof Long) {
+            statement.setLong(bindPosition, (Long) value);
+        } else if (value instanceof String) {
+            statement.setString(bindPosition, (String) value);
         } else {
             statement.setNull(bindPosition, java.sql.Types.NUMERIC);
         }
@@ -210,7 +218,12 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
                 "  INNER JOIN DTC_SECACCTYPES_ON_DEVICETYPE ON DDC_DEVICE.DEVICETYPE = DTC_SECACCTYPES_ON_DEVICETYPE.DEVICETYPE" +
                 "  INNER JOIN PKI_SECACCESSOR ON (DTC_SECACCTYPES_ON_DEVICETYPE.SECACCTYPE = PKI_SECACCESSOR.SECACCESSORTYPE AND PKI_SECACCESSOR.DISCRIMINATOR = 'C')" +
                 "  INNER JOIN PKI_CERTIFICATE ON (PKI_SECACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
-        sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", when)));
+
+        if (Expiration.Type.OBSOLETE == expiration.getType()) {
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.STATUS", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.STATUS")));
+        } else {
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", when)));
+        }
         sqlBuilder.closeBracket();
     }
 }

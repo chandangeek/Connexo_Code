@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -24,6 +25,9 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageH
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -55,17 +59,21 @@ public class Installer implements FullInstaller {
     private final MessageService messageService;
     private final InstallerV10_2Impl installerV10_2;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
+    private final PrivilegesProviderV10_4_1 privilegesProviderV10_4_1;
+    private final TaskService taskService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService,
-                     InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, TaskService taskService,
+                     InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
         this.messageService = messageService;
+        this.taskService = taskService;
         this.installerV10_2 = installerV10_2;
         this.privilegesProviderV10_3 = privilegesProviderV10_3;
+        this.privilegesProviderV10_4_1 = privilegesProviderV10_4_1;
     }
 
     @Override
@@ -96,9 +104,21 @@ public class Installer implements FullInstaller {
                 this::addCommunicationTestEventSubscriber,
                 logger
         );
+        doTry(
+                "Create Certificate renewal task",
+                this::createCertificateRenewalTask,
+                logger
+        );
+        doTry(
+                "Create Key renewal task",
+                this::createKeyRenewalTask,
+                logger
+        );
+
         installerV10_2.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
         userService.addModulePrivileges(privilegesProviderV10_3);
+        userService.addModulePrivileges(privilegesProviderV10_4_1);
     }
 
     private void addJupiterEventSubscribers() {
@@ -141,6 +161,9 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.BULK_DEVICE_MESSAGES);
         this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.DEVICE_MESSAGES);
         this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.CONNECTION_TASK_VALIDATOR_AFTER_CONNECTION_FUNCTION_MODIFICATION);
+        this.createMessageHandler(defaultQueueTableSpec, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {
@@ -188,5 +211,44 @@ public class Installer implements FullInstaller {
         }
     }
 
+    private DestinationSpec getCertRenewalDestination() {
+        return messageService.getDestinationSpec(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME).orElseGet(() ->
+                messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
+                        .get()
+                        .createDestinationSpec(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS));
+    }
+
+    private DestinationSpec getKeyRenewalDestination() {
+        return messageService.getDestinationSpec(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME).orElseGet(() ->
+                messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
+                        .get()
+                        .createDestinationSpec(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS));
+    }
+
+    private void createCertificateRenewalTask() {
+        if (!taskService.getRecurrentTask(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_NAME).isPresent()) {
+            taskService.newBuilder()
+                    .setApplication("MultiSense")
+                    .setName(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_NAME)
+                    .setScheduleExpressionString(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_CRON_STRING)
+                    .setDestination(getCertRenewalDestination())
+                    .setPayLoad("Certificate Renewal")
+                    .scheduleImmediately(true)
+                    .build();
+        }
+    }
+
+    private void createKeyRenewalTask() {
+        if (!taskService.getRecurrentTask(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_NAME).isPresent()) {
+            taskService.newBuilder()
+                    .setApplication("MultiSense")
+                    .setName(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_NAME)
+                    .setScheduleExpressionString(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_CRON_STRING)
+                    .setDestination(getKeyRenewalDestination())
+                    .setPayLoad("Key Renewal")
+                    .scheduleImmediately(true)
+                    .build();
+        }
+    }
 
 }

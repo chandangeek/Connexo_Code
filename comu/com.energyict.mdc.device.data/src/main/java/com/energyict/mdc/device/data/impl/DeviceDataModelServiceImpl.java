@@ -49,10 +49,12 @@ import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -165,6 +167,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -588,6 +591,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(LockService.class).toInstance(lockService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
+                bind(CrlRequestTaskPropertiesService.class).toInstance(crlRequestTaskPropertiesService);
             }
         };
     }
@@ -607,7 +611,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 2, 1), UpgraderV10_2_1.class,
                         version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class)
+                        version(10, 4), UpgraderV10_4.class,
+                        version(10, 4, 1), UpgraderV10_4_1.class)
         );
         this.registerRealServices(bundleContext);
     }
@@ -624,6 +629,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
         this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
+        this.crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -638,6 +644,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.registerDataCollectionKpiService(bundleContext);
         this.registerBatchService(bundleContext);
         this.registerDeviceMessageService(bundleContext);
+        this.registerCrlRequestTaskPropertiesService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -685,6 +692,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     private void registerDeviceMessageService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceMessageService.class, this.deviceMessageService, null));
+    }
+
+    private void registerCrlRequestTaskPropertiesService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(CrlRequestTaskPropertiesService.class, this.crlRequestTaskPropertiesService, null));
     }
 
     @Deactivate
