@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -15,24 +16,30 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
-
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+
 import org.osgi.framework.BundleContext;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -41,6 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -88,6 +96,16 @@ public abstract class AbstractMockActivator {
     protected IssueService issueService;
     @Mock
     protected BatchService batchService;
+    @Mock
+    protected JsonService jsonService;
+    @Mock
+    protected ServiceCallService serviceCallService;
+    @Mock
+    protected CustomPropertySetService customPropertySetService;
+    @Mock
+    private ServiceCallType serviceCallType;
+    @Mock
+    protected WebServicesService webServicesService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -101,6 +119,8 @@ public abstract class AbstractMockActivator {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
+        when(webServicesService.isPublished(anyObject())).thenReturn(true);
     }
 
     private void initActivator() {
@@ -122,6 +142,10 @@ public abstract class AbstractMockActivator {
         activator.setDeviceAlarmService(deviceAlarmService);
         activator.setIssueService(issueService);
         activator.setBatchService(batchService);
+        activator.setJsonService(jsonService);
+        activator.setCustomPropertySetService(customPropertySetService);
+        activator.setServiceCallService(serviceCallService);
+        activator.setWebServicesService(webServicesService);
         activator.activate(mock(BundleContext.class));
     }
 
@@ -138,5 +162,13 @@ public abstract class AbstractMockActivator {
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;
+    }
+
+    protected EndPointConfiguration mockEndPointConfiguration(String name) {
+        EndPointConfiguration mock = mock(EndPointConfiguration.class);
+        when(mock.getName()).thenReturn(name);
+        when(mock.isActive()).thenReturn(true);
+        when(mock.isInbound()).thenReturn(false);
+        return mock;
     }
 }

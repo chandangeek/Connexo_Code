@@ -51,8 +51,11 @@ public class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String DEVICE_CONFIGURATION_NAME = "Default";
     protected static final float MULTIPLIER = 1.23456789f;
     protected static final String STATE_NAME = "I'm okay. And you?";
+    protected static final String REPLY_ADDRESS = "replyAddress";
 
     protected final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
+    protected final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
+            = new ch.iec.tc57._2011.schema.message.ObjectFactory();
 
     @Mock
     protected DeviceType deviceType;
@@ -173,6 +176,7 @@ public class AbstractMockMeterConfig extends AbstractMockActivator {
         meterConfigPayload.setMeterConfig(meterConfig);
         MeterConfigRequestMessageType meterConfigRequestMessage = meterConfigMessageObjectFactory.createMeterConfigRequestMessageType();
         meterConfigRequestMessage.setPayload(meterConfigPayload);
+        meterConfigRequestMessage.setHeader(cimMessageObjectFactory.createHeaderType());
         return meterConfigRequestMessage;
     }
 

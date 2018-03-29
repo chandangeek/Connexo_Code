@@ -16,13 +16,13 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import javax.inject.Inject;
 import java.util.function.Supplier;
 
-class EndDeviceEventsFaultMessageFactory {
+public class EndDeviceEventsFaultMessageFactory {
     private final ObjectFactory messageFactory = new ObjectFactory();
     private final ReplyTypeFactory replyTypeFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    EndDeviceEventsFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
+    public EndDeviceEventsFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
         this.thesaurus = thesaurus;
         this.replyTypeFactory = replyTypeFactory;
     }
@@ -37,6 +37,10 @@ class EndDeviceEventsFaultMessageFactory {
 
     FaultMessage createEndDeviceEventsFaultMessage(String message) {
         return createEndDeviceEventsFaultMessage(message, null);
+    }
+
+    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds messageSeed) {
+        return createEndDeviceEventsFaultMessage(messageSeed.translate(thesaurus), messageSeed.getErrorCode());
     }
 
     private FaultMessage createEndDeviceEventsFaultMessage(ReplyType replyType) {

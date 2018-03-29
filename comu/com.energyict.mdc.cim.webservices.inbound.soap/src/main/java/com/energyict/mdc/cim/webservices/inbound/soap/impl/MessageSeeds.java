@@ -53,6 +53,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_DEVICE_EVENT_TYPE_WITH_REF(3005, "NoEndDeviceEventTypeWithRef", "No end device event type is found with ref ''{0}''"),
     NO_OBIS_CODE_CONFIGURED(3006, "NoObisCodeConfigured", "Obis code is not configured for the web service end point"),
     NO_END_POINT_WITH_WEBSERVICE_NAME(3007, "NoEndPointConfigured", "No end point configuration is found by web service name ''{0}''."),
+
+    // async
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(4001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
+    NO_REPLY_ADDRESS(4002, "NoReplyAddress", "Reply address is required"),
+    NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
+    SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
+    NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     ;
 
     private final int number;
@@ -112,5 +119,10 @@ public enum MessageSeeds implements MessageSeed {
         } else {
             return ErrorType.Level.INFORM;
         }
+    }
+
+    public static final class Keys {
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
+        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
     }
 }
