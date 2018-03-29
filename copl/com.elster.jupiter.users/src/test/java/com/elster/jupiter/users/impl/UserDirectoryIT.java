@@ -34,6 +34,7 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +67,8 @@ public class UserDirectoryIT extends EqualsContractTest {
     @Mock
     private DataModel dataModel;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    @Mock
+    KeyStore keyStore;
 
     private class MockModule extends AbstractModule {
 

@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UserDirectory {
 
     List<Group> getGroups(User user);
@@ -43,6 +46,6 @@ public interface UserDirectory {
 
     void delete();
 
-    User newUser(String userName, String description, boolean allowPwdChange,boolean status);
+    User newUser(String userName, String description, boolean allowPwdChange, boolean status);
 
 }

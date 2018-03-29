@@ -13,7 +13,14 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.Size;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Hashtable;
 
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
@@ -36,6 +43,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
+    private Long trustStoreId;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String certificateAlias;
     private boolean manageGroupsInternal;
 
 
@@ -142,5 +152,20 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     protected String getPasswordDecrypt(){
         return new String(userService.getDataVaultService().decrypt(getPassword()));
+    }
+
+    SSLSocketFactory getSocketFactory(KeyStore keyStore, String protocol) {
+        if (keyStore != null) {
+            try {
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                tmf.init(keyStore);
+                SSLContext ctx = SSLContext.getInstance(protocol);
+                ctx.init(null, tmf.getTrustManagers(), null);
+                return ctx.getSocketFactory();
+            } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+                return (SSLSocketFactory) SSLSocketFactory.getDefault();
+            }
+        }
+        return (SSLSocketFactory) SSLSocketFactory.getDefault();
     }
 }
