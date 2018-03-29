@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.users.PreferenceType;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropert
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public enum DeviceDataImporterProperty {
     NUMBER_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            PropertySpecBuilder builder =
+            PropertySpecBuilder<HasIdAndName> builder =
                 context.getPropertySpecService()
                     .specForValuesOf(new SupportedNumberFormat.SupportedNumberFormatValueFactory())
                     .named(this.getPropertyKey(), this.getNameTranslationKey())
@@ -70,21 +72,19 @@ public enum DeviceDataImporterProperty {
         }
 
         private SupportedNumberFormat getDefaultNumberFormat(DeviceDataImporterContext context) {
-            Optional<User> user = context.getUserService().findUser(context.getThreadPrincipalService().getPrincipal().getName());
+            Optional<User> user = Optional.ofNullable(context.getThreadPrincipalService().getPrincipal())
+                    .map(Principal::getName)
+                    .flatMap(context.getUserService()::findUser);
             if (user.isPresent()) {
                 Optional<UserPreference> decimalSeparator = context.getUserService().getUserPreferencesService().getPreferenceByKey(user.get(), PreferenceType.DECIMAL_SEPARATOR);
                 Optional<UserPreference> thousandsSeparator = context.getUserService().getUserPreferencesService().getPreferenceByKey(user.get(), PreferenceType.THOUSANDS_SEPARATOR);
-                Stream<SupportedNumberFormat> stream = Arrays.asList(SupportedNumberFormat.values()).stream();
+                Stream<SupportedNumberFormat> stream = Arrays.stream(SupportedNumberFormat.values());
                 if (decimalSeparator.isPresent()) {
                     stream = stream.filter(numberFormat -> numberFormat.getDecimalSeparator().toString().equals(decimalSeparator.get().getDisplayFormat()));
                 }
-                stream = stream.filter(numberFormat -> {
-                    if (thousandsSeparator.isPresent()) {
-                        return numberFormat.hasGroupSeparator() && numberFormat.getGroupSeparator().toString().equals(thousandsSeparator.get().getDisplayFormat());
-                    } else {
-                        return !numberFormat.hasGroupSeparator();
-                    }
-                });
+                stream = stream.filter(numberFormat -> thousandsSeparator
+                        .map(userPreference ->numberFormat.hasGroupSeparator() && numberFormat.getGroupSeparator().toString().equals(userPreference.getDisplayFormat()))
+                        .orElseGet(() -> !numberFormat.hasGroupSeparator()));
                 return stream.findFirst().orElse(null);
             }
             return null;
@@ -101,7 +101,7 @@ public enum DeviceDataImporterProperty {
                 char delimiterValue = ((String) delimiter.get().getValue()).charAt(0);
                 SupportedNumberFormat numberFormatValue = ((SupportedNumberFormat.SupportedNumberFormatInfo) numberFormat.get().getValue()).getFormat();
                 if (delimiterValue == numberFormatValue.getDecimalSeparator() ||
-                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator().charValue())) {
+                        (numberFormatValue.getGroupSeparator() != null && delimiterValue == numberFormatValue.getGroupSeparator())) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this.getPropertyKey());
                 }
             }

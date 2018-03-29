@@ -41,7 +41,6 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
     @Override
     public void validateProperties(List<FileImporterProperty> properties) {
         getProperties()
-                .stream()
                 .forEach(property -> property.validateProperties(properties, getContext()));
     }
 
