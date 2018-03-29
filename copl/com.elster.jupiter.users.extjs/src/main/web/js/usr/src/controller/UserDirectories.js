@@ -18,7 +18,9 @@ Ext.define('Usr.controller.UserDirectories', {
         'Usr.store.MgmUserDirectories',
         'Usr.store.SecurityProtocols',
         'Usr.store.MgmUserDirectoryUsers',
-        'Usr.store.MgmUserDirectoryExtUsers'
+        'Usr.store.MgmUserDirectoryExtUsers',
+        'Usr.store.Certificates',
+        'Usr.store.TrustStores'
     ],
     models: [
         'Usr.model.MgmUserDirectory',
@@ -99,10 +101,11 @@ Ext.define('Usr.controller.UserDirectories', {
 
         Ext.suspendLayouts();
         preview.setTitle(Ext.htmlEncode(record.get('name')));
-        previewForm = page.down('usr-user-directory-preview-form');
-        previewForm.down('#ctn-user-directory-properties1').setVisible(record.get('name') != me.localDomainName);
-        previewForm.down('#ctn-user-directory-properties2').setVisible(record.get('name') != me.localDomainName);
+        previewForm.down('#ctn-user-directory-properties1').setVisible(record.get('name') !== me.localDomainName);
+        previewForm.down('#ctn-user-directory-properties2').setVisible(record.get('name') !== me.localDomainName);
         previewForm.loadRecord(record);
+        previewForm.down('#protocol-source-certificates').setVisible(record.get('certificateAlias'));
+        previewForm.down('#protocol-source-trustStores').setVisible(record.get('trustStore'));
         preview.down('usr-user-directory-action-menu').record = record;
         preview.down('#btn-user-directory-preview-action-menu').setVisible(!(record.get('id') === 0 && record.get('isDefault')));
         Ext.resumeLayouts();
@@ -202,6 +205,21 @@ Ext.define('Usr.controller.UserDirectories', {
 
             addUserDirectoryForm.updateRecord(userDirectoryRecord);
             userDirectoryRecord.beginEdit();
+            if(addPage.down('#cbo-security-protocol').getValue() !== 'NONE'){
+                switch (addPage.down('#rdo-security-protocol-source').getValue()['source']) {
+                    case 'certificates': {
+                        userDirectoryRecord.set('certificateAlias', addPage.down('#cbo-certificate-alias').getRawValue());
+                        userDirectoryRecord.set('trustStore', null);
+                        break;
+                    }
+                    case 'trustStores': {
+                        userDirectoryRecord.set('trustStore', {id: addPage.down('#cbo-trust-store').getValue()});
+                        userDirectoryRecord.set('certificateAlias', null);
+                        break;
+                    }
+                }
+            }
+
             userDirectoryRecord.set('securityProtocolInfo', {
                 name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
             });
@@ -289,7 +307,7 @@ Ext.define('Usr.controller.UserDirectories', {
                 addUserDirectoryForm = addUserDirectoryView.down('#frm-add-user-directory');
                 addUserDirectoryForm.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.edit', 'USR', 'Edit \'{0}\''), userDirectoryRecord.get('name')));
 
-                addUserDirectoryForm.loadRecord(userDirectoryRecord);
+                addUserDirectoryView.loadRecord(userDirectoryRecord);
                 me.getApplication().fireEvent('changecontentevent', addUserDirectoryView);
                 addUserDirectoryView.setLoading(false);
             },

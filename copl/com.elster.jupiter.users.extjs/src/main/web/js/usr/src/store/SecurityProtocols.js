@@ -8,6 +8,7 @@ Ext.define('Usr.store.SecurityProtocols', {
     proxy: {
         type: 'memory'
     },
+    idProperty: 'value',
     data:  [
         {
             name: Uni.I18n.translate('userDirectories.securityProtocol.none', 'USR', 'None'),
