@@ -64,7 +64,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
                                 {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
                                 {displayValue: Uni.I18n.translate('destination.ftp','DES','FTP'), value: 'FTP'},
-                                {displayValue: Uni.I18n.translate('destination.ftps','DES','FTPS'), value: 'FTPS'}
+                                {displayValue: Uni.I18n.translate('destination.ftps','DES','FTPS'), value: 'FTPS'},
+                                {displayValue: Uni.I18n.translate('destination.sftp','DES','SFTP'), value: 'SFTP'},
                             ]
                         }),
                         name: 'method',
@@ -333,6 +334,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 me.isFieldValid('#destination-file-location', true, "");
                 break;
             case 'FTPS':
+            case 'SFTP':
                 me.isFieldValid('#hostname', true, "");
                 me.isFieldValid('#user-field', true, "");
                 me.isFieldValid('#destination-file-name', true, "");
@@ -512,6 +514,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 return valid1 && valid2 && valid3 && valid4;
             case 'FTP':
             case 'FTPS':
+            case 'SFTP':
                 var valid1 = me.isServerNameValid();
                 var valid2 = me.isUserNameValid();
                 var valid3 = me.isFileNameValid();

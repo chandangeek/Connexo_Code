@@ -728,6 +728,18 @@ Ext.define('Dxp.controller.Tasks', {
                     view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
                     view.down('#password-field').setValue(me.destinationToEdit.get('password'));
                     break;
+                case 'SFTP':
+                    me.showFtpDestinationAttributes(true);
+                    view.down('#destination-methods-combo').setValue('SFTP');
+                    view.down('#destination-methods-combo').setDisabled(true);
+                    view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                    view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                    view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                    view.down('#hostname').setValue(me.destinationToEdit.get('server'));
+                    view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                    view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
+                    view.down('#password-field').setValue(me.destinationToEdit.get('password'));
+                    break;
             }
             Ext.resumeLayouts(true);
         } else {
@@ -814,6 +826,7 @@ Ext.define('Dxp.controller.Tasks', {
                 break;
             case 'FTP':
             case 'FTPS':
+            case 'SFTP':
                 me.showFtpDestinationAttributes(true);
                 page.down('#hostname').focus(false, 200);
                 break;
@@ -1914,6 +1927,31 @@ Ext.define('Dxp.controller.Tasks', {
                         method: Uni.I18n.translate('destination.ftps', 'DES', 'FTPS'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
+                        + ': ' + formValues['server'] + '<br>'
+                        + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
+                        + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
+                        + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
+                        + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                        + ': ' + formValues['fileExtension'] + '<br>'
+                        + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
+                    });
+                    break;
+                case 'SFTP':
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        id: id ? id : undefined,
+                        type: 'SFTP',
+                        server: formValues['server'],
+                        user: formValues['user'],
+                        port: formValues['port'],
+                        password: formValues['password'],
+                        fileName: formValues['fileName'],
+                        fileExtension: formValues['fileExtension'],
+                        fileLocation: formValues['fileLocation'],
+                        method: Uni.I18n.translate('destination.sftp', 'DES', 'SFTP'),
+                        destination: formValues['server'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.sftpServer', 'DES', 'SFTP server')
                         + ': ' + formValues['server'] + '<br>'
                         + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
                         + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
