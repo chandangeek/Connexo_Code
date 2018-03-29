@@ -1306,6 +1306,9 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: function () {
                                 return Apr.TaskManagementApp.canAdministrate();
                             },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
+                            },
                             controller: 'Mdc.controller.setup.TaskManagement',
                             action: 'showAddTask'
                         },
@@ -1326,6 +1329,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return taskManagement.controller.canView();
                                 }
                                 return false;
+                            },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
                             },
                             controller: 'Mdc.controller.setup.TaskManagement',
                             action: 'viewTask',
@@ -1349,6 +1355,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }
                                         return false;
                                     },
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     controller: 'Mdc.controller.setup.TaskManagement',
                                     action: 'editTask',
                                     callback: function (route) {
@@ -1366,12 +1375,18 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.TaskManagement.view,
                                     controller: 'Mdc.controller.setup.TaskManagement',
                                     action: 'viewHistoryTask',
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     items: {
                                         occurrence: {
                                             title: '',
                                             route: '{occurrenceId}',
                                             controller: 'Mdc.controller.setup.TaskManagement',
                                             action: 'viewHistoryTaskLog',
+                                            haveDependenciesLoaded: function () {
+                                                return Apr.TaskManagementApp.dependenciesLoaded();
+                                            },
                                             callback: function (route) {
                                                 this.getApplication().on('viewHistoryTaskLog', function (name) {
                                                     route.setTitle(name);
