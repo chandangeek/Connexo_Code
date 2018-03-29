@@ -345,7 +345,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_EICT_SERVER_TLS_CERTIFICATE("upl.property.v2.eict.serverTLSCertificate", "Server TLS Certificate"),
     V2_BROADCAST_AUTHENTICATION_KEY("upl.property.v2.eict.broadcastAuthenticationKey", "Broadcast authentication Key"),
     V2_BROADCAST_ENCRYPTION_KEY("upl.property.v2.eict.broadcastEncryptionKey", "Broadcast encryption Key"),
-    V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS("upl.property.v2.eict.incrementFrameCounterForReplyToHLS", "Increment frame counter when replying to HLS");
+    V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS("upl.property.v2.eict.incrementFrameCounterForReplyToHLS", "Increment frame counter when replying to HLS"),
+    IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length");
 
     private final String key;
     private final String defaultFormat;

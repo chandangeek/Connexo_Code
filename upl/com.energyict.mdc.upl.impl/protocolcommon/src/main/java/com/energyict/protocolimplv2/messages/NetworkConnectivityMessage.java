@@ -555,6 +555,13 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         }
     },
 
+    ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES(4070, "Add a new routing entry to the routing setup using the IPv6AddressAndPrefixLength in general properties") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+
     ;
 
     public enum VPNAuthenticationType {

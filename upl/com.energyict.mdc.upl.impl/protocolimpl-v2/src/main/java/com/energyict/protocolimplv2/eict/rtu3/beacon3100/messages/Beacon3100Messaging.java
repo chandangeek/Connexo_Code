@@ -40,11 +40,12 @@ import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
-import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.IPv6Utils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
@@ -150,6 +151,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
     private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
+    private static final int ROUTING_ENTRY_ID = 1;
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -225,6 +227,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.RESET_ROUTER.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
@@ -439,7 +442,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.trustedCertificateWrapperAttributeName:
                 //TODO: see if the CRL table will be available in Connexo or another way of storing them will be used
                 Optional<Object> certificateWrapper = keyAccessorTypeExtractor.passiveValue((KeyAccessorType) messageAttribute);
-                if(certificateWrapper.isPresent()) {
+                if (certificateWrapper.isPresent()) {
                     X509CRL crl = (X509CRL) certificateWrapperExtractor.getCRL((CertificateWrapper) certificateWrapper.get()).get();
                     try {
                         return Base64.encodeBase64String(crl.getEncoded());
@@ -739,6 +742,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.readBlacklist(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY)) {
                         this.addRoutingEntry(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES)) {
+                        this.addRoutingEntryUsingConfiguredIPv6AddressInGeneralProperties(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY)) {
                         this.removeRoutingEntry(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RESET_ROUTER)) {
@@ -2520,20 +2525,33 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void addRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String routingTypeDescription = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryType);
+        TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.entryForDescription(routingTypeDescription).getId());
         BigDecimal routingEntryId = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryId));
         String routingDestination = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestination);
         BigDecimal routingDestinationLength = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestinationLength));
         boolean compressionContextMulticast = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextMulticast));
         boolean compressionContextAllowed = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextAllowed));
 
+        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, compressionContextMulticast, compressionContextAllowed);
+    }
+
+    private void addRoutingEntryUsingConfiguredIPv6AddressInGeneralProperties(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.G3_PLC.getId()); //always the same
+        BigDecimal routingEntryId = new BigDecimal(ROUTING_ENTRY_ID); //always ID = 1
+        String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(getBeacon3100Properties().getIPv6AddressAndPrefixLength());
+        BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(getBeacon3100Properties().getIPv6AddressAndPrefixLength()));
+        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+    }
+
+    private void executeAddRoutingEntryAction(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean compressionContextMulticast, boolean compressionContextAllowed) throws IOException {
+
         BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
         try {
-            TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.entryForDescription(routingTypeDescription).getId());
             //create the routing entry structure
             Structure routingEntryStructure = new Structure();
             routingEntryStructure.addDataType(routingEntryType);
             routingEntryStructure.addDataType(new Integer16(routingEntryId.intValue()));
-            routingEntryStructure.addDataType(OctetString.fromString(routingDestination));
+            routingEntryStructure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(routingDestination, "")));
             routingEntryStructure.addDataType(new Integer8(routingDestinationLength.intValue()));
             routingEntryStructure.addDataType(new BooleanObject(compressionContextMulticast));
             routingEntryStructure.addDataType(new BooleanObject(compressionContextAllowed));
@@ -2551,7 +2569,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try {
             borderRouterIC.removeRoutingEntry(routingEntryId.intValue());
         } catch (IOException e) {
-            this.getLogger().log(Level.WARNING, "Failed to remove routing entry with ID: "+ routingEntryId +" from Border router setup IC : [" + e.getMessage() + "]", e);
+            this.getLogger().log(Level.WARNING, "Failed to remove routing entry with ID: " + routingEntryId + " from Border router setup IC : [" + e.getMessage() + "]", e);
             throw e;
         }
     }
@@ -2578,8 +2596,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try {
             //TODO: Check how files should be saved in Connexo
             OctetString logging = getDebugLogIC(pendingMessage, collectedMessage).fetchLogging();
-            File log = new File("/log/Beacon_logs/"+pendingMessage.getDeviceSerialNumber()+"_"+System.currentTimeMillis()+".txt");
-            getLogger().log(Level.WARNING, "log file saved at following location:" +log.getAbsolutePath());
+            File log = new File("/log/Beacon_logs/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
+            getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
             FileOutputStream fileOutputStream = new FileOutputStream(log);
             fileOutputStream.write(logging.toByteArray());
             fileOutputStream.close();

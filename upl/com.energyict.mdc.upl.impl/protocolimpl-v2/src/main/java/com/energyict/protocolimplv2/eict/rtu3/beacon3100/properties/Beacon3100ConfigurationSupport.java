@@ -50,6 +50,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DEFAULT_BACKLOG_LOADPROFILE = "DefaultBacklogLoadProfile";
     public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";
     public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
+    public static final String IPV6_ADDRESS_AND_PREFIX_LENGTH = "IPv6AddressAndPrefixLength";
 
     public Beacon3100ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -85,14 +86,20 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
         propertySpecs.add(broadcastAuthenticationKeyPropertySpec());
         propertySpecs.add(broadcastEncryptionKeyPropertySpec());
+        propertySpecs.add(ipv6AddressAndPrefixLength());
 
         propertySpecs.remove(ntaSimulationToolPropertySpec());
         propertySpecs.remove(manufacturerPropertySpec());
         propertySpecs.remove(fixMbusHexShortIdPropertySpec());
         propertySpecs.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         propertySpecs.remove(deviceId());
+        propertySpecs.remove(masterKeyPropertySpec());
 
         return propertySpecs;
+    }
+
+    private PropertySpec ipv6AddressAndPrefixLength() {
+        return UPLPropertySpecFactory.specBuilder(IPV6_ADDRESS_AND_PREFIX_LENGTH, false, PropertyTranslationKeys.IPV6_ADDRESS_AND_PREFIX_LENGTH, this.getPropertySpecService()::stringSpec).finish();
     }
 
     private PropertySpec defaultBufferSizeRegisters() {
