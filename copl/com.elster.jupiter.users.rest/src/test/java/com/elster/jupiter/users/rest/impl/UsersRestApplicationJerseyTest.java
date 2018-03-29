@@ -6,6 +6,7 @@ package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.nls.PrivilegeThesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
@@ -43,6 +44,8 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     ThreadPrincipalService threadPrincipalService;
     @Mock
     PrivilegeThesaurus privilegeThesaurus;
+    @Mock
+    SecurityManagementService securityManagementService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -71,6 +74,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setUserService(userService);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setNlsService(nlsService);
+        application.setSecurityManagementService(securityManagementService);
         return application;
     }
 

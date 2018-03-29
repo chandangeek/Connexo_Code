@@ -5,8 +5,10 @@
 package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -14,18 +16,20 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfoFactory;
-
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr", "app=SYS", "name=" + UsersApplication.COMPONENT_NAME} )
-public class UsersApplication extends Application {
+@Component(name = "com.elster.jupiter.users.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/usr", "app=SYS", "name=" + UsersApplication.COMPONENT_NAME})
+public class UsersApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "USR";
 
     private volatile TransactionService transactionService;
@@ -35,6 +39,7 @@ public class UsersApplication extends Application {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile SecurityManagementService securityManagementService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -73,6 +78,11 @@ public class UsersApplication extends Application {
     }
 
     @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
@@ -86,6 +96,16 @@ public class UsersApplication extends Application {
         return sglt;
     }
 
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -96,9 +116,11 @@ public class UsersApplication extends Application {
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(GroupInfoFactory.class).to(GroupInfoFactory.class);
             bind(UserInfoFactoryImpl.class).to(UserInfoFactory.class);
+            bind(UserDirectoryInfoFactory.class).to(UserDirectoryInfoFactory.class);
         }
     }
 }

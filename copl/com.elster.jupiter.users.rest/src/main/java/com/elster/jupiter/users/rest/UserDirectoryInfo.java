@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.users.rest;
 
-
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.users.LdapUserDirectory;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 
+@ProviderType
 public class UserDirectoryInfo {
 
     public long id;
@@ -22,6 +22,8 @@ public class UserDirectoryInfo {
     public String type;
     public String password;
     public String directoryUser;
+    public LongIdWithNameInfo trustStore;
+    public String certificateAlias;
 
     public UserDirectoryInfo(){
 
@@ -39,6 +41,4 @@ public class UserDirectoryInfo {
         type = ldapUserDirectory.getType();
         directoryUser = ldapUserDirectory.getDirectoryUser();
     }
-
-
 }

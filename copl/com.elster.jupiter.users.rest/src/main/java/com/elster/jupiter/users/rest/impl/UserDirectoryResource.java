@@ -6,6 +6,11 @@ package com.elster.jupiter.users.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -26,6 +31,7 @@ import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
@@ -56,12 +62,16 @@ public class UserDirectoryResource {
     private final UserService userService;
     private final TransactionService transactionService;
     private final RestQueryService restQueryService;
+    private final SecurityManagementService securityManagementService;
+    private final UserDirectoryInfoFactory userDirectoryInfoFactory;
 
     @Inject
-    public UserDirectoryResource(UserService userService, TransactionService transactionService,RestQueryService restQueryService) {
+    public UserDirectoryResource(UserService userService, TransactionService transactionService, RestQueryService restQueryService, SecurityManagementService securityManagementService, UserDirectoryInfoFactory userDirectoryInfoFactory) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
+        this.securityManagementService = securityManagementService;
+        this.userDirectoryInfoFactory = userDirectoryInfoFactory;
     }
 
 
@@ -84,7 +94,7 @@ public class UserDirectoryResource {
                 }
             }
         }
-        UserDirectoryInfos infos = new UserDirectoryInfos(queryParameters.clipToLimit(ldapUserDirectories));
+        UserDirectoryInfos infos = userDirectoryInfoFactory.asInfoList(queryParameters.clipToLimit(ldapUserDirectories));
         infos.total = queryParameters.determineTotal(ldapUserDirectories.size());
         return infos;
 
@@ -96,7 +106,7 @@ public class UserDirectoryResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public UserDirectoryInfo getUserDirectory(@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-        return new UserDirectoryInfo(ldapUserDirectory);
+        return userDirectoryInfoFactory.asInfo(ldapUserDirectory);
     }
 
     @POST
@@ -121,6 +131,22 @@ public class UserDirectoryResource {
             ldapUserDirectory.setDefault(info.isDefault);
             ldapUserDirectory.setManageGroupsInternal(true);
             ldapUserDirectory.update();
+            if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
+                CertificateWrapper trustedCertificate = null;
+                TrustStore trustStore = null;
+                if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                    trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                }
+                if (info.trustStore != null) {
+                    trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                }
+                DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService.newDirectoryCertificateUsage(ldapUserDirectory);
+                newDirectoryCertificateUsage.setCertificate(trustedCertificate);
+                newDirectoryCertificateUsage.setTrustStore(trustStore);
+                newDirectoryCertificateUsage.save();
+            }
             context.commit();
             return info;
         }
@@ -158,6 +184,31 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
                     ldapUserDirectory.setType(info.type);
+                    if (info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) {
+                        securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
+                    } else if (info.trustStore != null || info.certificateAlias != null) {
+                        Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory);
+                        CertificateWrapper trustedCertificate = null;
+                        TrustStore trustStore = null;
+                        if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
+                            trustedCertificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                        }
+                        if (info.trustStore != null) {
+                            trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                        }
+                        if (directoryCertificateUsage.isPresent()) {
+                            directoryCertificateUsage.get().setCertificate(trustedCertificate);
+                            directoryCertificateUsage.get().setTrustStore(trustStore);
+                            directoryCertificateUsage.get().save();
+                        } else {
+                            DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService.newDirectoryCertificateUsage(ldapUserDirectory);
+                            newDirectoryCertificateUsage.setCertificate(trustedCertificate);
+                            newDirectoryCertificateUsage.setTrustStore(trustStore);
+                            newDirectoryCertificateUsage.save();
+                        }
+                    }
                     ldapUserDirectory.update();
                 }
             }
@@ -166,7 +217,7 @@ public class UserDirectoryResource {
             UserDirectory userDirectory = userService.findUserDirectory(info.name).get();
             LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(userDirectory.getDomain());
             ldapUserDirectory.setDefault(userDirectory.isDefault());
-            return new UserDirectoryInfo(ldapUserDirectory);
+            return userDirectoryInfoFactory.asInfo(ldapUserDirectory);
         }else {
             return getUserDirectory(id, securityContext);
         }
@@ -179,6 +230,7 @@ public class UserDirectoryResource {
     public Response deleteUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+            securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
             ldapUserDirectory.delete();
             context.commit();
             return Response.status(Response.Status.OK).build();
@@ -230,8 +282,11 @@ public class UserDirectoryResource {
         }
         return Response.status(Response.Status.OK).build();
     }
+
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
         Query<UserDirectory> query = userService.getLdapDirectories();
         return restQueryService.wrap(query);
     }
+
+
 }
