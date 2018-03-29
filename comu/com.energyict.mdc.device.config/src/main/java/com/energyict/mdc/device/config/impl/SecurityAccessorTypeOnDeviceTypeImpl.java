@@ -9,11 +9,12 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public class SecurityAccessorTypeOnDeviceTypeImpl {
+public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType");
@@ -48,10 +49,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl {
         return this;
     }
 
+    @Override
     public DeviceType getDeviceType() {
         return deviceType.orNull();
     }
 
+    @Override
     public SecurityAccessorType getSecurityAccessorType() {
         return securityAccessorType.orNull();
     }

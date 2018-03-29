@@ -109,6 +109,7 @@ import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.time.Clock;
 import java.util.Arrays;
@@ -180,7 +181,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(com.energyict.mdc.upl.io.SocketService.class).toInstance(mock(com.energyict.mdc.upl.io.SocketService.class));

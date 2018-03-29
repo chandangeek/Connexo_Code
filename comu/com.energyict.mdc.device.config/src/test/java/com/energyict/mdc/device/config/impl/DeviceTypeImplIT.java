@@ -31,7 +31,15 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.ValueFactory;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -48,13 +56,16 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -66,6 +77,7 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,12 +89,15 @@ import static org.mockito.Mockito.when;
  * @since 2014-02-10 (17:44)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
+public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2 = 149;
     private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -92,6 +107,14 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceProtocol deviceProtocol2;
+    @Mock
+    private AuthenticationDeviceAccessLevel authLevel;
+    @Mock
+    private EncryptionDeviceAccessLevel encLevel;
+    @Mock
+    private PropertySpec spec1, spec2;
+    @Mock
+    private ValueFactory valueFactory;
 
     private ReadingType readingType1;
     private ReadingType readingType2;
@@ -106,10 +129,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Before
     public void initializeDatabaseAndMocks() {
-        this.initMocks();
-    }
-
-    private void initMocks() {
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(this.deviceProtocolPluggableClass2.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2);
@@ -281,7 +300,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getLogBookTypes()).containsOnly(this.logBookType, this.logBookType2);
     }
 
-    @Test(expected = LogBookTypeAlreadyInDeviceTypeException.class)
+    @Test
     @Transactional
     public void testAddLogBookTypeThatIsAlreadyAdded() {
         String deviceTypeName = "testAddLogBookTypeThatIsAlreadyAdded";
@@ -293,6 +312,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addLogBookType(this.logBookType);
 
         // Business method
+        expectedException.expect(LogBookTypeAlreadyInDeviceTypeException.class);
         deviceType.addLogBookType(this.logBookType);
 
         // Asserts: expected LogBookTypeAlreadyInDeviceTypeException
@@ -333,7 +353,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getLogBookTypes()).isEmpty();
     }
 
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    @Test
     @Transactional
     public void testRemoveLogBookTypeThatIsStillInUse() {
         String deviceTypeName = "testRemoveLogBookTypeThatIsStillInUse";
@@ -346,19 +366,17 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addLogBookType(this.logBookType);
 
         // Setup DeviceConfiguration that uses the LogBookType
-        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config for " + deviceTypeName);
+        String deviceConfName = "Config for " + deviceTypeName;
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfName);
         deviceConfigurationBuilder.newLogBookSpec(this.logBookType);
         deviceConfigurationBuilder.add();
 
-        try {
-            // Business method
-            deviceType.removeLogBookType(this.logBookType);
-        }
-        catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
-            throw e;
-        }
+        // Business method
+        expectedException.expect(CannotDeleteBecauseStillInUseException.class);
+        expectedException.expectMessage("The log book type " + deviceTypeName + "-1 can't be removed"
+                + " because it is still in use by the following log book spec(s): "
+                + deviceConfName + ":0.0.99.98.0.255");
+        deviceType.removeLogBookType(this.logBookType);
     }
 
     @Test
@@ -392,7 +410,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getLoadProfileTypes()).containsOnly(this.loadProfileType, this.loadProfileType2);
     }
 
-    @Test(expected = LoadProfileTypeAlreadyInDeviceTypeException.class)
+    @Test
     @Transactional
     public void testAddLoadProfileTypeThatIsAlreadyAdded() {
         String deviceTypeName = "testAddLoadProfileTypeThatIsAlreadyAdded";
@@ -403,6 +421,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addLoadProfileType(this.loadProfileType);
 
         // Business method
+        expectedException.expect(LoadProfileTypeAlreadyInDeviceTypeException.class);
         deviceType.addLoadProfileType(this.loadProfileType);
 
         // Asserts: expected LoadProfileTypeAlreadyInDeviceTypeException
@@ -441,7 +460,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
     }
 
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    @Test
     @Transactional
     public void testRemoveLoadProfileTypeThatIsStillInUse() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
@@ -459,15 +478,12 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceConfigurationBuilder.newLoadProfileSpec(this.loadProfileType);
         deviceConfigurationBuilder.add();
 
-        try {
-            // Business method
-            deviceType.removeLoadProfileType(this.loadProfileType);
-        }
-        catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
-            throw e;
-        }
+        // Business method
+        expectedException.expect(CannotDeleteBecauseStillInUseException.class);
+        expectedException.expectMessage("The load profile type with reading type "
+                + deviceTypeName + "-1 can't be removed because it is still in use by the following load profile spec(s): "
+                + deviceTypeName + "-1");
+        deviceType.removeLoadProfileType(this.loadProfileType);
     }
 
     @Test
@@ -566,7 +582,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getRegisterTypes()).containsOnly(this.registerType1, this.registerType2);
     }
 
-    @Test(expected = RegisterTypeAlreadyInDeviceTypeException.class)
+    @Test
     @Transactional
     public void testAddRegisterTypeThatIsAlreadyAdded() {
         String deviceTypeName = "testAddRegisterTypeThatIsAlreadyAdded";
@@ -578,6 +594,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addRegisterType(this.registerType1);
 
         // Business method
+        expectedException.expect(RegisterTypeAlreadyInDeviceTypeException.class);
         deviceType.addRegisterType(this.registerType1);
 
         // Asserts: expected RegisterTypeAlreadyInDeviceTypeException
@@ -618,7 +635,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getRegisterTypes()).isEmpty();
     }
 
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    @Test
     @Transactional
     public void testRemoveRegisterTypeThatIsStillInUseByRegisterSpec() {
         DeviceConfigurationServiceImpl deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
@@ -632,21 +649,19 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.addRegisterType(this.registerType1);
 
         // Add DeviceConfiguration with a RegisterSpec that uses the RegisterType
-        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
+        String deviceConfName = "Conf 1 for " + deviceTypeName;
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfName);
         NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfigurationBuilder.newNumericalRegisterSpec(this.registerType1);
         registerSpecBuilder.overflowValue(overflowValue);
         registerSpecBuilder.numberOfFractionDigits(2);
         deviceConfigurationBuilder.add();
 
-        try {
-            // Business method
-            deviceType.removeRegisterType(this.registerType1);
-        }
-        catch (CannotDeleteBecauseStillInUseException e) {
-            // Asserts
-            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC);
-            throw e;
-        }
+        // Business method
+        expectedException.expect(CannotDeleteBecauseStillInUseException.class);
+        expectedException.expectMessage("The register type 0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0 can't be removed"
+                + " because it is still in use by the following register configuration(s):"
+                + " register configuration with Obis code 1.0.1.8.0.255 in device configuration " + deviceConfName);
+        deviceType.removeRegisterType(this.registerType1);
     }
 
     @Test
@@ -781,7 +796,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(reloaded.isPresent()).isFalse();
     }
 
-    @Test(expected = CannotDeleteBecauseStillInUseException.class)
+    @Test
     @Transactional
     public void testCanNotDeleteDeviceTypeWithActiveDeviceConfig() {
         String deviceTypeName = "test";
@@ -794,12 +809,13 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         second.activate();
 
         // Business method
+        expectedException.expect(CannotDeleteBecauseStillInUseException.class);
         deviceType.delete();
     }
 
     @Test
     @Transactional
-    public void deleteDeviceTypeWithInActiveDeviceConfigsTest() {
+    public void deleteDeviceTypeWithInActiveDeviceConfigs() {
         String deviceTypeName = "test";
         DeviceType deviceType;
 
@@ -912,12 +928,13 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(reloaded.isPresent()).isFalse();
     }
 
-    @Test(expected = DeviceConfigurationIsActiveException.class)
+    @Test
     @Transactional
     public void testCanNotRemoveDeviceConfigIfInUse() throws Exception {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
         deviceConfiguration.activate();
 
+        expectedException.expect(DeviceConfigurationIsActiveException.class);
         deviceType.removeConfiguration(deviceConfiguration);
     }
 
@@ -1012,6 +1029,51 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnActiveDeviceConfiguration() {
+        setupSecurityProperties();
+        setupSecurityAccessorTypes();
+        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
+        deviceConfiguration.createSecurityPropertySet("SPS")
+                .authenticationLevel(authLevel.getId())
+                .encryptionLevel(encLevel.getId())
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
+                .addConfigurationSecurityProperty(spec2.getName(), keyAccessorType)
+                .build();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        deviceConfiguration.activate();
+
+        deviceType.removeSecurityAccessorType(certificateAccessorType);
+        assertThat(deviceType.getSecurityAccessorTypes()).containsExactly(keyAccessorType);
+
+        expectedException.expect(SecurityAccessorTypeCanNotBeDeletedException.class);
+        expectedException.expectMessage("The security accessor couldn't be removed from the device type"
+                + " because it is used by security sets on active device configurations.");
+        deviceType.removeSecurityAccessorType(keyAccessorType);
+    }
+
+    @Test
+    @Transactional
+    public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnInactiveDeviceConfiguration() {
+        setupSecurityProperties();
+        setupSecurityAccessorTypes();
+        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
+        deviceConfiguration.createSecurityPropertySet("SPS")
+                .authenticationLevel(authLevel.getId())
+                .encryptionLevel(encLevel.getId())
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
+                .addConfigurationSecurityProperty(spec2.getName(), certificateAccessorType)
+                .build();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+
+        deviceType.removeSecurityAccessorType(keyAccessorType);
+        deviceType.removeSecurityAccessorType(certificateAccessorType);
+        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "securityAccessorType")
     public void addInvalidSecurityAccessorType() {
         deviceType.addSecurityAccessorTypes((SecurityAccessorType) null);
@@ -1070,15 +1132,43 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
         TrustStore main = securityManagementService.newTrustStore("MAIN").add();
         certificateAccessorType = securityManagementService.addSecurityAccessorType("Certificate", certs)
+                .managedCentrally()
                 .description("just certificates")
                 .trustStore(main)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .add();
         keyAccessorType = securityManagementService.addSecurityAccessorType("Key", aes128)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .add();
-
     }
 
+    private void setupSecurityProperties() {
+        ProtocolPluggableService protocolPluggableService = inMemoryPersistence.getProtocolPluggableService();
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return UPLAuthenticationLevelAdapter.adaptTo((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0], null);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return UPLEncryptionLevelAdapter.adaptTo((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0], null);
+        });
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authLevel));
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
+        when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
+        when(authLevel.getId()).thenReturn(1);
+        when(encLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec2));
+        when(encLevel.getId()).thenReturn(2);
+        when(valueFactory.fromStringValue(any(String.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(valueFactory.toStringValue(any(String.class))).thenAnswer(invocation -> invocation.getArgumentAt(0, String.class));
+        when(valueFactory.getValueTypeName()).thenReturn(ValueType.INTEGER.getUplClassName());
+        when(spec1.getName()).thenReturn("spec1");
+        when(spec1.getValueFactory()).thenReturn(valueFactory);
+        when(spec2.getName()).thenReturn("spec2");
+        when(spec2.getValueFactory()).thenReturn(valueFactory);
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
+    }
 }
