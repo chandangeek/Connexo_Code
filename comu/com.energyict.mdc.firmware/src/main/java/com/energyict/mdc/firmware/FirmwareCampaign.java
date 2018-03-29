@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface FirmwareCampaign extends HasId, HasName{
     void setName(String name);
 
@@ -64,4 +67,8 @@ public interface FirmwareCampaign extends HasId, HasName{
     void setComWindow(ComWindow window);
 
     void decreaseCount();
+
+    Optional<TimeDuration> getValidationTimeout();
+
+    void setValidationTimeout(TimeDuration validationTimeout);
 }

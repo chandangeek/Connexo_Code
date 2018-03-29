@@ -6,7 +6,8 @@ package com.energyict.mdc.firmware;
 
 public enum FirmwareType {
     COMMUNICATION("communication", "Communication firmware"),
-    METER("meter", "Meter firmware");
+    METER("meter", "Meter firmware"),
+    CA_CONFIG_IMAGE("caConfigImage", "Image");
 
     private String type;
     private String description;

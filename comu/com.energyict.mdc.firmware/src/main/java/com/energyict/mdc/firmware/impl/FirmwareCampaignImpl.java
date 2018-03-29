@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ComWindow;
@@ -61,7 +62,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         DEVICES_STATUS("devicesStatus"),
         COMWINDOW_START("comWindow.start.millis"),
         COMWINDOW_END("comWindow.end.millis"),
-        NROFDEVICES("numberOfDevices");
+        NROFDEVICES("numberOfDevices"),
+        VALIDATION_TIMEOUT("validationTimeout");
 
         private String name;
 
@@ -97,6 +99,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private Reference<DevicesInFirmwareCampaignStatusImpl> devicesStatus = ValueReference.absent();
     private Integer numberOfDevices = 0;
+    private TimeDuration validationTimeout = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
 
     @SuppressWarnings("unused")
     private long version;
@@ -372,5 +375,17 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     @Override
     public void decreaseCount() {
         this.numberOfDevices--;
+    }
+
+    @Override
+    public Optional<TimeDuration> getValidationTimeout() {
+        return validationTimeout.getCount() != 0
+                ? Optional.of(new TimeDuration(validationTimeout.getCount(), validationTimeout.getTimeUnit()))
+                : Optional.empty();
+    }
+
+    @Override
+    public void setValidationTimeout(TimeDuration validationTimeout) {
+        this.validationTimeout = new TimeDuration(validationTimeout.getCount(), validationTimeout.getTimeUnit());
     }
 }

@@ -42,6 +42,8 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -121,6 +123,7 @@ public class InMemoryPersistence {
     private InMemoryBootstrapModule bootstrapModule;
     private FirmwareServiceImpl firmwareService;
     private LicenseService licenseService;
+    private HttpService httpService;
     private Thesaurus thesaurus;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
@@ -191,6 +194,8 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceService.class);
             injector.getInstance(EventService.class);
             injector.getInstance(ProtocolPluggableService.class);
+            this.injector.getInstance(EndPointConfigurationService.class);
+            this.injector.getInstance(WebServicesService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.firmwareService = spy((FirmwareServiceImpl) injector.getInstance(FirmwareService.class));
             this.dataModel = firmwareService.getDataModel();
@@ -213,6 +218,7 @@ public class InMemoryPersistence {
         this.thesaurus = mock(Thesaurus.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         when(this.principal.getName()).thenReturn(testName);
+        this.httpService = mock(HttpService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -241,7 +247,7 @@ public class InMemoryPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(HttpService.class).toInstance(httpService);
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
