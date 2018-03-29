@@ -80,7 +80,7 @@ public interface CollectedDataFactory {
 
     CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents);
 
-    CollectedDeviceInfo createDeviceIpAddress(DeviceIdentifier deviceIdentifier, String ipAddress, String connectionTaskPropertyName);
+    CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object connectionPropertyValue, String connectionTaskPropertyName);
 
     CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgement(MessageIdentifier messageIdentifier);
 
