@@ -61,6 +61,8 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -176,8 +178,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mockSearchService());
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -240,6 +242,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             throw new RuntimeException(e);
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             getMeteringService();
             getDataAggregationService();
             ctx.commit();
@@ -345,14 +349,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     *    requirements:
-     *       T ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily °C) ::= T + 10
+     * requirements:
+     * T ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily °C) ::= T + 10
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min K
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -400,15 +404,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
@@ -433,14 +437,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     *    requirements:
-     *       T ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily °F) ::= T + 10
+     * requirements:
+     * T ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily °F) ::= T + 10
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min K
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -489,15 +493,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
@@ -522,16 +526,16 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion to K
      * Metrology configuration
-     *    requirements:
-     *       minT ::= any temperature (15m)
-     *       maxT ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily K) ::= (minT + maxT) / 2
+     * requirements:
+     * minT ::= any temperature (15m)
+     * maxT ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily K) ::= (minT + maxT) / 2
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           minT -> 15 min °C
-     *           maxT -> 15 min °F
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * minT -> 15 min °C
+     * maxT -> 15 min °F
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -590,21 +594,21 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(minTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(maxTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*FROM.*\\(SELECT -1 as id, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*\\) realrod" + deliverableId + "_1.*");
@@ -676,5 +680,4 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
-
 }

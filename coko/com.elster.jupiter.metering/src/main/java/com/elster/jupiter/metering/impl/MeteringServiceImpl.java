@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
@@ -75,6 +76,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -271,6 +273,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<EndDevice> findEndDeviceByName(String name) {
         return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public List<EndDevice> findEndDevices(Set<String> ids) {
+        List<String> identifiers = ids.stream().collect(Collectors.toList());
+        return dataModel.mapper(EndDevice.class).select(Where.where("mRID").in(identifiers).or(Where.where("name").in(identifiers)));
     }
 
     @Override

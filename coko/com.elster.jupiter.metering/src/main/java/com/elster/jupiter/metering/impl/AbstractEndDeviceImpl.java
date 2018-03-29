@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Location;

@@ -6,9 +6,11 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
@@ -27,12 +29,14 @@ import java.util.Optional;
 final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
 
     private final UserService userService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @IsPresent
     private Reference<EndDevice> endDevice = ValueReference.absent();
     @IsPresent
     private Reference<State> state = ValueReference.absent();
     private Interval interval;
+    private String originatorName;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -43,15 +47,17 @@ final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
     private String userName;
 
     @Inject
-    public EndDeviceLifeCycleStatusImpl(UserService userService) {
+    public EndDeviceLifeCycleStatusImpl(UserService userService, ThreadPrincipalService threadPrincipalService) {
         super();
         this.userService = userService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     EndDeviceLifeCycleStatusImpl initialize(Interval interval, EndDevice endDevice, State state) {
         this.endDevice.set(Objects.requireNonNull(endDevice));
         this.state.set(state);
         this.interval = Objects.requireNonNull(interval);
+        this.originatorName = ((User) threadPrincipalService.getPrincipal()).getName();
         return this;
     }
 
@@ -68,6 +74,11 @@ final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
     @Override
     public Optional<User> getUser() {
         return this.userService.findUser(this.userName);
+    }
+
+    @Override
+    public Optional<User> getOriginator() {
+        return this.userService.findUser(this.originatorName);
     }
 
     @Override
