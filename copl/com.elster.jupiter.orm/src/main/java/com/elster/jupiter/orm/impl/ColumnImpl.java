@@ -69,7 +69,8 @@ public class ColumnImpl implements Column {
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
     private transient RangeSet<Version> versionsIntersectedWithTable;
     private transient ColumnImpl predecessor;
-    private Boolean isForeignKeyPart = null;
+    private transient Boolean isForeignKeyPart;
+    private transient ForeignKeyConstraintImpl foreignKey;
 
     // associations
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -359,7 +360,7 @@ public class ColumnImpl implements Column {
         if (fieldName != null) {
             return getTable().getMapperType().getType(fieldName);
         }
-        ForeignKeyConstraintImpl constraint = getForeignKeyConstraint();
+        ForeignKeyConstraintImpl constraint = getForeignKeyConstraint().get();
         int index = constraint.getColumns().indexOf(this);
         ColumnImpl primaryKeyColumn = constraint.getReferencedTable().getPrimaryKeyColumns().get(index);
         return primaryKeyColumn.getType();
@@ -427,18 +428,27 @@ public class ColumnImpl implements Column {
 
     boolean isForeignKeyPart() {
         if (isForeignKeyPart == null) {
-            isForeignKeyPart = getForeignKeyConstraint() != null;
+            initForeignKeyConstraint();
         }
         return isForeignKeyPart;
     }
 
-    private ForeignKeyConstraintImpl getForeignKeyConstraint() {
-        return this.getTable()
+    @Override
+    public Optional<ForeignKeyConstraintImpl> getForeignKeyConstraint() {
+        if (isForeignKeyPart == null) {
+            initForeignKeyConstraint();
+        }
+        return Optional.ofNullable(foreignKey);
+    }
+
+    private void initForeignKeyConstraint() {
+        foreignKey = this.getTable()
                 .getForeignKeyConstraints()
                 .stream()
                 .filter(this::containsSelf)
-                .findFirst()
+                .findAny()
                 .orElse(null);
+        isForeignKeyPart = foreignKey != null;
     }
 
     private boolean containsSelf(ForeignKeyConstraintImpl constraint) {
@@ -460,7 +470,7 @@ public class ColumnImpl implements Column {
         } else if (fieldName != null) {
             return getDomainMapper().get(target, fieldName);
         } else {
-            return getForeignKeyConstraint().domainValue(this, target);
+            return getForeignKeyConstraint().get().domainValue(this, target);
         }
     }
 
