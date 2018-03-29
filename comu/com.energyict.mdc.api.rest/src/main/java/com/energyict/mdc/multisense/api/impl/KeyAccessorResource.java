@@ -64,7 +64,7 @@ public class KeyAccessorResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<KeyAccessorInfo> getKeyAccessors(@PathParam("mrid") String mrid, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
 
         List<KeyAccessorInfo> infos = device.getSecurityAccessors().stream()
                 .sorted(Comparator.comparing(accessor -> accessor.getKeyAccessorType().getName()))
@@ -93,16 +93,19 @@ public class KeyAccessorResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public KeyAccessorInfo getKeyAccessor(@PathParam("mrid") String mrid, @PathParam("keyAccessorName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessor securityAccessor = getKeyAccessor(name, device);
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor securityAccessor = getSecurityAccessor(name, device);
         return keyAccessorInfoFactory.from(securityAccessor, uriInfo, fieldSelection.getFields());
     }
 
-    private SecurityAccessor getKeyAccessor(String name, Device device) {
-        return device.getSecurityAccessors().stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name)).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+    private SecurityAccessor getSecurityAccessor(String name, Device device) {
+        return device.getSecurityAccessors().stream()
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name))
+                .findAny()
+                .orElseThrow(() -> device.getDeviceType().getSecurityAccessorTypes().stream().anyMatch(sat -> sat.getName().equals(name)) ?
+                        exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE) :
+                        exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
-
 
     /**
      * List the fields available on this type of entity.

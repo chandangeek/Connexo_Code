@@ -23,6 +23,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.ConstraintViolationInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.RestExceptionMapper;
@@ -105,6 +106,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
+    private volatile SecurityManagementService securityManagementService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -144,7 +146,8 @@ public class PublicRestApplication extends Application implements TranslationKey
                 ConfigurationKeyAccessorTypeResource.class,
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class,
-                ConnectionFunctionResource.class
+                ConnectionFunctionResource.class,
+                CertificateWrapperResource.class
         );
     }
 
@@ -306,6 +309,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -358,6 +366,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
@@ -404,6 +413,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(DeviceAlarmShortInfoFactory.class).to(DeviceAlarmShortInfoFactory.class);
             bind(ConnectionFunctionInfoFactory.class).to(ConnectionFunctionInfoFactory.class);
+            bind(CertificateWrapperInfoFactory.class).to(CertificateWrapperInfoFactory.class);
         }
     }
 
