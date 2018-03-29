@@ -14,13 +14,15 @@ Ext.define('Apr.controller.TaskManagement', {
     ],
     stores: [
         'Apr.store.Tasks',
-        'Apr.store.QueuesByApplication'
+        'Apr.store.QueuesByApplication',
+        'Apr.store.CustomTaskTypes'
     ],
     models: [
         'Apr.model.Task',
         'Apr.model.Queue',
         'Apr.model.TaskInfo',
-        'Apr.model.Triggers'
+        'Apr.model.Triggers',
+        'Apr.model.CustomTaskType'
     ],
     refs: [
         {
@@ -68,12 +70,12 @@ Ext.define('Apr.controller.TaskManagement', {
             queuesStore = me.getStore('Apr.store.QueuesByApplication');
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
-            widget = Ext.widget('task-management-setup', {
-                applicationKey: me.applicationKey,
-                addTaskRoute: me.addTaskRoute,
-                queuesStore: queuesStore,
-                router: me.getController('Uni.controller.history.Router')
-            });
+        widget = Ext.widget('task-management-setup', {
+            applicationKey: me.applicationKey,
+            addTaskRoute: me.addTaskRoute,
+            queuesStore: queuesStore,
+            router: me.getController('Uni.controller.history.Router')
+        });
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -181,6 +183,9 @@ Ext.define('Apr.controller.TaskManagement', {
     },
 
     getTypesStore: function () {
+        var me = this,
+            customTaskTypes = me.getStore('Apr.store.CustomTaskTypes');
+
         var apps = Apr.TaskManagementApp.getTaskManagementApps(),
             data = [];
 
@@ -214,8 +219,6 @@ Ext.define('Apr.controller.TaskManagement', {
             me.getAddPage().down('#task-management-attributes').add(form);
             Ext.resumeLayouts(true);
         });
-        //me.getAddPage().down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(newValue).controller.getTaskForm());
-        //Ext.resumeLayouts(true);
     },
 
     addTask: function (button) {
@@ -251,14 +254,8 @@ Ext.define('Apr.controller.TaskManagement', {
             view.down('#task-management-attributes').add(form);
             me.getApplication().fireEvent('changecontentevent', view);
             taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
-            me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
+                me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
         });
-
-        //view.down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm());
-
-        //me.getApplication().fireEvent('changecontentevent', view);
-        //taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
-        //    me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
     },
 
     editSetTitle: function (taskName) {
@@ -357,6 +354,11 @@ Ext.define('Apr.controller.TaskManagement', {
         var me = this,
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
 
+        if (!taskManagement && Apr.TaskManagementApp.dependencesCounter != 0) {
+            var route = me.getController('Uni.controller.history.Router');
+            window.location.replace(route.getRoute().buildUrl(route.arguments));
+            return;
+        }
         me.getModel('Apr.model.Task').load(taskManagementId, {
             success: function (record) {
                 taskManagement.controller.detailRoute = 'administration/taskmanagement/view';

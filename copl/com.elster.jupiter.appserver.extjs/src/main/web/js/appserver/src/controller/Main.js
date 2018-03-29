@@ -29,10 +29,10 @@ Ext.define('Apr.controller.Main', {
     },
 
     /**
-     * Forces history registration.
+     * Forces registration.
      */
     initHistorians: function () {
-        var historian = this.getController('Apr.controller.history.AppServer');
+        this.getController('Apr.controller.history.AppServer');
     },
 
     initMenu: function () {

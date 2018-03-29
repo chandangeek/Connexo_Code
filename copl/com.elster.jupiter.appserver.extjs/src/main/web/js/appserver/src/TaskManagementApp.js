@@ -9,9 +9,15 @@ Ext.define('Apr.TaskManagementApp', {
     ],
 
     applications: new Ext.util.HashMap,
+    customTaskTypes: null,
+    dependencesCounter: 0,
 
     addTaskManagementApp: function (name, application) {
         this.applications.add(name, application);
+    },
+
+    setCustomTasksTypes: function (records) {
+        this.customTaskTypes = records;
     },
 
     getTaskManagementApps: function () {
@@ -19,13 +25,25 @@ Ext.define('Apr.TaskManagementApp', {
     },
 
     canAdministrate: function () {
-        var me = this,
-            canAdmin = false;
+        var canAdmin = false;
 
-        me.getTaskManagementApps().each(function (key, value, length) {
+        this.getTaskManagementApps().each(function (key, value, length) {
             canAdmin |= value.controller && value.controller.canAdministrate();
         });
         return canAdmin;
+    },
+
+    increaseDependency: function (taskType) {
+        this.dependencesCounter++;
+    },
+
+    reduceDependency: function (taskType) {
+        this.dependencesCounter--;
+    },
+
+    dependenciesLoaded: function () {
+        return this.dependencesCounter === 0;
     }
+
 
 });
