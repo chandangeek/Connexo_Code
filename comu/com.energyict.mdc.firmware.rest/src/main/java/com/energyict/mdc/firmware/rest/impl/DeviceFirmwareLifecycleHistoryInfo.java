@@ -7,7 +7,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -18,6 +17,7 @@ import java.time.Instant;
 public class DeviceFirmwareLifecycleHistoryInfo {
 
     private String firmwareVersion;
+    private String imageIdentifier;
     private String triggerdBy;
     private Instant uploadedOn;
     private Instant activationDate;
@@ -35,6 +35,14 @@ public class DeviceFirmwareLifecycleHistoryInfo {
 
     public void setFirmwareVersion(String firmwareVersion) {
         this.firmwareVersion = firmwareVersion;
+    }
+
+    public String getImageIdentifier() {
+        return imageIdentifier;
+    }
+
+    public void setImageIdentifier(String imageIdentifier) {
+        this.imageIdentifier = imageIdentifier;
     }
 
     public String getTriggerdBy() {
@@ -82,6 +90,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
         this.setTriggerdBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
+        this.setImageIdentifier(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getImageIdentifier).orElse(null));
         this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(null));
         this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }

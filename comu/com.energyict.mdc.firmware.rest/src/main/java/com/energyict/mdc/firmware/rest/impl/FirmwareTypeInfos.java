@@ -21,5 +21,8 @@ public class FirmwareTypeInfos {
         if (deviceType.getDeviceProtocolPluggableClass().isPresent() && deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
             this.firmwareTypes.add(new FirmwareTypeInfo(FirmwareType.COMMUNICATION, thesaurus));
         }
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent() && deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCaConfigImageVersion()) {
+            this.firmwareTypes.add(new FirmwareTypeInfo(FirmwareType.CA_CONFIG_IMAGE, thesaurus));
+        }
     }
 }

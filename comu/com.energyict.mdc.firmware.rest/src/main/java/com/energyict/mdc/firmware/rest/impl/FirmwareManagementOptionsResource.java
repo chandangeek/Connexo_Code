@@ -66,6 +66,8 @@ public class FirmwareManagementOptionsResource {
 
         firmwareManagementOptionsInfo.isAllowed = !allowedMgtOptions.isEmpty();
         firmwareManagementOptionsInfo.version = firmwareMgyOptions.map(FirmwareManagementOptions::getVersion).orElse(0L);
+        deviceType.getDeviceProtocolPluggableClass()
+                .ifPresent(deviceProtocolPluggableClass -> firmwareManagementOptionsInfo.validateFirmwareFileSignature = deviceProtocolPluggableClass.getDeviceProtocol().firmwareSignatureCheckSupported());
 
         return firmwareManagementOptionsInfo;
     }

@@ -59,6 +59,14 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
         </dependency>
@@ -113,6 +121,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.protocol.pluggable</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
         </dependency>
 
         <dependency>
@@ -213,11 +225,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
             <scope>test</scope>
         </dependency>
@@ -249,11 +256,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>pki</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
