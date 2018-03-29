@@ -58,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
                 view.down('#change-usage-point-life-cycle-combo').getStore().load({
                     callback: function () {
                         view.down('#change-usage-point-life-cycle-combo').getStore().filterBy(function (rec) {
-                            return rec.get('id') != usagePoint.get('lifeCycle');
+                            return rec.get('id') != usagePoint.get('lifeCycle').id;
                         });
                         view.setLoading(false);
                     }

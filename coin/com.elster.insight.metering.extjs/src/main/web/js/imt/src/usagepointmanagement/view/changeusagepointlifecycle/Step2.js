@@ -36,7 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Step2', {
             me.update('<h3>' + Uni.I18n.translate('usagePointLifeCycle.change.successMsg', 'IMT', 'Successfully changed usage point life cycle') + '</h3>');
         } else {
 
-            me.down('#change-usage-point-life-cycle-failed').setText('<h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg1', 'IMT', 'Cannot change life cycle.') + '</h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg2', 'IMT', 'The life cycle \'{0}\' doesn\'t contain the actual state \'{1}\'.', [result.newUsagePointLifeCycle, result.usagePointState], false));
+            me.down('#change-usage-point-life-cycle-failed').setText('<h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg1', 'IMT', 'Cannot change life cycle.') + '</h3>' + Uni.I18n.translate('usagePointLifeCycle.change.errorMsg2', 'IMT', 'The life cycle \'{0}\' doesn\'t contain the current state \'{1}\'.', [result.newUsagePointLifeCycle, result.usagePointState], false));
             me.down('#change-usage-point-life-cycle-failed').show();
         }
     }
