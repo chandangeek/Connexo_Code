@@ -26,6 +26,7 @@ public class ThreadSecurityModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ThreadPrincipalService.class).toInstance(service);
+
     }
 
 }
