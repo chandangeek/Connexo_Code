@@ -19,6 +19,7 @@
     <properties>
         <apache.cxf.version>3.1.6</apache.cxf.version>
         <bouncycastle.version>1.56</bouncycastle.version>
+        <ejbcabundle.version>1.0.0</ejbcabundle.version>
         <!--<apache.cxf.version>2.7.18</apache.cxf.version>-->
     </properties>
 
@@ -441,6 +442,13 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+            <!--  EJBCA library dependencies -->
+            <dependency>
+                <groupId>org.ejbca</groupId>
+                <artifactId>ejbca-elster-bundle</artifactId>
+                <version>${ejbcabundle.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
