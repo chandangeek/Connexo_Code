@@ -183,6 +183,29 @@ class UsagePointBuilder {
         return result;
     }
 
+    public void updateUsagePointLifeCycle(com.elster.jupiter.metering.UsagePoint usagePoint, UsagePoint usagePointConfig) throws
+            FaultMessage {
+
+        String newLifeCycleName = retrieveOptionalLifeCycle(usagePointConfig);
+        if (newLifeCycleName != null) {
+
+            if (meteringService.findUsagePointLifeCycle(newLifeCycleName) == null) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.LIFE_CYCLE_NOT_FOUND, newLifeCycleName).get();
+            }
+            UsagePointLifeCycle newLifeCycle = meteringService.findUsagePointLifeCycle(newLifeCycleName);
+            String usagePointStateName = usagePoint.getState()
+                    .getName();
+            newLifeCycle.getStates()
+                    .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
+                    .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.NO_STATE_FOUND_IN_LIFE_CYCLE, newLifeCycle.getName(), usagePointStateName));
+            usagePoint.setLifeCycle(newLifeCycleName);
+            usagePoint.update();
+        }
+
+    }
+
     private com.elster.jupiter.metering.UsagePoint get() throws FaultMessage {
         return findUsagePoint(usagePointConfig);
     }

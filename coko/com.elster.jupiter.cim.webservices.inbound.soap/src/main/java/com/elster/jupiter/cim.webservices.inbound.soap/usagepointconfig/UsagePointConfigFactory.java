@@ -4,9 +4,7 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
-import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.ConnectionState;
-import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
@@ -71,7 +69,7 @@ class UsagePointConfigFactory {
         serviceCategory.setKind(serviceKind);
         info.setServiceCategory(serviceCategory);
 
-        if (serviceKind == ServiceKind.ELECTRICITY) {
+        /*if (serviceKind == ServiceKind.ELECTRICITY) {
             usagePoint.getDetail(clock.instant())
                     .filter(ElectricityDetail.class::isInstance)
                     .map(ElectricityDetail.class::cast)
@@ -81,7 +79,7 @@ class UsagePointConfigFactory {
                     .map(PhaseCode::getValue)
                     .map(ch.iec.tc57._2011.usagepointconfig.PhaseCode::fromValue)
                     .ifPresent(info::setPhaseCode);
-        }
+        }*/
 
         info.setIsSdp(usagePoint.isSdp());
         info.setIsVirtual(usagePoint.isVirtual());
