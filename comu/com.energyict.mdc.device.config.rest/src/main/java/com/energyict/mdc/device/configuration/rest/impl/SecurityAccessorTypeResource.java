@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -21,6 +22,7 @@ import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
@@ -46,6 +48,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -151,6 +154,17 @@ public class SecurityAccessorTypeResource {
 
     @GET
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/purposes")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public List<IdWithNameInfo> getPurposes() {
+        return Arrays.stream(SecurityAccessorType.Purpose.values())
+                .map(keyFunctionTypeInfoFactory::purposeToInfo)
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Transactional
     @Path("/certificates/aliases")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
@@ -158,6 +172,7 @@ public class SecurityAccessorTypeResource {
         List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilterFactory.from(uriInfo))
                 .from(queryParameters)
                 .stream()
+                .filter(certificateWrapper -> certificateWrapper.getWrapperStatus() != CertificateWrapperStatus.REVOKED)
                 .map(CertificateWrapper::getAlias)
                 .map(AliasInfo::new)
                 .collect(toList());
@@ -193,10 +208,14 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.keyType == null || securityAccessorTypeInfo.keyType.name == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyType");
         }
+        if (securityAccessorTypeInfo.purpose == null || securityAccessorTypeInfo.purpose.id == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "purpose");
+        }
         KeyType keyType = securityManagementService.getKeyType(securityAccessorTypeInfo.keyType.name)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorTypeInfo.keyType.name));
         Builder keyFunctionTypeBuilder = securityManagementService.addSecurityAccessorType(securityAccessorTypeInfo.name, keyType)
                 .keyEncryptionMethod(securityAccessorTypeInfo.storageMethod)
+                .purpose(keyFunctionTypeInfoFactory.purposeFromInfo(securityAccessorTypeInfo.purpose))
                 .description(securityAccessorTypeInfo.description);
         if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
             TrustStore trustStore = securityManagementService.findTrustStore(securityAccessorTypeInfo.trustStoreId)

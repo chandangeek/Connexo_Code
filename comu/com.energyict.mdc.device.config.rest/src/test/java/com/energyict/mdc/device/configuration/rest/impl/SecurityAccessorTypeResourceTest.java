@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
@@ -22,6 +24,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
@@ -30,6 +33,7 @@ import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTrans
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import javax.ws.rs.client.Entity;
@@ -46,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -190,16 +195,14 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.storageMethod = "SSM";
         info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
 
-        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(keyAccessorType, SecurityAccessorType.Builder.class);
         when(securityManagementService.addSecurityAccessorType(NAME_X, keyType)).thenReturn(builder);
-        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
-        when(builder.description(anyString())).thenReturn(builder);
-        when(builder.add()).thenReturn(keyAccessorType);
 
         info.keyType = new KeyTypeInfo();
         info.keyType.id = 1;
         info.keyType.name = KEY_TYPE_NAME;
         info.keyType.requiresDuration = true;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
 
         Response response = target("/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -207,6 +210,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(builder).description(DESCRIPTION_X);
         verify(builder).duration(info.duration.asTimeDuration());
         verify(builder).keyEncryptionMethod("SSM");
+        verify(builder).purpose(SecurityAccessorType.Purpose.COMMUNICATION);
         verify(builder, never()).trustStore(any(TrustStore.class));
         verify(builder).add();
         verify(builder, never()).managedCentrally();
@@ -220,18 +224,15 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.name = NAME_W;
         info.storageMethod = "SSM";
 
-        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(certificateAccessorType, SecurityAccessorType.Builder.class);
         when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
-        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
-        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
-        when(builder.description(anyString())).thenReturn(builder);
-        when(builder.add()).thenReturn(certificateAccessorType);
 
         info.trustStoreId = 33;
         info.keyType = new KeyTypeInfo();
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
 
         Response response = target("/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -239,6 +240,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(builder).description(DESCRIPTION_W);
         verify(builder).duration(null);
         verify(builder).keyEncryptionMethod("SSM");
+        verify(builder).purpose(SecurityAccessorType.Purpose.COMMUNICATION);
         verify(builder).trustStore(trustStore);
         verify(builder).add();
         verify(builder, never()).managedCentrally();
@@ -253,6 +255,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(model.<String>get("$.keyType.name")).isEqualTo(CERTIFICATE_TYPE_NAME);
         assertThat(model.<Boolean>get("$.keyType.requiresDuration")).isFalse();
         assertThat(model.<Number>get("$.duration")).isNull();
+        assertThat(model.<String>get("$.purpose.id")).isEqualTo("COMMUNICATION");
+        assertThat(model.<String>get("$.purpose.name")).isEqualTo("Communication");
         assertThat(model.<Object>get("$.defaultValue")).isNull();
     }
 
@@ -493,12 +497,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.name = NAME_W;
         info.storageMethod = "SSM";
 
-        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(certificateAccessorType, SecurityAccessorType.Builder.class);
         when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
-        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
-        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
-        when(builder.description(anyString())).thenReturn(builder);
-        when(builder.add()).thenReturn(certificateAccessorType);
         when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
                 .thenReturn(certificateAccessor);
 
@@ -507,6 +507,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
 
         info.defaultValue = createDefaultValue(null, "comserver", null);
 
@@ -542,12 +543,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.name = NAME_W;
         info.storageMethod = "SSM";
 
-        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(certificateAccessorType, SecurityAccessorType.Builder.class);
         when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
-        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
-        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
-        when(builder.description(anyString())).thenReturn(builder);
-        when(builder.add()).thenReturn(certificateAccessorType);
         when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
                 .thenReturn(certificateAccessor);
         when(certificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
@@ -557,6 +554,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
 
         info.defaultValue = createDefaultValue(null, "comserver", "newcomserver");
 
@@ -594,12 +592,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.name = NAME_W;
         info.storageMethod = "SSM";
 
-        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(certificateAccessorType, SecurityAccessorType.Builder.class);
         when(securityManagementService.addSecurityAccessorType(NAME_W, certificateType)).thenReturn(builder);
-        when(builder.trustStore(any(TrustStore.class))).thenReturn(builder);
-        when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
-        when(builder.description(anyString())).thenReturn(builder);
-        when(builder.add()).thenReturn(certificateAccessorType);
         when(securityManagementService.setDefaultValues(eq(certificateAccessorType), any(CertificateWrapper.class), any(CertificateWrapper.class)))
                 .thenReturn(certificateAccessor);
 
@@ -608,6 +602,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
 
         info.defaultValue = createDefaultValue(null, null, "newcomserver");
 
@@ -1018,6 +1013,35 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
     }
 
     @Test
+    public void testAliasSource() throws Exception {
+        CertificateWrapper cert1 = mock(CertificateWrapper.class);
+        CertificateWrapper cert2 = mock(CertificateWrapper.class);
+        CertificateWrapper cert3 = mock(CertificateWrapper.class);
+
+        when(cert1.getWrapperStatus()).thenReturn(CertificateWrapperStatus.NATIVE);
+        when(cert2.getWrapperStatus()).thenReturn(CertificateWrapperStatus.OBSOLETE);
+        when(cert3.getWrapperStatus()).thenReturn(CertificateWrapperStatus.REVOKED);
+        when(cert1.getAlias()).thenReturn("al1");
+        when(cert2.getAlias()).thenReturn("al2");
+        when(cert3.getAlias()).thenReturn("al3");
+
+        Finder<CertificateWrapper> finder = mockFinder(Arrays.asList(cert1, cert2, cert3));
+        when(securityManagementService.getAliasesByFilter(any(SecurityManagementService.AliasSearchFilter.class)))
+                .thenReturn(finder);
+
+        Response response = target("/securityaccessors/certificates/aliases").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        List<String> aliases = model.<JSONArray>get("aliases").stream()
+                .map(o -> (String)(((JSONObject) o).get("alias")))
+                .sorted()
+                .collect(Collectors.toList());
+
+        assertThat(aliases).hasSize(2).contains("al1", "al2");
+    }
+
+    @Test
     public void testDeleteWithDefaultValuesFailed() throws IOException {
         when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(certificateAccessorType));
         when(certificateAccessorType.isManagedCentrally()).thenReturn(true);
@@ -1081,6 +1105,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getVersion()).thenReturn(version);
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
         when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("SSM");
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
         when(securityAccessorType.getKeyType()).thenReturn(keyType);
         TimeDuration validityPeriod = TimeDuration.months(2);
         when(securityAccessorType.getDuration()).thenReturn(Optional.of(validityPeriod));
@@ -1098,6 +1123,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.of(trustStore));
         when(securityAccessorType.getKeyType()).thenReturn(certificateType);
         when(securityAccessorType.getDuration()).thenReturn(Optional.empty());
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
         return securityAccessorType;
     }
 

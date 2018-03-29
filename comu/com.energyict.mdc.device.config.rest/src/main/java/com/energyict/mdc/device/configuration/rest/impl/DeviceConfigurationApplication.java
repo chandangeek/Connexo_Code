@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -37,7 +38,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
-import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -223,7 +223,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
         this.thesaurus = this.thesaurus.join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST));
+                .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST))
+                // for com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation
+                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
