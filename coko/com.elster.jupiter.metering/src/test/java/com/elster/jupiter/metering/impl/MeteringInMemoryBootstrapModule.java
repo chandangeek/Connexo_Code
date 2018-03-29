@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -36,8 +37,8 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -55,6 +56,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -141,6 +143,7 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new SearchModule());
         modules.add(new TaskModule());
         modules.add(new UsagePointLifeCycleConfigurationModule());
+        modules.add(new WebServicesModule());
         if (this.customPropertySetService == null) {
             modules.add(new CustomPropertySetsModule());
         }
@@ -245,6 +248,7 @@ public class MeteringInMemoryBootstrapModule {
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
