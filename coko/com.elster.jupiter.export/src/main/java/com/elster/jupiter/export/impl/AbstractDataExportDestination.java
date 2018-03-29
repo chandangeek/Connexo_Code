@@ -11,6 +11,7 @@ import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
+import com.elster.jupiter.export.SftpDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -33,7 +34,8 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
             FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class,
             EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class,
             FtpDestination.TYPE_IDENTIFIER, FtpDestinationImpl.class,
-            FtpsDestination.TYPE_IDENTIFIER, FtpsDestinationImpl.class
+            FtpsDestination.TYPE_IDENTIFIER, FtpsDestinationImpl.class,
+            SftpDestination.TYPE_IDENTIFIER, SftpDestinationImpl.class
     );
 
     private long id;
