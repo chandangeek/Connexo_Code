@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -20,10 +22,12 @@ import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
+import com.elster.jupiter.users.UserDirectory;
 
 import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -126,6 +130,14 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .since(Version.version(10, 4))
                     .add();
+            table.column("STATUS")
+                    .varChar(Table.NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .notNull()
+                    .installValue("'" + CertificateWrapperStatus.NATIVE.name() + "'")
+                    .map(AbstractCertificateWrapperImpl.Fields.WRAPPER_STATUS.fieldName())
+                    .since(Version.version(10, 4, 1))
+                    .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();
@@ -180,6 +192,46 @@ public enum TableSpecs {
                     .references(KeyTypeImpl.class)
 //                    .composition() // Due to bug CXO-5905
                     .map(KeypairWrapperImpl.Fields.KEY_TYPE.fieldName())
+                    .add();
+
+        }
+    },
+
+    PKI_DIRECTORY_CERTIFICATE {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<DirectoryCertificateUsage> table = dataModel.addTable(this.name(), DirectoryCertificateUsage.class).since(Version.version(10,4));
+            table.map(DirectoryCertificateUsageImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column directory = table.column(DirectoryCertificateUsageImpl.Fields.DIRECTORY.name())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add();
+            Column certificate = table.column(DirectoryCertificateUsageImpl.Fields.CERTIFICATE.name())
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column truststore = table.column(DirectoryCertificateUsageImpl.Fields.TRUSTSTORE.name())
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            table.addAuditColumns();
+            table.primaryKey("PKI_PK_DIRECTORY_CERT").on(id).add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_DIR")
+                    .on(directory)
+                    .references(UserDirectory.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.DIRECTORY.fieldName())
+                    .add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_CERT")
+                    .on(certificate)
+                    .references(CertificateWrapper.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.CERTIFICATE.fieldName())
+                    .add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_TSTORE")
+                    .on(truststore)
+                    .references(TrustStore.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.TRUSTSTORE.fieldName())
                     .add();
 
         }
@@ -240,6 +292,15 @@ public enum TableSpecs {
                     .installValue("'N'")
                     .since(Version.version(10, 4))
                     .add();
+            table.column(SecurityAccessorTypeImpl.Fields.PURPOSE.name())
+                    .varChar(30)
+                    .conversion(CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
+                    .notNull()
+                    .since(Version.version(10, 4, 1))
+                    .installValue("'" + SecurityAccessorType.Purpose.COMMUNICATION.name() + "'")
+                    .add();
+
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     // need to reference some existent table here to pass orm checks,

@@ -4,11 +4,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.Expected;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -38,10 +38,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.time.TimeDuration;
 
 
-import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -90,6 +88,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -103,6 +102,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityManagementServiceImplIT {
 
@@ -112,7 +112,7 @@ public class SecurityManagementServiceImplIT {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
+    public ExpectedException expectedRule = ExpectedException.none();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
     private static CertificateFactory certificateFactory;
@@ -124,6 +124,7 @@ public class SecurityManagementServiceImplIT {
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
         Security.addProvider(new BouncyCastleProvider());
         certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
@@ -133,6 +134,7 @@ public class SecurityManagementServiceImplIT {
         ((SecurityManagementServiceImpl) securityManagementService).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).removeFileImporter(inMemoryPersistence.getCSRImporterFactory());
         inMemoryPersistence.deactivate();
     }
 
@@ -749,7 +751,6 @@ public class SecurityManagementServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s subject distinguished name does not match the CSR")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
@@ -775,12 +776,14 @@ public class SecurityManagementServiceImplIT {
         newName.addRDN(BCStyle.OU, "SmartEnergy");
 
         X509Certificate certificate = generateCertificateFromCSR(newName, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's subject distinguished name doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
@@ -801,12 +804,14 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's key usage extension doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s extended key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
@@ -827,12 +832,14 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's extended key usage extension doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate''s public key does not match the CSR")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = securityManagementService
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
@@ -855,6 +862,9 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build()); // NEW CSR !!
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, originalCSR.getSubjectPublicKeyInfo());
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The certificate's public key doesn't match the CSR.");
         clientCertificateWrapper.setCertificate(certificate); // Sets Certificate for original CSR, not most recent
     }
 
@@ -1210,28 +1220,6 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityValues.isEmpty()).isFalse();
     }
 
-    private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
-        // generate a key pair
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(4096, new SecureRandom());
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-        // build a certificate generator
-        X500Name dnName = new X500Name("cn=" + myself);
-        Date notBefore = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-        Date notAfter = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
-
-        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(AlgorithmIdentifier.getInstance("SHA256WithRSA"), keyPair
-                .getPublic()
-                .getEncoded());
-        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(dnName, BigInteger.TEN, notBefore, notAfter, dnName, subjectPublicKeyInfo);
-        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
-        X509Certificate certificate = new JcaX509CertificateConverter()
-                .setProvider("BC")
-                .getCertificate(certificateBuilder.build(contentSigner));
-        return certificate;
-    }
-
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
         return (X509Certificate) certificateFactory.generateCertificate(SecurityManagementServiceImplIT.class.getResourceAsStream(name));
     }
@@ -1361,6 +1349,30 @@ public class SecurityManagementServiceImplIT {
         assertEquals("myCert", certificates.get(0).getAlias());
     }
 
+    @Test
+    @Transactional
+    public void testChangeCertificateWrapperStatus() throws Exception {
+        cleanupCertificates();
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
+        String alias = "certAlias";
+
+        X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
+        CertificateWrapper wrapper = securityManagementService.newCertificateWrapper(alias);
+        wrapper.setCertificate(certificate);
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
+
+        wrapper.setWrapperStatus(CertificateWrapperStatus.OBSOLETE);
+        wrapper.save();
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.OBSOLETE.getKey());
+
+        wrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+        wrapper.save();
+
+        assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.REVOKED.getKey());
+    }
+
     private SecurityManagementService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {
         SecurityManagementService.DataSearchFilter filter = new SecurityManagementService.DataSearchFilter();
         filter.trustStore = trustStore;
@@ -1370,7 +1382,6 @@ public class SecurityManagementServiceImplIT {
         filter.keyUsages = Optional.empty();
         filter.intervalFrom = Optional.empty();
         filter.intervalTo = Optional.empty();
-
         return filter;
     }
 
@@ -1390,6 +1401,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
         securityManagementService.addSecurityAccessorType("addKeyAccessorType", aes128)
                 .keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .add();
@@ -1401,6 +1413,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityAccessorTypes.get(0).getDescription()).isEqualTo("general use AK");
         assertThat(securityAccessorTypes.get(0).getDuration()).contains(TimeDuration.days(365));
         assertThat(securityAccessorTypes.get(0).getKeyType().getName()).isEqualTo("AES128");
+        assertThat(securityAccessorTypes.get(0).getPurpose()).isSameAs(SecurityAccessorType.Purpose.COMMUNICATION);
     }
 
     @Test
@@ -1409,6 +1422,7 @@ public class SecurityManagementServiceImplIT {
     public void addKeyAccessorTypeWithoutKeyEncryptionMethod() throws Exception {
         KeyType aes256 = getOrCreateKeyType("AES256A", "AES", 256);
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithoutKeyEncryptionMethod", aes256)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .add();
@@ -1420,6 +1434,7 @@ public class SecurityManagementServiceImplIT {
     public void addKeyAccessorTypeWithoutDuration() throws Exception {
         KeyType aes256 = getOrCreateKeyType("AES256A", "AES", 256);
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithoutDuration", aes256)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("general use AK")
                 .keyEncryptionMethod("DataVault")
                 .add();
@@ -1432,11 +1447,13 @@ public class SecurityManagementServiceImplIT {
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithNonUniqueName", getOrCreateKeyType("AES256A", "AES", 256))
                 .description("general use AK")
                 .keyEncryptionMethod("DataVault")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .duration(TimeDuration.days(30))
                 .add();
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithNonUniqueName", getOrCreateKeyType("AES128A", "AES", 128))
                 .description("general")
                 .keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .duration(TimeDuration.days(365))
                 .add();
     }
@@ -1448,6 +1465,7 @@ public class SecurityManagementServiceImplIT {
         KeyType certs = securityManagementService.newCertificateType("Friends").add();
 
         securityManagementService.addSecurityAccessorType("addCertificateAccessorTypeMissingTrustStore", certs)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("just certificates")
                 .add();
     }
@@ -1461,6 +1479,7 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
         securityManagementService.addSecurityAccessorType("addCertificateAccessorType", certs)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("just certificates")
                 .trustStore(main)
                 .add();
@@ -1471,6 +1490,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(sat.getKeyType().getName()).isEqualTo("Fiends");
         assertThat(sat.getTrustStore().map(TrustStore::getName)).contains("MAIN");
         assertThat(sat.isManagedCentrally()).isFalse();
+        assertThat(sat.getPurpose()).isSameAs(SecurityAccessorType.Purpose.COMMUNICATION);
     }
 
     @Test
@@ -1480,6 +1500,7 @@ public class SecurityManagementServiceImplIT {
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("testRemoveKeyAccessorType", aes256)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .keyEncryptionMethod("DataVault")
                 .add();
 
@@ -1502,11 +1523,14 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.findSecurityAccessorTypeById(1)).isEmpty();
         assertThat(securityManagementService.findSecurityAccessorTypeByName("securityAccessorGetters")).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(1, 1)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
 
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("securityAccessorGetters", aes256)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .keyEncryptionMethod("DataVault")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .add();
 
         assertThat(securityManagementService.getSecurityAccessorTypes()).containsExactly(securityAccessorType);
@@ -1518,6 +1542,8 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.findSecurityAccessorTypeByName("securityAccessorGetter")).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(id + 1, securityAccessorType.getVersion())).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(id, securityAccessorType.getVersion() + 1)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.COMMUNICATION)).containsExactly(securityAccessorType);
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
     }
 
     @Test
@@ -1525,6 +1551,7 @@ public class SecurityManagementServiceImplIT {
     public void updateSecurityAccessorType() throws SQLException {
         KeyType aes128 = getOrCreateKeyType("AES128", "AES", 128);
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("updateSecurityAccessor", aes128)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))

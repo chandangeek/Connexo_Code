@@ -1,14 +1,12 @@
 package com.elster.jupiter.pki;
 
-import aQute.bnd.annotation.ProviderType;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -86,11 +84,18 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     long getVersion();
 
     /**
-     * Status describes the content of the wrapper. Currently 3 statuses are defined: Requested, Available and Expired
+     * Status describes the content of the wrapper.
      *
-     * @return CertificateWrapper status.
+     * @return Translated CertificateWrapper status.
      */
     String getStatus();
+
+    /**
+     * Returns the certificate status.
+     *
+     * @return {@link CertificateStatus}
+     */
+    Optional<CertificateStatus> getCertificateStatus();
 
     /**
      * Sets a value for the certificate. Any existing value will be overridden.
@@ -124,7 +129,6 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
      */
     Optional<Instant> getLastReadDate();
 
-
     String getSubject();
 
     void setSubject(String subject);
@@ -138,4 +142,12 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     String stringifyKeyUsages(Set<KeyUsage> keyUsages, Set<ExtendedKeyUsage> extendedKeyUsages);
 
     Optional<String> getStringifiedKeyUsages();
+
+    /**
+     * Set {@link CertificateWrapperStatus}, that will be used over X509Certificate statuses
+     * @param status to be set
+     */
+    void setWrapperStatus(CertificateWrapperStatus status);
+
+    CertificateWrapperStatus getWrapperStatus();
 }

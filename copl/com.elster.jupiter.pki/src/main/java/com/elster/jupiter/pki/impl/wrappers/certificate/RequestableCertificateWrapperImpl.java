@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.common.base.Joiner;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -26,13 +27,16 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class RequestableCertificateWrapperImpl extends AbstractCertificateWrapperImpl implements RequestableCertificateWrapper {
-
     private final Thesaurus thesaurus;
     private byte[] csr;
-
 
     @Inject
     public RequestableCertificateWrapperImpl(DataModel dataModel,
@@ -67,34 +71,43 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     }
 
     private void validateCertificateMatchesCsr(X509Certificate certificate) {
-        try {
-            if (getCSR().isPresent()) {
+        getCSR().ifPresent(csr -> {
+            try {
                 if (!Arrays.equals(certificate.getPublicKey().getEncoded(),
-                        getCSR().get().getSubjectPublicKeyInfo().getEncoded())) {
+                        csr.getSubjectPublicKeyInfo().getEncoded())) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
                 }
-                if (!new org.bouncycastle.asn1.x500.X500Name(certificate.getSubjectDN().getName()).equals(getCSR().get().getSubject())) {
+                if (!new org.bouncycastle.asn1.x500.X500Name(certificate.getSubjectDN().getName()).equals(csr.getSubject())) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_SUBJECT_DN_MISMATCH);
                 }
-                if (!getCertificateKeyUsages(certificate).containsAll(this.getCsrKeyUsages())
-                        || !this.getCsrKeyUsages().containsAll(getCertificateKeyUsages(certificate))) {
+                if (!getCertificateKeyUsages(certificate).containsAll(getCsrKeyUsages(csr))
+                        || !getCsrKeyUsages(csr).containsAll(getCertificateKeyUsages(certificate))) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_KEY_USAGE_MISMATCH);
                 }
-                if (!getCertificateExtendedKeyUsages(certificate).containsAll(this.getCsrExtendedKeyUsages(this.getCSR().get()))
-                        || !this.getCsrExtendedKeyUsages(this.getCSR().get()).containsAll(getCertificateExtendedKeyUsages(certificate))) {
+                if (!getCertificateExtendedKeyUsages(certificate).containsAll(this.getCsrExtendedKeyUsages(csr))
+                        || !this.getCsrExtendedKeyUsages(csr).containsAll(getCertificateExtendedKeyUsages(certificate))) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH);
                 }
-
+            } catch (IOException e) {
+                throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
             }
-        } catch (IOException e) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
-        }
+        });
     }
 
     @Override
         public void setCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) {
         try {
             doSetCSR(csr, keyUsages, extendedKeyUsages);
+        } catch (IOException e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
+        }
+    }
+
+    @Override
+    public void setCSR(byte[] encodedCsr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages) {
+        try {
+            PKCS10CertificationRequest csr = new PKCS10CertificationRequest(encodedCsr);
+            setCSR(csr, keyUsages, extendedKeyUsages);
         } catch (IOException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CSR_EXCEPTION, e);
         }
@@ -116,7 +129,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
         if (internalStatus.isPresent()) {
             return internalStatus;
         } else {
-            return this.getCSR().isPresent() ? Optional.of(TranslationKeys.REQUESTED) : Optional.empty();
+            return getCSR().map(csr -> TranslationKeys.REQUESTED);
         }
     }
 
@@ -150,7 +163,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     @Override
     public Set<ExtendedKeyUsage> getExtendedKeyUsages() {
-        if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
+        if (!getCertificate().isPresent() && getCSR().isPresent()) {
             EnumSet<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
             extendedKeyUsages.addAll(getCsrExtendedKeyUsages(getCSR().get()));
             return extendedKeyUsages;
@@ -174,15 +187,15 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     @Override
     public Set<KeyUsage> getKeyUsages() {
-        if (!this.getCertificate().isPresent() && this.getCSR().isPresent()) {
-            return getCsrKeyUsages();
+        if (!getCertificate().isPresent() && getCSR().isPresent()) {
+            return getCsrKeyUsages(getCSR().get());
         }
         return super.getKeyUsages();
     }
 
-    private Set<KeyUsage> getCsrKeyUsages() {
+    private static Set<KeyUsage> getCsrKeyUsages(PKCS10CertificationRequest csr) {
         EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
-        for (Attribute attribute : getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+        for (Attribute attribute : csr.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
             for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                 Extensions extensions = Extensions.getInstance(asn1Encodable);
                 Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);

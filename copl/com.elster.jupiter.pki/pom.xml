@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -45,17 +46,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
         </dependency>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap.h2</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
@@ -84,7 +74,24 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>ftpclient</artifactId>
+        </dependency>
 
+        <!--  Bouncy castle library dependencies  -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -94,6 +101,23 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <!--  EJBCA library dependencies -->
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-elster-bundle</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
@@ -106,16 +130,12 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging</artifactId>
+            <artifactId>devtools.persistence</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>pubsub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools.persistence</artifactId>
+            <artifactId>systemadmin</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

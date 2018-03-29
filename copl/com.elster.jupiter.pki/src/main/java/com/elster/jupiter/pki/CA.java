@@ -17,6 +17,7 @@ import java.util.Optional;
  * artificial @service-constraint to make sure the config is enabled before the custom implementation is activated.
  */
 @ConsumerType
+@Deprecated
 public interface CA {
     /**
      * Send a PKCS#10 CSR to the CA, using the parameters as defined in the SigningAuthority.
@@ -27,6 +28,7 @@ public interface CA {
      * @return A signed X509 certificate
      * @throws Exception if signing was refused or failed.
      */
+    @Deprecated
     Optional<X509Certificate> generateCertificate(SigningParameters signingAuthorithy, CertificationRequest pkcs10);
 
     /**
@@ -36,6 +38,7 @@ public interface CA {
      * may have been filled in, those can be used to identify the certificate in the CA.
      * @param reason Values are defined in org.bouncycastle.asn1.x509.CRLReason
      */
+    @Deprecated
     void revokeCertificate(CertificateSearchFilter certificateTemplate, int reason);
 
 
@@ -48,6 +51,7 @@ public interface CA {
      * @return If a unique certificate was identified by the searchFilter, returns the revocation reason if the certificate
      * was revoked, Optional.empty() otherwise.
      */
+    @Deprecated
     Optional<CRLReason> checkRevocationStatus(CertificateSearchFilter searchFilter);
 
     /**
@@ -57,6 +61,7 @@ public interface CA {
      * @return a collection of X509Certificates with CA certificate in pos 0, and possible higer-level CA in pos 1 and
      * upwards.
      */
+    @Deprecated
     List<X509Certificate> findCertificateChainByCa(String caName);
 
     /**
@@ -66,6 +71,7 @@ public interface CA {
      * @return a collection of X509Certificates with user certificate in pos 0, subCa at level 1 and possible higer-level
      * CA in pos 2 and upwards.
      */
+    @Deprecated
     List<X509Certificate> findCertificateChainByUser(String userName);
 
     /**
@@ -74,6 +80,7 @@ public interface CA {
      *
      * @return Certificate if any could be found, Optional.Empty otherwise.
      */
+    @Deprecated
     Optional<X509Certificate> findCertificate(CertificateSearchFilter certificateTemplate);
 
     /**
@@ -82,6 +89,7 @@ public interface CA {
      * @param caname the name in EJBCA of the CA that issued the desired CRL
      * @return the latest CRL issued for the CA
      */
+    @Deprecated
     Optional<X509CRL> getLatestCRL(String caname);
 
     /**
@@ -90,6 +98,7 @@ public interface CA {
      * @param caname the name in EJBCA of the CA that issued the desired CRL
      * @return the latest CRL issued for the CA
      */
+    @Deprecated
     Optional<X509CRL> getLatestDeltaCRL(String caname);
 }
 

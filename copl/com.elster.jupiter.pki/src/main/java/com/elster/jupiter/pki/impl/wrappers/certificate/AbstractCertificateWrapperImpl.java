@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateFormatter;
+import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -22,6 +24,8 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.conditions.Where;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
@@ -81,7 +85,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         ID("id"),
         SUBJECT("subject"),
         ISSUER("issuer"),
-        KEY_USAGES("keyUsagesCsv");
+        KEY_USAGES("keyUsagesCsv"),
+        WRAPPER_STATUS("wrapperStatus");
 
         private final String fieldName;
 
@@ -116,6 +121,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+    private CertificateWrapperStatus wrapperStatus;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -127,6 +133,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
         this.securityManagementService = securityManagementService;
+        this.wrapperStatus = CertificateWrapperStatus.NATIVE;
     }
 
     @Override
@@ -165,6 +172,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
     }
 
+    @Override
     public void setCertificate(X509Certificate certificate) {
         try {
             this.certificate = certificate.getEncoded();
@@ -192,23 +200,38 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         return getInternalStatus().map(tk -> thesaurus.getFormat(tk).format()).orElse("");
     }
 
+    @Override
+    public Optional<CertificateStatus> getCertificateStatus() {
+        return getInternalStatus()
+                .flatMap(CertificateStatus::getByTranslationKey);
+    }
+
     /**
      * Method can be implemented by sub-classes if they wish to override/extend status
      *
      * @return
      */
     protected Optional<TranslationKeys> getInternalStatus() {
-        if (this.getCertificate().isPresent()) {
-            try {
-                getCertificate().get().checkValidity();
-                return Optional.of(TranslationKeys.AVAILABLE);
-            } catch (CertificateExpiredException e) {
-                return Optional.of(TranslationKeys.EXPIRED);
-            } catch (CertificateNotYetValidException e) {
-                return Optional.of(TranslationKeys.AVAILABLE);
-            }
-        } else {
+        if (!getCertificate().isPresent()) {
             return Optional.empty();
+        }
+
+        if (getWrapperStatus() != null) {
+            switch (getWrapperStatus()) {
+                case REVOKED:
+                    return Optional.of(TranslationKeys.REVOKED);
+                case OBSOLETE:
+                    return Optional.of(TranslationKeys.OBSOLETE);
+            }
+        }
+
+        try {
+            getCertificate().get().checkValidity();
+            return Optional.of(TranslationKeys.AVAILABLE);
+        } catch (CertificateExpiredException e) {
+            return Optional.of(TranslationKeys.EXPIRED);
+        } catch (CertificateNotYetValidException e) {
+            return Optional.of(TranslationKeys.AVAILABLE);
         }
     }
 
@@ -280,7 +303,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public void delete() {
         if (securityManagementService.isUsedByCertificateAccessors(this)) {
-            throw new VetoDeleteCertificateException(thesaurus, this);
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
+        }
+        if (securityManagementService.streamDirectoryCertificateUsages()
+                .filter(Where.where("certificate").isEqualTo(this))
+                .findAny()
+                .isPresent()) {
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
         }
         this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
@@ -398,4 +427,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         return this.keyUsagesCsv;
     }
 
+    @Override
+    public void setWrapperStatus(CertificateWrapperStatus status) {
+        this.wrapperStatus = status;
+    }
+
+    @Override
+    public CertificateWrapperStatus getWrapperStatus() {
+        return wrapperStatus;
+    }
 }

@@ -1,67 +1,51 @@
 package com.elster.jupiter.pki.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.Never;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.OperatorCreationException;
-import sun.security.x509.AlgorithmId;
-import sun.security.x509.CertificateAlgorithmId;
-import sun.security.x509.CertificateIssuerName;
-import sun.security.x509.CertificateSerialNumber;
-import sun.security.x509.CertificateSubjectName;
-import sun.security.x509.CertificateValidity;
-import sun.security.x509.CertificateVersion;
-import sun.security.x509.CertificateX509Key;
-import sun.security.x509.X500Name;
-import sun.security.x509.X509CertImpl;
-import sun.security.x509.X509CertInfo;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.nio.file.FileSystems;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
-import java.security.SignatureException;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorResult;
 import java.security.cert.CertStore;
 import java.security.cert.CertStoreParameters;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TrustStoreImpl2IT {
@@ -69,9 +53,7 @@ public class TrustStoreImpl2IT {
     private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
 
     @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
+    public ExpectedException expectedRule = ExpectedException.none();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
     Pair<X509Certificate, PrivateKey> rootCertificate;
@@ -83,78 +65,67 @@ public class TrustStoreImpl2IT {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence.activate();
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Before
     public void setUp() throws Exception {
-        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
-        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
-        rootCertificate = generateSelfSignedCertificate("CN=ROOT");
-        subCa1 = generateCertificate("CN=SubCA1", "CN=ROOT", rootCertificate.getLast());
-        subCa2 = generateCertificate("CN=SubCA2", "CN=ROOT", rootCertificate.getLast());
-        subCa3 = generateCertificate("CN=SubCA3", "CN=ROOT", rootCertificate.getLast());
-        device = generateCertificate("CN=Device", "CN=SubCA2", subCa2.getLast());
-        Security.addProvider(new BouncyCastleProvider());
+        rootCertificate = SecurityTestUtils.generateSelfSignedCertificate("CN=ROOT");
+        subCa1 = SecurityTestUtils.generateCertificate("CN=SubCA1", "CN=ROOT", rootCertificate.getLast());
+        subCa2 = SecurityTestUtils.generateCertificate("CN=SubCA2", "CN=ROOT", rootCertificate.getLast());
+        subCa3 = SecurityTestUtils.generateCertificate("CN=SubCA3", "CN=ROOT", rootCertificate.getLast());
+        device = SecurityTestUtils.generateCertificate("CN=Device", "CN=SubCA2", subCa2.getLast());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() throws Exception {
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).removeFileImporter(inMemoryPersistence.getCSRImporterFactory());
+        inMemoryPersistence.deactivate();
     }
 
     @Test
     @Transactional
-    public void testBasicValidation() {
+    public void testBasicValidation() throws Exception {
         TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main1").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
         trustStore.addCertificate("SubCa1", subCa1.getFirst());
         trustStore.addCertificate("SubCa2", subCa2.getFirst());
         trustStore.addCertificate("SubCa3", subCa3.getFirst());
-        try {
-            trustStore.validate(device.getFirst());
-        } catch (Exception e) {
-            fail("Should have been valid");
-        }
+
+        // should be valid
+        trustStore.validate(device.getFirst());
     }
 
     @Test
     @Transactional
-    public void testValidationSelfSigned() {
+    public void testValidationSelfSigned() throws Exception {
         TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main3").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
-        try {
-            trustStore.validate(rootCertificate.getFirst());
-        } catch (Exception e) {
-            fail("Should have been valid");
-        }
+
+        // should be valid
+        trustStore.validate(rootCertificate.getFirst());
     }
 
     @Test
     @Transactional
-    public void testValidationMissingSubCa() throws
-            CertificateException,
-            NoSuchAlgorithmException,
-            OperatorCreationException,
-            SignatureException,
-            NoSuchProviderException,
-            InvalidKeyException,
-            IOException, InvalidAlgorithmParameterException {
+    public void testValidationMissingSubCa() throws Exception {
         TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main2").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
         trustStore.addCertificate("SubCa1", subCa1.getFirst());
         trustStore.addCertificate("SubCa2", subCa2.getFirst());
         trustStore.addCertificate("SubCa3", subCa3.getFirst());
-        Pair<X509Certificate, PrivateKey> subCa4 = generateCertificate("CN=SubCA4", "CN=ROOT", rootCertificate.getLast());
-        device = generateCertificate("CN=Device", "CN=SubCA4", subCa4.getLast());
-        try {
-            trustStore.validate(device.getFirst());
-            fail("Should have been invalid");
-        } catch (CertPathValidatorException e) {
-            // expected
-        }
+        Pair<X509Certificate, PrivateKey> subCa4 = SecurityTestUtils.generateCertificate("CN=SubCA4", "CN=ROOT", rootCertificate.getLast());
+        device = SecurityTestUtils.generateCertificate("CN=Device", "CN=SubCA4", subCa4.getLast());
+
+        expectedRule.expect(CertPathValidatorException.class);
+        trustStore.validate(device.getFirst());
     }
 
     @Test
@@ -182,88 +153,68 @@ public class TrustStoreImpl2IT {
         CertPathValidatorResult validate = validator.validate(path, pkixParameters);
     }
 
+    @Test
+    @Transactional
+    public void testRemoveUnusedTrustStore() {
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main2").add();
 
-    private Pair<X509Certificate, PrivateKey> generateSelfSignedCertificate(String cn) throws
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            OperatorCreationException, CertificateException, IOException, SignatureException, InvalidKeyException {
-        // generate a key pair
-        KeyPair keyPair = generateKeyPair();
-
-        // build a certificate generator
-        X509Certificate certificate = generateAndSignX509Certificate(cn, keyPair.getPublic(), cn, keyPair.getPrivate());
-        return Pair.of(certificate, keyPair.getPrivate());
-
+        trustStore.delete();
+        assertThat(inMemoryPersistence.getSecurityManagementService().findTrustStore("main2")).isEmpty();
     }
 
-    Pair<X509Certificate, PrivateKey> generateCertificate(String subjectDN, String issuerDN, PrivateKey privateKey) throws
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            OperatorCreationException, CertificateException, IOException, SignatureException, InvalidKeyException {
-        // generate a key pair
-        KeyPair keyPair = generateKeyPair();
+    @Test
+    @Transactional
+    public void testRemoveTrustStoreUsedByImporter() throws Exception {
+        TrustStore trustStore1 = inMemoryPersistence.getSecurityManagementService().newTrustStore("main")
+                .add();
+        TrustStore trustStore2 = inMemoryPersistence.getSecurityManagementService().newTrustStore("main2")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService().newCertificateType("Cert")
+                .add();
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("RSA-2048");
+        certificateWrapper.setCertificate(rootCertificate.getFirst());
+        SecurityAccessorType securityAccessorType = inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("SA", certificateType)
+                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .managedCentrally()
+                .trustStore(trustStore1)
+                .add();
+        SecurityAccessor<CertificateWrapper> securityAccessor = inMemoryPersistence.getSecurityManagementService().setDefaultValues(securityAccessorType, certificateWrapper, null);
+        inMemoryPersistence.getFileImportService().newBuilder()
+                .setName("main2Blocker")
+                .setPathMatcher("")
+                .setImportDirectory(FileSystems.getDefault().getPath("import"))
+                .setFailureDirectory(FileSystems.getDefault().getPath("failure"))
+                .setSuccessDirectory(FileSystems.getDefault().getPath("success"))
+                .setProcessingDirectory(FileSystems.getDefault().getPath("inProgress"))
+                .setImporterName(CSRImporterFactory.NAME)
+                .setActiveInUI(false)
+                .setScheduleExpression(Never.NEVER)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey()).withValue(trustStore2)
+                .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(30))
+                .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(securityAccessor)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .create();
 
-        // build a certificate generator
-        X509Certificate certificate = generateAndSignX509Certificate(issuerDN, keyPair.getPublic(), subjectDN, privateKey);
-        return Pair.of(certificate, keyPair.getPrivate());
-
+        expectedRule.expect(VetoDeleteTrustStoreException.class);
+        expectedRule.expectMessage("The trust store couldn't be removed because it is used on import services.");
+        trustStore2.delete();
     }
 
-//    private X509Certificate generateAndSignX509Certificate(String issuer, PublicKey publicKey, String subject, ContentSigner contentSigner) throws
-//            CertificateException, IOException {
-//        X500Name subjectDN = new X500Name("cn=" + subject);
-//        X500Name issuerDN = new X500Name("cn=" + issuer);
-//
-//        Date notBefore = Date.from(Instant.now().minusSeconds(1000));
-//        Date notAfter = Date.from(Instant.now().plusSeconds(3600));
-//
-//        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(new DefaultSignatureAlgorithmIdentifierFinder().find("SHA256WithRSA"), publicKey.getEncoded());
-//        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(issuerDN, BigInteger.TEN, notBefore, notAfter, subjectDN, subjectPublicKeyInfo);
-//        X509CertificateHolder certificateHolder = certificateBuilder.build(contentSigner);
-//
-//        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-//        InputStream in = new ByteArrayInputStream(certificateHolder.getEncoded());
-//        return (X509Certificate) certFactory.generateCertificate(in);
-//    }
+    @Test
+    @Transactional
+    public void testRemoveTrustStoreUsedBySecurityAccessor() {
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main")
+                .add();
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService().newCertificateType("Cert")
+                .add();
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("SA", certificateType)
+                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .managedCentrally()
+                .trustStore(trustStore)
+                .add();
 
-    private X509Certificate generateAndSignX509Certificate(String issuerDN, PublicKey publicKey, String subjectDN, PrivateKey signingPrivateKey) throws
-            CertificateException,
-            IOException,
-            NoSuchProviderException,
-            NoSuchAlgorithmException,
-            InvalidKeyException,
-            SignatureException {
-        X509CertInfo info = new X509CertInfo();
-        Date notBefore = Date.from(Instant.now().minusSeconds(1000));
-        Date notAfter = Date.from(Instant.now().plusSeconds(3600));
-        CertificateValidity interval = new CertificateValidity(notBefore, notAfter);
-        BigInteger sn = new BigInteger(64, new SecureRandom());
-
-        info.set(X509CertInfo.VALIDITY, interval);
-        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(sn));
-        info.set(X509CertInfo.SUBJECT, new X500Name(subjectDN));
-        info.set(X509CertInfo.ISSUER, new X500Name(issuerDN));
-        info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
-        info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-        AlgorithmId algo = new AlgorithmId(AlgorithmId.sha256WithRSAEncryption_oid);
-        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
-
-        // Sign the cert to identify the algorithm that's used.
-        X509CertImpl cert = new X509CertImpl(info);
-        cert.sign(signingPrivateKey, "sha256withrsa");
-
-        // Update the algorith, and resign.
-        algo = (AlgorithmId) cert.get(X509CertImpl.SIG_ALG);
-        info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algo);
-        cert = new X509CertImpl(info);
-        cert.sign(signingPrivateKey, "sha256withrsa");
-        return cert;
+        expectedRule.expect(VetoDeleteTrustStoreException.class);
+        expectedRule.expectMessage("The trust store couldn't be removed because it is used on a security accessor.");
+        trustStore.delete();
     }
-
-    private KeyPair generateKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(4096, new SecureRandom());
-        return keyPairGenerator.generateKeyPair();
-    }
-
 }

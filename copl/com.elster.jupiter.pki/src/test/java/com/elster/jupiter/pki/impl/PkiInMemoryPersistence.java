@@ -5,6 +5,10 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -13,6 +17,7 @@ import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
@@ -69,8 +74,8 @@ public class PkiInMemoryPersistence {
                 new BasicPropertiesModule(),
                 new TransactionModule(false),
                 new InMemoryMessagingModule(),
-                new PkiModule()
-
+                new PkiModule(),
+                new FileImportModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
@@ -116,6 +121,14 @@ public class PkiInMemoryPersistence {
         return injector.getInstance(DataVaultPassphraseFactory.class);
     }
 
+    public FileImportService getFileImportService() {
+        return injector.getInstance(FileImportService.class);
+    }
+
+    public CSRImporterFactory getCSRImporterFactory() {
+        return injector.getInstance(CSRImporterFactory.class);
+    }
+
     public Clock getClock() {
         return clock;
     }
@@ -128,6 +141,8 @@ public class PkiInMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(MessageInterpolator.class).toInstance(mock(Thesaurus.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
 //            bind(Clock.class).toInstance(clock);
         }
     }}

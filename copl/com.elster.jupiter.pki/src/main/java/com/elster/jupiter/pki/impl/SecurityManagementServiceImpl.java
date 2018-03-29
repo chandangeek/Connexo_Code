@@ -11,6 +11,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -19,11 +21,14 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.IssuerParameterFilter;
@@ -35,8 +40,10 @@ import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SubjectParameterFilter;
@@ -44,10 +51,12 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -60,6 +69,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
@@ -78,7 +90,13 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,17 +113,17 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "PkiService",
-        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+@Component(name="PkiService",
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class , UserDirectorySecurityProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
-
     private final Map<String, SymmetricAlgorithm> symmetricAlgorithmMap = new ConcurrentHashMap<>();
+    private final List<CertificateUsagesFinder> certificateUsagesFinders = new ArrayList<>();
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -116,11 +134,20 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile EventService eventService;
     private volatile UserService userService;
     private volatile QueryService queryService;
+    private volatile MessageService messageService;
+    private volatile FileImportService fileImportService;
 
     @Inject
-    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                         EventService eventService, UserService userService, QueryService queryService) {
+    public SecurityManagementServiceImpl(OrmService ormService,
+                                         UpgradeService upgradeService,
+                                         NlsService nlsService,
+                                         DataVaultService dataVaultService,
+                                         PropertySpecService propertySpecService,
+                                         EventService eventService,
+                                         UserService userService,
+                                         QueryService queryService,
+                                         MessageService messageService,
+                                         FileImportService fileImportService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -129,6 +156,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setEventService(eventService);
         this.setUserService(userService);
         this.setQueryService(queryService);
+        this.setMessageService(messageService);
+        this.setFileImportService(fileImportService);
         this.activate();
     }
 
@@ -204,6 +233,15 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.passphraseFactories.remove(passphraseFactory.getKeyEncryptionMethod());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCertificateUsagesFinder(CertificateUsagesFinder finder){
+        certificateUsagesFinders.add(finder);
+    }
+
+    public void removeCertificateUsagesFinder(CertificateUsagesFinder finder){
+        certificateUsagesFinders.remove(finder);
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
@@ -248,6 +286,16 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
+    }
+
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
@@ -259,7 +307,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 4), UpgraderV10_4.class));
+                        version(10, 4), UpgraderV10_4.class,
+                        version(10, 4, 1), UpgraderV10_4_1.class));
     }
 
     private AbstractModule getModule() {
@@ -275,6 +324,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
                 bind(QueryService.class).toInstance(queryService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(FileImportService.class).toInstance(fileImportService);
             }
         };
     }
@@ -305,6 +356,17 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<TrustStore> getAllTrustStores() {
         return getDataModel().mapper(TrustStore.class).select(Condition.TRUE, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
     }
+
+    @Override
+    public List<TrustStore> findTrustStores(TrustStoreFilter trustStoreFilter) {
+        Condition searchCondition = Condition.TRUE;
+        if (trustStoreFilter.nameContains.isPresent()) {
+            searchCondition = searchCondition.and(where(TrustStoreImpl.Fields.NAME.fieldName()).isNotNull()
+                    .and(where(TrustStoreImpl.Fields.NAME.fieldName()).likeIgnoreCase("*" + trustStoreFilter.nameContains.get() + "*")));
+        }
+        return getDataModel().mapper(TrustStore.class).select(searchCondition, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
+    }
+
 
     @Override
     public List<KeypairWrapper> getAllKeyPairs() {
@@ -466,7 +528,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
 
     @Override
-    public CertificateWrapper newCertificateWrapper(String alias) {
+    public RequestableCertificateWrapper newCertificateWrapper(String alias) {
         RequestableCertificateWrapperImpl renewableCertificate = getDataModel().getInstance(RequestableCertificateWrapperImpl.class);
         renewableCertificate.setAlias(alias);
         renewableCertificate.save();
@@ -500,7 +562,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public String getComponentName() {
-        return SecurityManagementServiceImpl.COMPONENTNAME;
+        return SecurityManagementService.COMPONENTNAME;
     }
 
     @Override
@@ -512,7 +574,10 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(Privileges.values()))
+                Arrays.stream(Privileges.values()),
+                Arrays.stream(SecurityAccessorTypePurposeTranslation.values()),
+                Arrays.stream(CSRImporterTranslatedProperty.values())
+        )
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -570,6 +635,13 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Optional<ClientCertificateWrapper> findClientCertificateWrapper(long id) {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> findCertificateWrappers(Condition condition) {
+        return DefaultFinder.of(CertificateWrapper.class, condition, getDataModel())
+                .defaultSortColumn(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                .maxPageSize(thesaurus, 1000);
     }
 
     @Override
@@ -803,6 +875,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             searchCondition = searchCondition.and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
         }
 
+        if (dataSearchFilter.aliasContains.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).isNotNull()
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).likeIgnoreCase("*" + dataSearchFilter.aliasContains.get() + "*")));
+        }
+
         return searchCondition;
     }
 
@@ -816,6 +893,50 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return dataModel.getInstance(DirectoryCertificateUsageImpl.class).init(userDirectory);
+    }
+
+    @Override
+    public Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return getDataModel().mapper(DirectoryCertificateUsage.class).getUnique(DirectoryCertificateUsageImpl.Fields.DIRECTORY.fieldName(), userDirectory);
+    }
+
+    @Override
+    public QueryStream<DirectoryCertificateUsage> streamDirectoryCertificateUsages() {
+        return dataModel.stream(DirectoryCertificateUsage.class)
+                .join(TrustStore.class)
+                .join(CertificateWrapper.class);
+    }
+
+    @Override
+    public Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory) {
+        return this.getUserDirectoryCertificateUsage(ldapUserDirectory)
+                .map(directoryCertificateUsage -> {
+                    KeyStore keyStore = null;
+                    try {
+                        keyStore = KeyStore.getInstance("JKS");
+                        keyStore.load(null, null);
+                        Optional<TrustStore> trustStore = directoryCertificateUsage.getTrustStore();
+                        Optional<CertificateWrapper> certificate = directoryCertificateUsage.getCertificate();
+                        if (trustStore.isPresent()) {
+                            for (TrustedCertificate cert : trustStore.get().getCertificates()) {
+                                if (cert.getCertificate().isPresent()) {
+                                    keyStore.setCertificateEntry(cert.getAlias(), cert.getCertificate().get());
+                                }
+                            }
+                        } else if (certificate.isPresent() && certificate.get().getCertificate().isPresent()) {
+                            X509Certificate trustedCertificate = certificate.get().getCertificate().get();
+                            keyStore.setCertificateEntry(certificate.get().getAlias(), trustedCertificate);
+                        }
+                        return keyStore;
+                    } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+                        return null;
+                    }
+                });
+    }
+
+    @Override
     public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
         return new SecurityAccessorTypeBuilder(dataModel, name, keyType);
     }
@@ -826,8 +947,20 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes(SecurityAccessorType.Purpose purpose) {
+        return dataModel.stream(SecurityAccessorType.class)
+                .filter(Where.where(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName()).isEqualTo(purpose))
+                .select();
+    }
+
+    @Override
     public Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id) {
         return dataModel.mapper(SecurityAccessorType.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<SecurityAccessor> findSecurityAccessorById(long id) {
+        return dataModel.mapper(SecurityAccessor.class).getOptional(id);
     }
 
     @Override
@@ -863,7 +996,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
         if (!securityAccessorType.isManagedCentrally()) {
-            throw new UnsupportedOperationException("Cannot set default values for security accessor type that is not managed centrally.");
+            throw new UnsupportedOperationException("Can't set default values for security accessor type that isn't managed centrally.");
         }
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
@@ -877,7 +1010,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                     Save.CREATE.save(dataModel, certificateAccessor);
                     return certificateAccessor;
                 } else {
-                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName());
+                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName() + '.');
                 }
             default:
                 throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
@@ -894,11 +1027,34 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
+        return streamAssociatedCertificateAccessors(certificate).findAny().isPresent();
+    }
+
+    @Override
+    public List<SecurityAccessor> getAssociatedCertificateAccessors(CertificateWrapper certificate) {
+        return streamAssociatedCertificateAccessors(certificate).collect(Collectors.toList());
+    }
+
+    private Stream<SecurityAccessor> streamAssociatedCertificateAccessors(CertificateWrapper certificate) {
         return dataModel.stream(SecurityAccessor.class)
                 .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
-                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
-                .findAny()
-                .isPresent();
+                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)));
+    }
+
+    @Override
+    public List<SecurityAccessor> getSecurityAccessors(SecurityAccessorType.Purpose purpose) {
+        return dataModel.stream(SecurityAccessor.class)
+                .join(SecurityAccessorType.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName() + '.' + SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
+                        .isEqualTo(purpose))
+                .select();
+    }
+
+    @Override
+    public List<String> getCertificateAssociatedDevicesNames(CertificateWrapper certificateWrapper) {
+        List<String> names = new ArrayList<>();
+        certificateUsagesFinders.forEach(finder -> names.addAll(finder.findAssociatedDevicesNames(certificateWrapper)));
+        return names;
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

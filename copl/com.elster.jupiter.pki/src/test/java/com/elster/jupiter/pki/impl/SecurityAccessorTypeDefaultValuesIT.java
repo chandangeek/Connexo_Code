@@ -4,26 +4,30 @@
 
 package com.elster.jupiter.pki.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.Expected;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.time.Never;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.FileSystems;
 import java.security.KeyStore;
 import java.security.Security;
 import java.util.Arrays;
@@ -36,6 +40,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -51,9 +56,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
     private static CertificateWrapper mdmCertificate, rootCertificate;
 
     @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
+    public ExpectedException expectedRule = ExpectedException.none();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
 
@@ -64,6 +67,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
         Security.addProvider(new BouncyCastleProvider());
 
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
@@ -96,10 +100,12 @@ public class SecurityAccessorTypeDefaultValuesIT {
                     .add();
             securityManagementService.addSecurityAccessorType(CAT_WITH_DEFAULT_VALUES_NAME, certs)
                     .managedCentrally()
+                    .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                     .description("just default certificates")
                     .trustStore(trustStore)
                     .add();
             cat = securityManagementService.addSecurityAccessorType(CAT_NAME, certs)
+                    .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                     .description("just certificates")
                     .trustStore(trustStore)
                     .add();
@@ -116,6 +122,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         ((SecurityManagementServiceImpl) securityManagementService).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).removeFileImporter(inMemoryPersistence.getCSRImporterFactory());
         inMemoryPersistence.deactivate();
     }
 
@@ -125,6 +132,8 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(securityManagementService.getDefaultValues(cat)).isEmpty();
         assertThat(securityManagementService.getDefaultValues(catWithDefaultValues)).isEmpty();
         assertThat(securityManagementService.getDefaultValues(cat, catWithDefaultValues)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
     }
 
     @Test
@@ -151,56 +160,76 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(values.getKeyAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
         assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
+
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        foundValuesList = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS).stream()
+                .map(sa -> (SecurityAccessor<CertificateWrapper>) sa)
+                .collect(Collectors.toList());
+        assertThat(foundValuesList).hasSize(1);
+        values = foundValuesList.get(0);
+        assertThat(values.getKeyAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
     }
 
     @Test
     @Transactional
-    @Expected(value = UnsupportedOperationException.class, message = "Cannot set default values for security accessor type that is not managed centrally.")
     public void testSetDefaultValuesForSecurityAccessorNotManagedCentrally() {
+        expectedRule.expect(UnsupportedOperationException.class);
+        expectedRule.expectMessage("Can't set default values for security accessor type that isn't managed centrally.");
         securityManagementService.setDefaultValues(cat, rootCertificate, mdmCertificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = UnsupportedOperationException.class, message = "Default values are only supported for certificate accessor type.")
     public void testSetDefaultValuesForSecurityAccessorOfWrongCryptographicType1() throws Exception {
         KeyType skType = securityManagementService.newSymmetricKeyType("Name", "AES", 128)
                 .add();
+
+        expectedRule.expect(UnsupportedOperationException.class);
+        expectedRule.expectMessage("Default values are only supported for certificate accessor type.");
         securityManagementService.addSecurityAccessorType("Name", skType)
                 .managedCentrally()
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .description("just keys")
                 .add();
     }
 
     @Test
     @Transactional
-    @Expected(value = UnsupportedOperationException.class, message = "Default values are only supported for certificate accessor type.")
     public void testSetDefaultValuesForSecurityAccessorOfWrongCryptographicType2() throws Exception {
         KeyType skType = securityManagementService.newSymmetricKeyType("Name", "AES", 128)
                 .add();
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .duration(TimeDuration.years(1))
                 .add();
         invoke(keyAccessorType, "setManagedCentrally", true);
         invoke(keyAccessorType, "save");
+
+        expectedRule.expect(UnsupportedOperationException.class);
+        expectedRule.expectMessage("Default values are only supported for certificate accessor type.");
         securityManagementService.setDefaultValues(keyAccessorType, rootCertificate, mdmCertificate);
     }
 
     @Test
     @Transactional
-    @Expected(value = IllegalArgumentException.class, message = "Wrong type of actual or temp value; must be CertificateWrapper")
     public void testSetWrongDefaultValues() {
         KeyType skType = securityManagementService.newSymmetricKeyType("Name", "AES", 128)
                 .add();
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
                 .duration(TimeDuration.years(1))
                 .add();
         PlaintextSymmetricKey wrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
         wrapper.generateValue();
+
+        expectedRule.expect(IllegalArgumentException.class);
+        expectedRule.expectMessage("Wrong type of actual or temp value; must be CertificateWrapper.");
         securityManagementService.setDefaultValues(catWithDefaultValues, wrapper, null);
     }
 
@@ -343,6 +372,41 @@ public class SecurityAccessorTypeDefaultValuesIT {
 
         assertThat(securityManagementService.isUsedByCertificateAccessors(rootCertificate)).isFalse();
         assertThat(securityManagementService.isUsedByCertificateAccessors(mdmCertificate)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveSecurityAccessorUsedByImporter() throws Exception {
+        TrustStore trustStore = securityManagementService.newTrustStore("main")
+                .add();
+        KeyType certificateType = securityManagementService.newCertificateType("Cert")
+                .add();
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("RSA-2048");
+        certificateWrapper.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=IAm").getFirst());
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("SA", certificateType)
+                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .managedCentrally()
+                .trustStore(trustStore)
+                .add();
+        SecurityAccessor<CertificateWrapper> securityAccessor = securityManagementService.setDefaultValues(securityAccessorType, certificateWrapper, null);
+        inMemoryPersistence.getFileImportService().newBuilder()
+                .setName("main2Blocker")
+                .setPathMatcher("")
+                .setImportDirectory(FileSystems.getDefault().getPath("import"))
+                .setFailureDirectory(FileSystems.getDefault().getPath("failure"))
+                .setSuccessDirectory(FileSystems.getDefault().getPath("success"))
+                .setProcessingDirectory(FileSystems.getDefault().getPath("inProgress"))
+                .setImporterName(CSRImporterFactory.NAME)
+                .setActiveInUI(false)
+                .setScheduleExpression(Never.NEVER)
+                .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(30))
+                .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(securityAccessor)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .create();
+
+        expectedRule.expect(PkiLocalizedException.class);
+        expectedRule.expectMessage("The security accessor couldn't be removed because it is used on import services.");
+        securityAccessor.delete();
     }
 
     /**

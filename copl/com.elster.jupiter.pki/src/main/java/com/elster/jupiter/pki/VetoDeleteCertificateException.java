@@ -7,6 +7,7 @@ package com.elster.jupiter.pki;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -15,7 +16,12 @@ import aQute.bnd.annotation.ProviderType;
  */
 @ProviderType
 public class VetoDeleteCertificateException extends LocalizedException {
+    @Deprecated
     public VetoDeleteCertificateException(Thesaurus thesaurus, CertificateWrapper certificateWrapper) {
         super(thesaurus, MessageSeeds.VETO_CERTIFICATE_DELETION, certificateWrapper.getAlias());
+    }
+
+    public VetoDeleteCertificateException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+        super(thesaurus, messageSeed, args);
     }
 }
