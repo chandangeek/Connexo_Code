@@ -89,6 +89,9 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI,
 
+                //mdc.device.data - CRL request
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CRL_REQUEST,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_CRL_REQUEST,
 
                 //CommandRules
                 com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
