@@ -9,8 +9,8 @@
     "format": "1",
     "local": true,
     "requires": [
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.yellowfin.extjs",
+      "com.elster.jupiter.unifyingjs",
+      "com.elster.jupiter.yellowfin.extjs",
       "com.energyict.comserver.comserver.core.extjs",
       "com.energyict.mdc.bpm.extjs",
       "com.energyict.mdc.device.alarms.extjs",
