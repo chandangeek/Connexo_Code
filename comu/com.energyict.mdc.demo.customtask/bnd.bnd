@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.demo.customtask.impl.*
+Export-Package:  \
+	com.energyict.mdc.demo.customtask, com.energyict.mdc.demo.customtask.security
