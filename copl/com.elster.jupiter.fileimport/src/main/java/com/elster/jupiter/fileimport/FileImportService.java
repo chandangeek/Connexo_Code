@@ -124,4 +124,11 @@ public interface FileImportService {
      * @return the base path of the running app server import folder
      */
     Path getBasePath();
+
+    /**
+     * Checks if the specified object is used as a value of any importer property.
+     * @param object
+     * @return {@code true} if the specified object is used in any importer configuration, {@code false} otherwise.
+     */
+    boolean doImportersUse(Object object);
 }
