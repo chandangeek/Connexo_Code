@@ -15,11 +15,11 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.AbstractMockActivator;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.AbstractMockActivator;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -275,7 +275,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         }
         assertThat(rt.getMacroPeriod()).isEqualTo(regular ? "Daily" : "Not applicable");
         assertThat(rt.getMeasurementKind()).isEqualTo(regular ? "Power" : "Energy");
-        assertThat(rt.getMeasuringPeriod()).isEqualTo(regular ? "Not applicable" : "24-hour");
+        assertThat(rt.getMeasuringPeriod()).isEqualTo(regular ? "Not applicable" : TimeAttribute.HOUR24.getDescription());
         assertThat(rt.getMultiplier()).isEqualTo(regular ? "*10^3" : "*10^0");
         assertThat(rt.getPhases()).isEqualTo(regular ? "Phase-NotApplicable" : "Phase-S1");
         assertThat(rt.getTou().longValue()).isEqualTo(regular ? 1L : 2L);

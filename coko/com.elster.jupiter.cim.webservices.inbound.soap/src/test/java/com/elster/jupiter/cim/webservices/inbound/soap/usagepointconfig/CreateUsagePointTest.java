@@ -235,7 +235,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         assertThat(rt.getInterharmonic()).isNull();
         assertThat(rt.getMacroPeriod()).isEqualTo("Not applicable");
         assertThat(rt.getMeasurementKind()).isEqualTo("Power");
-        assertThat(rt.getMeasuringPeriod()).isEqualTo("15-minute");
+        assertThat(rt.getMeasuringPeriod()).isEqualTo(TimeAttribute.MINUTE15.getDescription());
         assertThat(rt.getMultiplier()).isEqualTo("*10^0");
         assertThat(rt.getPhases()).isEqualTo("Phase-A");
         assertThat(rt.getTou().longValue()).isEqualTo(2L);
