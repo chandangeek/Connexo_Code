@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.processes.keyrenewal.api.CompletionOptionsMessageHandlerFactory",
+@Component(name = "com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER,
                 "destination=" + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION},

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api.servicecall;
+package com.energyict.mdc.processes.keyrenewal.api.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -19,9 +19,9 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
-import com.energyict.mdc.processes.keyrenewal.api.KeyRenewalApplication;
-import com.energyict.mdc.processes.keyrenewal.api.KeyRenewalChecklist;
-import com.energyict.mdc.processes.keyrenewal.api.TranslationSeeds;
+import com.energyict.mdc.processes.keyrenewal.api.impl.KeyRenewalApplication;
+import com.energyict.mdc.processes.keyrenewal.api.impl.KeyRenewalChecklist;
+import com.energyict.mdc.processes.keyrenewal.api.impl.TranslationSeeds;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

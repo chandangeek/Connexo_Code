@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -18,7 +18,11 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_DESTINATION_SPEC(1018, "CouldNotFindDestinationSpec", "Could not find destination spec with name {0}"),
     CALL_BACK_ERROR_URI_NOT_SPECIFIED(1019, "CallBackErrorUrlNotSpecified", "Not possible to send back the error response, as the error callback uri was not specified"),
     CALL_BACK_SUCCESS_URI_NOT_SPECIFIED(1020, "CallBackSuccessUrlNotSpecified", "Not possible to send back the success response, as the success callback uri was not specified"),
-    UNKNOWN_KEYACCESSORTYPE(1021, "UnknownKeyAccessorType", "No security accessor type with name {0");
+    UNKNOWN_KEYACCESSORTYPE(1021, "UnknownKeyAccessorType", "No security accessor type with name {0}"),
+    NO_CSR_PRESENT(1022, "noCsrPresent", "No CSR found"),
+    NO_SUCH_CERTIFICATE(1023, "NoSuchCertificate", "No such certificate could be located"),
+    NO_APPLICABLE_CERTIFICATE_TYPE(1024, "NoApplicableCertificateType", "No applicable certificate type for security accessor {0}"),
+    ;
 
     private final int number;
     private final String key;

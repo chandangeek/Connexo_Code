@@ -1,4 +1,4 @@
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.energyict.mdc.device.data.Device;
 import org.junit.Test;

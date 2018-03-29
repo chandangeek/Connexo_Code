@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.processes.keyrenewal.api;
+package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -16,6 +16,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -27,10 +29,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
-import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
+import com.energyict.mdc.processes.keyrenewal.api.Installer;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -46,6 +50,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.processes.keyrenewal.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -71,6 +77,8 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     private volatile JsonService jsonService;
     private volatile Clock clock;
     private volatile KeyRenewalCustomPropertySet keyRenewalCustomPropertySet;
+    private volatile SecurityManagementService securityManagementService;
+    private volatile CaService caService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -154,6 +162,16 @@ public class KeyRenewalApplication extends Application implements TranslationKey
         this.jsonService = jsonService;
     }
 
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
+    public void setCaService(CaService caService) {
+        this.caService = caService;
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(new AbstractModule() {
@@ -163,9 +181,14 @@ public class KeyRenewalApplication extends Application implements TranslationKey
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(KeyRenewalCustomPropertySet.class).toInstance(keyRenewalCustomPropertySet);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
+                bind(CaService.class).toInstance(caService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(
+                        version(10, 4, 1), UpgraderV10_4_1.class
+                ));
     }
 
     @Override
@@ -215,6 +238,8 @@ public class KeyRenewalApplication extends Application implements TranslationKey
             bind(jsonService).to(JsonService.class);
             bind(clock).to(Clock.class);
             bind(DataModel.class).to(DataModel.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
+            bind(caService).to(CaService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
