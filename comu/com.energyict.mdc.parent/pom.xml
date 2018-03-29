@@ -460,6 +460,12 @@
                 <version>1.3.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.demo.customtask</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- third parties -->
             <!-- Logging -->
@@ -660,6 +666,7 @@
                 <module>../com.energyict.mdc.common</module>
                 <module>../com.energyict.mdc.dashboard</module>
                 <module>../com.energyict.mdc.dashboard.rest</module>
+                <module>../com.energyict.mdc.demo.customtask</module>
                 <module>../com.energyict.mdc.dashboard.extjs</module>
                 <module>../com.energyict.mdc.device.alarms</module>
                 <module>../com.energyict.mdc.device.alarms.extjs</module>
