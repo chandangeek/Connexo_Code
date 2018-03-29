@@ -94,6 +94,28 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.removeAll();
         this.add(widget);
         Ext.resumeLayouts(true);
+    },
+
+    showStartProcessConfirmation: function (title, text, additionalText, type) {
+        var widget, bodyText = Ext.String.htmlEncode(text);
+        if (additionalText) bodyText += '<br>' + additionalText;
+        type = type ? type : 'confirmation';
+        widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: title,
+            type: type,
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: bodyText
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
     }
 
 });

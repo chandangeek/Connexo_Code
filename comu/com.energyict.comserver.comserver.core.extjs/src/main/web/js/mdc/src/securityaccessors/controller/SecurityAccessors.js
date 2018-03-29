@@ -17,13 +17,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.store.TrustStores',
         'Mdc.store.TimeUnitsYearsSeconds',
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
-        'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'
+        'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
     ],
 
     models: [
         'Mdc.model.DeviceType',
         'Mdc.securityaccessors.model.SecurityAccessor',
-        'Mdc.securityaccessors.model.SecurityPreviewProperties'
+        'Mdc.securityaccessors.model.SecurityPreviewProperties',
+        'Mdc.crlrequest.model.SecurityAccessorsWithPurpose'
     ],
 
     refs: [
@@ -62,7 +64,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'securityAccessorsActionMenu',
             selector: 'security-accessors-action-menu'
-        },
+        }
 
     ],
 
@@ -105,6 +107,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessor-manage-centrally-checkbox': {
                 change: this.onManageCentrallyCheck
+            },
+            '#mdc-security-accessor-trust-store-combobox': {
+                change: this.onTrustStoreChange
             }
         });
     },
@@ -361,6 +366,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         // viewport.setLoading();
         form.updateRecord();
         record = form.getRecord();
+
         record.beginEdit();
         if (record.get('keyType') && record.get('keyType').requiresDuration) {
             record.set('duration', {
@@ -384,28 +390,37 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         }
 
         if(me.isManageCentrallyChecked){
-            var currentProperties = me.defaultPropertiesData.currentProperties;
-            _.map(currentProperties, function(property){
-                var key = property.key;
-                if (key === 'alias') {
-                    property.propertyValueInfo = {
-                        value: activeAliasCombo.getValue()
-                    };
-                }
-            });
-
-            var tempProperties = me.defaultPropertiesData.tempProperties;
-            _.forEach(tempProperties, function(property){
-                var key = property.key;
-                if (key === 'alias') {
-                    property.propertyValueInfo = {
-                        value: passiveAliasCombo.getValue()
-                    };
-                }
-            });
             var defaultValueData = me.defaultPropertiesData;
-            defaultValueData.tempProperties = tempProperties;
-            defaultValueData.currentProperties = currentProperties;
+
+            if (activeAliasCombo.getValue()) {
+                var currentProperties = me.defaultPropertiesData.currentProperties;
+                _.map(currentProperties, function(property){
+                    var key = property.key;
+                    if (key === 'alias') {
+                        property.propertyValueInfo = {
+                            value: activeAliasCombo.getValue()
+                        };
+                    }
+                });
+                defaultValueData.currentProperties = currentProperties;
+            } else {
+                defaultValueData.currentProperties = undefined;
+            }
+
+            if (passiveAliasCombo.getValue()) {
+                var tempProperties = me.defaultPropertiesData.tempProperties;
+                _.forEach(tempProperties, function(property){
+                    var key = property.key;
+                    if (key === 'alias') {
+                        property.propertyValueInfo = {
+                            value: passiveAliasCombo.getValue()
+                        };
+                    }
+                });
+                defaultValueData.tempProperties = tempProperties;
+            } else {
+                defaultValueData.tempProperties = undefined;
+            }
 
             record.set('defaultValue', defaultValueData);
         } else {
@@ -436,17 +451,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 }
             }
         });
-    },
-
-    onManageCentrallyCheck: function(fld, newValue, oldValue, eOpts) {
-        var me = this;
-        me.isManageCentrallyChecked = newValue;
-        if(newValue){
-            me.getSecurityAccessorPreviewProperties()
-        } else {
-            me.getActivePassiveCertContainer().removeAll();
-        }
-
     },
 
     getSecurityAccessorPreviewProperties: function () {
@@ -585,19 +589,64 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         );
     },
 
-    keyTypeChanged: function (combobox, newValue) {
+    onTrustStoreChange: function(combobox, newValue, oldValue) {
         var me = this,
+            form = combobox.up('form'),
+            keyTypeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox');
+
+        if (manageCentrallyCheckbox.getValue()
+            && newValue && keyTypeCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
+            me.getSecurityAccessorPreviewProperties();
+        }
+    },
+
+    onManageCentrallyCheck: function(fld, newValue) {
+        var me = this,
+            form = fld.up('form'),
+            keyTypeCombo = form.down('#mdc-security-accessor-key-type-combobox'),
+            trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox');
+
+        me.isManageCentrallyChecked = newValue;
+
+        if (trustStoreCombo.getValue()
+            && newValue && keyTypeCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
+            me.getSecurityAccessorPreviewProperties();
+        } else {
+            me.getActivePassiveCertContainer().removeAll();
+        }
+
+    },
+
+    keyTypeChanged: function (combobox, newValue, oldValue) {
+        var me = this,
+            form = combobox.up('form'),
+            purposeRadio = form.down('#mdc-security-accessor-purpose-radio'),
+            keyRadio = form.down('#mdc-security-accessor-key-radio'),
+            trustStoreCombo = form.down('#mdc-security-accessor-trust-store-combobox'),
             keyEncryptionMethodStore = me.getStore('Mdc.securityaccessors.store.KeyEncryptionMethods'),
-            storageMethodCombo = combobox.up('form').down('#mdc-security-accessor-storage-method-combobox'),
-            manageCentrallyCheckbox = combobox.up('form').down('#mdc-security-accessor-manage-centrally-checkbox'),
-            validityPeriod = combobox.up('form').down('#mdc-security-accessor-validity-period'),
+            storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
+            manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
+            validityPeriod = form.down('#mdc-security-accessor-validity-period'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
         validityPeriod.setVisible(requiresDuration);
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
-        manageCentrallyCheckbox.enable();
+
+        if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
+            manageCentrallyCheckbox.enable();
+        }
+
+        if (manageCentrallyCheckbox.getValue()
+            && newValue && trustStoreCombo.getValue()) {
+            me.getActivePassiveCertContainer().removeAll();
+            me.getSecurityAccessorPreviewProperties();
+        }
+
         if (!Ext.isEmpty(newValue)) {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
             keyEncryptionMethodStore.on('load', function (store, records, successful) {

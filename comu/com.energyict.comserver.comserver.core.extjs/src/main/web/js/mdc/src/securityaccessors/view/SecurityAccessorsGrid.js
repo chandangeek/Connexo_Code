@@ -31,6 +31,14 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.purpose', 'MDC', 'Purpose'),
+                dataIndex: 'purpose',
+                flex: 2,
+                renderer: function (value) {
+                    return value ? value.name : '-';
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'keyType',
                 flex: 2,
