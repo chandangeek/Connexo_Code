@@ -1,6 +1,0 @@
--classpath: target/classes
--dsannotations: *
-Private-Package: com.elster.jupiter.customtask.impl
-Export-Package: com.elster.jupiter.customtask, com.elster.jupiter.customtask.security
-Import-Package: javax.mail,\
-	*
