@@ -569,22 +569,26 @@ Ext.define('Uni.property.view.property.Base', {
      * set other properties
      */
     setDescription: function (descriptions) {
-        var me = this;
-        try {
-            var decoded = Ext.decode(descriptions, true);
+        var me = this,
+            tooltip = null,
+            decoded = Ext.decode(descriptions, true),
+            tooltipBtn = me.down('#tooltip-info');
+
+        if (tooltipBtn) {
             if (decoded) {
-                var tooltip = decoded.tooltip;
-                if (tooltip) {
-                    var tooltipBtn = me.down('#tooltip-info');
-                    Ext.suspendLayouts();
-                    tooltipBtn.setVisible(true);
-                    tooltipBtn.setTooltip(tooltip);
-                    Ext.resumeLayouts(true);
-                }
+                tooltip = decoded.tooltip;
+            } else {
+                tooltip = descriptions;
             }
-        } catch (e) {
-            return false;
+
+            if (tooltip) {
+                Ext.suspendLayouts();
+                tooltipBtn.setVisible(true);
+                tooltipBtn.setTooltip(tooltip);
+                Ext.resumeLayouts(true);
+            }
         }
+
     }
 
 });

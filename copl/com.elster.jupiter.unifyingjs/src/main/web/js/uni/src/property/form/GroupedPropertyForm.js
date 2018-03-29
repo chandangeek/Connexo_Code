@@ -8,12 +8,16 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
     addEditPage: false,
     blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
 
-    initProperties: function (properties) {
-        var me = this;
-        var registry = Uni.property.controller.Registry,
+    initProperties: function (properties, requestUrl) {
+        var me = this,
+            registry = Uni.property.controller.Registry,
+            description = null,
             groups = {};
         me.removeAll();
+        me.requestUrl = typeof requestUrl === 'string' ? requestUrl : null;
         properties.each(function (property) {
+            description = property.get('description');
+
             if (!(property instanceof Uni.property.model.Property)) {
                 throw '!(entry instanceof Uni.property.model.Property)';
             }
@@ -39,12 +43,57 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                         allowBlank: !property.get('required'),
                         name: property.get('key'),
                         itemId: property.get('key'),
-                        boxLabel: Uni.I18n.translate(property.get('key'), null, property.get('key')),
+                        boxLabel: Uni.I18n.translate(property.get('boxLabel'), null, property.get('boxLabel')),
                         msgTarget: 'under',
                         blankText: me.blankText
 
                     });
                     //groupName = partitions.join('.');
+
+                function setRequestListeners(items) {
+
+                    if (!Ext.isArray(items)) {
+                        items = [items];
+                    }
+
+                    items.forEach(function (item) {
+                        if (item.setValue) {
+                            item.on({focus: function (item) {
+                                item.on({change: function (item, newValue) {
+                                    Ext.Ajax.request({
+                                        url: item.up('form').requestUrl,
+                                        method: 'POST',
+                                        params: {
+                                            name: item.name,
+                                            value: newValue,
+                                            records: me.getFieldValues(true),
+                                            description: 'This should be done on frontend side'
+                                        },
+                                        success: function (response, success) {
+                                            if (success) {
+                                                // me.loadRecord(response.records); // TODO
+                                            }
+                                        }
+                                    });
+                                }});
+                                item.events.focus.clearListeners();
+                            }});
+                        }
+
+                        if (item.items) {
+                            setListeners(item.items);
+                        }
+                    });
+                }
+
+                if (description) {
+                    control.add(control.extraCmp);
+                }
+
+                if (requestUrl && property.get('hasDependentProperties')) {
+                    setRequestListeners(control);
+                }
+
                 if (type === 'BOOLEAN') {
                     control.fieldLabel = '';
                 }
@@ -118,7 +167,9 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                 });
             } else {
                 field = me.getPropertyField(firstKey);
-                values[firstKey] = field.getValue(firstValue);
+                if (field !== undefined) {
+                    values[firstKey] = field.getValue(firstValue);
+                }
             }
         });
         this.getForm().hydrator.hydrate(values, me.getRecord());
