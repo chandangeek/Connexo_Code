@@ -1195,8 +1195,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
-        public CollectedDeviceInfo createDeviceIpAddress(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
-            return this.getCollectedDataFactory().createDeviceIpAddress(deviceIdentifier, ipAddress, ipAddressPropertyName);
+        public CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object propertyValue, String propertyName) {
+            return this.getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, propertyValue, propertyName);
         }
 
         @Override
