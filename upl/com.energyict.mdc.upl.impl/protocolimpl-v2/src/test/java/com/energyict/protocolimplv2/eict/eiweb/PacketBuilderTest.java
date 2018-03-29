@@ -61,7 +61,7 @@ public class PacketBuilderTest {
         collectedDataFactory = mock(CollectedDataFactory.class);
         inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
 
-        when(collectedDataFactory.createDeviceIpAddress(any(DeviceIdentifier.class), anyString(), anyString())).thenReturn(mock(CollectedDeviceInfo.class));
+        when(collectedDataFactory.createDeviceConnectionProperty(any(DeviceIdentifier.class), anyString(), anyString())).thenReturn(mock(CollectedDeviceInfo.class));
     }
 
     @Test

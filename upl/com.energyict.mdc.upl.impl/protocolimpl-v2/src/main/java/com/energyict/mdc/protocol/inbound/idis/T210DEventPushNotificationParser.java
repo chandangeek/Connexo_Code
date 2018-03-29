@@ -726,7 +726,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void createCollectedDeviceIpAddres(String deviceIpAddress) {
-        this.collectedDeviceIpAddress = this.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
+        this.collectedDeviceIpAddress = this.getCollectedDataFactory().createDeviceConnectionProperty(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
     }
 
     public byte[] doHandleGeneralBlockTransfer(byte[] rawData) throws IOException {

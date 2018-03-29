@@ -5,10 +5,12 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.event.PowerUp;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -45,6 +47,7 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -67,6 +70,9 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private static final int EVENT_NOTIFICATION_ATTRIBUTE_NUMBER = 2;
     private static final int LAST_EVENT_ATTRIBUTE_NUMBER = 3;
 
+    private static final String IP_ADDRESS_PROPERTY_NAME = "host";
+    private static final String PORT_NUMBER_PROPERTY_NAME = "portNumber";
+
     private static final int DROP = 0;
     private static final int PASSTHROUGH = 1;
     private static final int ADD_ORIGIN_HEADER = 2;
@@ -83,6 +89,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     protected ObisCode logbookObisCode;
     protected CollectedLogBook collectedLogBook;
+    private List<CollectedDeviceInfo> collectedDeviceInfoList;
     private ComChannel comChannel;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private DeviceIdentifier originDeviceId;
@@ -364,6 +371,21 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 Unsigned16 deviceCode = eventPayload.getDataType(2).getUnsigned16();
                 String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
                 createCollectedLogBook(dateTime1, eventCode.getValue(), deviceCode.getValue(), description);
+
+                // POWER UP
+                if (eventCode.getValue() == 2) {
+                    try {
+                        PowerUp event = PowerUp.fromJson(description);
+
+                        collectedDeviceInfoList = new ArrayList<>();
+
+                        collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.address, IP_ADDRESS_PROPERTY_NAME) );
+                        collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.port, PORT_NUMBER_PROPERTY_NAME) );
+                        //this.getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.transport.toString(), "TRANSPORT?");
+                    } catch (final IOException ex) {
+                        throw DataParseException.ioException(new ProtocolException("Received POWER_UP event but failed parsing payload " + description));
+                    }
+                }
             } else {
                 AbstractDataType dataType = eventPayload.getNextDataType();
                 if (dataType instanceof OctetString) {
@@ -882,6 +904,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public CollectedLogBook getCollectedLogBook() {
         return collectedLogBook;
+    }
+
+    public List<CollectedDeviceInfo> getCollectedDeviceInfoList() {
+        return collectedDeviceInfoList;
     }
 
     private String parseDescription(OctetString octetString) {
