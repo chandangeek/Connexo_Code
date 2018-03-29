@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.masterdata.rest.impl;
@@ -10,7 +10,10 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_LOAD_PROFILE_TYPE_FOUND(1, "NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE)
+    NO_LOAD_PROFILE_TYPE_FOUND(1, "NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE),
+    NO_OBIS_TO_READING_TYPE_MAPPING_POSSIBLE(2, "NoObisToReadingTypeMappingPossible", "The OBIS code cannot be mapped to a reading type. Displaying the full reading type list", Level.WARNING),
+    MAPPED_READING_TYPE_IS_IN_USE(3, "MappedReadingTypeIsInUse", "The OBIS code maps only to already used reading types. Displaying the full reading type list", Level.WARNING),
+
     ;
     private final int number;
     private final String key;

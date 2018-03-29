@@ -5,15 +5,50 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-public class ReadingTypeFilterUtil {
+public class ReadingTypeUtil {
+
+    private final static int NUMBER_OF_READING_TYPE_ARGUMENTS = 18;
+    private final static String DELIMITER = "\\\\.";
+    private final static String NUMBER_REGEX = "[0-9]+";
+    private final static String DOT= ".";
+    public final static String DEFAULT_VALUE = "0";
+
+
+    /**
+     * Check every MRID field for multiple matches. If there is a single match,
+     * we return the unchanged value, otherwise we return a default value.
+     * Example:
+     * IN : 0\.0\.0.\.0\.1\.1\.(12|37)\.0\.0\.0\.0\.0\.[0-9]+\.[0-9]+\.0\.-?[0-9]+\.[0-9]+\.[0-9]+
+     * OUT: 0.0.0.0.1.1.0.0.0.0.0.0.0.0.0.0.0.0
+     * @param regex MRID regex that matches one or multiple reading types
+     * @return String
+     */
+    public static String extractUniqueFromRegex(String regex) {
+        String values[] = regex.split(DELIMITER);
+        if (values.length != NUMBER_OF_READING_TYPE_ARGUMENTS) {
+            return "";
+        }
+        Pattern numberPattern = Pattern.compile(NUMBER_REGEX);
+        StringBuilder mrid = new StringBuilder();
+        int i = 1;
+        String code;
+        for(String value : values){
+            Matcher m = numberPattern.matcher(value);
+            code = m.matches() ? value : DEFAULT_VALUE;
+            mrid.append(code);
+
+            if (i++ != values.length)
+                mrid.append(DOT);
+        }
+        return mrid.toString();
+    }
 
     /**
      * The only supported wildcards are "*" and "?"
@@ -45,7 +80,7 @@ public class ReadingTypeFilterUtil {
      * @param readingTypes list of reading types that we've filtered from the database using a MRID regex
      * @return Input reading type list if search text is missing, otherwise a new list filtered by the search text.
      */
-    static List<ReadingType> getFilteredList(String searchText, List<ReadingType> readingTypes) {
+    public static List<ReadingType> getFilteredList(String searchText, List<ReadingType> readingTypes) {
         if (searchText == null || searchText.isEmpty())
             return readingTypes;
 
@@ -56,48 +91,4 @@ public class ReadingTypeFilterUtil {
                 .filter(rt -> pattern.matcher(rt.getFullAliasName()).matches())
                 .collect(Collectors.toList());
     }
-
-    /**
-     * If search text is not present, we just filter the invalid reading types for register type creation.
-     * @param dbSearchText like query parameter value
-     * @return Condition to query the database
-     */
-    static Condition getFilterCondition(String dbSearchText) {
-        if (dbSearchText == null || dbSearchText.isEmpty()){
-            return mridMatchOfRegisters();
-        }
-        String regex = "*" + dbSearchText.replace(" ", "*") + "*";
-        return Where.where("fullAliasName").likeIgnoreCase(regex).and(mridMatchOfRegisters());
-    }
-
-    /**
-     *
-     * @param mRID regular expression to match mRID values
-     * @return Condition to query the database
-     */
-    static Condition getMRIDFilterCondition(String mRID){
-        return Where.where("mRID").matches(mRID, "").and(mridMatchOfRegisters());
-    }
-
-    /**
-     * @return Condition that removes the invalid reading types for register type creation
-     */
-    private static Condition mridMatchOfRegisters() {
-        return mrIdMatchOfNormalRegisters()
-                .or(mrIdMatchOfBillingRegisters())
-                .or(mrIdMatchOfPeriodRelatedRegisters());
-    }
-
-    private static Condition mrIdMatchOfPeriodRelatedRegisters() {
-        return Where.where("mRID").matches("^[11-13]\\.\\[1-24]\\.0", "");
-    }
-
-    private static Condition mrIdMatchOfBillingRegisters() {
-        return Where.where("mRID").matches("^8\\.\\d+\\.0", "");
-    }
-
-    private static Condition mrIdMatchOfNormalRegisters() {
-        return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
-    }
-
 }
