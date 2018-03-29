@@ -11,6 +11,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     frame: true,
     minButtonWidth: 50,
     itemId : null,
+    image: false,
     requires: [
         'Uni.util.FormErrorMessage',
         'Fwc.devicefirmware.view.ActionMenu',
@@ -144,7 +145,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
                     if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
                         returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
-                            Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
+                            Uni.I18n.translate('device.firmware.field.status.deprecatedVersion.tooltip', 'FWC', 'Firmware version/image is deprecated. Consider uploading new firmware version.') +
                             '"></span>';
                     }
                     returnValue += ')';
@@ -244,8 +245,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'pendingVersion') {
             formPending.record = record;
             formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.activateOnDate.pendingVersion',
-                'FWC', 'Upload and activation of version {0} pending (Upload planned on {1}, activation planned on {2})', [
+            formPending.setText(Uni.I18n.translate('device.firmware.activateOnDate.pendingVersionImage',
+                'FWC', 'Upload and activation of version/image {0} pending (Upload planned on {1}, activation planned on {2})', [
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
@@ -256,13 +257,13 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formFailed.record = record;
             formFailed.show();
             if (status === 'failedActivatingVersion') {
-                formFailed.setText(Uni.I18n.translate('device.firmware.install.failedActivatingVersion',
-                    'FWC', 'Activation to version {0} failed', [
+                formFailed.setText(Uni.I18n.translate('device.firmware.install.failedActivatingVersionImage',
+                    'FWC', 'Activation to version/image {0} failed', [
                         record.get('firmwareVersion')
                     ]));
             } else {
-                formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedVersion',
-                    'FWC', 'Upload and activation of version {0} failed', [
+                formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedVersionImage',
+                    'FWC', 'Upload and activation of version/image {0} failed', [
                         record.get('firmwareVersion'),
                         Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
                     ]));
@@ -280,8 +281,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'ongoingVersion') {
             formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.ongoingVersion',
-                'FWC', 'Uploading version {0} (started on {1}), version will be activated on {2})', [
+            formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.ongoingVersionImage',
+                'FWC', 'Uploading version/image {0} (started on {1}), version/image will be activated on {2})', [
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
@@ -292,15 +293,15 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formOngoing.record = record;
             formOngoing.show();
             if (record.get('lastCheckedDate')) {
-                formOngoing.setText(Uni.I18n.translate('device.firmware.activate.needVerificationVersion',
-                    'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
+                formOngoing.setText(Uni.I18n.translate('device.firmware.activate.needVerificationVersionImage',
+                    'FWC', 'Upload and activation of version/image {0} completed on {1}. Verification scheduled on {2}', [
                         record.get('firmwareVersion'),
                         Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                         Uni.DateTime.formatDateTimeShort(record.get('lastCheckedDate'))
                     ]));
             } else {
-                formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.needVerificationVersion.notSheduled',
-                    'FWC', 'Upload and activation of version {0} completed on {1}. Verification is not scheduled', [
+                formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.needVerificationVersionImage.notSheduled',
+                    'FWC', 'Upload and activation of version/image {0} completed on {1}. Verification is not scheduled', [
                         record.get('firmwareVersion'),
                         Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
                     ]));
@@ -310,8 +311,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'needActivationVersion') {
             formPending.record = record;
             formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.install.needActivationVersion',
-                'FWC', 'Upload of version {0} completed on {1}. Version has not been activated yet', [
+            formPending.setText(Uni.I18n.translate('device.firmware.install.needActivationVersionImage',
+                'FWC', 'Upload of version/image {0} completed on {1}. Version/image has not been activated yet', [
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
                 ]));
@@ -322,8 +323,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'ongoingActivatingVersion') {
             formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.install.ongoingActivatingVersion',
-                'FWC', 'Activating version {0}', [
+            formOngoing.setText(Uni.I18n.translate('device.firmware.install.ongoingActivatingVersionImage',
+                'FWC', 'Activating version/image {0}', [
                     record.get('firmwareVersion')
                 ]));
         }
@@ -331,8 +332,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'activatingVersion') {
             formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.activatingVersion',
-                'FWC', 'Upload of version {0} completed on {1}. Activation scheduled on {2}', [
+            formOngoing.setText(Uni.I18n.translate('device.firmware.activateOnDate.activatingVersionImage',
+                'FWC', 'Upload of version/image {0} completed on {1}. Activation scheduled on {2}', [
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('uploadStartDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
@@ -342,8 +343,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (status === 'ongoingVerificationVersion') {
             formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.activate.ongoingVerificationVersion',
-                'FWC', 'Verifying upload and activation of version {0}', [
+            formOngoing.setText(Uni.I18n.translate('device.firmware.activate.ongoingVerificationVersionImage',
+                'FWC', 'Verifying upload and activation of version/image {0}', [
                     record.get('firmwareVersion')
                 ]));
         }
@@ -351,5 +352,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
             imageIdentifierField.setVisible(false);
         }
+        me.down('#firmware-version-field').setVisible(!me.image);
     }
+
 });

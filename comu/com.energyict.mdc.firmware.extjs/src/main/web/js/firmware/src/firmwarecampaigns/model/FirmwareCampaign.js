@@ -14,6 +14,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         'id',
         'name',
         {name: 'status', defaultValue: null},
+        {name: 'validationTimeout', defaultValue: null},
         {name: 'firmwareVersion', defaultValue: null},
         {name: 'devicesStatus', defaultValue: null},
         {name: 'managementOption', defaultValue: null, convert: function (value, record) {

@@ -11,7 +11,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.view.DynamicRadioGroup',
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
-        'Fwc.firmwarecampaigns.model.FirmwareManagementOption'
+        'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -143,6 +144,37 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 }
             },
             {
+                itemId: 'period-values',
+                xtype: 'fieldcontainer',
+                name: 'recurrenceValues',
+                fieldLabel: Uni.I18n.translate('general.firmwareTimeout', 'FWC', 'Timeout before validation'),
+                margin: '30 0 10 0',
+                hidden: true,
+                required: true,
+                layout: 'hbox',
+                items: [
+                    {
+                        itemId: 'period-number',
+                        xtype: 'numberfield',
+                        name: 'recurrenceNumber',
+                        allowDecimals: false,
+                        minValue: 1,
+                        value: 1,
+                        width: 65,
+                        margin: '0 10 0 0'
+                    },
+                    {
+                        itemId: 'period-combo',
+                        xtype: 'combobox',
+                        store: Ext.create('Fwc.firmwarecampaigns.store.DaysWeeksMonths'),
+                        displayField: 'displayValue',
+                        valueField: 'name',
+                        queryMode: 'local',
+                        width: 100
+                    }
+                ]
+            },
+            {
                 xtype: 'property-form',
                 itemId: 'property-form',
                 defaults: {
@@ -244,7 +276,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     onManagementOptionChange: function (radiogroup, newValue) {
         var me = this,
-            firmwareManagementOption = Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption');
+            firmwareManagementOption = Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption'),
+            recurrenceTypeCombo = me.down('#period-combo'),
+            periodValues = me.down('#period-values');
 
         if (newValue && newValue.managementOption) {
             if (!me.skipLoadingIndication) {
@@ -253,6 +287,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
+                    if(record.get('uploadOption') === 'activate'){
+                        periodValues.show();
+                        if(!recurrenceTypeCombo.getValue()){
+                            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(1));
+                        }
+                    } else {
+                        periodValues.hide();
+                    }
                 },
                 callback: function () {
                     if (!me.skipLoadingIndication) {
@@ -301,6 +343,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
             deviceGroupCombo = me.down('#firmware-campaign-device-group'),
             managementOptionRadioGroup = me.down('#firmware-management-option'),
+            periodCombo = me.down('#period-combo'),
+            periodNumber = me.down('#period-number'),
+            periodValues = me.down('#period-values'),
             deviceTypeId = campaignRecord.get('deviceType').id,
             hideDeviceGroupComboAndSetDeviceType = function() {
                 deviceGroupCombo.allowBlank = true;
@@ -318,6 +363,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     managementOption : campaignRecord.get('managementOption').id
                 });
                 managementOptionRadioGroup.setDisabled(true);
+                periodValues.setDisabled(true);
+                var validationTimeout = campaignRecord.get('validationTimeout');
+                if(validationTimeout){
+                    periodCombo.setRawValue(periodCombo
+                        .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
+                    periodNumber.setValue(validationTimeout.count);
+                }
+
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());

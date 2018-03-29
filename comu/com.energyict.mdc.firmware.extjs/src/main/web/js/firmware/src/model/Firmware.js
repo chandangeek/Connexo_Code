@@ -38,7 +38,9 @@ Ext.define('Fwc.model.Firmware', {
             type: 'hasOne',
             model: 'Fwc.model.FirmwareType',
             name: 'firmwareType',
-            associationKey: 'firmwareType'
+            associationKey: 'firmwareType',
+            getterName: 'getFirmwareType',
+            setterName: 'setFirmwareType'
         },
         {
             type: 'hasOne',

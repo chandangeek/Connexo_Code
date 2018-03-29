@@ -11,6 +11,11 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
             type: 'boolean',
             useNull: true
         },
+        {
+            name: 'validateFirmwareFileSignature',
+            type: 'boolean',
+            useNull: true
+        },
         'supportedOptions',
         'allowedOptions',
         {

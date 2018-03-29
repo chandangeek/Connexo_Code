@@ -21,8 +21,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
         me.content = [
             {
-                ui: 'large',
+                ui: 'medium',
                 layout: 'hbox',
+                itemId: 'management-container',
+                title: Uni.I18n.translate('general.firmwareManagement', 'FWC', 'Firmware management'),
                 tools: [
                     {
                         xtype: 'uni-button-action',
@@ -112,7 +114,94 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                         }
                     }
                 ]
+            },
+            {
+                ui: 'medium',
+                layout: 'hbox',
+                itemId: 'security-check-container',
+                title: Uni.I18n.translate('general.firmwareSignatureCheck', 'FWC', 'Firmware signature check'),
+                tools: [
+                    {
+                        xtype: 'uni-button-action',
+                        itemId: 'fwc-specifications-signature-actions-btn',
+                        menu: {
+                            plain: true,
+                            border: false,
+                            shadow: false,
+                            items: [
+                                {
+                                    itemId: 'mdc-edit-options-btn',
+                                    text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
+                                    privileges: Mdc.privileges.SecurityAccessor.admin,
+                                    action: 'editFirmwareOptionsSecurityAccessor'
+                                },
+                                {
+                                    itemId: 'mdc-clear-accessor-options-btn',
+                                    text: Uni.I18n.translate('general.clearAccessor', 'FWC', 'Clear accessor'),
+                                    privileges: Mdc.privileges.SecurityAccessor.admin,
+                                    action: 'clearAccessorFirmwareSignatureOptions'
+                                }
+                            ]
+                        }
+                    }
+                ],
+                items: [
+                    {
+                        xtype: 'form',
+                        padding: '15 0 0 0',
+                        itemId: 'security-check-form',
+                        flex: 1,
+                        defaults: {
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'name',
+                                itemId: 'security-accessor',
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.securityAccessor', 'FWC', 'Security accessor')
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'type',
+                                itemId: 'certificate-type',
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.certificateType', 'FWC', 'Certificate type')
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'truststore',
+                                itemId: 'trust-store',
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.trustStore', 'FWC', 'Trust store')
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'certificate',
+                                itemId: 'certificate',
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.certificate', 'FWC', 'Certificate')
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'expirationTime',
+                                itemId: 'valid-until',
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.validUntil', 'FWC', 'Valid until')
+                            }
+                        ]
+                    }
+                ],
+                loadRecord: function (record) {
+                    var securityCheckForm = me.down('#security-check-form');
+                    if (!record.get('id')) {
+                        securityCheckForm.down('#certificate-type').hide();
+                        securityCheckForm.down('#trust-store').hide();
+                        securityCheckForm.down('#certificate').hide();
+                        securityCheckForm.down('#valid-until').hide();
+                    } else {
+                        securityCheckForm.loadRecord(record);
+                    }
+                }
             }
+
+
         ];
 
         me.callParent(arguments);

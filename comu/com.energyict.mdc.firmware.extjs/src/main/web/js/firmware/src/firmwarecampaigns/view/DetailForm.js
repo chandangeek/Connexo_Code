@@ -85,6 +85,15 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'firmware-validation-timeout-field',
+                        fieldLabel: Uni.I18n.translate('general.firmwareTimeout', 'FWC', 'Timeout before validation'),
+                        name: 'validationTimeout',
+                        renderer: function (value) {
+
+                            return value ? Ext.String.format('{0} {1}', value.count, value.localizedTimeUnit) : '-'
+                        }
+                    },
+                    {
                         xtype: 'property-form',
                         itemId: 'property-form',
                         bodyStyle: {
