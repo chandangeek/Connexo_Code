@@ -134,6 +134,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_MESSAGE_WITH_ID(316, "NoMessageWithId", "No device message with id {0} exists"),
     NO_SUCH_CONNECTION_FUNCTION(317, "NoSuchConnectionFunction", "The connection function could not be found"),
     MASTER_DEVICE_CANNOT_ACT_AS_GATEWAY(318, "MasterDeviceCannotActAsGateway", "Device ''{0}'' cannot be set as master device because its device configuration prohibits usage as gateway"),
+    NO_SUCH_PROCESS_DEFINITION(319, "NoSuchProcessDefinition", "No process definition found"),
+    NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist")
     ;
 
     private final int number;

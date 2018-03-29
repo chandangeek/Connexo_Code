@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
@@ -50,6 +52,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -169,6 +172,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -3147,5 +3151,49 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Map<String, Object> response = target("/devices/theDevice/").request().get(Map.class);
         assertThat(response).contains(MapEntry.entry("hasEstimationRules", false));
         assertThat(response).contains(MapEntry.entry("hasValidationRules", true));
+    }
+
+    @Test
+    public void testValidateDevicesBadAction()  {
+        BulkRequestInfo info = getBulkRequestInfo();
+        info.action = "InvalidAction";
+        Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testValidateDevicesBadProperty() {
+        BulkRequestInfo info = getBulkRequestInfo();
+        info.properties.get(0).required = true;
+        Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testValidateDevicesNoProcessFound() {
+        BulkRequestInfo info = getBulkRequestInfo();
+        Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    private BulkRequestInfo getBulkRequestInfo() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "ValidateDevices";
+        info.filter = null;
+        info.deviceIds = new ArrayList<>();
+        info.name = "Test device";
+        info.processId = "TestProcesses.Testdevice";
+        info.version = "1.0";
+        info.deploymentId = "com.elster:TestProcesses:2.1";
+
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
+                new PropertyValueInfo<>(null, null, null, null),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEMPORALAMOUNT, null, null, null),
+                false);
+
+        List<PropertyInfo> propertyInfos = new ArrayList<>();
+        propertyInfos.add(propertyInfo);
+        info.properties = propertyInfos;
+        return info;
     }
 }
