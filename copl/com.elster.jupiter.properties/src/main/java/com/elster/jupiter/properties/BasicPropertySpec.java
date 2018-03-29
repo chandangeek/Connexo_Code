@@ -125,7 +125,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean validateSimpleValue(Object value) throws InvalidValueException {
+    private void validateSimpleValue(Object value) throws InvalidValueException {
         if (this.getPossibleValues() != null && this.getPossibleValues().isExhaustive()) {
             if (!this.isPossibleValue(value)) {
                 throw new InvalidValueException("XisNotAPossibleValue", "The value is not listed as a possible value for this property", this.getName());
@@ -133,17 +133,15 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         }
         if (!this.valueFactory.isValid(value)) {
             invalidValueException();
-            return false;
         }
-        return true;
     }
 
-    private void invalidValueException() throws InvalidValueException{
-        if (valueFactory instanceof HasPropertyValidator){
-            HasPropertyValidator factory =((HasPropertyValidator) valueFactory);
+    private void invalidValueException() throws InvalidValueException {
+        if (valueFactory instanceof HasPropertyValidator) {
+            HasPropertyValidator factory = ((HasPropertyValidator) valueFactory);
             throw new InvalidValueException(factory.invalidMessage(), this.getName(), factory.getReferenceValue());   //Guideline: property name
         }
-        throw new InvalidValueException("XisNotValid", "{0} is not valid." , this.getName());
+        throw new InvalidValueException("XisNotValid", "{0} is not valid.", this.getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -152,8 +150,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             Collection valueCollection = (Collection) value;
             ListValueFactory listValueFactory = (ListValueFactory) this.valueFactory;
             return valueCollection.stream().anyMatch(each -> this.isPossibleValue(each, listValueFactory.getActualFactory()));
-        }
-        else {
+        } else {
             return this.isPossibleValue(value, this.valueFactory);
         }
     }

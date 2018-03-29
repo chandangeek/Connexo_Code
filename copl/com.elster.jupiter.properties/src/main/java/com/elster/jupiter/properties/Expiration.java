@@ -43,6 +43,12 @@ public class Expiration {
                 LocalDateTime threeMonthsLater = LocalDateTime.ofInstant(when, ZoneId.systemDefault()).plusMonths(3);
                 return threeMonthsLater.toInstant(ZoneOffset.UTC).toEpochMilli();
             }
+        },
+        OBSOLETE("obsolete") {
+            @Override
+            long getExpirationPeriodEnd(Instant when) {
+                throw new UnsupportedOperationException("called #getExpirationPeriodEnd for Obsolete filter");
+            }
         };
 
         private final String name;
@@ -81,5 +87,10 @@ public class Expiration {
 
     public Condition isExpired(String fieldName, Instant when) {
         return (Where.where(fieldName).isLessThanOrEqual(type.getExpirationPeriodEnd(when)));
+    }
+
+    public Condition isObsolete(String fieldName) {
+        // keep in sync with com.elster.jupiter.pki.CertificateWrapperStatus.OBSOLETE#name
+        return (Where.where(fieldName).isEqualToIgnoreCase("OBSOLETE"));
     }
 }
