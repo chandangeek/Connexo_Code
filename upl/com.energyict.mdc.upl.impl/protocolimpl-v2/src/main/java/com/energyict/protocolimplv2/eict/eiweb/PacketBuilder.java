@@ -199,7 +199,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
-            this.collectedData.add(this.collectedDataFactory.createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+            this.collectedData.add(this.collectedDataFactory.createDeviceConnectionProperty(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -378,7 +378,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = in.readLEInt();
 
-        this.collectedData.add(this.collectedDataFactory.createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        this.collectedData.add(this.collectedDataFactory.createDeviceConnectionProperty(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
 
         // retrieve data
         data = this.getDecryptedData(in);

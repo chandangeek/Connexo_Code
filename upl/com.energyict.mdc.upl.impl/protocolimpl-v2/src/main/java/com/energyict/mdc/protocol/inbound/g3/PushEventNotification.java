@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -30,6 +31,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
     protected CollectedLogBook collectedLogBook;
+    protected List<CollectedDeviceInfo> collectedDeviceInfoList;
     protected EventPushNotificationParser parser;
     List<CollectedData> collectedDatas;
 
@@ -57,6 +59,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     public DiscoverResultType doDiscovery() {
         getEventPushNotificationParser().readAndParseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
+        collectedDeviceInfoList = getEventPushNotificationParser().getCollectedDeviceInfoList();
         context.getLogger().info(this::getLoggingMessage);
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
@@ -173,9 +176,12 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<CollectedData> getCollectedData() {
-        if(collectedDatas == null) {
+        if (collectedDatas == null) {
             collectedDatas = new ArrayList<>();
             collectedDatas.add(collectedLogBook);
+        }
+        if (collectedDeviceInfoList != null && !collectedDeviceInfoList.isEmpty()) {
+            collectedDatas.addAll( collectedDeviceInfoList );
         }
         return collectedDatas;
     }
