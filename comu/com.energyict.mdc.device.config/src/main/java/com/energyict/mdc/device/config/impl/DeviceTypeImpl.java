@@ -19,9 +19,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -39,6 +41,8 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
@@ -339,15 +343,27 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
-        if (getConfigurations().stream().anyMatch(DeviceConfiguration::isActive)) { // TODO provide better check
-            throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
-        }
         return securityAccessorTypes.stream()
                 .filter(securityAccessorTypeOnDeviceType ->
                         securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
+                .peek(this::validateSecurityAccessorTypeRemoval)
                 .findAny()
                 .map(securityAccessorTypes::remove)
                 .orElse(false);
+    }
+
+    private void validateSecurityAccessorTypeRemoval(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
+        if (getDataModel().stream(ConfigurationSecurityProperty.class)
+                .join(SecurityPropertySet.class)
+                .join(DeviceConfiguration.class)
+                .filter(Where.where("securityPropertySet.deviceConfiguration.deviceType").isEqualTo(this))
+                .filter(Where.where("securityPropertySet.deviceConfiguration.active").isEqualTo(true))
+                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getSecurityAccessorType()))
+                .findAny()
+                .isPresent()) {
+            throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
+        }
+        getEventService().postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), securityAccessorTypeOnDeviceType);
     }
 
     @Override

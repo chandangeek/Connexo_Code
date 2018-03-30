@@ -169,16 +169,16 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS(15017, Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS, "You can''t change this property because you already have connection tasks"),
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
-    MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15020, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before activate a multi-element submeter device configuration "),
+    MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15020, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before activate a multi-element submeter device configuration."),
     MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG(15021, Keys.MULTI_ELEMENT_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG, "You can''t change the multi-element functionality on an active device configuration"),
     INVALID_VALUE(15022, Keys.INVALID_VALUE, "Invalid value"),
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
-    KEY_ACCESSOR_CAN_NOT_BE_DELETED(15025, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(15025, "CanNotDeleteKeyAccessor", "The security accessor couldn''t be removed from the device type because it is used by security sets on active device configurations."),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(15027, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
     CONNECTION_FUNCTION_UNIQUE(15028, Keys.CONNECTION_FUNCTION_UNIQUE, "The provided connection function is already used on another connection method"),
     COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK(15029, Keys.COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK, "When a partial connection task is specified, you can''t use the connection function"),
-    VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "Security accessor could not be removed because it is still in use by the following device type(s): {0}")
+    VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still in use by the following device type(s): {0}")
     ;
 
     private final int number;

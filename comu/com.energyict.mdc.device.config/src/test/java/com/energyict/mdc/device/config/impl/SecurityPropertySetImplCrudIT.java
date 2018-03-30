@@ -35,8 +35,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -45,6 +45,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -106,6 +107,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.time.Clock;
 import java.util.Arrays;
@@ -177,7 +179,7 @@ public class SecurityPropertySetImplCrudIT {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
@@ -241,7 +243,8 @@ public class SecurityPropertySetImplCrudIT {
                     new SchedulingModule(),
                     new TimeModule(),
                     new CustomPropertySetsModule(),
-                    new CalendarModule());
+                    new CalendarModule(),
+                    new WebServicesModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -358,7 +361,8 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -393,7 +397,8 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -426,7 +431,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -451,7 +457,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
         ComTask testComTask = createTestComTask();
@@ -484,7 +491,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -525,9 +533,12 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType1 = securityManagementService.addSecurityAccessorType("GUAK1", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
-        SecurityAccessorType securityAccessorType2 = securityManagementService.addSecurityAccessorType("GUAK2", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
-        SecurityAccessorType securityAccessorType3 = securityManagementService.addSecurityAccessorType("GUAK3", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType1 = securityManagementService.addSecurityAccessorType("GUAK1", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType2 = securityManagementService.addSecurityAccessorType("GUAK2", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType3 = securityManagementService.addSecurityAccessorType("GUAK3", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -577,7 +588,8 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -599,7 +611,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithoutName() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -618,7 +631,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithEmptyName() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -637,7 +651,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithLongName() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -657,7 +672,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -682,7 +698,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -710,7 +727,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithoutClient() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -730,7 +748,8 @@ public class SecurityPropertySetImplCrudIT {
 
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -751,7 +770,8 @@ public class SecurityPropertySetImplCrudIT {
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
@@ -789,7 +809,8 @@ public class SecurityPropertySetImplCrudIT {
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
@@ -861,7 +882,8 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -880,7 +902,8 @@ public class SecurityPropertySetImplCrudIT {
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
@@ -898,7 +921,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithoutRequiredConfigurationSecurityProperty() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         when(spec1.isRequired()).thenReturn(true);
         when(spec2.isRequired()).thenReturn(false);
@@ -918,7 +942,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithConfigurationSecurityPropertyNotInSpec() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         when(authLevel.getSecurityProperties()).thenReturn(Collections.emptyList());
         when(encLevel.getSecurityProperties()).thenReturn(Collections.emptyList());
@@ -938,7 +963,8 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithInvalidConfigurationSecurityProperty() {
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
-        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("GUAK", aes128).keyEncryptionMethod("SSM")
+                .purpose(SecurityAccessorType.Purpose.COMMUNICATION).description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
         deviceConfiguration.createSecurityPropertySet("Name")
