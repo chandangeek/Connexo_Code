@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
@@ -54,7 +55,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -367,6 +367,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
             return serviceProvider.deviceConfigurationService();
         }
 
+        @Override
+        public SecurityManagementService securityManagementService() {
+            return serviceProvider.securityManagementService();
+        }
     }
 
     private class RemoteComServerDaoServiceProvider implements RemoteComServerDAOImpl.ServiceProvider {
