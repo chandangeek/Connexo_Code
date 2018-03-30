@@ -2,10 +2,11 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.pki;
+package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.util.Pair;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -20,6 +21,7 @@ import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -29,13 +31,27 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Date;
 
 public class SecurityTestUtils {
+    private static CertificateFactory certificateFactory;
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    public static CertificateFactory getCertificateFactory() throws CertificateException, NoSuchProviderException {
+        if (certificateFactory == null) {
+            certificateFactory = CertificateFactory.getInstance("X.509", "BC");
+        }
+        return certificateFactory;
+    }
+
     public static Pair<X509Certificate, PrivateKey> generateSelfSignedCertificate(String cn) throws
             NoSuchProviderException,
             NoSuchAlgorithmException,
@@ -122,5 +138,13 @@ public class SecurityTestUtils {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
         keyPairGenerator.initialize(2048, new SecureRandom());
         return keyPairGenerator.generateKeyPair();
+    }
+
+    public static InputStream getAsStream(String name) {
+        return SecurityTestUtils.class.getResourceAsStream(name);
+    }
+
+    public static X509Certificate loadCertificate(String name) throws CertificateException, NoSuchProviderException {
+        return (X509Certificate) getCertificateFactory().generateCertificate(getAsStream(name));
     }
 }

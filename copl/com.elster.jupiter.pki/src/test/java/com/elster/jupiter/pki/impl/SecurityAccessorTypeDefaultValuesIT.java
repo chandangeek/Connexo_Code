@@ -13,7 +13,6 @@ import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
@@ -23,13 +22,10 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.time.Never;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.security.KeyStore;
-import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -68,7 +64,6 @@ public class SecurityAccessorTypeDefaultValuesIT {
         ((SecurityManagementServiceImpl) securityManagementService).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) securityManagementService).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
         ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
-        Security.addProvider(new BouncyCastleProvider());
 
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
         keyStore.load(SecurityAccessorTypeDefaultValuesIT.class.getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());

@@ -7,7 +7,6 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
@@ -15,11 +14,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Never;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 import java.nio.file.FileSystems;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
@@ -69,7 +65,6 @@ public class TrustStoreImpl2IT {
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
         ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
         ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Before
