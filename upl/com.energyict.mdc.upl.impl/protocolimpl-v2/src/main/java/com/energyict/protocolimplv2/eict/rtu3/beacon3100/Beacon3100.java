@@ -760,18 +760,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         return result;
     }
 
-    // TODO: 19.03.2018 CXO-8215 for demo purposes
-    @Override
-    public boolean firmwareSignatureCheckSupported() {
-        return true;
-    }
-
-    // TODO: 19.03.2018 CXO-8215 for demo purposes
-    @Override
-    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
-        return true;
-    }
-
     /**
      * Enumerates the different clients for the Beacon.
      *
