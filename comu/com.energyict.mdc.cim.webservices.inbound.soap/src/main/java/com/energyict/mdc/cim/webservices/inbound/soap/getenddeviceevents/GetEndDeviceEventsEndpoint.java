@@ -122,6 +122,9 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
                 .findFirst()
                 .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
         if (!webServicesService.isPublished(endPointConfig)) {
+            webServicesService.publishEndPoint(endPointConfig);
+        }
+        if (!webServicesService.isPublished(endPointConfig)) {
             throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
         }
         return endPointConfig;
