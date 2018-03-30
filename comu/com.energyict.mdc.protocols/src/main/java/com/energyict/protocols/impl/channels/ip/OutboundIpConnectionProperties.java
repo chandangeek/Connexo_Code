@@ -273,7 +273,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     protected void copyPort(CustomPropertySetValues propertyValues) {
-        this.portNumber = (BigDecimal) propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName());
+        this.portNumber = new BigDecimal( propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName()).toString() );
     }
 
     protected void copyConnectionTimeout(CustomPropertySetValues propertyValues) {
