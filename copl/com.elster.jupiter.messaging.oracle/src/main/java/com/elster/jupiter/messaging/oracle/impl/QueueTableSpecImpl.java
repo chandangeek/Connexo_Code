@@ -4,10 +4,8 @@
 
 package com.elster.jupiter.messaging.oracle.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.UnderlyingAqException;
-import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -31,7 +29,7 @@ import java.time.Instant;
 public class QueueTableSpecImpl implements QueueTableSpec {
 
     // persistent fields
-    @Size(max = 20)
+    @Size(max = 24, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUEUE_NAME_TOO_LONG + "}")
     private String name;
     private String payloadType;
     private boolean multiConsumer;
@@ -217,13 +215,13 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     public AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException {
         return session.getQueueTable("kore", name);
     }
-
+    
     @Override
     public void save() {
         if (fromDB) {
-            dataModel.mapper(QueueTableSpec.class).update(this);
+            Save.UPDATE.save(dataModel, this);
         } else {
-            dataModel.mapper(QueueTableSpec.class).persist(this);
+            Save.CREATE.save(dataModel, this);
             fromDB = true;
         }
     }
