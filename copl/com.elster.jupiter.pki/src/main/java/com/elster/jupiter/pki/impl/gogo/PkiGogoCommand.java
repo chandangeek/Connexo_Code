@@ -443,11 +443,10 @@ public class PkiGogoCommand {
             if (key == null) {
                 throw new IllegalArgumentException("The keystore does not contain a key with alias " + alias);
             }
-            KeyType certificateType = securityManagementService.newClientCertificateType("TLS-RSA", "SHA256withRSA").RSA().keySize(2048)
-                    .add();
+            KeyType certificateType = securityManagementService.getKeyType("TLS-RSA-2048")
+                    .orElseGet(() -> securityManagementService.newClientCertificateType("TLS-RSA-2048", "SHA256withRSA").RSA().keySize(2048).add());
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService
                     .newClientCertificateWrapper(certificateType, "DataVault").alias(alias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
