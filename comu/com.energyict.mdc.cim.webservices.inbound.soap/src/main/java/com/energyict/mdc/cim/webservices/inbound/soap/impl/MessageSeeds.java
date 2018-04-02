@@ -4,10 +4,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -60,6 +59,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
+
+    NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ;
 
     private final int number;

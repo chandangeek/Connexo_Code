@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.Name;
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -18,13 +19,12 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class DeviceBuilder {
@@ -60,6 +60,9 @@ public class DeviceBuilder {
         Optional<BigDecimal> multiplier = Optional.ofNullable(meter.getMultiplier());
 
         return () -> {
+            if (!getExistingDevices(meter.getDeviceName(), serialNumber.orElse(null)).isEmpty()) {
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NAME_MUST_BE_UNIQUE).get();
+            }
             Device createdDevice = batch.isPresent() ?
                     deviceService.newDevice(deviceConfig, meter.getDeviceName(), batch.get(), meter.getShipmentDate()) :
                     deviceService.newDevice(deviceConfig, meter.getDeviceName(), meter.getShipmentDate());
@@ -111,7 +114,7 @@ public class DeviceBuilder {
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue
                                 .orElse("")));
                 executableAction.execute(effectiveDate, Collections.emptyList());
-                changedDevice.save();
+                updateDevice(changedDevice);
                 changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
             }
 
@@ -136,9 +139,7 @@ public class DeviceBuilder {
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
             changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
-            changedDevice.save();
-
-            return changedDevice;
+            return updateDevice(changedDevice);
         };
     }
 
@@ -169,5 +170,23 @@ public class DeviceBuilder {
     public boolean isActionForState(AuthorizedTransitionAction authorizedTransitionAction, String state) {
         Optional<DefaultState> defaultState = DefaultState.from(authorizedTransitionAction.getStateTransition().getTo());
         return defaultState.isPresent() && defaultState.get().getDefaultFormat().equals(state);
+    }
+
+    private Device updateDevice(Device device) throws FaultMessage {
+        long id = device.getId();
+        if (getExistingDevices(device.getName(), device.getSerialNumber()).stream().noneMatch(e -> e.getId() != id)) {
+            device.save();
+        } else {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), MessageSeeds.NAME_MUST_BE_UNIQUE).get();
+        }
+        return device;
+    }
+
+    private List<Device> getExistingDevices(String name, String serialNumber) {
+        Condition condition = Where.where("name").isEqualTo(name);
+        if (serialNumber != null) {
+            condition = condition.or(Where.where("serialNumber").isEqualTo(serialNumber));
+        }
+        return deviceService.findAllDevices(condition).paged(0, 10).find();
     }
 }
