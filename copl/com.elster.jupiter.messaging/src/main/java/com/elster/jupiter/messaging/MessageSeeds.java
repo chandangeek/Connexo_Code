@@ -20,7 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE(1006, Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY, "The number of retries of a queue should be between {min} and {max}"),
     EMPTY_QUEUE_NAME(1007, Keys.EMPTY_QUEUE_NAME, "Queue name is missing from request."),
     EMPTY_QUEUE_TYPE_NAME(1008, Keys.EMPTY_QUEUE_TYPE_NAME, "Queue type is missing from request."),
-    DUPLICATE_QUEUE(1009, Keys.DUPLICATE_QUEUE, "Queue is already defined");
+    DUPLICATE_QUEUE(1009, Keys.DUPLICATE_QUEUE, "Queue is already defined"),
+    QUEUE_NAME_TOO_LONG(1010, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long.");
 
     private final int number;
     private final String key;
@@ -79,5 +80,6 @@ public enum MessageSeeds implements MessageSeed {
         String EMPTY_QUEUE_NAME = "queue.name.empty";
         String EMPTY_QUEUE_TYPE_NAME = "queue.type.empty";
         String DUPLICATE_QUEUE = "queue.duplicate.name";
+        String QUEUE_NAME_TOO_LONG = "queue.name.too.long";
     }
 }
