@@ -2,12 +2,13 @@ package com.elster.jupiter.messaging.rest.impl;
 
 public class DestinationSpecTypeNameInfo {
 
-    public String key;
-    public String description;
+    public String name;
+    public String value;
 
-    public DestinationSpecTypeNameInfo(String value) {
-        this.key = value;
-        this.description = value;
+    DestinationSpecTypeNameInfo(String value) {
+        this.name = value;
+        this.value = value;
     }
 
 }
+

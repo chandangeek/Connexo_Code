@@ -47,7 +47,7 @@ public class DestinationSpecInfoFactory {
 
     private List<TaskMinInfo> getTasksFrom(String queueName, List<RecurrentTask> allTasks) {
         return allTasks.stream().filter(task -> queueName.equals(task.getDestination().getName()))
-                .map(rt -> TaskMinInfo.from(rt)).collect(Collectors.toList());
+                .map(rt -> TaskMinInfo.from(rt, thesaurus)).collect(Collectors.toList());
     }
 
     public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {

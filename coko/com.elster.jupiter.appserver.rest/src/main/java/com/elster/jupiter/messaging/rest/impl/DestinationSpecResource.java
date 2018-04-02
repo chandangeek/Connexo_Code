@@ -204,13 +204,8 @@ public class DestinationSpecResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response getDestinationSpecTypeNames() {
-        List<DestinationSpecTypeNameInfo> destinationSpecTypeNames = messageService.findDestinationSpecs().stream()
-                .filter(DestinationSpec::isExtraQueueCreationEnabled)
-                .filter(DestinationSpec::isDefault)
-                .map(d -> new DestinationSpecTypeNameInfo(d.getQueueTypeName()))
-                .collect(Collectors.toList());
-
-        return Response.status(Response.Status.OK).entity(destinationSpecTypeNames).build();
+        return Response.status(Response.Status.OK).entity(DestinationSpecTypeName.from(messageService.findDestinationSpecs())).build();
     }
 
 }
+
