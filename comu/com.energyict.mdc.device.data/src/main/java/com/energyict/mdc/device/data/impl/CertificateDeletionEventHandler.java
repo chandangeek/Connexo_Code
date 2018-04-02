@@ -44,7 +44,7 @@ public class CertificateDeletionEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         CertificateWrapper source = (CertificateWrapper) localEvent.getSource();
         if (!deviceService.getAssociatedKeyAccessors(source).isEmpty()) {
-            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.VETO_CERTIFICATE_REMOVAL_USED_ON_DEVICE);
         }
     }
 

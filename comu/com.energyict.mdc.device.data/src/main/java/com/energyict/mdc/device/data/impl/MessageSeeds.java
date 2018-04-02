@@ -188,10 +188,23 @@ public enum MessageSeeds implements MessageSeed {
     NOT_ALLOWED_TO_EDIT_CENTRALLY_MANAGED_SECURITY_ACCESSOR(2162, "NotAllowedToEditCentrallyManagedSecurityAccessor",
             "It''s not allowed to modify centrally managed security accessor ''{0}'' on device level."),
     VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE(2163, "VetoSecurityAccessorRemovalFromDeviceType", "The security accessor couldn''t be removed from the device type because keys/certificates are specified on devices of this device type."),
-    CERTIFICATE_USED_ON_SECURITY_ACCESSOR(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
+    VETO_CERTIFICATE_REMOVAL_USED_ON_DEVICE(2164, "CertificateUsedOnSecurityAccessor", "The certificate couldn''t be removed because it is used on a device security accessor."),
     COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE(2165, Keys.COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE, "The device command ''{0}'' should have a ''key type'' attribute"),
     PROPERTY_VALUE_REQUIRED(2166, "InvalidPropertyValue", "Value for property {0} is required"),
-    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK(2167, "VetoSecurityAccessorRemovalFromCrlTask", "The security accessor couldn''t be removed since it is used by {0}"),;
+    VETO_SECURITY_ACCESSOR_REMOVAL_FROM_CRL_TASK(2167, "VetoSecurityAccessorRemovalFromCrlTask", "The security accessor couldn''t be removed since it is used by task {0}."),
+    NO_CRL_REQUEST_TASK_PROPERTIES(2168, "NoCrlRequestTaskProperties", "No CRL request task properties."),
+    CA_WITH_NAME_NOT_CONFIGURED(2169, "CaWithNameNotConfigured", "CA ''{0}'' isn''t configured."),
+    CRL_SIGNATURE_VERIFICATION_FAILED(2170, "CrlSignatureVerificationFailed", "CRL signature verification has failed: {0}"),
+    EXPIRED_CERTIFICATE(2171, "ExpiredCertificate", "Certificate ''{0}'' has expired."),
+    SIGNATURE_DOES_NOT_MATCH(2172, "SignatureDoesNotMatch", "Signature doesn''t match."),
+    NO_CERTIFICATE_IN_WRAPPER(2173, "NoCertificateInWrapper", "No actual certificate is kept under alias {0}."),
+    NO_CRL_FROM_CA(2174, "NoCrlFromCa", "No CRL has been received from CA {0}.", Level.INFO),
+    RECEIVED_CRL_WITH_SN_FROM_CA(2175, "ReceivedCrlFromCa", "CRL received from CA {0} contains {1} serial numbers: {2}.", Level.INFO),
+    CERTIFICATE_USED_BY_SECURITY_ACCESSOR(2176, "CertificateUsedBySecurityAccessor", "Certificate {0} is still used by a centrally managed certificate accessor.", Level.WARNING),
+    CERTIFICATE_USED_BY_USER_DIRECTORY(2177, "CertificateUsedByUserDirectory", "Certificate {0} is still used by a user directory.", Level.WARNING),
+    CERTIFICATE_USED_BY_DEVICE(2178, "CertificateUsedByDevice", "Certificate {0} is still used by a device.", Level.WARNING),
+    CERTIFICATE_REVOKED_SUCCESSFULLY(2179, "CertificateRevokedSuccessfully", "Certificate {0} has been revoked.", Level.INFO),
+    EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}");
 
     private final int number;
     private final String key;

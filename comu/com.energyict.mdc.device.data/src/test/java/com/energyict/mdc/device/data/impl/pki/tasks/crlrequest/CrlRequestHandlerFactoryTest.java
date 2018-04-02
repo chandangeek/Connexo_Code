@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -12,6 +15,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
@@ -26,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +43,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CrlRequestHandlerFactoryTest {
-    private CrlRequestHandlerFactory crlRequestHandlerFactory;
     private static final String CA_NAME = "test_ca";
+    private CrlRequestHandlerFactory crlRequestHandlerFactory;
+    private CrlRequestTaskExecutor executor;
 
     @Mock
     private TaskService taskService;
@@ -74,6 +79,10 @@ public class CrlRequestHandlerFactoryTest {
     private X509Certificate x509Certificate;
     @Mock
     private PublicKey publicKey;
+    @Mock
+    private NlsService nlsService;
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
     @Before
     public void setUp() throws Exception {
@@ -94,65 +103,54 @@ public class CrlRequestHandlerFactoryTest {
         when(x509Certificate.getPublicKey()).thenReturn(publicKey);
         when(clock.instant()).thenReturn(Instant.now());
         when(caService.getLatestCRL(any(String.class))).thenReturn(Optional.empty());
-    }
-
-    @After
-    public void tearDown() throws Exception {
+        crlRequestHandlerFactory = new CrlRequestHandlerFactory(taskService, caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, nlsService, transactionService);
+        executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService);
     }
 
     @Test
     public void testGetRecurrentTask() {
-        crlRequestHandlerFactory = new CrlRequestHandlerFactory(taskService, caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         crlRequestHandlerFactory.getTask();
         verify(taskService).getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME);
     }
 
     @Test
     public void testRunRecurrentTask() {
-        crlRequestHandlerFactory = new CrlRequestHandlerFactory(taskService, caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         crlRequestHandlerFactory.runNow();
         verify(recurrentTask).runNow(any(CrlRequestTaskExecutor.class));
     }
 
     @Test
     public void testFindCrlRequestTaskProperties() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         executor.execute(taskOccurrence);
+        executor.postExecute(taskOccurrence);
         verify(crlRequestTaskPropertiesService).findCrlRequestTaskProperties();
     }
 
     @Test
-    public void testCaIsConfigured() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
-        executor.execute(taskOccurrence);
-        verify(caService).isConfigured();
-    }
-
-    @Test
     public void testGetCaName() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         executor.execute(taskOccurrence);
+        executor.postExecute(taskOccurrence);
         verify(crlRequestTaskProperty).getCaName();
     }
 
     @Test
     public void testGetSecurityAccessor() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         executor.execute(taskOccurrence);
+        executor.postExecute(taskOccurrence);
         verify(crlRequestTaskProperty).getSecurityAccessor();
     }
 
     @Test
     public void testGetPkiCaNames() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         executor.execute(taskOccurrence);
+        executor.postExecute(taskOccurrence);
         verify(caService).getPkiCaNames();
     }
 
     @Test
     public void testGetLatestCrl() {
-        CrlRequestTaskExecutor executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock);
         executor.execute(taskOccurrence);
+        executor.postExecute(taskOccurrence);
         verify(caService).getLatestCRL(any(String.class));
     }
 
