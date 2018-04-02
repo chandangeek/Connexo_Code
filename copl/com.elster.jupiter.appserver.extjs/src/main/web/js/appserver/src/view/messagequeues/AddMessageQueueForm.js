@@ -18,7 +18,7 @@ Ext.define('Apr.view.messagequeues.AddMessageQueueForm', {
             {
                 xtype: 'form',
                 ui: 'large',
-                title: Uni.I18n.translate('general.addQueueMessage', 'APR', 'Add queue message'),
+                title: Uni.I18n.translate('general.addQueueMessage', 'APR', 'Add message queue'),
                 itemId: 'add-queue-form',
                 width: '100%',
                 defaults: {
@@ -53,10 +53,10 @@ Ext.define('Apr.view.messagequeues.AddMessageQueueForm', {
                         disable: false,
                         emptyText: Uni.I18n.translate('general.selectType', 'APR', 'Select a task type ...'),
                         allowBlank: false,
-                        queryMode: 'local',
                         displayField: 'name',
                         valueField: 'value',
-                        width: 600
+                        width: 600,
+                        forceSelection: true
                     },
                     {
                         xtype: 'fieldcontainer',

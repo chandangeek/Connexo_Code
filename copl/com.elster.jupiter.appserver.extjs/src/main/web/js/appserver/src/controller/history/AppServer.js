@@ -185,7 +185,7 @@ Ext.define('Apr.controller.history.AppServer', {
                         add: {
                             route: 'add',
                             privileges: Apr.privileges.AppServer.view,
-                            title: Uni.I18n.translate('general.overview.add', 'APR', 'Add queue message'),
+                            title: Uni.I18n.translate('general.overview.add', 'APR', 'Add message queue'),
                             controller: 'Apr.controller.MessageQueues',
                             action: 'showAddMessageQueue',
                         }

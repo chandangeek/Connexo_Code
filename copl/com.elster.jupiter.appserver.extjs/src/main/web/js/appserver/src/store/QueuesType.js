@@ -4,22 +4,19 @@
 
 Ext.define('Apr.store.QueuesType', {
     extend: 'Ext.data.Store',
+    requires: [
+        'Apr.model.QueueType'
+    ],
     model: 'Apr.model.QueueType',
     proxy: {
-        type: 'memory'
-    },
-    data: [
-        {
-            name: Uni.I18n.translate('genearal.messagequeues.DataExport', 'APR', 'Data Export'),
-            value: 'DataExport'
+        type: 'rest',
+        url: '/api/msg/destinationspec/queuetypenames',
+        reader: {
+            type: 'json',
+            root: 'data'
         },
-        {
-            name: Uni.I18n.translate('genearal.messagequeues.DataEstimation', 'APR', 'Data Estimation'),
-            value: 'DataEstimation'
-        },
-        {
-            name: Uni.I18n.translate('genearal.messagequeues.DataValidation', 'APR', 'Data Validation'),
-            value: 'DataValidation'
-        }
-    ]
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
+    }
 });

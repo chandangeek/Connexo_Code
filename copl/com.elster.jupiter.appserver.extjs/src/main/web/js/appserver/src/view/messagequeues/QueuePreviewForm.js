@@ -84,6 +84,7 @@ Ext.define('Apr.view.messagequeues.QueuePreviewForm', {
                             items: [
                                 {
                                     xtype: 'displayfield',
+                                    htmlEncode: false,
                                     fieldLabel: Uni.I18n.translate('general.tasks', 'APR', 'Tasks'),
                                     name: 'queueTasks',
                                     itemId: 'queue-tasks'

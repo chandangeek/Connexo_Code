@@ -5,16 +5,15 @@
 Ext.define('Apr.model.QueueType', {
     extend: 'Ext.data.Model',
     fields: [
-        'name'
-        //'value'
+        'name',
+        'value'
     ],
-    idProperty: 'name',
     proxy: {
         type: 'rest',
         url: '/api/msg/destinationspec/queuetypenames',
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'data'
