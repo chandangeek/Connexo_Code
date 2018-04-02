@@ -57,7 +57,7 @@ final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
         this.endDevice.set(Objects.requireNonNull(endDevice));
         this.state.set(state);
         this.interval = Objects.requireNonNull(interval);
-        this.originatorName = ((User) threadPrincipalService.getPrincipal()).getName();
+        this.originatorName = threadPrincipalService.getPrincipal().getName();
         return this;
     }
 
