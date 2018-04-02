@@ -16,8 +16,8 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.CrlRequestService;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
 import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
@@ -35,7 +35,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -152,12 +151,12 @@ public class CrlRequestTaskResource {
                     .setPayLoad("Crl Request")
                     .scheduleImmediately(true)
                     .build();
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
+            task.setNextExecution(info.nextRun);
             task.save();
         } else {
             task = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).get();
             task.setScheduleExpression(getScheduleExpression(info));
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
+            task.setNextExecution(info.nextRun);
             task.save();
             task.updateNextExecution();
         }
