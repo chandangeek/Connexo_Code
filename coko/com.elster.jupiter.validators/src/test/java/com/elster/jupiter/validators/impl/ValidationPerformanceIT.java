@@ -238,7 +238,7 @@ public class ValidationPerformanceIT {
         try (TransactionContext context = txService.getContext()) {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
-            meter.store(QualityCodeSystem.MDC, meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading); // 1 reading
             context.commit();
             sqlCount = context.getStats().getSqlCount();
         }
@@ -248,9 +248,9 @@ public class ValidationPerformanceIT {
             for (int j = 0; j < 10; j++) {
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
             }
-            meter.store(QualityCodeSystem.MDC, meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading); // 10 readings
             context.commit();
-            assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
+            assertThat(context.getStats().getSqlCount()).isLessThanOrEqualTo(sqlCount); // not more than for 1 reading
         }
     }
 }
