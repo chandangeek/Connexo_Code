@@ -26,6 +26,7 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Step1', {
                 store: 'Imt.usagepointmanagement.store.UsagePointLifeCycles',
                 emptyText: Uni.I18n.translate('usagepointchangelifecycleexecute.wizard.selectUsagePointLifeCycle', 'IMT', 'Select usage point life cycle...'),
                 required: true,
+                //allowBlank: false,
                 editable: false,
                 queryMode: 'local',
                 margin: '20 0 20 0',
