@@ -5,6 +5,7 @@
 package com.elster.jupiter.util.conditions;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -44,5 +45,19 @@ public class Contains extends Leaf {
 
     private String getSqlString(Collection<?> collection) {
         return fieldName + " " + operator.getSymbol() + " " + collection;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj
+                || obj instanceof Contains
+                && operator == ((Contains) obj).operator
+                && Objects.equals(fieldName, ((Contains) obj).fieldName)
+                && Objects.equals(collection, ((Contains) obj).collection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(operator, fieldName, collection);
     }
 }
