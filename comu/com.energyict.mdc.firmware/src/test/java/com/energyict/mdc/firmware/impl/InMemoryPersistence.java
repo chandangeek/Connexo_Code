@@ -15,6 +15,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -99,7 +100,7 @@ import org.osgi.service.http.HttpService;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -175,7 +176,9 @@ public class InMemoryPersistence {
                 new FirmwareModule(),
                 new CalendarModule(),
                 new PkiModule(),
-                new WebServicesModule());
+                new WebServicesModule(),
+                new FileImportModule()
+        );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
@@ -292,7 +295,7 @@ public class InMemoryPersistence {
                         propertySpec.setName("FirmwareDeviceMessage.upgrade.userfile");
                         when(propertySpec.isReference()).thenReturn(true);
 
-                        return Arrays.asList(propertySpec);
+                        return Collections.singletonList(propertySpec);
                     }
                 };
                 return Optional.of(deviceMessageSpec);
