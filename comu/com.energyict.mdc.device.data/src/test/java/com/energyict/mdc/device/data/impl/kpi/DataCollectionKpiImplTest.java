@@ -17,6 +17,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -191,7 +192,6 @@ public class DataCollectionKpiImplTest {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -254,7 +254,8 @@ public class DataCollectionKpiImplTest {
                 new MockModule(),
                 new CalendarModule(),
                 new MdcDynamicModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new FileImportModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {

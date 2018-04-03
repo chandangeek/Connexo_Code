@@ -5,6 +5,8 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -71,7 +73,8 @@ public class InMemoryPersistence {
                 new TransactionModule(false),
                 new InMemoryMessagingModule(),
                 new MdcDynamicModule(),
-                new PkiModule()
+                new PkiModule(),
+                new FileImportModule()
 
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -132,5 +135,6 @@ public class InMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(MessageInterpolator.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }}

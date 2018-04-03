@@ -13,14 +13,16 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -29,7 +31,6 @@ import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
@@ -87,7 +88,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -116,6 +116,8 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -125,7 +127,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -137,13 +138,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -153,59 +153,37 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComSessionCrudIT {
-
     private static final String DEVICE_TYPE_NAME = "DeviceType";
     private static final String DEVICE_CONFIGURATION_NAME = "conf";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+
+    private static TransactionService transactionService;
+    private static TaskService taskService;
+    private static DeviceDataModelService deviceDataModelService;
+    private static InMemoryBootstrapModule bootstrapModule;
+    private static DeviceConfigurationService deviceConfigurationService;
+    private static ProtocolPluggableService protocolPluggableService;
+    private static EngineConfigurationService engineConfigurationService;
+    private static Device device;
+    private static OutboundComPortPool outboundTcpipComPortPool;
+    private static ScheduledConnectionTask connectionTask;
+    private static OutboundComPort comport;
+    private static ComTask comTask;
+    private static ComTaskExecution comTaskExecution;
+
     @Rule
     public final TestRule duraLexSedLex = new ExpectedConstraintViolationRule();
-    @Mock
-    DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
-    Thesaurus thesaurus;
-    private InboundComPortPool inboundComPortPool, inboundComPortPool2;
-    private ConnectionTypePluggableClass connectionTypePluggableClass;
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private Principal principal;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private LicenseService licenseService;
-    @Mock
-    private KpiService kpiService;
-    @Mock
-    private ConnectionTypeService connectionTypeService;
-    private TransactionService transactionService;
-    private OrmService ormService;
-    private PartialScheduledConnectionTask partialScheduledConnectionTask;
-    private OutboundComPortPool outboundTcpipComPortPool;
-    private DeviceDataModelService deviceDataModelService;
-    private InMemoryBootstrapModule bootstrapModule;
-    private Injector injector;
-    private DeviceConfigurationService deviceConfigurationService;
-    private DeviceType deviceType;
-    private DeviceConfiguration deviceConfiguration;
-    private Device device;
-    private ProtocolPluggableService protocolPluggableService;
-    private EngineConfigurationService engineConfigurationService;
-    private ScheduledConnectionTask connectionTask;
-    private OutboundComPort comport;
-    @Mock
-    private DeviceProtocol deviceProtocol;
-    private TaskService taskService;
-    private ComTask comTask;
-    private ComTaskExecution comTaskExecution;
-    private ProtocolDialectConfigurationProperties configDialectProps;
+    @Rule
+    public final TestRule transactionalRule = new TransactionalRule(transactionService);
 
-    public void initializeDatabase(boolean showSqlLogging) {
+    public static void initializeDatabase(boolean showSqlLogging) {
         bootstrapModule = new InMemoryBootstrapModule();
+        Injector injector;
         try {
             injector = Guice.createInjector(
                     new MockModule(),
                     bootstrapModule,
-                    new ThreadSecurityModule(principal),
+                    new ThreadSecurityModule(() -> "test"),
                     new ServiceCallModule(),
                     new CustomPropertySetsModule(),
                     new EventsModule(),
@@ -249,13 +227,13 @@ public class ComSessionCrudIT {
                     new SchedulingModule(),
                     new TaskModule(),
                     new CalendarModule(),
-                    new WebServicesModule());
+                    new WebServicesModule(),
+                    new FileImportModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            ormService = injector.getInstance(OrmService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
@@ -268,8 +246,11 @@ public class ComSessionCrudIT {
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
-            when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
+
+            ConnectionTypeService connectionTypeService = mock(ConnectionTypeService.class);
+            when(connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
+            protocolPluggableService.addConnectionTypeService(connectionTypeService);
+
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             taskService = injector.getInstance(TaskService.class);
@@ -277,48 +258,51 @@ public class ComSessionCrudIT {
         }
     }
 
-    @Before
-    public void setUp() {
-        when(principal.getName()).thenReturn("test");
+    @BeforeClass
+    public static void setUp() {
         initializeDatabase(false);
-        when(principal.getName()).thenReturn("test");
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
-        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
+        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
-        when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
-        when(this.deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
 
-        try (TransactionContext ctx = transactionService.getContext()) {
-            deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
+        try (TransactionContext context = transactionService.getContext()) {
+            DeviceType deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
-            deviceConfiguration = deviceConfigurationBuilder.add();
-            configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+            DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+            ProtocolDialectConfigurationProperties configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
-            device = this.deviceDataModelService.deviceService()
+            device = deviceDataModelService.deviceService()
                     .newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
             device.save();
-            connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
+            ConnectionTypePluggableClass connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(
+                    NoParamsConnectionType.class.getSimpleName(),
+                    NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();
 
-            partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialectProps )
-                    .
-                            comWindow(new ComWindow(0, 7200))
-                    .
-                            build();
+            PartialScheduledConnectionTask partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)",
+                    connectionTypePluggableClass,
+                    TimeDuration.minutes(5),
+                    ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialectProps)
+                    .comWindow(new ComWindow(0, 7200))
+                    .build();
             partialScheduledConnectionTask.save();
 
             outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.setActive(true);
             outboundTcpipComPortPool.update();
 
-            connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+            connectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask)
                     .setComPortPool(outboundTcpipComPortPool)
                     .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .add();
@@ -355,30 +339,26 @@ public class ComSessionCrudIT {
                     .useDefaultConnectionTask(true)
                     .connectionTask(connectionTask)
                     .add();
-            ctx.commit();
+            context.commit();
         }
-
-
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         bootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSession() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -392,28 +372,25 @@ public class ComSessionCrudIT {
         Assertions.assertThat(EqualById.byId(foundSession.getConnectionTask())).isEqualTo(EqualById.byId(connectionTask));
         Assertions.assertThat(EqualById.byId(foundSession.getComPortPool())).isEqualTo(EqualById.byId(outboundTcpipComPortPool));
         Assertions.assertThat(EqualById.byId(foundSession.getComPort())).isEqualTo(EqualById.byId(comport));
-
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithStatistics() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSession comSession = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .incrementSuccessFulTasks(3)
-                    .incrementFailedTasks(2)
-                    .incrementNotExecutedTasks(1)
-                    .addReceivedBytes(128)
-                    .addSentBytes(64)
-                    .addReceivedPackets(32)
-                    .addSentPackets(16)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success).create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSession comSession = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .incrementSuccessFulTasks(3)
+                .incrementFailedTasks(2)
+                .incrementNotExecutedTasks(1)
+                .addReceivedBytes(128)
+                .addSentBytes(64)
+                .addReceivedPackets(32)
+                .addSentPackets(16)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success).create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -431,10 +408,10 @@ public class ComSessionCrudIT {
         assertThat(foundSession.getNumberOfSuccessFulTasks()).isEqualTo(3);
         assertThat(foundSession.getNumberOfFailedTasks()).isEqualTo(2);
         assertThat(foundSession.getNumberOfPlannedButNotExecutedTasks()).isEqualTo(1);
-
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithJournalEntries() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -442,16 +419,13 @@ public class ComSessionCrudIT {
         Instant entryTime2 = ZonedDateTime.of(2011, 5, 14, 5, 15, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Throwable cause = new RuntimeException();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addJournalEntry(entryTime1, ComServer.LogLevel.INFO, "entry1")
-                    .addJournalEntry(entryTime2, ComServer.LogLevel.INFO, "entry2", cause)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .addJournalEntry(entryTime1, ComServer.LogLevel.INFO, "entry1")
+                .addJournalEntry(entryTime2, ComServer.LogLevel.INFO, "entry2", cause)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
         assertThat(found.isPresent()).isTrue();
@@ -471,6 +445,7 @@ public class ComSessionCrudIT {
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithComTaskExecutionJournals() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -479,20 +454,17 @@ public class ComSessionCrudIT {
         Instant task2StartTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant task2StopTime = ZonedDateTime.of(2011, 5, 14, 0, 7, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder =
-                    connectionTaskService
-                            .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                            .addComTaskExecutionSession(comTaskExecution, comTask, task1StartTime)
-                            .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                            .addComTaskExecutionSession(comTaskExecution, comTask, task2StartTime)
-                            .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
-                            .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder =
+                connectionTaskService
+                        .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                        .addComTaskExecutionSession(comTaskExecution, comTask, task1StartTime)
+                        .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                        .addComTaskExecutionSession(comTaskExecution, comTask, task2StartTime)
+                        .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
+                        .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -518,35 +490,33 @@ public class ComSessionCrudIT {
         assertThat(comTaskExecutionSession2.getHighestPriorityErrorDescription()).isNull();
         assertThat(comTaskExecutionSession2.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Success);
 
-        ServerCommunicationTaskService communicationTaskService = this.deviceDataModelService.communicationTaskService();
+        ServerCommunicationTaskService communicationTaskService = deviceDataModelService.communicationTaskService();
 
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(this.comTaskExecution.getId()).get();
-        Optional<ComTaskExecutionSession> lastSession = comTaskExecution.getLastSession();
+        ComTaskExecution reloaded = communicationTaskService.findComTaskExecution(comTaskExecution.getId()).get();
+        Optional<ComTaskExecutionSession> lastSession = reloaded.getLastSession();
         assertThat(lastSession.isPresent()).isTrue();
         assertThat(lastSession.get().getId()).isEqualTo(comTaskExecutionSession2.getId());
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithComTaskExecutionJournalWithStats() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant taskStartTime = ZonedDateTime.of(2011, 5, 14, 0, 5, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
-                    .addSentBytes(128)
-                    .addReceivedBytes(64)
-                    .addSentPackets(32)
-                    .addReceivedPackets(16)
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
+                .addSentBytes(128)
+                .addReceivedBytes(64)
+                .addSentPackets(32)
+                .addReceivedPackets(16)
+                .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -568,6 +538,7 @@ public class ComSessionCrudIT {
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithComTaskExecutionJournalWithComCommandJournalEntry() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -575,20 +546,17 @@ public class ComSessionCrudIT {
         Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.NotExecuted, "Whatever")
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationWarning, "Just a warning", "ConfigurationWarning")
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationError, "This is an error", "ConfigurationError")
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.NotExecuted, "Whatever")
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationWarning, "Just a warning", "ConfigurationWarning")
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationError, "This is an error", "ConfigurationError")
+                .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -619,6 +587,7 @@ public class ComSessionCrudIT {
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithComTaskExecutionJournalWithComTaskExecutionMessageJournalEntry() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -626,17 +595,14 @@ public class ComSessionCrudIT {
         Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
-                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
+                .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
+                .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -664,6 +630,7 @@ public class ComSessionCrudIT {
     }
 
     @Test
+    @Transactional
     public void testCreationOfComSessionWithComTaskExecutionJournalWithMoreThanOneJournalEntry() {
         long id;
         Instant startTime = ZonedDateTime.of(2011, 5, 14, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -671,19 +638,16 @@ public class ComSessionCrudIT {
         Instant journalEntryTime = ZonedDateTime.of(2011, 5, 14, 0, 6, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant taskStopTime = ZonedDateTime.of(2011, 5, 14, 0, 10, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant stopTime = ZonedDateTime.of(2011, 5, 14, 7, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
-                    .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
-                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConnectionError, "Oops", "CloseValve")
-                    .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
-            ComSession comSession = endedComSessionBuilder.create();
-            id = comSession.getId();
-            ctx.commit();
-        }
+        ServerConnectionTaskService connectionTaskService = deviceDataModelService.connectionTaskService();
+        ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                .addComTaskExecutionSession(comTaskExecution, comTask, taskStartTime)
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
+                .addComTaskExecutionMessageJournalEntry(journalEntryTime, ComServer.LogLevel.INFO, "All is well", "Aok")
+                .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConnectionError, "Oops", "CloseValve")
+                .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                .endSession(stopTime, ComSession.SuccessIndicator.Success);
+        ComSession comSession = endedComSessionBuilder.create();
+        id = comSession.getId();
 
         Optional<ComSession> found = connectionTaskService.findComSession(id);
 
@@ -701,8 +665,7 @@ public class ComSessionCrudIT {
         assertThat(comTaskExecutionSession.getHighestPriorityErrorDescription()).isEqualTo("Oops");
     }
 
-    private class ComTaskExecutionDialect implements DeviceProtocolDialect {
-
+    private static class ComTaskExecutionDialect implements DeviceProtocolDialect {
         @Override
         public String getDeviceProtocolDialectName() {
             return "dialect";
@@ -722,25 +685,21 @@ public class ComSessionCrudIT {
         public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
             return Optional.empty();
         }
-
     }
 
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
-
     }
-
 }

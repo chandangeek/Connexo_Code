@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -55,18 +54,9 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.obis.ObisCode;
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.validation.ConstraintViolationException;
+import com.energyict.obis.ObisCode;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
@@ -79,6 +69,17 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
@@ -87,7 +88,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
-
     private static final BigDecimal OVERFLOW_VALUE = BigDecimal.valueOf(1000000000);
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
     private final String connectionTaskCreatedTopic = "com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED";
@@ -96,7 +96,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
-    public TestRule expectedErrorRule = new ExpectedExceptionRule();
+    public ExpectedException expectedErrorRule = ExpectedException.none();
 
     private String readingTypeMRID1 = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private String readingTypeMRID2 = "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -243,7 +243,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
     }
 
-    @Test(expected = DeviceConfigurationChangeException.class)
+    @Test
     public void changeConfigToSameConfigTest() {
         DeviceConfiguration firstDeviceConfiguration;
         Device device;
@@ -256,14 +256,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        try {
-            inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
-        } catch (DeviceConfigurationChangeException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG)) {
-                fail("Should have gotten an exception indicating that you can not change the config to the same config");
-            }
-            throw e;
-        }
+
+        expectedErrorRule.expect(DeviceConfigurationChangeException.class);
+        expectedErrorRule.expectMessage("You can not change the configuration of device DeviceName to the configuration it already has");
+        inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
     }
 
     @Test
@@ -287,7 +283,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getDeviceService().hasActiveDeviceConfigChangesFor(firstDeviceConfiguration, firstDeviceConfiguration)).isFalse();
     }
 
-    @Test(expected = DeviceConfigurationChangeException.class)
+    @Test
     public void changeConfigToConfigOfOtherDeviceTypeTest() {
         Device device;
         final DeviceConfiguration configOfOtherDeviceType;
@@ -303,15 +299,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        try {
-            inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
-        } catch (DeviceConfigurationChangeException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE)) {
-                e.printStackTrace();
-                fail("Should have gotten an exception indicating that you can not change the config to the config of another devicetype.");
-            }
-            throw e;
-        }
+
+        expectedErrorRule.expect(DeviceConfigurationChangeException.class);
+        expectedErrorRule.expectMessage("You can not change the configuration of a device to a configuration of another devicetype");
+        inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
     }
 
     @Test
@@ -580,7 +571,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     @Test
     public void changeConfigWithSingleOtherLogBookSpecTest() {
-
         Device device;
         DeviceConfiguration secondDeviceConfiguration;
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -643,7 +633,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         assertThat(modifiedDevice.getLogBooks().get(0).getLogBookSpec().getId()).isEqualTo(secondDeviceConfiguration.getLogBookSpecs().get(0).getId());
     }
 
-    @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
+    @Test
     public void changeConfigWhileThereAreStillConflictingMappingsTest() {
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
@@ -665,6 +655,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
+
+        expectedErrorRule.expect(CannotChangeDeviceConfigStillUnresolvedConflicts.class);
         inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
@@ -1099,8 +1091,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
     }
 
-    @Test(expected = DeviceConfigurationChangeException.class)
-    public void cannotChangeConfigOfDataloggerSlaveTest() {
+    @Test
+    public void canChangeConfigOfDataloggerSlaveTest() {
         Device device;
 
         DeviceConfiguration secondDeviceConfiguration;
@@ -1129,17 +1121,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                    .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                            .getId(), secondDeviceConfiguration.getVersion());
-        } catch (DeviceConfigurationChangeException e) {
-            if (e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE)) {
-                throw e;
-            } else {
-                fail("Should have gotten an exception indicating that you can not change the config of a datalogger slave.");
-            }
-        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService()
+                .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
+                        .getId(), secondDeviceConfiguration.getVersion());
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
     }
 
     private ComTaskEnablement createComTaskEnablement(ComTask comTaskForTesting, DeviceConfiguration firstDeviceConfiguration, SecurityPropertySet firstSecurityPropertySet) {
