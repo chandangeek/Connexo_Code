@@ -21,6 +21,7 @@ import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -126,7 +127,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.http.HttpService;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,7 +140,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
-
     @Rule
     public final TestRule transactional = new TransactionalRule(transactionService);
     @Rule
@@ -172,7 +171,6 @@ public class SecurityPropertySetImplCrudIT {
     private ValueFactory valueFactory;
 
     private static class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -184,7 +182,6 @@ public class SecurityPropertySetImplCrudIT {
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -246,7 +243,8 @@ public class SecurityPropertySetImplCrudIT {
                     new TimeModule(),
                     new CustomPropertySetsModule(),
                     new CalendarModule(),
-                    new WebServicesModule());
+                    new WebServicesModule(),
+                    new FileImportModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

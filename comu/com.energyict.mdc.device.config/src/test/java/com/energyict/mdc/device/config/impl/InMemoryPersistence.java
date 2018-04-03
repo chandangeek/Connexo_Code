@@ -18,6 +18,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -261,7 +262,9 @@ public class InMemoryPersistence {
                 new TimeModule(),
                 new CustomPropertySetsModule(),
                 new CalendarModule(),
-                new WebServicesModule()));
+                new WebServicesModule(),
+                new FileImportModule()
+        ));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new BasicPropertiesModule());

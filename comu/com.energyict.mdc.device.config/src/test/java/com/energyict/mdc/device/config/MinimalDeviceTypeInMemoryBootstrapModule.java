@@ -12,6 +12,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -108,7 +109,9 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new CalendarModule(),
-                new WebServicesModule());
+                new WebServicesModule(),
+                new FileImportModule()
+        );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(PluggableService.class);

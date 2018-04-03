@@ -18,6 +18,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -166,7 +167,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
@@ -224,7 +224,9 @@ public class PartialConnectionInitiationTaskCrudIT {
                     new SchedulingModule(),
                     new TimeModule(),
                     new CalendarModule(),
-                    new WebServicesModule());
+                    new WebServicesModule(),
+                    new FileImportModule()
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

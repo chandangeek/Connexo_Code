@@ -19,6 +19,7 @@ import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -175,7 +176,6 @@ public abstract class AbstractConflictIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-
             bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
@@ -235,7 +235,9 @@ public abstract class AbstractConflictIT {
                     new TimeModule(),
                     new CustomPropertySetsModule(),
                     new CalendarModule(),
-                    new WebServicesModule());
+                    new WebServicesModule(),
+                    new FileImportModule()
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -26,7 +26,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT{
+public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT {
 
     @Test
     @Transactional
@@ -105,7 +105,12 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
     }
 
     private PartialScheduledConnectionTaskImpl createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {
-        PartialScheduledConnectionTaskImpl build = sourceConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, FIFTEEN_MINUTES, ConnectionStrategy.AS_SOON_AS_POSSIBLE, sourceConfig.getProtocolDialectConfigurationPropertiesList().get(0)).build();
+        PartialScheduledConnectionTaskImpl build = sourceConfig.newPartialScheduledConnectionTask(name,
+                connectionTypePluggableClass,
+                FIFTEEN_MINUTES,
+                ConnectionStrategy.AS_SOON_AS_POSSIBLE,
+                sourceConfig.getProtocolDialectConfigurationPropertiesList().get(0))
+                .build();
         build.save();
         return build;
     }

@@ -14,6 +14,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -193,7 +194,9 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new TimeModule(),
                 new CustomPropertySetsModule(),
                 new CalendarModule(),
-                new WebServicesModule());
+                new WebServicesModule(),
+                new FileImportModule()
+        );
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext ctx = transactionService.getContext()) {
