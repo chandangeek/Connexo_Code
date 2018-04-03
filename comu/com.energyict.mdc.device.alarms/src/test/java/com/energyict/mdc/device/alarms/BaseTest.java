@@ -16,6 +16,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -35,7 +36,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -137,7 +137,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public abstract class BaseTest {
-
     public static final String ALARM_DEFAULT_REASON = "alarm.reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new SimpleTranslationKey("alarm.entity.default.translation", "Default entity");
 
@@ -149,7 +148,6 @@ public abstract class BaseTest {
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
@@ -228,7 +226,8 @@ public abstract class BaseTest {
                 new TimeModule(),
                 new BpmModule(),
                 new PkiModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new FileImportModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
