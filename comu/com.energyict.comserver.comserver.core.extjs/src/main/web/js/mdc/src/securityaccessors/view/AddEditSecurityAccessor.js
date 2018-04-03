@@ -65,12 +65,13 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                         {
                             boxLabel: Uni.I18n.translate('general.communication', 'MDC', 'Communication'),
                             name: 'purpose',
-                            checked : true,
+                            itemId: 'mdc-security-accessor-purpose-communication',
                             inputValue: {id: "COMMUNICATION", name: "Communication"}
                         },
                         {
                             boxLabel: Uni.I18n.translate('general.fileOperations', 'MDC', 'File operations'),
                             name: 'purpose',
+                            itemId: 'mdc-security-accessor-purpose-file-operations',
                             inputValue: {id: "FILE_OPERATIONS", name: "File operations"}
                         }
                     ]

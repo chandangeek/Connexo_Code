@@ -538,6 +538,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         } else {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
+                        view.down('#mdc-security-accessor-purpose-radio').setValue(record.get('purpose').id);
+                        if (record.get('purpose').id === 'FILE_OPERATIONS'){
+                            view.down('#mdc-security-accessor-purpose-file-operations').setValue(true)
+                        } else {
+                            view.down('#mdc-security-accessor-purpose-communication').setValue(true)
+                        }
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
                         if (record.get('duration')) {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
