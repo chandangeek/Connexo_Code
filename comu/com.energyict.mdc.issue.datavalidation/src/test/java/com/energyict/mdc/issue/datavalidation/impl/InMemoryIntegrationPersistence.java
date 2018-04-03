@@ -16,6 +16,7 @@ import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -43,7 +44,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -117,7 +117,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
-
     private static final Clock clock = mock(Clock.class);
 
     private TransactionService transactionService;
@@ -252,7 +251,9 @@ public class InMemoryIntegrationPersistence {
                 new IssueModule(),
                 new IssueDataValidationModule(),
                 new CalendarModule(),
-                new WebServicesModule());
+                new WebServicesModule(),
+                new FileImportModule()
+        );
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());
         }
