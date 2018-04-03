@@ -14,13 +14,15 @@ import com.elster.jupiter.util.time.Interval;
 import java.time.Instant;
 import java.util.Arrays;
 
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceLifeCycleStatusImplTest extends EqualsContractTest {
-
     private EndDeviceLifeCycleStatusImpl instanceA;
 
     @Mock
@@ -31,6 +33,12 @@ public class EndDeviceLifeCycleStatusImplTest extends EqualsContractTest {
     private EndDevice endDevice, otherDevice;
     @Mock
     private State state;
+
+    @Before
+    public void equalsContractSetUp() {
+        when(threadPrincipalService.getPrincipal()).thenReturn(() -> "Username");
+        super.equalsContractSetUp();
+    }
 
     @Override
     protected Object getInstanceA() {
