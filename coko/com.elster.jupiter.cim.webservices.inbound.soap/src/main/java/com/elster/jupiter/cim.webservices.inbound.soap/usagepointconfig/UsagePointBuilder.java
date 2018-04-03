@@ -372,24 +372,16 @@ class UsagePointBuilder {
     }
 
     private String retrieveName(List<Name> names) throws FaultMessage {
-        String nameString;
+        String nameString = null;
         if (names.size() > 1) {
-            if (names.stream().filter(name -> name.getNameType().getName().equals("UsagePointName")).count() > 0) {
-                nameString = names.stream()
-                        .filter(name -> name.getNameType().getName().equals("UsagePointName"))
-                        .findFirst()
-                        .orElse(null)
-                        .getName();
-            } else {
-                nameString = names.stream()
-                        .filter(name -> name.getNameType().getName().equals(null))
-                        .findFirst()
-                        .orElse(null)
-                        .getName();
-            }
-        } else {
+            nameString = names.stream()
+                    .filter(name -> name.getNameType().getName().equals("UsagePointName"))
+                    .findFirst()
+                    .orElse(null)
+                    .getName();
+        } else if (names.size() == 1)
             nameString = names.get(0).getName();
-        }
+
         if (Checks.is(nameString).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("Names[0].name").get();
         }

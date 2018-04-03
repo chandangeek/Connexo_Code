@@ -69,11 +69,11 @@ class UsagePointConfigFactory {
         serviceCategory.setKind(serviceKind);
         info.setServiceCategory(serviceCategory);
 
+        //change life cycle fails because of this.
         /*if (serviceKind == ServiceKind.ELECTRICITY) {
             usagePoint.getDetail(clock.instant())
                     .filter(ElectricityDetail.class::isInstance)
                     .map(ElectricityDetail.class::cast)
-                    .filter(detail -> detail.getPhaseCode().getValue() != "Unknown") //not ok
                     .map(ElectricityDetail::getPhaseCode)
                     .flatMap(Optional::ofNullable)
                     .map(PhaseCode::getValue)
