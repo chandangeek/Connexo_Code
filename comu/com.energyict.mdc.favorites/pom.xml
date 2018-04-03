@@ -17,7 +17,6 @@
     <packaging>bundle</packaging>
     <name>[MDC] mdc.favorites [init FAV]</name>
 
-
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -242,7 +241,6 @@
             <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
@@ -313,6 +311,10 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 </project>
