@@ -106,6 +106,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
+            e.printStackTrace();
             if (urls.size() > 1) {
                 return authenticateSimple(name, password, urls.subList(1, urls.size() - 1));
             } else {
