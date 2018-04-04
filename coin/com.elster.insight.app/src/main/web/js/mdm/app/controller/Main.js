@@ -12,6 +12,7 @@ Ext.define('MdmApp.controller.Main', {
         'Sam.privileges.DeploymentInfo',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
+        'Imt.privileges.TaskManagement',
         'Apr.TaskManagementApp',
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
@@ -31,8 +32,7 @@ Ext.define('MdmApp.controller.Main', {
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
         'Yfn.privileges.Yellowfin',
-        'Yfn.controller.Main',
-        'Imt.privileges.TaskManagement'
+        'Yfn.controller.Main'
     ],
 
     applicationTitle: 'Connexo Insight',
