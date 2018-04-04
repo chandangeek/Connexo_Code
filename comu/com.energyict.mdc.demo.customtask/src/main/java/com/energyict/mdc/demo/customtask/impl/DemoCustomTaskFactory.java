@@ -44,7 +44,7 @@ public class DemoCustomTaskFactory implements CustomTaskFactory {
     public static final String NAME = "MDCDemoCustomTask";
     public static final String SUBSCRIBER_NAME = "MDCDemoCustomTask";
     public static final String DESTINATION_NAME = "MDCDemoCustomTask";
-    static final String SUBSCRIBER_DISPLAY_NAME = "Handle custom task";
+    static final String SUBSCRIBER_DISPLAY_NAME = "Handle MDC custom task";
     static final String DISPLAY_NAME = "Demo custom task for MDC";
 
     private volatile Thesaurus thesaurus;
