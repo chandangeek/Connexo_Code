@@ -116,50 +116,76 @@ Ext.define('Apr.controller.CustomTask', {
 
     getTaskForm: function (caller, completedFunc) {
         var me = this,
-            appName = Uni.util.Application.getAppName(),
+            customTaskTypes = me.getStore('Apr.store.CustomTaskTypes'),
             view = Ext.create('Apr.view.customtask.AddCustomTask',
                 {
-                    edit: false,
-                    appName: appName
+                    edit: false
                 }),
             followByStore = view.down('#ctk-followedBy-combo').getStore(),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
-        if (me.taskRecord && me.taskRecord.properties && me.taskRecord.properties().count() > 0) {
-            view.down('#ctk-no-properties').setVisible(false);
-            Ext.Array.each(me.taskRecord.properties(), function (property) {
-                var propertiesContainer = view.down('#ctk-properties');
-                property.each(function (record) {
-                        var propertyForm = Ext.create('Uni.property.form.Property', {
-                            itemId: 'ctk-group-' + record.get('name'),
-                            title: record.get('displayName'),
-                            defaults: {
-                                labelWidth: 235,
-                                width: 335
-                            },
-                            ui: 'medium'
-                        });
-                        if (record && record.properties() && record.properties().count()) {
-                            propertyForm.loadRecord(record);
-                            propertyForm.show();
-                        } else {
-                            propertyForm.hide();
-                        }
 
-                        propertiesContainer.add(propertyForm);
+        // refresh custom task types
+        customTaskTypes.load({
+            callback: function (records, operation, success) {
+                Ext.Array.each(records, function (record) {
+                    var taskType = record.get('name'),
+                        taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+                    if (taskManagement) {
+                        taskManagement.controller.taskRecord = record;
                     }
-                );
-            });
-        }
-        else {
-            view.down('#ctk-no-properties').setVisible(true);
-        }
-        view.doLayout();
-        followByStore.load({
-            callback: function () {
-                view.down('#ctk-loglevel').setValue(900);
-                me.recurrenceEnableDisable(view);
-                completedFunc.call(caller, view);
+                    else {
+                        var controller = Ext.create('Apr.controller.CustomTask', {
+                            application: me.application,
+                            views: me.views
+                        });
+                        controller.taskType = record.get('name');
+                        controller.taskRecord = record;
+                        Apr.TaskManagementApp.addTaskManagementApp(record.get('name'), {
+                            name: record.get('displayName'),
+                            controller: controller
+                        });
+                    }
+                });
+
+                if (me.taskRecord && me.taskRecord.properties && me.taskRecord.properties().count() > 0) {
+                    view.down('#ctk-no-properties').setVisible(false);
+                    Ext.Array.each(me.taskRecord.properties(), function (property) {
+                        var propertiesContainer = view.down('#ctk-properties');
+                        property.each(function (record) {
+                                var propertyForm = Ext.create('Uni.property.form.Property', {
+                                    itemId: 'ctk-group-' + record.get('name'),
+                                    title: record.get('displayName'),
+                                    defaults: {
+                                        labelWidth: 235,
+                                        width: 335
+                                    },
+                                    ui: 'medium'
+                                });
+                                if (record && record.properties() && record.properties().count()) {
+                                    propertyForm.loadRecord(record);
+                                    propertyForm.show();
+                                } else {
+                                    propertyForm.hide();
+                                }
+
+                                propertiesContainer.add(propertyForm);
+                            }
+                        );
+                    });
+                }
+                else {
+                    view.down('#ctk-no-properties').setVisible(true);
+                }
+                view.doLayout();
+                followByStore.load({
+                    callback: function () {
+                        view.down('#ctk-loglevel').setValue(900);
+                        me.recurrenceEnableDisable(view);
+                        completedFunc.call(caller, view);
+                    }
+                });
             }
         });
 
