@@ -22,6 +22,8 @@ import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
+import sun.security.x509.X509CRLImpl;
+
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -80,7 +82,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
         Handler handler = occurrence.createTaskLogHandler().asHandler();
         logger.addHandler(handler);
         try (TransactionContext context = transactionService.getContext()) {
-            execute();
+            run(occurrence);
             context.commit();
         } catch (Throwable e) {
             try (TransactionContext context = transactionService.getContext()) {
@@ -93,8 +95,11 @@ class CrlRequestTaskExecutor implements TaskExecutor {
         }
     }
 
-    private void execute() {
-        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties()
+    private void run(TaskOccurrence occurrence) {
+        if (occurrence.getRecurrentTask() == null) {
+            throw new CRLRequestTaskException(MessageSeeds.NO_CRL_REQUEST_TASK);
+        }
+        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(occurrence.getRecurrentTask())
                 .orElseThrow(() -> new CRLRequestTaskException(MessageSeeds.NO_CRL_REQUEST_TASK_PROPERTIES));
         String caName = crlRequestTaskProperty.getCaName();
         if (!caService.getPkiCaNames().contains(caName)) {
@@ -125,9 +130,15 @@ class CrlRequestTaskExecutor implements TaskExecutor {
             throw new CRLSignatureVerificationFailedException(e);
         }
 
-        Set<BigInteger> revokedSerialNumbers = crl.getRevokedCertificates().stream()
-                .map(X509CRLEntry::getSerialNumber)
-                .collect(Collectors.toCollection(TreeSet::new));
+        Set<BigInteger> revokedSerialNumbers = new TreeSet<>();
+        Set<X509CRLEntry> x509CRLEntries = ((X509CRLImpl) crl).getRevokedCertificates();
+        if (x509CRLEntries == null || x509CRLEntries.isEmpty()) {
+            log(MessageSeeds.NO_CRL_FROM_CA, caName);
+            return;
+        }
+        x509CRLEntries.forEach(x509CRLEntry -> {
+            revokedSerialNumbers.add(x509CRLEntry.getSerialNumber());
+        });
         log(MessageSeeds.RECEIVED_CRL_WITH_SN_FROM_CA, caName, revokedSerialNumbers.size(), revokedSerialNumbers.stream()
                 .map(BigInteger::toString)
                 .collect(Collectors.joining(", ")));

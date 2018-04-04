@@ -204,7 +204,8 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_USER_DIRECTORY(2177, "CertificateUsedByUserDirectory", "Certificate {0} is still used by a user directory.", Level.WARNING),
     CERTIFICATE_USED_BY_DEVICE(2178, "CertificateUsedByDevice", "Certificate {0} is still used by a device.", Level.WARNING),
     CERTIFICATE_REVOKED_SUCCESSFULLY(2179, "CertificateRevokedSuccessfully", "Certificate {0} has been revoked.", Level.INFO),
-    EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}");
+    EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}"),
+    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task.");
 
     private final int number;
     private final String key;

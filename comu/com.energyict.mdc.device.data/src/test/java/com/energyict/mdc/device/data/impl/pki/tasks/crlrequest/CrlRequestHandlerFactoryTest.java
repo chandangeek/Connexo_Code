@@ -91,8 +91,9 @@ public class CrlRequestHandlerFactoryTest {
         when(taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME)).thenReturn(Optional.of(recurrentTask));
         when(recurrentTask.runNow(crlRequestTaskExecutor)).thenReturn(taskOccurrence);
         when(taskOccurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
+        when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(taskLogHandler.asHandler()).thenReturn(handler);
-        when(crlRequestTaskPropertiesService.findCrlRequestTaskProperties()).thenReturn(Optional.of(crlRequestTaskProperty));
+        when(crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask)).thenReturn(Optional.of(crlRequestTaskProperty));
         when(caService.isConfigured()).thenReturn(true);
         when(caService.getPkiCaNames()).thenReturn(caNames);
         when(crlRequestTaskProperty.getCaName()).thenReturn(CA_NAME);
@@ -123,7 +124,7 @@ public class CrlRequestHandlerFactoryTest {
     public void testFindCrlRequestTaskProperties() {
         executor.execute(taskOccurrence);
         executor.postExecute(taskOccurrence);
-        verify(crlRequestTaskPropertiesService).findCrlRequestTaskProperties();
+        verify(crlRequestTaskPropertiesService).getCrlRequestTaskPropertiesForCa(recurrentTask);
     }
 
     @Test
