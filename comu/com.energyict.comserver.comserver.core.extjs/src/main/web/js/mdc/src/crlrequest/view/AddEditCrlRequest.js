@@ -10,7 +10,8 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
 
     require: [
         'Cfg.store.DaysWeeksMonths',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+        'Mdc.crlrequest.store.LogLevel'
     ],
 
     defaults: {
@@ -30,7 +31,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 width: 600,
                 fieldLabel: Uni.I18n.translate('general.securityAccessor', 'MDC', 'Security accessor'),
                 labelWidth: 250,
-                store: 'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+                store: Ext.create('Mdc.crlrequest.store.SecurityAccessorsWithPurpose'),
                 required: true,
                 emptyText: Uni.I18n.translate('crlrequest.securityAccessorPrompt', 'MDC', 'Select security accessor...'),
                 queryDelay: 500,
@@ -50,6 +51,26 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 required: true,
                 allowBlank: false,
                 fieldLabel: Uni.I18n.translate('crlrequest.caName', 'MDC', 'CA name')
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'crl-log-level',
+                name: 'logLevel',
+                width: 600,
+                fieldLabel: Uni.I18n.translate('general.logLevel', 'MDC', 'Log level'),
+                labelWidth: 250,
+                store: Ext.create('Mdc.crlrequest.store.LogLevel'),
+                required: true,
+                emptyText: Uni.I18n.translate('crlrequest.logLevelPrompt', 'MDC', 'Select log level...'),
+                queryDelay: 500,
+                queryCaching: false,
+                minChars: 0,
+                allowBlank: false,
+                forceSelection: false,
+                editable: false,
+                displayField: 'name',
+                queryMode: 'remote',
+                valueField: 'id'
             },
             {
                 xtype: 'fieldcontainer',
@@ -79,7 +100,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                         valueField: 'name',
                         editable: false,
                         width: 125,
-                        value: 'hours'
+                        value: 'days'
                     }
                 ]
             },
