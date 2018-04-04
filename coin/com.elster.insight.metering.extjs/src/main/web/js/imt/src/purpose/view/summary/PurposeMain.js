@@ -9,73 +9,27 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
         'Imt.purpose.view.summary.PurposeDataView',
+        'Imt.purpose.view.summary.PurposeRegisterDataView',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputReadings'
     ],
 
     initComponent: function () {
         var me = this,
-            router = me.router,
-            dataStore,
-            dataViewComponent;
-
-        dataViewComponent = me.intervalsCount ? {
-            title:  Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Data view'),
-            itemId: 'purpose-data-view',
-            items: {
-                xtype: 'purpose-data-view',
-                interval: me.interval,
-                purpose: me.purpose,
-                usagePoint: me.usagePoint,
-                outputs: me.outputs,
-                router: me.router,
-                prevNextListLink: me.prevNextListLink
-            },
-            listeners: {
-                activate: me.controller.showDataViewTab,
-                scope: me.controller
-            },
-            usagePoint: me.usagePoint,
-            purpose: me.purpose,
-            output: me.output
-
-        } : {
-            title:  Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Data view'),
-            itemId: 'purpose-data-view',
-            items: {
-                xtype: 'uni-form-empty-message',
-                itemId: 'purpose-data-view-empty-message',
-                text: Uni.I18n.translate('purpose.summary.dataView.no.interval.outputs', 'IMT', 'No interval outputs on this purpose')
-            }
-        };
+            router = me.router;
 
         me.title = router.getRoute().getTitle();
         me.content = [
             {
                 xtype: 'tabpanel',
                 ui: 'large',
-                title: router.getRoute().getTitle(),
+                title: me.title,
                 itemId: 'purposeTabPanel',
                 activeTab: 'purpose-' + me.tab,
                 items: [
-                    {
-                        title: Uni.I18n.translate('purpose.summary.overview', 'IMT', 'Overview'),
-                        itemId: 'purpose-overview',
-                        items: {
-                            xtype: 'purpose-outputs',
-                            router: me.router,
-                            usagePoint: me.usagePoint,
-                            purposes: me.purposes,
-                            purpose: me.purpose,
-                            defaultPeriod: me.defaultPeriod
-                        },
-                        listeners: {
-                            activate: me.controller.showOverviewTab,
-                            scope: me.controller
-                        },
-                        purpose: me.purpose
-                    },
-                    dataViewComponent
+                    me.getOverviewComponent(),
+                    me.getIntervalDataViewComponent(),
+                    me.getRegisterDataViewComponent()
                 ]
             }
         ];
@@ -97,5 +51,104 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
         ];
 
         me.callParent(arguments);
+    },
+
+    getOverviewComponent: function () {
+        var me = this;
+        return {
+            title: Uni.I18n.translate('purpose.summary.overview', 'IMT', 'Overview'),
+            itemId: 'purpose-overview',
+            items: {
+                xtype: 'purpose-outputs',
+                router: me.router,
+                usagePoint: me.usagePoint,
+                purposes: me.purposes,
+                purpose: me.purpose,
+                defaultPeriod: me.defaultPeriod
+            },
+            listeners: {
+                activate: me.controller.showOverviewTab,
+                scope: me.controller
+            },
+            purpose: me.purpose
+        }
+    },
+
+
+    getIntervalDataViewComponent: function () {
+        var me = this,
+            intervalDataViewComponent,
+            noIntervalOutputsComponent;
+
+        intervalDataViewComponent = {
+            title: Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Interval data view'),
+            itemId: 'purpose-data-view',
+            items: {
+                xtype: 'purpose-data-view',
+                interval: me.interval,
+                purpose: me.purpose,
+                usagePoint: me.usagePoint,
+                outputs: me.outputs,
+                router: me.router,
+                prevNextListLink: me.prevNextListLink
+            },
+            listeners: {
+                activate: me.controller.showDataViewTab,
+                scope: me.controller
+            },
+            usagePoint: me.usagePoint,
+            purpose: me.purpose,
+            output: me.output
+        };
+
+        noIntervalOutputsComponent = {
+            title: Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Interval data view'),
+            itemId: 'purpose-data-view',
+            items: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'purpose-data-view-empty-message',
+                text: Uni.I18n.translate('purpose.summary.dataView.no.interval.outputs', 'IMT', 'No interval outputs on this purpose')
+            }
+        };
+
+        return me.intervalsCount ? intervalDataViewComponent : noIntervalOutputsComponent;
+    },
+
+
+    getRegisterDataViewComponent: function () {
+        var me = this,
+            registerDataViewComponent,
+            noRegisterOutputsComponent;
+
+        registerDataViewComponent = {
+            title: Uni.I18n.translate('purpose.summary.registerDataView', 'IMT', 'Register data view'),
+            itemId: 'purpose-register-data-view',
+            items: {
+                xtype: 'purpose-register-data-view',
+                purpose: me.purpose,
+                usagePoint: me.usagePoint,
+                router: me.router,
+                outputs: me.outputs,
+                prevNextListLink: me.prevNextListLink
+            },
+            listeners: {
+                activate: me.controller.showRegisterDataViewTab,
+                scope: me.controller
+            },
+            usagePoint: me.usagePoint,
+            purpose: me.purpose
+        };
+
+        noRegisterOutputsComponent = {
+            title: Uni.I18n.translate('purpose.summary.registerDataView', 'IMT', 'Register data view'),
+            itemId: 'purpose-register-data-view',
+            items: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'purpose-data-view-empty-message',
+                text: Uni.I18n.translate('purpose.summary.dataView.no.regsiter.outputs', 'IMT', 'No register outputs on this purpose')
+            }
+        };
+        return me.registersCount ? registerDataViewComponent : noRegisterOutputsComponent;
     }
+
 });
