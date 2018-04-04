@@ -33,9 +33,12 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
+    private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
+
     private StartTlsResponse tls = null;
 
     @Inject
@@ -84,6 +87,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     @Override
     public Optional<User> authenticate(String name, String password) {
         List<String> urls = getUrls();
+        LOGGER.info("AUTH: Autheticating LDAP user\n");
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return authenticateSimple(name, password, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
@@ -96,6 +100,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
+        LOGGER.info("AUTH: No security applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
@@ -105,6 +110,10 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
+            LOGGER.severe("AUTH: Simple authetication failed\n");
+            LOGGER.severe(e.getMessage());
+            e.printStackTrace();
+            e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSimple(name, password, urls);
@@ -115,6 +124,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSSL(String name, String password, List<String> urls, KeyStore keyStore) {
+        LOGGER.info("AUTH: SSL applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
@@ -128,6 +138,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
+            LOGGER.severe("AUTH: SSL authetication failed\n");
+            LOGGER.severe(e.getMessage());
+            e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSSL(name, password, urls, keyStore);
@@ -138,6 +151,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateTLS(String name, String password, List<String> urls, KeyStore keyStore) {
+        LOGGER.info("AUTH: TLS applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
@@ -151,6 +165,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
+            LOGGER.severe("AUTH: TLS authetication failed\n");
+            LOGGER.severe(e.getMessage());
+            e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateTLS(name, password, urls, keyStore);
