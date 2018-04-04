@@ -6,8 +6,8 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -23,16 +23,15 @@ import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -44,7 +43,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
@@ -52,7 +56,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
@@ -76,7 +79,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
     }
 
     @Test
-    public void testGetExistingInboundComServerJSStyle() {
+    public void testGetExistingInboundComServerJSStyle() throws JsonProcessingException {
         InboundComPortPool mock = mock(InboundComPortPool.class);
         InboundDeviceProtocol protocol = mock(InboundDeviceProtocol.class);
         when(mock.getProperties()).thenReturn(Collections.emptyList());
@@ -113,15 +116,12 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
                 .contains(MapEntry.entry("discoveryProtocolPluggableClassId", 6));
-        try {
-            String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
-            assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
-        } catch (Exception ex) {
-        }
+        String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
+        assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
     }
 
     @Test
-    public void testGetExistingOutboundComServerJSStyle() {
+    public void testGetExistingOutboundComServerJSStyle() throws JsonProcessingException {
         OutboundComPortPool mock = mock(OutboundComPortPool.class);
         List<ComPortPool> comPortPools = new ArrayList<>();
         comPortPools.add(mock);
@@ -151,11 +151,8 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
                 .contains(MapEntry.entry("direction", "Outbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false));
-        try {
-            String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
-            assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
-        } catch (Exception ex) {
-        }
+        String responseString = objectMapper.writeValueAsString(comPortPool1.get("comPortType"));
+        assertThat(responseString).contains("{\"id\":\"TYPE_TCP\",\"localizedValue\":\"TCP\"}");
 
         Map<String, Object> taskExecutionTimeout = (Map<String, Object>) comPortPool1.get("taskExecutionTimeout");
         assertThat(taskExecutionTimeout).hasSize(4)
@@ -240,7 +237,6 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
     @Test
     public void testCreateComPortPoolWithoutComPorts() throws Exception {
-
         OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
         outboundComPortPoolInfo.active = true;
         outboundComPortPoolInfo.name = "Updated";
@@ -258,7 +254,6 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
     @Test
     public void testCreateOutboundComPortPoolWithoutNextExecutionSpecApliesDefaultOf6Hours() throws Exception {
-
         OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
         outboundComPortPoolInfo.active = true;
         outboundComPortPoolInfo.name = "Updated";
@@ -279,7 +274,6 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
     @Test
     public void testCreateInboundComPortPoolWithoutProtocol() throws Exception {
-
         InboundComPortPoolInfo inboundComPortPoolInfo = new InboundComPortPoolInfo();
         inboundComPortPoolInfo.active = true;
         inboundComPortPoolInfo.name = "Updated";
@@ -289,7 +283,9 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(messageSeed.getKey()).thenReturn("someKey");
         when(messageSeed.getDefaultFormat()).thenReturn("required value");
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClass(0L)).thenReturn(Optional.empty());
-        when(engineConfigurationService.newInboundComPortPool(anyString(), any(ComPortType.class), any(InboundDeviceProtocolPluggableClass.class), any(Map.class))).thenThrow(new LocalizedFieldValidationException(messageSeed, "discoveryProtocolPluggableClassId"));
+        Exception exception = new LocalizedFieldValidationException(messageSeed, "discoveryProtocolPluggableClassId");
+        when(engineConfigurationService.newInboundComPortPool(anyString(), any(ComPortType.class), any(InboundDeviceProtocolPluggableClass.class), anyMapOf(String.class, Object.class)))
+                .thenThrow(exception);
 
         final Response response = target("/comportpools/").request().post(Entity.json(inboundComPortPoolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -341,5 +337,4 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         final Response response = target("/comportpools/5").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
-
 }
