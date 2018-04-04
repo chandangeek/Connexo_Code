@@ -102,7 +102,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class Beacon3100Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
 
     public static final ObisCode REMOTE_SHELL_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.193.0.255");
-    public static final ObisCode SNMP_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.194.0.255");
     public static final ObisCode RTU_DISCOVERY_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.195.0.255");
     public static final ObisCode TIME_SERVER_NEW_OBISCODE = ObisCode.fromString("0.128.96.196.0.255");
     /**
@@ -1927,10 +1926,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 getCosemObjectFactory().getRemoteShellSetup(REMOTE_SHELL_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
                 break;
             case SNMP_Old_ObisCode:
-                getCosemObjectFactory().getSNMPSetup().enableInterfaces(interfacesArray);
+                getCosemObjectFactory().getSNMPSetup(SNMPSetup.OLD_OBIS_CODE).enableInterfaces(interfacesArray);
                 break;
             case SNMP_New_ObisCode:
-                getCosemObjectFactory().getSNMPSetup(SNMP_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE).enableInterfaces(interfacesArray);
                 break;
             case RTU_Discovery_Old_ObisCode:
                 getCosemObjectFactory().getRtuDiscoverySetup().enableInterfaces(interfacesArray);

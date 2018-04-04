@@ -327,6 +327,20 @@ public class G3RegisterMapper {
     public static final ObisCode NTP_SETUP_ATTR4 = ObisCode.fromString("0.4.25.10.0.255");
 
     /**
+     * ObisCode mappers for SNMP Setup
+     */
+    public static final ObisCode SNMP_SETUP_ATTR1 = ObisCode.fromString("0.128.96.194.1.255");
+    public static final ObisCode SNMP_SETUP_ATTR2 = ObisCode.fromString("0.128.96.194.2.255");
+    public static final ObisCode SNMP_SETUP_ATTR3 = ObisCode.fromString("0.128.96.194.3.255");
+    public static final ObisCode SNMP_SETUP_ATTR4 = ObisCode.fromString("0.128.96.194.4.255");
+    public static final ObisCode SNMP_SETUP_ATTR5 = ObisCode.fromString("0.128.96.194.5.255");
+    public static final ObisCode SNMP_SETUP_ATTR6 = ObisCode.fromString("0.128.96.194.6.255");
+    public static final ObisCode SNMP_SETUP_ATTR7 = ObisCode.fromString("0.128.96.194.7.255");
+    public static final ObisCode SNMP_SETUP_ATTR8 = ObisCode.fromString("0.128.96.194.8.255");
+    public static final ObisCode SNMP_SETUP_ATTR9 = ObisCode.fromString("0.128.96.194.9.255");
+    public static final ObisCode SNMP_SETUP_ATTR10 = ObisCode.fromString("0.128.96.194.10.255");
+
+    /**
      * ObisCode mappers for NTP Setup
      */
     public static final ObisCode LAST_FIRMWARE_ACTIVATION_EXTENDED_ATTR2 = ObisCode.fromString("0.136.96.192.2.255");
@@ -382,7 +396,6 @@ public class G3RegisterMapper {
         this.mappings.addAll(getPPPSetupRegistering());
         this.mappings.addAll(getModemWatchdogMappings());
         this.mappings.addAll(getImageTransferMappings());
-        this.mappings.addAll(getLimiterMappings());
     }
 
     /**
@@ -827,6 +840,21 @@ public class G3RegisterMapper {
         final List<G3Mapping> lastFirmwareActivationMappings = new ArrayList<G3Mapping>();
         lastFirmwareActivationMappings.add(new LastFirmwareActivationMapping(LAST_FIRMWARE_ACTIVATION_EXTENDED_ATTR2));
         return lastFirmwareActivationMappings;
+    }
+
+    protected final List<G3Mapping> getSNMPSetupMappings() {
+        final List<G3Mapping> snmpSetupMappings = new ArrayList<>();
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR1));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR2));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR3));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR4));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR5));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR6));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR7));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR8));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR9));
+        snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR10));
+        return snmpSetupMappings;
     }
 
 }
