@@ -41,6 +41,7 @@ import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfiguration
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.CI_WATER_CONFIGURATION;
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_CONSUMER_WITH_4_TOU;
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_GAS;
+import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER;
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_WATER;
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_GAS_NON_SMART_INSTALLATION;
 import static com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand.OOTBMetrologyConfiguration.RESIDENTIAL_NET_METERING_CONSUMPTION;
@@ -55,9 +56,9 @@ public class CreateMetrologyConfigurationsCommand {
     private static final int PEAK_CODE = 11;     // Note that this is true for the Belgian market
     private static final int OFFPEAK_CODE = 10;  // Note that this is true for the Belgian market
 
-    static final int PHASE_A = 128;
-    static final int PHASE_B = 64;
-    static final int PHASE_C = 32;
+    private static final int PHASE_A = 128;
+    private static final int PHASE_B = 64;
+    private static final int PHASE_C = 32;
 
     private static final int CUBIC_METRE = 42;
 
@@ -73,23 +74,36 @@ public class CreateMetrologyConfigurationsCommand {
     private static final String BATTERY_STATUS = "0.0.0.12.0.41.11.0.0.0.0.0.0.0.0.-2.0.0";
     private static final String BILLING_GAS_FLOW = "8.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
 
-    public static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final String MIN15_A_MINUS_KWH = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final String HOURLY_A_MINUS_KWH = "0.0.7.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_A_PLUS_KWH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_A_MINUS_KWH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_NET_KWH = "13.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String YEARLY_A_MINUS_KWH = "1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String YEARLY_NET_KWH = "1001.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String BULK_A_PLUS_KWH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String TIME_OF_USER_EVENT_SET_NAME = "Peak/Offpeak (Belgium)";
+    private static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MIN15_A_MINUS_KWH = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String HOURLY_A_MINUS_KWH = "0.0.7.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_A_PLUS_KWH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_A_MINUS_KWH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_NET_KWH = "13.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String YEARLY_A_MINUS_KWH = "1001.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String YEARLY_NET_KWH = "1001.0.0.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String BULK_A_PLUS_KWH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String BULK_A_MINUS_KWH = "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MIN15_BULK_A_PLUS_KWH = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MIN15_BULK_A_MINUS_KWH = "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String DAILY_SUM_A_PLUS_TOU1_KWH = "11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String DAILY_SUM_A_PLUS_TOU2_KWH = "11.0.0.9.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String DAILY_SUM_A_MINUS_TOU1_KWH = "11.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String DAILY_SUM_A_MINUS_TOU2_KWH = "11.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String MONTHLY_DELTA_A_PLUS_TOU1_KWH = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String MONTHLY_DELTA_A_PLUS_TOU2_KWH = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
+    private static final String MONTHLY_DELTA_A_MINUS_TOU1_KWH = "13.0.0.4.19.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String MONTHLY_DELTA_A_MINUS_TOU2_KWH = "13.0.0.4.19.1.12.0.0.0.0.2.0.0.0.3.72.0";
 
-    static final String MIN15_A_PLUS_WH_MO = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
-    static final String MIN15_A_MINUS_WH_MO = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
-    static final String DAILY_A_PLUS_WH_MO = "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0";
-    static final String DAILY_A_MINUS_WH_MO = "11.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0";
-    static final String MONTHLY_A_PLUS_WH_MO = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0";
-    static final String MONTHLY_A_MINUS_WH_MO = "13.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0";
+
+    private static final String TIME_OF_USER_EVENT_SET_NAME = "Peak/Offpeak (Belgium)";
+
+    private static final String MIN15_A_PLUS_WH_MO = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MIN15_A_MINUS_WH_MO = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String DAILY_A_PLUS_WH_MO = "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0";
+    private static final String DAILY_A_MINUS_WH_MO = "11.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0";
+    private static final String MONTHLY_A_PLUS_WH_MO = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.0.72.0";
+    private static final String MONTHLY_A_MINUS_WH_MO = "13.0.0.4.19.1.12.0.0.0.0.1.0.0.0.0.72.0";
 
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
@@ -119,7 +133,10 @@ public class CreateMetrologyConfigurationsCommand {
         residentialWater();
         residentialNonSmartInstallation();
         residentialGasNonSmartInstallation();
+        residentialNetMeteringConsumptionWithIntervalAndRegisters();
     }
+
+
 
     public void createMultisenseMetrologyConfigurations() {
         residentialProsumerWith1MeterMultisense();
@@ -138,6 +155,7 @@ public class CreateMetrologyConfigurationsCommand {
         RESIDENTIAL_PROSUMER_WITH_2_METERS("Residential prosumer with 2 meters", "Typical installation for residential prosumers with dumb meters", false),
         RESIDENTIAL_NET_METERING_PRODUCTION("Residential net metering (production)", "Residential producer", true),
         RESIDENTIAL_NET_METERING_CONSUMPTION("Residential net metering (consumption)", "Residential consumer", true),
+        RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER("Residential net metering (consumption) with intervals and registers", "Residential consumer (has both intervals and registers)", true),
         RESIDENTIAL_NON_SMART_INSTALLATION("Residential non-smart installation", "Registers of different types (textual, numeric)", true),
         RESIDENTIAL_GAS_NON_SMART_INSTALLATION("Residential gas non-smart installation", "Billing register", true),
         CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU("C&I 3-phased consumer with smart meter with 2 ToU", "C&I 3-phased consumer with smart meter 2 ToU", true),
@@ -145,6 +163,7 @@ public class CreateMetrologyConfigurationsCommand {
         RESIDENTIAL_GAS("Residential gas", "Residential gas installation", true),
         RESIDENTIAL_WATER("Residential water", "Residential water installation", true),
         CI_WATER_CONFIGURATION("C&I water configuration", "C&I water configuration with 2 meters", true);
+
 
         OOTBMetrologyConfiguration(String name, String description, boolean gapsAllowed) {
             this.name = name;
@@ -1278,6 +1297,118 @@ public class CreateMetrologyConfigurationsCommand {
         builder.build(builder.plus(builder.requirement(requirementPeakConsumption), builder
                 .requirement(requirementOffPeakConsumption)));
     }
+
+
+    private void residentialNetMeteringConsumptionWithIntervalAndRegisters() {
+        if (metrologyConfigurationService.findMetrologyConfiguration(RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER.getName()).isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = this.findElectricityServiceCategoryOrThrowException();
+        UsagePointMetrologyConfiguration config =
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration(RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER.getName(), serviceCategory)
+                        .withDescription(RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER.getDescription())
+                        .withGapsAllowed(RESIDENTIAL_NET_METERING_CONSUMPTION_WITH_INTERVAL_AND_REGISTER.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        DETAIL_PHASE_CODE,
+                                        SearchablePropertyOperator.EQUAL,
+                                        PhaseCode.S1N.name(),
+                                        PhaseCode.S2N.name(),
+                                        PhaseCode.S12N.name(),
+                                        PhaseCode.S1.name(),
+                                        PhaseCode.S2.name(),
+                                        PhaseCode.S12.name()))
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        "type",
+                                        SearchablePropertyOperator.EQUAL,
+                                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                        .create();
+
+
+        MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
+        config.addMeterRole(meterRole);
+
+        ReadingType readingType15minApluskWh = this.findOrCreateReadingType(MIN15_BULK_A_PLUS_KWH, "A+");
+        ReadingType readingType15minAminuskWh = this.findOrCreateReadingType(MIN15_BULK_A_MINUS_KWH, "A-");
+        ReadingType readingTypeApluskWh = this.findOrCreateReadingType(BULK_A_PLUS_KWH, "A+");
+        ReadingType readingTypeAminuskWh = this.findOrCreateReadingType(BULK_A_MINUS_KWH, "A-");
+
+        ReadingType readingTypeDailySumAplusToU1kWh = this.findOrCreateReadingType(DAILY_SUM_A_PLUS_TOU1_KWH, "A+");
+        ReadingType readingTypeDailySumAplusToU2kWh = this.findOrCreateReadingType(DAILY_SUM_A_PLUS_TOU2_KWH, "A+");
+        ReadingType readingTypeDailySumAminusToU1kWh = this.findOrCreateReadingType(DAILY_SUM_A_MINUS_TOU1_KWH, "A-");
+        ReadingType readingTypeDailySumAminusToU2kWh = this.findOrCreateReadingType(DAILY_SUM_A_MINUS_TOU2_KWH, "A-");
+        ReadingType readingTypeMonthlyDeltaAplusToU1kWh = this.findOrCreateReadingType(MONTHLY_DELTA_A_PLUS_TOU1_KWH, "A+");
+        ReadingType readingTypeMonthlyDeltaAplusToU2kWh = this.findOrCreateReadingType(MONTHLY_DELTA_A_PLUS_TOU2_KWH, "A+");
+        ReadingType readingTypeMonthlyDeltaAminusToU1kWh = this.findOrCreateReadingType(MONTHLY_DELTA_A_MINUS_TOU1_KWH, "A-");
+        ReadingType readingTypeMonthlyDeltaAminusToU2kWh = this.findOrCreateReadingType(MONTHLY_DELTA_A_MINUS_TOU2_KWH, "A-");
+
+        MetrologyContract billingContract = config.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
+        MetrologyContract informationContract = config.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
+
+        ReadingTypeRequirement requirementAplus =
+                config
+                        .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+        ReadingTypeRequirement requirementAminus =
+                config
+                        .newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
+
+        ReadingTypeRequirement requirementAplusRegister =
+                config
+                        .newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS));
+
+
+        ReadingTypeRequirement requirementAplusToU1 =
+                config
+                        .newReadingTypeRequirement("Active energy+ ToU1", meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
+                        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
+
+        ReadingTypeRequirement requirementAplusToU2 =
+                config
+                        .newReadingTypeRequirement("Active energy+ ToU2", meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
+                        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
+
+        ReadingTypeRequirement requirementAminusToU1 =
+                config
+                        .newReadingTypeRequirement("Active energy- ToU1", meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS))
+                        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
+
+        ReadingTypeRequirement requirementAminusToU2 =
+                config
+                        .newReadingTypeRequirement("Active energy- ToU2", meterRole)
+                        .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS))
+                        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
+
+
+        buildFormulaSingleRequirement(informationContract, readingType15minApluskWh, requirementAplus, "15-min Bulk A+ kWh");
+        buildFormulaSingleRequirement(informationContract, readingType15minAminuskWh, requirementAminus, "15-min Bulk A- kWh");
+        buildFormulaSingleRequirement(informationContract, readingTypeApluskWh, requirementAplusRegister, "Bulk A+ kWh");
+        buildFormulaSingleRequirement(informationContract, readingTypeAminuskWh, requirementAplusRegister, "Bulk A- kWh");
+
+        buildFormulaSingleRequirement(billingContract, readingTypeDailySumAplusToU1kWh, requirementAplusToU1, "Daily Sum A+ kWh ToU1");
+        buildFormulaSingleRequirement(billingContract, readingTypeDailySumAplusToU2kWh, requirementAplusToU2, "Daily Sum A+ kWh ToU2");
+        buildFormulaSingleRequirement(billingContract, readingTypeDailySumAminusToU1kWh, requirementAminusToU1, "Daily Sum A- kWh ToU1");
+        buildFormulaSingleRequirement(billingContract, readingTypeDailySumAminusToU2kWh, requirementAminusToU2, "Daily Sum A- kWh ToU2");
+        buildFormulaSingleRequirement(billingContract, readingTypeMonthlyDeltaAplusToU1kWh, requirementAplusToU1, "Monthly Delta A+ kWh ToU1");
+        buildFormulaSingleRequirement(billingContract, readingTypeMonthlyDeltaAplusToU2kWh, requirementAplusToU2, "Monthly Delta A+ kWh ToU2");
+        buildFormulaSingleRequirement(billingContract, readingTypeMonthlyDeltaAminusToU1kWh, requirementAminusToU1, "Monthly Delta A- kWh ToU1");
+        buildFormulaSingleRequirement(billingContract, readingTypeMonthlyDeltaAminusToU2kWh, requirementAminusToU2, "Monthly Delta A- kWh ToU2");
+    }
+
+
 
     ReadingTypeDeliverable buildFormulaSingleRequirement(MetrologyContract contract, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
         ReadingTypeDeliverableBuilder builder = contract.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
