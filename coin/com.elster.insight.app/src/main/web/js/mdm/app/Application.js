@@ -7,6 +7,7 @@ Ext.define('MdmApp.Application', {
 
     requires:[
         'Sam.privileges.DeploymentInfo',
+        'Imt.privileges.TaskManagement',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
         'Scs.privileges.ServiceCall',
@@ -20,8 +21,7 @@ Ext.define('MdmApp.Application', {
         'Dxp.privileges.DataExport',
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
-        'Yfn.privileges.Yellowfin',
-        'Imt.privileges.TaskManagement'
+        'Yfn.privileges.Yellowfin'
     ],
 
     controllers: [
