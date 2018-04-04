@@ -311,17 +311,48 @@ public class UsagePointOutputResource {
 
         infoList = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
-                .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose))
-                .filter(optionalContract -> optionalContract.isPresent())
-                .map(Optional::get)
-                .map(MetrologyContract::getDeliverables)
+                .map(effectiveMC -> this.getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose))
                 .flatMap(deliverables -> deliverables
                         .stream()
                         .map(ReadingTypeDeliverable::getReadingType)
                         .filter(ReadingType::isRegular)
-                        .map(readingType -> outputIntervalInfoFactory.asIntervalInfo(readingType)))
+                        .map(outputIntervalInfoFactory::asIntervalInfo))
                 .collect(Collectors.toSet());
         return PagedInfoList.fromCompleteList("intervals", infoList.stream().collect(Collectors.toList()), queryParameters);
+    }
+
+    @GET
+    @Path("/{purposeId}/outputs/registers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public PagedInfoList getRegistersOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryFilter filter,
+                                                         @BeanParam JsonQueryParameters queryParameters) {
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        MetrologyPurpose metrologyPurpose = this.getMetrologyPurpose(usagePoint, contractId);
+
+        List<IdWithNameInfo> infoList = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .map(effectiveMC -> this.getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose))
+                .flatMap(deliverables -> deliverables
+                        .stream()
+                        .filter(deliverable -> !deliverable.getReadingType().isRegular())
+                        .map(deliverable -> new IdWithNameInfo(deliverable.getId(), deliverable.getReadingType().getFullAliasName())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("registers", infoList, queryParameters);
+    }
+
+    private List<ReadingTypeDeliverable> getDeliverablesFromEffectiveMC(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose metrologyPurpose) {
+        return this.findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                .map(MetrologyContract::getDeliverables)
+                .orElse(Collections.emptyList());
+    }
+
+    private MetrologyPurpose getMetrologyPurpose(UsagePoint usagePoint, long contractId) {
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        return metrologyContract.getMetrologyPurpose();
     }
 
     @GET
@@ -509,6 +540,47 @@ public class UsagePointOutputResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
 
     }
+
+    @GET
+    @Transactional
+    @Path("/{purposeId}/outputs/registerData")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public Response getRegisterDataOfAllOutputs(@PathParam("name") String name, @PathParam("purposeId") long contractId,
+                                                @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        MetrologyPurpose metrologyPurpose = this.getMetrologyPurpose(usagePoint, contractId);
+
+        if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            List<OutputRegisterDataInfo> outputRegisterDataInfos = new ArrayList<>();
+            usagePoint.getEffectiveMetrologyConfigurations()
+                    .forEach(effectiveMC -> this.getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose)
+                            .forEach(deliverable -> {
+                                        Map<Instant, OutputRegisterDataInfo> outputRegisterData = new TreeMap<>(Collections.reverseOrder());
+                                        putRegisterDataFromMetrologyConfiguration(usagePoint, outputRegisterData, deliverable.getMetrologyContract(), deliverable.getReadingType(), effectiveMC, filter);
+                                        outputRegisterDataInfos.addAll(outputRegisterData.values());
+                                    }
+                            )
+                    );
+            PagedInfoList pagedInfoList = getSortedAndPaginatedList(outputRegisterDataInfos, queryParameters);
+            return Response.ok(pagedInfoList).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+
+    private PagedInfoList getSortedAndPaginatedList(List<OutputRegisterDataInfo> outputRegisterDataInfos, JsonQueryParameters queryParameters) {
+        outputRegisterDataInfos.sort(this::compareByMeasurementTimeThenByName);
+        List<OutputRegisterDataInfo> paginatedOutputRegisterDataInfos = ListPager.of(outputRegisterDataInfos).from(queryParameters).find();
+        return PagedInfoList.fromPagedList("data", paginatedOutputRegisterDataInfos, queryParameters);
+    }
+
+    private int compareByMeasurementTimeThenByName( OutputRegisterDataInfo reg1, OutputRegisterDataInfo reg2) {
+        int result = reg2.timeStamp.compareTo(reg1.timeStamp);
+        return result != 0 ? result : reg2.output.name.compareTo(reg1.output.name);
+    }
+
 
     private Optional<AggregatedChannel.AggregatedIntervalReadingRecord> findRecordWithContainingRange(List<AggregatedChannel.AggregatedIntervalReadingRecord> records, Instant timestamp) {
         return records
@@ -801,6 +873,7 @@ public class UsagePointOutputResource {
                 if (containerRange.isConnected(requestedInterval)) {
                     metrologyContract.getDeliverables().stream()
                             .filter(deliverable -> deliverable.getReadingType().equals(readingType))
+                            .filter(deliverable -> this.isRegisterSelected(filter, deliverable))
                             .findAny()
                             .ifPresent(deliverable -> {
                                 Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
@@ -868,6 +941,15 @@ public class UsagePointOutputResource {
             });
         }
     }
+
+    private boolean isRegisterSelected(JsonQueryFilter filter, ReadingTypeDeliverable deliverable) {
+        if (!filter.hasProperty("registers")){
+            return true;
+        }
+        List<Long> selectedRegisterIds = filter.getLongList("registers");
+        return selectedRegisterIds.contains(deliverable.getId());
+    }
+
 
     private boolean hasSuspects(Map.Entry<?, RegisterReadingWithValidationStatus> registerReadingWithValidationStatus) {
         return registerReadingWithValidationStatus.getValue().getValidationStatus()

@@ -561,4 +561,34 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(model.<String>get("$.units[0].id")).isEqualTo("-2:5");
         assertThat(model.<String>get("$.units[0].name")).isEqualTo("cA");
     }
+
+
+    @Test
+    public void testGetRegistersOfUsagePointPurposeWithInvalidContractId() throws Exception{
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + 0 + "/outputs/registers").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetRegistersOfUsagePointPurposeWithInvalidUsagePoint() throws Exception{
+        Response response = target("usagepoints/invalidUP" + "/purposes/" + optionalContract.getId() + "/outputs/registers").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetRegistersOfUsagePointPurposeWithNoCurrentEffectiveMetrologyConfiguration() throws Exception{
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/outputs/registers").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetRegistersOfUsagePointPurpose() throws Exception{
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/outputs/registers").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<String>get("$.registers[0].name")).isEqualTo("fullAliasName");
+    }
 }

@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -45,6 +46,7 @@ public class OutputRegisterDataInfoFactory {
 
     public OutputRegisterDataInfo createRegisterDataInfo(RegisterReadingWithValidationStatus readingWithValidationStatus, ReadingTypeDeliverable deliverable) {
         OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType(), deliverable.getReadingType());
+        info.output = new IdWithNameInfo(deliverable.getId(), deliverable.getReadingType().getFullAliasName());
         info.timeStamp = readingWithValidationStatus.getTimeStamp();
         info.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
 
@@ -69,6 +71,7 @@ public class OutputRegisterDataInfoFactory {
                 if (readingType.isCumulative()) {
                     billingOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
                 }
+                billingOutputRegisterDataInfo.unitWithMultiplier = this.getUnitWithMultiplier(readingType);
                 return billingOutputRegisterDataInfo;
             case TEXT:
                 TextOutputRegisterDataInfo textOutputRegisterDataInfo = new TextOutputRegisterDataInfo();
@@ -93,8 +96,13 @@ public class OutputRegisterDataInfoFactory {
                 if (readingType.isCumulative()) {
                     numericalOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
                 }
+                numericalOutputRegisterDataInfo.unitWithMultiplier = this.getUnitWithMultiplier(readingType);
                 return numericalOutputRegisterDataInfo;
         }
+    }
+
+    private String getUnitWithMultiplier(ReadingType readingType) {
+        return readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
     }
 
     private boolean isNumerical(ReadingTypeDeliverable deliverable) {

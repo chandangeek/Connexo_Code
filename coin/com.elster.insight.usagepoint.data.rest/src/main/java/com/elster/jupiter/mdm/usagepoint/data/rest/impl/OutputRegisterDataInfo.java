@@ -54,4 +54,6 @@ public abstract class OutputRegisterDataInfo {
     public List<ReadingQualityInfo> readingQualities;
 
     public abstract BaseReading createNew(ReadingType readingType);
+
+    public IdWithNameInfo output;
 }
