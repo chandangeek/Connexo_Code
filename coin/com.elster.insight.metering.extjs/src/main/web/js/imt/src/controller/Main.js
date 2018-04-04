@@ -42,6 +42,7 @@ Ext.define('Imt.controller.Main', {
     controllers: [
         'Imt.controller.Dashboard',
         'Imt.controller.TaskManagement',
+        'Apr.controller.CustomTask',
         'Imt.dashboard.controller.OperatorDashboard',
         'Imt.dashboard.controller.FavoriteUsagePointGroups',
         'Imt.usagepointmanagement.controller.View',

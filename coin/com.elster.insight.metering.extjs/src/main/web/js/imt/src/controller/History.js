@@ -672,6 +672,9 @@ Ext.define('Imt.controller.History', {
                             privileges: function () {
                                 return Apr.TaskManagementApp.canAdministrate();
                             },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
+                            },
                             controller: 'Imt.controller.TaskManagement',
                             action: 'showAddTask'
                         },
@@ -692,6 +695,9 @@ Ext.define('Imt.controller.History', {
                                     return taskManagement.controller.canView();
                                 }
                                 return false;
+                            },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
                             },
                             controller: 'Imt.controller.TaskManagement',
                             action: 'viewTask',
@@ -715,6 +721,9 @@ Ext.define('Imt.controller.History', {
                                         }
                                         return false;
                                     },
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     controller: 'Imt.controller.TaskManagement',
                                     action: 'editTask',
                                     callback: function (route) {
@@ -732,12 +741,18 @@ Ext.define('Imt.controller.History', {
                                     privileges: Imt.privileges.TaskManagement.view,
                                     controller: 'Imt.controller.TaskManagement',
                                     action: 'viewHistoryTask',
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     items: {
                                         occurrence: {
                                             title: '',
                                             route: '{occurrenceId}',
                                             controller: 'Imt.controller.TaskManagement',
                                             action: 'viewHistoryTaskLog',
+                                            haveDependenciesLoaded: function () {
+                                                return Apr.TaskManagementApp.dependenciesLoaded();
+                                            },
                                             callback: function (route) {
                                                 this.getApplication().on('viewHistoryTaskLog', function (name) {
                                                     route.setTitle(name);
