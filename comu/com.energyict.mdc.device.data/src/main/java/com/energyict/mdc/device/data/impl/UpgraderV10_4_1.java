@@ -1,9 +1,25 @@
+<<<<<<< HEAD
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
+=======
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.data.impl;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+>>>>>>> bugfixRO/10.4/CONM-196-2
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
