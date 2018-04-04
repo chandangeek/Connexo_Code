@@ -6,7 +6,9 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -14,12 +16,13 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
 import javax.inject.Inject;
@@ -34,20 +37,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
-        property = {"name=HTW", "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
+        property = {"name="+BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
         immediate = true, service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
+    public static final String COMPONENT_NAME = "HTW";
     private static final String TIMEOUT = "com.elster.jupiter.timeout";
     private static final String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
     private static final String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
@@ -83,6 +84,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile TransactionService transactionService;
     private volatile UpgradeService upgradeService;
     private volatile BpmService bpmService;
+    private volatile EventService eventService;
+    private volatile MessageService messageService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -142,6 +145,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.bpmService = bpmService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -151,6 +164,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(UserService.class).toInstance(userService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
+                bind(MessageService.class).toInstance(messageService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
         });
@@ -158,7 +173,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
-        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class));
         initSecurityTokenImpl();
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
@@ -315,10 +330,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         // Invalidate token & server side session
         Optional<Cookie> tokenCookie = getTokenCookie(request);
+        Object logoutParameter = request.getUserPrincipal() ;
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
             invalidateSession(request);
         }
+        eventService.postEvent(WhiteboardEvent.LOGOUT.topic(), logoutParameter);
     }
 
 
@@ -361,6 +378,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (isAuthenticated(user)) {
             String token = securityToken.createToken(user.get(), 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
+            eventService.postEvent(WhiteboardEvent.LOGIN.topic(), user.get());
             return allow(request, response, user.get(), token);
         } else {
             return deny(request, response);
