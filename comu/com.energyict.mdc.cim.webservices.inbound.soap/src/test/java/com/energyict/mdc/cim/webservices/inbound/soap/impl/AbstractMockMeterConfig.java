@@ -36,8 +36,7 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class AbstractMockMeterConfig extends AbstractMockActivator {
-
+public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String DEVICE_MRID = UUID.randomUUID().toString();
     protected static final String DEVICE_NAME = "SPE0000001";
     protected static final String SERIAL_NUMBER = "00000001";
