@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -31,13 +30,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DevicesInFirmwareCampaignFilterTest {
     @Mock
-    public FirmwareService firmwareService;
+    private FirmwareService firmwareService;
     @Mock
-    public DeviceService deviceService;
+    private DeviceService deviceService;
     @Mock
-    public FirmwareCampaign firmwareCampaign;
+    private FirmwareCampaign firmwareCampaign;
     @Mock
-    public Device device1, device2;
+    private Device device1, device2;
 
     @Test
     public void testForCampaign() {
@@ -50,7 +49,7 @@ public class DevicesInFirmwareCampaignFilterTest {
 
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(firmwareCampaign);
+        assertThat(((Comparison) condition).getValues()).containsOnly(firmwareCampaign);
     }
 
     @Test(expected = BadFilterException.class)
@@ -58,7 +57,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.empty());
         when(firmwareCampaign.getId()).thenReturn(1L);
 
-        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
+        new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId())
                 .getCondition();
     }
@@ -75,7 +74,8 @@ public class DevicesInFirmwareCampaignFilterTest {
                 FirmwareManagementDeviceStatus.UPLOAD_SUCCESS, FirmwareManagementDeviceStatus.ACTIVATION_PENDING,
                 FirmwareManagementDeviceStatus.ACTIVATION_ONGOING, FirmwareManagementDeviceStatus.ACTIVATION_FAILED,
                 FirmwareManagementDeviceStatus.ACTIVATION_SUCCESS, FirmwareManagementDeviceStatus.VERIFICATION_ONGOING,
-                FirmwareManagementDeviceStatus.VERIFICATION_TASK_FAILED, FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+                FirmwareManagementDeviceStatus.VERIFICATION_TASK_FAILED, FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS,
+                FirmwareManagementDeviceStatus.VERIFICATION_FAILED);
     }
 
     @Test
@@ -84,11 +84,10 @@ public class DevicesInFirmwareCampaignFilterTest {
                 .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED))
                 .getCondition();
 
-        assertThat(condition.getClass()).isEqualTo(Contains.class);
-        assertThat(((Contains) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
-        assertThat(((Contains) condition).getOperator()).isEqualTo(ListOperator.IN);
-        assertThat(((Contains) condition).getCollection()).containsOnly(
-                FirmwareManagementDeviceStatus.UPLOAD_FAILED, FirmwareManagementDeviceStatus.VERIFICATION_FAILED);
+        assertThat(condition.getClass()).isEqualTo(Comparison.class);
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
+        assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
+        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_FAILED);
     }
 
     @Test
@@ -100,7 +99,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.UPLOAD_ONGOING);
+        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_ONGOING);
     }
 
     @Test
@@ -112,7 +111,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
     }
 
     @Test
@@ -124,7 +123,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
+        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
     }
 
     @Test
@@ -136,7 +135,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.CANCELLED);
+        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.CANCELLED);
     }
 
     @Test
@@ -151,7 +150,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
         assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName());
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()[0]).isEqualTo(device1);
+        assertThat(((Comparison) condition).getValues()).containsOnly(device1);
     }
 
     @Test
@@ -167,9 +166,7 @@ public class DevicesInFirmwareCampaignFilterTest {
 
         assertThat(condition.getClass()).isEqualTo(Contains.class);
         assertThat(((Contains) condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName());
-        assertThat(((Contains) condition).getCollection()).hasSize(2);
-        assertThat(((Contains) condition).getCollection()).contains(device1);
-        assertThat(((Contains) condition).getCollection()).contains(device2);
+        assertThat(((Contains) condition).getCollection()).containsOnly(device1, device2);
     }
 
     @Test
