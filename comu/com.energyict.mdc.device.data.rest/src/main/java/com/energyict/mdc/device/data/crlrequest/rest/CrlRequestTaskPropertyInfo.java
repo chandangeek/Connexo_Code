@@ -11,6 +11,8 @@ import java.time.Instant;
 public class CrlRequestTaskPropertyInfo {
     public IdWithNameInfo securityAccessor;
     public String caName;
+    public IdWithNameInfo logLevel;
     public TimeDurationInfo timeDurationInfo;
     public Instant nextRun;
+    public IdWithNameInfo task;
 }

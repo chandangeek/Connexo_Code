@@ -135,7 +135,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CONNECTION_FUNCTION(317, "NoSuchConnectionFunction", "The connection function could not be found"),
     MASTER_DEVICE_CANNOT_ACT_AS_GATEWAY(318, "MasterDeviceCannotActAsGateway", "Device ''{0}'' cannot be set as master device because its device configuration prohibits usage as gateway"),
     NO_SUCH_PROCESS_DEFINITION(319, "NoSuchProcessDefinition", "No process definition found"),
-    NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist")
+    NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist"),
+    NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
+    CRL_REQUEST_TASK_ALREADY_EXISTS(322, "CrlRequestTaskAlreadyExists", "CRL request task already exists")
     ;
 
     private final int number;
