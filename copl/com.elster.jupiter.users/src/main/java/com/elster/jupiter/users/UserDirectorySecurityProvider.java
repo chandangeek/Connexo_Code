@@ -8,5 +8,7 @@ import java.security.KeyStore;
 import java.util.Optional;
 
 public interface UserDirectorySecurityProvider {
-    Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory);
+    Optional<KeyStore> getTrustedKeyStore(LdapUserDirectory ldapUserDirectory);
+
+    Optional<KeyStore> getKeyStore(LdapUserDirectory userDirectory, char[] password);
 }
