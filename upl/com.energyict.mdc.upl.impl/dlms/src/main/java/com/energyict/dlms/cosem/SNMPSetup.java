@@ -2,7 +2,6 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributes.BorderRouterAttributes;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
 import com.energyict.obis.ObisCode;
 
