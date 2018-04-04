@@ -232,7 +232,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 && activatedFirmwareVersion.getFirmwareVersion().getImageIdentifier().equals(getFirmwareCampaign().getFirmwareVersion().getImageIdentifier())) {
             setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
         } else {
-            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_FAILED);
+            setStatus(FirmwareManagementDeviceStatus.UPLOAD_FAILED);
         }
         save();
     }
