@@ -16,6 +16,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -40,7 +41,6 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -120,7 +120,6 @@ import static org.mockito.Mockito.when;
  * on testing the correct implementation of the persistence aspects of entities in this bundle.
  */
 public class InMemoryPersistence {
-
     private final Supplier<List<Module>> moduleSupplier;
     private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
     private ThreadSecurityModule threadSecurityModule;
@@ -198,7 +197,8 @@ public class InMemoryPersistence {
                 new BpmModule(),
                 new CalendarModule(),
                 new PkiModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new FileImportModule()
         );
     }
 
@@ -303,7 +303,5 @@ public class InMemoryPersistence {
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
         }
-
     }
-
 }

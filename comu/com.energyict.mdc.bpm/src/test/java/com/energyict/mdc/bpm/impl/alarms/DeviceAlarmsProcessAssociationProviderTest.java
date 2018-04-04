@@ -20,7 +20,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DeviceAlarmsProcessAssociationProviderTest {
-
     private static InMemoryPersistence inMemoryPersistence;
 
     @BeforeClass
@@ -58,7 +57,5 @@ public class DeviceAlarmsProcessAssociationProviderTest {
         assertTrue(spec.supportsMultiValues());
         assertTrue(spec.getPossibleValues().isExhaustive());
         assertFalse(spec.getPossibleValues().isEditable());
-
     }
-
 }
