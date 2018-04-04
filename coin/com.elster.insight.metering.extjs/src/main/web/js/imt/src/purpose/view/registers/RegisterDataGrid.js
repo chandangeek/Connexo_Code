@@ -9,11 +9,10 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Imt.purpose.view.registers.RegisterReadingActionMenu',
-        'Imt.purpose.util.TooltipRenderer',
-        'Imt.purpose.view.registers.MultipleRegisterReadingsActionMenu'
+        'Imt.purpose.view.registers.MultipleRegisterReadingsActionMenu',
+        'Imt.purpose.util.GridRenderer'
     ],
     store: 'Imt.purpose.store.RegisterReadings',
-    output: null,
 
     initComponent: function () {
         var me = this,
@@ -26,27 +25,14 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                 flex: 2,
                 dataIndex: 'interval',
-                renderer: function (value, meataData, record) {
-                    if(!Ext.isEmpty(value)) {
-                        var endDate = new Date(value.end);
-                        if (!!value.start && !!value.end) {
-                            var startDate = new Date(value.start);
-                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                        } else {
-                            return Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                        }
-                    }
-                    return '-';
-                }
+                renderer:  Imt.purpose.util.GridRenderer.renderMeasurementPeriodColumn
             })
         } else if (!me.output.get('hasEvent')){
             me.columns.push({
                 header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
                 flex: 1,
                 dataIndex: 'timeStamp',
-                renderer: function (value, metaData, record) {                                                 
-                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value))  + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                }
+                renderer: Imt.purpose.util.GridRenderer.renderMeasurementTimeColumn
             })
         }
         if(me.output.get('hasEvent')){
@@ -55,7 +41,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                     header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
                     dataIndex: 'eventDate',
                     itemId: 'eventTime',
-                    renderer: me.renderMeasurementTime,
+                    renderer: Imt.purpose.util.GridRenderer.renderEventTimeColumn,
                     flex: 1
                 }
             );
@@ -64,7 +50,9 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: unit
                     ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', unit)
                     : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
-                renderer: me.formatColumn,
+                renderer: function(value, metaData, record){
+                    return Imt.purpose.util.GridRenderer.renderValueColumn(value, metaData, record);
+                },
                 align: 'right',
                 width: 200,
                 dataIndex: 'value'
@@ -92,9 +80,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 dataIndex: 'reportedDateTime',
                 flex: 1,
-                renderer: function(value){
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                }
+                renderer: Imt.purpose.util.GridRenderer.renderLastUpdateColumn
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -145,59 +131,5 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
 
         ];
         me.callParent(arguments);
-    },
-
-    formatColumn: function (v, metaData, record) {
-        var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
-            value = Ext.isEmpty(v) ? '-' : v,
-            icon = '';
-
-        if (status === 'notValidated') {
-            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
-                + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
-        } else if (record.get('confirmedNotSaved')) {
-            metaData.tdCls = 'x-grid-dirty-cell';
-        } else if (status === 'suspect') {
-            icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
-                + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
-        } else if (status === 'ok' && record.get('action') == 'WARN_ONLY') {
-            icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
-                + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
-        }
-
-        if (record.get('isConfirmed') && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
-                + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
-        }
-        return value + icon;
-    },
-
-    renderMeasurementTime: function (value, metaData, record) {
-        if (Ext.isEmpty(value)) {
-            return '-';
-        }
-        var date = new Date(value),
-            showDeviceQualityIcon = false,
-            tooltipContent = '',
-            icon = '';
-
-        if (!Ext.isEmpty(record.get('readingQualities'))) {
-            Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
-                if (Ext.String.startsWith(readingQualityObject.cimCode, '1.')) {
-                    showDeviceQualityIcon |= true;
-                    tooltipContent += readingQualityObject.indexName + '<br>';
-                }
-            });
-            if (tooltipContent.length > 0) {
-                tooltipContent += '<br>';
-                tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'IMT', 'View reading quality details for more information.');
-            }
-            if (showDeviceQualityIcon) {
-                icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
-                    + Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality') + '" data-qtip="'
-                    + tooltipContent + '"></span>';
-            }
-        }
-        return Uni.DateTime.formatDateTimeShort(date)  + icon;
     }
 });

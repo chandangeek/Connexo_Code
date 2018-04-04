@@ -75,7 +75,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         },
         {
             ref: 'readingPreviewPanel',
-            selector: 'output-channel-main reading-preview'
+            selector: 'output-channel-main interval-reading-preview'
         },
         {
             ref: 'editEstimationComment',
@@ -102,8 +102,12 @@ Ext.define('Imt.purpose.controller.Readings', {
             selector: 'output-readings #output-readings-topfilter'
         },
         {
-            ref: 'historyReadingPreviewPanel',
-            selector: 'output-readings-history reading-preview'
+            ref: 'historyRegisterDataPreviewPanel',
+            selector: 'output-readings-history register-data-preview'
+        },
+        {
+            ref: 'historyIntervalDataPreviewPanel',
+            selector: 'output-readings-history interval-reading-preview'
         }
     ],
 
@@ -1360,7 +1364,12 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     showHistoryPreview: function (selectionModel, record) {
         if (selectionModel.getSelection().length === 1) {
-            this.getHistoryReadingPreviewPanel().updateForm(record);
+            if (record.get('type') === 'OutputRegisterHistoryDataInfo'){
+                this.getHistoryRegisterDataPreviewPanel().updateForm(record);
+            } else {
+                this.getHistoryIntervalDataPreviewPanel().updateForm(record);
+            }
+
         }
     }
 });

@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.view.history.History', {
         'Imt.purpose.view.history.HistoryFilter',
         'Imt.purpose.view.history.HistoryIntervalFilter',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Imt.purpose.view.ReadingPreview'
+        'Imt.purpose.view.registers.RegisterDataPreview'
     ],
 
     usagePoint: null,
@@ -65,7 +65,7 @@ Ext.define('Imt.purpose.view.history.History', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'reading-preview',
+                        xtype: me.getPreviewComponent(me.output.get('outputType')),
                         itemId: 'output-readings-history-preview',
                         output: me.output,
                         outputType: me.output.get('outputType'),
@@ -87,5 +87,12 @@ Ext.define('Imt.purpose.view.history.History', {
         };
 
         me.callParent(arguments);
+    },
+
+    getPreviewComponent: function (type) {
+        if (type === 'register')
+            return 'register-data-preview';
+
+        return 'interval-reading-preview'
     }
 });

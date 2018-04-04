@@ -75,7 +75,8 @@ Ext.define('Imt.purpose.model.RegisterReading', {
                 return result;
             }
         },
-        {name: 'action', persist: false}
+        {name: 'action', persist: false},
+        {name: 'unitWithMultiplier', type: 'auto'}
     ],
     proxy: {
         type: 'rest',

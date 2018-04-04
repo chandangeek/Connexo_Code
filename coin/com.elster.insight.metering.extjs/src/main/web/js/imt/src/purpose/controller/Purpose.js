@@ -28,8 +28,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.OutputValidationConfiguration',
         'Imt.purpose.store.OutputEstimationConfiguration',
         'Imt.purpose.store.PurposeSummaryData',
+        'Imt.purpose.store.PurposeSummaryRegisterData',
         'Imt.purpose.store.FilteredOutputs',
         'Imt.purpose.store.IntervalFilter',
+        'Imt.purpose.store.RegisterFilter',
         'Imt.purpose.store.UnitFilter'
     ],
 
@@ -56,16 +58,20 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     refs: [
         {
-            ref: 'readingPreviewPanel',
-            selector: 'output-channel-main reading-preview'
-        },
-        {
             ref: 'purposePage',
             selector: '#purpose-outputs'
         },
         {
             ref: 'outputPreview',
             selector: '#purpose-outputs #output-preview'
+        },
+        {
+            ref: 'purposeRegisterDataView',
+            selector: 'purpose-register-data-view'
+        },
+        {
+            ref: 'purposeRegisterDataPreviewPanel',
+            selector: 'purpose-register-data-preview'
         }
     ],
 
@@ -81,6 +87,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             '#purpose-outputs #outputs-list': {
                 select: this.showOutputPreview
+            },
+            'purpose-register-data-view #purpose-register-data-grid': {
+                select: this.loadPurposeRegisterDataPreview
             }
         });
     },
@@ -99,6 +108,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router = me.getController('Uni.controller.history.Router'),
             periodsStore = me.getStore('Imt.usagepointmanagement.store.Periods'),
             intervalsStore = me.getStore('Imt.purpose.store.IntervalFilter'),
+            registersStore = me.getStore('Imt.purpose.store.RegisterFilter'),
             unitsStore = me.getStore('Imt.purpose.store.UnitFilter'),
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
@@ -106,11 +116,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 usagePointId: usagePointId,
                 purposeId: purposeId
             },
-            dependenciesCounter = 6,
+            dependenciesCounter = 7,
             defaultPeriod,
             usagePoint,
             intervalsCount,
-            outputs,
+            registersCount,
             purposes;
 
         if (!router.queryParams.purposeTab) {
@@ -128,6 +138,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
             intervalsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
             intervalsStore.load(function (records) {
                 intervalsCount = records.length;
+                onDependenciesLoad();
+            });
+
+            registersStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+            registersStore.load(function (records) {
+                registersCount = records.length;
                 onDependenciesLoad();
             });
 
@@ -178,6 +194,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         purposes: purposes,
                         purpose: purpose,
                         intervalsCount: intervalsCount,
+                        registersCount: registersCount,
                         defaultPeriod: defaultPeriod,
                         controller: me,
                         prevNextListLink: me.makeLinkToOutputs(router),
@@ -226,6 +243,26 @@ Ext.define('Imt.purpose.controller.Purpose', {
             purposeId: panel.purpose.getId()
         };
         readingsStore.load();
+    },
+
+    showRegisterDataViewTab: function(panel) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            registerDataStore;
+
+        if (router.arguments.tab != 'registerData') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.queryParams.tab = 'registerData';
+            router.getRoute('usagepoints/view/purpose').forward();
+        }
+
+        registerDataStore = Ext.getStore('Imt.purpose.store.PurposeSummaryRegisterData');
+        registerDataStore.getProxy().extraParams = {
+            usagePointId: panel.usagePoint.get('name'),
+            purposeId: panel.purpose.getId()
+        };
+        registerDataStore.load();
     },
 
     showOutputPreview: function (selectionModel, record) {
@@ -684,6 +721,20 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 app.fireEvent('rule-with-attributes-loaded', rule);
                 app.fireEvent('changecontentevent', widget);
             }
+        }
+    },
+
+
+    getSelectedRegisterOutput: function(registerData){
+        var outputsStore = this.getStore('Imt.purpose.store.Outputs'),
+            outputId = registerData.get('output').id;
+        return outputsStore.findRecord('id', outputId);
+    },
+
+    loadPurposeRegisterDataPreview: function (selectionModel, record) {
+        if (selectionModel.getSelection().length === 1) {
+            var output = this.getSelectedRegisterOutput(record);
+            this.getPurposeRegisterDataPreviewPanel().updateForm(record, output);
         }
     }
 });

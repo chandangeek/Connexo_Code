@@ -10,9 +10,10 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.ReadingsGraph',
         'Imt.purpose.view.ReadingsList',
-        'Imt.purpose.view.ReadingPreview',
         'Imt.purpose.view.NoReadingsFoundPanel',
-        'Imt.purpose.view.registers.RegisterDataGrid'
+        'Imt.purpose.view.registers.RegisterDataGrid',
+        'Imt.purpose.view.registers.RegisterDataPreview',
+        'Imt.purpose.view.IntervalReadingPreview'
     ],
     store: null,
     mixins: {
@@ -150,8 +151,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         },
                         emptyComponent: emptyComponent,
                         previewComponent: {
-                            xtype: 'reading-preview',
-                            itemId: 'reading-preview',
+                            xtype: 'interval-reading-preview',
+                            itemId: 'interval-reading-preview',
                             output: me.output,
                             router: me.router,
                             hidden: true,
@@ -200,8 +201,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                     },
                     emptyComponent: emptyComponent,
                     previewComponent: {
-                        xtype: 'reading-preview',
-                        itemId: 'reading-preview',
+                        xtype: 'register-data-preview',
+                        itemId: 'register-data-preview',
                         output: me.output,
                         router: me.router,
                         hidden: true,

@@ -47,8 +47,8 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             selector: '#output-readings #readings-graph'
         },
         {
-            ref: 'readingPreviewPanel',
-            selector: 'output-channel-main reading-preview'
+            ref: 'registerDataPreviewPanel',
+            selector: 'output-channel-main register-data-preview'
         },
         {
             ref: 'registerDataGrid',
@@ -69,7 +69,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             'output-channel-main register-data-grid': {
                 select: function (selectionModel, record) {
                     if (selectionModel.getSelection().length === 1) {
-                        this.getReadingPreviewPanel().updateForm(record);
+                        this.getRegisterDataPreviewPanel().updateForm(record);
                     }
                 }
             },
