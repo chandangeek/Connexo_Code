@@ -335,7 +335,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             removeCookie(response, tokenCookie.get().getName());
             invalidateSession(request);
         }
-        eventService.postEvent(WhiteboardEvent.LOGOUT.topic(), logoutParameter);
+        if(logoutParameter instanceof User) {
+            //the eventService is sent ONLY if the Object is an instance of User class,
+            eventService.postEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
+        }
     }
 
 
@@ -378,7 +381,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (isAuthenticated(user)) {
             String token = securityToken.createToken(user.get(), 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
-            eventService.postEvent(WhiteboardEvent.LOGIN.topic(), user.get());
+            eventService.postEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(user.get()));
             return allow(request, response, user.get(), token);
         } else {
             return deny(request, response);
