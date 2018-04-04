@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +43,7 @@ import static com.elster.jupiter.util.Checks.is;
 final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     static final String TYPE_IDENTIFIER = "ACD";
+    private static final Logger LOGGER = Logger.getLogger(ActiveDirectoryImpl.class.getSimpleName());
 
     @Inject
     ActiveDirectoryImpl(DataModel dataModel, UserService userService) {
@@ -90,6 +92,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     @Override
     public Optional<User> authenticate(String name, String password) {
         List<String> urls = getUrls();
+        LOGGER.info("AUTH: Autheticating ActiveDirectory user\n");
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return authenticateSimple(name, password, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
@@ -102,10 +105,14 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
+        LOGGER.info("AUTH: No security applied\n");
+
         try {
             new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
+            LOGGER.severe("AUTH: Simple authetication failed\n");
+            LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
                 return authenticateSimple(name, password, urls.subList(1, urls.size() - 1));
@@ -116,10 +123,15 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSSL(String name, String password, List<String> urls, KeyStore keyStore) {
+        LOGGER.info("AUTH: SSL applied\n");
+
         try {
             new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password, "ssl", keyStore));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
+            LOGGER.severe("AUTH: SSL authetication failed\n");
+            LOGGER.severe(e.getMessage());
+            e.printStackTrace();
             if (urls.size() > 1) {
                 return authenticateSSL(name, password, urls.subList(1, urls.size() - 1), keyStore);
             } else {
@@ -129,6 +141,8 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateTLS(String name, String password, List<String> urls, KeyStore keyStore) {
+        LOGGER.info("AUTH: TLS applied\n");
+
         StartTlsResponse tls = null;
         try {
             LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password), null);
@@ -138,6 +152,9 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate(getSocketFactory(keyStore, "TLS"));
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
+            LOGGER.severe("AUTH: TLS authetication failed\n");
+            LOGGER.severe(e.getMessage());
+            e.printStackTrace();
             if (urls.size() > 1) {
                 return authenticateTLS(name, password, urls.subList(1, urls.size() - 1), keyStore);
             } else {
