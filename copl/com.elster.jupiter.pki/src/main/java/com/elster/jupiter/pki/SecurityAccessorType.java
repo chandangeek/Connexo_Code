@@ -22,7 +22,7 @@ import java.util.Set;
 public interface SecurityAccessorType extends HasId, HasName  {
     @ProviderType
     enum Purpose {
-        COMMUNICATION,
+        DEVICE_OPERATIONS,
         FILE_OPERATIONS
     }
 

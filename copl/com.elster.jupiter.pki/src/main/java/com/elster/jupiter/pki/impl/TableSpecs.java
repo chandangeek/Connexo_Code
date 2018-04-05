@@ -298,7 +298,7 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeImpl.Fields.PURPOSE.fieldName())
                     .notNull()
                     .since(Version.version(10, 4, 1))
-                    .installValue("'" + SecurityAccessorType.Purpose.COMMUNICATION.name() + "'")
+                    .installValue("'" + SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name() + "'")
                     .add();
 
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")

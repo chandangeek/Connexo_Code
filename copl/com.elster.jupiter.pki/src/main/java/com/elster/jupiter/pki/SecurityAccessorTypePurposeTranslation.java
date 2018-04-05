@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import java.util.Arrays;
 
 public enum SecurityAccessorTypePurposeTranslation implements TranslationKey {
-    COMMUNICATION(SecurityAccessorType.Purpose.COMMUNICATION, "Communication"),
+    DEVICE_OPERATIONS(SecurityAccessorType.Purpose.DEVICE_OPERATIONS, "Device operations"),
     FILE_OPERATIONS(SecurityAccessorType.Purpose.FILE_OPERATIONS, "File operations");
 
     private static final String KEY_PREFIX = "securityAccessorType.purpose.";
