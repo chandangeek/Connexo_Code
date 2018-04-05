@@ -78,12 +78,13 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         if(this.shippingDate == null) {
             this.shippingDate = clock.instant().minusSeconds(60);
         }
-        Device device = deviceService.newDevice(deviceConfiguration, getName(), this.shippingDate);
-        device.setSerialNumber(serialNumber);
-        device.setYearOfCertification(this.yearOfCertification);
-        device.setModelNumber(this.modelNumber);
-        device.setModelVersion(this.modelVersion);
-        device.setManufacturer(this.manufacturer);
+        com.energyict.mdc.device.data.DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfiguration, getName(), this.shippingDate);
+        deviceBuilder.withSerialNumber(serialNumber);
+        deviceBuilder.withYearOfCertification(this.yearOfCertification);
+        deviceBuilder.withModelNumber(this.modelNumber);
+        deviceBuilder.withModelVersion(this.modelVersion);
+        deviceBuilder.withManufacturer(this.manufacturer);
+        Device device = deviceBuilder.create();
         if (comSchedules != null) {
             for (ComSchedule comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(comSchedule).add();
