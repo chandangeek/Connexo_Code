@@ -94,7 +94,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         SecurityAccessorType securityAccessorType1 = mockKeyAccessorType(1, 2, "NameX", "Epic description");
         SecurityAccessorType securityAccessorType2 = mockCertificateAccessorType(2, 1, "Namew", "Epic description2");
-        when(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.COMMUNICATION))
+        when(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.DEVICE_OPERATIONS))
                 .thenReturn(Arrays.asList(securityAccessorType1, securityAccessorType2));
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType1));
@@ -330,7 +330,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(securityAccessorType.getVersion()).thenReturn(version);
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
         when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("SSM");
-        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         KeyType keyType = mock(KeyType.class);
         when(keyType.getId()).thenReturn(1L);
         when(keyType.getName()).thenReturn("Name of the keytype");
@@ -347,7 +347,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(securityAccessorType.getDescription()).thenReturn(description);
         when(securityAccessorType.getId()).thenReturn(id);
         when(securityAccessorType.getVersion()).thenReturn(version);
-        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         TrustStore trustStore = mock(TrustStore.class);
         when(trustStore.getId()).thenReturn(33L);
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.of(trustStore));

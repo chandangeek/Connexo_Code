@@ -202,7 +202,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 1;
         info.keyType.name = KEY_TYPE_NAME;
         info.keyType.requiresDuration = true;
-        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
 
         Response response = target("/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -210,7 +210,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(builder).description(DESCRIPTION_X);
         verify(builder).duration(info.duration.asTimeDuration());
         verify(builder).keyEncryptionMethod("SSM");
-        verify(builder).purpose(SecurityAccessorType.Purpose.COMMUNICATION);
+        verify(builder).purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         verify(builder, never()).trustStore(any(TrustStore.class));
         verify(builder).add();
         verify(builder, never()).managedCentrally();
@@ -232,7 +232,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
-        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
 
         Response response = target("/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -240,7 +240,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(builder).description(DESCRIPTION_W);
         verify(builder).duration(null);
         verify(builder).keyEncryptionMethod("SSM");
-        verify(builder).purpose(SecurityAccessorType.Purpose.COMMUNICATION);
+        verify(builder).purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         verify(builder).trustStore(trustStore);
         verify(builder).add();
         verify(builder, never()).managedCentrally();
@@ -255,8 +255,8 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         assertThat(model.<String>get("$.keyType.name")).isEqualTo(CERTIFICATE_TYPE_NAME);
         assertThat(model.<Boolean>get("$.keyType.requiresDuration")).isFalse();
         assertThat(model.<Number>get("$.duration")).isNull();
-        assertThat(model.<String>get("$.purpose.id")).isEqualTo("COMMUNICATION");
-        assertThat(model.<String>get("$.purpose.name")).isEqualTo("Communication");
+        assertThat(model.<String>get("$.purpose.id")).isEqualTo("DEVICE_OPERATIONS");
+        assertThat(model.<String>get("$.purpose.name")).isEqualTo("Device operations");
         assertThat(model.<Object>get("$.defaultValue")).isNull();
     }
 
@@ -507,7 +507,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
-        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
 
         info.defaultValue = createDefaultValue(null, "comserver", null);
 
@@ -554,7 +554,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
-        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
 
         info.defaultValue = createDefaultValue(null, "comserver", "newcomserver");
 
@@ -602,7 +602,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         info.keyType.id = 12;
         info.keyType.name = CERTIFICATE_TYPE_NAME;
         info.keyType.requiresDuration = false;
-        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.COMMUNICATION.name(), null);
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
 
         info.defaultValue = createDefaultValue(null, null, "newcomserver");
 
@@ -613,7 +613,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required.");
         assertThat(model.<String>get("$.errors[0].id")).isEqualTo("defaultValue.currentProperties.alias");
     }
 
@@ -816,7 +816,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required.");
         assertThat(model.<String>get("$.errors[0].id")).isEqualTo("defaultValue.currentProperties.alias");
     }
 
@@ -1105,7 +1105,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getVersion()).thenReturn(version);
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
         when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("SSM");
-        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         when(securityAccessorType.getKeyType()).thenReturn(keyType);
         TimeDuration validityPeriod = TimeDuration.months(2);
         when(securityAccessorType.getDuration()).thenReturn(Optional.of(validityPeriod));
@@ -1123,7 +1123,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.of(trustStore));
         when(securityAccessorType.getKeyType()).thenReturn(certificateType);
         when(securityAccessorType.getDuration()).thenReturn(Optional.empty());
-        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.COMMUNICATION);
+        when(securityAccessorType.getPurpose()).thenReturn(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
         return securityAccessorType;
     }
 
