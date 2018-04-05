@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
@@ -77,7 +78,6 @@ import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
-
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -296,6 +296,11 @@ class DeviceServiceImpl implements ServerDeviceService {
         Device device = newDevice(deviceConfiguration, name, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
+    }
+
+    @Override
+    public DeviceBuilder newDeviceBuilder(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
+        return new DeviceBuilderImpl(deviceConfiguration, name, startDate, deviceDataModelService);
     }
 
     private DataMapper<Device> getDeviceMapper() {
