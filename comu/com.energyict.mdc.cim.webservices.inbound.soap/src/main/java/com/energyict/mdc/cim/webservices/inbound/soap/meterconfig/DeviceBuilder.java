@@ -52,27 +52,18 @@ public class DeviceBuilder {
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
         DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(), meter.getDeviceType());
-        Optional<String> batch = Optional.ofNullable(meter.getBatch());
-        Optional<String> serialNumber = Optional.ofNullable(meter.getSerialNumber());
-        Optional<String> manufacturer = Optional.ofNullable(meter.getManufacturer());
-        Optional<String> modelNumber = Optional.ofNullable(meter.getModelNumber());
-        Optional<String> modelVersion = Optional.ofNullable(meter.getModelVersion());
-        Optional<BigDecimal> multiplier = Optional.ofNullable(meter.getMultiplier());
-
         return () -> {
-            if (!getExistingDevices(meter.getDeviceName(), serialNumber.orElse(null)).isEmpty()) {
+            if (!getExistingDevices(meter.getDeviceName(), meter.getSerialNumber()).isEmpty()) {
                 throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NAME_MUST_BE_UNIQUE).get();
             }
-            Device createdDevice = batch.isPresent() ?
-                    deviceService.newDevice(deviceConfig, meter.getDeviceName(), batch.get(), meter.getShipmentDate()) :
-                    deviceService.newDevice(deviceConfig, meter.getDeviceName(), meter.getShipmentDate());
-            serialNumber.ifPresent(createdDevice::setSerialNumber);
-            manufacturer.ifPresent(createdDevice::setManufacturer);
-            modelNumber.ifPresent(createdDevice::setModelNumber);
-            modelVersion.ifPresent(createdDevice::setModelVersion);
-            multiplier.ifPresent(m -> createdDevice.setMultiplier(m, meter.getShipmentDate()));
-            createdDevice.save();
-            return createdDevice;
+            com.energyict.mdc.device.data.DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig, meter.getDeviceName(), meter.getShipmentDate());
+            deviceBuilder.withBatch(meter.getBatch());
+            deviceBuilder.withSerialNumber(meter.getSerialNumber());
+            deviceBuilder.withManufacturer(meter.getManufacturer());
+            deviceBuilder.withModelNumber(meter.getModelNumber());
+            deviceBuilder.withModelVersion(meter.getModelVersion());
+            deviceBuilder.withMultiplier(meter.getMultiplier());
+            return deviceBuilder.create();
         };
     }
 
