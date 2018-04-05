@@ -66,13 +66,14 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             boxLabel: Uni.I18n.translate('general.communication', 'MDC', 'Communication'),
                             name: 'purpose',
                             itemId: 'mdc-security-accessor-purpose-communication',
-                            inputValue: {id: "COMMUNICATION", name: "Communication"}
+                            inputValue: {id: "DEVICE_OPERATIONS"},
+                            checked: true
                         },
                         {
                             boxLabel: Uni.I18n.translate('general.fileOperations', 'MDC', 'File operations'),
                             name: 'purpose',
                             itemId: 'mdc-security-accessor-purpose-file-operations',
-                            inputValue: {id: "FILE_OPERATIONS", name: "File operations"}
+                            inputValue: {id: "FILE_OPERATIONS"}
                         }
                     ]
                 },
@@ -117,9 +118,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
-                    editable : false,
+                    editable: false,
                     valueIsRecordData: true,
-                    editable : false,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
@@ -283,7 +283,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             manageCentrallyCheck.setValue(false);
             manageCentrallyCheck.setDisabled(false);
         }
-
     },
 
     onAccessorTypeChange: function(radioBtn, newValue) {
