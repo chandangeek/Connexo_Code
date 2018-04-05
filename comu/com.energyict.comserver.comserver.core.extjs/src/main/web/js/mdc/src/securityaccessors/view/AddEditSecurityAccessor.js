@@ -63,9 +63,9 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     },
                     items: [
                         {
-                            boxLabel: Uni.I18n.translate('general.communication', 'MDC', 'Communication'),
+                            boxLabel: Uni.I18n.translate('general.deviceOperations', 'MDC', 'Device operations'),
                             name: 'purpose',
-                            itemId: 'mdc-security-accessor-purpose-communication',
+                            itemId: 'mdc-security-accessor-purpose-device-operations',
                             inputValue: {id: "DEVICE_OPERATIONS"},
                             checked: true
                         },
