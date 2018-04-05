@@ -1135,13 +1135,13 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
                 .managedCentrally()
                 .description("just certificates")
                 .trustStore(main)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .add();
         keyAccessorType = securityManagementService.addSecurityAccessorType("Key", aes128)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .add();
     }
 
