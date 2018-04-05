@@ -497,7 +497,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
             failure: function (response, operation) {
                 var baseForm = form.getForm();
-                if (operation.response.status == 400) {  // lori asta mai este necesara ????
+                if (operation.response.status == 400) {  // check this if it is still necesary
                     if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.JSON.decode(operation.response.responseText);
                         if (json && json.errors) {
