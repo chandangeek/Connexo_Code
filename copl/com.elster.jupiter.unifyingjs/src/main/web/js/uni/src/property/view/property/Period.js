@@ -170,7 +170,7 @@ Ext.define('Uni.property.view.property.Period', {
         var me = this,
             countValue = me.getField().getValue(),
             timeUnitValue = me.getComboField().getValue(),
-            localizedTimeUnitValue = me.getComboField().getValue();   // lori
+            localizedTimeUnitValue = me.getComboField().getValue();
 
         if (!me.isCombo()
             && typeof countValue !== 'undefined' && countValue !== null
@@ -180,7 +180,7 @@ Ext.define('Uni.property.view.property.Period', {
 
             result.count = countValue;
             result.timeUnit = timeUnitValue;
-            result.localizedTimeUnit = localizedTimeUnitValue;   // lori
+            result.localizedTimeUnit = localizedTimeUnitValue;
 
             return result;
         }
