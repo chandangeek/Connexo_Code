@@ -1,6 +1,8 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -25,6 +27,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -82,6 +87,13 @@ public class CertificateExportProcessorTest {
             resultSignature = (byte[]) args[1];
             return null;
         }).when(certificateExportDestination).export(any(), any());
+        when(certificateExportDestination.getUrl()).thenReturn("sftp://user@host:22");
+        when(certificateExportDestination.getLastExportedFileName()).thenReturn(Optional.of("file.signed"));
+
+        Logger logger = mock(Logger.class);
+        FileImportOccurrence fileImportOccurrence = mock(FileImportOccurrence.class);
+        when(fileImportOccurrence.getLogger()).thenReturn(logger);
+        CSRImporterLogger csrLogger = new CSRImporterLogger(fileImportOccurrence, NlsModule.FakeThesaurus.INSTANCE);
 
         Map<String,Map<String, X509Certificate>> dcerts = new LinkedHashMap<>();
         Map<String, X509Certificate> certs = new LinkedHashMap<>();
@@ -89,8 +101,13 @@ public class CertificateExportProcessorTest {
         dcerts.put("100001", certs);
         Map<String, Object> props = new HashMap<>();
         props.put(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), securityAccessor);
-        CertificateExportProcessor certificateExportProcessor = new CertificateExportProcessor(props, certificateExportDestination, new CSRImporterLogger(null, null));
+        CertificateExportProcessor certificateExportProcessor = new CertificateExportProcessor(props, certificateExportDestination, csrLogger);
+
+        // business method
         certificateExportProcessor.processExport(dcerts);
+
+        // assertions
+        verify(logger).log(Level.INFO, "'file.signed' has been successfully exported to the destination 'sftp://user@host:22'.");
 
         int signatureSize = 256;
         Signature signer = Signature.getInstance("sha256withrsa");
