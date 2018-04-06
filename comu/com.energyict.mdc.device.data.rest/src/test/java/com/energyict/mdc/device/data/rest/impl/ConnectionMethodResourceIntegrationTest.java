@@ -53,9 +53,11 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -181,6 +183,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static TrustStoreValuesProvider trustStoreValuesProvider;
     private static AliasSearchFilterFactory aliasSearchFilterFactory;
     private static CommandRuleService cmdRuleService;
+    private static CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
+    private static CrlRequestService crlRequestService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -227,6 +231,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         registerConnectionTypePluggableClasses();
         cmdRuleService = mock(CommandRuleService.class);
+        crlRequestTaskPropertiesService = mock(CrlRequestTaskPropertiesService.class);
+        crlRequestService = mock(CrlRequestService.class);
         initializeMocks();
     }
 
@@ -447,6 +453,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         application.setCommandRuleService(cmdRuleService);
+        application.setCrlRequestTaskPropertiesService(crlRequestTaskPropertiesService);
+        application.setCrlRequestService(crlRequestService);
         return application;
     }
 

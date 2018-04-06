@@ -368,7 +368,7 @@ public class DeviceResource {
         for (PropertyInfo property : request.properties) {
             if (property.required) {
                 if (property.propertyValueInfo == null || property.propertyValueInfo.value == null || "".equals(property.propertyValueInfo.value)) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "properties " + property.key);
+                    throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "properties." + property.key);
                 }
             }
         }
@@ -377,7 +377,7 @@ public class DeviceResource {
                 .filter(definition -> definition.getProcessName().equalsIgnoreCase(request.name))
                 .findAny();
         if (!bpmProcessDefinition.isPresent()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_PROCESS_DEFINITION, "name " + request.name);
+            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_PROCESS_DEFINITION, "name");
         }
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = null;
         if (request.filter != null) {

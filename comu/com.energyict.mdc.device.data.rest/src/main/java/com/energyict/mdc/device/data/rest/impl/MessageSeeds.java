@@ -49,18 +49,17 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_GROUP(227, "NoSuchDeviceGroup", "No end device group with id ''{0}''"),
     NO_UPDATE_ALLOWED(228, "NoUpdateAllowed", "You are not allowed to change this field"),
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
-    FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required"),
     NO_SUCH_COM_TASK_EXEC(231, "NoSuchComTaskExec", "No such communication task execution exists"),
     CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask", "You can not perform an action on a system communication task"),
     ESTIMATOR_REQUIRED(233, "EstimatorRequired", "Please select an estimator"),
     ESTIMATOR_NOT_FOUND(234, "EstimatorNotValid", "Provided estimator is not valid"),
     METER_ACTIVATION_NOT_FOUND(235, "MeterActivationNotFound", "No meter activation is found"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(236, "NoSuchDeviceLifeCycleAction", "No device life cycle action with id = {0}"),
-    THIS_FIELD_IS_REQUIRED(237, "ThisFieldIsRequired", "This field is required"),
+    THIS_FIELD_IS_REQUIRED(237, "ThisFieldIsRequired", "This field is required."),
     CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX", "This date should be later than ''{0}''"),
     NO_APPSERVER(239, "NoAppServer", "There is no active application server that can handle this request"),
     NO_SUCH_MESSAGE_QUEUE(240, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
-    BAD_ACTION(241, "BadAction", "Expected action to be either 'add' or 'remove'"),
+    BAD_ACTION(241, "BadAction", "Expected action to be either ''add'' or ''remove''."),
     NO_SUCH_COM_SCHEDULE(242, "NoSuchSchedule", "No communication schedule with id {0}"),
     CANT_ADD_READINGS_FOR_STATE(243, "cantAddReadingForState", "The state of the device at {0,date,long} {0,time,long} does not allow adding readings."),
     INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value"),
@@ -134,7 +133,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_MESSAGE_WITH_ID(316, "NoMessageWithId", "No device message with id {0} exists"),
     NO_SUCH_CONNECTION_FUNCTION(317, "NoSuchConnectionFunction", "The connection function could not be found"),
     MASTER_DEVICE_CANNOT_ACT_AS_GATEWAY(318, "MasterDeviceCannotActAsGateway", "Device ''{0}'' cannot be set as master device because its device configuration prohibits usage as gateway"),
-    NO_SUCH_PROCESS_DEFINITION(319, "NoSuchProcessDefinition", "No process definition found"),
+    NO_SUCH_PROCESS_DEFINITION(319, "NoSuchProcessDefinition", "No process definition found."),
     NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist"),
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
     CRL_REQUEST_TASK_ALREADY_EXISTS(322, "CrlRequestTaskAlreadyExists", "CRL request task already exists")
@@ -173,9 +172,5 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return Level.SEVERE;
-    }
-
-    public static class Keys {
-        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
     }
 }

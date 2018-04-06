@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
@@ -30,6 +28,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.fsm.Stage;
@@ -86,6 +85,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -172,7 +172,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -1974,7 +1973,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
-        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
+        DeviceType deviceType = slave1.getDeviceType();
+        DeviceBuilder deviceBuilder = FakeBuilder.initBuilderStub(slave1, DeviceBuilder.class);
+        when(deviceService.newDeviceBuilder(any(DeviceConfiguration.class), eq("firstSlave"), any(Instant.class))).thenReturn(deviceBuilder);
         when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
@@ -1989,6 +1990,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
+        when(slaveDeviceConfig.getDeviceType()).thenReturn(deviceType);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
         when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty());
@@ -2024,7 +2026,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // A slave device need to be created
-        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), any(Instant.class));
+        verify(deviceService).newDeviceBuilder(eq(slaveDeviceConfig), eq("firstSlave"), any(Instant.class));
+        verify(deviceBuilder).create();
     }
 
     @Test
@@ -3018,7 +3021,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
-
     @Test
     public void createWithShipmentDateTest() {
         Instant shipmentDate = Instant.ofEpochMilli(1467019262000L);
@@ -3028,6 +3030,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
@@ -3047,7 +3050,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Stage stage = mock(Stage.class);
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
-        when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
+        DeviceBuilder deviceBuilder = FakeBuilder.initBuilderStub(device, DeviceBuilder.class);
+        when(deviceService.newDeviceBuilder(deviceConfiguration, deviceName, shipmentDate)).thenReturn(deviceBuilder);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.name = deviceName;
         deviceInfo.deviceConfigurationId = deviceConfigId;
@@ -3154,26 +3158,41 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testValidateDevicesBadAction()  {
+    public void testValidateDevicesBadAction() throws IOException {
         BulkRequestInfo info = getBulkRequestInfo();
         info.action = "InvalidAction";
         Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<List<String>>get("$.errors[*].id")).containsExactly("action");
+        assertThat(model.<List<String>>get("$.errors[*].msg")).containsExactly("Expected action to be either 'add' or 'remove'.");
     }
 
     @Test
-    public void testValidateDevicesBadProperty() {
+    public void testValidateDevicesBadProperty() throws IOException {
         BulkRequestInfo info = getBulkRequestInfo();
         info.properties.get(0).required = true;
         Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<List<String>>get("$.errors[*].id")).containsExactly("properties.connectionTimeout");
+        assertThat(model.<List<String>>get("$.errors[*].msg")).containsExactly("This field is required.");
     }
 
     @Test
-    public void testValidateDevicesNoProcessFound() {
+    public void testValidateDevicesNoProcessFound() throws IOException {
         BulkRequestInfo info = getBulkRequestInfo();
         Response response = target("/devices/validatedevices/").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<List<String>>get("$.errors[*].id")).containsExactly("name");
+        assertThat(model.<List<String>>get("$.errors[*].msg")).containsExactly("No process definition found.");
     }
 
     private BulkRequestInfo getBulkRequestInfo() {

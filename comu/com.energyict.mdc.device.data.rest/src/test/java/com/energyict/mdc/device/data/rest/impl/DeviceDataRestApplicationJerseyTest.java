@@ -73,11 +73,13 @@ import com.energyict.mdc.device.configuration.rest.impl.SecurityAccessorInfoFact
 import com.energyict.mdc.device.configuration.rest.impl.TrustStoreValuesProviderImpl;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
@@ -257,6 +259,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     IssueActionService issueActionService;
     @Mock
     com.elster.jupiter.tasks.TaskService tskService;
+    @Mock
+    CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
+    @Mock
+    CrlRequestService crlRequestService;
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
@@ -380,6 +386,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         application.setTskService(tskService);
+        application.setCrlRequestTaskPropertiesService(crlRequestTaskPropertiesService);
+        application.setCrlRequestService(crlRequestService);
         securityAccessorResourceHelper = new SecurityAccessorResourceHelperImpl(securityManagementService, propertyValueInfoService);;
         application.setSecurityAccessorResourceHelper(securityAccessorResourceHelper);
         securityAccessorInfoFactory = new SecurityAccessorInfoFactoryImpl(mdcPropertyUtils, securityManagementService);
