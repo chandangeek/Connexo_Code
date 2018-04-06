@@ -599,14 +599,12 @@ public class MasterDataSerializer {
         final DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet = task.securityPropertySet();
 
         Collection<DeviceMasterDataExtractor.SecurityProperty> securityProperties = this.extractor.securityProperties(device, securityPropertySet);
-        BigDecimal clientMacAddress =
-                securityProperties
-                        .stream()
-                        .filter(each -> each.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString()))
-                        .findAny()
-                        .map(DeviceMasterDataExtractor.SecurityProperty::value)
-                        .map(BigDecimal.class::cast)
-                        .orElseGet(() -> this.defaultClientMacAddress(securityPropertySet));
+        BigDecimal clientMacAddress;
+        try {
+            clientMacAddress = new BigDecimal(Integer.parseInt(securityPropertySet.client().toString()));
+        } catch (NumberFormatException e) {
+            throw DeviceConfigurationException.unsupportedPropertyValue(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), securityPropertySet.client().toString());
+        }
 
         int securitySuiteId = securityPropertySet.securitySuite();         //Note that -1 means undefined, we change that to the default suite (0)
         final int securitySuite = securitySuiteId == -1 ? 0 : securitySuiteId;

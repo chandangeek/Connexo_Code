@@ -608,17 +608,17 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         TimeZone timeZone = getDeviceTimeZone();
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(POWER_QUALITY_LOG)) {
-            meterEvents = new AM130PowerQualityEventLog(timeZone, dataContainer).getMeterEvents();
+            meterEvents = new AM130PowerQualityEventLog(timeZone, dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(POWER_FAILURE_EVENT_LOG)) {
-            meterEvents = new PowerFailureEventLog(timeZone, dataContainer).getMeterEvents();
+            meterEvents = new PowerFailureEventLog(timeZone, dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_CONTROL_LOG)) {
             meterEvents = new T210DDisconnectorControlLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
-            meterEvents = new AM130FraudDetectionLog(timeZone, dataContainer).getMeterEvents();
+            meterEvents = new AM130FraudDetectionLog(timeZone, dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
             meterEvents = new T210DStandardEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(COMMUNICATION_LOG)) {
-            meterEvents = new AM130CommunicationLog(timeZone, dataContainer).getMeterEvents();
+            meterEvents = new AM130CommunicationLog(timeZone, dataContainer, false).getMeterEvents();
         } else if (logBookObisCode.equals(MBUS_EVENT_LOG)) {
             meterEvents = new T210DMBusEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(MBUS_CONTROL_LOG_1)) {
@@ -726,7 +726,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void createCollectedDeviceIpAddres(String deviceIpAddress) {
-        this.collectedDeviceIpAddress = this.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
+        this.collectedDeviceIpAddress = this.getCollectedDataFactory().createDeviceConnectionProperty(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
     }
 
     public byte[] doHandleGeneralBlockTransfer(byte[] rawData) throws IOException {

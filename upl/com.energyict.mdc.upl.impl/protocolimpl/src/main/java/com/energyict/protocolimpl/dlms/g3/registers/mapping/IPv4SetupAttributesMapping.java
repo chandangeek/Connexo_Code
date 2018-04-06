@@ -62,7 +62,7 @@ public class IPv4SetupAttributesMapping extends RegisterMapping {
             case 10:
                 return iPv4Setup.readSecondaryDNSAddress();
             default:
-                throw new NoSuchRegisterException("BeaconEventPushNotificationConfig attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("IPv4Setup attribute [" + obisCode.getE() + "] not supported!");
 
         }
     }

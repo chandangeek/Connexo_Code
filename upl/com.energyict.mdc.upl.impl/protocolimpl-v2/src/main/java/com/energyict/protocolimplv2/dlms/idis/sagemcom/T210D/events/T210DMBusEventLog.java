@@ -14,7 +14,7 @@ import java.util.TimeZone;
 public class T210DMBusEventLog extends AM130MBusEventLog {
 
     public T210DMBusEventLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+        super(timeZone, dc, false);
     }
 
     @Override

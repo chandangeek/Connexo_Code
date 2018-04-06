@@ -14,6 +14,6 @@ import java.util.TimeZone;
 public class AM540MBusLog extends AM130MBusEventLog {
 
     public AM540MBusLog(TimeZone timeZone, DataContainer dc) {
-        super(timeZone, dc);
+        super(timeZone, dc, false);
     }
 }

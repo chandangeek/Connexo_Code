@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class DataParseException extends com.energyict.protocol.exceptions.DataParseException {
 
-    protected DataParseException(Throwable cause, ProtocolExceptionMessageSeeds code, Object... messageArguments) {
+    public DataParseException(Throwable cause, ProtocolExceptionMessageSeeds code, Object... messageArguments) {
         super(cause, code, messageArguments);
     }
 

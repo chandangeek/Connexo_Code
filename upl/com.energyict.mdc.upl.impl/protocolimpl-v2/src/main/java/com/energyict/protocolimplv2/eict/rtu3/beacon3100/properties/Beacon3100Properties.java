@@ -197,4 +197,8 @@ public class Beacon3100Properties extends DlmsProperties {
     public int getDefaultBufferSizeRegisters(){
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DEFAULT_BUFFERSIZE_REGISTERS, BigDecimal.valueOf(1)).intValue();
     }
+
+    public String getIPv6AddressAndPrefixLength() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.IPV6_ADDRESS_AND_PREFIX_LENGTH);
+    }
 }

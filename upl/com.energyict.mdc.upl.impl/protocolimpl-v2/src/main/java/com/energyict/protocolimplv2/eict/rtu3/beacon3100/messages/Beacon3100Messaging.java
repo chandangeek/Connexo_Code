@@ -40,11 +40,12 @@ import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
-import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.IPv6Utils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
@@ -74,10 +75,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.StringReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -153,6 +151,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
     private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
+    private static final int ROUTING_ENTRY_ID = 1;
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -176,6 +175,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.RemoveLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.ResetLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
 
                 PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
 
@@ -187,6 +188,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE.get(this.propertySpecService, this.nlsService, this.converter),
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
@@ -224,6 +226,23 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.RESET_ROUTER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+//              this attribute has a fixed value in the beacon, Enable it when writing will be allowed.
+//                NetworkConnectivityMessage.SET_VPN_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_GATEWAY_ADDRESS.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_AUTHENTICATION_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_LOCAL_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_REMOTE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_REMOTE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_SHARED_SECRET.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.REFRESH_VPN_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+
                 ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetAuthenticationMechanism.get(this.propertySpecService, this.nlsService, this.converter),
@@ -356,6 +375,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.currentEndDate:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+            case DeviceMessageConstants.configurationCAImageFileAttributeName:
                 return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case DeviceMessageConstants.encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
@@ -422,7 +442,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.trustedCertificateWrapperAttributeName:
                 //TODO: see if the CRL table will be available in Connexo or another way of storing them will be used
                 Optional<Object> certificateWrapper = keyAccessorTypeExtractor.passiveValue((KeyAccessorType) messageAttribute);
-                if(certificateWrapper.isPresent()) {
+                if (certificateWrapper.isPresent()) {
                     X509CRL crl = (X509CRL) certificateWrapperExtractor.getCRL((CertificateWrapper) certificateWrapper.get()).get();
                     try {
                         return Base64.encodeBase64String(crl.getEncoded());
@@ -520,6 +540,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, nlsService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE)) {
+                        transferCAConfigImage(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
                         collectedMessage = configurePartialMulticastBlockTransfer(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR)) {
@@ -718,6 +740,38 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ReadBlacklist)) {
                         this.readBlacklist(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY)) {
+                        this.addRoutingEntry(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES)) {
+                        this.addRoutingEntryUsingConfiguredIPv6AddressInGeneralProperties(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.REMOVE_ROUTING_ENTRY)) {
+                        this.removeRoutingEntry(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RESET_ROUTER)) {
+                        this.resetRouter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.FETCH_LOGGING)) {
+                        this.fetchLogging(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG)) {
+                        this.setRemoteSyslogConfig(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_ENABLED_OR_DISABLED)) {
+                        this.setVpnState(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_TYPE)) {
+                        this.setVpnType(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_GATEWAY_ADDRESS)) {
+                        this.setVpnGatewayAddress(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_AUTHENTICATION_TYPE)) {
+                        this.setVPNAuthenticationType(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_LOCAL_IDENTIFIER)) {
+                        this.setVPNLocalIdentifier(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_REMOTE_IDENTIFIER)) {
+                        this.setVPNRemoteIdentifier(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_REMOTE_CERTIFICATE)) {
+                        this.setVPNRemoteCertificate(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_SHARED_SECRET)) {
+                        this.setVPNSharedSecret(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED)) {
+                        this.setVPNVirtualIPState(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED)) {
+                        this.setVpnIPCompressionEnabledState(pendingMessage, collectedMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -1741,8 +1795,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
     }
 
-    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
+    private void imageTransfer(OfflineDeviceMessage pendingMessage, String attributeName) throws IOException {
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, attributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
@@ -1764,6 +1818,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 throw e;
             }
         }
+    }
+
+    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
+        imageTransfer(pendingMessage, firmwareUpdateFileAttributeName);
+    }
+
+    private void transferCAConfigImage(OfflineDeviceMessage pendingMessage) throws IOException {
+        imageTransfer(pendingMessage, configurationCAImageFileAttributeName);
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -2459,5 +2521,231 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             this.setCollectedMessageAsFailed(collectedMessage, pendingMessage, e, "Failed to read out the blacklist : [" + e.getMessage() + "]");
         }
+    }
+
+    private void addRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String routingTypeDescription = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryType);
+        TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.entryForDescription(routingTypeDescription).getId());
+        BigDecimal routingEntryId = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryId));
+        String routingDestination = getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestination);
+        BigDecimal routingDestinationLength = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingDestinationLength));
+        boolean compressionContextMulticast = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextMulticast));
+        boolean compressionContextAllowed = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, DeviceMessageConstants.compressionContextAllowed));
+
+        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, compressionContextMulticast, compressionContextAllowed);
+    }
+
+    private void addRoutingEntryUsingConfiguredIPv6AddressInGeneralProperties(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.G3_PLC.getId()); //always the same
+        BigDecimal routingEntryId = new BigDecimal(ROUTING_ENTRY_ID); //always ID = 1
+        String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(getBeacon3100Properties().getIPv6AddressAndPrefixLength());
+        BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(getBeacon3100Properties().getIPv6AddressAndPrefixLength()));
+        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+    }
+
+    private void executeAddRoutingEntryAction(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean compressionContextMulticast, boolean compressionContextAllowed) throws IOException {
+
+        BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+        try {
+            //create the routing entry structure
+            Structure routingEntryStructure = new Structure();
+            routingEntryStructure.addDataType(routingEntryType);
+            routingEntryStructure.addDataType(new Unsigned16(routingEntryId.intValue()));
+            routingEntryStructure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(routingDestination, "")));
+            routingEntryStructure.addDataType(new Unsigned8(routingDestinationLength.intValue()));
+            routingEntryStructure.addDataType(new BooleanObject(compressionContextMulticast));
+            routingEntryStructure.addDataType(new BooleanObject(compressionContextAllowed));
+            //now, send it
+            borderRouterIC.addRoutingEntry(routingEntryStructure);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to add a new routing entry to Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void removeRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        BigDecimal routingEntryId = new BigDecimal(getStringAttributeValue(pendingMessage, DeviceMessageConstants.routingEntryId));
+        BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+        try {
+            borderRouterIC.removeRoutingEntry(routingEntryId.intValue());
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to remove routing entry with ID: " + routingEntryId + " from Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void resetRouter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        try {
+            getBorderRouterIC(pendingMessage, collectedMessage).resetRouter();
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to reset router using Border router setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private BorderRouterIC getBorderRouterIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return this.getCosemObjectFactory().getBorderRouterIC(BorderRouterIC.getDefaultObisCode());
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, BorderRouterIC.getDefaultObisCode().toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private void fetchLogging(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        try {
+            //TODO: Check how files should be saved in Connexo
+            OctetString logging = getDebugLogIC(pendingMessage, collectedMessage).fetchLogging();
+            File log = new File("/log/Beacon_logs/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
+            getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
+            FileOutputStream fileOutputStream = new FileOutputStream(log);
+            fileOutputStream.write(logging.toByteArray());
+            fileOutputStream.close();
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setRemoteSyslogConfig(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int transportServiceType = DeviceActionMessage.TransportServiceType.valueForDescription(getStringAttributeValue(pendingMessage, remoteSyslogTransportServiceType)).getId();
+        String destination = getStringAttributeValue(pendingMessage, remoteSyslogDestination);
+        int port = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, remoteSyslogPort).getValue());
+        int ipVersion = DeviceActionMessage.IPVersion.valueForDescription(getStringAttributeValue(pendingMessage, remoteSyslogIpVersion)).getId();
+
+        try {
+            Structure remoteSyslogConfig = new Structure();
+            remoteSyslogConfig.addDataType(new TypeEnum(transportServiceType));
+            remoteSyslogConfig.addDataType(UTF8String.fromString(destination));
+            remoteSyslogConfig.addDataType(new Unsigned16(port));
+            remoteSyslogConfig.addDataType(new TypeEnum(ipVersion));
+            getDebugLogIC(pendingMessage, collectedMessage).writeRemoteSyslogConfig(remoteSyslogConfig);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to write the remote syslog configuration using Debug log IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private LoggerSettings getDebugLogIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return this.getCosemObjectFactory().getLoggerSettings(LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE);
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, LoggerSettings.BEACON_DEBUG_LOG_OBIS_CODE.toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private void setVpnState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean setVPNEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setVPNEnabled(setVPNEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnType(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int vpnTypeId = NetworkConnectivityMessage.VPNType.entryForDescription(getStringAttributeValue(pendingMessage, vpnType)).getId();
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setVPNType(vpnTypeId);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN type using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnGatewayAddress(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String gatewayAddress = getStringAttributeValue(pendingMessage, vpnGatewayAddress);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setGatewayAddress(gatewayAddress);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN gateway address using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNAuthenticationType(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int vpnAuthenticationTypeId = NetworkConnectivityMessage.VPNAuthenticationType.entryForDescription(getStringAttributeValue(pendingMessage, vpnAuthenticationType)).getId();
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setAuthenticationType(vpnAuthenticationTypeId);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN authentication type using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNLocalIdentifier(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String localIdentifier = getStringAttributeValue(pendingMessage, vpnLocalIdentifier);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setLocalIdentifier(localIdentifier);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN local identifier using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNRemoteIdentifier(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String remoteIdentifier = getStringAttributeValue(pendingMessage, vpnRemoteIdentifier);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRemoteIdentifier(remoteIdentifier);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN remote identifier using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNRemoteCertificate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        //TODO: see how this user info should be sent toward protocol....as der encoded string or using a connexo specific certificate placeholder
+        String remoteCertificate = getStringAttributeValue(pendingMessage, vpnRemoteCertificate);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRemoteCertificate(remoteCertificate);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN remote certificate using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNSharedSecret(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String sharedSecret = getStringAttributeValue(pendingMessage, vpnSharedSecret);
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setSharedSecret(sharedSecret);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set the VPN shared secret using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVPNVirtualIPState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean virtualIPEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnVirtualIPEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setRequestVirtualIP(virtualIPEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN virtual IP enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private void setVpnIPCompressionEnabledState(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        boolean ipCompressionEnabled = Boolean.parseBoolean(getStringAttributeValue(pendingMessage, vpnIPCompressionEnabled));
+        try {
+            getVPNSetupIC(pendingMessage, collectedMessage).setCompressionEnabled(ipCompressionEnabled);
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set VPN IP compression enabled state using VPN Setup IC : [" + e.getMessage() + "]", e);
+            throw e;
+        }
+    }
+
+    private VPNSetupIC getVPNSetupIC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws NotInObjectListException {
+        try {
+            return getCosemObjectFactory().getVPNSetupIC(VPNSetupIC.getDefaultObisCode());
+        } catch (NotInObjectListException e) {
+            this.setNotInObjectListMessage(collectedMessage, VPNSetupIC.getDefaultObisCode().toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private String getStringAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
+        return MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getValue();
     }
 }

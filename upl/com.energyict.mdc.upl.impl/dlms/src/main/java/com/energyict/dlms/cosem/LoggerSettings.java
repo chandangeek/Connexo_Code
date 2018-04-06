@@ -1,8 +1,9 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.LoggerSettingsAttributes;
+import com.energyict.dlms.cosem.methods.LoggerSettingsMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 public class LoggerSettings extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.4.255");
+    public static final ObisCode BEACON_DEBUG_LOG_OBIS_CODE = ObisCode.fromString("0.192.96.128.0.255");
 
     private TypeEnum serverLogLevel;
     private TypeEnum webPortalLogLevel;
@@ -114,5 +116,24 @@ public class LoggerSettings extends AbstractCosemObject {
         if (logLevel.getValue() < 0 || logLevel.getValue() > 0x07) {
             throw new IOException("Invalid log level (" + logLevel.getValue() + "). Log level should be in range in range 0 to 7");
         }
+    }
+
+    /**
+     * Setter for the remote syslog configuration
+     *
+     * @param remoteSyslogConfig the new remote syslog configuration
+     * @throws java.io.IOException
+     */
+    public void writeRemoteSyslogConfig(Structure remoteSyslogConfig) throws IOException {
+        write(LoggerSettingsAttributes.REMOTE_SYSLOG_CONFIG, remoteSyslogConfig.getBEREncodedByteArray());
+    }
+
+    /**
+     * @return Beacon logging
+     * @throws IOException
+     */
+    public OctetString fetchLogging() throws IOException {
+        byte[] responseData = this.methodInvoke(LoggerSettingsMethods.FETCH_LOGGING, new Integer8(0));
+        return AXDRDecoder.decode(responseData, OctetString.class);
     }
 }

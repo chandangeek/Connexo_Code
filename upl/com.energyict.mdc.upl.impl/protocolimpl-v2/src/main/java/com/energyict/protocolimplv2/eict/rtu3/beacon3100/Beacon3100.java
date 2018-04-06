@@ -53,6 +53,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.firmware.BeaconFirmwareSignatureCheck;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -679,7 +680,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-12-18$";
+        return "$Date: 2017-04-02$";
     }
 
     @Override
@@ -757,18 +758,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         }
 
         return result;
-    }
-
-    // TODO: 19.03.2018 CXO-8215 for demo purposes
-    @Override
-    public boolean firmwareSignatureCheckSupported() {
-        return true;
-    }
-
-    // TODO: 19.03.2018 CXO-8215 for demo purposes
-    @Override
-    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
-        return true;
     }
 
     /**
@@ -876,5 +865,15 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         public ObisCode getAssociationLN() {
             return associationLnOBIS;
         }
+    }
+
+    @Override
+    public boolean firmwareSignatureCheckSupported() {
+        return BeaconFirmwareSignatureCheck.firmwareSignatureCheckSupported();
+    }
+
+    @Override
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+        return BeaconFirmwareSignatureCheck.verifyFirmwareSignature(firmwareFile, pubKey);
     }
 }

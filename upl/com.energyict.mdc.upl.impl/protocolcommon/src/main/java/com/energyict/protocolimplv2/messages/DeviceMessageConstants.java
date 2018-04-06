@@ -51,6 +51,8 @@ public final class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeDefaultTranslation = "Version number";
     public static final String firmwareUpdateFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateUserFileAttributeDefaultTranslation = "Firmware file";
+    public static final String configurationCAImageFileAttributeName = "FirmwareDeviceMessage.configurationCAImageFileAttributeName";
+    public static final String configurationCAImageFileDefaultTranslation = "CA configuration image";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
     public static final String firmwareUpdateImageIdentifierAttributeDefaultTranslation = "Image identifier";
     public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";
@@ -1648,4 +1650,49 @@ public final class DeviceMessageConstants {
 
     public static final String keyAccessorTypeAttributeName = "keyAccessorType";
     public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";
+
+    public static final String routingEntryType = "NetworkConnectivityMessage.routingEntryType";
+    public static final String routingEntryTypeDefaultTranslation = "Routing entry type";
+    public static final String routingEntryId = "NetworkConnectivityMessage.routingEntryId";
+    public static final String routingEntryIdDefaultTranslation = "Routing entry ID";
+    public static final String routingDestination = "NetworkConnectivityMessage.routingDestination";
+    public static final String routingDestinationDefaultTranslation = "Routing destination";
+    public static final String routingDestinationLength = "NetworkConnectivityMessage.routingDestinationLength";
+    public static final String routingDestinationLengthDefaultTranslation = "Routing destination length";
+    public static final String compressionContextMulticast = "NetworkConnectivityMessage.compressionContextMulticast";
+    public static final String compressionContextMulticastDefaultTranslation = "Compression context multicast";
+    public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
+    public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
+
+    //VPN Setup IC
+    public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";
+    public static final String vpnEnabledDefaultTranslation = "Set VPN enabled";
+    public static final String vpnType = "NetworkConnectivityMessage.vpnType";
+    public static final String vpnTypeDefaultTranslation = "Set VPN type";
+    public static final String vpnGatewayAddress = "NetworkConnectivityMessage.vpnGatewayAddress";
+    public static final String vpnGatewayAddressDefaultTranslation = "Remote VPN endpoint. Can be either ip address or hostname";
+    public static final String vpnAuthenticationType = "NetworkConnectivityMessage.vpnAuthenticationType";
+    public static final String vpnAuthenticationTypeDefaultTranslation = "Authentication type";
+    public static final String vpnLocalIdentifier = "NetworkConnectivityMessage.vpnLocalIdentifier";
+    public static final String vpnLocalIdentifierDefaultTranslation = "Local identifier used during IKE SA";
+    public static final String vpnRemoteIdentifier = "NetworkConnectivityMessage.vpnRemoteIdentifier";
+    public static final String vpnRemoteIdentifierDefaultTranslation = "Remote identifier expected during IKE SA";
+    public static final String vpnRemoteCertificate = "NetworkConnectivityMessage.vpnRemoteCertificate";
+    public static final String vpnRemoteCertificateDefaultTranslation = "Remote certificate expected during IKE.";
+    public static final String vpnSharedSecret = "NetworkConnectivityMessage.vpnSharedSecret";
+    public static final String vpnSharedSecretDefaultTranslation = "Shared secret used during IKE.";
+    public static final String vpnVirtualIPEnabled = "NetworkConnectivityMessage.vpnVirtualIPEnabled";
+    public static final String vpnVirtualIPEnabledDefaultTranslation = "Set virtual IP enabled";
+    public static final String vpnIPCompressionEnabled = "NetworkConnectivityMessage.vpnIPCompressionEnabled";
+    public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
+
+    //Debug log IC
+    public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";
+    public static final String remoteSyslogTransportServiceTypeDefaultTranslation = "Transport service type";
+    public static final String remoteSyslogDestination = "DeviceActionMessage.remoteSyslogDestination";
+    public static final String remoteSyslogDestinationDefaultTranslation = "Destination";
+    public static final String remoteSyslogPort = "DeviceActionMessage.remoteSyslogPort";
+    public static final String remoteSyslogPortDefaultTranslation = "Port";
+    public static final String remoteSyslogIpVersion = "DeviceActionMessage.remoteSyslogIpVersion";
+    public static final String remoteSyslogIpVersionDefaultTranslation = "IP version";
 }

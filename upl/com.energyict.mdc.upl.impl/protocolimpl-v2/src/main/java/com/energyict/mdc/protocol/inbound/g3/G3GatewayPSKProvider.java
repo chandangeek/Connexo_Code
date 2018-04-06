@@ -276,6 +276,7 @@ public class G3GatewayPSKProvider {
                             joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                         }
                     } else {
+                        //TODO: notify issue management framework.
                         context.getLogger().warning(() -> "No unique device with MAC address " + macAddress + " exists in EIServer, cannot provide PSK key. Skipping.");
                         joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                     }

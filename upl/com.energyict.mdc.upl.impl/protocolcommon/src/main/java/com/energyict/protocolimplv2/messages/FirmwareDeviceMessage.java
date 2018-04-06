@@ -547,6 +547,26 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.empty();
         }
+    },
+
+    TRANSFER_CA_CONFIG_IMAGE(5035, "Transfer CA config image") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, configurationCAImageFileAttributeName, configurationCAImageFileDefaultTranslation),
+                    this.getFirmwareIdentifierPropertySpec(service).get()
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
     };
 
     private final long id;
