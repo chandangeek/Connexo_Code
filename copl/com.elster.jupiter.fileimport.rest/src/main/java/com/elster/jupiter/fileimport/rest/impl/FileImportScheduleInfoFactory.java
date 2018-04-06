@@ -40,6 +40,7 @@ public class FileImportScheduleInfoFactory {
         info.id = importSchedule.getId();
         info.active = importSchedule.isActive();
         info.name = importSchedule.getName();
+        info.logLevel = importSchedule.getLogLevel();
         info.importDirectory = importSchedule.getImportDirectory().toString();
         info.inProcessDirectory = importSchedule.getInProcessDirectory().toString();
         info.successDirectory = importSchedule.getSuccessDirectory().toString();

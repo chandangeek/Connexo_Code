@@ -12,11 +12,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class FileImportScheduleInfo {
 
     public long id;
     public String name;
+    public int logLevel = Level.WARNING.intValue();
     public Boolean active;
     public Boolean deleted;
     public Boolean scheduled;

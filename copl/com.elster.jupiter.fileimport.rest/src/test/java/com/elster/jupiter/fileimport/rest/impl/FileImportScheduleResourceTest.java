@@ -101,6 +101,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         ImportScheduleBuilder builder = mock(ImportScheduleBuilder.class);
         when(fileImportService.newBuilder()).thenReturn(builder);
         when(builder.setName(any(String.class))).thenReturn(builder);
+        when(builder.setLogLevel(any(Integer.class))).thenReturn(builder);
         when(builder.setDestination(any(String.class))).thenReturn(builder);
         when(builder.setPathMatcher(any(String.class))).thenReturn(builder);
         when(builder.setImportDirectory(any(Path.class))).thenReturn(builder);

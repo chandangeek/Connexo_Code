@@ -188,6 +188,7 @@ public class FileImportScheduleResource {
         validate(info, POST.class);
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevel)
                 .setPathMatcher(info.pathMatcher)
                 .setImportDirectory(getPath(info.importDirectory))
                 .setFailureDirectory(getPath(info.failureDirectory))
@@ -256,6 +257,7 @@ public class FileImportScheduleResource {
             }
 
             importSchedule.setName(info.name);
+            importSchedule.setLogLevel(info.logLevel);
             importSchedule.setActive(info.active);
             importSchedule.setImportDirectory(getPath(info.importDirectory));
             importSchedule.setFailureDirectory(getPath(info.failureDirectory));
