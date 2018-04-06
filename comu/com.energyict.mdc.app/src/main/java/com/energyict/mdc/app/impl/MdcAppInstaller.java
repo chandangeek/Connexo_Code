@@ -22,7 +22,6 @@ import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -62,7 +61,6 @@ public class MdcAppInstaller {
     private volatile MdcMonitorAppService mdcMonitorAppService;
     private volatile CommandRuleService commandRuleService;
 
-
     @Activate
     public void activate() {
         DataModel dataModel = upgradeService.newNonOrmDataModel();
@@ -79,7 +77,8 @@ public class MdcAppInstaller {
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class
+                        version(10, 4), UpgraderV10_4.class,
+                        version(10, 4, 1), UpgraderV10_4_1.class
                 )
         );
     }
@@ -130,7 +129,6 @@ public class MdcAppInstaller {
                     .toArray(String[]::new);
         }
 
-
         private String[] getPrivilegesReportViewer() {
             return new String[]{
                     com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS
@@ -155,7 +153,6 @@ public class MdcAppInstaller {
 
                     //CRL request
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CRL_REQUEST,
-                    com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_CRL_REQUEST,
 
                     //Device communications
                     com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
@@ -271,7 +268,6 @@ public class MdcAppInstaller {
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
-
 
     @Reference
     public void setBpmService(BpmService appService) {
