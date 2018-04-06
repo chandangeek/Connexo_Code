@@ -83,7 +83,7 @@ public class ComServerDAOImplTest {
     private static final long COMPORT_ID = 2;
     private static final long SCHEDULED_COMTASK_ID = 3;
     private static final String IP_ADDRESS = "192.168.2.100";
-    private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
+    private static final String IP_ADDRESS_PROPERTY_NAME = "propertyValue";
     private static final String ACTIVE_CALENDAR_NAME = "Active";
     private static final String PASSIVE_CALENDAR_NAME = "Passive";
 
@@ -323,7 +323,7 @@ public class ComServerDAOImplTest {
         when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
-        this.comServerDAO.updateIpAddress(IP_ADDRESS, connectionTask, IP_ADDRESS_PROPERTY_NAME);
+        this.comServerDAO.updateConnectionTaskProperty(IP_ADDRESS, connectionTask, IP_ADDRESS_PROPERTY_NAME);
 
         // Asserts
         verify(connectionTask).setProperty(IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS);

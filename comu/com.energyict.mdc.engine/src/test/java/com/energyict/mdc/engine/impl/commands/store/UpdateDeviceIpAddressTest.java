@@ -7,7 +7,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
+import com.energyict.mdc.engine.impl.meterdata.DeviceConnectionProperty;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +35,8 @@ public class UpdateDeviceIpAddressTest {
     @Test
     public void testToJournalMessageDescription() throws Exception {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        final DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, connectionTaskPropertyName);
-        UpdateDeviceIpAddress command = new UpdateDeviceIpAddress(deviceIpAddress, null, serviceProvider);
+        final DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, connectionTaskPropertyName);
+        UpdateDeviceConnectionProperty command = new UpdateDeviceConnectionProperty(deviceIpAddress, null, serviceProvider);
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

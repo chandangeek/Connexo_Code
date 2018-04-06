@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
+import com.energyict.mdc.engine.impl.meterdata.DeviceConnectionProperty;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.TopologyTask;
@@ -34,7 +34,7 @@ public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        collectedData.stream().filter(dataItem -> dataItem instanceof CollectedTopology || dataItem instanceof DeviceIpAddress || dataItem instanceof CollectedDeviceCache).forEach(this::addCollectedDataItem);
+        collectedData.stream().filter(dataItem -> dataItem instanceof CollectedTopology || dataItem instanceof DeviceConnectionProperty || dataItem instanceof CollectedDeviceCache).forEach(this::addCollectedDataItem);
     }
 
     @Override

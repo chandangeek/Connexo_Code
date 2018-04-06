@@ -207,8 +207,8 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedDeviceInfo createDeviceIpAddress(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
-        return new DeviceIpAddress(deviceIdentifier, ipAddress, ipAddressPropertyName);
+    public CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object propertyValue, String propertyName) {
+        return new DeviceConnectionProperty(deviceIdentifier, propertyValue, propertyName);
     }
 
     @Override

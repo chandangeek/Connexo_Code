@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the {@link DeviceIpAddress} component.
+ * Tests the {@link DeviceConnectionProperty} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (16:11)
@@ -31,7 +31,7 @@ public class DeviceIpAddressTest {
 
     private static final int DEVICE_ID = 97;
     private static final String IP_ADDRESS = "192.168.2.100";
-    private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
+    private static final String IP_ADDRESS_PROPERTY_NAME = "propertyValue";
 
     @Mock
     private DeviceService deviceService;
@@ -43,7 +43,7 @@ public class DeviceIpAddressTest {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
 
         // Business method
-        new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Simply asserting that no exceptions are thrown
     }
@@ -51,7 +51,7 @@ public class DeviceIpAddressTest {
     @Test
     public void testIsAlwaysConfiguredOnComTasks() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
 
         // Business method
@@ -64,7 +64,7 @@ public class DeviceIpAddressTest {
     @Test
     public void testToDeviceCommand() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
@@ -77,7 +77,7 @@ public class DeviceIpAddressTest {
     @Test
     public void testGetDeviceIdentifier() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
         DeviceIdentifier needsChecking = deviceIpAddress.getDeviceIdentifier();
@@ -89,10 +89,10 @@ public class DeviceIpAddressTest {
     @Test
     public void testGetIpAddress() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
-        String propertyValue = deviceIpAddress.getIpAddress();
+        String propertyValue = deviceIpAddress.getPropertyValue().toString();
 
         // Asserts
         assertThat(propertyValue).isEqualTo(IP_ADDRESS);
@@ -101,7 +101,7 @@ public class DeviceIpAddressTest {
     @Test
     public void testGetConnectionTypePropertyName() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
+        DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
         String connectionTaskPropertyName = deviceIpAddress.getConnectionTaskPropertyName();

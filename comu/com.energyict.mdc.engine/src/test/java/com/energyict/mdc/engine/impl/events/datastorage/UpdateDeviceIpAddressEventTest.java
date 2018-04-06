@@ -35,14 +35,14 @@ public class UpdateDeviceIpAddressEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
-        UpdateDeviceIpAddressEvent event = new UpdateDeviceIpAddressEvent(serviceProvider, deviceIdentifier);
+        UpdateDeviceConnectionPropertyEvent event = new UpdateDeviceConnectionPropertyEvent(serviceProvider, deviceIdentifier);
         assertThat(event.getCategory()).isEqualTo(Category.COLLECTED_DATA_PROCESSING);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNoPayload(){
         // Business method
-        new UpdateDeviceIpAddressEvent(serviceProvider, null);
+        new UpdateDeviceConnectionPropertyEvent(serviceProvider, null);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class UpdateDeviceIpAddressEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
-        UpdateDeviceIpAddressEvent event = new UpdateDeviceIpAddressEvent(serviceProvider, deviceIdentifier);
+        UpdateDeviceConnectionPropertyEvent event = new UpdateDeviceConnectionPropertyEvent(serviceProvider, deviceIdentifier);
         // Business method
         String eventString = event.toString();
 

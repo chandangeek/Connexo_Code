@@ -419,7 +419,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
     }
 
     @Override
