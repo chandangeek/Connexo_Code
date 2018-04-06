@@ -66,13 +66,17 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -186,6 +190,7 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -204,6 +209,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -593,8 +600,37 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
 
+    public static final String IP_V6_ADDRESS = "IPv6Address";
+
+    public class LocalEventIPv6Source {
+        DeviceProtocolProperty protocolProperty;
+        Device device;
+
+        LocalEventIPv6Source(Device device, DeviceProtocolProperty protocolProperty) {
+            this.protocolProperty = protocolProperty;
+            this.device = device;
+        }
+
+        public String getIPv6Address() {
+            return protocolProperty.getPropertyValue();
+        }
+
+        public String getMRID() {
+            return device.getmRID();
+        }
+    }
+
     private void notifyUpdated() {
         this.eventService.postEvent(UpdateEventType.DEVICE.topic(), this);
+
+        Optional<DeviceProtocolProperty> ipV6AddressProperty = deviceProperties
+                .stream()
+                .filter(x->x.getName().equals(IP_V6_ADDRESS))
+                .findFirst();
+        if(ipV6AddressProperty.isPresent()){
+            this.eventService.postEvent(UpdateEventType.IPADDRESSV6.topic(),
+                    new LocalEventIPv6Source(this, ipV6AddressProperty.get()));
+        }
     }
 
     private void notifyCreated() {
