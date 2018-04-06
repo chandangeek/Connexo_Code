@@ -293,7 +293,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             editProcessModel = me.getModel('Bpm.processes.model.EditProcess'),
             router = me.getController('Uni.controller.history.Router'),
             version = router.arguments.version,
-            name = router.arguments.name,
+            name = decodeURIComponent(router.arguments.name),
             editProcessForm = me.getEditProcessPage().down('#frm-edit-process'),
             privilegesGrid = me.getPrivilegesGrid(),
             propertyForm = me.getPropertyForm();
@@ -303,7 +303,7 @@ Ext.define('Bpm.processes.controller.Processes', {
         editProcessModel.getProxy().extraParams = {version: version, association: record.get('type')};
         editProcessModel.load(name, {
             success: function (process) {
-                process.set('nanme', editProcessForm.editProcessRecord.get('name'));
+                process.set('name', editProcessForm.editProcessRecord.get('name'));
                 process.set('version', editProcessForm.editProcessRecord.get('version'));
                 process.set('active', editProcessForm.editProcessRecord.get('active'));
                 editProcessForm.editProcessRecord = process;
