@@ -442,9 +442,11 @@ public class DataMapperReader<T> implements TupleParser<T> {
     }
 
     private Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-        Optional<ForeignKeyConstraintImpl> foreignKeyConstraintOptional = column.getForeignKeyConstraint();
-        if (foreignKeyConstraintOptional.isPresent()) {
-            return convertFromDb(findReferencedColumn(foreignKeyConstraintOptional.get().getReferencedTable().getPrimaryKeyConstraint().getColumns(), column), rs, index);
+        if (column.getFieldName() == null) {
+            Optional<ForeignKeyConstraintImpl> foreignKeyConstraintOptional = column.getForeignKeyConstraint();
+            if (foreignKeyConstraintOptional.isPresent()) {
+                return convertFromDb(findReferencedColumn(foreignKeyConstraintOptional.get().getReferencedTable().getPrimaryKeyConstraint().getColumns(), column), rs, index);
+            }
         }
         return column.convertFromDb(rs, index);
     }
