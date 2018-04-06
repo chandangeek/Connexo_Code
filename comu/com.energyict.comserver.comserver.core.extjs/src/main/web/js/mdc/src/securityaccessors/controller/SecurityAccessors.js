@@ -103,13 +103,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 change: me.keyTypeChanged
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
-                click: this.saveSecurityAccessor
+                click: me.saveSecurityAccessor
             },
             '#mdc-security-accessor-manage-centrally-checkbox': {
-                change: this.onManageCentrallyCheck
+                change: me.onManageCentrallyCheck
             },
             '#mdc-security-accessor-trust-store-combobox': {
-                change: this.onTrustStoreChange
+                change: me.onTrustStoreChange
             }
         });
     },
@@ -538,6 +538,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         } else {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
+                        if (record.get('purpose').id === 'FILE_OPERATIONS') {
+                            view.down('#mdc-security-accessor-purpose-file-operations').setValue(true);
+                        } else {
+                            view.down('#mdc-security-accessor-purpose-device-operations').setValue(true);
+                        }
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
                         if (record.get('duration')) {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
@@ -545,8 +550,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         }
                         view.down('#mdc-security-accessor-storage-method-combobox').setDisabled(true);
                         me.getApplication().fireEvent('changecontentevent', view);
-                        if(record.get('defaultValue')){
+                        if (record.get('defaultValue')) {
                             me.getManageCentrallyCheckbox().setValue(true);
+                        } else {
+                            me.getManageCentrallyCheckbox().setValue(false);
                         }
                         me.getManageCentrallyCheckbox().disable();
                     }

@@ -87,6 +87,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
             record.set('nextRun', record.get('nextRun').getTime());
             record.set('securityAccessor', { id: record.get('securityAccessor')});
+            record.set('logLevel', { id: record.get('logLevel')});
             record.set('timeDurationInfo', {
                 count: recurrenceNumber.getValue(),
                 timeUnit: recurrenceType.getValue()
@@ -133,14 +134,16 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             recurrenceNumber = form.down('#crl-recurrence-number'),
             recurrenceType = form.down('#crl-recurrence-type'),
             model = Ext.ModelManager.getModel('Mdc.crlrequest.model.CrlRequest'),
+            router = me.getController('Uni.controller.history.Router'),
             record = {};
 
         operationStartFunc.call(controller);
 
-        model.load('', {
+        model.load(router.arguments.taskManagementId, {
             success: function (record) {
                 var timeDurationInfo = record.get('timeDurationInfo') ? record.get('timeDurationInfo') : {};
                 record.set('securityAccessor', record.get('securityAccessor').id);
+                record.set('logLevel', record.get('logLevel').id);
                 setTitleFunc.call(controller, record.get('caName'));
                 form.loadRecord(record);
                 recurrenceNumber.setValue(timeDurationInfo.count);
@@ -157,9 +160,10 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
     getTask: function (controller, taskManagementId, operationCompleted) {
         var me = this,
-            model = Ext.ModelManager.getModel('Mdc.crlrequest.model.CrlRequest');
+            model = Ext.ModelManager.getModel('Mdc.crlrequest.model.CrlRequest'),
+            router = me.getController('Uni.controller.history.Router');
 
-        model.load('', {
+        model.load(router.arguments.taskManagementId, {
             success: function (record) {
                 record.set('id', me.getType());
                 operationCompleted.call(controller, me, taskManagementId, record);
@@ -174,24 +178,25 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         startRemovingFunc.call(controller);
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.removeCrlRequestTask', 'MDC', "Remove the CRL request task?"),
-            msg: Uni.I18n.translate('crlRequest.deleteConfirmation.msg', 'MDC', 'This CRL request will no longer be available.'),
+            title: Uni.I18n.translate('general.removeCrlRequestTask', 'MDC', "Remove this CRL request task?"),
+            msg: Uni.I18n.translate('crlRequest.deleteConfirmation.msg', 'MDC', 'This CRL request task will no longer be available.'),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        me.removeOperation(null, startRemovingFunc, removeCompleted, controller);
+                        me.removeOperation(taskManagement, startRemovingFunc, removeCompleted, controller);
                         break;
                 }
             }
         });
     },
 
-    removeOperation: function (record, startRemovingFunc, removeCompleted, controller) {
+    removeOperation: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
         var me = this,
-            model = Ext.create('Mdc.crlrequest.model.CrlRequest');
+            model = Ext.create('Mdc.crlrequest.model.CrlRequest'),
+            router = me.getController('Uni.controller.history.Router');
 
         Ext.Ajax.request({
-            url: '/api/ddr/crlprops',
+            url: '/api/ddr/crlprops/'+ taskManagement.get("id"),
             method: 'DELETE',
             success: function () {
                 removeCompleted.call(controller, true);
@@ -207,6 +212,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             model = Ext.ModelManager.getModel('Mdc.crlrequest.model.CrlRequest'),
+            router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('crl-request-details', {
                 actionMenu: actionMenu,
                 canAdministrate: me.canAdministrate()
@@ -214,12 +220,14 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         pageMainContent.setLoading(true);
 
-        model.load('', {
+        model.load(router.arguments.taskManagementId, {
             success: function (record) {
                 var timeDurationInfo = record.get('timeDurationInfo');
 
                 record.set('id', me.getType());
                 record.set('securityAccessor', record.get('securityAccessor').name);
+                record.set('logLevel', record.get('logLevel').name);
+                record.set('task', record.get('task').name);
                 widget.loadRecord(record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadTask', me.getType());

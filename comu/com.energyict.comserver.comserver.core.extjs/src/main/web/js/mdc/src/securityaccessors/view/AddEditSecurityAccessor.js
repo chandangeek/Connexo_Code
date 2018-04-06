@@ -63,15 +63,17 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     },
                     items: [
                         {
-                            boxLabel: Uni.I18n.translate('general.communication', 'MDC', 'Communication'),
+                            boxLabel: Uni.I18n.translate('general.deviceOperations', 'MDC', 'Device operations'),
                             name: 'purpose',
-                            checked : true,
-                            inputValue: {id: "COMMUNICATION", name: "Communication"}
+                            itemId: 'mdc-security-accessor-purpose-device-operations',
+                            inputValue: {id: "DEVICE_OPERATIONS"},
+                            checked: true
                         },
                         {
                             boxLabel: Uni.I18n.translate('general.fileOperations', 'MDC', 'File operations'),
                             name: 'purpose',
-                            inputValue: {id: "FILE_OPERATIONS", name: "File operations"}
+                            itemId: 'mdc-security-accessor-purpose-file-operations',
+                            inputValue: {id: "FILE_OPERATIONS"}
                         }
                     ]
                 },
@@ -116,9 +118,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
-                    editable : false,
+                    editable: false,
                     valueIsRecordData: true,
-                    editable : false,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectKeyType','MDC', 'Select a key type...')
                 },
@@ -282,7 +283,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
             manageCentrallyCheck.setValue(false);
             manageCentrallyCheck.setDisabled(false);
         }
-
     },
 
     onAccessorTypeChange: function(radioBtn, newValue) {

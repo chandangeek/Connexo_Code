@@ -8,15 +8,17 @@ Ext.define('Mdc.crlrequest.model.CrlRequest', {
     fields: [
         {name: 'securityAccessor', type: 'auto', defaultValue: null},
         {name: 'caName', type: 'string', defaultValue: null},
+        {name: 'logLevel', type: 'auto', defaultValue: null},
         {name: 'timeDurationInfo', type: 'auto', defaultValue: null},
-        {name: 'nextRun', type: 'auto', defaultValue: new Date().getTime()}
+        {name: 'nextRun', type: 'auto', defaultValue: new Date().getTime()},
+        {name: 'task', type: 'auto', defaultValue: null}
     ],
 
     proxy: {
         type: 'rest',
         url: '/api/ddr/crlprops',
         actionMethods: {
-            create: 'PUT',
+            create: 'POST',
             read: 'GET',
             update: 'PUT',
             destroy: 'DELETE'

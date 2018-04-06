@@ -47,6 +47,18 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 name: 'caName'
                             },
                             {
+                                fieldLabel: Uni.I18n.translate('general.logLevel', 'MDC', 'Log level'),
+                                xtype: 'displayfield',
+                                itemId: 'crl-log-level',
+                                name: 'logLevel'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('crlrequest.taskName', 'MDC', 'Task name'),
+                                xtype: 'displayfield',
+                                itemId: 'crl-task-name',
+                                name: 'task'
+                            },
+                            {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('crlrequest.nextRun', 'MDC', 'Next run'),
                                 itemId: 'crl-next-run',

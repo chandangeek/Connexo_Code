@@ -1353,7 +1353,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editTask',
                                     callback: function (route) {
                                         this.getApplication().on('loadTask', function (name) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", name, false));
+                                            route.setTitle(Uni.I18n.translate('general.edit', 'MDC', "Edit"));
                                             return true;
                                         }, {single: true});
 
