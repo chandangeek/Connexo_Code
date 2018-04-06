@@ -206,17 +206,11 @@ Ext.define('Usr.controller.UserDirectories', {
             addUserDirectoryForm.updateRecord(userDirectoryRecord);
             userDirectoryRecord.beginEdit();
             if(addPage.down('#cbo-security-protocol').getValue() !== 'NONE'){
-                switch (addPage.down('#rdo-security-protocol-source').getValue()['source']) {
-                    case 'certificates': {
-                        userDirectoryRecord.set('certificateAlias', addPage.down('#cbo-certificate-alias').getRawValue());
-                        userDirectoryRecord.set('trustStore', null);
-                        break;
-                    }
-                    case 'trustStores': {
-                        userDirectoryRecord.set('trustStore', {id: addPage.down('#cbo-trust-store').getValue()});
-                        userDirectoryRecord.set('certificateAlias', null);
-                        break;
-                    }
+                userDirectoryRecord.set('trustStore', {id: addPage.down('#cbo-trust-store').getValue()});
+                if (addPage.down('#authentication-checkbox').getValue()) {
+                    userDirectoryRecord.set('certificateAlias', addPage.down('#cbo-certificate-alias').getRawValue());
+                } else {
+                    userDirectoryRecord.set('certificateAlias', null);
                 }
             }
 
