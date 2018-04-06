@@ -6,11 +6,12 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +63,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     @Override
     public TypedProperties getTypedProperties() {
         this.ensurePropertiesInitialized();
-        return this.properties.getUnmodifiableView();
+        return new UnmodifiableTypedProperties(this.properties);
     }
 
     /**
