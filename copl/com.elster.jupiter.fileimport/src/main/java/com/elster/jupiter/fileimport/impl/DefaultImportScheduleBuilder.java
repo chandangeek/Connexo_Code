@@ -19,6 +19,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
     private String name;
+    private int logLevel;
     private String destination;
     private String importerName;
     private Path importDirectory;
@@ -47,7 +48,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
         }
         fileImportService.getImportFactory(importerName).ifPresent(in -> destination = in.getDestinationName());
 
-        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
+        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, logLevel, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
         importSchedule.save();
         return importSchedule;
@@ -117,6 +118,12 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     @Override
     public ImportScheduleBuilder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public ImportScheduleBuilder setLogLevel(int level){
+        this.logLevel = level;
         return this;
     }
 

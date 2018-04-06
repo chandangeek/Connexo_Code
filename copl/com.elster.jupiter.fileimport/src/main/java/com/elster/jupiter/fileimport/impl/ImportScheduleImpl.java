@@ -116,6 +116,8 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     @Pattern(regexp = "^$|[a-zA-Z0-9\\-' '_]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_CHARS + "}")
     private String name;
 
+    private int logLevel;
+
     @SuppressWarnings("unused")
     @Inject
     ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, Thesaurus thesaurus, FileSystem fileSystem, Clock clock) {
@@ -139,18 +141,19 @@ final class ImportScheduleImpl implements ServerImportSchedule {
      * It has new parameter activeInUI which defines possibility to use import schedule via user interface
      * **/
     @Deprecated
-    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
+    static ImportScheduleImpl from(DataModel dataModel, String name, int logLevel, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
                                    Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, false);
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, logLevel, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, false);
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
+    static ImportScheduleImpl from(DataModel dataModel, String name, int logLevel, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
                                    Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean isActiveOnUI) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, logLevel, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory, isActiveOnUI);
     }
 
-    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean activeInUI) {
+    private ImportScheduleImpl init(String name, int logLevel, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory, boolean activeInUI) {
         this.name = name;
+        this.logLevel = logLevel;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
         this.cronString = scheduleExpression.toString();
@@ -180,6 +183,17 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     public String getName() {
         return this.name;
     }
+
+    @Override
+    public int getLogLevel() {
+        return logLevel;
+    }
+
+    @Override
+    public void setLogLevel(int logLevel) {
+        this.logLevel = logLevel;
+    }
+
 
     @Override
     public DestinationSpec getDestination() {

@@ -45,6 +45,10 @@ public interface ImportSchedule {
 
     void setName(String name);
 
+    int getLogLevel();
+
+    void setLogLevel(int logLevel);
+
     /**
      * @return the Destination on which to post a message when a file needs processing.
      */
