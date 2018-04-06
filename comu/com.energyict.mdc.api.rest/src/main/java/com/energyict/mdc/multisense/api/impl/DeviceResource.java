@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
@@ -148,15 +149,13 @@ public class DeviceResource {
         }
         deviceConfiguration = deviceConfiguration.map(Optional::of).orElse(findApplicableDeviceConfiguration(info));
 
-        Device newDevice;
+        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfiguration.orElse(null), info.name, Instant.now(clock));
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.name, info.batch, Instant.now(clock));
-        } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.name, Instant.now(clock));
+            deviceBuilder = deviceBuilder.withBatch(info.batch);
         }
-        newDevice.setSerialNumber(info.serialNumber);
-        newDevice.setYearOfCertification(info.yearOfCertification);
-        newDevice.save();
+        deviceBuilder.withSerialNumber(info.serialNumber);
+        deviceBuilder.withYearOfCertification(info.yearOfCertification);
+        Device newDevice = deviceBuilder.create();
 
         URI uri = uriInfo.getBaseUriBuilder().
                 path(DeviceResource.class).
