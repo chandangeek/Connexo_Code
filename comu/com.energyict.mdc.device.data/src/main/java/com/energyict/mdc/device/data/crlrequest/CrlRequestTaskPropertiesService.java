@@ -5,17 +5,22 @@ import com.elster.jupiter.tasks.RecurrentTask;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
 public interface CrlRequestTaskPropertiesService {
 
-    Optional<CrlRequestTaskProperty> findCrlRequestTaskProperties();
+    List<CrlRequestTaskProperty> findCrlRequestTaskProperties();
 
-    void createCrlRequestTaskProperties(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
+    void createCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
 
-    void updateCrlRequestTaskProperties(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
+    void updateCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask, SecurityAccessor securityAccessor, String caName);
 
-    void deleteCrlRequestTaskProperties();
+    void deleteCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask);
+
+    Optional<CrlRequestTaskProperty> getCrlRequestTaskPropertiesForCa(String caName);
+
+    Optional<CrlRequestTaskProperty> getCrlRequestTaskPropertiesForCa(RecurrentTask recurrentTask);
 
 }

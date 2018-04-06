@@ -6,12 +6,17 @@ package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.CrlRequestService;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 
@@ -34,6 +39,8 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
+    private volatile TransactionService transactionService;
 
     public static final String CRL_REQUEST_TASK_SUBSCRIBER = "CrlRequestSubscriber";
     public static final String CRL_REQUEST_TASK_NAME = "Crl Request Task";
@@ -51,7 +58,9 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
                                     CrlRequestTaskPropertiesService crlRequestTaskPropertiesService,
                                     SecurityManagementService securityManagementService,
                                     DeviceService deviceService,
-                                    Clock clock) {
+                                    Clock clock,
+                                    NlsService nlsService,
+                                    TransactionService transactionService) {
         this();
         setTaskService(taskService);
         setCaService(caService);
@@ -59,6 +68,8 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         setSecurityManagementService(securityManagementService);
         setDeviceService(deviceService);
         setClock(clock);
+        setNlsService(nlsService);
+        setTransactionService(transactionService);
     }
 
     @Reference
@@ -91,6 +102,16 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         this.clock = clock;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     @Override
     public Optional<RecurrentTask> getTask() {
         return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME);
@@ -99,13 +120,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Override
     public TaskOccurrence runNow() {
         if (getTask().isPresent()) {
-            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock));
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService));
         }
         return null;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService));
     }
 }

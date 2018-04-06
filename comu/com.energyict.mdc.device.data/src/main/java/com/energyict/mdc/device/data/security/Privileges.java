@@ -40,7 +40,7 @@ public enum Privileges implements TranslationKey {
     ADMINISTRATE_DEVICE_ATTRIBUTE(Constants.ADMINISTRATE_DEVICE_ATTRIBUTE, "Administrate attribute"),
     ADMINISTER_DECOMMISSIONED_DEVICE_DATA(Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, "Administrate decomissioned device data"),
     VIEW_CRL_REQUEST(Constants.VIEW_CRL_REQUEST, "View CRL request"),
-    ADMINISTER_CRL_REQUEST(Constants.ADMINISTER_CRL_REQUEST, "Administrate CRL request"),
+    ADMINISTER_CRL_REQUEST(Constants.ADMINISTER_CRL_REQUEST, "Administer CRL request"),
     VIEW_DATA_COLLECTION_KPI(Constants.VIEW_DATA_COLLECTION_KPI, "View data collection KPI"),
     ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
     ADMINISTER_DEVICE_TIME_SLICED_CPS(Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS, "Administer device time-sliced CAS"),

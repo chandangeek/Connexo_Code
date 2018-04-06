@@ -55,6 +55,16 @@ public interface DeviceService {
     Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate);
 
     /**
+     * Creates a new Device builder based on the given name and DeviceConfiguration
+     *
+     * @param deviceConfiguration the deviceConfiguration which models the device
+     * @param name                the name which should be used for the device
+     * @param startDate           the meter activation's start date
+     * @return the newly created Device builder
+     */
+    DeviceBuilder newDeviceBuilder(DeviceConfiguration deviceConfiguration, String name, Instant startDate);
+
+    /**
      * Finds the Device based on his unique ID.
      *
      * @param id the unique ID of the device
