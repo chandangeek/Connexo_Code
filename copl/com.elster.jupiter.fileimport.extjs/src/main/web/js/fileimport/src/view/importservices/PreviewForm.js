@@ -9,7 +9,8 @@ Ext.define('Fim.view.importservices.PreviewForm', {
     requires: [
         'Uni.property.form.Property',
         'Uni.form.field.Duration',
-        'Uni.property.form.GroupedPropertyForm'
+        'Uni.property.form.GroupedPropertyForm',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -25,6 +26,11 @@ Ext.define('Fim.view.importservices.PreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'FIM', 'Name'),
                 name: 'name'
+            },
+            {
+                xtype: 'log-level-displayfield',
+                fieldLabel: Uni.I18n.translate('general.logLevel', 'FIM', 'Log level'),
+                name: 'logLevel'
             },
             {
                 xtype: 'displayfield',

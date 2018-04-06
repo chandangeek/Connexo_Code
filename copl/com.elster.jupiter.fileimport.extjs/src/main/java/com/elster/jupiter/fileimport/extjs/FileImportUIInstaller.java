@@ -5,6 +5,7 @@
 package com.elster.jupiter.fileimport.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -39,7 +40,7 @@ public class FileImportUIInstaller implements TranslationKeyProvider {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
 
         // EXAMPLE: Below is how to enable local development mode.
-       // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "d:/Work/Jupiter/connexo/copl/com.elster.jupiter.fileimport.extjs/src/main/web/js/fileimport", new FileResolver());
+        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:/Users/H251454/git/jupiter/copl/com.elster.jupiter.fileimport.extjs/src/main/web/js/fileimport", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

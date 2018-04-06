@@ -6,13 +6,20 @@ Ext.define('Fim.view.importservices.AddImportService', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.fim-add-import-service',
     //overflowY: true,
+    models: [
+        'Ldr.model.LogLevel'
+    ],
     requires: [
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm',
-        'Uni.form.field.CheckboxWithExplanation'
+        'Uni.form.field.CheckboxWithExplanation',
+        'Ldr.store.LogLevels'
     ],
+
+
+
 
     edit: false,
     importServiceRecord: null,
@@ -64,6 +71,21 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 field.focus(false, 200);
                             }
                         }
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'FIM', 'Log level'),
+                        emptyText: Uni.I18n.translate('general.logLevel.selectPrompt', 'FIM', 'Select a log level...'),
+                        required: true,
+                        name: 'logLevel',
+                        width: 500,
+                        itemId: 'fim-data-logLevels',
+                        allowBlank: false,
+                        store: 'LogLevelsStore',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id',
+                        forceSelection: true
                     },
                     {
                         xtype: 'container',
