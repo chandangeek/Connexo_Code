@@ -170,5 +170,7 @@ public interface UserService {
 
     Set<User> findUsers(Group group);
 
-    Optional<KeyStore> findKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
+    Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
+
+    Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
 }
