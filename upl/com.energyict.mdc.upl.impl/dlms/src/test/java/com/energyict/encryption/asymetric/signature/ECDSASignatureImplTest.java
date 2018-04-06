@@ -3,10 +3,11 @@ package com.energyict.encryption.asymetric.signature;
 import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.junit.Test;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -115,7 +116,7 @@ public final class ECDSASignatureImplTest {
     /**
      * Tests the verification.
      */
-
+    @Test
     public final void testVerifyP384() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P384_SHA384);
         final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P384_SHA384, TEST_PUB_KEY_P384);
@@ -127,7 +128,7 @@ public final class ECDSASignatureImplTest {
     /**
      * Tests the sign and verify.
      */
-
+    @Test
     public final void testSignAndVerifyP384() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P384_SHA384);
         final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P384_SHA384, TEST_PRIV_KEY_P384);
@@ -141,7 +142,7 @@ public final class ECDSASignatureImplTest {
     /**
      * Tests the sign and verify.
      */
-
+    @Test
     public final void testSignAndVerifyP256() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
         final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, TEST_PRIV_KEY_P256);
@@ -152,7 +153,7 @@ public final class ECDSASignatureImplTest {
         assertThat(sig.verify(TEST_SIGN_DATA_P256, signature, pubKey)).isTrue();
     }
 
-
+    // TODO: random test? once failed on Jenkins with java.lang.ArrayIndexOutOfBoundsException from com.energyict.encryption.asymetric.signature.ECDSASignatureImpl.toOctetString()
     /**
      * Tests the sign and verify.
      */
