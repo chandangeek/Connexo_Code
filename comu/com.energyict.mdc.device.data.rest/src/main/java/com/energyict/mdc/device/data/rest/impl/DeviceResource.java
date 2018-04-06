@@ -49,6 +49,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
@@ -313,20 +314,18 @@ public class DeviceResource {
 
     private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, String manufacturer, String modelNbr, String modelVersion, int yearOfCertification, Instant shipmentDate) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
-        Device newDevice;
+        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfiguration.orElse(null), name, shipmentDate);
         if (!is(batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, batch, shipmentDate);
-        } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
+            deviceBuilder = deviceBuilder.withBatch(batch);
         }
-        if (!newDevice.getDeviceType().isMultiElementSlave()) {
-            newDevice.setSerialNumber(serialNumber);
-            newDevice.setManufacturer(manufacturer);
-            newDevice.setModelNumber(modelNbr);
-            newDevice.setModelVersion(modelVersion);
-            newDevice.setYearOfCertification(yearOfCertification);
-            newDevice.save();
+        if (deviceConfiguration.isPresent() && !deviceConfiguration.get().getDeviceType().isMultiElementSlave()) {
+            deviceBuilder = deviceBuilder.withSerialNumber(serialNumber);
+            deviceBuilder = deviceBuilder.withManufacturer(manufacturer);
+            deviceBuilder = deviceBuilder.withModelNumber(modelNbr);
+            deviceBuilder = deviceBuilder.withModelVersion(modelVersion);
+            deviceBuilder = deviceBuilder.withYearOfCertification(yearOfCertification);
         }
+        Device newDevice = deviceBuilder.create();
 
         newDevice.getCurrentMeterActivation().ifPresent(meterActivation -> newDevice.getLifecycleDates().setReceivedDate(meterActivation.getStart()).save());
         return newDevice;

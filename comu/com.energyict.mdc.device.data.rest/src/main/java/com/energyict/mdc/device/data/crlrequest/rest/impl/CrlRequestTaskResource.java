@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.crlrequest.rest.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -15,12 +16,10 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.data.CrlRequestService;
-import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
+import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
 import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
-import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -30,14 +29,18 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Path("/crlprops")
@@ -48,8 +51,8 @@ public class CrlRequestTaskResource {
     private final CrlRequestTaskInfoFactory crlRequestTaskInfoFactory;
     private final SecurityManagementService securityManagementService;
     private final CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
-    private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
-    private final CrlRequestService crlRequestService;
+    private final Thesaurus thesaurus;
+    private static final String CRL_REQUEST_TASK_TYPE = "CRL request";
 
     @Inject
     public CrlRequestTaskResource(TaskService taskService,
@@ -58,8 +61,7 @@ public class CrlRequestTaskResource {
                                   CrlRequestTaskInfoFactory crlRequestTaskInfoFactory,
                                   SecurityManagementService securityManagementService,
                                   CrlRequestTaskPropertiesService crlRequestTaskPropertiesService,
-                                  SecurityAccessorInfoFactory securityAccessorInfoFactory,
-                                  CrlRequestService crlRequestService
+                                  Thesaurus thesaurus
     ) {
         this.taskService = taskService;
         this.messageService = messageService;
@@ -67,8 +69,7 @@ public class CrlRequestTaskResource {
         this.crlRequestTaskInfoFactory = crlRequestTaskInfoFactory;
         this.securityManagementService = securityManagementService;
         this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
-        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
-        this.crlRequestService = crlRequestService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -76,11 +77,26 @@ public class CrlRequestTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CRL_REQUEST, Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public Response gelCrlRequestTaskProperties(@BeanParam JsonQueryParameters queryParameters) {
-        Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties();
-        CrlRequestTaskPropertyInfo info = crlRequestTaskProperty.isPresent() ?
-                crlRequestTaskInfoFactory.asInfo(crlRequestTaskProperty.get()) : new CrlRequestTaskPropertyInfo();
-        return Response.ok(info).build();
+    public PagedInfoList gelAllCrlRequestTaskProperties(@BeanParam JsonQueryParameters queryParameters) {
+        List<CrlRequestTaskPropertyInfo> infoList = crlRequestTaskPropertiesService.findCrlRequestTaskProperties()
+                .stream()
+                .map(crlRequestTaskInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("crlRequestTaskProperties", infoList, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_CRL_REQUEST, Privileges.Constants.ADMINISTER_CRL_REQUEST})
+    public Response gelCrlRequestTaskProperty(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParameters) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK));
+        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK_PROPERTIES));
+        return Response.ok(crlRequestTaskInfoFactory.asInfo(crlRequestTaskProperty)).build();
     }
 
     @GET
@@ -90,47 +106,80 @@ public class CrlRequestTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
     public PagedInfoList getSecurityAccessors(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> securityAccessors = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
-                .stream()
-                .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
-                        securityAccessor.getActualValue().get() instanceof CertificateWrapper &&
-                        ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
-                .map(SecurityAccessor::getKeyAccessorType)
-                .map(securityAccessorType -> new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName()))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("securityAccessors", securityAccessors, queryParameters);
+        return PagedInfoList.fromCompleteList("securityAccessors", getSecurityAccessors(), queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/loglevels")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
+    public PagedInfoList getLogLevels(@BeanParam JsonQueryParameters queryParameters) {
+        return PagedInfoList.fromCompleteList("logLevels", getLogLevels(), queryParameters);
     }
 
     @DELETE
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public Response deleteCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info) {
-        crlRequestTaskPropertiesService.deleteCrlRequestTaskProperties();
-        taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).ifPresent(RecurrentTask::suspend);
+    public Response deleteCrlRequestTaskCA(@PathParam("id") Long id) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK));
+        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK_PROPERTIES));
+        crlRequestTaskPropertiesService.deleteCrlRequestTaskPropertiesForCa(recurrentTask);
+        recurrentTask.suspend();
         return Response.noContent().build();
     }
 
-    @PUT
+    @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public Response updateCrlRequestTaskProperty(CrlRequestTaskPropertyInfo info) {
-        RecurrentTask recurrentTask = createOrUpdateCrlRequestRecurrentTask(info);
-        createOrUpdateCrlRequestTaskProperties(info, recurrentTask);
-        return Response.status(Response.Status.CREATED).entity(info).build();
+    public Response createCrlRequestTaskCA(CrlRequestTaskPropertyInfo info) {
+        Optional<RecurrentTask> recurrentTask = createCrlRequestRecurrentTask(info);
+        if (recurrentTask.isPresent()) {
+            createCrlRequestTaskProperties(info, recurrentTask.get());
+            info.task = new IdWithNameInfo(recurrentTask.get().getId(), recurrentTask.get().getName());
+            return Response.status(Response.Status.CREATED).entity(info).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).entity(new WebApplicationException(thesaurus.getFormat(MessageSeeds.CRL_REQUEST_TASK_ALREADY_EXISTS).format())).build();
     }
 
     @PUT
     @Transactional
-    @Path("/run")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
+    public Response updateCrlRequestTaskCA(@PathParam("id") Long id, CrlRequestTaskPropertyInfo info) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK));
+        CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK_PROPERTIES));
+        Optional<RecurrentTask> updatedTask = updateCrlRequestRecurrentTask(info, recurrentTask);
+        if (updatedTask.isPresent()) {
+            updateCrlRequestTaskProperties(info, updatedTask.get());
+            info.task = new IdWithNameInfo(updatedTask.get().getId(), updatedTask.get().getName());
+            return Response.status(Response.Status.OK).entity(info).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).entity(new WebApplicationException(thesaurus.getFormat(MessageSeeds.CRL_REQUEST_TASK_ALREADY_EXISTS).format())).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/run/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_CRL_REQUEST})
-    public Response runCrlRequestTask(@BeanParam JsonQueryParameters queryParameters) {
-        crlRequestService.runNow();
+    public Response runCrlRequestTaskCA(@PathParam("id") Long id) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(
+                () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK));
+        recurrentTask.triggerNow();
         return Response.ok().build();
     }
 
@@ -141,30 +190,37 @@ public class CrlRequestTaskResource {
                         .createDestinationSpec(CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, CrlRequestHandlerFactory.DEFAULT_RETRY_DELAY_IN_SECONDS));
     }
 
-    private RecurrentTask createOrUpdateCrlRequestRecurrentTask(CrlRequestTaskPropertyInfo info) {
+    private Optional<RecurrentTask> createCrlRequestRecurrentTask(CrlRequestTaskPropertyInfo info) {
         RecurrentTask task;
-        if (!taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).isPresent()) {
+        String taskName = getTaskName(info);
+        if (!taskService.getRecurrentTask(taskName).isPresent()) {
             task = taskService.newBuilder()
                     .setApplication("MultiSense")
-                    .setName(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME)
+                    .setName(taskName)
                     .setScheduleExpression(getScheduleExpression(info))
                     .setDestination(getCrlRequestDestination())
                     .setPayLoad("Crl Request")
                     .scheduleImmediately(true)
                     .build();
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
+            task.setNextExecution(info.nextRun);
+            task.setLogLevel((Integer) info.logLevel.id);
             task.save();
         } else {
-            task = taskService.getRecurrentTask(CrlRequestHandlerFactory.CRL_REQUEST_TASK_NAME).get();
-            task.setScheduleExpression(getScheduleExpression(info));
-            task.setNextExecution(info.nextRun == null ? null : info.nextRun);
-            task.save();
-            task.updateNextExecution();
+            task = taskService.getRecurrentTask(taskName).get();
+            if (task.getNextExecution() == null) {
+                task.setScheduleExpression(getScheduleExpression(info));
+                task.setNextExecution(info.nextRun);
+                task.setLogLevel((Integer) info.logLevel.id);
+                task.save();
+                task.updateNextExecution();
+            } else {
+                return Optional.empty();
+            }
         }
-        return task;
+        return Optional.of(task);
     }
 
-    private void createOrUpdateCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
+    private void createCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
         SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
                 .filter(sa -> sa.getKeyAccessorType().getId() == (Integer) info.securityAccessor.id)
@@ -173,17 +229,86 @@ public class CrlRequestTaskResource {
                         ((CertificateWrapper) sa.getActualValue().get()).getCertificate().isPresent())
                 .findAny()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
-
-        if (crlRequestTaskPropertiesService.findCrlRequestTaskProperties().isPresent()) {
-            crlRequestTaskPropertiesService.updateCrlRequestTaskProperties(recurrentTask, securityAccessor, info.caName);
+        String caName = info.caName;
+        if (!crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).isPresent()) {
+            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         } else {
-            crlRequestTaskPropertiesService.createCrlRequestTaskProperties(recurrentTask, securityAccessor, info.caName);
+            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
+        }
+    }
+
+    private Optional<RecurrentTask> updateCrlRequestRecurrentTask(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
+        String taskName = getTaskName(info);
+        if (taskService.getRecurrentTask(taskName).isPresent()) {
+            if (taskService.getRecurrentTask(taskName).get().getId() != recurrentTask.getId()) {
+                if (taskService.getRecurrentTask(taskName).get().getNextExecution() != null) {
+                    return Optional.empty();
+                } else {
+                    taskService.getRecurrentTask(taskName).get().delete();
+                    recurrentTask.setScheduleExpression(getScheduleExpression(info));
+                    recurrentTask.setNextExecution(info.nextRun);
+                    recurrentTask.setLogLevel((Integer) info.logLevel.id);
+                    recurrentTask.setName(taskName);
+                    recurrentTask.save();
+                    recurrentTask.updateNextExecution();
+                    return Optional.of(recurrentTask);
+                }
+            }
+        }
+        recurrentTask.setScheduleExpression(getScheduleExpression(info));
+        recurrentTask.setNextExecution(info.nextRun);
+        recurrentTask.setLogLevel((Integer) info.logLevel.id);
+        recurrentTask.setName(taskName);
+        recurrentTask.save();
+        recurrentTask.updateNextExecution();
+        return Optional.of(recurrentTask);
+    }
+
+    private void updateCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
+        SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(sa -> sa.getKeyAccessorType().getId() == (Integer) info.securityAccessor.id)
+                .filter(sa -> sa.getActualValue().isPresent() &&
+                        sa.getActualValue().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) sa.getActualValue().get()).getCertificate().isPresent())
+                .findAny()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
+        String caName = info.caName;
+        if (crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).isPresent()) {
+            crlRequestTaskPropertiesService.updateCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
+        } else {
+            crlRequestTaskPropertiesService.createCrlRequestTaskPropertiesForCa(recurrentTask, securityAccessor, caName);
         }
     }
 
     private TemporalExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
         TimeDuration timeDuration = info.timeDurationInfo.asTimeDuration();
         return new TemporalExpression(timeDuration);
+    }
+
+    private List<IdWithNameInfo> getLogLevels() {
+        List<IdWithNameInfo> logLevels = new ArrayList<>();
+        logLevels.add(new IdWithNameInfo(Level.SEVERE.intValue(), "Error"));
+        logLevels.add(new IdWithNameInfo(Level.WARNING.intValue(), "Warning"));
+        logLevels.add(new IdWithNameInfo(Level.INFO.intValue(), "Information"));
+        logLevels.add(new IdWithNameInfo(Level.FINE.intValue(), "Debug"));
+        logLevels.add(new IdWithNameInfo(Level.FINEST.intValue(), "Trace"));
+        return logLevels;
+    }
+
+    private List<IdWithNameInfo> getSecurityAccessors() {
+        return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
+                .stream()
+                .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
+                        securityAccessor.getActualValue().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
+                .map(SecurityAccessor::getKeyAccessorType)
+                .map(securityAccessorType -> new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName()))
+                .collect(Collectors.toList());
+    }
+
+    private String getTaskName(CrlRequestTaskPropertyInfo info) {
+        return info.caName + " - " + CRL_REQUEST_TASK_TYPE;
     }
 
 }
