@@ -3,6 +3,7 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
+import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.metering.LifecycleDates;
 
 import ch.iec.tc57._2011.enddeviceconfig.EndDevice;
@@ -13,6 +14,7 @@ import ch.iec.tc57._2011.enddeviceconfig.NameType;
 import ch.iec.tc57._2011.enddeviceconfig.Status;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -52,10 +54,11 @@ class EndDeviceConfigDataFactory {
         }
     }
 
-    EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate) {
+    EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate, List<EndDeviceAttributesProvider> endDeviceAttributesProviders) {
         EndDeviceConfig endDeviceConfig = new EndDeviceConfig();
         EndDevice cimEndDevice = createEndDevice(endDevice);
         cimEndDevice.setLifecycle(createLifecycleDate(endDevice));
+        cimEndDevice.setType(endDeviceAttributesProviders.stream().map(e -> e.getType(endDevice)).filter(Optional::isPresent).map(Optional::get).findFirst().orElse(null));
         cimEndDevice.setStatus(createStatus(DefaultState.fromKey(state).map(DefaultState::getDefaultFormat).orElse(state), effectiveDate));
         endDeviceConfig.getEndDevice().add(cimEndDevice);
         return endDeviceConfig;

@@ -4,6 +4,7 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
+import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
@@ -60,6 +61,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
+    private List<EndDeviceAttributesProvider> endDeviceAttributesProviders = new ArrayList<>();
 
     public EndDeviceConfigServiceProvider() {
         // for OSGI purposes
@@ -98,6 +100,18 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     public void removeMeterConfigPortService(EndDeviceConfigPort endDeviceConfigPort) {
         stateEndDeviceConfigPortServices.remove(endDeviceConfigPort);
     }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {
+        this.endDeviceAttributesProviders.add(endDeviceAttributesProvider);
+    }
+
+    public void removeEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {
+        endDeviceAttributesProviders.stream()
+                .filter(e -> e.getClass().equals(endDeviceAttributesProvider.getClass()))
+                .forEach(e -> endDeviceAttributesProviders.remove(e));
+    }
+
 
     public List<EndDeviceConfigPort> getStateTransitionWebServiceClients() {
         return Collections.unmodifiableList(this.stateEndDeviceConfigPortServices);
@@ -167,7 +181,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
                         .findFirst()
                         .ifPresent(endDeviceConfigPortService -> {
                             try {
-                                EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate);
+                                EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
                                 getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
                                     endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
                                 });
