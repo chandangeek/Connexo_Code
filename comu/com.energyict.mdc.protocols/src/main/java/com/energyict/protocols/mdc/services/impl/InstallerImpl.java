@@ -224,7 +224,7 @@ public class InstallerImpl implements FullInstaller {
                 .orElseGet(() -> securityManagementService.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpecName))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(TimeDuration.years(1))
-                        .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                        .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                         .add());
         deviceType.addSecurityAccessorTypes(securityAccessorType);
         return securityAccessorType;
