@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -126,7 +127,7 @@ public final class InboundComPortPoolImpl extends ComPortPoolImpl implements Inb
                 .stream()
                 .filter(p -> p.getValue() != null)
                 .forEach(p -> typedProperties.setProperty(p.getName(), p.getValue()));
-        return typedProperties.getUnmodifiableView();
+        return new UnmodifiableTypedProperties(typedProperties);
     }
 
     public void removeProperty(String key) {
