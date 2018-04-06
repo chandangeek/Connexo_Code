@@ -37,7 +37,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CERTIFICATES_WITH_IDS(26, "NoSCertificatesWithIds", "No certificate wrappers could be found with ids {0}."),
     CERTIFICATE_ALREADY_REVOKED(27, "CertificateAlreadyRevoked", "The certificate has already been revoked by the CA. The status has been updated to ''revoked''."),
     COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(28, "CertificateRequestFromCAFailedTimeout", "A timeout has occurred. The certificate couldn''t be received from the CA."),
-    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The certificate has been received from the CA but an error has occurred while saving."),
+    COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The certificate has been received from the CA but an error has occurred while saving: {0}"),
     COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(30, "CertificateRequestFromCAFailed", "The certificate couldn''t be received from the CA: {0}"),
     ;
 
