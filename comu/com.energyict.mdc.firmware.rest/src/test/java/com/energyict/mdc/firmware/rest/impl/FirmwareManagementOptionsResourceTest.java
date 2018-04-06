@@ -8,10 +8,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
     @Mock
     private DeviceType deviceType;
-
     @Mock
     private FirmwareManagementOptions options;
 
@@ -41,15 +40,14 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
     @Before
     public void setUpStubs() {
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
 
-
-        set.addAll(Arrays.asList(protocolSupportedFirmwareOptions));
+        set.add(protocolSupportedFirmwareOptions);
         when(firmwareService.getSupportedFirmwareOptionsFor(deviceType)).thenReturn(set);
         when(firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType)).thenReturn(set);
 
         when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(options));
         when(firmwareService.findAndLockFirmwareManagementOptionsByIdAndVersion(eq(deviceType), anyLong())).thenReturn(Optional.of(options));
-
     }
 
     @Test

@@ -7,6 +7,7 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -57,6 +58,8 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     PropertyValueInfoService propertyValueInfoService;
     @Mock
     MdcPropertyUtils mdcPropertyUtils;
+    @Mock
+    SecurityManagementService securityManagementService;
 
     @Override
     protected Application getApplication() {
@@ -80,6 +83,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setMeteringGroupsService(meteringGroupsService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
+        application.setSecurityManagementService(securityManagementService);
         return application;
     }
 

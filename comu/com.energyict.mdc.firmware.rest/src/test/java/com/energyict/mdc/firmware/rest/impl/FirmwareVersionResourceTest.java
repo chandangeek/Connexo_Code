@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
@@ -31,8 +32,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -68,21 +67,16 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
         when(firmwareService.findAndLockFirmwareVersionByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(firmwareVersion));
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                firmwareVersion.validate();
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            firmwareVersion.validate();
+            return null;
         }).when(firmwareVersionBuilder).validate();
         when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
         when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any(), any())).thenReturn(firmwareVersionBuilder);
-        when(firmwareService.filterForFirmwareVersion(any(DeviceType.class))).thenAnswer(new Answer<FirmwareVersionFilter>() {
-            @Override
-            public FirmwareVersionFilter answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new FirmwareVersionFilterImpl(((DeviceType) invocationOnMock.getArguments()[0]));
-            }
-        });
+        when(firmwareService.filterForFirmwareVersion(any(DeviceType.class)))
+                .thenAnswer(invocationOnMock -> new FirmwareVersionFilterImpl((invocationOnMock.getArgumentAt(0, DeviceType.class))));
+        when(firmwareService.findSecurityAccessorForSignatureValidation(deviceType))
+                .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), Finder.class));
     }
 
     @Test
