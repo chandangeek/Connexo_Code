@@ -105,7 +105,6 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityManagementServiceImplIT {
-
     private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
     private static SecurityManagementService securityManagementService;
 
@@ -1266,13 +1265,13 @@ public class SecurityManagementServiceImplIT {
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert2");
         certificateWrapper.setCertificate(certificate);
 
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=test,OU=unit,O=org,C=BE\"}]");
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=test, OU=unit, O=org, C=BE\"}]");
 
         Finder<CertificateWrapper> reloaded = securityManagementService.getSubjectsByFilter(new SubjectParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
-        assertEquals("CN=test,OU=unit,O=org,C=BE", certificates.get(0).getSubject());
+        assertEquals("CN=test, OU=unit, O=org, C=BE", certificates.get(0).getSubject());
     }
 
     @Test
@@ -1284,13 +1283,13 @@ public class SecurityManagementServiceImplIT {
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert4");
         certificateWrapper.setCertificate(certificate);
 
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"issuer\",\"value\":\"CN=RA,OU=Smartenergy,O=Honeywell,ST=Westvlaanderen,C=BE\"}]");
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"issuer\",\"value\":\"CN=RA, OU=Smart energy, O=Honeywell, ST=West vlaanderen, C=BE\"}]");
 
         Finder<CertificateWrapper> reloaded = securityManagementService.getIssuersByFilter(new IssuerParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
-        assertEquals("CN=RA,OU=Smartenergy,O=Honeywell,ST=Westvlaanderen,C=BE", certificates.get(0).getIssuer());
+        assertEquals("CN=RA, OU=Smart energy, O=Honeywell, ST=West vlaanderen, C=BE", certificates.get(0).getIssuer());
     }
 
     @Test
@@ -1401,7 +1400,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
         securityManagementService.addSecurityAccessorType("addKeyAccessorType", aes128)
                 .keyEncryptionMethod("SSM")
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .add();
@@ -1413,7 +1412,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityAccessorTypes.get(0).getDescription()).isEqualTo("general use AK");
         assertThat(securityAccessorTypes.get(0).getDuration()).contains(TimeDuration.days(365));
         assertThat(securityAccessorTypes.get(0).getKeyType().getName()).isEqualTo("AES128");
-        assertThat(securityAccessorTypes.get(0).getPurpose()).isSameAs(SecurityAccessorType.Purpose.COMMUNICATION);
+        assertThat(securityAccessorTypes.get(0).getPurpose()).isSameAs(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
     }
 
     @Test
@@ -1422,7 +1421,7 @@ public class SecurityManagementServiceImplIT {
     public void addKeyAccessorTypeWithoutKeyEncryptionMethod() throws Exception {
         KeyType aes256 = getOrCreateKeyType("AES256A", "AES", 256);
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithoutKeyEncryptionMethod", aes256)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .add();
@@ -1434,7 +1433,7 @@ public class SecurityManagementServiceImplIT {
     public void addKeyAccessorTypeWithoutDuration() throws Exception {
         KeyType aes256 = getOrCreateKeyType("AES256A", "AES", 256);
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithoutDuration", aes256)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("general use AK")
                 .keyEncryptionMethod("DataVault")
                 .add();
@@ -1447,7 +1446,7 @@ public class SecurityManagementServiceImplIT {
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithNonUniqueName", getOrCreateKeyType("AES256A", "AES", 256))
                 .description("general use AK")
                 .keyEncryptionMethod("DataVault")
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .duration(TimeDuration.days(30))
                 .add();
         securityManagementService.addSecurityAccessorType("addKeyAccessorTypeWithNonUniqueName", getOrCreateKeyType("AES128A", "AES", 128))
@@ -1465,7 +1464,7 @@ public class SecurityManagementServiceImplIT {
         KeyType certs = securityManagementService.newCertificateType("Friends").add();
 
         securityManagementService.addSecurityAccessorType("addCertificateAccessorTypeMissingTrustStore", certs)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("just certificates")
                 .add();
     }
@@ -1479,7 +1478,7 @@ public class SecurityManagementServiceImplIT {
 
         assertThat(securityManagementService.getSecurityAccessorTypes()).isEmpty();
         securityManagementService.addSecurityAccessorType("addCertificateAccessorType", certs)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("just certificates")
                 .trustStore(main)
                 .add();
@@ -1490,7 +1489,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(sat.getKeyType().getName()).isEqualTo("Fiends");
         assertThat(sat.getTrustStore().map(TrustStore::getName)).contains("MAIN");
         assertThat(sat.isManagedCentrally()).isFalse();
-        assertThat(sat.getPurpose()).isSameAs(SecurityAccessorType.Purpose.COMMUNICATION);
+        assertThat(sat.getPurpose()).isSameAs(SecurityAccessorType.Purpose.DEVICE_OPERATIONS);
     }
 
     @Test
@@ -1500,7 +1499,7 @@ public class SecurityManagementServiceImplIT {
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("testRemoveKeyAccessorType", aes256)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .keyEncryptionMethod("DataVault")
                 .add();
 
@@ -1523,14 +1522,14 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.findSecurityAccessorTypeById(1)).isEmpty();
         assertThat(securityManagementService.findSecurityAccessorTypeByName("securityAccessorGetters")).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(1, 1)).isEmpty();
-        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)).isEmpty();
         assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
 
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("securityAccessorGetters", aes256)
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .keyEncryptionMethod("DataVault")
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .add();
 
         assertThat(securityManagementService.getSecurityAccessorTypes()).containsExactly(securityAccessorType);
@@ -1542,7 +1541,7 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityManagementService.findSecurityAccessorTypeByName("securityAccessorGetter")).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(id + 1, securityAccessorType.getVersion())).isEmpty();
         assertThat(securityManagementService.findAndLockSecurityAccessorType(id, securityAccessorType.getVersion() + 1)).isEmpty();
-        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.COMMUNICATION)).containsExactly(securityAccessorType);
+        assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)).containsExactly(securityAccessorType);
         assertThat(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
     }
 
@@ -1551,7 +1550,7 @@ public class SecurityManagementServiceImplIT {
     public void updateSecurityAccessorType() throws SQLException {
         KeyType aes128 = getOrCreateKeyType("AES128", "AES", 128);
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("updateSecurityAccessor", aes128)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))

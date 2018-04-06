@@ -311,7 +311,7 @@ public class CSRImporterFactoryIT {
                 .add();
         SecurityAccessorType securityAccessor = securityManagementService.addSecurityAccessorType("Cert", clientType)
                 .managedCentrally()
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .trustStore(ts)
                 .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                 .add();

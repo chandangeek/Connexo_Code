@@ -100,7 +100,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                     .trustStore(trustStore)
                     .add();
             cat = securityManagementService.addSecurityAccessorType(CAT_NAME, certs)
-                    .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                    .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                     .description("just certificates")
                     .trustStore(trustStore)
                     .add();
@@ -128,7 +128,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(securityManagementService.getDefaultValues(catWithDefaultValues)).isEmpty();
         assertThat(securityManagementService.getDefaultValues(cat, catWithDefaultValues)).isEmpty();
         assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)).isEmpty();
-        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)).isEmpty();
     }
 
     @Test
@@ -156,7 +156,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
 
-        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.COMMUNICATION)).isEmpty();
+        assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)).isEmpty();
         foundValuesList = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS).stream()
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa)
                 .collect(Collectors.toList());
@@ -185,7 +185,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         expectedRule.expectMessage("Default values are only supported for certificate accessor type.");
         securityManagementService.addSecurityAccessorType("Name", skType)
                 .managedCentrally()
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .description("just keys")
                 .add();
     }
@@ -198,7 +198,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .duration(TimeDuration.years(1))
                 .add();
         invoke(keyAccessorType, "setManagedCentrally", true);
@@ -217,7 +217,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         SecurityAccessorType keyAccessorType = securityManagementService.addSecurityAccessorType("Name", skType)
                 .description("just keys")
                 .keyEncryptionMethod(DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD)
-                .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                 .duration(TimeDuration.years(1))
                 .add();
         PlaintextSymmetricKey wrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);

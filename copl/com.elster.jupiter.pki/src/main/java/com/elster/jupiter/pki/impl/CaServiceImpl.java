@@ -170,7 +170,7 @@ public class CaServiceImpl implements CaService {
                 && StringUtils.isNotBlank(pkiEndEntityProfileName);
 
         if (!configured) {
-            LOGGER.info("#CaServiceImpl started in offline mode. Any service usages will be rejected until all properties will be specified");
+            LOGGER.info("CA service started in offline mode. Any service usages will be rejected until all properties are specified.");
         }
     }
 
@@ -197,7 +197,7 @@ public class CaServiceImpl implements CaService {
                             CertificateHelper.RESPONSETYPE_CERTIFICATE);
             x509Cert = certificateResponse.getCertificate();
         } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception | UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return x509Cert;
     }
@@ -212,7 +212,7 @@ public class CaServiceImpl implements CaService {
         try {
             ejbcaWS.revokeCert(certificateTemplate.getIssuerDN(), certificateTemplate.getSerialNumber().toString(SN_HEX), reason);
         } catch (AlreadyRevokedException_Exception | ApprovalException_Exception | AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception | NotFoundException_Exception | WaitingForApprovalException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
 
@@ -224,7 +224,7 @@ public class CaServiceImpl implements CaService {
         try {
             rs = ejbcaWS.checkRevokationStatus(searchFilter.getIssuerDN(), searchFilter.getSerialNumber().toString(SN_HEX));
         } catch (AuthorizationDeniedException_Exception | CADoesntExistsException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return RevokeStatus.fromValue(rs.getReason()).orElseThrow(() -> new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR));
     }
@@ -250,7 +250,7 @@ public class CaServiceImpl implements CaService {
         try {
             return ejbcaWS.getAvailableCAs().stream().map(NameAndId::getName).collect(Collectors.toList());
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
 
@@ -276,7 +276,7 @@ public class CaServiceImpl implements CaService {
                         .append("CPs in profile: ").append(cpInProfile).append('\n');
             }
         } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getLocalizedMessage());
         }
         return result.toString();
     }
@@ -287,7 +287,7 @@ public class CaServiceImpl implements CaService {
             crlBytes = ejbcaWS.getLatestCRL(caName, isDelta);
             return Optional.ofNullable(null != crlBytes ? getX509CRL(crlBytes) : null);
         } catch (CADoesntExistsException_Exception | EjbcaException_Exception | CertificateException | CRLException e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
 
@@ -387,7 +387,7 @@ public class CaServiceImpl implements CaService {
             HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals(pkiHost));
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | InvalidKeyException e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
     }
 
@@ -400,7 +400,7 @@ public class CaServiceImpl implements CaService {
         try {
             service = new EjbcaWSService(new URL(WSDL_LOCATION), Q_NAME);
         } catch (MalformedURLException e) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getMessage());
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
         return service.getEjbcaWSPort();
     }
@@ -417,7 +417,7 @@ public class CaServiceImpl implements CaService {
 
     private void checkConfiguration() {
         if (!configured) {
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "Invoked unconfigured #CaServiceImpl component");
+            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR_NOT_CONFIGURED_PROPERLY);
         }
     }
 }

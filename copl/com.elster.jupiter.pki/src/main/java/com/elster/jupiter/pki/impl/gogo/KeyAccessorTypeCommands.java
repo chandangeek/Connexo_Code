@@ -78,7 +78,7 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such key type"));
             SecurityAccessorType.Builder builder = securityManagementService.addSecurityAccessorType(name, keyType)
                     .keyEncryptionMethod(keyEncryptionMethod)
-                    .purpose(SecurityAccessorType.Purpose.COMMUNICATION)
+                    .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                     .description("Created by gogo command")
                     .duration(TimeDuration.days(duration[0]));
             builder.add();
@@ -88,7 +88,7 @@ public class KeyAccessorTypeCommands {
 
     public void createCertificateAccessorType() {
         System.out.println("Usage: createCertificateAccessorTypes <name> <key type name> <trust store name> <key encryption method> <purpose>");
-        System.out.println("Eg.  : createCertificateAccessorTypes TLS TLSClient DataVault COMMUNICATION");
+        System.out.println("Eg.  : createCertificateAccessorTypes TLS TLSClient DataVault DEVICE_OPERATIONS");
     }
 
     public void createCertificateAccessorType(String name, String keyTypeName, String trustStoreName, String keyEncryptionMethod, String purpose) {

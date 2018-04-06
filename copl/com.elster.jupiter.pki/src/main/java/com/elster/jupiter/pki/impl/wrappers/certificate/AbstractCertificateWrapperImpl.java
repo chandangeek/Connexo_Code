@@ -177,8 +177,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
-            this.subject = x500FormattedName(certificate.getSubjectDN().getName()).replaceAll("\\s+", "");
-            this.issuer = x500FormattedName(certificate.getIssuerDN().getName()).replaceAll("\\s+", "");
+            this.subject = x500FormattedName(certificate.getSubjectDN().getName());
+            this.issuer = x500FormattedName(certificate.getIssuerDN().getName());
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
             }

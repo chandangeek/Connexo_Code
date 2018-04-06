@@ -65,6 +65,7 @@ public class CertificateExportProcessor {
         byte[] bytes = byteArrayOutputStream.toByteArray();
         byte[] signature = getSignature(bytes);
         exportDestination.export(bytes, signature);
+        logger.log(MessageSeeds.CERTIFICATES_EXPORTED_SUCCESSFULLY, exportDestination.getLastExportedFileName().get(), exportDestination.getUrl());
     }
 
     private void storeDlmsKeyStoreCertificate(ZipOutputStream zipOutputStream, X509Certificate x509Certificate, String dirName, String alias)
