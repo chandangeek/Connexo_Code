@@ -4,11 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -19,6 +14,10 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -52,10 +51,10 @@ public class MeterConfigParser {
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
                 meterInfo.setmRID(extractMrid(meter).orElse(null));
-                meterInfo.setStatusReason(extractStatusReason(meter).orElse(null));
+                meterInfo.setStatusReason(extractConfigurationReason(meter).filter(EventReason.CHANGE_STATUS.getReason()::equalsIgnoreCase).orElse(null));
                 meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
-                meterInfo.setStatusEffectiveDate(extractStatusEffectiveDate(meter).orElse(null));
-                meterInfo.setMultiplierReason(extractConfigurationReason(meter).orElse(null));
+                meterInfo.setStatusEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
+                meterInfo.setMultiplierReason(extractConfigurationReason(meter).filter(EventReason.CHANGE_MULTIPLIER.getReason()::equalsIgnoreCase).orElse(null));
                 meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
                 break;
         }
@@ -126,6 +125,7 @@ public class MeterConfigParser {
         return extractMeterStatus(meter)
                 .map(Status::getReason)
                 .filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace());
+
     }
 
     public Optional<String> extractStatusValue(Meter meter) {

@@ -36,7 +36,7 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, String message) {
-        return meterConfigFaultMessage(meterName, messageSeed, message, null);
+        return meterConfigFaultMessage(meterName, messageSeed, message, messageSeed.getErrorCode());
     }
 
     FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, MessageSeeds message) {

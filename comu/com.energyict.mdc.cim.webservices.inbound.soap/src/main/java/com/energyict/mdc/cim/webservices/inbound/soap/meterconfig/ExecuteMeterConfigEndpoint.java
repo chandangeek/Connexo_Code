@@ -4,7 +4,15 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.executemeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.Name;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -15,23 +23,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
-
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.executemeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 
 import javax.inject.Inject;
 
@@ -150,6 +149,9 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                 .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
                 .findFirst()
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_END_POINT_WITH_URL, url));
+        if (!webServicesService.isPublished(endPointConfig)) {
+            webServicesService.publishEndPoint(endPointConfig);
+        }
         if (!webServicesService.isPublished(endPointConfig)) {
             throw faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
         }
