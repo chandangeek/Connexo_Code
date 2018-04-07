@@ -24,11 +24,10 @@ public class MeterInfo {
     private Instant shipmentDate;
     private String deviceType;
     private String deviceConfigurationName;
-    private String statusReason;
     private String statusValue;
     private Instant statusEffectiveDate;
-    private String multiplierReason;
     private Instant multiplierEffectiveDate;
+    private String configurationEventReason;
 
     public MeterInfo(){}
 
@@ -177,27 +176,19 @@ public class MeterInfo {
         this.multiplierEffectiveDate = Instant.ofEpochMilli(time);
     }
 
-    public String getStatusReason() {
-        return statusReason;
-    }
-
-    public void setStatusReason(String statusReason) {
-        this.statusReason = statusReason;
-    }
-
-    public String getMultiplierReason() {
-        return multiplierReason;
-    }
-
-    public void setMultiplierReason(String multiplierReason) {
-        this.multiplierReason = multiplierReason;
-    }
-
     public String getStatusValue() {
         return statusValue;
     }
 
     public void setStatusValue(String statusValue) {
         this.statusValue = statusValue;
+    }
+
+    public String getConfigurationEventReason() {
+        return configurationEventReason;
+    }
+
+    public void setConfigurationEventReason(String configurationEventReason) {
+        this.configurationEventReason = configurationEventReason;
     }
 }

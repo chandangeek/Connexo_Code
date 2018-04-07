@@ -51,10 +51,9 @@ public class MeterConfigParser {
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
                 meterInfo.setmRID(extractMrid(meter).orElse(null));
-                meterInfo.setStatusReason(extractConfigurationReason(meter).filter(EventReason.CHANGE_STATUS.getReason()::equalsIgnoreCase).orElse(null));
+                meterInfo.setConfigurationEventReason(extractConfigurationReason(meter).orElse(null));
                 meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
                 meterInfo.setStatusEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
-                meterInfo.setMultiplierReason(extractConfigurationReason(meter).filter(EventReason.CHANGE_MULTIPLIER.getReason()::equalsIgnoreCase).orElse(null));
                 meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
                 break;
         }

@@ -75,10 +75,9 @@ public class DeviceBuilder {
         Optional<String> modelVersion = Optional.ofNullable(meter.getModelVersion());
         Optional<BigDecimal> multiplier = Optional.ofNullable(meter.getMultiplier());
         Optional<String> mrid = Optional.ofNullable(meter.getmRID());
-        Optional<String> statusReason = Optional.ofNullable(meter.getStatusReason());
+        Optional<String> configurationEventReason = Optional.ofNullable(meter.getConfigurationEventReason());
         Optional<String> statusValue = Optional.ofNullable(meter.getStatusValue());
         Optional<Instant> statusEffectiveDate = Optional.ofNullable(meter.getStatusEffectiveDate());
-        Optional<String> multiplierReason = Optional.ofNullable(meter.getMultiplierReason());
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
 
         return () -> {
@@ -90,11 +89,13 @@ public class DeviceBuilder {
             String currentModelVersion = changedDevice.getModelVersion();
             String currentManufacturer = changedDevice.getManufacturer();
 
-            if (statusReason.isPresent()) {
-                EventReason.forReason(statusReason.get())
-                        .filter(EventReason.CHANGE_STATUS::equals)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NOT_VALID_STATUS_REASON, statusReason
+            if(configurationEventReason.isPresent() ){
+                EventReason.forReason(configurationEventReason.get())
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NOT_VALID_CONFIGURATION_REASON, configurationEventReason
                                 .get()));
+            }
+
+            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_STATUS::equals).isPresent()) {
                 String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
                 Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
                 ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
@@ -109,11 +110,7 @@ public class DeviceBuilder {
                 changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
             }
 
-            if (multiplierReason.isPresent()) {
-                EventReason.forReason(multiplierReason.get())
-                        .filter(EventReason.CHANGE_MULTIPLIER::equals)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NOT_VALID_MULTIPLIER_REASON, multiplierReason
-                                .get()));
+            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_MULTIPLIER::equals).isPresent()){
                 changedDevice.setMultiplier(multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
                         multiplierEffectiveDate.orElse(clock.instant()));
             }
