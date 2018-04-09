@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -24,6 +25,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -56,7 +58,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -384,7 +385,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(effectiveMetrologyConfigurationOnUsagePoint.getRange()).thenReturn(Range.all());
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         Device newDevice = mockDevice("4dac4bd90-2673-488c-342b-032628771b85", info.serialNumber, deviceConfiguration, 123L);
-        when(deviceService.newDevice(eq(deviceConfiguration), any(String.class), any(Instant.class))).thenReturn(newDevice);
+        DeviceBuilder deviceBuilder = FakeBuilder.initBuilderStub(newDevice, DeviceBuilder.class);
+        when(deviceService.newDeviceBuilder(eq(deviceConfiguration), any(String.class), any(Instant.class))).thenReturn(deviceBuilder);
         when(newDevice.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(newDevice.getUsagePoint()).thenReturn(Optional.empty());
         when(newDevice.getDeviceType()).thenReturn(deviceType);
@@ -394,7 +396,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
         Response response = target("/devices").request("application/json").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(201);
-        verify(deviceService, times(1)).newDevice(eq(deviceConfiguration), any(String.class), any(Instant.class));
+        verify(deviceService).newDeviceBuilder(eq(deviceConfiguration), any(String.class), any(Instant.class));
+        verify(deviceBuilder).create();
     }
 
     private ExecutableAction mockExecutableAction(Long id, String name, MicroAction microAction, PropertySpec... propertySpecs) {
