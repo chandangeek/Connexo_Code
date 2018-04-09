@@ -105,9 +105,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
-                        formErrorsPanel.setVisible(false);
-                        Ext.Msg.alert(Uni.I18n.translate('crlRequest.caname', 'MDC', 'The CA name must be unique'),
-                            Uni.I18n.translate('crlRequest.task', 'MDC', 'CRL request task with such CA name already exist.'));
+                        formErrorsPanel.show();
                         if (!Ext.isEmpty(operation.response.responseText)) {
                             var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
@@ -155,10 +153,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
-                    formErrorsPanel.setVisible(false);
-                    Ext.Msg.alert(Uni.I18n.translate('crlRequest.caname', 'MDC', 'The CA name must be unique'),
-                        Uni.I18n.translate('crlRequest.task', 'MDC', 'CRL request task with such CA name already exist.'));
-
+                    formErrorsPanel.show();
                     if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
