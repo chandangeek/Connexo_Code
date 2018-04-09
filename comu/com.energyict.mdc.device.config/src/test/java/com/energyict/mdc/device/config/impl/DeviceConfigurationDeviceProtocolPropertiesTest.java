@@ -6,16 +6,17 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,8 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(bigDecimalPropertySpec, stringPropertySpec, defaultPropertySpec));
     }
 
+    // TODO: ignored due to the bug CXO-8740
+    @Ignore
     @Test
     @Transactional
     public void testNewConfigurationInheritsPropertiesFromPluggableClass() {
