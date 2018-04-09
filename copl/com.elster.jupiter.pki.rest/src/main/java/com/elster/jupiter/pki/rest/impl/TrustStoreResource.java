@@ -41,6 +41,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
@@ -280,17 +281,20 @@ public class TrustStoreResource {
             @FormDataParam("file") InputStream keyStoreInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("password") String password) {
+        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "file");
+        }
+        if (!getFileExtension(contentDispositionHeader.getFileName()).equalsIgnoreCase("JKS")) {
+            throw new LocalizedFieldValidationException(MessageSeeds.KEYSTORE_SHOULD_BE_JKS, "file");
+        }
         try {
-            if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FILE_TOO_BIG, "file");
-            }
             TrustStore trustStore = findTrustStoreOrThrowException(trustStoreId);
             KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(keyStoreInputStream, password.toCharArray());
             trustStore.loadKeyStore(keyStore);
             return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
         } catch (Exception e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_IMPORT_KEYSTORE, "file", e);
+            throw new LocalizedFieldValidationException(MessageSeeds.COULD_NOT_IMPORT_KEYSTORE, "file", e.getLocalizedMessage());
         }
     }
 
@@ -374,5 +378,14 @@ public class TrustStoreResource {
     private TrustStore findTrustStoreOrThrowException(@PathParam("id") long id) {
         return this.securityManagementService.findTrustStore(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
+    }
+
+    private String getFileExtension(String fileName) {
+        String result = "";
+        int lastIndexOfExtSymbol = fileName.lastIndexOf(".");
+        if (lastIndexOfExtSymbol != -1 && lastIndexOfExtSymbol != 0) {
+            result = fileName.substring(lastIndexOfExtSymbol + 1);
+        }
+        return result;
     }
 }

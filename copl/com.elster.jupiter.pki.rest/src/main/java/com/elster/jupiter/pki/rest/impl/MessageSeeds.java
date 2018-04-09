@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_TOO_BIG(2, "fileTooBig", "File size should be less than 250 kB."),
     COULD_NOT_CREATE_CERTIFICATE_FACTORY(3, "CertificateFactoryFail", "Couldn''t create the certificate factory: {0}."),
     COULD_NOT_CREATE_CERTIFICATE(4, "CertificateCreationFailed", "Couldn''t create the certificate: {0}."),
-    COULD_NOT_IMPORT_KEYSTORE(5, "KeystoreReadError", "The keystore couldn''t be imported."),
+    COULD_NOT_IMPORT_KEYSTORE(5, "KeystoreReadError", "The keystore couldn''t be imported: {0}."),
     NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No such certificate could be found."),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type."),
     IMPORTFILE_TOO_BIG(8, "pkcsFileTooBig", "File size should be less than 2 kB."),
@@ -39,6 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT(28, "CertificateRequestFromCAFailedTimeout", "A timeout has occurred. The certificate couldn''t be received from the CA."),
     COULD_NOT_SAVE_CERTIFICATE_FROM_CA(29, "CertificateSavingFromCAFailed", "The certificate has been received from the CA but an error has occurred while saving: {0}"),
     COULD_NOT_RECIEVE_CERTIFICATE_FROM_CA(30, "CertificateRequestFromCAFailed", "The certificate couldn''t be received from the CA: {0}"),
+    KEYSTORE_SHOULD_BE_JKS(31, "KeystoreShouldBeJks", "Keystore file should be of type JKS.")
     ;
 
     private final int number;
