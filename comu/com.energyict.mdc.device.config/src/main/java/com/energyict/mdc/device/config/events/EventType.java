@@ -303,7 +303,8 @@ public enum EventType {
     DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE("deviceconfigconflict/VALIDATE_CREATE"),
     ALLOWED_CALENDAR_VALIDATE_DELETE("allowedcalendar/VALIDATE_DELETE"),
     DEVICE_MESSAGE_FILE_OBSOLETE("devicemessagefile/OBSOLETE"),
-    SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE("securityaccessortype/VALIDATE_DELETE");
+    SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE("securityaccessortype/VALIDATE_DELETE"),
+    DEVICE_TYPE_PRE_DELETE("devicetype/PRE_DELETE");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;
