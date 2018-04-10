@@ -41,6 +41,7 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
     public enum Labels implements TranslationKey {
         USAGEPOINT_FILE_IMPORTER(UsagePointsImporterFactory.NAME, "Usage point importer [STD]"),
         USAGEPOINT_MESSAGE_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle usage point import"),
+        USAGEPOINT_READING_IMPORTER(UsagePointReadingImporterFactory.NAME, "Usage point reading importer [STD]"),
         // Properties translations
         DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
         DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 final class Installer implements FullInstaller {
 
     private final MessageService messageService;
+    private QueueTableSpec queueTableSpec;
 
     @Inject
     Installer(MessageService messageService) {
@@ -25,21 +26,32 @@ final class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         if (!messageService.getDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME).isPresent()) {
             doTry(
                     "Create Usage Point import queue",
                     this::createQueue,
                     logger
             );
+            doTry("Create Usage Point Reading Import queue",
+                    this::createUsagePointReadingImporterQueue,
+                    logger
+            );
         }
     }
 
     private void createQueue() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.Labels.USAGEPOINT_MESSAGE_SUBSCRIBER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private void createUsagePointReadingImporterQueue() {
+        DestinationSpec destinationSpecUPReadImport = queueTableSpec.createDestinationSpec(UsagePointReadingMessageHandlerFactory.DESTINATION_NAME, 60);
+        destinationSpecUPReadImport.save();
+        destinationSpecUPReadImport.activate();
+        destinationSpecUPReadImport.subscribe(TranslationKeysUsagePointReadingImporter.Labels.USAGEPOINT_READING_IMPORTER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }
