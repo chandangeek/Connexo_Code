@@ -10,7 +10,10 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -106,7 +109,7 @@ public class A1440Profile extends VDEWProfile {
 	public A1440ProfileHeader getProfileHeader(int profileNumber) throws IOException {
 		this.loadProfileNumber = profileNumber;
 		if (this.a1440ProfileHeader == null) {
-			this.a1440ProfileHeader = new A1440ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), this.loadProfileNumber);
+			this.a1440ProfileHeader = new A1440ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), this.loadProfileNumber, getMeterExceptionInfo());
 		}
 		return this.a1440ProfileHeader;
 	}
