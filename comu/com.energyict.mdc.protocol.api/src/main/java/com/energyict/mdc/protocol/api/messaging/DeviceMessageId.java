@@ -161,13 +161,13 @@ public enum DeviceMessageId {
     PLC_CONFIGURATION_REMOVE_METERS_FROM_BLACK_LIST(3085),
     PLC_CONFIGURATION_KICK_METER(3086),
     PLC_CONFIGURATION_PATH_REQUEST_WITH_TIMEOUT(3087),
-    SetBroadCastLogTableEntryTTLVersion1(3088),
     // Following lines do not respect naming convention and should be renamed yet unfortunately changing them requires version change in bundle ...
     //  anyway the entire construction for these messages is error prone and should be improved, check: CXO-8535
-    ReadBlacklist(3090),
-    SetHighLowLQI(3091),
-    SetAdpLBPAssociationSetup_7_Parameters(3092),
-    SetAdpLBPAssociationSetup_5_Parameters(3093),
+    SetBroadCastLogTableEntryTTLVersion1(3088),
+    ReadBlacklist(3089),
+    SetHighLowLQI(3090),
+    SetAdpLBPAssociationSetup_7_Parameters(3091),
+    SetAdpLBPAssociationSetup_5_Parameters(3092),
 
     NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM(4001),
     NETWORK_CONNECTIVITY_DEACTIVATE_SMS_WAKEUP(4002),
