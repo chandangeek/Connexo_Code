@@ -479,6 +479,16 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enablePLC, DeviceMessageConstants.enablePLCDefaultTranslation));
         }
     },
+    ConfigurePLcG3KeepAlive(3064, "Configure PLC G3 keep alive") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.EnableKeepAlive, DeviceMessageConstants.EnableKeepAliveDefaultTranslation),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.keepAliveStartTime, DeviceMessageConstants.keepAliveStartTimeDefaultTranslation, BigDecimal.ZERO, BigDecimal.valueOf(0xFFFFl)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.keepAliveSendPeriod, DeviceMessageConstants.keepAliveSendPeriodDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(0xFFl))
+            );
+        }
+    },
     IDISRunRepeaterCallNow(3076, "IDIS Run repeater call now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -533,16 +543,6 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.addCredit, DeviceMessageConstants.addCreditDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.minCredit, DeviceMessageConstants.minCreditDefaultTranslation)
-            );
-        }
-    },
-    ConfigurePLcG3KeepAlive(3064, "Configure PLC G3 keep alive") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.booleanSpec(service, DeviceMessageConstants.EnableKeepAlive, DeviceMessageConstants.EnableKeepAliveDefaultTranslation),
-                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.keepAliveStartTime, DeviceMessageConstants.keepAliveStartTimeDefaultTranslation, BigDecimal.ZERO, BigDecimal.valueOf(0xFFFFl)),
-                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.keepAliveSendPeriod, DeviceMessageConstants.keepAliveSendPeriodDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(0xFFl))
             );
         }
     },
