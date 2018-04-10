@@ -16,9 +16,9 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.AbstractMockActivator;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ConnectionState;
@@ -127,6 +127,50 @@ public class CreateUsagePointTest extends AbstractMockActivator {
     @Mock
     private UsagePointConnectionState usagePointConnectionState;
 
+    private static void assertReadingType1(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
+        assertThat(rt.getMRID()).isEqualTo("MRID1");
+        assertThat(rt.getAccumulation()).isEqualTo("Delta data");
+        assertThat(rt.getAggregate()).isEqualTo("Sum");
+        assertThat(rt.getArgument()).isNull();
+        assertThat(rt.getCommodity()).isEqualTo("Electricity secondary metered");
+        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(1L);
+        assertThat(rt.getCpp().longValue()).isEqualTo(1L);
+        assertThat(rt.getCurrency()).isEqualTo("ZAR");
+        assertThat(rt.getFlowDirection()).isEqualTo("Forward");
+        assertThat(rt.getInterharmonic().getNumerator().longValue()).isEqualTo(1L);
+        assertThat(rt.getInterharmonic().getDenominator().longValue()).isEqualTo(3L);
+        assertThat(rt.getMacroPeriod()).isEqualTo("Daily");
+        assertThat(rt.getMeasurementKind()).isEqualTo("Energy");
+        assertThat(rt.getMeasuringPeriod()).isEqualTo("Not applicable");
+        assertThat(rt.getMultiplier()).isEqualTo("*10^3");
+        assertThat(rt.getPhases()).isEqualTo("Phase-NotApplicable");
+        assertThat(rt.getTou().longValue()).isEqualTo(1L);
+        assertThat(rt.getUnit()).isEqualTo("Watt hours");
+        assertThat(rt.getNames().get(0).getName()).isEqualTo("FullAliasName1");
+    }
+
+    private static void assertReadingType2(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
+        assertThat(rt.getMRID()).isEqualTo("MRID2");
+        assertThat(rt.getAccumulation()).isEqualTo("Bulk quantity");
+        assertThat(rt.getAggregate()).isEqualTo("Average");
+        assertThat(rt.getArgument().getNumerator().longValue()).isEqualTo(2L);
+        assertThat(rt.getArgument().getDenominator().longValue()).isEqualTo(3L);
+        assertThat(rt.getCommodity()).isEqualTo("Electricity primary metered");
+        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(2L);
+        assertThat(rt.getCpp().longValue()).isEqualTo(2L);
+        assertThat(rt.getCurrency()).isEqualTo("RUB");
+        assertThat(rt.getFlowDirection()).isEqualTo("Reverse");
+        assertThat(rt.getInterharmonic()).isNull();
+        assertThat(rt.getMacroPeriod()).isEqualTo("Not applicable");
+        assertThat(rt.getMeasurementKind()).isEqualTo("Power");
+        assertThat(rt.getMeasuringPeriod()).isEqualTo("15-minutes");
+        assertThat(rt.getMultiplier()).isEqualTo("*10^0");
+        assertThat(rt.getPhases()).isEqualTo("Phase-A");
+        assertThat(rt.getTou().longValue()).isEqualTo(2L);
+        assertThat(rt.getUnit()).isEqualTo("Watt hour per mile");
+        assertThat(rt.getNames().get(0).getName()).isEqualTo("FullAliasName2");
+    }
+
     @Before
     public void setUp() throws Exception {
         mockUsagePoint();
@@ -178,28 +222,6 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(readingType1.getFullAliasName()).thenReturn("FullAliasName1");
     }
 
-    private static void assertReadingType1(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
-        assertThat(rt.getMRID()).isEqualTo("MRID1");
-        assertThat(rt.getAccumulation()).isEqualTo("Delta data");
-        assertThat(rt.getAggregate()).isEqualTo("Sum");
-        assertThat(rt.getArgument()).isNull();
-        assertThat(rt.getCommodity()).isEqualTo("Electricity secondary metered");
-        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(1L);
-        assertThat(rt.getCpp().longValue()).isEqualTo(1L);
-        assertThat(rt.getCurrency()).isEqualTo("ZAR");
-        assertThat(rt.getFlowDirection()).isEqualTo("Forward");
-        assertThat(rt.getInterharmonic().getNumerator().longValue()).isEqualTo(1L);
-        assertThat(rt.getInterharmonic().getDenominator().longValue()).isEqualTo(3L);
-        assertThat(rt.getMacroPeriod()).isEqualTo("Daily");
-        assertThat(rt.getMeasurementKind()).isEqualTo("Energy");
-        assertThat(rt.getMeasuringPeriod()).isEqualTo("Not applicable");
-        assertThat(rt.getMultiplier()).isEqualTo("*10^3");
-        assertThat(rt.getPhases()).isEqualTo("Phase-NotApplicable");
-        assertThat(rt.getTou().longValue()).isEqualTo(1L);
-        assertThat(rt.getUnit()).isEqualTo("Watt hours");
-        assertThat(rt.getNames().get(0).getName()).isEqualTo("FullAliasName1");
-    }
-
     private void mockReadingType2() {
         when(readingType2.getMRID()).thenReturn("MRID2");
         when(readingType2.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
@@ -219,28 +241,6 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(readingType2.getTou()).thenReturn(2);
         when(readingType2.getUnit()).thenReturn(ReadingTypeUnit.WATTHOURPERMILE);
         when(readingType2.getFullAliasName()).thenReturn("FullAliasName2");
-    }
-
-    private static void assertReadingType2(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
-        assertThat(rt.getMRID()).isEqualTo("MRID2");
-        assertThat(rt.getAccumulation()).isEqualTo("Bulk quantity");
-        assertThat(rt.getAggregate()).isEqualTo("Average");
-        assertThat(rt.getArgument().getNumerator().longValue()).isEqualTo(2L);
-        assertThat(rt.getArgument().getDenominator().longValue()).isEqualTo(3L);
-        assertThat(rt.getCommodity()).isEqualTo("Electricity primary metered");
-        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(2L);
-        assertThat(rt.getCpp().longValue()).isEqualTo(2L);
-        assertThat(rt.getCurrency()).isEqualTo("RUB");
-        assertThat(rt.getFlowDirection()).isEqualTo("Reverse");
-        assertThat(rt.getInterharmonic()).isNull();
-        assertThat(rt.getMacroPeriod()).isEqualTo("Not applicable");
-        assertThat(rt.getMeasurementKind()).isEqualTo("Power");
-        assertThat(rt.getMeasuringPeriod()).isEqualTo("15-minute");
-        assertThat(rt.getMultiplier()).isEqualTo("*10^0");
-        assertThat(rt.getPhases()).isEqualTo("Phase-A");
-        assertThat(rt.getTou().longValue()).isEqualTo(2L);
-        assertThat(rt.getUnit()).isEqualTo("Watt hour per mile");
-        assertThat(rt.getNames().get(0).getName()).isEqualTo("FullAliasName2");
     }
 
     private void mockUsagePoint() {
@@ -447,8 +447,8 @@ public class CreateUsagePointTest extends AbstractMockActivator {
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
-                MessageSeeds.EMPTY_LIST.getErrorCode(),
-                "The list of 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names' cannot be empty.");
+                MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
+                "Element 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names[0].name' is empty or contains only white spaces.");
     }
 
     @Test
@@ -467,22 +467,6 @@ public class CreateUsagePointTest extends AbstractMockActivator {
                 "Element 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names[0].name' is empty or contains only white spaces.");
     }
 
-    @Test
-    public void testSeveralMetrologyConfigurationNamesInUsagePointConfig() throws Exception {
-        // Prepare request
-        UsagePointConfig usagePointConfig = new UsagePointConfig();
-        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, CREATION_DATE,
-                true, false, ServiceKind.ELECTRICITY, PhaseCode.S_1, UsagePointConnectedKind.CONNECTED);
-        setMetrologyConfiguration(usagePointInfo, METROLOGY_CONFIGURATION_NAME);
-        usagePointInfo.getMetrologyRequirements().get(0).getNames().add(metrologyRequirementName("ABC"));
-        usagePointConfig.getUsagePoint().add(usagePointInfo);
-        UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
-
-        // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
-                MessageSeeds.UNSUPPORTED_LIST_SIZE.getErrorCode(),
-                "The list of 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names' has unsupported size. Must be of size 1.");
-    }
 
     @Test
     public void testNoMetrologyConfigurationFoundByName() throws Exception {
