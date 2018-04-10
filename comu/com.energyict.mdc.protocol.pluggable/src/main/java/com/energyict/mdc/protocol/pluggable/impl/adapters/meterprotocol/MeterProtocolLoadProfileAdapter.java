@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
@@ -13,23 +14,10 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.LogBook;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import org.joda.time.DateTimeConstants;
@@ -139,7 +127,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             if (isTimeout(e)) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             } else {
-                throw new DeviceConfigurationException(MessageSeeds.CONFIG_NOT_ACCESSIBLE, GENERIC_LOAD_PROFILE_OBISCODE);
+                throw new DeviceConfigurationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION, e.getMessage());
             }
         }
     }
