@@ -154,6 +154,7 @@
             <id>test-mdm-bundles</id>
             <modules>
                 <module>../com.elster.jupiter.mdm.test.api.rest</module>
+                <module>../com.elster.jupiter.mdm.demo.customtask</module>
             </modules>
         </profile>
     </profiles>
