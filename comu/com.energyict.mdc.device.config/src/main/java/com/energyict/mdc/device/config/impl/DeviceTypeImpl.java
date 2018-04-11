@@ -214,6 +214,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             iterator.remove();
         }
         this.deleteTimeOfUseManagementOption();
+
+        getEventService().postEvent(EventType.DEVICE_TYPE_PRE_DELETE.topic(), this);
+
         this.getDataMapper().remove(this);
     }
 
