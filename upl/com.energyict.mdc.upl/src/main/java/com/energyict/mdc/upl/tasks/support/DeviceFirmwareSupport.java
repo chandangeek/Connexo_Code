@@ -23,4 +23,13 @@ public interface DeviceFirmwareSupport {
     default boolean supportsCommunicationFirmwareVersion() {
         return false;
     }
+
+    /**
+     * Indication whether or not the FirmwareType 'HES CA config image' is supported.
+     *
+     * @return FALSE by default
+     */
+    default boolean supportsCaConfigImageVersion() {
+        return false;
+    }
 }

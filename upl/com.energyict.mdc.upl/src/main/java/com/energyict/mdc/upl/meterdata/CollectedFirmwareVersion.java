@@ -43,6 +43,20 @@ public interface CollectedFirmwareVersion extends CollectedData {
 
     void setPassiveCommunicationFirmwareVersion(String passiveCommunicationFirmwareVersion);
 
+    /**
+     * @return the String representation of the currently active CA config image version. An empty optional is returned when no active CA config image version is present.
+     */
+    Optional<String> getActiveCaConfigImageVersion();
+
+    void setActiveCaConfigImageVersion(String activeCaConfigImageVersion);
+
+    /**
+     * @return the String representation of the passive CA config image version. An empty optional is returned when no passive CA config image version is present.
+     */
+    Optional<String> getPassiveCaConfigImageVersion();
+
+    void setPassiveCaConfigImageVersion(String passiveCaConfigImageVersion);
+
     void setDataCollectionConfiguration(DataCollectionConfiguration configuration);
 
 }
