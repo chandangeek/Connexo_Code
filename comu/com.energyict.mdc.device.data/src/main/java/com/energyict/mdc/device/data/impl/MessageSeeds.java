@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseCollection", "Device group {0} is still in use by a data collection KPI"),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS(1015, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS, "You can not configure a multiplier in the past when your device already has data"),
-    MULTIPLIER_MUST_HAVE_METERACTIVATION(1016, Keys.MULTIPLIER_MUST_HAVE_METERACTIVATION, "You can not configure a multiplier with a start date which doesn't correspond with a meter activation"),
+    MULTIPLIER_MUST_HAVE_METERACTIVATION(1016, Keys.MULTIPLIER_MUST_HAVE_METERACTIVATION, "You can not configure a multiplier with a start date which doesn''t correspond with a meter activation"),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device"),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration"),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added"),
