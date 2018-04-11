@@ -34,8 +34,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
-
+public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     @Mock
     FirmwareService firmwareService;
     @Mock
@@ -63,7 +62,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
 
     @Override
     protected Application getApplication() {
-        FirmwareApplication application = new FirmwareApplication(){
+        FirmwareApplication application = new FirmwareApplication() {
             @Override
             public Set<Class<?>> getClasses() {
                 Set<Class<?>> classes = new HashSet<>(super.getClasses());
@@ -87,7 +86,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         return application;
     }
 
-    protected  <T> Finder<T> mockFinder(List<T> list) {
+    protected <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
 
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
