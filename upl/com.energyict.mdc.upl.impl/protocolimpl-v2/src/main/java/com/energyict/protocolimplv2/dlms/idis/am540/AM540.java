@@ -62,8 +62,13 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -759,5 +764,17 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
+    }
+
+    // TODO: 19.03.2018 CXO-8215 for demo purposes
+    @Override
+    public boolean firmwareSignatureCheckSupported() {
+        return true;
+    }
+
+    // TODO: 19.03.2018 CXO-8215 for demo purposes
+    @Override
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+        return false;
     }
 }

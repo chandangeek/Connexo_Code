@@ -238,6 +238,12 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return result;
     }
 
+    // TODO: 19.03.2018 for testing purposes
+    @Override
+    public boolean supportsCaConfigImageVersion() {
+        return true;
+    }
+
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
@@ -247,6 +253,18 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveMeterFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        // TODO: 19.03.2018 for testing purposes
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveCaConfigImageVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
