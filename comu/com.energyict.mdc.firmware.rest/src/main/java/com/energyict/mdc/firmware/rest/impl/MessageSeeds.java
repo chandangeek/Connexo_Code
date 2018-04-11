@@ -17,14 +17,12 @@ public enum MessageSeeds implements MessageSeed {
     // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
-    // firmware types translation
-    TYPE_METER(7, Keys.TYPE_METER, "Meter firmware"),
-    TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, "Communication firmware"),
+    // TODO: UPGRADE_OPTIONS and some other labels below are not message seeds, rather translation keys
     // firmware upgrade options translation
     UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware/image and activate later"),
     UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware/image and activate immediately"),
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware/image with activation date"),
-    // firmware upgrade options
+
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
 
     DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
@@ -107,9 +105,6 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         public static final String VERSION_IN_USE = "VersionInUse";
         public static final String VERSION_IS_DEPRECATED = "VersionIsDeprecated";
-        public static final String TYPE_METER = "meter";
-        public static final String TYPE_COMMUNICATION = "communication";
-        public static final String TYPE_CA_CONFIG_IMAGE = "caConfigImage";
         public static final String UPGRADE_OPTION_INSTALL = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId();
         public static final String UPGRADE_OPTION_ACTIVATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId();
         public static final String UPGRADE_OPTION_ACTIVATE_ON_DATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId();
