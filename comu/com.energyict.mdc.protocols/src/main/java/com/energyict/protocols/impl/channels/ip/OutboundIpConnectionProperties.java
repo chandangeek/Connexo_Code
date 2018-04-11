@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
@@ -273,7 +274,10 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     protected void copyPort(CustomPropertySetValues propertyValues) {
-        this.portNumber = new BigDecimal( propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName()).toString() );
+        Object property = propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName());
+        if (Objects.nonNull(property)) {
+            this.portNumber = new BigDecimal(property.toString());
+        }
     }
 
     protected void copyConnectionTimeout(CustomPropertySetValues propertyValues) {
