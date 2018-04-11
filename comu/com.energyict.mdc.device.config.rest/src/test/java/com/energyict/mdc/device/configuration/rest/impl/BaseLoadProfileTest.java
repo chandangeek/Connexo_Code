@@ -17,8 +17,8 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +30,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("basic functionality for load profiles")
-public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTest {
-
+public abstract class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTest {
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
 
@@ -176,5 +174,4 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return loadProfileSpec;
     }
-
 }
