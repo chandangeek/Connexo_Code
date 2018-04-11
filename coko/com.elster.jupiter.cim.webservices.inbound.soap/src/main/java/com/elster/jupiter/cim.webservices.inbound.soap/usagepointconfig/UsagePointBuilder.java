@@ -61,6 +61,7 @@ class UsagePointBuilder {
     private static final String METROLOGY_CONFIGURATION = "MetrologyConfiguration";
     private static final String STATUS_CHANGE = "Change Status";
     private static final String ACTIVE_PURPOSE = "Purpose Active";
+    private static final String INACTIVE_PURPOSE = "Purpose Inactive";
     private final Thesaurus thesaurus;
     private final ReplyTypeFactory replyTypeFactory;
     private final UsagePointConfigFaultMessageFactory messageFactory;
@@ -366,9 +367,33 @@ class UsagePointBuilder {
                 return performTransition(usagePoint);
             case PURPOSE_ACTIVE:
                 return activatePurpose(usagePoint);
+            case PURPOSE_INACTIVE:
+                return inactivatePurpose(usagePoint);
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
+            FaultMessage {
+
+        String purposeName = retriveConfigurationEventValue(usagePointConfig);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
+        List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
+
+        for (MetrologyContract metrologyContract : contractsList) {
+            if (!metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
+                    .getName()
+                    .equals(purposeName)) {
+                effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, Instant.now());
+            } else if (metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
+                    .getName()
+                    .equals(purposeName)) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1).get();
+            }
+        }
+        return usagePoint;
     }
 
     private com.elster.jupiter.metering.UsagePoint activatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
@@ -381,6 +406,7 @@ class UsagePointBuilder {
             if (!metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
                     .getName()
                     .equals(purposeName)) {
+                checkMeterRequirments(usagePoint, metrologyContract);
                 effectiveMC.activateOptionalMetrologyContract(metrologyContract, Instant.now());
             }
         }
@@ -401,7 +427,11 @@ class UsagePointBuilder {
             case ACTIVE_PURPOSE:
                 return ConfigurationEventReason.forReason(reason)
                         .filter(ConfigurationEventReason.PURPOSE_ACTIVE::equals)
-                        .get(); // only Change Status is supported now
+                        .get();
+            case INACTIVE_PURPOSE:
+                return ConfigurationEventReason.forReason(reason)
+                        .filter(ConfigurationEventReason.PURPOSE_INACTIVE::equals)
+                        .get();
             default:
                 throw new UnsupportedOperationException();
         }
