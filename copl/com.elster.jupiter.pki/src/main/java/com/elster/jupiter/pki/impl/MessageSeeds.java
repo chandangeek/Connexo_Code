@@ -93,7 +93,8 @@ public enum MessageSeeds implements MessageSeed {
     TRUSTSTORE_USED_BY_IMPORT(1078, "TrustStoreUsedByImport", "The trust store couldn''t be removed because it is used on import services."),
     POSITIVE_VALUE_IS_REQUIRED(1079, "PositiveValueIsRequired", "Positive value is required."),
     CA_RUNTIME_ERROR_NOT_CONFIGURED_PROPERLY(1080, "CaErrorNotConfigured", "CA service isn''t properly configured."),
-    CERTIFICATES_EXPORTED_SUCCESSFULLY(1081, "CertificatesExportedSuccessfully", "''{0}'' has been successfully exported to the destination ''{1}''.", Level.INFO);
+    CERTIFICATES_EXPORTED_SUCCESSFULLY(1081, "CertificatesExportedSuccessfully", "''{0}'' has been successfully exported to the destination ''{1}''.", Level.INFO),
+    NO_TRUSTED_CERTIFICATE_IN_KEYSTORE(1082, "NoTrustedCertificateInKeystore", "No trusted certificate(s) found in keystore");
 
     private final int number;
     private final String key;
