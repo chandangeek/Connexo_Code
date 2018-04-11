@@ -18,7 +18,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.impl.KeyRenewalApplication;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -30,7 +29,7 @@ import org.mockito.Mock;
 /**
  * Created by sla on 21/03/2017.
  */
-public class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
+public abstract class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     Clock clock;
     @Mock
