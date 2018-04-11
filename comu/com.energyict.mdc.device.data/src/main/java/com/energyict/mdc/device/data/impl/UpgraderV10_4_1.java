@@ -91,7 +91,7 @@ public class UpgraderV10_4_1 implements Upgrader {
     }
     public static final TranslationKey IPV6ADDRESS_SUBSCRIBER_DISPLAYNAME =
             new SimpleTranslationKey("IPv6AddressSubscriber",
-                    "Handle events to propagate ipv6 change address into MSG_RAWTOPICTABLE");  //lori
+                    "Handle events to propagate ipv6 change address into MSG_RAWTOPICTABLE");
 
     private void createSubscriberForMessageQueue() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
