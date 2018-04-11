@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 
 import ch.iec.tc57._2011.meterconfig.Meter;
@@ -16,6 +19,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +37,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
     public void setUp() throws Exception {
         when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
+        when(deviceService.findAllDevices(any(Condition.class))).thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), Finder.class));
         when(state.getName()).thenReturn(STATE_NAME);
         mockDevice();
     }
