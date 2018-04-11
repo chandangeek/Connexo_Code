@@ -36,8 +36,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-
+public abstract class IssueDataValidationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     UserService userService;
     @Mock
