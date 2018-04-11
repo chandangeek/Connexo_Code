@@ -45,8 +45,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-
+public abstract class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     static SecurityContext securityContext;
     @Mock
