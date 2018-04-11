@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exception.DataParseException;
@@ -23,6 +22,12 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import junit.framework.TestCase;
 import org.json.JSONException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +36,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventPushNotificationParserTest extends TestCase {
@@ -77,6 +72,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] METER_EVENT_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("0001000100010028C2004E2C000080000CFF030203090D53455249414C2D4E554D424552120016020209000600003039", "");
     private static final byte[] BEACON_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("000100010001004DC2004E2C000080000CFF030203091445717569706D656E742D4964656E7469666965721200010204090C07B20102050B11244E00000012007B1201C8090F4164646974696F6E616C20696E666F", "");
     private static final byte[] DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001000100010063db08454c5373000280035830000000021c18c0e78b589afefa0a404db82a1ae76963257f18279b19072edf8b57422663a03ce3e4119fff81f3ce3066d1e5c5bb77ae153301ec3b8d269a0d978e63e26209f6b02d8b3f429098d38399139eec23df8f3d", "");
+    private static final byte[] DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_2_0_0 = ProtocolTools.getBytesFromHexString("0001000100010093DB08454C536308800F6081873000000002DE183DE22826F2A3BD18F0F465A1A422C4F9540534ECA282568AFD38EE5E3A82B18E9B2321C3ED83793310CAC31BDE795BAF718A22E34E0B1BEF287D8752171C5E46A51366721E574FED6391651855611D20DB9264361CF763CCD1F993A5A669AFC482668D3BD7ADEDCA4AF2CD94A13D5B6EF45A8548D3A741ED907ACDFD08F480C5", "");
     private static final byte[] DATA_NOTIFICATION_PLAIN_1_6_0 = ProtocolTools.getBytesFromHexString("00010001000100470f000000010c07e0071302082728410000000203090e33343135373330303032383030331200010204090c07e00713020827283f0000001200021200000908506f776572207570", "");
     private static final byte[] DATA_NOTIFICATION_PLAIN_1_6_1 = ProtocolTools.getBytesFromHexString("00010001000100280F000000000C07E0040307013B3100FFC480020101010910FE80000000000000187900FFFE000009", "");
     private static final byte[] RELAYED_EVENT_NOTIFICATION_1_6_0 = ProtocolTools.getBytesFromHexString("0001001400100010c20000010000616214ff020600002000", "");
@@ -530,6 +526,25 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getEiCode(), 2);
         assertEquals(meterProtocolEvent.getProtocolCode(), 0);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
+    }
+
+    @Test
+    public void testBeaconDataNotification_EncrypWithAuth_2_0_0() throws IOException, SQLException {
+        //POWER_UP EVENT for beacon with firmware 2.0.0 and above
+        setSecurityContext_1_6();
+
+        EventPushNotificationParser parser = spyParser(DATA_NOTIFICATION_ENCRYPTED_WITH_AUTHENTICATION_2_0_0);
+
+        //Business code
+        parser.readAndParseInboundFrame();
+
+        assertEquals(new DeviceIdentifierBySerialNumber("670-05A873-1540"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1522246308000L);
+        assertEquals(meterProtocolEvent.getEiCode(), 2);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getMessage(), "{\"address\":\"165.195.39.121\",\"port\":4059,\"transport\":0}");
     }
 
     @Test
