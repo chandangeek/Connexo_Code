@@ -10,15 +10,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,9 +44,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(1);
-        assertThat(options.contains(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).isTrue();
+        assertThat(options).containsOnly(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
     }
 
     @Test
@@ -56,9 +54,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(1);
-        assertThat(options.contains(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).isTrue();
+        assertThat(options).containsOnly(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
     }
 
     @Test
@@ -68,9 +64,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(1);
-        assertThat(options.contains(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).isTrue();
+        assertThat(options).containsOnly(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
     }
 
     @Test
@@ -83,11 +77,9 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(2);
-        assertThat(options.containsAll(Arrays.asList(
+        assertThat(options).containsOnly(
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER,
-                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE))).isTrue();
+                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
     }
 
     @Test
@@ -101,12 +93,10 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(3);
-        assertThat(options.containsAll(Arrays.asList(
+        assertThat(options).containsOnly(
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER,
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE,
-                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE))).isTrue();
+                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
     }
 
     @Test
@@ -125,15 +115,14 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        assertThat(options).isNotEmpty();
-        assertThat(options).hasSize(3);
-        assertThat(options.containsAll(Arrays.asList(
+        assertThat(options).containsOnly(
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER,
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE,
-                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE))).isTrue();
+                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
     }
+
     @Test
-    public void protocolWithNoSupportedDeviceMessagesDoesNotNeedImageIdentifierToUploadFirmwareTest(){
+    public void protocolWithNoSupportedDeviceMessagesDoesNotNeedImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
         assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
@@ -141,7 +130,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
-    public void protocolDoesNotNeedImageIdentifierToUploadFirmwareTest(){
+    public void protocolDoesNotNeedImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
                 DeviceMessageId.CONTACTOR_OPEN,
                 DeviceMessageId.ALARM_CONFIGURATION_WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2,
@@ -157,14 +146,14 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
-    public void protocolNeedsImageIdentifierToUploadFirmwareTest(){
+    public void protocolNeedsImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         assertThat(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).isTrue();
     }
 
     @Test
-    public void protocolWithNoSupportedDeviceMessagesCannotResumeUploadFirmwareTest(){
+    public void protocolWithNoSupportedDeviceMessagesCannotResumeUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
         assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
@@ -172,7 +161,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
-    public void protocolCannotResumeFirmwareUploadTest(){
+    public void protocolCannotResumeFirmwareUploadTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
                 DeviceMessageId.CONTACTOR_OPEN,
                 DeviceMessageId.ALARM_CONFIGURATION_WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2,
@@ -188,7 +177,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
-    public void protocolCanResumeFirmwareUploadTest(){
+    public void protocolCanResumeFirmwareUploadTest() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
 
         DeviceType deviceType5002 = getMockedDeviceTypeWithMessageIds(
