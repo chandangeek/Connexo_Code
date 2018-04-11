@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -35,17 +37,20 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class CreateDeviceTest extends AbstractMockMeterConfig {
+    private com.energyict.mdc.device.data.DeviceBuilder deviceBuilder;
 
     @Before
     public void setUp() throws Exception {
-        when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, BATCH, RECEIVED_DATE)).thenReturn(device);
-        when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenReturn(device);
+        deviceBuilder = FakeBuilder.initBuilderStub(device, com.energyict.mdc.device.data.DeviceBuilder.class);
+        when(deviceService.newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenReturn(deviceBuilder);
+        when(deviceService.findAllDevices(any(Condition.class))).thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), Finder.class));
         when(state.getName()).thenReturn(STATE_NAME);
         mockDevice();
     }
@@ -89,12 +94,14 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         MeterConfigResponseMessageType response = getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
 
         // Assert invocations
-        verify(deviceService).newDevice(deviceConfiguration, DEVICE_NAME, BATCH, RECEIVED_DATE);
-        verify(device).setSerialNumber(SERIAL_NUMBER);
-        verify(device).setManufacturer(MANUFACTURER);
-        verify(device).setModelNumber(MODEL_NUMBER);
-        verify(device).setModelVersion(MODEL_VERSION);
-        verify(device).setMultiplier(BigDecimal.valueOf(MULTIPLIER), RECEIVED_DATE);
+        verify(deviceService).newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE);
+        verify(deviceBuilder).withBatch(BATCH);
+        verify(deviceBuilder).withSerialNumber(SERIAL_NUMBER);
+        verify(deviceBuilder).withManufacturer(MANUFACTURER);
+        verify(deviceBuilder).withModelNumber(MODEL_NUMBER);
+        verify(deviceBuilder).withModelVersion(MODEL_VERSION);
+        verify(deviceBuilder).withMultiplier(BigDecimal.valueOf(MULTIPLIER));
+        verify(deviceBuilder).create();
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -157,7 +164,14 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         MeterConfigResponseMessageType response = getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
 
         // Assert invocations
-        verify(deviceService).newDevice(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE);
+        verify(deviceService).newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE);
+        verify(deviceBuilder).withBatch(null);
+        verify(deviceBuilder).withSerialNumber(null);
+        verify(deviceBuilder).withManufacturer(null);
+        verify(deviceBuilder).withModelNumber(null);
+        verify(deviceBuilder).withModelVersion(null);
+        verify(deviceBuilder).withMultiplier(null);
+        verify(deviceBuilder).create();
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -239,7 +253,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         LocalizedException localizedException = mock(LocalizedException.class);
         when(localizedException.getLocalizedMessage()).thenReturn("ErrorMessage");
         when(localizedException.getErrorCode()).thenReturn("ERRORCODE");
-        when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, BATCH, RECEIVED_DATE)).thenThrow(localizedException);
+        when(deviceService.newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenThrow(localizedException);
 
         try {
             // Business method
@@ -274,7 +288,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
 
         VerboseConstraintViolationException exception = mock(VerboseConstraintViolationException.class);
         when(exception.getLocalizedMessage()).thenReturn("ErrorMessage");
-        when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, BATCH, RECEIVED_DATE)).thenThrow(exception);
+        when(deviceService.newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenThrow(exception);
 
         try {
             // Business method
