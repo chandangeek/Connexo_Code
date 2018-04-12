@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -155,6 +156,7 @@ public enum TableSpecs {
                     .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".count")
                     .notNull()
                     .since(version(10, 4, 1))
+                    .installValue("1")
                     .add();
             table.column("VALIDATION_TIMEOUT_UNIT")
                     .number()
@@ -162,6 +164,7 @@ public enum TableSpecs {
                     .map(FirmwareCampaignImpl.Fields.VALIDATION_TIMEOUT.fieldName() + ".timeUnitCode")
                     .notNull()
                     .since(version(10, 4, 1))
+                    .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                     .add();
             table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
             table.addAuditColumns();

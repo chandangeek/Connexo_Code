@@ -99,7 +99,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private Reference<DevicesInFirmwareCampaignStatusImpl> devicesStatus = ValueReference.absent();
     private Integer numberOfDevices = 0;
-    private TimeDuration validationTimeout = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
+    private TimeDuration validationTimeout = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
 
     @SuppressWarnings("unused")
     private long version;
