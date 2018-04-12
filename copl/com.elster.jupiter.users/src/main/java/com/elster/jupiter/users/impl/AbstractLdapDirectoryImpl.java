@@ -13,7 +13,15 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.Size;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.util.Hashtable;
 
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
@@ -36,6 +44,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
+    private Long trustStoreId;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String certificateAlias;
     private boolean manageGroupsInternal;
 
 
@@ -143,4 +154,32 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     protected String getPasswordDecrypt(){
         return new String(userService.getDataVaultService().decrypt(getPassword()));
     }
+
+    SSLSocketFactory getSocketFactory(SslSecurityProperties sslSecurityProperties, String protocol) {
+        if (sslSecurityProperties.getTrustedStore() != null) {
+            try {
+                KeyManagerFactory kmf = null;
+                if (sslSecurityProperties.getKeyStore() != null && sslSecurityProperties.getKeyStorePassword() != null) {
+                    kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                    kmf.init(sslSecurityProperties.getKeyStore(), sslSecurityProperties.getKeyStorePassword());
+                }
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                tmf.init(sslSecurityProperties.getTrustedStore());
+                SSLContext ctx = SSLContext.getInstance(protocol);
+                ctx.init(kmf != null ? kmf.getKeyManagers() : null, tmf.getTrustManagers(), null);
+                return ctx.getSocketFactory();
+            } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException e) {
+                return (SSLSocketFactory) SSLSocketFactory.getDefault();
+            }
+        }
+        return (SSLSocketFactory) SSLSocketFactory.getDefault();
+    }
+
+    SslSecurityProperties getSslSecurityProperties() {
+        SslSecurityProperties sslSecurityProperties = new SslSecurityProperties();
+        userService.getTrustedKeyStoreForUserDirectory(this).ifPresent(sslSecurityProperties::setTrustedStore);
+        userService.getKeyStoreForUserDirectory(this, null).ifPresent(sslSecurityProperties::setKeyStore);
+        return sslSecurityProperties;
+    }
+
 }

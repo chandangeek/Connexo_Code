@@ -86,9 +86,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return authenticateSimple(name, password, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return authenticateSSL(name, password, urls);
+            return authenticateSSL(name, password, urls, getSslSecurityProperties());
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return authenticateTLS(name, password, urls);
+            return authenticateTLS(name, password, urls, getSslSecurityProperties());
         } else {
             return Optional.empty();
         }
@@ -113,27 +113,30 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private Optional<User> authenticateSSL(String name, String password, List<String> urls) {
+    private Optional<User> authenticateSSL(String name, String password, List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL, "ssl");
+        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
+        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             new InitialDirContext(env);
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateSSL(name, password, urls);
+                return authenticateSSL(name, password, urls, sslSecurityProperties);
             } else {
                 return Optional.empty();
             }
         }
     }
 
-    private Optional<User> authenticateTLS(String name, String password, List<String> urls) {
+    private Optional<User> authenticateTLS(String name, String password, List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
@@ -142,14 +145,14 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate();
+            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
             env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateTLS(name, password, urls);
+                return authenticateTLS(name, password, urls, sslSecurityProperties);
             } else {
                 return Optional.empty();
             }
@@ -181,9 +184,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return getLdapUsersSimple(urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUsersSSL(urls);
+            return getLdapUsersSSL(urls, getSslSecurityProperties());
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUsersTLS(urls);
+            return getLdapUsersTLS(urls, getSslSecurityProperties());
         } else {
             return null;
         }
@@ -231,7 +234,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
 
-    private List<LdapUser> getLdapUsersSSL(List<String> urls) {
+    private List<LdapUser> getLdapUsersSSL(List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         List<LdapUser> ldapUsers = new ArrayList<>();
@@ -239,6 +242,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
+        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
+        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             String userName;
             DirContext ctx = new InitialDirContext(env);
@@ -265,14 +271,14 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return getLdapUsersSSL(urls);
+                return getLdapUsersSSL(urls, sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
 
-    private List<LdapUser> getLdapUsersTLS(List<String> urls) {
+    private List<LdapUser> getLdapUsersTLS(List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
@@ -283,7 +289,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate();
+            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
             env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
@@ -309,7 +315,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return getLdapUsersTLS(urls);
+                return getLdapUsersTLS(urls, sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -362,13 +368,16 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private boolean getLdapUserStatusSSL(String user, List<String> urls) {
+    private boolean getLdapUserStatusSSL(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
+        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
+        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
@@ -393,14 +402,14 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return getLdapUserStatusSSL(user, urls);
+                return getLdapUserStatusSSL(user, urls, sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
 
-    private boolean getLdapUserStatusTLS(String user, List<String> urls) {
+    private boolean getLdapUserStatusTLS(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
@@ -409,7 +418,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate();
+            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
             env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
@@ -434,7 +443,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
-                return getLdapUserStatusTLS(user, urls);
+                return getLdapUserStatusTLS(user, urls, sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -455,12 +464,11 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return getLdapUserStatusSimple(userName, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUserStatusSSL(userName, urls);
+            return getLdapUserStatusSSL(userName, urls, getSslSecurityProperties());
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUserStatusTLS(userName, urls);
+            return getLdapUserStatusTLS(userName, urls, getSslSecurityProperties());
         } else {
             return false;
         }
     }
-
 }

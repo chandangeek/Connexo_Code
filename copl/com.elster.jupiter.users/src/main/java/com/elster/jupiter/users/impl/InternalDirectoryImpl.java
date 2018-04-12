@@ -70,6 +70,4 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     public boolean getLdapUserStatus(String user){
         return false;
     }
-
-
 }

@@ -40,6 +40,7 @@ import com.elster.jupiter.users.ResourceBuilder;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -47,7 +48,6 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -60,6 +60,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.KeyStore;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -101,6 +102,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private volatile UpgradeService upgradeService;
     private volatile Publisher publisher;
     private volatile Clock clock;
+
+    private final List<UserDirectorySecurityProvider> userDirectorySecurityProviders = new ArrayList<>();
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
@@ -196,6 +199,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
+    }
+
+    @Override
+    public List<LdapUserDirectory> getLdapUserDirectories() {
+        return dataModel.mapper(LdapUserDirectory.class).find();
     }
 
     @Override
@@ -618,6 +626,16 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         this.clock = clock;
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public void addUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
+        this.userDirectorySecurityProviders.add(userDirectorySecurityProvider);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
+        this.userDirectorySecurityProviders.remove(userDirectorySecurityProvider);
+    }
+
     @Override
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
@@ -800,6 +818,24 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 .filter(Operator.EQUAL.compare("groupId", group.getId()))
                 .map(UserInGroup::getUser)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory) {
+        return userDirectorySecurityProviders.stream()
+                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getTrustedKeyStore(userDirectory))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
+    @Override
+    public Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char[] password) {
+        return userDirectorySecurityProviders.stream()
+                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory, password))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     void createDefaultPrivilegeCategory() {

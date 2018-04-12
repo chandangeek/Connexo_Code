@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 
-import aQute.bnd.annotation.ProviderType;
-
+import java.security.KeyStore;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -126,6 +126,8 @@ public interface UserService {
 
     Query<UserDirectory> getLdapDirectories();
 
+    List<LdapUserDirectory> getLdapUserDirectories();
+
     LdapUserDirectory getLdapUserDirectory(long id);
 
     Thesaurus getThesaurus();
@@ -167,4 +169,8 @@ public interface UserService {
     ResourceBuilder buildResource();
 
     Set<User> findUsers(Group group);
+
+    Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
+
+    Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
 }
