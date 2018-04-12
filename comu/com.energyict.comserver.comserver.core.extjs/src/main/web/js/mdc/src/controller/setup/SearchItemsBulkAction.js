@@ -134,6 +134,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             'searchitems-bulk-step4 #strategyRadioGroup': {
                 change: this.enableConfirmButton
+            },
+            'searchitems-bulk-step3 #start-process-form #processes-definition-combo': {
+                select: this.processComboChange
             }
         });
     },
@@ -306,7 +309,43 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         statusPage.removeAll();
         wizard.setLoading(true);
 
-        if (me.operation != 'changeconfig') {
+        if (me.operation === 'startprocess') {
+            var processJsonData = {
+                    deploymentId: me.processValues.deploymentId,
+                    id: me.processValues.processId,
+                    processName: me.processValues.name,
+                    processVersion: me.processValues.version,
+                    versionDB: me.processRecord.versionDB,
+                    properties: me.processValues.properties
+                },
+                processUrl = '/api/bpm/runtime/processcontent/' + processJsonData.deploymentId + '/' + processJsonData.id;
+            processJsonData.bulkBusinessObjects = me.validatedForProcessDevices.map(function (mRID) {
+                return {
+                    id: 'deviceId',
+                    type: 'device',
+                    value: mRID
+                }
+            });
+            Ext.Ajax.request({
+                url: processUrl,
+                method: 'PUT',
+                jsonData: processJsonData,
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showChangeDeviceConfigSuccess(
+                        me.buildFinalMessage()
+                    );
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function () {
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+
+        } else if (me.operation != 'changeconfig') {
             Ext.each(me.schedules, function (item) {
                 scheduleIds.push(item.getId());
             });
@@ -445,6 +484,20 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     'One device is queued to change its configuration.',
                     '{0} devices are queued to change their configuration.'
                 );
+                break;
+            case 'startprocess':
+                if (me.allDevices) {
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.all', 'MDC', "The process has been triggered for {0} out of all selected devices.")
+                    finalMessage = Ext.String.format(pattern, me.validatedForProcessDevices.length, false);
+                } else {
+                    if (me.devices.length === 1) {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.device', 'MDC', "The process has been triggered for {0} out of {1} selected device.")
+                    } else {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.successMsg.devices', 'MDC', "The process has been triggered for {0} out of {1} selected devices.")
+                    }
+                    finalMessage = Ext.String.format(pattern, me.validatedForProcessDevices.length, me.devices.length, false);
+                }
+                break;
         }
 
         return finalMessage;
@@ -485,6 +538,38 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (resp.total) conflictMappings = resp.conflictMappings[0].id;
                 }
                 callback(conflictMappings)
+            }
+        });
+    },
+
+    validateStartProcessAction: function (processValues, callback) {
+        var me = this,
+            store = me.getDevicesGrid().getStore(),
+            url = '/api/ddr/devices/validatedevices',
+            jsonData = {
+                'action': 'ValidateDevices',
+                'deviceIds': [],
+                'filter': store.getProxy().encodeFilters(store.filters.getRange()),
+                'name': processValues.name,
+                'processId': processValues.processId,
+                'version': processValues.version,
+                'deploymentId': processValues.deploymentId,
+                'properties': processValues.properties
+            };
+        if (!me.allDevices) {
+            me.devices.forEach(function (item) {
+                jsonData['deviceIds'].push(item.getId())
+            });
+        }
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: jsonData,
+            timeout: 180000,
+            callback: function (operation, success, response) {
+
+                callback(success, response);
             }
         });
     },
@@ -575,6 +660,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             currentConfigField = nextCmp.down('#current-device-config-selection');
 
                         nextCmp.down('#select-schedules-panel').hide();
+                        nextCmp.down('#bulk-start-processes-panel').hide();
                         changeDeviceConfigForm.show();
                         changeDeviceConfigForm.getForm().clearInvalid();
 
@@ -606,19 +692,91 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             }
                             wizard.setLoading(false);
                         });
+                    } else if(me.operation == 'startprocess'){
+                        nextCmp.down('#select-schedules-panel').hide();
+                        nextCmp.down('#change-device-configuration').hide();
+                        nextCmp.down('#bulk-start-processes-panel').show();
+                        nextCmp.down('#bulk-start-processes-panel').loadAvailableProcessesStore(function(visible){
+                            wizard.down('#nextButton').setDisabled(visible);
+                        });
                     } else {
                         nextCmp.down('#select-schedules-panel').show();
                         nextCmp.down('#change-device-configuration').hide();
+                        nextCmp.down('#bulk-start-processes-panel').hide();
                     }
                 }
                 break;
-            case
-            'selectActionItems':
-                if (me.operation != 'changeconfig') {
+            case 'selectActionItems':
+                if (me.operation == 'startprocess') {
+                    var startProcessPanel = currentCmp.down('#bulk-start-processes-panel'),
+                        url = startProcessPanel.properties.successLink,
+                        extraParams = startProcessPanel.properties.startProcessParams,
+                        startProcessForm = startProcessPanel.down('#process-start-form'),
+                        processStartContent = startProcessPanel.down('#process-start-content'),
+                        startProcessRecord = processStartContent.startProcessRecord,
+                        propertyForm = processStartContent.down('property-form'),
+                        formErrorsPanel = startProcessPanel.down('#start-process-form').down('#form-errors'),
+                        businessObject = {};
+                    if (propertyForm.isValid() && startProcessRecord) {
+                        me.validation = true;
+                        if (!formErrorsPanel.isHidden()) {
+                            formErrorsPanel.hide();
+                            startProcessForm.getForm().clearInvalid();
+                        }
+
+                        propertyForm.updateRecord();
+
+                        startProcessRecord.beginEdit();
+
+                        Ext.Array.each(extraParams, function(param) {
+                            businessObject[param.name] = param.value;
+                        });
+
+                        var processValues = {
+                            'name': me.processRecord.name,
+                            'processId': me.processRecord.processId,
+                            'version': me.processRecord.version,
+                            'deploymentId': me.processRecord.deploymentId,
+                            'properties': startProcessRecord.getWriteData(true, true).properties
+                        };
+                        me.processValues = processValues;
+
+                        wizard.setLoading(true);
+                        me.validateStartProcessAction(processValues, function (success, response) {
+                            var resp = Ext.JSON.decode(response.responseText, true);
+                            if (success && resp) {
+                                me.validatedForProcessDevices = resp;
+                                me.validation = true;
+                                if(nextCmp.name == 'confirmPage'){
+                                    nextCmp.removeAll();
+                                    wizard.down('#confirmButton').enable();
+                                    var message = me.buildConfirmMessage();
+                                    additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
+                                    nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
+                                }
+                                wizard.setLoading(false);
+                            } else {
+                                if (response.status == 400) {
+                                    var json = Ext.decode(operation.response.responseText, true);
+                                    if (json && json.errors) {
+                                        formErrorsPanel.show();
+                                        propertyForm.markInvalid(json.errors);
+                                    }
+                                }
+                                me.validation = false;
+                            }
+                        });
+                    }
+                    else {
+                        formErrorsPanel.show();
+                        me.validation = false;
+                    }
+                    errorContainer = null;
+                } else if (me.operation != 'changeconfig') {
                     me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                     errorPanel = currentCmp.down('#step3-errors');
                     me.validation = me.schedules.length;
-                } else {
+                }  else {
                     var form = currentCmp.down('#change-device-configuration');
                     me.validation = currentCmp.down('#change-device-configuration').isValid();
                     me.validation && (me.configData = form.getValues());
@@ -632,14 +790,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 break;
         }
-
         (currentCmp.navigationIndex > nextCmp.navigationIndex) && (me.validation = true);
 
         errorIsAlreadyShown = errorPanel !== null && errorPanel.isVisible();
         if (me.validation && !errorIsAlreadyShown) {
             switch (nextCmp.name) {
                 case 'confirmPage':
-                    if (me.operation != 'changeconfig') {
+                    if (me.operation == 'startprocess'){
+
+                    } else if (me.operation != 'changeconfig') {
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
                         if (me.operation === 'remove') {
@@ -735,6 +894,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     title = Uni.I18n.translate('searchItems.bulk.changeConfigActionTitle', 'MDC', 'Change device configuration')
                 }
                     break;
+                case 'startprocess' : {
+                    title = Uni.I18n.translate('searchItems.bulk.startProcess', 'MDC', 'Start process')
+                }
+                    break;
             }
             (items.length > 0) && Ext.each(items, function (item) {
                 item.setTitle(title);
@@ -778,6 +941,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'changeconfig':
                     titleText = Uni.I18n.translate('searchItems.bulk.changeDevConfigTitle', 'MDC', 'Change device configuration of all devices');
+                    break;
+                case 'startprocess':
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.confirmMsg', 'MDC', 'Start {0} process for an appropriate subset of selected devices?');
+                    titleText = Ext.String.format(pattern, me.processRecord.name, false);
                     break;
 
             }
@@ -831,6 +998,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     );
                     titleText = Ext.String.format(pattern);
                     break;
+                case 'startprocess':
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.confirmMsg', 'MDC', 'Start {0} process for an appropriate subset of selected devices?');
+                    titleText = Ext.String.format(pattern, me.processRecord.name, false);
+                    break;
             }
         }
 
@@ -843,6 +1014,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 break;
             case 'changeconfig':
                 bodyText = Uni.I18n.translate('searchItems.bulk.changeMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
+                break;
+            case 'startprocess':
+                if (me.allDevices) {
+                    pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.all', 'MDC', "The process will start for {0} out of all selected devices.")
+                    bodyText = Ext.String.format(pattern, me.validatedForProcessDevices.length, false);
+                } else {
+                    if (me.devices.length === 1) {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.device', 'MDC', "The process will start for {0} out of {1} selected device.")
+                    } else {
+                        pattern = Uni.I18n.translate('searchItems.bulk.startProcess.infoMsg.devices', 'MDC', "The process will start for {0} out of {1} selected devices.")
+                    }
+                    bodyText = Ext.String.format(pattern, me.validatedForProcessDevices.length, me.devices.length, false);
+                }
                 break;
         }
 
@@ -938,6 +1122,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         viewFailureDevices.down('#failuredevicesgrid').getStore().loadData(viewDevicesData.devices);
 
         me.changeContent(layout.getNext(), layout.getActiveItem());
+    },
+
+    processComboChange: function(combo){
+        this.processRecord = combo.lastSelection[0].data
     }
-})
-;
+});

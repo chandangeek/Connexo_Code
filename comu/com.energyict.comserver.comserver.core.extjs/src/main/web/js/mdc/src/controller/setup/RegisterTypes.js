@@ -106,10 +106,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             warning = me.getObisCodeToReadingTypeMessage();
 
         // Obis code doesn't map to a reading type and the obis field is not empty
-        if (data && data.mappingError && me.getEditObisCodeField().getValue())
+        if (data && data.mappingError && me.getEditObisCodeField().getValue()){
+            warning.update(data.mappingError);
             warning.show();
-        else
+        }
+        else {
             warning.hide();
+        }
     },
 
     previewRegisterType: function (grid, record) {

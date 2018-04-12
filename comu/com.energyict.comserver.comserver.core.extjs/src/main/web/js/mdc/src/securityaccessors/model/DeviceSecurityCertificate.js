@@ -37,13 +37,13 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityCertificate', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{deviceId}/securityaccessors/certificates',
+        tempUrl: '/api/ddr/devices/{deviceId}/securityaccessors/certificates',
         reader: {
             type: 'json'
         },
 
         setUrl: function (deviceId) {
-            this.url = this.url.replace('{deviceId}', deviceId);
+            this.url = this.tempUrl.replace('{deviceId}', deviceId);
         }
     }
 
