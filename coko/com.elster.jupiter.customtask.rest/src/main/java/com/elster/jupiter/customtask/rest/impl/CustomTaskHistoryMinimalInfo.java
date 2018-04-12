@@ -19,5 +19,6 @@ public class CustomTaskHistoryMinimalInfo {
     public Instant lastRun;
     public Instant statusDate;
     public String statusPrefix;
+    public Boolean wasScheduled;
 
 }

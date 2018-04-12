@@ -232,6 +232,25 @@ public class CustomTaskResource {
                 .setLimit(queryParameters.getLimit().orElse(0) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
+            if (filter.hasProperty("startedOnTo")) {
+                occurrencesFinder.withStartDateIn(filter.getClosedRange("startedOnFrom", "startedOnTo"));
+            } else {
+                occurrencesFinder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
+        } else if (filter.hasProperty("startedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            if (filter.hasProperty("finishedOnTo")) {
+                occurrencesFinder.withEndDateIn(filter.getClosedRange("finishedOnFrom", "finishedOnTo"));
+            } else {
+                occurrencesFinder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
+        } else if (filter.hasProperty("finishedOnTo")) {
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+
+        /*if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
                     filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
         } else if (filter.hasProperty("startedOnTo")) {
@@ -242,7 +261,7 @@ public class CustomTaskResource {
                     filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
-        }
+        }*/
 
         if (filter.hasProperty("status")) {
             occurrencesFinder.withStatus(filter.getStringList("status")

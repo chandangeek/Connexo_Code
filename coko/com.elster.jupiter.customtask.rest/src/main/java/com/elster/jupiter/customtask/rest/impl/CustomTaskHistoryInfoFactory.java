@@ -72,6 +72,7 @@ public class CustomTaskHistoryInfoFactory {
         info.status = customTaskOccurrence.getStatusName();
         info.reason = customTaskOccurrence.getFailureReason();
         info.lastRun = customTaskOccurrence.getTriggerTime();
+        info.wasScheduled = customTaskOccurrence.wasScheduled();
         setStatusOnDate(info, customTaskOccurrence);
     }
 

@@ -155,7 +155,11 @@
             <artifactId>parties</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 
     </dependencies>

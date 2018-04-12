@@ -9,8 +9,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
     NONE("customtask.recurrence.none", "None"),
-    SINCE("status.before", "{0} since"),
-    ON("status.on", "{0} on"),
+    SINCE("customtask.status.before", "{0} since"),
+    ON("customtask.status.on", "{0} on"),
     SCHEDULED("customtask.occurrence.scheduled", "Scheduled"),
     ON_REQUEST("customtask.occurrence.onrequest", "On request"),
     NONRECURRING("customtask.occurrence.nonrecurring", "Non-recurring");
