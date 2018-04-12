@@ -3,7 +3,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.users.User;
 
 public class LocalEventUserSource {
-    User user;
+    private User user;
 
     LocalEventUserSource(User user) {
         this.user = user;

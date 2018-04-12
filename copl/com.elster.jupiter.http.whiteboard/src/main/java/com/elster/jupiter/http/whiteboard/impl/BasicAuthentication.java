@@ -16,13 +16,13 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
 import javax.inject.Inject;
@@ -37,7 +37,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -379,10 +382,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
         if (isAuthenticated(user)) {
-            String token = securityToken.createToken(user.get(), 0, request.getRemoteAddr());
+            User returnedUserByAuthentication = user.get();
+            //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
+            User usr = userService.findUser(returnedUserByAuthentication.getName()).orElse(returnedUserByAuthentication);
+            String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
-            eventService.postEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(user.get()));
-            return allow(request, response, user.get(), token);
+            eventService.postEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
+            return allow(request, response, usr, token);
         } else {
             return deny(request, response);
         }
