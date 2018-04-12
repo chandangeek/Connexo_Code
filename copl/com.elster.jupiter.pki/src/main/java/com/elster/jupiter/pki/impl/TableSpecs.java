@@ -200,7 +200,7 @@ public enum TableSpecs {
     PKI_DIRECTORY_CERTIFICATE {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<DirectoryCertificateUsage> table = dataModel.addTable(this.name(), DirectoryCertificateUsage.class).since(Version.version(10,4));
+            Table<DirectoryCertificateUsage> table = dataModel.addTable(this.name(), DirectoryCertificateUsage.class).since(Version.version(10, 4, 1));
             table.map(DirectoryCertificateUsageImpl.class);
             Column id = table.addAutoIdColumn();
             Column directory = table.column(DirectoryCertificateUsageImpl.Fields.DIRECTORY.name())
