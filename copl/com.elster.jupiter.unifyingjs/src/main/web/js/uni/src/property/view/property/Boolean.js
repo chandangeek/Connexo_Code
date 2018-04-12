@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.Boolean', {
             cmp = {
                 xtype: 'container',
                 layout: 'hbox',
-                items: [checkbox, me.extraCmp]
+                items: [checkbox]
             },
             property = me.getProperty();
 
@@ -47,6 +47,7 @@ Ext.define('Uni.property.view.property.Boolean', {
         if (!(property.get('overridden') || property.get('canBeOverridden'))) {
             cmp.width = me.width;
         }
+
         return cmp;
     },
 

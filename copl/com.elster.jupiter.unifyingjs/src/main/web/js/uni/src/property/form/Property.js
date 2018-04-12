@@ -60,8 +60,8 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param record
      */
-    loadRecord: function (record) {
-        this.initProperties(record.properties());
+    loadRecord: function (record, requestUrl) {
+        this.initProperties(record.properties(), requestUrl);
         this.callParent(arguments);
     },
 
