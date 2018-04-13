@@ -127,6 +127,10 @@ abstract public class AbstractDataType {
 		return isVisibleString() ? (VisibleString) this : null;
 	}
 
+	public UTF8String getUtf8String() {
+		return isUtf8String() ? (UTF8String) this : null;
+	}
+
 	public boolean isArray() {
 		return this instanceof Array;
 	}
@@ -193,6 +197,10 @@ abstract public class AbstractDataType {
 
 	public boolean isVisibleString() {
 		return this instanceof VisibleString;
+	}
+
+	public boolean isUtf8String() {
+		return this instanceof UTF8String;
 	}
 
     public boolean isNumerical(){

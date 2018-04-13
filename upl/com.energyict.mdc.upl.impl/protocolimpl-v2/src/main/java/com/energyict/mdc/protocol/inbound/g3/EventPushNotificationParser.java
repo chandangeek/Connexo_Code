@@ -4,6 +4,15 @@
 
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.event.PowerUp;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
@@ -14,24 +23,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -352,6 +343,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         parseWrappedMeterEvent(structure);
     }
 
+    private boolean isPowerUpWithJsonPayload(int eventCode, String eventDescription) {
+        return eventCode == 2
+                && eventDescription.startsWith("{")
+                && eventDescription.endsWith("}")
+                && eventDescription.contains("transport")
+                && eventDescription.contains("address")
+                && eventDescription.contains("port");
+    }
+
     private void parseWrappedMeterEvent(Structure structure) {
         OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
@@ -372,13 +372,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 String description = parseDescriptionFromOctetString(eventPayload.getDataType(3).getOctetString());
                 createCollectedLogBook(dateTime1, eventCode.getValue(), deviceCode.getValue(), description);
 
-                // POWER UP
-                if (eventCode.getValue() == 2) {
+                if (isPowerUpWithJsonPayload(eventCode.getValue(), description)) {
                     try {
                         PowerUp event = PowerUp.fromJson(description);
-
                         collectedDeviceInfoList = new ArrayList<>();
-
                         collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.address, IP_ADDRESS_PROPERTY_NAME) );
                         collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.port, PORT_NUMBER_PROPERTY_NAME) );
                         //this.getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.transport.toString(), "TRANSPORT?");
