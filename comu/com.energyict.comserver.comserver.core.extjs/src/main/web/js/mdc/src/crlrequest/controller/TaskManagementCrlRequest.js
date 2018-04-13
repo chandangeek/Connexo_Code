@@ -185,8 +185,6 @@ debugger
                 periodicalExpressionInfo.schedule = null;
             }
 
-            periodicalExpressionInfo.nextRun = nextRunDate.valueOf();
-
             record.set('periodicalExpressionInfo', periodicalExpressionInfo);
 
             record.endEdit();
