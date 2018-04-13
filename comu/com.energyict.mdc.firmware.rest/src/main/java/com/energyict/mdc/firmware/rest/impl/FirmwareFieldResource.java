@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.annotation.security.RolesAllowed;
@@ -60,7 +61,7 @@ public class FirmwareFieldResource extends FieldResource {
         if (deviceTypeId != null){
             DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
             if (deviceType.getDeviceProtocolPluggableClass().isPresent() && !deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
-                firmwareTypes.remove(MessageSeeds.Keys.TYPE_COMMUNICATION);
+                firmwareTypes.remove(FirmwareType.COMMUNICATION.getType());
             }
         }
         return asJsonArrayObjectWithTranslation("firmwareTypes", "id", firmwareTypes);

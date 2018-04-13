@@ -150,7 +150,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(FirmwareService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
