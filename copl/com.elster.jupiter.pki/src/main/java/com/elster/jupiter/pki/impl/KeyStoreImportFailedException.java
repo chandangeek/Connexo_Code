@@ -15,4 +15,8 @@ public class KeyStoreImportFailedException extends LocalizedException {
     protected KeyStoreImportFailedException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause) {
         super(thesaurus, messageSeed, cause);
     }
+
+    protected KeyStoreImportFailedException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
+    }
 }

@@ -184,6 +184,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
     @Override
     public void loadKeyStore(KeyStore keyStore) {
+        boolean keyStoreTrustedCertificatePresent = false;
         try {
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
@@ -197,7 +198,11 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
                     } else {
                         this.addCertificate(alias, (X509Certificate) entry);
                     }
+                    keyStoreTrustedCertificatePresent = true;
                 }
+            }
+            if (!keyStoreTrustedCertificatePresent) {
+                throw new KeyStoreImportFailedException(thesaurus, MessageSeeds.NO_TRUSTED_CERTIFICATE_IN_KEYSTORE);
             }
         } catch (KeyStoreException e) {
             throw new KeyStoreImportFailedException(thesaurus, MessageSeeds.GENERAL_KEYSTORE_FAILURE, e);
