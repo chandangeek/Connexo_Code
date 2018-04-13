@@ -88,7 +88,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record.set('nextRun', record.get('nextRun').getTime());
             record.set('securityAccessor', { id: record.get('securityAccessor')});
             record.set('logLevel', { id: record.get('logLevel')});
-            record.set('timeDurationInfo', {
+            record.set('periodicalExpressionInfo', {
                 count: recurrenceNumber.getValue(),
                 timeUnit: recurrenceType.getValue()
             });
@@ -141,13 +141,13 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load(router.arguments.taskManagementId, {
             success: function (record) {
-                var timeDurationInfo = record.get('timeDurationInfo') ? record.get('timeDurationInfo') : {};
+                var periodicalExpressionInfo = record.get('periodicalExpressionInfo') ? record.get('periodicalExpressionInfo') : {};
                 record.set('securityAccessor', record.get('securityAccessor').id);
                 record.set('logLevel', record.get('logLevel').id);
                 setTitleFunc.call(controller, record.get('caName'));
                 form.loadRecord(record);
-                recurrenceNumber.setValue(timeDurationInfo.count);
-                recurrenceType.setValue(timeDurationInfo.timeUnit);
+                recurrenceNumber.setValue(periodicalExpressionInfo.count);
+                recurrenceType.setValue(periodicalExpressionInfo.timeUnit);
                 form.form.clearInvalid();
                 editOperationCompleteLoading.call(controller);
             },
@@ -233,7 +233,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load(router.arguments.taskManagementId, {
             success: function (record) {
-                var timeDurationInfo = record.get('timeDurationInfo');
+                var periodicalExpressionInfo = record.get('periodicalExpressionInfo');
 
                 record.set('id', me.getType());
                 record.set('securityAccessor', record.get('securityAccessor').name);

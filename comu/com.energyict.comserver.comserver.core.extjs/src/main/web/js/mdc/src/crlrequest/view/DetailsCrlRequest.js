@@ -76,12 +76,12 @@ Ext.define('Mdc.crlrequest.view.DetailsCrlRequest', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('crlrequest.requestFrequency', 'MDC', 'Request frequency'),
                                 itemId: 'crl-request-frequency',
-                                name: 'timeDurationInfo',
+                                name: 'periodicalExpressionInfo',
                                 listeners: {
                                     afterrender: function(item) {
                                         var record = item.up('form').getRecord(),
-                                            timeUnit = record.get('timeDurationInfo').timeUnit;
-                                        item.setValue(record.get('timeDurationInfo').count + ' ' + timeUnit.slice(0, --timeUnit.length) + '(s)');
+                                            timeUnit = record.get('periodicalExpressionInfo').timeUnit;
+                                        item.setValue(record.get('periodicalExpressionInfo').count + ' ' + timeUnit.slice(0, --timeUnit.length) + '(s)');
                                     }
                                 }
                             }

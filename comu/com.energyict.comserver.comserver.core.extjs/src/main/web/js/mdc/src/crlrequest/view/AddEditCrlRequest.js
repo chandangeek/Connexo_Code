@@ -76,7 +76,7 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('crlrequest.requestFrequency', 'MDC', 'Request frequency'),
                 itemId: 'crl-recurrence-container',
-                name: 'timeDurationInfo',
+                name: 'periodicalExpressionInfo',
                 required: true,
                 layout: 'hbox',
                 items: [
