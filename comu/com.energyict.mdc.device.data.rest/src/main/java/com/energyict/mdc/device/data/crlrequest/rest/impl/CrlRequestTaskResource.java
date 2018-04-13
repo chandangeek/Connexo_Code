@@ -15,8 +15,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
@@ -201,8 +201,8 @@ public class CrlRequestTaskResource {
                     .setDestination(getCrlRequestDestination())
                     .setPayLoad("Crl Request")
                     .scheduleImmediately(true)
+                    .setFirstExecution(info.nextRun)
                     .build();
-            task.setNextExecution(info.nextRun);
             task.setLogLevel((Integer) info.logLevel.id);
             task.save();
         } else {
@@ -281,9 +281,8 @@ public class CrlRequestTaskResource {
         }
     }
 
-    private TemporalExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
-        TimeDuration timeDuration = info.timeDurationInfo.asTimeDuration();
-        return new TemporalExpression(timeDuration);
+    private ScheduleExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
+        return info.periodicalExpressionInfo == null ? Never.NEVER : info.periodicalExpressionInfo.toExpression();
     }
 
     private List<IdWithNameInfo> getLogLevels() {
