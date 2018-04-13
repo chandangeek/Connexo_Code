@@ -98,7 +98,6 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
             var timeUnit = recurrenceType.getValue(),
                 periodicalExpressionInfo = {};
-debugger
             if (timeUnit){
                 switch (timeUnit) {
                     case 'years':
