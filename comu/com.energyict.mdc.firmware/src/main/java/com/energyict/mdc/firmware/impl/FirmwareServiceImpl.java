@@ -86,7 +86,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -730,11 +729,14 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(Privileges.values()));
-        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
-        return keys;
+        return Stream.of(
+                Privileges.values(),
+                PropertyTranslationKeys.values(),
+                TranslationKeys.values(),
+                FirmwareType.values()
+        )
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.firmware;
 
-public enum FirmwareType {
+import com.elster.jupiter.nls.TranslationKey;
+
+public enum FirmwareType implements TranslationKey {
     COMMUNICATION("communication", "Communication firmware"),
     METER("meter", "Meter firmware"),
     CA_CONFIG_IMAGE("caConfigImage", "Image");
@@ -21,7 +23,17 @@ public enum FirmwareType {
         return type;
     }
 
+    @Override
+    public String getKey() {
+        return type;
+    }
+
     public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String getDefaultFormat() {
         return description;
     }
 }
