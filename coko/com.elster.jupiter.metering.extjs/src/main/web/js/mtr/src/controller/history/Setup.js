@@ -63,7 +63,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showReadingTypesInGroup',
                             items: {
-                                add: {  // lori add reading type in reading types {aliasName}
+                                add: {  // add reading type in reading types {aliasName}
                                     title: Uni.I18n.translate('readingtypes.readingTypes.add', 'MTR', 'Add reading type'),
                                     route: 'add',
                                     controller: 'Mtr.controller.AddReadingTypesGroup',
