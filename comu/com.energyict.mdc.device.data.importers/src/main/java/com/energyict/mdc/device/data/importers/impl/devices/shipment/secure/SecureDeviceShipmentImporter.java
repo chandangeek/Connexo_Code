@@ -20,12 +20,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Body;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Shipment;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.*;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.device.data.importers.ImporterExtension;
 
 import org.w3._2000._09.xmldsig_.KeyValueType;
 import org.w3._2000._09.xmldsig_.RSAKeyValueType;
@@ -61,10 +59,12 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -83,14 +83,18 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private final DeviceService deviceService;
     private final SecurityManagementService securityManagementService;
 
+    private final Optional<ImporterExtension> importerExtension;
+
     public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore,
                                         DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
-                                        SecurityManagementService securityManagementService) {
+                                        SecurityManagementService securityManagementService,
+                                        Optional<ImporterExtension> importerExtension) {
         this.thesaurus = thesaurus;
         this.trustStore = trustStore;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.securityManagementService = securityManagementService;
+        this.importerExtension = importerExtension;
     }
 
     @Override
@@ -319,6 +323,15 @@ public class SecureDeviceShipmentImporter implements FileImporter {
      */
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
+        List<NamedAttribute> deviceAttributesList =  xmlDevice.getAttribute();
+
+        Map<String,String> values = deviceAttributesList
+                .stream()
+                .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
+        if(importerExtension.isPresent()) {
+            importerExtension.get().process(device, values, logger);
+            device.save();
+        }
     }
 
     private DeviceConfiguration findDefaultDeviceConfig(DeviceType deviceType) {

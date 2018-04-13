@@ -12,15 +12,18 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.importers.ImporterExtension;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,6 +40,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
+    private volatile Optional<ImporterExtension> importExtension;
 
     @Override
     public String getName() {
@@ -46,7 +50,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
-        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
+        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService, importExtension);
     }
 
     @Override
@@ -100,6 +104,10 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
+
+    @Reference(target="(importer.extension=SecureDeviceShipmentImporter)", cardinality = ReferenceCardinality.OPTIONAL)
+    public void setImporterExtension(ImporterExtension importExtension)
+    { this.importExtension = Optional.ofNullable(importExtension); }
 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {
