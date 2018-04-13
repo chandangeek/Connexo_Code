@@ -11,13 +11,11 @@ import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.upl.TypedProperties;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -60,8 +58,6 @@ public class DeviceConfigurationDeviceProtocolPropertiesTest extends DeviceTypeP
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(bigDecimalPropertySpec, stringPropertySpec, defaultPropertySpec));
     }
 
-    // TODO: ignored due to the bug CXO-8740
-    @Ignore
     @Test
     @Transactional
     public void testNewConfigurationInheritsPropertiesFromPluggableClass() {

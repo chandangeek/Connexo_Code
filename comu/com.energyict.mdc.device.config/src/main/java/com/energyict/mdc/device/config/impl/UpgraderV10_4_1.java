@@ -32,7 +32,8 @@ class UpgraderV10_4_1 implements Upgrader {
 
     private void installNewEventTypes() {
         EnumSet.of(
-                EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE)
-                .forEach(eventType -> eventType.install(eventService));
+                EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE,
+                EventType.DEVICE_TYPE_PRE_DELETE
+        ).forEach(eventType -> eventType.install(eventService));
     }
 }
