@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.crlrequest.rest.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
@@ -14,8 +15,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
@@ -34,7 +35,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -147,7 +147,7 @@ public class CrlRequestTaskResource {
             info.task = new IdWithNameInfo(recurrentTask.get().getId(), recurrentTask.get().getName());
             return Response.status(Response.Status.CREATED).entity(info).build();
         }
-        return Response.status(Response.Status.BAD_REQUEST).entity(new WebApplicationException(thesaurus.getFormat(MessageSeeds.CRL_REQUEST_TASK_ALREADY_EXISTS).format())).build();
+        throw new LocalizedFieldValidationException(MessageSeeds.CRL_REQUEST_TASK_CA_NAME_UNIQUE, "caName");
     }
 
     @PUT
@@ -167,7 +167,7 @@ public class CrlRequestTaskResource {
             info.task = new IdWithNameInfo(updatedTask.get().getId(), updatedTask.get().getName());
             return Response.status(Response.Status.OK).entity(info).build();
         }
-        return Response.status(Response.Status.BAD_REQUEST).entity(new WebApplicationException(thesaurus.getFormat(MessageSeeds.CRL_REQUEST_TASK_ALREADY_EXISTS).format())).build();
+        throw new LocalizedFieldValidationException(MessageSeeds.CRL_REQUEST_TASK_CA_NAME_UNIQUE, "caName");
     }
 
     @PUT
@@ -201,8 +201,8 @@ public class CrlRequestTaskResource {
                     .setDestination(getCrlRequestDestination())
                     .setPayLoad("Crl Request")
                     .scheduleImmediately(true)
+                    .setFirstExecution(info.nextRun)
                     .build();
-            task.setNextExecution(info.nextRun);
             task.setLogLevel((Integer) info.logLevel.id);
             task.save();
         } else {
@@ -281,9 +281,8 @@ public class CrlRequestTaskResource {
         }
     }
 
-    private TemporalExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
-        TimeDuration timeDuration = info.timeDurationInfo.asTimeDuration();
-        return new TemporalExpression(timeDuration);
+    private ScheduleExpression getScheduleExpression(CrlRequestTaskPropertyInfo info) {
+        return info.periodicalExpressionInfo == null ? Never.NEVER : info.periodicalExpressionInfo.toExpression();
     }
 
     private List<IdWithNameInfo> getLogLevels() {
