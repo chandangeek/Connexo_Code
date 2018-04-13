@@ -277,7 +277,7 @@ public class CertificateWrapperResource {
                 certificateWrapper.setCertificate(certificate);
                 certificateWrapper.save();
             } catch (Exception e) {
-                throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA);
+                throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA, e.getLocalizedMessage());
             }
         } catch (CompletionException | InterruptedException | TimeoutException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_RECIEVE_CERTIFICATE_TIMEOUT);
