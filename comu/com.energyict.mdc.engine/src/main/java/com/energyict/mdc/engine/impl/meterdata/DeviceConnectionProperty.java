@@ -47,7 +47,7 @@ public class DeviceConnectionProperty extends CollectedDeviceData implements Col
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        if (getConnectionTask().getConnectionType().getDirection().equals(ConnectionType.ConnectionTypeDirection.INBOUND)) {
+        if (getConnectionTask() != null && getConnectionTask().getConnectionType().getDirection().equals(ConnectionType.ConnectionTypeDirection.INBOUND)) {
             return new UpdateDeviceConnectionPropertyForAllOutboundConnections(this, getComTaskExecution(), serviceProvider);
         } else {
             return new UpdateDeviceConnectionProperty(this, this.getComTaskExecution(), serviceProvider);
