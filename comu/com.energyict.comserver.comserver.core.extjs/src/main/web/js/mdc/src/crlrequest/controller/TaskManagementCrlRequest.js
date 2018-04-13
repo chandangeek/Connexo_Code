@@ -85,13 +85,106 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record = form.getRecord();
             record.beginEdit();
 
-            record.set('nextRun', record.get('nextRun').getTime());
+            var nextRun = record.get('nextRun').getTime(),
+                nextRunDate = moment(nextRun),
+                dayOfMonth = nextRunDate.date(),
+                lastDayOfMonth = dayOfMonth >= 29,
+                hours = nextRunDate.hours(),
+                minutes = nextRunDate.minutes();
+
+            record.set('nextRun', nextRun);
             record.set('securityAccessor', { id: record.get('securityAccessor')});
             record.set('logLevel', { id: record.get('logLevel')});
-            record.set('timeDurationInfo', {
-                count: recurrenceNumber.getValue(),
-                timeUnit: recurrenceType.getValue()
-            });
+
+            var timeUnit = recurrenceType.getValue(),
+                periodicalExpressionInfo = {};
+            if (timeUnit){
+                switch (timeUnit) {
+                    case 'years':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: nextRunDate.month() + 1,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'months':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'weeks':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: nextRunDate.format('dddd').toUpperCase(),
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'days':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'hours':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'minutes':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                }
+            }
+            else{
+                periodicalExpressionInfo.schedule = null;
+            }
+
+            record.set('periodicalExpressionInfo', periodicalExpressionInfo);
 
             record.endEdit();
             record.save({
@@ -141,15 +234,26 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load(router.arguments.taskManagementId, {
             success: function (record) {
-                var timeDurationInfo = record.get('timeDurationInfo') ? record.get('timeDurationInfo') : {};
+                var periodicalExpressionInfo = record.get('periodicalExpressionInfo') ? record.get('periodicalExpressionInfo') : {};
                 record.set('securityAccessor', record.get('securityAccessor').id);
                 record.set('logLevel', record.get('logLevel').id);
                 setTitleFunc.call(controller, record.get('caName'));
                 form.loadRecord(record);
-                recurrenceNumber.setValue(timeDurationInfo.count);
-                recurrenceType.setValue(timeDurationInfo.timeUnit);
+                recurrenceNumber.setValue(periodicalExpressionInfo.count);
+                recurrenceType.setValue(periodicalExpressionInfo.timeUnit);
                 form.form.clearInvalid();
                 editOperationCompleteLoading.call(controller);
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    formErrorsPanel.show();
+                    if (!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
+                        }
+                    }
+                }
             }
         });
     },
@@ -222,7 +326,7 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
 
         model.load(router.arguments.taskManagementId, {
             success: function (record) {
-                var timeDurationInfo = record.get('timeDurationInfo');
+                var periodicalExpressionInfo = record.get('periodicalExpressionInfo');
 
                 record.set('id', me.getType());
                 record.set('securityAccessor', record.get('securityAccessor').name);
