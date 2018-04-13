@@ -85,13 +85,109 @@ Ext.define('Mdc.crlrequest.controller.TaskManagementCrlRequest', {
             record = form.getRecord();
             record.beginEdit();
 
-            record.set('nextRun', record.get('nextRun').getTime());
+            var nextRun = record.get('nextRun').getTime(),
+                nextRunDate = moment(nextRun),
+                dayOfMonth = nextRunDate.date(),
+                lastDayOfMonth = dayOfMonth >= 29,
+                hours = nextRunDate.hours(),
+                minutes = nextRunDate.minutes();
+
+            record.set('nextRun', nextRun);
             record.set('securityAccessor', { id: record.get('securityAccessor')});
             record.set('logLevel', { id: record.get('logLevel')});
-            record.set('periodicalExpressionInfo', {
-                count: recurrenceNumber.getValue(),
-                timeUnit: recurrenceType.getValue()
-            });
+
+            var timeUnit = recurrenceType.getValue(),
+                periodicalExpressionInfo = {};
+debugger
+            if (timeUnit){
+                switch (timeUnit) {
+                    case 'years':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: nextRunDate.month() + 1,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'months':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'weeks':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: nextRunDate.format('dddd').toUpperCase(),
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'days':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'hours':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                    case 'minutes':
+                        periodicalExpressionInfo = {
+                            count: recurrenceNumber.getValue(),
+                            timeUnit: timeUnit,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        };
+                        break;
+                }
+            }
+            else{
+                periodicalExpressionInfo.schedule = null;
+            }
+
+            periodicalExpressionInfo.nextRun = nextRunDate.valueOf();
+
+            record.set('periodicalExpressionInfo', periodicalExpressionInfo);
 
             record.endEdit();
             record.save({
