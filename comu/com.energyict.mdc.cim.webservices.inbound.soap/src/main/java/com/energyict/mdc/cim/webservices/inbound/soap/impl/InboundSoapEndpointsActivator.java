@@ -4,10 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
-
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -31,6 +27,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -108,7 +107,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                                          TransactionService transactionService, MeteringService meteringService,
                                          NlsService nlsService, UpgradeService upgradeService,
                                          DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
-                                         DeviceService deviceService, UserService userService,
+                                         DeviceService deviceService, UserService userService, BatchService batchService,
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
