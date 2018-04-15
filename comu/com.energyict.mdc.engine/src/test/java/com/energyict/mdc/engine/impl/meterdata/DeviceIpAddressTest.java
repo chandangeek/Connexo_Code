@@ -4,19 +4,15 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.NoDeviceCommandServices;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,15 +26,9 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceIpAddressTest {
-
     private static final int DEVICE_ID = 97;
     private static final String IP_ADDRESS = "192.168.2.100";
     private static final String IP_ADDRESS_PROPERTY_NAME = "propertyValue";
-
-    @Mock
-    private DeviceService deviceService;
-    @Mock
-    private IssueService issueService;
 
     @Test
     public void testConstructorDoesNotThrowExceptions() {
@@ -63,8 +53,6 @@ public class DeviceIpAddressTest {
         assertThat(isConfiguredIn).isTrue();
     }
 
-    // TODO: fix as per CXO-8737
-    @Ignore
     @Test
     public void testToDeviceCommand() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
