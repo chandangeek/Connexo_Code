@@ -49,18 +49,17 @@ public enum MessageSeeds implements MessageSeed {
     TRANSITION_ACTION_FAILED(2012, "TransitionActionFailed", "Transition can''t be performed due to failed transition action ''{0}'': {1}"),
     NO_CONNECTION_STATE_FOUND(2013, "NoConnectionStateFound", "No supported connection state is found for ''{0}''."),
     UNABLE_TO_GET_USAGE_POINT(2014, "UnableToGetUsagePoint", "Unable to get usage point"),
-    INVALID_METROLOGY_CONTRACT_REQUIRMENT(2015, "UnableToInactivateMandatoryPurpose", "Mandatory purpose can not be inactive"),
-    UNABLE_TO_CHANGE_STATE_OPTIONAL_CONTRACT(2016, "UnableToChangeStateOptionalContract", "Unable to change state optional contract"),
+    INVALID_METROLOGY_CONTRACT_REQUIRMENT(2015, "UnableToInactivateMandatoryPurpose", "Mandatory purpose can''t be inactive."),
+    UNABLE_TO_CHANGE_STATE_OPTIONAL_CONTRACT(2016, "UnableToChangeStateOptionalContract", "Unable to change state of optional contract."),
     NO_METROLOGYCONFIG_FOR_USAGEPOINT(2017, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(2018, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
-    MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2019, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirment can''t set more than one metrology configuration."),
+    MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2019, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings"),
     NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-
 
     // master data linkage
     UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),
