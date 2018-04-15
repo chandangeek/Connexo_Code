@@ -916,7 +916,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
 
     private void setMetrologyConfiguration(ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint, String metrologyConfigurationName) {
         MetrologyRequirements metrologyRequirement = new MetrologyRequirements();
-        metrologyRequirement.getNames().add(metrologyRequirementName(metrologyConfigurationName));
+        metrologyRequirement.getNames().add(metrologyConfigurationName(metrologyConfigurationName));
         metrologyRequirement.getReadingTypes().add(new MetrologyRequirements.ReadingTypes());
         usagePoint.getMetrologyRequirements().add(metrologyRequirement);
     }
@@ -939,9 +939,12 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         return name;
     }
 
-    private MetrologyRequirements.Names metrologyRequirementName(String value) {
+    private MetrologyRequirements.Names metrologyConfigurationName(String value) {
         MetrologyRequirements.Names name = new MetrologyRequirements.Names();
         name.setName(value);
+        MetrologyRequirements.Names.NameType nameType = new MetrologyRequirements.Names.NameType();
+        nameType.setName("MetrologyConfiguration");
+        name.setNameType(nameType);
         return name;
     }
 

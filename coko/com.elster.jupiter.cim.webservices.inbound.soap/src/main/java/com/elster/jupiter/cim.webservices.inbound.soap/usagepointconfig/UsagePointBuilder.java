@@ -209,7 +209,6 @@ class UsagePointBuilder {
                 });
         Instant now = clock.instant();
 
-
         if (usagePoint.getServiceCategory().getKind() == com.elster.jupiter.metering.ServiceKind.ELECTRICITY) {
             retrievePhaseCode(usagePointConfig)
                     .ifPresent(phaseCode -> usagePoint.getDetail(now)
@@ -228,13 +227,11 @@ class UsagePointBuilder {
     }
 
     private void retrieveMetrologyContract(com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
-
         Optional<UsagePoint.MetrologyRequirements> metrologyRequirement = usagePointConfig.getMetrologyRequirements()
                 .stream()
                 .findFirst();
         if (metrologyRequirement.isPresent()) {
             String name = retrieveMetrologyRequirementElements(metrologyRequirement.get().getNames());
-
 
             List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList = retrieveMetrologyPurposes(metrologyRequirement
                     .get()
@@ -286,11 +283,9 @@ class UsagePointBuilder {
 
     private void activateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint, MetrologyContract mc) throws
             FaultMessage {
-
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         checkMeterRequirments(usagePoint, mc);
         effectiveMC.activateOptionalMetrologyContract(mc, Instant.now(clock));
-
     }
 
     public void deactivateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint, MetrologyContract mc) throws
@@ -330,11 +325,9 @@ class UsagePointBuilder {
                         MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS).get();
             }
         }
-
     }
 
     private Set<ReadingTypeRequirement> getUnsatisfiedReadingTypeRequirementsOfMeter(Set<ReadingTypeRequirement> requirements, Meter meter) {
-
         List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
                 .map(headEndInterface -> headEndInterface.getCapabilities(meter))
                 .map(EndDeviceCapabilities::getConfiguredReadingTypes)
@@ -346,7 +339,6 @@ class UsagePointBuilder {
 
     private EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfiguration(com.elster.jupiter.metering.UsagePoint usagePoint) throws
             FaultMessage {
-
         return usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
@@ -376,8 +368,7 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
             FaultMessage {
-
-        String purposeName = retriveConfigurationEventValue(usagePointConfig);
+        String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
@@ -398,7 +389,7 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.UsagePoint activatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
             FaultMessage {
-        String purposeName = retriveConfigurationEventValue(usagePointConfig);
+        String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
@@ -414,9 +405,13 @@ class UsagePointBuilder {
     }
 
     private ConfigurationEventReason retrieveReason(ConfigurationEvent event) throws FaultMessage {
-        String reason = event.getStatus().getReason();
+        Status status = event.getStatus();
+        if (status == null) {
+            throw missingUsagePointParameterSupplier("ConfigurationEvents.status").get();
+        }
+        String reason = status.getReason();
         if (reason == null) {
-            throw missingUsagePointParameterSupplier("ConfigurationEvents.reason").get();
+            throw missingUsagePointParameterSupplier("ConfigurationEvents.status.reason").get();
         }
 
         switch (reason) {
@@ -433,7 +428,8 @@ class UsagePointBuilder {
                         .filter(ConfigurationEventReason.PURPOSE_INACTIVE::equals)
                         .get();
             default:
-                throw new UnsupportedOperationException();
+                throw unsupportedValueSupplier("ConfigurationEvents.status.reason", reason,
+                        Arrays.stream(ConfigurationEventReason.values()).map(ConfigurationEventReason::getReason).toArray(String[]::new)).get();
         }
     }
 
@@ -514,7 +510,7 @@ class UsagePointBuilder {
                 });
     }
 
-    private String retriveConfigurationEventValue(UsagePoint usagePointConfig) throws FaultMessage {
+    private String retrieveConfigurationEventValue(UsagePoint usagePointConfig) throws FaultMessage {
         String configurationEventPurpose = usagePointConfig.getConfigurationEvents().getStatus().getValue();
         if (Checks.is(configurationEventPurpose).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("status.value").get();
@@ -600,7 +596,6 @@ class UsagePointBuilder {
                 .map(com.elster.jupiter.cbo.PhaseCode::get);
     }
 
-
     private Optional<UsagePointMetrologyConfiguration> retrieveMetrologyConfiguration(UsagePoint usagePointConfig, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC)
             throws FaultMessage {
         Optional<UsagePoint.MetrologyRequirements> metrologyRequirement = usagePointConfig.getMetrologyRequirements().stream()
@@ -608,7 +603,7 @@ class UsagePointBuilder {
         if (!metrologyRequirement.isPresent()) {
             return Optional.empty();
         }
-        String name = retrieveOneMandatoryElement("MetrologyRequirements[0].Names", metrologyRequirement.get()::getNames).getName();
+        String name = retrieveMetrologyRequirementElements(metrologyRequirement.get().getNames());
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("MetrologyRequirements[0].Names[0].name").get();
         }
@@ -623,10 +618,9 @@ class UsagePointBuilder {
 
     private UsagePointMetrologyConfiguration findPurposes(List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList, UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws
             FaultMessage {
-
         List<MetrologyContract> metrologyMandatoryContractsList = usagePointMetrologyConfiguration.getContracts()
                 .stream()
-                .filter(contract -> contract.isMandatory())
+                .filter(MetrologyContract::isMandatory)
                 .collect(Collectors.toList());
 
         for (MetrologyContract metrologyContract : metrologyMandatoryContractsList) {
@@ -646,7 +640,6 @@ class UsagePointBuilder {
 
     private void activateOptionalPurpose(MetrologyContract contract, List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws
             FaultMessage {
-
         if (metrologyPurposesList.stream()
                 .filter(p -> p.getNameType().getDescription().equals("Active"))
                 .count() != 0) {
@@ -675,7 +668,6 @@ class UsagePointBuilder {
         }
     }
 
-
     private UsagePointMetrologyConfiguration retrieveMetrologyConfigurationDefault(String usagePointMetrologyConfigurationName) throws
             FaultMessage {
         return metrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfigurationName)
@@ -699,27 +691,25 @@ class UsagePointBuilder {
                 .collect(Collectors.toList());
     }
 
-
     private String retrieveMetrologyRequirementElements(List<UsagePoint.MetrologyRequirements.Names> names) throws
             FaultMessage {
-
-        List<UsagePoint.MetrologyRequirements.Names> metrologyRequirmentsList = names;
-        if (metrologyRequirmentsList.size() >= 1) {
-            if (metrologyRequirmentsList.stream()
+        List<UsagePoint.MetrologyRequirements.Names> metrologyRequirementsList = names;
+        if (metrologyRequirementsList.size() >= 1) {
+            if (metrologyRequirementsList.stream()
                     .filter(n -> n.getNameType() == null)
                     .collect(Collectors.toList())
                     .size() == 1) {
-                return setEmptyNameTypeMetrologyRequirment(metrologyRequirmentsList);
-            } else if (metrologyRequirmentsList.stream()
+                return setEmptyNameTypeMetrologyRequirment(metrologyRequirementsList);
+            } else if (metrologyRequirementsList.stream()
                     .filter(n -> n.getNameType() == null)
                     .collect(Collectors.toList())
                     .size() > 1) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED).get();
-            } else if (metrologyRequirmentsList.stream()
+            } else if (metrologyRequirementsList.stream()
                     .filter(name -> name.getNameType().getName().equals(METROLOGY_CONFIGURATION))
                     .count() == 1) {
-                return metrologyRequirmentsList.stream()
+                return metrologyRequirementsList.stream()
                         .filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION))
                         .findAny()
                         .get()
@@ -748,7 +738,6 @@ class UsagePointBuilder {
                 .getName();
     }
 
-
     private <T> T retrieveOneMandatoryElement(String listElement, Supplier<List<T>> supplier) throws FaultMessage {
         return retrieveOneOptionalElement(listElement, supplier)
                 .orElseThrow(emptyUsagePointParametersListSupplier(listElement));
@@ -764,7 +753,6 @@ class UsagePointBuilder {
             default:
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.UNSUPPORTED_LIST_SIZE, pathToUsagePoint + '.' + listElement, 1).get();
-
         }
     }
 
@@ -788,7 +776,6 @@ class UsagePointBuilder {
                 MessageSeeds.UNSUPPORTED_VALUE, pathToUsagePoint + '.' + element, value,
                 Arrays.stream(supportedValues).map(each -> '\'' + each + '\'').collect(Collectors.joining(", ")));
     }
-
 
     interface PreparedUsagePointBuilder {
         PreparedUsagePointBuilder at(Instant timestamp);

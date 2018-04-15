@@ -405,6 +405,23 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     }
 
     @Test
+    public void testNoStatusInConfigurationEvent() throws Exception {
+        // Prepare request
+        UsagePointConfig usagePointConfig = new UsagePointConfig();
+        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo
+                = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
+        usagePointConfig.getUsagePoint().add(usagePointInfo);
+        setState(usagePointInfo, INACTIVE_STATE_NAME);
+        usagePointInfo.getConfigurationEvents().setStatus(null);
+        UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
+
+        // Business method & assertions
+        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
+                MessageSeeds.MISSING_ELEMENT.getErrorCode(),
+                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.status' is required.");
+    }
+
+    @Test
     public void testNoReasonInConfigurationEvent() throws Exception {
         // Prepare request
         UsagePointConfig usagePointConfig = new UsagePointConfig();
@@ -412,13 +429,13 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
         usagePointConfig.getUsagePoint().add(usagePointInfo);
         setState(usagePointInfo, INACTIVE_STATE_NAME);
-        usagePointInfo.getConfigurationEvents().setReason(null);
+        usagePointInfo.getConfigurationEvents().setStatus(new Status());
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
-                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.reason' is required.");
+                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.status.reason' is required.");
     }
 
     @Test
@@ -429,14 +446,16 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
         usagePointConfig.getUsagePoint().add(usagePointInfo);
         setState(usagePointInfo, INACTIVE_STATE_NAME);
-        usagePointInfo.getConfigurationEvents().setReason("Configure me anything");
+        Status status = new Status();
+        status.setReason("Configure me anything");
+        usagePointInfo.getConfigurationEvents().setStatus(status);
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.reason' contains unsupported value 'Configure me anything'. " +
-                        "Must be one of: 'Change Status'.");
+                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.status.reason' contains unsupported value 'Configure me anything'. " +
+                        "Must be one of: 'Purpose Active', 'Purpose Inactive', 'Change Status'.");
     }
 
     @Test
@@ -447,14 +466,15 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
         usagePointConfig.getUsagePoint().add(usagePointInfo);
         setState(usagePointInfo, INACTIVE_STATE_NAME);
-        usagePointInfo.getConfigurationEvents().setReason(ConfigurationEventReason.PURPOSE_ACTIVE.getReason());
+        Status status = new Status();
+        status.setReason(ConfigurationEventReason.PURPOSE_ACTIVE.getReason());
+        usagePointInfo.getConfigurationEvents().setStatus(status);
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
-                MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.reason' contains unsupported value 'Purpose Active'. " +
-                        "Must be one of: 'Change Status'.");
+                MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
+                "Element 'UsagePointConfig.UsagePoint[0].status.value' is empty or contains only white spaces.");
     }
 
     @Test
@@ -876,13 +896,15 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     }
 
     private void setState(ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint, String stateName) {
+        Status status = new Status();
+        status.setReason(ConfigurationEventReason.CHANGE_STATUS.getReason());
         ConfigurationEvent event = new ConfigurationEvent();
-        event.setReason(ConfigurationEventReason.CHANGE_STATUS.getReason());
+        event.setStatus(status);
         event.setEffectiveDateTime(EVENT_EFFECTIVE_DATE);
         usagePoint.setConfigurationEvents(event);
-        Status status = new Status();
-        status.setValue(stateName);
-        usagePoint.setStatus(status);
+        Status usagePointStatus = new Status();
+        usagePointStatus.setValue(stateName);
+        usagePoint.setStatus(usagePointStatus);
     }
 
     private UsagePointConfigRequestMessageType createUsagePointConfigRequest(UsagePointConfig usagePointConfig) {
