@@ -368,7 +368,7 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
             FaultMessage {
-        String purposeName = retriveConfigurationEventValue(usagePointConfig);
+        String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
@@ -389,7 +389,7 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.UsagePoint activatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
             FaultMessage {
-        String purposeName = retriveConfigurationEventValue(usagePointConfig);
+        String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
@@ -405,9 +405,13 @@ class UsagePointBuilder {
     }
 
     private ConfigurationEventReason retrieveReason(ConfigurationEvent event) throws FaultMessage {
-        String reason = event.getStatus().getReason();
+        Status status = event.getStatus();
+        if (status == null) {
+            throw missingUsagePointParameterSupplier("ConfigurationEvents.status").get();
+        }
+        String reason = status.getReason();
         if (reason == null) {
-            throw missingUsagePointParameterSupplier("ConfigurationEvents.reason").get();
+            throw missingUsagePointParameterSupplier("ConfigurationEvents.status.reason").get();
         }
 
         switch (reason) {
@@ -424,7 +428,8 @@ class UsagePointBuilder {
                         .filter(ConfigurationEventReason.PURPOSE_INACTIVE::equals)
                         .get();
             default:
-                throw new UnsupportedOperationException();
+                throw unsupportedValueSupplier("ConfigurationEvents.status.reason", reason,
+                        Arrays.stream(ConfigurationEventReason.values()).map(ConfigurationEventReason::getReason).toArray(String[]::new)).get();
         }
     }
 
@@ -505,7 +510,7 @@ class UsagePointBuilder {
                 });
     }
 
-    private String retriveConfigurationEventValue(UsagePoint usagePointConfig) throws FaultMessage {
+    private String retrieveConfigurationEventValue(UsagePoint usagePointConfig) throws FaultMessage {
         String configurationEventPurpose = usagePointConfig.getConfigurationEvents().getStatus().getValue();
         if (Checks.is(configurationEventPurpose).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("status.value").get();
@@ -598,7 +603,7 @@ class UsagePointBuilder {
         if (!metrologyRequirement.isPresent()) {
             return Optional.empty();
         }
-        String name = retrieveOneMandatoryElement("MetrologyRequirements[0].Names", metrologyRequirement.get()::getNames).getName();
+        String name = retrieveMetrologyRequirementElements(metrologyRequirement.get().getNames());
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("MetrologyRequirements[0].Names[0].name").get();
         }
@@ -615,7 +620,7 @@ class UsagePointBuilder {
             FaultMessage {
         List<MetrologyContract> metrologyMandatoryContractsList = usagePointMetrologyConfiguration.getContracts()
                 .stream()
-                .filter(contract -> contract.isMandatory())
+                .filter(MetrologyContract::isMandatory)
                 .collect(Collectors.toList());
 
         for (MetrologyContract metrologyContract : metrologyMandatoryContractsList) {
@@ -687,23 +692,23 @@ class UsagePointBuilder {
 
     private String retrieveMetrologyRequirementElements(List<UsagePoint.MetrologyRequirements.Names> names) throws
             FaultMessage {
-        List<UsagePoint.MetrologyRequirements.Names> metrologyRequirmentsList = names;
-        if (metrologyRequirmentsList.size() >= 1) {
-            if (metrologyRequirmentsList.stream()
+        List<UsagePoint.MetrologyRequirements.Names> metrologyRequirementsList = names;
+        if (metrologyRequirementsList.size() >= 1) {
+            if (metrologyRequirementsList.stream()
                     .filter(n -> n.getNameType() == null)
                     .collect(Collectors.toList())
                     .size() == 1) {
-                return setEmptyNameTypeMetrologyRequirment(metrologyRequirmentsList);
-            } else if (metrologyRequirmentsList.stream()
+                return setEmptyNameTypeMetrologyRequirment(metrologyRequirementsList);
+            } else if (metrologyRequirementsList.stream()
                     .filter(n -> n.getNameType() == null)
                     .collect(Collectors.toList())
                     .size() > 1) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED).get();
-            } else if (metrologyRequirmentsList.stream()
+            } else if (metrologyRequirementsList.stream()
                     .filter(name -> name.getNameType().getName().equals(METROLOGY_CONFIGURATION))
                     .count() == 1) {
-                return metrologyRequirmentsList.stream()
+                return metrologyRequirementsList.stream()
                         .filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION))
                         .findAny()
                         .get()
