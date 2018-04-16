@@ -11,7 +11,7 @@ class DestinationSpecBean {
     }
 
     String getName() {
-        String value = name.trim().toUpperCase();
+        String value = name.trim();
         value = value.replace(" ", "_");
         return value;
     }

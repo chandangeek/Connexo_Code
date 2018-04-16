@@ -4,11 +4,21 @@
 
 package com.elster.jupiter.messaging.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.appserver.security.Privileges;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageSeeds;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -16,12 +26,23 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/destinationspec")
@@ -39,15 +60,17 @@ public class DestinationSpecResource {
     private final DestinationSpecInfoFactory destinationSpecInfoFactory;
     private final Thesaurus thesaurus;
     private final TaskService taskService;
+    private final AppService appService;
 
     @Inject
-    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus, TaskService taskService) {
+    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus, TaskService taskService, AppService appService) {
         this.messageService = messageService;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
         this.destinationSpecInfoFactory = destinationSpecInfoFactory;
         this.thesaurus = thesaurus;
         this.taskService = taskService;
+        this.appService = appService;
     }
 
     @GET
@@ -154,7 +177,7 @@ public class DestinationSpecResource {
         QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", false);
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(bean.getName(), DEFAULT_RETRY_DELAY_IN_SECONDS, DEFAULT_RETRIES, IS_DEFAULT, bean.getQueueTypeName(), ENABLE_EXTRA_QUEUE_CREATION);
         destinationSpec.activate();
-        destinationSpec.subscribe(new SubscriberName(bean.getName()), defaultSubscriber.getNlsComponent(), defaultSubscriber.getNlsLayer(), defaultSubscriber.getFilterCondition());
+        destinationSpec.subscribe(SubscriberName.from(bean.getName()), defaultSubscriber.getNlsComponent(), defaultSubscriber.getNlsLayer(), defaultSubscriber.getFilterCondition());
 
         return Response.status(Response.Status.OK).build();
     }
@@ -187,7 +210,13 @@ public class DestinationSpecResource {
         }
 
         if (!info.tasks.isEmpty()) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new WebApplicationException(thesaurus.getString(MessageSeeds.Keys.TASKS_NOT_EMPTY, MessageSeeds.TASKS_NOT_EMPTY.getDefaultFormat()),
+                    Response.Status.FORBIDDEN);
+        }
+
+        if (getSubscriberExecutionSpec4(destinationSpecName).isPresent()) {
+            throw new WebApplicationException(thesaurus.getString(MessageSeeds.Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, MessageSeeds.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE.getDefaultFormat()),
+                    Response.Status.FORBIDDEN);
         }
 
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destinationSpecName).get();
@@ -197,6 +226,12 @@ public class DestinationSpecResource {
         queueTableSpec.delete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private Optional<SubscriberExecutionSpec> getSubscriberExecutionSpec4(String destinationSpecName) {
+        return appService.getSubscriberExecutionSpecs().stream()
+                .filter(subscriberExecutionSpec -> subscriberExecutionSpec.getSubscriberSpec().getName().equals(destinationSpecName))
+                .filter(SubscriberExecutionSpec::isActive).findAny();
     }
 
     @GET

@@ -13,11 +13,11 @@ public class DestinationSpecTypeName {
         this.data = data;
     }
 
-    public static DestinationSpecTypeName from(List<DestinationSpec> destinationSpec) {
-        List<DestinationSpecTypeNameInfo> data = destinationSpec.stream()
+    public static DestinationSpecTypeName from(List<DestinationSpec> destinationSpecs) {
+        List<DestinationSpecTypeNameInfo> data = destinationSpecs.stream()
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
                 .filter(DestinationSpec::isDefault)
-                .map(d -> new DestinationSpecTypeNameInfo(d.getQueueTypeName()))
+                .map(destinationSpec -> new DestinationSpecTypeNameInfo(destinationSpec.getQueueTypeName()))
                 .collect(Collectors.toList());
 
         return new DestinationSpecTypeName(data);
