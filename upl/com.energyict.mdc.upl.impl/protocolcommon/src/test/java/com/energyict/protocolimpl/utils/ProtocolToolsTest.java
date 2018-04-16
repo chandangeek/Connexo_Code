@@ -6,9 +6,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
@@ -19,6 +16,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runners.model.Statement;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -32,7 +37,6 @@ import static org.junit.Assert.fail;
  * @author jme
  */
 public class ProtocolToolsTest {
-
     private static final int SECONDS_PER_MINUTE = 60;
     private static final String FILENAME_TO_READ = "/com/energyict/protocolimpl/utils/ProtocolToolsReadFileTest.txt";
     private static final String FILENAME_TO_WRITE = System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest_" + System.currentTimeMillis() + ".tmp";
@@ -52,6 +56,20 @@ public class ProtocolToolsTest {
     private static final byte[] MERGE_ARRAY2 = "GHI678JKL012".getBytes();
     private static final byte[] MERGED_ARRAY = "ABC012DEF345GHI678JKL012".getBytes();
     private final String NON_EXISTING_FILE_NAME = "nonexistingfilename_" + System.currentTimeMillis();
+
+    @Rule
+    public TestRule timeZone = (statement, description) -> new Statement() {
+        @Override
+        public void evaluate() throws Throwable {
+            TimeZone toRestore = TimeZone.getDefault();
+            try {
+                TimeZone.setDefault(TimeZone.getTimeZone("Antarctica/McMurdo"));
+                statement.evaluate();
+            } finally {
+                TimeZone.setDefault(toRestore);
+            }
+        }
+    };
 
     @BeforeClass
     @AfterClass
@@ -247,7 +265,6 @@ public class ProtocolToolsTest {
         String internalParseError = "THIS_GENERATES_AN_INTERNAL_:PARSE_ERROR";
         assertNull(ProtocolTools.getEpochTimeFromString(null));
         assertEquals(internalParseError, ProtocolTools.getEpochTimeFromString(internalParseError));
-
     }
 
     @Test
@@ -397,7 +414,6 @@ public class ProtocolToolsTest {
         assertArrayEquals(ProtocolTools.concatByteArrays(BYTE_ARRAY, BYTE_ARRAY), ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
     }
 
-
     /**
      * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#roundUpToNearestInterval(Date, int)}.
      */
@@ -416,7 +432,6 @@ public class ProtocolToolsTest {
                 original.add(Calendar.SECOND, -1);
             }
         }
-
     }
 
     /**
@@ -437,7 +452,6 @@ public class ProtocolToolsTest {
                 original.add(Calendar.SECOND, 1);
             }
         }
-
     }
 
     /**
@@ -466,7 +480,6 @@ public class ProtocolToolsTest {
         List<IntervalData> out = ProtocolTools.mergeDuplicateIntervals(in);
         assertNotNull(out);
         assertEquals(2, out.size());
-
     }
 
     /**
@@ -481,7 +494,6 @@ public class ProtocolToolsTest {
                 assertEquals(ObisCode.fromByteArray(ln), ProtocolTools.setObisCodeField(ObisCode.fromByteArray(LONG_NAME), fieldNr, value));
             }
         }
-
     }
 
     /**
@@ -525,7 +537,6 @@ public class ProtocolToolsTest {
         assertEquals(reg1.getReadTime(), reg2.getReadTime());
         assertEquals(reg1.getRtuRegisterId(), reg2.getRtuRegisterId());
         assertEquals(reg1.getText(), reg2.getText());
-
     }
 
     @Test
@@ -562,7 +573,6 @@ public class ProtocolToolsTest {
         assertArrayEquals(total234, ProtocolTools.concatByteArrays(array2, null, null, array3, array4));
         assertArrayEquals(array6, ProtocolTools.concatByteArrays(array6));
         assertArrayEquals(array6, ProtocolTools.concatByteArrays(null, null, array6, null, null));
-
     }
 
     @Test
@@ -585,7 +595,6 @@ public class ProtocolToolsTest {
             byte[] result = ProtocolTools.addOneToByteArray(input);
             assertArrayEquals(expected, result);
         }
-
     }
 
     @Test
@@ -786,8 +795,8 @@ public class ProtocolToolsTest {
     public void testGetFormattedDate() {
         Date dateToFormat = new Date(1234567890123L);
         assertNotNull(ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
-        assertEquals("2009-02-14#00:31:30", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
-        assertEquals("2009-02-14#00:31:30,123", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss,SSS", dateToFormat));
+        assertEquals("2009-02-14#12:31:30", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
+        assertEquals("2009-02-14#12:31:30,123", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss,SSS", dateToFormat));
     }
 
 }
