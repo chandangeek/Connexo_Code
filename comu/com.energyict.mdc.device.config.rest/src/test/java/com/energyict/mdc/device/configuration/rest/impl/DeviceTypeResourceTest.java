@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -1551,11 +1552,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(registerType102));
 
-        Thesaurus thesaurus = mock(Thesaurus.class);
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-        when(thesaurus.getSimpleFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
         MessageSeed messageSeed = mock(MessageSeed.class);
+        when(messageSeed.getDefaultFormat()).thenReturn("Help me");
         doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).update();
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();

@@ -4,8 +4,11 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
@@ -19,11 +22,13 @@ import java.util.Set;
 public class SecurityAccessorTypeInfoFactory {
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
     private final UserService userService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SecurityAccessorTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService) {
+    public SecurityAccessorTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService, Thesaurus thesaurus) {
         this.executionLevelInfoFactory = executionLevelInfoFactory;
         this.userService = userService;
+        this.thesaurus = thesaurus;
     }
 
     public SecurityAccessorTypeInfo from(SecurityAccessorType securityAccessorType) {
@@ -36,6 +41,7 @@ public class SecurityAccessorTypeInfoFactory {
         info.storageMethod = info.keyType.isKey ? securityAccessorType.getKeyEncryptionMethod() : null;
         info.trustStoreId = !info.keyType.isKey && securityAccessorType.getTrustStore().isPresent() ? securityAccessorType
                 .getTrustStore().get().getId() : 0;
+        info.purpose = purposeToInfo(securityAccessorType.getPurpose());
         if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
             info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
         }
@@ -52,5 +58,13 @@ public class SecurityAccessorTypeInfoFactory {
         info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
         info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, groups);
         return info;
+    }
+
+    public IdWithNameInfo purposeToInfo(SecurityAccessorType.Purpose purpose) {
+        return new IdWithNameInfo(purpose.name(), SecurityAccessorTypePurposeTranslation.translate(purpose, thesaurus));
+    }
+
+    public SecurityAccessorType.Purpose purposeFromInfo(IdWithNameInfo info) {
+        return SecurityAccessorType.Purpose.valueOf(info.id.toString());
     }
 }

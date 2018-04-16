@@ -67,7 +67,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Path("/unassigned")
     public PagedInfoList getSecurityAccessorsUnassignedToDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorTypeInfo> infos = subtract(securityManagementService.getSecurityAccessorTypes(), deviceType.getSecurityAccessorTypes())
+        List<SecurityAccessorTypeInfo> infos = subtract(securityManagementService.getSecurityAccessorTypes(SecurityAccessorType.Purpose.DEVICE_OPERATIONS), deviceType.getSecurityAccessorTypes())
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
