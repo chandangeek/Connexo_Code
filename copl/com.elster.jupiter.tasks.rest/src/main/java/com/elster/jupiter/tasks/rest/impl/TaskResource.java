@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
@@ -20,7 +21,9 @@ import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -180,4 +183,30 @@ public class TaskResource {
 
         return TaskTrigger.from(thesaurus, recurrentTask);
     }
+
+    @GET
+    @Path("/compatiblequeues/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    public Response getCompatibleQueues(@PathParam("id") long id) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<QueueInfo> queues = taskService.getCompatibleQueues4(recurrentTask.getDestination().getName())
+                .stream()
+                .map(destinationSpec -> new QueueInfo(destinationSpec.getName()))
+                .collect(Collectors.toList());
+
+        return Response.status(Response.Status.OK).entity(queues).build();
+    }
+
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    public TaskTrigger addTask2Queue(TaskMinInfo info) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        recurrentTask.setDestination(info.queue);
+        return TaskTrigger.from(thesaurus, recurrentTask);
+    }
+
 }

@@ -105,7 +105,7 @@ public class TaskInfo {
                 .skip(1)
                 .filter(occurence -> occurence.getStartDate().isPresent() && occurence.getEndDate().isPresent())
                 .findFirst();
-        if(lastOcc.isPresent()) {
+        if (lastOcc.isPresent()) {
             setLastRunStatus(lastOcc.get());
         }
     }
