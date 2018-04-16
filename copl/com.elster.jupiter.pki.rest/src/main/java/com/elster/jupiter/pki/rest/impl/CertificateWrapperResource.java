@@ -267,9 +267,11 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response requestCertificate(@PathParam("id") long certificateId, @QueryParam("timeout") long timeout) {
-        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+        RequestableCertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
+                .filter(RequestableCertificateWrapper.class::isInstance)
+                .map(RequestableCertificateWrapper.class::cast)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-        PKCS10CertificationRequest pkcs10CertificationRequest = ((RequestableCertificateWrapper) certificateWrapper).getCSR().get();
+        PKCS10CertificationRequest pkcs10CertificationRequest = certificateWrapper.getCSR().get();
         timeout = timeout == 0 ? 30 : timeout;
         try {
             X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
@@ -440,6 +442,7 @@ public class CertificateWrapperResource {
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
+        // TODO: why is conflict check implemented only here? A lot of methods above can change certificate wrapper.
         CertificateWrapper certificateWrapper = securityManagementService.findAndLockCertificateWrapper(certificateWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
