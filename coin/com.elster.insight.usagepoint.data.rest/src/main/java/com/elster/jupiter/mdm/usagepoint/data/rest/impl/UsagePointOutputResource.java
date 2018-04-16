@@ -522,10 +522,10 @@ public class UsagePointOutputResource {
                 Map<Long, PurposeOutputsDataInfo> tempMap = new HashMap<>();
                 readingsMap.forEach(pair -> {
                     if (tempMap.containsKey(pair.getLast().interval.end)) {
-                        purposeOutputsDataInfoFactory.addValues(tempMap.get(pair.getLast().interval.end), pair.getFirst(), pair.getLast().value);
+                        purposeOutputsDataInfoFactory.addValues(tempMap.get(pair.getLast().interval.end), pair.getFirst(), pair.getLast());
                     } else {
                         tempMap.put(pair.getLast().interval.end, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(),
-                                pair.getLast().value, pair.getLast().interval));
+                                pair.getLast(), pair.getLast().interval));
                     }
                 });
                 outputsDataInfos = tempMap.entrySet().stream()

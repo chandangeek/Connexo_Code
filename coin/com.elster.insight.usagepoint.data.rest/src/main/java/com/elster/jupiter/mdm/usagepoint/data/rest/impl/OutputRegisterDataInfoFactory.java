@@ -155,7 +155,7 @@ public class OutputRegisterDataInfoFactory {
             outputRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
             outputRegisterHistoryDataInfo.userName = record instanceof JournaledRegisterReadingRecord ?
                     ((JournaledRegisterReadingRecord) record).getUserName() : "";
-            outputRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
+            outputRegisterHistoryDataInfo.timeStamp = record.getTimeStamp();
             outputRegisterHistoryDataInfo.value = record.getValue();
             outputRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
             outputRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()

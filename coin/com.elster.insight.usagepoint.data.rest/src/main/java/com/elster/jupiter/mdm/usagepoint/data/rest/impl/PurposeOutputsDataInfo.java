@@ -17,6 +17,6 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PurposeOutputsDataInfo {
-    public Map<Long,BigDecimal> channelData = new HashMap<>();
+    public Map<Long, OutputChannelDataInfo> channelData = new HashMap<>();
     public IntervalInfo interval;
 }
