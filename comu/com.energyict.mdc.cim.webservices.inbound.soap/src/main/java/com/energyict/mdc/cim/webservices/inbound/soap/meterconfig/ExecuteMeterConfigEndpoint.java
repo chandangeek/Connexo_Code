@@ -4,32 +4,40 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
-
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.executemeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 
 import javax.inject.Inject;
 
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private static final String NOUN = "MeterConfig";
+    private static final String METER_ITEM = NOUN + ".Meter";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -37,57 +45,127 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private final TransactionService transactionService;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private final MeterConfigFactory meterConfigFactory;
+    private final MeterConfigParser meterConfigParser;
     private final ReplyTypeFactory replyTypeFactory;
     private final EndPointHelper endPointHelper;
     private final DeviceBuilder deviceBuilder;
 
+    private final ServiceCallCommands serviceCallCommands;
+    private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServicesService webServicesService;
+
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
-                                      EndPointHelper endPointHelper, DeviceBuilder deviceBuilder) {
+                                      EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
+                                      ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
+        this.meterConfigParser = meterConfigParser;
         this.faultMessageFactory = faultMessageFactory;
         this.replyTypeFactory = replyTypeFactory;
         this.endPointHelper = endPointHelper;
         this.deviceBuilder = deviceBuilder;
+        this.serviceCallCommands = serviceCallCommands;
+        this.endPointConfigurationService = endPointConfigurationService;
+        this.webServicesService = webServicesService;
     }
 
     @Override
     public MeterConfigResponseMessageType createMeterConfig(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
+        String meterName = null;
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-            Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
-            Device createdDevice = deviceBuilder.prepareCreateFrom(meter, meterConfig).build();
-            context.commit();
-            return createResponseMessage(createdDevice, meterConfig, HeaderType.Verb.CREATED);
+            if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.CREATE);
+                context.commit();
+                return createQuickResponseMessage(HeaderType.Verb.REPLY);
+            } else if (meterConfig.getMeter().size() > 1) {
+                throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE, MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
+            } else {
+                // call synchronously
+                Meter meter = meterConfig.getMeter().stream().findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+
+                Device createdDevice = deviceBuilder.prepareCreateFrom(meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE)).build();
+                context.commit();
+                return createResponseMessage(createdDevice, HeaderType.Verb.CREATED);
+            }
         } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage());
+            throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
+            throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 
     @Override
     public MeterConfigResponseMessageType changeMeterConfig(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
+        String meterName = null;
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-            Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
-            Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
-            context.commit();
-            return createResponseMessage(changedDevice, meterConfig, HeaderType.Verb.CHANGED);
+            if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.UPDATE);
+                context.commit();
+                return createQuickResponseMessage(HeaderType.Verb.REPLY);
+            } else if (meterConfig.getMeter().size() > 1) {
+                throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE, MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
+            } else {
+                // call synchronously
+                Meter meter = meterConfig.getMeter().stream().findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+                Device changedDevice = deviceBuilder.prepareChangeFrom(meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.UPDATE)).build();
+                context.commit();
+                return createResponseMessage(changedDevice, HeaderType.Verb.CHANGED);
+            }
         } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException e) {
-            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage());
+            throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
+            throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 
-    private MeterConfigResponseMessageType createResponseMessage(Device device, MeterConfig originalMeterConfig, HeaderType.Verb verb) {
+    private String getReplyAddress(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
+        String replyAddress = requestMessage.getHeader().getReplyAddress();
+        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
+            throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_CREATE_DEVICE, MessageSeeds.NO_REPLY_ADDRESS);
+        }
+        return replyAddress;
+    }
+
+    private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
+        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst()
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_END_POINT_WITH_URL, url));
+        if (!webServicesService.isPublished(endPointConfig)) {
+            webServicesService.publishEndPoint(endPointConfig);
+        }
+        if (!webServicesService.isPublished(endPointConfig)) {
+            throw faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
+        }
+        return endPointConfig;
+    }
+
+    private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig, EndPointConfiguration endPointConfiguration,
+                                                                  OperationEnum operation) throws FaultMessage{
+        ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig, endPointConfiguration, operation);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+        return serviceCall;
+    }
+
+    private MeterConfigResponseMessageType createResponseMessage(Device device, HeaderType.Verb verb) {
         MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory.createMeterConfigResponseMessageType();
 
         // set header
@@ -97,15 +175,27 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         responseMessage.setHeader(header);
 
         // set reply
-        ReplyType reply = originalMeterConfig.getMeter().size() > 1 ?
-                replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, "MeterConfig.Meter") : replyTypeFactory.okReplyType();
-        responseMessage.setReply(reply);
+        responseMessage.setReply(replyTypeFactory.okReplyType());
 
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(device);
-        meterConfigPayload.setMeterConfig(meterConfig);
+        meterConfigPayload.setMeterConfig(meterConfigFactory.asMeterConfig(device));
         responseMessage.setPayload(meterConfigPayload);
+
+        return responseMessage;
+    }
+
+    private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb) {
+        MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory.createMeterConfigResponseMessageType();
+
+        // set header
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setNoun(NOUN);
+        header.setVerb(verb);
+        responseMessage.setHeader(header);
+
+        // set reply
+        responseMessage.setReply(replyTypeFactory.okReplyType());
 
         return responseMessage;
     }

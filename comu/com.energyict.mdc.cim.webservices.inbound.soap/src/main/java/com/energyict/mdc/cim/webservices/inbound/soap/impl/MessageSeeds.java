@@ -4,10 +4,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -38,6 +37,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_VALID_MULTIPLIER_REASON(1009, "NotValidMultiplierReason", "''{0}'' is not a valid multiplier reason"),
     NOT_VALID_STATUS_REASON(1010, "NotValidStatusReason", "''{0}'' is not a valid status reason"),
     UNABLE_TO_CHANGE_DEVICE_STATE(1011, "UnableToChangeDeviceState", "Cannot update the device with ''{0}'' payload state"),
+    NOT_VALID_CONFIGURATION_REASON(1012, "NotValidConfigurationReason", "''{0}'' is not a valid configuration event reason"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
@@ -53,6 +53,15 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_DEVICE_EVENT_TYPE_WITH_REF(3005, "NoEndDeviceEventTypeWithRef", "No end device event type is found with ref ''{0}''"),
     NO_OBIS_CODE_CONFIGURED(3006, "NoObisCodeConfigured", "Obis code is not configured for the web service end point"),
     NO_END_POINT_WITH_WEBSERVICE_NAME(3007, "NoEndPointConfigured", "No end point configuration is found by web service name ''{0}''."),
+
+    // async
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(4001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
+    NO_REPLY_ADDRESS(4002, "NoReplyAddress", "Reply address is required"),
+    NO_END_POINT_WITH_URL(4003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
+    SYNC_MODE_NOT_SUPPORTED(4004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
+    NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
+
+    NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ;
 
     private final int number;
@@ -112,5 +121,10 @@ public enum MessageSeeds implements MessageSeed {
         } else {
             return ErrorType.Level.INFORM;
         }
+    }
+
+    public static final class Keys {
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
+        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
     }
 }

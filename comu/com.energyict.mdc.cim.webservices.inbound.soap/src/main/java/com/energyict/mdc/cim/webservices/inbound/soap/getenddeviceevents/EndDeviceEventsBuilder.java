@@ -7,13 +7,16 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 
+import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.enddeviceevents.ObjectFactory;
 import ch.iec.tc57._2011.getenddeviceevents.DateTimeInterval;
 import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
@@ -34,6 +37,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public class EndDeviceEventsBuilder {
+    private static final String END_DEVICE_NAME_TYPE = "EndDevice";
+
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
     private final Clock clock;
@@ -41,7 +46,7 @@ public class EndDeviceEventsBuilder {
     private final EndDeviceEventsFaultMessageFactory faultMessageFactory;
 
     private List<EndDevice> endDevices;
-    private RangeSet<Instant> timePeriods;
+    private Range<Instant> timePeriods;
 
     @Inject
     public EndDeviceEventsBuilder(MeteringService meteringService,
@@ -53,27 +58,19 @@ public class EndDeviceEventsBuilder {
     }
 
     public EndDeviceEventsBuilder prepareGetFrom(List<Meter> meters, List<TimeSchedule> timeSchedules) throws FaultMessage {
-        Set<String> mRIDs = new HashSet<>();
-        Set<String> names = new HashSet<>();
-
-        meters.stream().forEach(meter -> {
-            Optional<String> mRID = extractMrid(meter);
-            Optional<String> name = extractName(meter);
-            if (mRID.isPresent()) {
-                mRIDs.add(mRID.get());
-            } else if (name.isPresent()) {
-                names.add(name.get());
-            }
-        });
-
-        if (mRIDs.isEmpty() && names.isEmpty()) {
-            throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING).get();
-        }
-
-        endDevices = meteringService.findEndDevices(mRIDs, names).find();
+        endDevices = meteringService.findEndDevices(getMeterIdentifiers(meters));
         timePeriods = getTimeIntervals(timeSchedules);
-
         return this;
+    }
+
+    public EndDeviceEvents build() throws FaultMessage {
+        EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
+        List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
+
+        endDevices.stream().forEach(
+                endDevice -> endDevice.getDeviceEvents(timePeriods).stream().forEach(
+                        deviceEvent -> endDeviceEventList.add(asEndDeviceEvent(deviceEvent))));
+        return endDeviceEvents;
     }
 
     /*
@@ -82,6 +79,60 @@ public class EndDeviceEventsBuilder {
      * If name is specified, find end device by name.
      * Otherwise, this meter tag is skipped.
      */
+    public Set<String> getMeterIdentifiers(List<Meter> meters) throws FaultMessage {
+        Set<String> identifiers = new HashSet<>();
+        meters.stream().forEach(meter -> {
+            Optional<String> mRID = extractMrid(meter);
+            Optional<String> name = extractName(meter);
+            if (mRID.isPresent()) {
+                identifiers.add(mRID.get());
+            } else if (name.isPresent()) {
+                identifiers.add(name.get());
+            }
+        });
+        if (identifiers.isEmpty()) {
+            throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.END_DEVICE_IDENTIFIER_MISSING).get();
+        }
+        return identifiers;
+    }
+
+    /*
+     * Filtering by date (between start & end date).
+     * Start date is mandatory.
+     * If only the start date is given, the end date = now
+     */
+    public Range<Instant> getTimeIntervals(List<TimeSchedule> timeSchedules) throws FaultMessage {
+        RangeSet<Instant> result = TreeRangeSet.create();
+        if (timeSchedules.isEmpty()) {
+            result.addAll(ImmutableRangeSet.of(Range.all()));
+        } else {
+            // only the first period is taken into account
+            result.add(getTimeInterval(timeSchedules.get(0)));
+        }
+        return result.span();
+    }
+
+    public EndDeviceEvent asEndDeviceEvent(EndDeviceEventRecord record) {
+        EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
+        endDeviceEvent.setEndDeviceEventType(toEndDeviceEventType(record.getEventType()));
+        endDeviceEvent.setMRID(record.getMRID());
+        endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
+        endDeviceEvent.setIssuerID(record.getIssuerID());
+        endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
+        endDeviceEvent.setSeverity(record.getSeverity());
+        endDeviceEvent.setStatus(toStatus(record.getStatus()));
+        endDeviceEvent.setReason(record.getDescription());
+        endDeviceEvent.setAssets(createAsset(record.getEndDevice()));
+
+        record.getProperties().entrySet().stream().forEach(property -> {
+                    EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
+                    endDeviceEventDetail.setName(property.getKey());
+                    endDeviceEventDetail.setValue(property.getValue());
+                    endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
+                }
+        );
+        return endDeviceEvent;
+    }
 
     private Optional<String> extractMrid(Meter meter) {
         return Optional.ofNullable(meter.getMRID()).filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
@@ -91,21 +142,38 @@ public class EndDeviceEventsBuilder {
         return meter.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
     }
 
-    /*
-     * Filtering by date (between start & end date).
-     * Start date is mandatory.
-     * If only the start date is given, the end date = now
-     */
+    private EndDeviceEvent.EndDeviceEventType toEndDeviceEventType(com.elster.jupiter.metering.events.EndDeviceEventType eventType) {
+        EndDeviceEvent.EndDeviceEventType type = payloadObjectFactory.createEndDeviceEventEndDeviceEventType();
+        type.setRef(eventType.getMRID());
+        return type;
+    }
 
-    private RangeSet<Instant> getTimeIntervals(List<TimeSchedule> timeSchedules) throws FaultMessage {
-        RangeSet<Instant> result = TreeRangeSet.create();
-        if (timeSchedules.isEmpty()) {
-            result.addAll(ImmutableRangeSet.of(Range.all()));
-        } else {
-            // only the first period is taken into account
-            result.add(getTimeInterval(timeSchedules.get(0)));
+    private ch.iec.tc57._2011.enddeviceevents.Status toStatus(Status status) {
+        if (status == null) {
+            return null;
         }
-        return result;
+        ch.iec.tc57._2011.enddeviceevents.Status state = payloadObjectFactory.createStatus();
+        state.setDateTime(status.getDateTime());
+        state.setReason(status.getReason());
+        state.setRemark(status.getRemark());
+        state.setValue(status.getValue());
+        return state;
+    }
+
+    private Asset createAsset(EndDevice endDevice) {
+        Asset asset = payloadObjectFactory.createAsset();
+        asset.setMRID(endDevice.getMRID());
+        asset.getNames().add(createName(endDevice));
+        return asset;
+    }
+
+    private ch.iec.tc57._2011.enddeviceevents.Name createName(EndDevice endDevice) {
+        NameType nameType = payloadObjectFactory.createNameType();
+        nameType.setName(END_DEVICE_NAME_TYPE);
+        ch.iec.tc57._2011.enddeviceevents.Name name = payloadObjectFactory.createName();
+        name.setNameType(nameType);
+        name.setName(endDevice.getName());
+        return name;
     }
 
     private Range<Instant> getTimeInterval(TimeSchedule timeSchedule) throws FaultMessage {
@@ -125,52 +193,5 @@ public class EndDeviceEventsBuilder {
                     XsdDateTimeConverter.marshalDateTime(end)).get();
         }
         return Range.openClosed(start, end);
-    }
-
-    public EndDeviceEvents build() throws FaultMessage {
-        EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
-        List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-
-        endDevices.stream().forEach(
-                endDevice -> endDevice.getDeviceEvents(timePeriods.span()).stream().forEach(
-                        deviceEvent -> {
-                            EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
-                            endDeviceEvent.setEndDeviceEventType(toEndDeviceEventType(deviceEvent.getEventType()));
-                            endDeviceEvent.setMRID(deviceEvent.getMRID());
-                            endDeviceEvent.setCreatedDateTime(deviceEvent.getCreatedDateTime());
-                            endDeviceEvent.setIssuerID(deviceEvent.getIssuerID());
-                            endDeviceEvent.setIssuerTrackingID(deviceEvent.getIssuerTrackingID());
-                            endDeviceEvent.setSeverity(deviceEvent.getSeverity());
-                            endDeviceEvent.setStatus(toStatus(deviceEvent.getStatus()));
-                            endDeviceEvent.setReason(deviceEvent.getDescription());
-
-                            deviceEvent.getProperties().entrySet().stream().forEach(property -> {
-                                        EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
-                                        endDeviceEventDetail.setName(property.getKey());
-                                        endDeviceEventDetail.setValue(property.getValue());
-                                        endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
-                                    }
-                            );
-                            endDeviceEventList.add(endDeviceEvent);
-                        }));
-        return endDeviceEvents;
-    }
-
-    private EndDeviceEvent.EndDeviceEventType toEndDeviceEventType(com.elster.jupiter.metering.events.EndDeviceEventType eventType) {
-        EndDeviceEvent.EndDeviceEventType type = payloadObjectFactory.createEndDeviceEventEndDeviceEventType();
-        type.setRef(eventType.getMRID());
-        return type;
-    }
-
-    private ch.iec.tc57._2011.enddeviceevents.Status toStatus(Status status) {
-        if (status == null) {
-            return null;
-        }
-        ch.iec.tc57._2011.enddeviceevents.Status state = payloadObjectFactory.createStatus();
-        state.setDateTime(status.getDateTime());
-        state.setReason(status.getReason());
-        state.setRemark(status.getRemark());
-        state.setValue(status.getValue());
-        return state;
     }
 }

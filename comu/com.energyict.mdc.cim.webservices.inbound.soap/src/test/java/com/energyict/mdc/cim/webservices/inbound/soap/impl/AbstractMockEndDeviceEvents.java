@@ -35,7 +35,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AbstractMockEndDeviceEvents extends AbstractMockActivator {
+public abstract class AbstractMockEndDeviceEvents extends AbstractMockActivator {
     protected static final Instant NOW = Instant.now();
 
     protected static final String END_DEVICE_MRID = UUID.randomUUID().toString();

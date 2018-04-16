@@ -9,9 +9,11 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.getenddeviceevents.DateTimeInterval;
@@ -60,7 +62,11 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
     private static final String END_DEVICE_EVENT_TYPE = "3.2.22.150";
     private static final String END_DEVICE_EVENT_STATUS = "open";
 
+    private static final String REPLY_ADDRESS = "replyAddress";
+
     private final ObjectFactory endDeviceEventMessageFactory = new ObjectFactory();
+    private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
+            = new ch.iec.tc57._2011.schema.message.ObjectFactory();
 
     @Mock
     private EndDevice endDevice;
@@ -68,11 +74,12 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
     private EndDeviceEventType endDeviceEventType;
     @Mock
     private EndDeviceEventRecord endDeviceEvent;
+    @Mock
+    private ServiceCallCommands serviceCallCommands;
 
     @Before
     public void setUp() throws Exception {
-        Finder<EndDevice> finder = mockFinder(Collections.singletonList(endDevice));
-        when(meteringService.findEndDevices(anySetOf(String.class), anySetOf(String.class))).thenReturn(finder);
+        when(meteringService.findEndDevices(anySetOf(String.class))).thenReturn(Collections.singletonList(endDevice));
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
         when(endDevice.getDeviceEvents(any(Range.class))).thenReturn(Collections.singletonList(endDeviceEvent));
@@ -87,6 +94,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         when(endDeviceEvent.getIssuerTrackingID()).thenReturn(END_DEVICE_EVENT_ISSUER_TRACKING_ID);
         when(endDeviceEvent.getSeverity()).thenReturn(END_DEVICE_EVENT_SEVERIRY);
         when(endDeviceEvent.getStatus()).thenReturn(Status.builder().value(END_DEVICE_EVENT_STATUS).build());
+        when(endDeviceEvent.getEndDevice()).thenReturn(endDevice);
         when(endDeviceEventType.getMRID()).thenReturn(END_DEVICE_EVENT_TYPE);
 
         HashMap<String, String> eventData = new HashMap<>();
@@ -247,11 +255,96 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         assertThat(endDeviceEvent.getEndDeviceEventDetails().get(0).getValue()).isEqualTo("B");
     }
 
+    @Test
+    public void testNoReplyAddress() throws Exception {
+        GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
+        GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
+        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(true);
+        getEndDeviceEvents.getMeter().add(createMeter(END_DEVICE_MRID, END_DEVICE_NAME));
+
+        try {
+            // Business method
+            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus));
+            EndDeviceEventsFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_REPLY_ADDRESS.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testSyncModeNotSupported() throws Exception {
+        GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
+        GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
+        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(false);
+        Meter meter = createMeter(END_DEVICE_MRID, END_DEVICE_NAME);
+        getEndDeviceEvents.getMeter().add(meter);
+        getEndDeviceEvents.getMeter().add(meter);
+
+        try {
+            // Business method
+            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus));
+            EndDeviceEventsFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.SYNC_MODE_NOT_SUPPORTED.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testOutboundNotConfigured() throws Exception {
+        GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
+        GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
+        endDeviceEventsRequest.getHeader().setAsyncReplyFlag(true);
+        endDeviceEventsRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
+
+        getEndDeviceEvents.getMeter().add(createMeter(END_DEVICE_MRID, END_DEVICE_NAME));
+
+        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
+        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS + "_1");
+        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+
+        try {
+            // Business method
+            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus));
+            EndDeviceEventsFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
     private GetEndDeviceEventsRequestMessageType createGetEndDeviceEventsRequest(GetEndDeviceEvents getEndDeviceEvents) {
         GetEndDeviceEventsRequestType request = endDeviceEventMessageFactory.createGetEndDeviceEventsRequestType();
         request.setGetEndDeviceEvents(getEndDeviceEvents);
         GetEndDeviceEventsRequestMessageType message = endDeviceEventMessageFactory.createGetEndDeviceEventsRequestMessageType();
         message.setRequest(request);
+        message.setHeader(cimMessageObjectFactory.createHeaderType());
         return message;
     }
 

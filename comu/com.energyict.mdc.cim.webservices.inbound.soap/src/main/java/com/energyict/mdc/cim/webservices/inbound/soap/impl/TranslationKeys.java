@@ -9,6 +9,19 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
     LOGBOOK_OBIS_CODE("endDeviceEvents.obisCode", "Logbook OBIS code"),
     ALARM_CLOSURE_COMMENT("alarmClosureComment", "Alarm closed on {0} call"),
+
+    DOMAIN_NAME("serviceCall", "Service call"),
+    CALL_BACK_URL("callbackUrl", "Callback URL"),
+    METER_CONFIG("meterConfig", "Meter config"),
+    PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
+    ERROR_MESSAGE("errorMessage", "Error message"),
+    ERROR_CODE("errorCode", "Error code"),
+    OPERATION("operation", "Operation"),
+    CALLS_SUCCESS("callsSuccess", "Success calls counter"),
+    CALLS_ERROR("callsError", "Error calls counter"),
+    CALLS_EXPECTED("callsExpected", "Expected calls counter"),
+    FROM_DATE("fromDate", "From date"),
+    TO_DATE("toDate", "To date")
     ;
 
     private final String key;
