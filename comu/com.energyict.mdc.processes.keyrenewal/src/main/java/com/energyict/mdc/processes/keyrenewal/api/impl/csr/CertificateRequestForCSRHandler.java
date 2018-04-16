@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.processes.keyrenewal.api.impl.csr;
 
 import com.elster.jupiter.messaging.Message;
@@ -42,7 +46,6 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
         this.serviceCallService = serviceCallService;
         this.deviceService = deviceService;
     }
-
 
     @Override
     public void process(Message message) {
