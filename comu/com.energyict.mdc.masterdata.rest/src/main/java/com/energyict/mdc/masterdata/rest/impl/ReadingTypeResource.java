@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -25,9 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 
 import java.util.Collections;
@@ -41,12 +41,15 @@ public class ReadingTypeResource {
     private final MeteringService meteringService;
     private final MasterDataService masterDataService;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private final Thesaurus thesaurus;
+
 
     @Inject
-    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, MdcReadingTypeUtilService mdcReadingTypeUtilService, Thesaurus thesaurus) {
         this.meteringService = meteringService;
         this.masterDataService = masterDataService;
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+        this.thesaurus = thesaurus;
     }
 
 
@@ -60,27 +63,29 @@ public class ReadingTypeResource {
                                                   @QueryParam("mRID") String mRID) {
 
         if (mRID != null && !mRID.isEmpty()) {
-            return meteringService.getReadingType(mRID)
-                    .map(ReadingTypeInfos::new)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        } else {
-            List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
-                    .stream()
-                    .map(rT -> rT.getReadingType().getMRID())
-                    .collect(Collectors.toList());
-
-            List<ReadingType> readingTypes = ReadingTypeResourceUtil.getObisCode(obisCodeString)
-                    .map(this::getMRIDFilter)
-                    .map(filter -> this.findReadingTypes(filter, readingTypesInUseIds))
-                    .orElse(Collections.emptyList());
-
-            String searchText = queryParameters.getLike();
-            if (!readingTypes.isEmpty()) {
-                return this.createInfoFromObisAndSearchText(searchText, readingTypes);
-            }
-            return this.createInfoFromSearchText(searchText, readingTypesInUseIds);
+            return this.getReadingTypeInfoByMrid(mRID);
         }
+
+        List<ReadingType> unusedReadingTypes;
+        String mappingError = null;
+        String searchText = queryParameters.getLike();
+        List<String> readingTypesInUseIds = this.getReadingTypesInUse();
+        if (obisCodeString == null || obisCodeString.isEmpty()) {
+            unusedReadingTypes = this.findUnusedReadingTypesBySearchText(searchText, readingTypesInUseIds);
+        } else {
+            try {
+                List<ReadingType> allReadingTypes = findReadingTypesByObisAndSearchText(obisCodeString, searchText);
+                unusedReadingTypes = this.getUnusedReadingTypes(allReadingTypes, readingTypesInUseIds);
+            } catch (MappingException e) {
+                // If any error is present, we will display the error message and all unused reading types filtered by the text query.
+                mappingError = e.getLocalizedMessage();
+                unusedReadingTypes = this.findUnusedReadingTypesBySearchText(searchText, readingTypesInUseIds);
+            }
+        }
+
+        return mappingError != null ? new ReadingTypeWithMappingErrorInfos(unusedReadingTypes, mappingError) : new ReadingTypeInfos(unusedReadingTypes);
     }
+
 
     @GET
     @Transactional
@@ -88,13 +93,12 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public StringResponse getMappedReadingType(@PathParam("obis") String obisCode) {
-        String response = ReadingTypeResourceUtil.getObisCode(obisCode)
+        String response = this.getObisCode(obisCode)
                 .map(mdcReadingTypeUtilService::getReadingTypeFilterFrom)
-                .map(ReadingTypeResourceUtil::extractUniqueFromRegex)
+                .map(ReadingTypeUtil::extractUniqueFromRegex)
                 .orElse("");
         return new StringResponse(response);
     }
-
 
     @GET
     @Transactional
@@ -118,7 +122,7 @@ public class ReadingTypeResource {
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()){
             ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(ReadingTypeFilterUtil.getFilterCondition(searchText));
+            filter.addCondition(MridDbMatcher.getFilterCondition(searchText));
             return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
                     .limit(50)
                     .collect(Collectors.toList()));
@@ -127,11 +131,44 @@ public class ReadingTypeResource {
     }
 
     /**
-     * @param filter used to query the database
-     * @param readingTypesInUseIds reading types that we're already used to create a register type
-     * @return zero or more reading types that are not in use
+     * The mRID corresponds to a newly added reading type. It should not be in use
+     *
+     * @param mRID CIM query param
+     * @return One Reading type info
      */
-    private List<ReadingType> findReadingTypes(ReadingTypeFilter filter, List<String> readingTypesInUseIds) {
+    private ReadingTypeInfos getReadingTypeInfoByMrid(String mRID) {
+        if (!MridStringMatcher.isValid(mRID))
+            return new ReadingTypeInfos();
+
+        return meteringService.getReadingType(mRID)
+                .map(ReadingTypeInfos::new)
+                .orElse(new ReadingTypeInfos());
+    }
+
+    /**
+     * @param obisCodeString obis code query param
+     * @param searchText text query param
+     * @throws MappingException when filtering by obis/text and no reading type is found
+     * @return list of reading types mapped from the obis code and filtered using the text param
+     */
+    private List<ReadingType> findReadingTypesByObisAndSearchText(String obisCodeString, String searchText) {
+        List<ReadingType> mappedReadingTypes = this.getMappedReadingTypes(obisCodeString);
+        List<ReadingType> readingTypes = ReadingTypeUtil.getFilteredList(searchText, mappedReadingTypes);
+        if (readingTypes.isEmpty()) {
+            throw new MappingException(thesaurus, MessageSeeds.NO_OBIS_TO_READING_TYPE_MAPPING_POSSIBLE);
+        }
+        return readingTypes;
+    }
+
+    /**
+     * Searches the database for the text query param value
+     * @param searchText text query param
+     * @param readingTypesInUseIds list of reading type mrids that are currently in use
+     * @return list of unused reading types.
+     */
+    private List<ReadingType> findUnusedReadingTypesBySearchText(String searchText, List<String> readingTypesInUseIds) {
+        ReadingTypeFilter filter = new ReadingTypeFilter();
+        filter.addCondition(MridDbMatcher.getFilterCondition(searchText));
         return meteringService.findReadingTypes(filter)
                 .stream()
                 .filter(rt -> !readingTypesInUseIds.contains(rt.getMRID()))
@@ -140,89 +177,55 @@ public class ReadingTypeResource {
     }
 
     /**
-     * This method is called after we've already queried the database using the obis mapper filter.
-     * The list that was obtained after the query, is further filtered using the like query parameter.
-     * @param searchText like query parameter
-     * @param readingTypes non empty list of reading types
-     * @return ReadingTypeInfo with mappingError = false
+     * Filters the readingTypes list, using the readingTypesInUseIds
+     * @param readingTypes list of reading types mapped from the obis code and filtered using the text param. Not empty
+     * @param readingTypesInUseIds list of reading type mrids that are currently in use
+     * @throws MappingException if no unused reading types are present after filtering the input reading types list
+     * @return list of unused reading types.
      */
-    private ReadingTypeInfos createInfoFromObisAndSearchText(String searchText, List<ReadingType> readingTypes) {
-        readingTypes = ReadingTypeFilterUtil.getFilteredList(searchText, readingTypes);
-        return new ReadingTypeFromObisInfos(readingTypes, false);
+    private List<ReadingType> getUnusedReadingTypes(List<ReadingType> readingTypes, List<String> readingTypesInUseIds) {
+        List<ReadingType> unusedReadingTypes = readingTypes
+                .stream()
+                .filter(readingType -> !readingTypesInUseIds.contains(readingType.getMRID()))
+                .limit(50)
+                .collect(Collectors.toList());
+        if (unusedReadingTypes.isEmpty()){
+            throw new MappingException(thesaurus, MessageSeeds.MAPPED_READING_TYPE_IS_IN_USE);
+        }
+        return unusedReadingTypes;
     }
 
     /**
-     * This method is called when an obis code is not present, invalid or doesn't map to a reading type
-     * @param searchText like query parameter
-     * @param readingTypesInUseIds reading types that we're already used to create a register type
-     * @return ReadingTypeInfo with mappingError = true
+     * @return list of reading types that are currently used by registers
      */
-    private ReadingTypeInfos createInfoFromSearchText(String searchText, List<String> readingTypesInUseIds) {
-        ReadingTypeFilter filter = new ReadingTypeFilter();
-        filter.addCondition(ReadingTypeFilterUtil.getFilterCondition(searchText));
-        List<ReadingType> readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-        return new ReadingTypeFromObisInfos(readingTypes, true);
+    private List<String> getReadingTypesInUse() {
+        return masterDataService.findAllRegisterTypes()
+                .stream()
+                .map(rT -> rT.getReadingType().getMRID())
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Builds a filter that matches all reading types that map to the obis code
-     * @param obisCode obis query param
-     * @return Non null ReadingTypeFilter
-     */
     private ReadingTypeFilter getMRIDFilter(ObisCode obisCode) {
         ReadingTypeFilter filter = new ReadingTypeFilter();
-        String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
-        filter.addCondition(ReadingTypeFilterUtil.getMRIDFilterCondition(mRID));
+        String mRID = this.mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
+        filter.addCondition(MridDbMatcher.getMRIDFilterCondition(mRID));
         return filter;
     }
 
+    private List<ReadingType> getMappedReadingTypes(String obisCodeString) {
+        return this.getObisCode(obisCodeString)
+                .map(this::getMRIDFilter)
+                .map(meteringService::findReadingTypes)
+                .map(Finder::find)
+                .orElse(Collections.emptyList());
+    }
 
-    /**
-     * Util class for the Reading Type resource
-     */
-    private static class ReadingTypeResourceUtil {
-
-        private final static String DELIMITER = "\\\\.";
-        private final static String NUMBER_REGEX = "[0-9]+";
-        private final static String DOT= ".";
-        private final static String DEFAULT_VALUE = "0";
-
-
-        /**
-         * @param codeString obis query param
-         * @return ObisCode object if present and valid
-         */
-        static Optional<ObisCode> getObisCode(String codeString) {
-            if (codeString == null || codeString.isEmpty()) {
-                return Optional.empty();
-            }
-            ObisCode code = ObisCode.fromString(codeString);
-            return code.isInvalid() ? Optional.empty() : Optional.of(code);
+    private Optional<ObisCode> getObisCode(String codeString) {
+        if (codeString == null || codeString.isEmpty()) {
+            return Optional.empty();
         }
-
-        /**
-         * Check every MRID field for multiple matches. If there is a single match,
-         * we return the unchanged value, otherwise we return a default value.
-         * Example:
-         * IN : 0\.0\.0.\.0\.1\.1\.(12|37)\.0\.0\.0\.0\.0\.[0-9]+\.[0-9]+\.0\.-?[0-9]+\.[0-9]+\.[0-9]+
-         * OUT: 0.0.0.0.1.1.0.0.0.0.0.0.0.0.0.0.0.0
-         * @param regex MRID regex that matches one or multiple reading types
-         * @return String
-         */
-        static String extractUniqueFromRegex(String regex) {
-            String values[] = regex.split(DELIMITER);
-            StringBuilder mrid = new StringBuilder();
-            int i = 1;
-            String code;
-            for(String value : values){
-                code = value.matches(NUMBER_REGEX) ? value : DEFAULT_VALUE;
-                mrid.append(code);
-
-                if (i++ != values.length)
-                    mrid.append(DOT);
-            }
-            return mrid.toString();
-        }
+        ObisCode code = ObisCode.fromString(codeString);
+        return code.isInvalid() ? Optional.empty() : Optional.of(code);
     }
 }
 

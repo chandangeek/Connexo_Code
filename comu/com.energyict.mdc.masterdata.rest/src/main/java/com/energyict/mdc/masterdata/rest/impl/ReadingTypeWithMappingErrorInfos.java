@@ -5,17 +5,17 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 
 import java.util.List;
 
-public class ReadingTypeFromObisInfos extends ReadingTypeInfos {
+public class ReadingTypeWithMappingErrorInfos extends ReadingTypeInfos {
 
-    // False if mapping from obis code to reading type is successful
-    private final boolean mappingError;
 
-    ReadingTypeFromObisInfos(List<ReadingType> readingTypes, boolean error){
+    private final String mappingError;
+
+    ReadingTypeWithMappingErrorInfos(List<ReadingType> readingTypes, String error){
         super(readingTypes);
         this.mappingError = error;
     }
 
-    public boolean getMappingError(){
+    public String getMappingError(){
         return mappingError;
     }
 }
