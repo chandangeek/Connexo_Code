@@ -9,6 +9,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
     requires: [
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.summary.PurposeDataGrid',
+        'Imt.purpose.view.summary.PurposeDataPreview',
         'Uni.view.highstock.GraphView',
         'Imt.purpose.view.summary.TopNavigationToolbar',
         'Imt.purpose.view.summary.NoDataOnPurposeFoundPanel'
@@ -202,7 +203,6 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
         if(!store.getCount()){
             me.down('no-data-on-purpose-found-panel').show();
-            me.down('purpose-data-grid') && me.down('purpose-data-grid').hide();
             me.down('purpose-top-navigation-toolbar') && me.down('purpose-top-navigation-toolbar').hide();
             me.showGraphView();
             me.setLoading(false);
@@ -213,8 +213,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
             me.outputs.load({
                 callback: function (records, operation, success) {
                     me.updateNavigationToolbar();
-                    me.redrawGrid();
-                    me.showGraphView();
+                    me.selectFirstRowInGrid();
                     me.setLoading(false);
                 }
             });
@@ -237,29 +236,51 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
     redrawGrid: function () {
         var me = this,
-            grid = me.down('purpose-data-grid');
+            container = me.down('preview-container');
         Ext.suspendLayouts();
-        me.remove(grid);
+        me.remove(container);
         me.add({
-            xtype: 'purpose-data-grid',
-            outputs: me.outputs,
-            dockedItems: [
-                {
-                    xtype: 'toolbar',
-                    items: [
-                        '->',
-                        {
-                            xtype: 'exporterbutton',
-                            ui: 'icon',
-                            iconCls: 'icon-file-download',
-                            text: '',
-                            component: this.up('grid'),
-                        }
-                    ]
-                }
-            ]
+            xtype: 'preview-container',
+            grid: {
+                xtype: 'purpose-data-grid',
+                outputs: me.outputs,
+                store: 'Imt.purpose.store.PurposeSummaryData',
+                dockedItems: [
+                    {
+                        xtype: 'toolbar',
+                        items: [
+                            '->',
+                            {
+                                xtype: 'exporterbutton',
+                                ui: 'icon',
+                                iconCls: 'icon-file-download',
+                                text: '',
+                                component: this.up('grid')
+                            }
+                        ]
+                    }
+                ]
+            },
+            emptyComponent: {},
+            previewComponent: {
+                xtype: 'purpose-data-preview',
+                outputs: me.outputs,
+                router: me.router,
+                hidden: true
+            }
         });
         Ext.resumeLayouts(true);
+    },
+
+    /**
+     * Make sure we select the row when the layouts state is not suspended
+     */
+    selectFirstRowInGrid: function() {
+        var me = this,
+            grid = me.down('purpose-data-grid');
+        if (grid){
+            grid.getView().getSelectionModel().select(0);
+        }
     },
 
     updateNavigationToolbar: function () {
@@ -396,10 +417,10 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         if (dataStore.getTotalCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('channelData')) {
-                    Ext.iterate(record.get('channelData'), function (key, value) {
+                    Ext.iterate(record.get('channelData'), function (key, data) {
                         if (channelDataArrays[key]) {
-                            if (value) {
-                                channelDataArrays[key].push([record.get('interval').start, parseFloat(value)]);
+                            if (data) {
+                                channelDataArrays[key].push([record.get('interval').start, parseFloat(data.value)]);
                             } else {
                                 channelDataArrays[key].push([record.get('interval').start, null]);
                             }

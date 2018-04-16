@@ -9,8 +9,10 @@ Ext.define('Imt.purpose.view.history.History', {
         'Imt.purpose.view.history.HistoryGrid',
         'Imt.purpose.view.history.HistoryFilter',
         'Imt.purpose.view.history.HistoryIntervalFilter',
+        'Imt.purpose.view.history.HistoryIntervalPreview',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Imt.purpose.view.registers.RegisterDataPreview'
+        'Imt.purpose.view.registers.RegisterDataPreview',
+        'Imt.purpose.view.history.HistoryRegisterPreview'
     ],
 
     usagePoint: null,
@@ -91,8 +93,8 @@ Ext.define('Imt.purpose.view.history.History', {
 
     getPreviewComponent: function (type) {
         if (type === 'register')
-            return 'register-data-preview';
+            return 'history-register-preview';
 
-        return 'interval-reading-preview'
+        return 'history-interval-preview'
     }
 });

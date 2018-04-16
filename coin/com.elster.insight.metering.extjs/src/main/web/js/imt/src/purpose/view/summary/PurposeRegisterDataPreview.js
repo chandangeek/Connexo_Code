@@ -90,13 +90,17 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 fieldLabel: Uni.I18n.translate('general.value', 'IMT', 'Value'),
                 name: 'value',
                 itemId: 'register-preview-value-field',
-                renderer: me.renderValueAndUnit
+                renderer: function(value, displayField){
+                    return me.renderValueAndUnit(value, displayField)
+                }
             },
             {
                 fieldLabel: Uni.I18n.translate('general.deltaValue', 'IMT', 'Delta value'),
                 name: 'deltaValue',
                 itemId: 'register-preview-deltaValue-field',
-                renderer: me.renderValueAndUnit
+                renderer: function(value, displayField){
+                    return me.renderValueAndUnit(value, displayField)
+                }
             },
             {
                 fieldLabel: Uni.I18n.translate('general.formula', 'IMT', 'Formula'),
@@ -172,7 +176,8 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
     updateForm: function (record, output) {
         var me = this,
             dataQualities = record.get('readingQualities'),
-            title = me.getTitle(record);
+            title = me.getTitle(record),
+            formula = me.getFormulaValue(output);
 
         Ext.suspendLayouts();
         me.down('#register-preview-general-panel').setTitle(title);
@@ -180,7 +185,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
         me.down('#register-preview-qualities-panel').setTitle(title);
         me.down('#register-preview-general-panel').loadRecord(record);
         me.down('#register-preview-validation-panel').loadRecord(record);
-        me.down('#register-preview-formula-field').setValue(me.getFormulaValue(output));
+        me.down('#register-preview-formula-field').setValue(formula);
         me.down('#register-preview-noReadings-msg').setVisible(Ext.isEmpty(dataQualities));
         Imt.purpose.util.PreviewRenderer.renderDataQualityFields(
             me.down('#register-preview-deviceQuality-field'),

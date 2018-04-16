@@ -72,6 +72,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'purposeRegisterDataPreviewPanel',
             selector: 'purpose-register-data-preview'
+        },
+        {
+            ref: 'purposeIntervalDataPreviewPanel',
+            selector: 'purpose-data-preview'
         }
     ],
 
@@ -90,6 +94,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             'purpose-register-data-view #purpose-register-data-grid': {
                 select: this.loadPurposeRegisterDataPreview
+            },
+            'purpose-data-view #purpose-data-grid': {
+                select: this.loadPurposeDataPreview
             }
         });
     },
@@ -735,6 +742,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
         if (selectionModel.getSelection().length === 1) {
             var output = this.getSelectedRegisterOutput(record);
             this.getPurposeRegisterDataPreviewPanel().updateForm(record, output);
+        }
+    },
+
+    loadPurposeDataPreview: function(selectionModel, record){
+        var filteredOutputsStore = this.getStore('Imt.purpose.store.FilteredOutputs');
+        if (!filteredOutputsStore.isLoading()) {
+            if (selectionModel.getSelection().length === 1) {
+                this.getPurposeIntervalDataPreviewPanel().updateForm(record);
+            }
         }
     }
 });

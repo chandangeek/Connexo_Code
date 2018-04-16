@@ -103,11 +103,11 @@ Ext.define('Imt.purpose.controller.Readings', {
         },
         {
             ref: 'historyRegisterDataPreviewPanel',
-            selector: 'output-readings-history register-data-preview'
+            selector: 'output-readings-history history-register-preview'
         },
         {
             ref: 'historyIntervalDataPreviewPanel',
-            selector: 'output-readings-history interval-reading-preview'
+            selector: 'output-readings-history history-interval-preview'
         }
     ],
 
