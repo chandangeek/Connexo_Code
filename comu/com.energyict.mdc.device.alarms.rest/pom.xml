@@ -184,5 +184,10 @@
             <artifactId>pki</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
