@@ -88,7 +88,9 @@ class DemoCustomTaskExecutor implements TaskExecutor {
         occurrence.summarize(getThesaurus().getFormat(TranslationKeys.CUSTOM_TASK_COMPLETED).format(groupName));
 
         try (TransactionContext context = transactionService.getContext()) {
-            deviceGroup.getMembers(clock.instant()).stream().limit(count)
+            deviceGroup.getMembers(clock.instant()).stream()
+                    .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+                    .limit(count)
                 .forEach(endDevice -> {
                     MessageSeeds.DEVICE_PROCESSED.log(logger, thesaurus, endDevice.getName());
                     outputLog.add(endDevice.getName());

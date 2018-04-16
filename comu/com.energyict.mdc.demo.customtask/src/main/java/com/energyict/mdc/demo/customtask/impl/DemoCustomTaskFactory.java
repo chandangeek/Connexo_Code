@@ -156,6 +156,7 @@ public class DemoCustomTaskFactory implements CustomTaskFactory {
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(allGroups)
+                .setDefaultValue(allGroups.size() == 1 ? allGroups.get(0) : null)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
