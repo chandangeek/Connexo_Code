@@ -46,8 +46,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-
+public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     RestQueryService restQueryService;
     @Mock
@@ -156,7 +155,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockDevice(1, "DefaultDevice");
     }
 
-    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
+    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName) {
         IssueAssignee assignee = mock(IssueAssignee.class);
         User user = mock(User.class);
         WorkGroup workGroup = mock(WorkGroup.class);
@@ -194,4 +193,4 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         return issue;
     }
- }
+}
