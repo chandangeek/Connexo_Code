@@ -105,6 +105,7 @@ Ext.define('Imt.controller.Main', {
     initHistorians: function () {
         var me = this;
 
+        me.getController('Apr.controller.CustomTask');
         me.getController('Imt.controller.History');
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
