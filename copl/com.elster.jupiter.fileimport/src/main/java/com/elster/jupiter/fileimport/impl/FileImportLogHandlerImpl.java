@@ -16,9 +16,11 @@ public class FileImportLogHandlerImpl extends Handler implements FileImportLogHa
     private List<LogRecord> logRecords = new ArrayList<LogRecord>();
 
     private FileImportOccurrenceImpl fileImport;
+    private final int level;
 
     public FileImportLogHandlerImpl(FileImportOccurrenceImpl fileImport){
         this.fileImport = fileImport;
+        this.level = fileImport.getImportSchedule().getLogLevel();
     }
 
     @Override
@@ -28,7 +30,9 @@ public class FileImportLogHandlerImpl extends Handler implements FileImportLogHa
 
     @Override
     public void publish(LogRecord record) {
-        logRecords.add(record);
+        if (record.getLevel().intValue() >= level ) {
+            logRecords.add(record);
+        }
         //fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
     }
 
