@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
+
     CANNOT_SUBSCRIBE_ON_INACTIVE_DESTINATION(1001, "destination.inactive.cannotsubscribe", "DestinationSpec with name {0} was inactive when attempting to create a subscription with name {1}"),
     DUPLICATE_SUBSCRIBER_NAME(1002, "subscriber.duplicatename", "A subscriber with name {0} already exists."),
     MULTIPLE_SUBSCRIBER_ON_QUEUE(1003, "queue.multiplesubscriber", "Cannot register multiple subscribers on a queue, there is already a subscriber on queue {0}"),
@@ -21,7 +22,9 @@ public enum MessageSeeds implements MessageSeed {
     EMPTY_QUEUE_NAME(1007, Keys.EMPTY_QUEUE_NAME, "Queue name is missing from request."),
     EMPTY_QUEUE_TYPE_NAME(1008, Keys.EMPTY_QUEUE_TYPE_NAME, "Queue type is missing from request."),
     DUPLICATE_QUEUE(1009, Keys.DUPLICATE_QUEUE, "Queue is already defined"),
-    QUEUE_NAME_TOO_LONG(1010, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long.");
+    QUEUE_NAME_TOO_LONG(1010, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long."),
+    TASKS_NOT_EMPTY(1011, Keys.TASKS_NOT_EMPTY, "Before deleting the queue please remove the corresponding tasks"),
+    ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE(1012, Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, "Before deleting the queue please delete the corresponding message service");
 
     private final int number;
     private final String key;
@@ -81,5 +84,8 @@ public enum MessageSeeds implements MessageSeed {
         String EMPTY_QUEUE_TYPE_NAME = "queue.type.empty";
         String DUPLICATE_QUEUE = "queue.duplicate.name";
         String QUEUE_NAME_TOO_LONG = "queue.name.too.long";
+        String TASKS_NOT_EMPTY = "queue.delete.tasks.not.empty";
+        String ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE = "queue.subscribers.active";
     }
+
 }
