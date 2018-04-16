@@ -251,14 +251,8 @@ Ext.define('Apr.controller.TaskManagement', {
             view.down('#task-management-attributes').add(form);
             me.getApplication().fireEvent('changecontentevent', view);
             taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
-            me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
+                me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
         });
-
-        //view.down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm());
-
-        //me.getApplication().fireEvent('changecontentevent', view);
-        //taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
-        //    me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
     },
 
     editSetTitle: function (taskName) {
