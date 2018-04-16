@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.ami.commands;
 
 import com.elster.jupiter.metering.EndDevice;
@@ -14,7 +18,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-
 public class GenerateCSRCommand extends EndDeviceCommandImpl {
 
     public GenerateCSRCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
@@ -25,6 +28,5 @@ public class GenerateCSRCommand extends EndDeviceCommandImpl {
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
         return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(), Collections.singletonList(DeviceMessageId.SECURITY_GENERATE_CSR));
     }
-
 
 }
