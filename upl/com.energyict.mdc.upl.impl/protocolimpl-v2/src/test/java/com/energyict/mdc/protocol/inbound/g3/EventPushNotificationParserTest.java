@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exception.DataParseException;
@@ -23,6 +22,12 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import junit.framework.TestCase;
 import org.json.JSONException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,18 +36,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventPushNotificationParserTest extends TestCase {
@@ -144,9 +139,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1407926537000L);
-        assertEquals(meterProtocolEvent.getMessage(), "G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network");
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 194);
+        assertEquals(meterProtocolEvent.getMessage(), "PLC G3 register node. G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_REGISTER_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12713984);
     }
 
     @Test
@@ -173,8 +168,8 @@ public class EventPushNotificationParserTest extends TestCase {
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1458814903000L);
         assertEquals(meterProtocolEvent.getMessage(), "Tamper detected");
-        assertEquals(meterProtocolEvent.getEiCode(), 23);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.TAMPER);
+        assertEquals(meterProtocolEvent.getProtocolCode(), MeterEvent.TAMPER);
     }
 
     // relayed supported now
@@ -201,9 +196,10 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(parser.getDeviceIdentifier().forIntrospection().getValue("serialNumber"), "Equipment-Identifier");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 127056000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Additional info");
-        assertEquals(meterProtocolEvent.getEiCode(), 123);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 456);
+        //TODO: check from where we got this test frame. looking into beacon rtu_reference doc we don't find the event described
+        assertEquals(meterProtocolEvent.getMessage(), "Other event. Additional info");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.OTHER);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 29884539);
     }
 
     @Test
@@ -214,9 +210,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1442386236000L);
-        assertEquals("{\"MeterIdentifier\":\"0200:00FF:FE00:0107\",\"Result\":\"Execution of preliminary protocol failed.\"}", meterProtocolEvent.getMessage());
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 55);
+        assertEquals("Protocol preliminary task failed. {\"MeterIdentifier\":\"0200:00FF:FE00:0107\",\"Result\":\"Execution of preliminary protocol failed.\"}", meterProtocolEvent.getMessage());
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PROTOCOL_PRELIMINARY_TASK_FAILED);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 3604480);
     }
 
     @Test
@@ -227,9 +223,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1440419894000L);
-        assertEquals("Node [0200:00FF:FE00:0000] [0x0001] has registered on the network", meterProtocolEvent.getMessage());
-        assertEquals(0, meterProtocolEvent.getEiCode());
-        assertEquals(194, meterProtocolEvent.getProtocolCode());
+        assertEquals("PLC G3 register node. Node [0200:00FF:FE00:0000] [0x0001] has registered on the network", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PLC_G3_REGISTER_NODE, meterProtocolEvent.getEiCode());
+        assertEquals(12713984, meterProtocolEvent.getProtocolCode());
     }
 
     @Test
@@ -240,9 +236,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1421162763000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Joining request for node [0223:7EFF:FEFD:848D]");
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848D]");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_JOIN_REQUEST_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12910592);
     }
 
     @Test
@@ -253,9 +249,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468908579000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Node [0023:7EFF:FEFD:7738] [0x0001] has registered on the network");
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 194);
+        assertEquals(meterProtocolEvent.getMessage(), "PLC G3 register node. Node [0023:7EFF:FEFD:7738] [0x0001] has registered on the network");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_REGISTER_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12713984);
     }
 
     @Test
@@ -266,8 +262,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 2);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 
@@ -304,7 +300,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DialHomeIdDeviceIdentifier("02237EFFFEFDAB5F").toString(), parser.getDeviceIdentifier().toString());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1488809815000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.OTHER);
         assertEquals(meterProtocolEvent.getProtocolCode(), 40);
         assertEquals(meterProtocolEvent.getMessage(), "Alarm generated event: Fraud attempt");
     }
@@ -336,10 +332,9 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(1488362402000L, meterProtocolEvent.getTime().getTime());
-        assertEquals("{\"MeterIdentifier\":\"0223:7EFF:FEFD:AF26\",\"SAP_802_15_4_ID\":\"0x7\",\"SAP_IPV6\":\"2002:abcd::984b:ff:fe00:7\",\"SAP_IPV4\":\"172.22.0.7\",\"SAP_DLMS_GW\":\"0x18\"}", meterProtocolEvent
-                .getMessage());
-        assertEquals(0, meterProtocolEvent.getEiCode());
-        assertEquals(194, meterProtocolEvent.getProtocolCode());
+        assertEquals("PLC G3 register node. {\"MeterIdentifier\":\"0223:7EFF:FEFD:AF26\",\"SAP_802_15_4_ID\":\"0x7\",\"SAP_IPV6\":\"2002:abcd::984b:ff:fe00:7\",\"SAP_IPV4\":\"172.22.0.7\",\"SAP_DLMS_GW\":\"0x18\"}", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PLC_G3_REGISTER_NODE, meterProtocolEvent.getEiCode());
+        assertEquals(12713984, meterProtocolEvent.getProtocolCode());
 
 
         Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), collectedDataFactory);
@@ -368,9 +363,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertNotNull(meterProtocolEvent.getTime().getTime());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
-        assertEquals(195, meterProtocolEvent.getProtocolCode());
-        assertEquals("Node [D084:B0FF:FEF1:9B0E] was unregistered from the network", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PLC_G3_UNREGISTER_NODE, meterProtocolEvent.getEiCode());
+        assertEquals(12779520, meterProtocolEvent.getProtocolCode());
+        assertEquals("PLC G3 unregister node. Node [D084:B0FF:FEF1:9B0E] was unregistered from the network", meterProtocolEvent.getMessage());
     }
 
 
@@ -386,9 +381,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertNotNull(meterProtocolEvent.getTime().getTime());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
-        assertEquals(54, meterProtocolEvent.getProtocolCode());
-        assertEquals("{\"MeterIdentifier\":\"D084:B0FF:FEF1:9B0E\",\"Result\":\"99000010\"}", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PROTOCOL_PRELIMINARY_TASK_COMPLETED, meterProtocolEvent.getEiCode());
+        assertEquals(3538944, meterProtocolEvent.getProtocolCode());
+        assertEquals("Protocol preliminary task completed. {\"MeterIdentifier\":\"D084:B0FF:FEF1:9B0E\",\"Result\":\"99000010\"}", meterProtocolEvent.getMessage());
     }
 
     @Test
@@ -403,9 +398,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertNotNull(meterProtocolEvent.getTime().getTime());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
-        assertEquals(35, meterProtocolEvent.getProtocolCode());
-        assertEquals("Please insert coin.", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.DLMS_UPSTREAM_TEST, meterProtocolEvent.getEiCode());
+        assertEquals(2293760, meterProtocolEvent.getProtocolCode());
+        assertEquals("Dlms upstream test. Please insert coin.", meterProtocolEvent.getMessage());
     }
 
     @Test
@@ -419,9 +414,9 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300020806"), parser.getDeviceIdentifier());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(1487068040000L, meterProtocolEvent.getTime().getTime());
-        assertEquals("PC LOAD LETTER", meterProtocolEvent.getMessage());
-        assertEquals(0, meterProtocolEvent.getEiCode());
-        assertEquals(35, meterProtocolEvent.getProtocolCode());
+        assertEquals("Dlms upstream test. PC LOAD LETTER", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.DLMS_UPSTREAM_TEST, meterProtocolEvent.getEiCode());
+        assertEquals(2293760, meterProtocolEvent.getProtocolCode());
     }
 
     @Test
@@ -435,13 +430,13 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(1489576684000L, meterProtocolEvent.getTime().getTime());
-        assertEquals("02237EFFFEFDAF26", meterProtocolEvent.getMessage());
-        assertEquals(0, meterProtocolEvent.getEiCode());
-        assertEquals(203, meterProtocolEvent.getProtocolCode());
+        assertEquals("Other event. 02237EFFFEFDAF26", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
+        assertEquals(13303808, meterProtocolEvent.getProtocolCode());
 
 
         Beacon3100PushEventNotification beacon3100PushEventNotification = new Beacon3100PushEventNotification(mock(PropertySpecService.class), collectedDataFactory);
-        CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(meterProtocolEvent.getMessage(), Beacon3100PushEventNotification.TopologyAction.REMOVE);
+        CollectedTopology collectedTopology = beacon3100PushEventNotification.extractNodeInformation(beacon3100PushEventNotification.extractReceivedDescription(meterProtocolEvent), Beacon3100PushEventNotification.TopologyAction.REMOVE);
 
         DeviceIdentifier needle = new DialHomeIdDeviceIdentifier("02237EFFFEFDAF26");
         boolean found = false;
@@ -480,9 +475,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1421244545000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Joining request for node [0223:7EFF:FEFD:848D]");
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848D]");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_JOIN_REQUEST_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12910592);
 
         EventPushNotificationParser parser2 = spyParser(ENCRYPTED_FRAME2);
         parser2.readAndParseInboundFrame();
@@ -490,9 +485,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent2 = parser2.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent2.getTime().getTime(), 1427125121000L);
-        assertEquals(meterProtocolEvent2.getMessage(), "Joining request for node [0223:7EFF:FEFD:848C]");
-        assertEquals(meterProtocolEvent2.getEiCode(), 0);
-        assertEquals(meterProtocolEvent2.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent2.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848C]");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_JOIN_REQUEST_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12910592);
 
         EventPushNotificationParser parser3 = spyParser(ENCRYPTED_FRAME3);
         parser3.readAndParseInboundFrame();
@@ -500,9 +495,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent3 = parser3.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent3.getTime().getTime(), 1427125126000L);
-        assertEquals(meterProtocolEvent3.getMessage(), "G3 : Node [0223:7EFF:FEFD:848C] [0x0005] has registered on the network");
-        assertEquals(meterProtocolEvent3.getEiCode(), 0);
-        assertEquals(meterProtocolEvent3.getProtocolCode(), 194);
+        assertEquals(meterProtocolEvent3.getMessage(), "PLC G3 register node. G3 : Node [0223:7EFF:FEFD:848C] [0x0005] has registered on the network");
+        assertEquals(meterProtocolEvent3.getEiCode(), 100026);
+        assertEquals(meterProtocolEvent3.getProtocolCode(), 12713984);
 
         EventPushNotificationParser parser4 = spyParser(ENCRYPTED_FRAME4);
         parser4.readAndParseInboundFrame();
@@ -510,9 +505,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent4 = parser4.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent4.getTime().getTime(), 1427125053000L);
-        assertEquals(meterProtocolEvent4.getMessage(), "Joining request for node [0223:7EFF:FEFD:848C]");
-        assertEquals(meterProtocolEvent4.getEiCode(), 0);
-        assertEquals(meterProtocolEvent4.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent4.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848C]");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_JOIN_REQUEST_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12910592);
     }
 
     @Test
@@ -528,8 +523,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 2);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
         assertEquals(meterProtocolEvent.getMessage(), "Power up");
     }
 
@@ -547,8 +542,8 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1522246308000L);
-        assertEquals(meterProtocolEvent.getEiCode(), 2);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
+        assertEquals(meterProtocolEvent.getProtocolCode(), MeterEvent.POWERUP);
         assertEquals(meterProtocolEvent.getMessage(), "{\"address\":\"165.195.39.121\",\"port\":4059,\"transport\":0}");
     }
 
@@ -560,9 +555,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1421244305000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Joining request for node [0223:7EFF:FEFD:848D]");
-        assertEquals(meterProtocolEvent.getEiCode(), 0);
-        assertEquals(meterProtocolEvent.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848D]");
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.PLC_G3_JOIN_REQUEST_NODE);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 12910592);
 
 
         EventPushNotificationParser parser2 = spyParser(ENCRYPTED_FRAME_WITH_AUTHENTICATION2);
@@ -571,9 +566,9 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent2 = parser2.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent2.getTime().getTime(), 1427105996000L);
-        assertEquals(meterProtocolEvent2.getMessage(), "Joining request for node [0223:7EFF:FEFD:848C]");
-        assertEquals(meterProtocolEvent2.getEiCode(), 0);
-        assertEquals(meterProtocolEvent2.getProtocolCode(), 197);
+        assertEquals(meterProtocolEvent2.getMessage(), "PLC G3 join request node. Joining request for node [0223:7EFF:FEFD:848C]");
+        assertEquals(meterProtocolEvent2.getEiCode(), 100029);
+        assertEquals(meterProtocolEvent2.getProtocolCode(), 12910592);
     }
 
     @Test
@@ -588,8 +583,8 @@ public class EventPushNotificationParserTest extends TestCase {
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1427291723000L);
         assertEquals(meterProtocolEvent.getMessage(), "");
-        assertEquals(meterProtocolEvent.getEiCode(), 2);    //Power down
-        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);    //Power up
+        assertEquals(meterProtocolEvent.getProtocolCode(), 2);
     }
 
 
@@ -602,7 +597,7 @@ public class EventPushNotificationParserTest extends TestCase {
         pushEventNotification.initializeDiscoveryContext(context);
         pushEventNotification.getEventPushNotificationParser().readAndParseInboundFrame();
         pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
-        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'.");
+        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound notification from [device with serial number 660-00545D-1125].  Message: 'PLC G3 register node. G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '12713984'.");
     }
 
     private EventPushNotificationParser spyParser(byte[] frame) {

@@ -9,13 +9,14 @@ import java.util.TimeZone;
  */
 
 public class Beacon3100StandardEventLog extends Beacon3100AbstractEventLog {
+    public static String LOGBOOK_NAME = "Standard event log";
     public Beacon3100StandardEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }
 
     @Override
     protected String getLogBookName() {
-        return "Standard event log";
+        return LOGBOOK_NAME;
     }
     
 }
