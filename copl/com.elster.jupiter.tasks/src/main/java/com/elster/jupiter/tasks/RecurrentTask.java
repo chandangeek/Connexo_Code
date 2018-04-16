@@ -94,4 +94,6 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     RecurrentTask setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
+    void setDestination(String destination);
+
 }
