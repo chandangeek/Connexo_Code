@@ -50,6 +50,8 @@ import com.elster.jupiter.search.impl.SearchBuilderImpl;
 import com.elster.jupiter.search.impl.SearchMonitor;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -122,8 +124,8 @@ public class UsagePointSearchTest {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -161,6 +163,8 @@ public class UsagePointSearchTest {
         try (TransactionContext context = transactionService.getContext()) {
             injector.getInstance(EventService.class);
             injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             injector.getInstance(FiniteStateMachineService.class);
             meteringService = injector.getInstance(MeteringService.class);
             user = injector.getInstance(UserService.class).findUser("admin")
@@ -175,7 +179,7 @@ public class UsagePointSearchTest {
         ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
         dummyMonitor = mock(SearchMonitor.class);
         ExecutionTimer timer = mock(ExecutionTimer.class);
-        doAnswer(invocation -> ((Callable)invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
+        doAnswer(invocation -> ((Callable) invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
         when(dummyMonitor.searchTimer(usagePointSearchDomain)).thenReturn(timer);
     }
 
@@ -238,7 +242,7 @@ public class UsagePointSearchTest {
                 .isSortedAccordingTo(Comparator.<String>naturalOrder().reversed());
         assertThat(usagePoint.getCustomer(Instant.now()).get().getMRID()).isEqualTo("Electrabel");
 
-        Finder<UsagePoint> finder = (Finder<UsagePoint>)usagePointSearchDomain.finderFor(Collections.emptyList());
+        Finder<UsagePoint> finder = (Finder<UsagePoint>) usagePointSearchDomain.finderFor(Collections.emptyList());
         assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult);
         finder.paged(0, 4);

@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.metering.EndDeviceLifeCycleStatus;
 import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
 
@@ -28,7 +29,7 @@ public class StateTimeSliceImpl implements StateTimeSlice {
         return new StateTimeSliceImpl(
                 endDeviceLifeCycleStatus.getState(),
                 endDeviceLifeCycleStatus.getRange(),
-                endDeviceLifeCycleStatus.getUser());
+                endDeviceLifeCycleStatus.getOriginator());
     }
 
     private StateTimeSliceImpl(State state, Range<Instant> period, Optional<User> user) {

@@ -42,6 +42,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -109,6 +111,7 @@ public class CalendarOnUsagePointImplIT {
     private CalendarService calendarService;
     private MetrologyConfigurationService metrologyConfigurationService;
     private MeteringService meteringService;
+    private HttpService httpService;
 
     private class MockModule extends AbstractModule {
 
@@ -117,14 +120,15 @@ public class CalendarOnUsagePointImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(searchService);
+            bind(HttpService.class).toInstance(httpService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
     @Before
     public void setUp() throws SQLException {
+        this.httpService = mock(HttpService.class);
         this.searchService = mock(SearchService.class);
         when(this.searchService.findDomain(anyString())).thenReturn(Optional.of(this.searchDomain));
         try {
@@ -160,6 +164,8 @@ public class CalendarOnUsagePointImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(EndPointConfigurationService.class);
+            injector.getInstance(WebServicesService.class);
             metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             meteringModelService = injector.getInstance(MeteringDataModelService.class);
             meteringService = injector.getInstance(MeteringService.class);
@@ -528,5 +534,4 @@ public class CalendarOnUsagePointImplIT {
                 .add()
                 .add();
     }
-
 }
