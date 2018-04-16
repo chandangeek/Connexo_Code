@@ -8,7 +8,6 @@ import com.elster.jupiter.customtask.CustomTask;
 import com.elster.jupiter.customtask.CustomTaskOccurrence;
 import com.elster.jupiter.customtask.CustomTaskService;
 import com.elster.jupiter.customtask.CustomTaskStatus;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,8 +16,6 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -88,7 +85,9 @@ class DemoCustomTaskExecutor implements TaskExecutor {
         occurrence.summarize(getThesaurus().getFormat(TranslationKeys.CUSTOM_TASK_COMPLETED).format(groupName));
 
         try (TransactionContext context = transactionService.getContext()) {
-            psagePointGroup.getMembers(clock.instant()).stream().limit(count)
+            psagePointGroup.getMembers(clock.instant()).stream()
+                    .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+                    .limit(count)
                 .forEach(endDevice -> {
                     MessageSeeds.DEVICE_PROCESSED.log(logger, thesaurus, endDevice.getName());
                     outputLog.add(endDevice.getName());

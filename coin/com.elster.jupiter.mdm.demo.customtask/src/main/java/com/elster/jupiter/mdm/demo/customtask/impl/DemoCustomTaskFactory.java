@@ -8,6 +8,7 @@ import com.elster.jupiter.customtask.CustomTaskAction;
 import com.elster.jupiter.customtask.CustomTaskFactory;
 import com.elster.jupiter.customtask.CustomTaskProperty;
 import com.elster.jupiter.customtask.PropertiesInfo;
+import com.elster.jupiter.mdm.demo.customtask.security.Privileges;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -18,9 +19,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.mdm.demo.customtask.security.Privileges;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -157,6 +155,7 @@ public class DemoCustomTaskFactory implements CustomTaskFactory {
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(allGroups)
+                .setDefaultValue(allGroups.size() == 1 ? allGroups.get(0) : null)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
