@@ -60,8 +60,8 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append("(select max(OCC.ID) \"OCCID\" from TSK_TASK_OCCURRENCE OCC group by OCC.RECURRENTTASKID)) OCC ");
         builder.append("on TSK.ID=OCC.RECURRENTTASKID ");
         builder.append(") where OCC.STATUS=0), ");
-        builder.append("planned as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS, 1)) AS \"TSKSTATUS\", TSK.NEXTEXECUTION  from ( ");
-        builder.append("(select * from TSK_RECURRENT_TASK WHERE NEXTEXECUTION IS NOT NULL) TSK ");
+        builder.append("notbusy as (select TSK.ID as \"TSKID\", sign(nvl(OCC.STATUS, 1)) AS \"TSKSTATUS\", TSK.NEXTEXECUTION  from ( ");
+        builder.append("(select * from TSK_RECURRENT_TASK) TSK ");
         builder.append("LEFT JOIN");
         builder.append("(select * from TSK_TASK_OCCURRENCE where TSK_TASK_OCCURRENCE.ID in ");
         builder.append("(select max(OCC.ID) \"OCCID\" from TSK_TASK_OCCURRENCE OCC group by OCC.RECURRENTTASKID)) OCC ");
@@ -71,7 +71,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append("union all ");
         //builder.append("select * from (select * from planned ORDER BY NEXTEXECUTION ASC)) x where ROWNUM <=  ");
         //builder.addInt(start+limit+1);
-        builder.append("select * from (select * from planned ORDER BY NEXTEXECUTION ASC)) x ");
+        builder.append("select * from (select * from notbusy ORDER BY NEXTEXECUTION ASC)) x ");
 
         builder.append(" ) ");
         //builder.append("where rnum >= ");
