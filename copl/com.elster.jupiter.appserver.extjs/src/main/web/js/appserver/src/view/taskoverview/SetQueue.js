@@ -32,7 +32,7 @@ Ext.define('Apr.view.taskoverview.SetQueue', {
                         fieldLabel: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
                         labelWidth: 150,
                         store: 'Apr.store.QueuesType',
-                        emptyText: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue ...'),
+                        emptyText: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
                         allowBlank: false,
                         queryMode: 'local',
                         displayField: 'name',
