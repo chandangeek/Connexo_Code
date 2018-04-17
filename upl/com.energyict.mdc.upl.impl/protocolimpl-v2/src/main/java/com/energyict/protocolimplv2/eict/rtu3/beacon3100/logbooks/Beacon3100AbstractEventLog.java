@@ -91,9 +91,9 @@ public abstract class Beacon3100AbstractEventLog {
         deviceToEIServerCodeMapping.put(0x00990000, MeterEvent.FIRMWARE_UPGRADE);
         deviceToEIServerCodeMapping.put(0x01000007, MeterEvent.FIRMWARE_MODIFIED);
         deviceToEIServerCodeMapping.put(0x01010000, MeterEvent.CPU_OVERLOAD);
-        deviceToEIServerCodeMapping.put(0x01020000, MeterEvent.RAM_TOO_HIGH);
+        deviceToEIServerCodeMapping.put(0x01020008, MeterEvent.RAM_TOO_HIGH);
         deviceToEIServerCodeMapping.put(0x01030000, MeterEvent.DISK_USAGE_TOO_HIGH);
-        deviceToEIServerCodeMapping.put(0x01040000, MeterEvent.PACE_EXCEPTION); // TODO SMART_CARD_EXCEPTION?
+        deviceToEIServerCodeMapping.put(0x01040000, MeterEvent.PACE_EXCEPTION); // SMART_CARD_EXCEPTION
         deviceToEIServerCodeMapping.put(0x01050000, MeterEvent.SSH_LOGIN);
         deviceToEIServerCodeMapping.put(0x01060000, MeterEvent.FACTORY_RESET);
         //
@@ -152,7 +152,25 @@ public abstract class Beacon3100AbstractEventLog {
         deviceToEIServerCodeMapping.put(0x04126300, MeterEvent.CERTIFICATE_EXPIRED);
         //
         deviceToEIServerCodeMapping.put(0x00100000, MeterEvent.UNKNOWN_REGISTER);
-
+        // General
+        deviceToEIServerCodeMapping.put(0x00010001, MeterEvent.POWER_DOWN_POWER_LOST);
+        deviceToEIServerCodeMapping.put(0x00020001, MeterEvent.POWER_DOWN_USER_REQUEST);
+        deviceToEIServerCodeMapping.put(0x00030001, MeterEvent.POWER_DOWN_SOFTWARE_FAULT);
+        deviceToEIServerCodeMapping.put(0x00040001, MeterEvent.POWER_DOWN_HARDWARE_FAULT);
+        deviceToEIServerCodeMapping.put(0x00050001, MeterEvent.POWER_DOWN_NETWORK_INACTIVITY);
+        deviceToEIServerCodeMapping.put(0x00060001, MeterEvent.POWER_DOWN_FIRMWARE_UPGRADE);
+        deviceToEIServerCodeMapping.put(0x00070001, MeterEvent.POWER_DOWN_FIRMWARE_ROLLBACK);
+        deviceToEIServerCodeMapping.put(0x00080001, MeterEvent.POWER_DOWN_DISK_ERROR);
+        deviceToEIServerCodeMapping.put(0x00090001, MeterEvent.POWER_DOWN_CONFIGURATION_ERROR);
+        deviceToEIServerCodeMapping.put(0x000a0001, MeterEvent.POWER_DOWN_FACTORY_RESET);
+        deviceToEIServerCodeMapping.put(0x000b0001, MeterEvent.POWER_DOWN_TAMPERING);
+        deviceToEIServerCodeMapping.put(0x000c0001, MeterEvent.POWER_DOWN_TEMPERATURE);
+        deviceToEIServerCodeMapping.put(0x01000001, MeterEvent.POWER_DOWN_SYSTEM_WATCHDOG);
+        deviceToEIServerCodeMapping.put(0x01010001, MeterEvent.POWER_DOWN_WWAN_MODEM_WATCHDOG);
+        deviceToEIServerCodeMapping.put(0x01020001, MeterEvent.POWER_DOWN_SECURE_ELEMENT_WATCHDOG);
+        deviceToEIServerCodeMapping.put(0x01030001, MeterEvent.POWER_DOWN_EXTERNAL_WATCHDOG);
+        deviceToEIServerCodeMapping.put(0x0010001c, MeterEvent.PROTOCOL_LOG_CLEARED);
+        deviceToEIServerCodeMapping.put(0x0001001e, MeterEvent.METER_CLOCK_INVALID);
     }
 
     public Beacon3100AbstractEventLog(DataContainer dc, TimeZone timeZone) {
