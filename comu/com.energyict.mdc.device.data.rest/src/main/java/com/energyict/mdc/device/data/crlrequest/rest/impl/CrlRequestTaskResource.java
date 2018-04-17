@@ -131,7 +131,7 @@ public class CrlRequestTaskResource {
         CrlRequestTaskProperty crlRequestTaskProperty = crlRequestTaskPropertiesService.getCrlRequestTaskPropertiesForCa(recurrentTask).orElseThrow(
                 () -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CRL_REQUEST_TASK_PROPERTIES));
         crlRequestTaskPropertiesService.deleteCrlRequestTaskPropertiesForCa(recurrentTask);
-        recurrentTask.suspend();
+        recurrentTask.delete();
         return Response.noContent().build();
     }
 
@@ -206,16 +206,7 @@ public class CrlRequestTaskResource {
             task.setLogLevel((Integer) info.logLevel.id);
             task.save();
         } else {
-            task = taskService.getRecurrentTask(taskName).get();
-            if (task.getNextExecution() == null) {
-                task.setScheduleExpression(getScheduleExpression(info));
-                task.setNextExecution(info.nextRun);
-                task.setLogLevel((Integer) info.logLevel.id);
-                task.save();
-                task.updateNextExecution();
-            } else {
-                return Optional.empty();
-            }
+            return Optional.empty();
         }
         return Optional.of(task);
     }
@@ -241,18 +232,7 @@ public class CrlRequestTaskResource {
         String taskName = getTaskName(info);
         if (taskService.getRecurrentTask(taskName).isPresent()) {
             if (taskService.getRecurrentTask(taskName).get().getId() != recurrentTask.getId()) {
-                if (taskService.getRecurrentTask(taskName).get().getNextExecution() != null) {
-                    return Optional.empty();
-                } else {
-                    taskService.getRecurrentTask(taskName).get().delete();
-                    recurrentTask.setScheduleExpression(getScheduleExpression(info));
-                    recurrentTask.setNextExecution(info.nextRun);
-                    recurrentTask.setLogLevel((Integer) info.logLevel.id);
-                    recurrentTask.setName(taskName);
-                    recurrentTask.save();
-                    recurrentTask.updateNextExecution();
-                    return Optional.of(recurrentTask);
-                }
+                return Optional.empty();
             }
         }
         recurrentTask.setScheduleExpression(getScheduleExpression(info));
