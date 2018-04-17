@@ -10,7 +10,7 @@ Ext.define('Apr.view.taskoverview.ActionMenu', {
         this.items = [
             {
                 itemId: 'set-queue',
-                text: Uni.I18n.translate('general.setqueue', 'APR', 'Set queue'),
+                text: Uni.I18n.translate('general.menuu.setqueue', 'APR', 'Set queue'),
                 privileges: Usr.privileges.Users.admin,
                 action: 'setQueue',
                 section: this.SECTION_ACTION
