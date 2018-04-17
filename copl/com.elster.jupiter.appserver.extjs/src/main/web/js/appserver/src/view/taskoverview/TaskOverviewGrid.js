@@ -41,6 +41,17 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 header: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                 dataIndex: 'queueStatusString',
                 flex: 1
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: 120,
+                // isDisabled: function(view, rowIndex, colIndex, item, record) {
+                //     return !Usr.privileges.Users.canAdministrate() || (record.get('id') === 0 && record.get('isDefault'));
+                // },
+                menu: {
+                    xtype: 'task-overview-action-menu',
+                    itemId: 'mnu-task-overview-action-menu'
+                }
             }
 
         ];

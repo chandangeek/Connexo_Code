@@ -70,11 +70,7 @@ Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
                 handler: function (grid, rowIndex, colIndex, column, event, queueRecord) {
                     me.fireEvent('queueRemoveEvent', queueRecord);
                 }
-                // },
-                // menu: {
-                //     xtype: 'queue-action-menu',
-                //     itemId: 'queue-action-menu'
-                // }
+
             }
         ];
 

@@ -8,7 +8,8 @@ Ext.define('Apr.view.taskoverview.Setup', {
     router: null,
 
     requires: [
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Apr.view.taskoverview.ActionMenu'
     ],
     content: [
         {

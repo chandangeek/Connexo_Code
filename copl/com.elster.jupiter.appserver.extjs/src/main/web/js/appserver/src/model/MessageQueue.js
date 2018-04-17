@@ -40,7 +40,7 @@ Ext.define('Apr.model.MessageQueue', {
             }
         },
         {
-            name: 'queueTypeName',   //converter
+            name: 'queueTypeName',
             mapping: function (data) {
                 return data.queueTypeName;
             }

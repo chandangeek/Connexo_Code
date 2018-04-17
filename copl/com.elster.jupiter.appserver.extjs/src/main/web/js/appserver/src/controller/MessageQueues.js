@@ -290,7 +290,6 @@ Ext.define('Apr.controller.MessageQueues',{
     showAddMessageQueue: function () {
         var me = this;
         router = me.getController('Uni.controller.history.Router');
-        // view = Ext.widget('add-queue-message-form');
         view = Ext.create('Apr.view.messagequeues.AddMessageQueueForm', {
             router: router
         });
