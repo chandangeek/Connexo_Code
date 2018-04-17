@@ -48,8 +48,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,9 +69,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public class CustomTaskServiceImpl implements ICustomTaskService, TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
 
-    //static final String DESTINATION_NAME = "CustomTask";
-    //static final String SUBSCRIBER_NAME = "CustomTask";
-    //static final String SUBSCRIBER_DISPLAY_NAME = "Handle custom task";
     private static final String MODULE_DESCRIPTION = "Custom task";
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
@@ -223,7 +218,6 @@ public class CustomTaskServiceImpl implements ICustomTaskService, TranslationKey
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                     bind(AppService.class).toInstance(appService);
                     bind(CustomTaskService.class).toInstance(CustomTaskServiceImpl.this);
-                    bind(FileSystem.class).toInstance(FileSystems.getDefault());
                     bind(TimeService.class).toInstance(timeService);
                     bind(MessageService.class).toInstance(messageService);
                     bind(UserService.class).toInstance(userService);

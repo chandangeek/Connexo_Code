@@ -4,25 +4,39 @@
 
 package com.elster.jupiter.customtask.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.customtask.CustomTask;
-import com.elster.jupiter.customtask.CustomTaskService;
+import com.elster.jupiter.customtask.CustomTaskAction;
+import com.elster.jupiter.customtask.CustomTaskFactory;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
@@ -33,6 +47,8 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
 
 import com.google.inject.AbstractModule;
@@ -48,7 +64,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -62,6 +78,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,10 +86,16 @@ import static org.mockito.Mockito.when;
 public class CustomTaskImplIT {
 
     public static final String NAME = "NAME";
-    private CustomTaskService customTaskService;
+
+    private CustomTaskServiceImpl customTaskService;
     private TaskService taskService;
     private ThreadPrincipalService threadPrincipalService;
+    private MessageService messageService;
+
     private static final String MULTISENSE_KEY = "MDC";
+    private static final String CTF_NAME_FOR_MDC = "Custom task for MDC";
+    private static final String CTF_DISPLAY_NAME_FOR_MDC = "MDCCustomTask";
+    private static final String DESTINATION_NAME = "Custom task for MDC";
 
     @Mock
     private HttpService httpService;
@@ -82,15 +105,11 @@ public class CustomTaskImplIT {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(LogService.class).toInstance(logService);
             bind(HttpService.class).toInstance(httpService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
-
-    public static final String FORMATTER = "formatter";
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
     private final ProgrammableClock clock = new ProgrammableClock(ZoneId.systemDefault(), NOW.toInstant());
@@ -98,8 +117,8 @@ public class CustomTaskImplIT {
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
     private Injector injector;
-
-
+    private AppService appService;
+    @Mock
     private QueryService queryService;
     @Mock
     private BundleContext bundleContext;
@@ -115,14 +134,16 @@ public class CustomTaskImplIT {
     private PropertySpec propertySpec;
     @Mock
     private User user;
+    @Mock
+    private QueueTableSpec queueTableSpec;
+    @Mock
+    private DestinationSpec destination;
+    @Mock
+    private SubscriberSpec subscriberSpec;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private TransactionService transactionService;
-    //private MeteringService meteringService;
-    //private MeteringGroupsService meteringGroupsService;
-    // private ReadingType readingType, anotherReadingType;
     private TimeService timeService;
-
 
     @Before
     public void setUp() throws SQLException {
@@ -141,79 +162,52 @@ public class CustomTaskImplIT {
                     new NlsModule(),
                     new BasicPropertiesModule(),
                     new TimeModule(),
-                    new EventsModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        queryService = injector.getInstance(QueryService.class);
-        transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(() -> {
-            //  injector.getInstance(FiniteStateMachineService.class);
-            customTaskService = (CustomTaskServiceImpl) injector.getInstance(CustomTaskServiceImpl.class);
-            //timeService = injector.getInstance(TimeService.class);
-
-            //threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
-            return null;
-        });
-        taskService = injector.getInstance(TaskService.class);
-       /*
-        setMessageService(messageService);
-
-        setClock(clock);
-
-
-
-        setUpgradeService(upgradeService);
-
-        setQueryService(queryService);*/
-/*
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new OrmModule(),
-                    new TimeModule(),
                     new TaskModule(),
-                    new NlsModule(),
-                    new AppServiceModule(),
-                    new TransactionModule(),
-                    new BasicPropertiesModule(),
-                    new UserModule(),
-
+                    new EventsModule(),
+                    new FileImportModule(),
+                    new WebServicesModule(),
                     new PartyModule(),
                     new DomainUtilModule(),
-
-                    new UtilModule(clock),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-
-
-
-                    new SearchModule(),
-
-                    new WebServicesModule()
-
-
+                    new UserModule(),
+                    new DataVaultModule(),
+                    new UtilModule(clock)
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
-          //  injector.getInstance(FiniteStateMachineService.class);
-            customTaskService = (CustomTaskService) injector.getInstance(CustomTaskService.class);
-            timeService = injector.getInstance(TimeService.class);
-
+            messageService = injector.getInstance(MessageService.class);
+            customTaskService = (CustomTaskServiceImpl) injector.getInstance(CustomTaskServiceImpl.class);
             threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             return null;
         });
 
-        taskService = injector.getInstance(TaskService.class);*/
+        transactionService.execute(() -> {
+            queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
+            destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
+            destination.activate();
+            subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
+            return null;
+        });
+
+        taskService = injector.getInstance(TaskService.class);
+
+
     }
 
+    private CustomTaskFactory mockCustomTaskFactory(String name, String displayName, String codeSystem, User user) {
+        CustomTaskFactory customTaskFactory = mock(CustomTaskFactory.class);
+        customTaskService.setMessageService(messageService);
+        when(customTaskFactory.isValid(any(), any())).thenReturn(true);
+        when(customTaskFactory.targetApplications()).thenReturn(Arrays.asList(codeSystem));
+        when(customTaskFactory.getName()).thenReturn(name);
+        when(customTaskFactory.getDisplayName()).thenReturn(displayName);
+        when(customTaskFactory.getActionsForUser(user, codeSystem)).thenReturn(Arrays.asList(CustomTaskAction.ADMINISTRATE, CustomTaskAction.RUN, CustomTaskAction.EDIT));
+
+        return customTaskFactory;
+    }
     @After
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
@@ -228,7 +222,6 @@ public class CustomTaskImplIT {
         assertThat(found).isPresent();
         CustomTask foundCustomTaskTask = found.get();
         assertThat(foundCustomTaskTask.getLastRun()).isEmpty();
-        Assertions.assertThat(foundCustomTaskTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
     @Test
@@ -259,6 +252,7 @@ public class CustomTaskImplIT {
     }
 
     private CustomTask createAndSaveTask(String name) {
+        customTaskService.addCustomTaskFactory(mockCustomTaskFactory(CTF_NAME_FOR_MDC, CTF_DISPLAY_NAME_FOR_MDC, MULTISENSE_KEY, user));
         CustomTask customTaskTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             customTaskTask = createCustomTask(name);
@@ -270,6 +264,8 @@ public class CustomTaskImplIT {
     private CustomTask createCustomTask(String name) {
         return customTaskService.newBuilder()
                 .setName(name)
+
+                .setTaskType(CTF_NAME_FOR_MDC)
                 .setApplication(MULTISENSE_KEY)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .create();
