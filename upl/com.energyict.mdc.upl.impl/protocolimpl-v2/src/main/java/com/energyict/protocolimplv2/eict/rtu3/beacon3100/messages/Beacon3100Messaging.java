@@ -139,6 +139,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode WEB_PORTAL_SETUP_OLD_OBIS = ObisCode.fromString("0.0.128.0.13.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    private static final int ROUTING_ENTRY_ID_INDEX = 1;
+    private static final int DESTINATION_INDEX = 3;
+    private static final int DESTINATION_LENGTH_INDEX = 4;
 
 
     /**
@@ -2539,7 +2542,30 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         BigDecimal routingEntryId = new BigDecimal(ROUTING_ENTRY_ID); //always ID = 1
         String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(getBeacon3100Properties().getIPv6AddressAndPrefixLength());
         BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(getBeacon3100Properties().getIPv6AddressAndPrefixLength()));
-        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+        boolean removeExistingEntryIfNeeded = getBooleanAttribute(pendingMessage);
+
+        validateExistingRoutingEntriesAndCleanUpIfNeeded(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, removeExistingEntryIfNeeded);
+    }
+
+    private void validateExistingRoutingEntriesAndCleanUpIfNeeded(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean removeExistingEntryIfNeeded) throws IOException {
+        if(removeExistingEntryIfNeeded) {
+            BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+            Array routingEntries = borderRouterIC.readRoutingEntries();
+            if(routingEntries.nrOfDataTypes() > 1) {
+                this.getLogger().log(Level.WARNING, "More than one routing entry was found. Reset router");
+                borderRouterIC.resetRouter();
+                executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+            } else {
+                Unsigned16 entryId = routingEntries.getDataType(0).getStructure().getDataType(ROUTING_ENTRY_ID_INDEX).getUnsigned16();
+                String destination = ProtocolTools.getHexStringFromBytes(routingEntries.getDataType(0).getStructure().getDataType(DESTINATION_INDEX).getContentByteArray(), "");
+                Unsigned8 destinationLength = routingEntries.getDataType(0).getStructure().getDataType(DESTINATION_LENGTH_INDEX).getUnsigned8();
+
+                if(!destination.equalsIgnoreCase(routingDestination) || destinationLength.intValue() != routingDestinationLength.intValue()) {
+                    borderRouterIC.removeRoutingEntry(entryId.intValue());
+                    executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+                }
+            }
+        }
     }
 
     private void executeAddRoutingEntryAction(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean compressionContextMulticast, boolean compressionContextAllowed) throws IOException {
@@ -2593,15 +2619,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void fetchLogging(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         try {
-            //TODO: Check how files should be saved in Connexo
+            String folderPath = "/log/Beacon_logging/";
             OctetString logging = getDebugLogIC(pendingMessage, collectedMessage).fetchLogging();
-            File log = new File("/log/Beacon_logs/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
-            getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
-            FileOutputStream fileOutputStream = new FileOutputStream(log);
-            fileOutputStream.write(logging.toByteArray());
-            fileOutputStream.close();
+            File folder = new File(folderPath);
+            boolean folderPathExists = folder.exists() || folder.mkdirs();
+            if(folderPathExists) {
+                File log = new File(folder.getAbsolutePath()+ "/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
+                FileOutputStream fileOutputStream = new FileOutputStream(log.getPath());
+                fileOutputStream.write(logging.toByteArray());
+                fileOutputStream.close();
+                getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
+            } else {
+                this.getLogger().log(Level.SEVERE, "Logging folder does not exists: "+folder.getAbsolutePath());
+            }
         } catch (IOException e) {
-            this.getLogger().log(Level.WARNING, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
+            this.getLogger().log(Level.SEVERE, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
             throw e;
         }
     }
