@@ -299,7 +299,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     /**
      * Start of Beacon3100 custom codes
-     * Range from 100000 to 100073
+     * Range from 100000 to 100111
      * Actual codes MUST be remapped and CIM code corespondents created.
      * Event description is currently used in Beacon3100 protocol class.
      * 02.02.2018
@@ -356,11 +356,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     /**
      *  Idis meter discovery
      */
-    public static final int IDIS_METER_DISCOVERY = 1000010;
+    public static final int IDIS_METER_DISCOVERY = 100010;
     /**
      *  Idis meter accepted
      */
-    public static final int IDIS_METER_ACCEPTED = 1000011;
+    public static final int IDIS_METER_ACCEPTED = 100011;
 
     /**
      *  Idis meter rejected
@@ -666,6 +666,82 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      * Unknown register
      */
     public static final int UNKNOWN_REGISTER = 100073;
+
+    public static final int PLC_G3_BLACKLIST = 100074;
+
+    public static final int PLC_G3_NODE_LINK_LOST = 100075;
+
+    public static final int PLC_G3_NODE_LINK_RECOVERED = 100076;
+
+    public static final int PLC_G3_PAN_ID = 100077;
+
+    public static final int PLC_G3_TOPOLOGY_UPDATE = 100078;
+
+    public static final int MODEM_NEW_SIM = 100079;
+
+    public static final int MODEM_NEW_EQUIPMENT = 100080;
+
+    public static final int CHECK_DATA_CONCENTRATOR_CONFIG = 100081;
+
+    public static final int LINK_UP = 100082;
+
+    public static final int LINK_DOWN = 100083;
+
+    public static final int USB_ADD = 100084;
+
+    public static final int USB_REMOVE = 100085;
+
+    public static final int FILE_TRANSFER_COMPLETED = 100086;
+
+    public static final int FILE_TRANSFER_FAILED = 100087;
+
+    public static final int SCRIPT_EXECUTION_STARTED = 100088;
+
+    public static final int SCRIPT_EXECUTION_COMPLETED = 100089;
+
+    public static final int SCRIPT_EXECUTION_FAILED = 100090;
+
+    public static final int SCRIPT_EXECUTION_SCHEDULED = 100091;
+
+    public static final int SCRIPT_EXECUTION_DESCHEDULED = 100092;
+
+    public static final int WEBPORTAL_CSRF_ATTACK = 100093;
+
+    public static final int SNMP_OTHER = 100094;
+
+    public static final int SNMP_INFO = 100095;
+
+    public static final int SNMP_UNSUPPORTED_VERSION = 100096;
+
+    public static final int SNMP_UNSUPPORTED_SEC_MODEL = 100097;
+
+    public static final int SNMP_INVALID_USER_NAME = 100098;
+
+    public static final int SNMP_INVALID_ENGINE_ID = 100099;
+
+    public static final int SNMP_AUTHENTICATION_FAILURE = 100100;
+
+    public static final int SNMP_KEYS_UPDATED = 100101;
+
+    public static final int CRL_UPDATED = 100102;
+
+    public static final int CRL_UPDATE_REJECTED = 100103;
+
+    public static final int KEY_UPDATE_REQUEST = 100104;
+
+    public static final int CRL_REMOVED = 100105;
+
+    public static final int DOT1X_SUCCESS = 100106;
+
+    public static final int DOT1X_FAILURE = 100107;
+
+    public static final int REPLAY_ATTACK = 100108;
+
+    public static final int CERTIFICATE_ADDED = 100109;
+
+    public static final int CERTIFICATE_REMOVED = 100110;
+
+    public static final int CERTIFICATE_EXPIRED = 100111;
 
 
     // Used by EIServer UI:

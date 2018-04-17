@@ -279,4 +279,164 @@ public class EndDeviceEventTypeFactory {
     // Util class, so made constructor private
     private EndDeviceEventTypeFactory() {
     }
+
+    public static EndDeviceEventType getClearedEventType() {
+        return null;// TODO
+    }
+
+    public static EndDeviceEventType getPowerManagementSwitchLowPowerEventType() {
+        return new EndDeviceEventType("10.26.80.57");
+    }
+
+    public static EndDeviceEventType getPowerManagementSwitchFullPowerEventType() {
+        return new EndDeviceEventType("10.26.80.32");
+    }
+
+    public static EndDeviceEventType getPowerManagementSwitchReducedPowerEventType() {
+        return new EndDeviceEventType("10.26.80.296");
+    }
+
+    public static EndDeviceEventType getPowerManagementMainsLostEventType() {
+        return new EndDeviceEventType("10.26.80.68");
+    }
+
+    public static EndDeviceEventType getPowerManagementMainsRecoveredEventType() {
+        return new EndDeviceEventType("10.26.80.42");
+    }
+
+    public static EndDeviceEventType getPowerManagementLastGaspEventType() {
+        return new EndDeviceEventType("10.26.80.59");
+    }
+
+    public static EndDeviceEventType getPowerManagementBatteryChargeStartEventType() {
+        return new EndDeviceEventType("10.2.22.54");
+    }
+
+    public static EndDeviceEventType getPowerManagementBatteryChargeStopEventType() {
+        return new EndDeviceEventType("10.2.22.55");
+    }
+
+    public static EndDeviceEventType getIdisMeterDiscoveryEventType() {
+        return new EndDeviceEventType("0.10.5.54");
+    }
+
+    public static EndDeviceEventType getIdisMeterAcceptedEventType() {
+        return new EndDeviceEventType("0.10.74.17");
+    }
+
+    public static EndDeviceEventType getIdisMeterRejectedEventType() {
+        return new EndDeviceEventType("0.10.74.85");
+    }
+
+    public static EndDeviceEventType getIdisMeterAlarmEventType() {
+        return new EndDeviceEventType("0.17.285.83");
+    }
+
+    public static EndDeviceEventType getIdisAlarmConditionEventType() {
+        return new EndDeviceEventType("0.17.285.79");
+    }
+
+    public static EndDeviceEventType getIdisMultiMasterEventType() {
+        return null;//new EndDeviceEventType(""); // TODO
+    }
+
+    public static EndDeviceEventType getIdisPlcEquipmentInStateNewEventType() {
+        return new EndDeviceEventType("0.39.17.215");
+    }
+
+    public static EndDeviceEventType getIdisExtendedAlarmStatusEventType() {
+        return new EndDeviceEventType("0.17.285."); // TODO
+    }
+
+    public static EndDeviceEventType getIdisMeterDeletedEventType() {
+        return new EndDeviceEventType("0.10.74.68");
+    }
+
+    public static EndDeviceEventType getIdisStackEventEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcPrimeRestartedEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcPrimeStackEventEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcPrimeRegisterNodeEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcPrimeUnregisterNodeEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcG3RestartedEventType() {
+        return new EndDeviceEventType("0.23.43.53");
+    }
+
+    public static EndDeviceEventType getPlcG3StackEventEventType() {
+        return new EndDeviceEventType("0."); // TODO
+    }
+
+    public static EndDeviceEventType getPlcG3RegisterNodeEventType() {
+        return new EndDeviceEventType("0.10.5.42");
+    }
+
+    public static EndDeviceEventType getPlcG3UnregisterNodeEventType() {
+        return new EndDeviceEventType("0.10.5.68");
+    }
+
+    public static EndDeviceEventType getPlcG3EventReceivedEventType() {
+        return new EndDeviceEventType("0.1.43.3");
+    }
+
+    public static EndDeviceEventType getPlcG3JoinRequestNodeEventType() {
+        return new EndDeviceEventType("0.10.5.7");
+    }
+
+    public static EndDeviceEventType getPlcG3UppermacStoppedEventType() {
+        return new EndDeviceEventType("0.1.60.243");
+    }
+
+    public static EndDeviceEventType getPlcG3UppermacStartedEventType() {
+        return new EndDeviceEventType("0.1.60.242");
+    }
+
+    public static EndDeviceEventType getPlcG3JoinFailedEventType() {
+        return new EndDeviceEventType("0.23.74.85");
+    }
+
+    public static EndDeviceEventType getPlcG3AuthFailedEventType() {
+        return new EndDeviceEventType("0.12.65.85");
+    }
+
+    public static EndDeviceEventType getDlmsServerSessionAcceptedEventType() {
+        return new EndDeviceEventType("0.1.129.42");
+    }
+
+    public static EndDeviceEventType getDlmsServerSessionFinishedEventType() {
+        return new EndDeviceEventType("0.1.129.68");
+    }
+
+    public static EndDeviceEventType getDlmsOtherEventType() {
+        return new EndDeviceEventType("0.1.0.0"); // TODO
+    }
+
+    public static EndDeviceEventType getDlmsUpstreamTestEventType() {
+        return new EndDeviceEventType("0.1.111.60");
+    }
+
+    public static EndDeviceEventType getModemWdgPppdResetEventType() {
+        return new EndDeviceEventType("0.19.122.214");
+    }
+
+    public static EndDeviceEventType getModemWdgHwResetEventType() {
+        return new EndDeviceEventType("0.19.?.214"); // TODO
+    }
+
+    public static EndDeviceEventType getModemWdgRebootRequestedEventType() {
+        return new EndDeviceEventType("0.19.?.?"); // TODO
+    }
 }
