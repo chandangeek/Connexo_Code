@@ -439,4 +439,356 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getModemWdgRebootRequestedEventType() {
         return new EndDeviceEventType("0.19.?.?"); // TODO
     }
+
+    public static EndDeviceEventType getModemConnectedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getModemDisconnectedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getModemWakeUpEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getProtocolPreliminaryTaskCompletedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getProtocolPreliminaryTaskFailedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getProtocolConsecutiveFailureEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getFirmwareUpgradeEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getFirmwareModifiedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCpuOverloadEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getRamTooHighEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDiskUsageTooHighEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPaceExceptionEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSshLoginEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getFactoryResetEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWebportalLoginEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWebportalActionEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWebportalFailedLoginEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWebportalLockedUserEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getMeterMulticastUpgradeStartEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getMeterMulticastUpgradeCompletedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getMeterMulticastUpgradeFailedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getMeterMulticastUpgradeInfoEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getGeneralSecurityErrorEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWrapKeyErrorEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsAuthenticationLevelUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsSecurityPolicyUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsSecuritySuiteUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsKeysUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsAccessViolationEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsAuthenticationFailureEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDlmsCipheringErrorEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getUnknownRegisterEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPlcG3BlacklistEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPlcG3NodeLinkLostEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPlcG3NodeLinkRecoveredEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPlcG3PanIdEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPlcG3TopologyUpdateEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getModemNewSimEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getModemNewEquipmentEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCheckDataConcentratorConfigEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getLinkUpEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getLinkDownEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getUsbAddEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getUsbRemoveEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getFileTransferCompletedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getFileTransferFailedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getScriptExecutionStartedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getScriptExecutionCompletedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getScriptExecutionFailedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getScriptExecutionScheduledEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getScriptExecutionDescheduledEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getWebportalCsrfAttackEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpOtherEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpInfoEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpUnsupportedVersionEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpUnsupportedSecModelEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpInvalidUserNameEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpInvalidEngineIdEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpAuthenticationFailureEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getSnmpKeysUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCrlUpdatedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCrlUpdateRejectedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getKeyUpdateRequestEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCrlRemovedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDot1xSuccessEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getDot1xFailureEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getReplayAttackEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCertificateAddedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCertificateRemovedEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getCertificateExpiredEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownPowerLostEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownUserRequestEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownSoftwareFaultEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownHardwareFaultEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownNetworkInactivityEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownFirmwareUpgradeEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownFirmwareRollbackEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownDiskErrorEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownConfigurationErrorEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownFactoryResetEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownTamperingEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownTemperatureEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownSystemWatchdogEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownWwanModemWatchdogEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownSecureElementWatchdogEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getPowerDownExternalWatchdogEventType() {
+        return null;
+    }
+
+    public static EndDeviceEventType getProtocolLogClearedEventType() {
+        return new EndDeviceEventType("3.17.44.28");
+    }
+
+    public static EndDeviceEventType getMeterClockInvalidEventType() {
+        return new EndDeviceEventType("3.36.117.35");
+    }
 }

@@ -120,7 +120,7 @@ public enum EndDeviceEventTypeMapping {
     DLMS_UPSTREAM_TEST                      (100037, EndDeviceEventTypeFactory.getDlmsUpstreamTestEventType()),
     MODEM_WDG_PPPD_RESET                    (100038, EndDeviceEventTypeFactory.getModemWdgPppdResetEventType()),
     MODEM_WDG_HW_RESET                      (100039, EndDeviceEventTypeFactory.getModemWdgHwResetEventType()),
-    MODEM_WDG_REBOOT_REQUESTED              (100040, EndDeviceEventTypeFactory.getModemWdgRebootRequestedEventType())/*,
+    MODEM_WDG_REBOOT_REQUESTED              (100040, EndDeviceEventTypeFactory.getModemWdgRebootRequestedEventType()),
     MODEM_CONNECTED                         (100041, EndDeviceEventTypeFactory.getModemConnectedEventType()),
     MODEM_DISCONNECTED                      (100042, EndDeviceEventTypeFactory.getModemDisconnectedEventType()),
     MODEM_WAKE_UP                           (100043, EndDeviceEventTypeFactory.getModemWakeUpEventType()),
@@ -190,7 +190,25 @@ public enum EndDeviceEventTypeMapping {
     REPLAY_ATTACK                           (100108, EndDeviceEventTypeFactory.getReplayAttackEventType()),
     CERTIFICATE_ADDED                       (100109, EndDeviceEventTypeFactory.getCertificateAddedEventType()),
     CERTIFICATE_REMOVED                     (100110, EndDeviceEventTypeFactory.getCertificateRemovedEventType()),
-    CERTIFICATE_EXPIRED                     (100111, EndDeviceEventTypeFactory.getCertificateExpiredEventType())*/;
+    CERTIFICATE_EXPIRED                     (100111, EndDeviceEventTypeFactory.getCertificateExpiredEventType()),
+    POWER_DOWN_POWER_LOST                   (100112, EndDeviceEventTypeFactory.getPowerDownPowerLostEventType()),
+    POWER_DOWN_USER_REQUEST                 (100113, EndDeviceEventTypeFactory.getPowerDownUserRequestEventType()),
+    POWER_DOWN_SOFTWARE_FAULT               (100114, EndDeviceEventTypeFactory.getPowerDownSoftwareFaultEventType()),
+    POWER_DOWN_HARDWARE_FAULT               (100115, EndDeviceEventTypeFactory.getPowerDownHardwareFaultEventType()),
+    POWER_DOWN_NETWORK_INACTIVITY           (100116, EndDeviceEventTypeFactory.getPowerDownNetworkInactivityEventType()),
+    POWER_DOWN_FIRMWARE_UPGRADE             (100117, EndDeviceEventTypeFactory.getPowerDownFirmwareUpgradeEventType()),
+    POWER_DOWN_FIRMWARE_ROLLBACK            (100118, EndDeviceEventTypeFactory.getPowerDownFirmwareRollbackEventType()),
+    POWER_DOWN_DISK_ERROR                   (100119, EndDeviceEventTypeFactory.getPowerDownDiskErrorEventType()),
+    POWER_DOWN_CONFIGURATION_ERROR          (100120, EndDeviceEventTypeFactory.getPowerDownConfigurationErrorEventType()),
+    POWER_DOWN_FACTORY_RESET                (100121, EndDeviceEventTypeFactory.getPowerDownFactoryResetEventType()),
+    POWER_DOWN_TAMPERING                    (100122, EndDeviceEventTypeFactory.getPowerDownTamperingEventType()),
+    POWER_DOWN_TEMPERATURE                  (100123, EndDeviceEventTypeFactory.getPowerDownTemperatureEventType()),
+    POWER_DOWN_SYSTEM_WATCHDOG              (100124, EndDeviceEventTypeFactory.getPowerDownSystemWatchdogEventType()),
+    POWER_DOWN_WWAN_MODEM_WATCHDOG          (100125, EndDeviceEventTypeFactory.getPowerDownWwanModemWatchdogEventType()),
+    POWER_DOWN_SECURE_ELEMENT_WATCHDOG      (100126, EndDeviceEventTypeFactory.getPowerDownSecureElementWatchdogEventType()),
+    POWER_DOWN_EXTERNAL_WATCHDOG            (100127, EndDeviceEventTypeFactory.getPowerDownExternalWatchdogEventType()),
+    PROTOCOL_LOG_CLEARED                    (100128, EndDeviceEventTypeFactory.getProtocolLogClearedEventType()),
+    METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType());
 
     private final int eisCode;
     private final EndDeviceEventType eventType;
