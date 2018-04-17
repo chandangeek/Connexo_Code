@@ -117,7 +117,7 @@ public enum EventType {
                     .scope("System")
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
-                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTimeMillis")
                     .withProperty("deviceEventType", ValueType.STRING, "deviceEventType")
                     .create();
 
@@ -133,7 +133,7 @@ public enum EventType {
                     .scope("System")
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
-                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
+                    .withProperty("eventTimestamp", ValueType.LONG, "createdDateTimeMillis")
                     .withProperty("deviceEventType", ValueType.STRING, "deviceEventType")
                     .create();
         }
