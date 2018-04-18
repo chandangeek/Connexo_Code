@@ -10,7 +10,7 @@ Ext.define('Apr.view.taskoverview.SetQueue', {
         name: 'setQueue'
     },
     requires: [
-        'Apr.store.QueuesType',
+        'Apr.store.TasksType',
     ],
 
     initComponent: function () {
@@ -27,17 +27,31 @@ Ext.define('Apr.view.taskoverview.SetQueue', {
                 items: [
                     {
                         xtype: 'combobox',
-                        itemId: 'queue-type',
-                        name: 'queueType',
+                        itemId: 'task-type',
+                        name: 'taskType',
                         fieldLabel: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
                         labelWidth: 150,
-                        store: 'Apr.store.QueuesType',
+                        required: true,
+                        store: 'Apr.store.TasksType',
+                        editable: false,
+                        disable: false,
                         emptyText: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
                         allowBlank: false,
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'value',
-                        width: 400
+                        displayField: 'queue',
+                        valueField: 'queue',
+                        width: 400,
+                        listeners: {
+                            render: {
+                                fn: function () {
+                                    var mee = this,
+                                        taskStore = mee.getStore();
+
+                                    taskStore.getProxy().setUrl(me.record.getId());
+                                    taskStore.load();
+
+                                }
+                            }
+                        }
                     }
 
                 ],

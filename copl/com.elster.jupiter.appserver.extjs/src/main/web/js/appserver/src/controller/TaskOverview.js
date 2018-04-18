@@ -15,7 +15,8 @@ Ext.define('Apr.controller.TaskOverview', {
     stores: [
         'Apr.store.Tasks',
         'Apr.store.Applications',
-        'Apr.store.Queues'
+        'Apr.store.Queues',
+        'Apr.store.TasksType'
     ],
     models: [
         'Apr.model.Task',
@@ -79,6 +80,43 @@ Ext.define('Apr.controller.TaskOverview', {
         }
     },
 
+    onCheck: function (getConfirmationWindow) {
+        var me = this,
+            confWindow = getConfirmationWindow();
+        me.doOperation(confWindow, Uni.I18n.translate('general.task.set.on.queue', 'APR', 'Task set on queue'), 'setqueue');
+    },
+
+    doOperation: function (confirmationWindow, successMessage, action) {
+        var me = this,
+            router = me.router,
+            updatedData;
+
+        updatedData = {
+
+
+            id: confirmationWindow.record.getId(),
+            queue: confirmationWindow.down('#task-type').getValue()
+        };
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task',
+            method: 'PUT',
+            jsonData: Ext.encode(updatedData),
+            success: function (response) {
+                confirmationWindow.close();
+                router.getApplication().fireEvent('acknowledge', successMessage);
+                router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
+            },
+            failure: function (response) {
+                var json = Ext.decode(response.responseText, true);
+                if (json && json.errors) {
+                    confirmationWindow.down('#task-type').markInvalid(json.errors[0].msg);
+
+                }
+            }
+        });
+    },
+
     setQueue: function (record) {
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
@@ -86,22 +124,18 @@ Ext.define('Apr.controller.TaskOverview', {
             confirmText: Uni.I18n.translate('general.save', 'APR', 'Save'),
             closeAction: 'destroy',
             green: true,
+            record: record,
             confirmation: Ext.bind(this.onCheck, this, [getConfirmationWindow])
         });
 
         confirmationWindow.insert(1, {
             xtype: 'set-queue',
-            itemId: 'set-queue-item',
-            padding: '-10 0 0 -20'
+            itemId: 'setQueueItem',
+            padding: '-10 0 0 -20',
+            record: record
         });
-        // confirmationWindow.insert(1, {
-        //     itemId: 'snooze-now-window-errors',
-        //     xtype: 'label',
-        //     margin: '0 0 10 50',
-        //     hidden: true
-        // });
+
         confirmationWindow.show({
-            // title: Uni.I18n.translate('general.setqueue', 'APR', "Set queue '{0}'?", record.getData('name'), false)
             title: Uni.I18n.translate('general.setqueue', 'APR', "Set queue '{0}'?", record.data.name, false)
         });
 
