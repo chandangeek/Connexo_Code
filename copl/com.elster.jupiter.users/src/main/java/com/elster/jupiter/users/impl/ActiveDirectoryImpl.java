@@ -378,7 +378,11 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.PROVIDER_URL, url);
         env.put(Context.SECURITY_PRINCIPAL, username);
         env.put(Context.SECURITY_CREDENTIALS, password);
-        if (sslSecurityProperties.getTrustedStore() != null && !is(securityProtocol).emptyOrOnlyWhiteSpace() && securityProtocol.toLowerCase().contains("ssl")) {
+        if (sslSecurityProperties != null
+                && securityProtocol != null
+                && sslSecurityProperties.getTrustedStore() != null
+                && !is(securityProtocol).emptyOrOnlyWhiteSpace()
+                && securityProtocol.toLowerCase().contains("ssl")) {
             env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
             ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, securityProtocol)));
             Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
