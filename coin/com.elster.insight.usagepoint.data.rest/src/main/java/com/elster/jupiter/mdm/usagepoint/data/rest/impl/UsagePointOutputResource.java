@@ -557,9 +557,12 @@ public class UsagePointOutputResource {
             usagePoint.getEffectiveMetrologyConfigurations()
                     .forEach(effectiveMC -> this.getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose)
                             .forEach(deliverable -> {
-                                        Map<Instant, OutputRegisterDataInfo> outputRegisterData = new TreeMap<>(Collections.reverseOrder());
-                                        putRegisterDataFromMetrologyConfiguration(usagePoint, outputRegisterData, deliverable.getMetrologyContract(), deliverable.getReadingType(), effectiveMC, filter);
-                                        outputRegisterDataInfos.addAll(outputRegisterData.values());
+                                        ReadingType readingType = deliverable.getReadingType();
+                                        if (!readingType.isRegular()) {
+                                            Map<Instant, OutputRegisterDataInfo> outputRegisterData = new TreeMap<>(Collections.reverseOrder());
+                                            putRegisterDataFromMetrologyConfiguration(usagePoint, outputRegisterData, deliverable.getMetrologyContract(), readingType, effectiveMC, filter);
+                                            outputRegisterDataInfos.addAll(outputRegisterData.values());
+                                        }
                                     }
                             )
                     );
