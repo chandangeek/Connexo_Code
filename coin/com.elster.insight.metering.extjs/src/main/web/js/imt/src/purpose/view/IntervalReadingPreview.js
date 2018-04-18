@@ -77,7 +77,7 @@ Ext.define('Imt.purpose.view.IntervalReadingPreview', {
                 renderer: Imt.purpose.util.DataFormatter.formatIntervalLong
             },
             {
-                fieldLabel: Uni.I18n.translate('general.lastUpdate', 'IMT', 'Last update'),
+                fieldLabel: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 name: 'reportedDateTime',
                 itemId: 'interval-preview-lastUpdate-field',
                 renderer: function (value) {

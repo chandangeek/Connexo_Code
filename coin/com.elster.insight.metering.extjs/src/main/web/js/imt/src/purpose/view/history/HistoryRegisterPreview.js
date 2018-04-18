@@ -21,7 +21,7 @@ Ext.define('Imt.purpose.view.history.HistoryRegisterPreview', {
         return [
             me.getTime(),
             {
-                fieldLabel: Uni.I18n.translate('general.lastUpdate', 'IMT', 'Changed On'),
+                fieldLabel: Uni.I18n.translate('historyGrid.changedOn', 'IMT', 'Changed on'),
                 name: 'reportedDateTime',
                 itemId: 'history-preview-changedOn-field',
                 renderer: function (value) {

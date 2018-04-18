@@ -25,12 +25,12 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('purpose.summary.measurementPeriod', 'IMT', 'Measurement period'),
+                header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
                 dataIndex: 'interval',
                 flex: 2,
                 renderer: Imt.purpose.util.GridRenderer.renderMeasurementPeriodColumn
             }, {
-                header: Uni.I18n.translate('purpose.summary.eventDate', 'IMT', 'Event time'),
+                header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
                 dataIndex: 'eventDate',
                 flex: 1,
                 renderer: Imt.purpose.util.GridRenderer.renderEventTimeColumn
@@ -42,13 +42,13 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataGrid', {
                 renderer: Imt.purpose.util.GridRenderer.renderValueAndUnit
             },
             {
-                header: Uni.I18n.translate('purpose.summary.deltaValue', 'IMT', 'Delta value'),
+                header: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
                 dataIndex: 'deltaValue',
                 flex: 1,
                 renderer: Imt.purpose.util.GridRenderer.renderValueAndUnit
             },
             {
-                header: Uni.I18n.translate('purpose.summary.reportedTime', 'IMT', 'Last updated'),
+                header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last updated'),
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: Imt.purpose.util.GridRenderer.renderLastUpdateColumn

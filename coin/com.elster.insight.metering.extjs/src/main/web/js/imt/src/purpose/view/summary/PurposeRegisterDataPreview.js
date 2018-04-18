@@ -19,7 +19,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
 
         me.items = [
             {
-                title: Uni.I18n.translate('registerdata.generaltab.title', 'IMT', 'General'),
+                title: Uni.I18n.translate('reading.generaltab.titl', 'IMT', 'General'),
                 items: {
                     xtype: 'form',
                     itemId: 'register-preview-general-panel',
@@ -33,7 +33,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 }
             },
             {
-                title: Uni.I18n.translate('registerdata.validationtab.title', 'IMT', 'Validation'),
+                title: Uni.I18n.translate('general.validation', 'IMT', 'Validation'),
                 items: {
                     xtype: 'form',
                     itemId: 'register-preview-validation-panel',
@@ -47,7 +47,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 }
             },
             {
-                title: Uni.I18n.translate('registerdata.readingqualitytab.title', 'IMT', 'Reading quality'),
+                title: Uni.I18n.translate('general.readingQuality', 'IMT', 'Reading quality'),
                 items: {
                     xtype: 'form',
                     itemId: 'register-preview-qualities-panel',
@@ -81,7 +81,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 renderer: Imt.purpose.util.DataFormatter.formatDateLong
             },
             {
-                fieldLabel: Uni.I18n.translate('general.eventTime', 'IMT', 'Event time'),
+                fieldLabel: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
                 name: 'eventDate',
                 itemId: 'register-preview-eventTime-field',
                 renderer: Imt.purpose.util.DataFormatter.formatDateLong
@@ -95,7 +95,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 }
             },
             {
-                fieldLabel: Uni.I18n.translate('general.deltaValue', 'IMT', 'Delta value'),
+                fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'IMT', 'Delta value'),
                 name: 'deltaValue',
                 itemId: 'register-preview-deltaValue-field',
                 renderer: function(value, displayField){
@@ -107,7 +107,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataPreview', {
                 itemId: 'register-preview-formula-field'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.lastUpdate', 'IMT', 'Last update'),
+                fieldLabel: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 name: 'reportedDateTime',
                 itemId: 'register-preview-lastUpdate-field',
                 renderer: Imt.purpose.util.DataFormatter.formatDateLong
