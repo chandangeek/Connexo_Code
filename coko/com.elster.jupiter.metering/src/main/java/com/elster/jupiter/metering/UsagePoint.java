@@ -52,6 +52,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void setOutageRegion(String outageRegion);
 
+    String getName();
+
     void setName(String name);
 
     String getAliasName();
@@ -211,6 +213,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     @Deprecated
     ConnectionState getConnectionState();
 
+    void setConnectionState(ConnectionState connectionState);
+
     /**
      * Returns translated name of current connection state of the usage point.
      *
@@ -225,8 +229,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @return the UsagePointConnectionState
      */
     Optional<UsagePointConnectionState> getCurrentConnectionState();
-
-    void setConnectionState(ConnectionState connectionState);
 
     void setConnectionState(ConnectionState connectionState, Instant instant);
 
