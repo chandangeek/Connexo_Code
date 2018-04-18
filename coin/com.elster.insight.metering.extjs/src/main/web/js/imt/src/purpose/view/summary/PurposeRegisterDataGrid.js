@@ -48,7 +48,7 @@ Ext.define('Imt.purpose.view.summary.PurposeRegisterDataGrid', {
                 renderer: Imt.purpose.util.GridRenderer.renderValueAndUnit
             },
             {
-                header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last updated'),
+                header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: Imt.purpose.util.GridRenderer.renderLastUpdateColumn
