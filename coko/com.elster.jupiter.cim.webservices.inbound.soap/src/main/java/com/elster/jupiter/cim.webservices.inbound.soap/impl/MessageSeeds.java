@@ -51,6 +51,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_STATE_FOUND_IN_LIFE_CYCLE(2014, "StateNotFound", "The life cycle: ''{0}'' doesn''t contain usage point state: ''{1}''"),
     LIFE_CYCLE_NOT_FOUND(2015, "LifeCycleNotFound", "The life cycle: ''{0}'' doesn''t exist."),
     UNABLE_TO_GET_USAGE_POINT(2016, "UnableToGetUsagePoint", "Unable to get usage point"),
+    INVALID_METROLOGY_CONTRACT_REQUIRMENT(2017, "UnableToInactivateMandatoryPurpose", "Mandatory purpose can''t be inactive."),
+    UNABLE_TO_CHANGE_STATE_OPTIONAL_CONTRACT(2018, "UnableToChangeStateOptionalContract", "Unable to change state of optional contract."),
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT(2018, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(2019, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
+    MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2020, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings"),

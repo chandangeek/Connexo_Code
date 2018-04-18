@@ -97,9 +97,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class GetUsagePointReadingsTest extends AbstractMockActivator {
-    @Rule
-    public TestRule snowy = Using.timeZoneOfMcMurdo();
-
     private static final String USAGE_POINT_MRID = "Vâlâiom mă şel mardă";
     private static final String USAGE_POINT_NAME = "Biciadiom bravinta mă";
     private static final String ANOTHER_MRID = "Matână zabagandă";
@@ -116,19 +113,17 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private static final String BULK_MRID = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String BULK_FULL_ALIAS_NAME = "Secondary Bulk A+ (kWh)";
     private static final String COMMENT = "Validated with rule 13";
-
     private static final ZonedDateTime MAY_1ST = ZonedDateTime.of(2017, 5, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime JUNE_1ST = MAY_1ST.with(Month.JUNE);
     private static final ZonedDateTime JULY_1ST = MAY_1ST.with(Month.JULY);
-
     private static final ReadingQualityType SUSPECT = new ReadingQualityType("3.5.258");
     private static final ReadingQualityType RULE_13_FAILED = new ReadingQualityType("3.6.13");
     private static final ReadingQualityType REMOVED = new ReadingQualityType("3.7.3");
     private static final ReadingQualityType ERROR_CODE = new ReadingQualityType("3.5.257");
     private static final ReadingQualityType INFERRED = new ReadingQualityType("3.11.1");
-
     private final ObjectFactory getMeterReadingsMessageObjectFactory = new ObjectFactory();
-
+    @Rule
+    public TestRule snowy = Using.timeZoneOfMcMurdo();
     @Mock
     private UsagePoint usagePoint;
     @Mock
@@ -165,6 +160,204 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private ReadingQualityFetcher dailyReadingQualityFetcher, min15ReadingQualityFetcher, registerReadingQualityFetcher;
     @Captor
     private ArgumentCaptor<Range<Instant>> rangeCaptor;
+
+    private static void assertReadingType(ch.iec.tc57._2011.meterreadings.ReadingType rt, String fullAliasName, boolean regular) {
+        assertThat(rt.getAccumulation()).isEqualTo(regular ? "Delta data" : "Bulk quantity");
+        assertThat(rt.getAggregate()).isEqualTo(regular ? "Sum" : "Not applicable");
+        if (regular) {
+            assertThat(rt.getArgument().getNumerator().longValue()).isEqualTo(1L);
+            assertThat(rt.getArgument().getDenominator().longValue()).isEqualTo(3L);
+        } else {
+            assertThat(rt.getArgument()).isNull();
+        }
+        assertThat(rt.getCommodity()).isEqualTo(regular ? "Electricity secondary metered" : "Electricity primary metered");
+        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(regular ? 1L : 2L);
+        assertThat(rt.getCpp().longValue()).isEqualTo(regular ? 1L : 2L);
+        assertThat(rt.getCurrency()).isEqualTo(regular ? "RUB" : "XXX");
+        assertThat(rt.getFlowDirection()).isEqualTo(regular ? "Total" : "Forward");
+        if (regular) {
+            assertThat(rt.getInterharmonic()).isNull();
+        } else {
+            assertThat(rt.getInterharmonic().getNumerator().longValue()).isEqualTo(2L);
+            assertThat(rt.getInterharmonic().getDenominator().longValue()).isEqualTo(3L);
+        }
+        assertThat(rt.getMacroPeriod()).isEqualTo(regular ? "Daily" : "Not applicable");
+        assertThat(rt.getMeasurementKind()).isEqualTo(regular ? "Power" : "Energy");
+        assertThat(rt.getMeasuringPeriod()).isEqualTo(regular ? "Not applicable" : TimeAttribute.HOUR24.getDescription());
+        assertThat(rt.getMultiplier()).isEqualTo(regular ? "*10^3" : "*10^0");
+        assertThat(rt.getPhases()).isEqualTo(regular ? "Phase-NotApplicable" : "Phase-S1");
+        assertThat(rt.getTou().longValue()).isEqualTo(regular ? 1L : 2L);
+        assertThat(rt.getUnit()).isEqualTo(regular ? "Watt hours" : "Watt");
+        assertThat(rt.getNames().get(0).getName()).isEqualTo(fullAliasName);
+    }
+
+    private static void assertReadingQualityTypeDescription(ch.iec.tc57._2011.meterreadings.ReadingQualityType rqt,
+                                                            String system, String category, String subcategory) {
+        assertThat(rqt.getSystemId()).isEqualTo(system);
+        assertThat(rqt.getCategory()).isEqualTo(category);
+        assertThat(rqt.getSubCategory()).isEqualTo(subcategory);
+    }
+
+    @SafeVarargs
+    private static <T> Stream<T> filterInRange(Supplier<Range<Instant>> rangeSupplier,
+                                               Function<? super T, Instant> instantRetriever,
+                                               T... whatToFilter) {
+        Range<Instant> range = rangeSupplier.get();
+        return Arrays.stream(whatToFilter)
+                .filter(item -> range.contains(instantRetriever.apply(item)));
+    }
+
+    private static void assertRegularReadingTypeReferences(List<IntervalBlock> intervalBlocks, String... mRIDs) {
+        List<String> readingTypeMRIDs = intervalBlocks.stream()
+                .map(IntervalBlock::getReadingType)
+                .peek(rt -> assertThat(rt).isNotNull())
+                .map(ch.iec.tc57._2011.meterreadings.IntervalBlock.ReadingType::getRef)
+                .collect(Collectors.toList());
+        assertThat(readingTypeMRIDs).containsOnly(mRIDs);
+    }
+
+    private static IntervalBlock getReadingsByReadingTypeMRID(List<IntervalBlock> blocks, String mRID) {
+        return blocks.stream()
+                .filter(block -> mRID.equals(block.getReadingType().getRef()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static void assertReadingQualityTypeCodes(List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> qualityTypes,
+                                                      String... codes) {
+        assertThat(qualityTypes.stream()
+                .map(ch.iec.tc57._2011.meterreadings.ReadingQualityType::getMRID)
+                .collect(Collectors.toList()))
+                .containsOnly(codes);
+    }
+
+    private static ch.iec.tc57._2011.meterreadings.ReadingQualityType getReadingQualityTypeWithCode(
+            List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> qualityTypes, String code) {
+        return qualityTypes.stream()
+                .filter(rqt -> code.equals(rqt.getMRID()))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static void assertReadingTypes(List<ch.iec.tc57._2011.meterreadings.ReadingType> actualReadingTypes,
+                                           ReadingType... expectedReadingTypes) {
+        Map<String, ReadingType> expectedReadingTypesByMRID = Arrays.stream(expectedReadingTypes)
+                .collect(Collectors.toMap(ReadingType::getMRID, Function.identity()));
+        assertThat(actualReadingTypes.stream()
+                .map(ch.iec.tc57._2011.meterreadings.ReadingType::getMRID)
+                .collect(Collectors.toList()))
+                .containsOnly(expectedReadingTypesByMRID.keySet().stream().toArray(String[]::new));
+        actualReadingTypes.forEach(actualReadingType -> {
+            ReadingType expectedReadingType = expectedReadingTypesByMRID.get(actualReadingType.getMRID());
+            assertReadingType(actualReadingType, expectedReadingType.getFullAliasName(), expectedReadingType.isRegular());
+        });
+    }
+
+    private static void assertUsagePointWithPurposes(List<MeterReading> meterReadings, String usagePointMRID, String usagePointName,
+                                                     String... purposeNames) {
+        meterReadings.forEach(reading -> {
+            ch.iec.tc57._2011.meterreadings.UsagePoint usagePoint = reading.getUsagePoint();
+            assertThat(usagePoint).isNotNull();
+            assertThat(usagePoint.getMRID()).isEqualTo(usagePointMRID);
+            List<ch.iec.tc57._2011.meterreadings.Name> names = usagePoint.getNames();
+            assertThat(names).hasSize(2);
+            names.forEach(name -> {
+                assertThat(name.getName()).isNotNull();
+                assertThat(name.getNameType()).isNotNull();
+            });
+            assertThat(names.stream()
+                    .filter(name -> UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType()
+                            .equals(name.getNameType().getName()))
+                    .findFirst()
+                    .map(ch.iec.tc57._2011.meterreadings.Name::getName))
+                    .contains(usagePointName);
+        });
+        assertThat(meterReadings.stream()
+                .map(MeterReading::getUsagePoint)
+                .map(ch.iec.tc57._2011.meterreadings.UsagePoint::getNames)
+                .flatMap(List::stream)
+                .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType().equals(name.getNameType().getName()))
+                .map(ch.iec.tc57._2011.meterreadings.Name::getName)
+                .collect(Collectors.toList()))
+                .containsOnly(purposeNames);
+    }
+
+    private static MeterReading getReadingsByPurposeName(List<MeterReading> meterReadings, String purposeName) {
+        return meterReadings.stream()
+                .filter(purpose -> purpose.getUsagePoint().getNames().stream()
+                        .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType()
+                                .equals(name.getNameType().getName()))
+                        .map(ch.iec.tc57._2011.meterreadings.Name::getName)
+                        .anyMatch(purposeName::equals))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static void assertReading(IntervalReading actualReading, BaseReadingRecord expectedReading,
+                                      ReadingQualityRecord... expectedQualities) {
+        assertThat(actualReading.getTimeStamp()).isEqualTo(expectedReading.getTimeStamp());
+        assertThat(actualReading.getReportedDateTime()).isEqualTo(expectedReading.getReportedDateTime());
+        assertThat(actualReading.getValue()).isEqualTo(expectedReading.getValue().toPlainString());
+        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
+    }
+
+    private static void assertMissing(IntervalReading actualReading, Instant timestamp,
+                                      ReadingQualityRecord... expectedQualities) {
+        assertThat(actualReading.getTimeStamp()).isEqualTo(timestamp);
+        assertThat(actualReading.getReportedDateTime()).isNull();
+        assertThat(actualReading.getValue()).isNull();
+        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
+    }
+
+    private static void assertReading(Reading actualReading, String readingTypeMRID,
+                                      BaseReadingRecord expectedReading, ReadingQualityRecord... expectedQualities) {
+        assertThat(actualReading.getTimeStamp()).isEqualTo(expectedReading.getTimeStamp());
+        assertThat(actualReading.getReadingType()).isNotNull();
+        assertThat(actualReading.getReadingType().getRef()).isEqualTo(readingTypeMRID);
+        Optional<Range<Instant>> timePeriod = expectedReading.getTimePeriod();
+        if (timePeriod.isPresent()) {
+            assertThat(actualReading.getTimePeriod()).isNotNull();
+            assertThat(actualReading.getTimePeriod().getStart()).isEqualTo(timePeriod.get().lowerEndpoint());
+            assertThat(actualReading.getTimePeriod().getEnd()).isEqualTo(timePeriod.get().upperEndpoint());
+        } else {
+            assertThat(actualReading.getTimePeriod()).isNull();
+        }
+        assertThat(actualReading.getReportedDateTime()).isEqualTo(expectedReading.getReportedDateTime());
+        assertThat(actualReading.getValue()).isEqualTo(expectedReading.getValue().toPlainString());
+        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
+    }
+
+    private static void assertMissing(Reading actualReading, String readingTypeMRID,
+                                      Instant timestamp, ReadingQualityRecord... expectedQualities) {
+        assertThat(actualReading.getTimeStamp()).isEqualTo(timestamp);
+        assertThat(actualReading.getReadingType()).isNotNull();
+        assertThat(actualReading.getReadingType().getRef()).isEqualTo(readingTypeMRID);
+        assertThat(actualReading.getTimePeriod()).isNull();
+        assertThat(actualReading.getReportedDateTime()).isNull();
+        assertThat(actualReading.getValue()).isNull();
+        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
+    }
+
+    private static void assertReadingQualities(List<ReadingQuality> actualQualities, ReadingQualityRecord... expectedQualities) {
+        actualQualities.forEach(quality -> assertThat(quality.getReadingQualityType()).isNotNull());
+        Map<String, ReadingQualityRecord> expectedQualitiesByCodes = Arrays.stream(expectedQualities)
+                .collect(Collectors.toMap(quality -> quality.getType().getCode(), Function.identity()));
+        assertThat(actualQualities.stream()
+                .map(ReadingQuality::getReadingQualityType)
+                .map(ReadingQuality.ReadingQualityType::getRef)
+                .collect(Collectors.toList()))
+                .containsOnly(expectedQualitiesByCodes.keySet().stream().toArray(String[]::new));
+        actualQualities.forEach(actualQuality -> {
+            ReadingQualityRecord expected = expectedQualitiesByCodes.get(actualQuality.getReadingQualityType()
+                    .getRef());
+            assertThat(actualQuality.getTimeStamp()).isEqualTo(expected.getTimestamp());
+            assertThat(actualQuality.getComment()).isEqualTo(expected.getComment());
+        });
+    }
+
+    private static Instant mayDay(int n) {
+        return MAY_1ST.withDayOfMonth(n).toInstant();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -253,43 +446,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         when(mock.getUnit()).thenReturn(regular ? ReadingTypeUnit.WATTHOUR : ReadingTypeUnit.WATT);
     }
 
-    private static void assertReadingType(ch.iec.tc57._2011.meterreadings.ReadingType rt, String fullAliasName, boolean regular) {
-        assertThat(rt.getAccumulation()).isEqualTo(regular ? "Delta data" : "Bulk quantity");
-        assertThat(rt.getAggregate()).isEqualTo(regular ? "Sum" : "Not applicable");
-        if (regular) {
-            assertThat(rt.getArgument().getNumerator().longValue()).isEqualTo(1L);
-            assertThat(rt.getArgument().getDenominator().longValue()).isEqualTo(3L);
-        } else {
-            assertThat(rt.getArgument()).isNull();
-        }
-        assertThat(rt.getCommodity()).isEqualTo(regular ? "Electricity secondary metered" : "Electricity primary metered");
-        assertThat(rt.getConsumptionTier().longValue()).isEqualTo(regular ? 1L : 2L);
-        assertThat(rt.getCpp().longValue()).isEqualTo(regular ? 1L : 2L);
-        assertThat(rt.getCurrency()).isEqualTo(regular ? "RUB" : "XXX");
-        assertThat(rt.getFlowDirection()).isEqualTo(regular ? "Total" : "Forward");
-        if (regular) {
-            assertThat(rt.getInterharmonic()).isNull();
-        } else {
-            assertThat(rt.getInterharmonic().getNumerator().longValue()).isEqualTo(2L);
-            assertThat(rt.getInterharmonic().getDenominator().longValue()).isEqualTo(3L);
-        }
-        assertThat(rt.getMacroPeriod()).isEqualTo(regular ? "Daily" : "Not applicable");
-        assertThat(rt.getMeasurementKind()).isEqualTo(regular ? "Power" : "Energy");
-        assertThat(rt.getMeasuringPeriod()).isEqualTo(regular ? "Not applicable" : TimeAttribute.HOUR24.getDescription());
-        assertThat(rt.getMultiplier()).isEqualTo(regular ? "*10^3" : "*10^0");
-        assertThat(rt.getPhases()).isEqualTo(regular ? "Phase-NotApplicable" : "Phase-S1");
-        assertThat(rt.getTou().longValue()).isEqualTo(regular ? 1L : 2L);
-        assertThat(rt.getUnit()).isEqualTo(regular ? "Watt hours" : "Watt");
-        assertThat(rt.getNames().get(0).getName()).isEqualTo(fullAliasName);
-    }
-
-    private static void assertReadingQualityTypeDescription(ch.iec.tc57._2011.meterreadings.ReadingQualityType rqt,
-                                                            String system, String category, String subcategory) {
-        assertThat(rqt.getSystemId()).isEqualTo(system);
-        assertThat(rqt.getCategory()).isEqualTo(category);
-        assertThat(rqt.getSubCategory()).isEqualTo(subcategory);
-    }
-
     private void mockChannelContainers() {
         mockAggregatedChannels();
         when(billingContainer1.getInterval()).thenReturn(Interval.of(Range.openClosed(MAY_1ST.minusMonths(1).toInstant(), mayDay(9))));
@@ -356,15 +512,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .stream())
                 .thenAnswer(invocation -> filterInRange(rangeCaptor::getValue, ReadingQualityRecord::getReadingTimestamp,
                         suspect1, suspect2, removed7));
-    }
-
-    @SafeVarargs
-    private static <T> Stream<T> filterInRange(Supplier<Range<Instant>> rangeSupplier,
-                                               Function<? super T, Instant> instantRetriever,
-                                               T... whatToFilter) {
-        Range<Instant> range = rangeSupplier.get();
-        return Arrays.stream(whatToFilter)
-                .filter(item -> range.contains(instantRetriever.apply(item)));
     }
 
     private void mockIntervalReadings() {
@@ -453,10 +600,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
             e.printStackTrace();
             fail("Expected FaultMessage but got: " + System.lineSeparator() + e.toString());
         }
-    }
-
-    private interface RunnableWithFaultMessage {
-        void run() throws FaultMessage;
     }
 
     @Test
@@ -1088,152 +1231,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(meterReadings.getMeterReading()).isEmpty();
     }
 
-    private static void assertRegularReadingTypeReferences(List<IntervalBlock> intervalBlocks, String... mRIDs) {
-        List<String> readingTypeMRIDs = intervalBlocks.stream()
-                .map(IntervalBlock::getReadingType)
-                .peek(rt -> assertThat(rt).isNotNull())
-                .map(ch.iec.tc57._2011.meterreadings.IntervalBlock.ReadingType::getRef)
-                .collect(Collectors.toList());
-        assertThat(readingTypeMRIDs).containsOnly(mRIDs);
-    }
-
-    private static IntervalBlock getReadingsByReadingTypeMRID(List<IntervalBlock> blocks, String mRID) {
-        return blocks.stream()
-                .filter(block -> mRID.equals(block.getReadingType().getRef()))
-                .findFirst()
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-    private static void assertReadingQualityTypeCodes(List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> qualityTypes,
-                                                      String... codes) {
-        assertThat(qualityTypes.stream()
-                .map(ch.iec.tc57._2011.meterreadings.ReadingQualityType::getMRID)
-                .collect(Collectors.toList()))
-                .containsOnly(codes);
-    }
-
-    private static ch.iec.tc57._2011.meterreadings.ReadingQualityType getReadingQualityTypeWithCode(
-            List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> qualityTypes, String code) {
-        return qualityTypes.stream()
-                .filter(rqt -> code.equals(rqt.getMRID()))
-                .findFirst()
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-    private static void assertReadingTypes(List<ch.iec.tc57._2011.meterreadings.ReadingType> actualReadingTypes,
-                                           ReadingType... expectedReadingTypes) {
-        Map<String, ReadingType> expectedReadingTypesByMRID = Arrays.stream(expectedReadingTypes)
-                .collect(Collectors.toMap(ReadingType::getMRID, Function.identity()));
-        assertThat(actualReadingTypes.stream()
-                .map(ch.iec.tc57._2011.meterreadings.ReadingType::getMRID)
-                .collect(Collectors.toList()))
-                .containsOnly(expectedReadingTypesByMRID.keySet().stream().toArray(String[]::new));
-        actualReadingTypes.forEach(actualReadingType -> {
-            ReadingType expectedReadingType = expectedReadingTypesByMRID.get(actualReadingType.getMRID());
-            assertReadingType(actualReadingType, expectedReadingType.getFullAliasName(), expectedReadingType.isRegular());
-        });
-    }
-
-    private static void assertUsagePointWithPurposes(List<MeterReading> meterReadings, String usagePointMRID, String usagePointName,
-                                                     String... purposeNames) {
-        meterReadings.forEach(reading -> {
-            ch.iec.tc57._2011.meterreadings.UsagePoint usagePoint = reading.getUsagePoint();
-            assertThat(usagePoint).isNotNull();
-            assertThat(usagePoint.getMRID()).isEqualTo(usagePointMRID);
-            List<ch.iec.tc57._2011.meterreadings.Name> names = usagePoint.getNames();
-            assertThat(names).hasSize(2);
-            names.forEach(name -> {
-                assertThat(name.getName()).isNotNull();
-                assertThat(name.getNameType()).isNotNull();
-            });
-            assertThat(names.stream()
-                    .filter(name -> UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType().equals(name.getNameType().getName()))
-                    .findFirst()
-                    .map(ch.iec.tc57._2011.meterreadings.Name::getName))
-                    .contains(usagePointName);
-        });
-        assertThat(meterReadings.stream()
-                .map(MeterReading::getUsagePoint)
-                .map(ch.iec.tc57._2011.meterreadings.UsagePoint::getNames)
-                .flatMap(List::stream)
-                .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType().equals(name.getNameType().getName()))
-                .map(ch.iec.tc57._2011.meterreadings.Name::getName)
-                .collect(Collectors.toList()))
-                .containsOnly(purposeNames);
-    }
-
-    private static MeterReading getReadingsByPurposeName(List<MeterReading> meterReadings, String purposeName) {
-        return meterReadings.stream()
-                .filter(purpose -> purpose.getUsagePoint().getNames().stream()
-                        .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType().equals(name.getNameType().getName()))
-                        .map(ch.iec.tc57._2011.meterreadings.Name::getName)
-                        .anyMatch(purposeName::equals))
-                .findFirst()
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-    private static void assertReading(IntervalReading actualReading, BaseReadingRecord expectedReading,
-                                      ReadingQualityRecord... expectedQualities) {
-        assertThat(actualReading.getTimeStamp()).isEqualTo(expectedReading.getTimeStamp());
-        assertThat(actualReading.getReportedDateTime()).isEqualTo(expectedReading.getReportedDateTime());
-        assertThat(actualReading.getValue()).isEqualTo(expectedReading.getValue().toPlainString());
-        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
-    }
-
-    private static void assertMissing(IntervalReading actualReading, Instant timestamp,
-                                      ReadingQualityRecord... expectedQualities) {
-        assertThat(actualReading.getTimeStamp()).isEqualTo(timestamp);
-        assertThat(actualReading.getReportedDateTime()).isNull();
-        assertThat(actualReading.getValue()).isNull();
-        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
-    }
-
-    private static void assertReading(Reading actualReading, String readingTypeMRID,
-                                      BaseReadingRecord expectedReading, ReadingQualityRecord... expectedQualities) {
-        assertThat(actualReading.getTimeStamp()).isEqualTo(expectedReading.getTimeStamp());
-        assertThat(actualReading.getReadingType()).isNotNull();
-        assertThat(actualReading.getReadingType().getRef()).isEqualTo(readingTypeMRID);
-        Optional<Range<Instant>> timePeriod = expectedReading.getTimePeriod();
-        if (timePeriod.isPresent()) {
-            assertThat(actualReading.getTimePeriod()).isNotNull();
-            assertThat(actualReading.getTimePeriod().getStart()).isEqualTo(timePeriod.get().lowerEndpoint());
-            assertThat(actualReading.getTimePeriod().getEnd()).isEqualTo(timePeriod.get().upperEndpoint());
-        } else {
-            assertThat(actualReading.getTimePeriod()).isNull();
-        }
-        assertThat(actualReading.getReportedDateTime()).isEqualTo(expectedReading.getReportedDateTime());
-        assertThat(actualReading.getValue()).isEqualTo(expectedReading.getValue().toPlainString());
-        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
-    }
-
-    private static void assertMissing(Reading actualReading, String readingTypeMRID,
-                                      Instant timestamp, ReadingQualityRecord... expectedQualities) {
-        assertThat(actualReading.getTimeStamp()).isEqualTo(timestamp);
-        assertThat(actualReading.getReadingType()).isNotNull();
-        assertThat(actualReading.getReadingType().getRef()).isEqualTo(readingTypeMRID);
-        assertThat(actualReading.getTimePeriod()).isNull();
-        assertThat(actualReading.getReportedDateTime()).isNull();
-        assertThat(actualReading.getValue()).isNull();
-        assertReadingQualities(actualReading.getReadingQualities(), expectedQualities);
-    }
-
-    private static void assertReadingQualities(List<ReadingQuality> actualQualities, ReadingQualityRecord... expectedQualities) {
-        actualQualities.forEach(quality -> assertThat(quality.getReadingQualityType()).isNotNull());
-        Map<String, ReadingQualityRecord> expectedQualitiesByCodes = Arrays.stream(expectedQualities)
-                .collect(Collectors.toMap(quality -> quality.getType().getCode(), Function.identity()));
-        assertThat(actualQualities.stream()
-                .map(ReadingQuality::getReadingQualityType)
-                .map(ReadingQuality.ReadingQualityType::getRef)
-                .collect(Collectors.toList()))
-                .containsOnly(expectedQualitiesByCodes.keySet().stream().toArray(String[]::new));
-        actualQualities.forEach(actualQuality -> {
-            ReadingQualityRecord expected = expectedQualitiesByCodes.get(actualQuality.getReadingQualityType().getRef());
-            assertThat(actualQuality.getTimeStamp()).isEqualTo(expected.getTimestamp());
-            assertThat(actualQuality.getComment()).isEqualTo(expected.getComment());
-        });
-    }
-
-    private static Instant mayDay(int n) {
-        return MAY_1ST.withDayOfMonth(n).toInstant();
+    private interface RunnableWithFaultMessage {
+        void run() throws FaultMessage;
     }
 }
