@@ -163,6 +163,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
 
                                     return builder
                                             .duration(keyAccessorTpl.getTimeDuration())
+                                            .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                                             .add();
                                 });
                     }).toArray(SecurityAccessorType[]::new);
