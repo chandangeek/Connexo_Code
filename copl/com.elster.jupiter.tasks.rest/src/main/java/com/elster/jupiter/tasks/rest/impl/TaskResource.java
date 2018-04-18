@@ -203,10 +203,10 @@ public class TaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public TaskTrigger addTask2Queue(TaskMinInfo info) {
+    public Response addTask2Queue(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         recurrentTask.setDestination(info.queue);
-        return TaskTrigger.from(thesaurus, recurrentTask);
+        return Response.status(Response.Status.OK).build();
     }
 
 }
