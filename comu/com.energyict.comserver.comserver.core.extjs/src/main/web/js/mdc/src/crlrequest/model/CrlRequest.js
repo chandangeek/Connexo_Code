@@ -9,7 +9,7 @@ Ext.define('Mdc.crlrequest.model.CrlRequest', {
         {name: 'securityAccessor', type: 'auto', defaultValue: null},
         {name: 'caName', type: 'string', defaultValue: null},
         {name: 'logLevel', type: 'auto', defaultValue: null},
-        {name: 'timeDurationInfo', type: 'auto', defaultValue: null},
+        {name: 'periodicalExpressionInfo', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'auto', defaultValue: new Date().getTime()},
         {name: 'task', type: 'auto', defaultValue: null}
     ],
