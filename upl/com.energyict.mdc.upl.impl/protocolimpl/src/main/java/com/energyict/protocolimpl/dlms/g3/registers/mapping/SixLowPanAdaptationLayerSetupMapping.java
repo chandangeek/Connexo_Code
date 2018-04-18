@@ -127,14 +127,15 @@ public class SixLowPanAdaptationLayerSetupMapping extends RegisterMapping {
             case 19:
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.getUndefined()));
 
-            case 5:        //TODO test this description of array of structures
+            case 5:
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType, true));
             case 6:       //TODO test this description of a structure
             case 8:
             case 9:
             case 10:
             case 11:
             case 12:
-                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType));
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType, false));
 
             case 7:
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.MINUTE)));

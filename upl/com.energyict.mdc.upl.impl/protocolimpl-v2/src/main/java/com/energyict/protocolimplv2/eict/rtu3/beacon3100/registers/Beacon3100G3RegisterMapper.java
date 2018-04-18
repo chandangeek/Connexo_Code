@@ -42,6 +42,9 @@ public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
         this.mappings.addAll(getLastFirmwareActivationMappings());
         this.mappings.addAll(getLimiterMappings());
         this.mappings.addAll(getSNMPSetupMappings());
+        this.mappings.addAll(getLTEMonitoringMappings());
+        this.mappings.addAll(getGSMDiagnosticsMappings());
+        this.mappings.addAll(getG3PlcJoinRequestTimestampMapping());
     }
 
     // for debug purposes

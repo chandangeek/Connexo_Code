@@ -65,26 +65,24 @@ public class SNMPSetupAttributesMapping extends RegisterMapping {
 
         switch (obisCode.getE()) {
             case 2:
-                //TODO: parse array to nice string value
-                return new RegisterValue(obisCode, "SNMP enabled interfaces: " + abstractDataType.getArray().toString());
+                return new RegisterValue(obisCode, getArrayDescription(abstractDataType.getArray()));
             case 3:
-                //TODO: parse array to nice string value
-                return new RegisterValue(obisCode, "SNMP users: " + abstractDataType.getArray().toString());
+                return new RegisterValue(obisCode, getShortDescription(abstractDataType.getArray(), false));
             case 4:
-                return new RegisterValue(obisCode, "SNMP system contact: " + abstractDataType.getUtf8String().stringValue());
+                return new RegisterValue(obisCode, abstractDataType.getUtf8String().stringValue());
             case 5:
-                return new RegisterValue(obisCode, "SNMP system location: " + abstractDataType.getUtf8String().stringValue());
+                return new RegisterValue(obisCode, abstractDataType.getUtf8String().stringValue());
             case 6:
                 //TODO: check string value. seems to have a bad format
-                return new RegisterValue(obisCode, "SNMP local engine ID: " + abstractDataType.getOctetString().stringValue());
+                return new RegisterValue(obisCode, abstractDataType.getOctetString().stringValue());
             case 7:
-                return new RegisterValue(obisCode, "SNMP notification type: " + abstractDataType.getTypeEnum().getValue());
+                return new RegisterValue(obisCode, abstractDataType.getTypeEnum().getValue()+"");
             case 8:
-                return new RegisterValue(obisCode, "SNMP notification user: " + abstractDataType.getTypeEnum().getValue());
+                return new RegisterValue(obisCode, abstractDataType.getTypeEnum().getValue()+"");
             case 9:
-                return new RegisterValue(obisCode, "SNMP notification host: " + abstractDataType.getOctetString().stringValue());
+                return new RegisterValue(obisCode, abstractDataType.getOctetString().stringValue());
             case 10:
-                return new RegisterValue(obisCode, "SNMP notification port: " + abstractDataType.getUnsigned16().getValue());
+                return new RegisterValue(obisCode, abstractDataType.getUnsigned16().getValue()+"");
             default:
                 throw new NoSuchRegisterException("SNMP attribute [" + obisCode.getE() + "] not supported!");
 

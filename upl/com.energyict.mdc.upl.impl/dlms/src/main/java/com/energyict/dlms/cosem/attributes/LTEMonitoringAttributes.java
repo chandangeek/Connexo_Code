@@ -5,21 +5,17 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
 /**
- * Created by H245796 on 18.12.2017.
+ * Created by H165680 on 17/04/2017.
  */
-public enum NTPSetupAttributes implements DLMSClassAttributes {
+public enum LTEMonitoringAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    ACTIVATED(2, 0x08),
-    SERVER_ADDRESS(3, 0x10),
-    SERVER_PORT(4, 0x18),
-    AUTHENTICATION_METHOD(5, 0x20),
-    AUTHENTICATION_KEYS(6, 0x28);
+    LTE_QOS(2, 0x08);
 
     private final int attributeNumber;
     private final int shortName;
 
-    private NTPSetupAttributes(int attrNr, int sn) {
+    private LTEMonitoringAttributes(int attrNr, int sn) {
         this.attributeNumber = attrNr;
         this.shortName = sn;
     }
@@ -34,7 +30,7 @@ public enum NTPSetupAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.NTP_SETUP;
+        return DLMSClassId.LTE_MONITORING;
     }
 
     /**
@@ -44,15 +40,6 @@ public enum NTPSetupAttributes implements DLMSClassAttributes {
      */
     public int getShortName() {
         return this.shortName;
-    }
-
-    public static NPTServerAddressAttributes findByAttributeNumber(int attribute) {
-        for (NPTServerAddressAttributes limiterAttribute : NPTServerAddressAttributes.values()) {
-            if (limiterAttribute.getAttributeNumber() == attribute) {
-                return limiterAttribute;
-            }
-        }
-        throw new IllegalArgumentException("No attributeNumber found for id = " + attribute);
     }
 
     public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {

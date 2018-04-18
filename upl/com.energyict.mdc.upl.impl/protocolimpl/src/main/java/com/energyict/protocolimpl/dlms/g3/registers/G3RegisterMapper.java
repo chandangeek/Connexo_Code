@@ -345,6 +345,28 @@ public class G3RegisterMapper {
      */
     public static final ObisCode LAST_FIRMWARE_ACTIVATION_EXTENDED_ATTR2 = ObisCode.fromString("0.136.96.192.2.255");
 
+    /**
+     * ObisCode mappers for LTE Monitoring
+     */
+    public static final ObisCode LTE_MONITORING_ATTR2 = ObisCode.fromString("0.0.25.11.2.255");
+
+    /**
+     * ObisCode mappers for GSM Diagnostics IC
+     */
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR2 = ObisCode.fromString("0.0.25.6.2.255");
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR3 = ObisCode.fromString("0.0.25.6.3.255");
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR5 = ObisCode.fromString("0.0.25.6.5.255");
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_3 = ObisCode.fromString("0.0.25.6.252.255");
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_4 = ObisCode.fromString("0.0.25.6.251.255");
+    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_5 = ObisCode.fromString("0.0.25.6.250.255");
+
+    /**
+     * ObisCode mappers for LTE Monitoring
+     */
+    public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP = ObisCode.fromString("0.168.96.193.0.255");
+    public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP_ATTR2 = ObisCode.fromString("0.168.96.193.2.255");
+
+
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
     private final CosemObjectFactory cosemObjectFactory;
@@ -855,6 +877,30 @@ public class G3RegisterMapper {
         snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR9));
         snmpSetupMappings.add(new SNMPSetupMapping(SNMP_SETUP_ATTR10));
         return snmpSetupMappings;
+    }
+
+    protected final List<G3Mapping> getLTEMonitoringMappings() {
+        final List<G3Mapping> lteMonitoringMappings = new ArrayList<>();
+        lteMonitoringMappings.add(new LTEMonitoringMapping(LTE_MONITORING_ATTR2));
+        return lteMonitoringMappings;
+    }
+
+    protected final List<G3Mapping> getGSMDiagnosticsMappings() {
+        final List<G3Mapping> gsmDiagnosticsMappings = new ArrayList<>();
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR2));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR3));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR5));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_3));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_4));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_5));
+        return gsmDiagnosticsMappings;
+    }
+
+    protected final List<G3Mapping> getG3PlcJoinRequestTimestampMapping() {
+        final List<G3Mapping> g3Mappings = new ArrayList<>();
+        g3Mappings.add(new G3PlcJoinRequestTimestampMapping(G3_PLC_JOIN_REQ_TIMESTAMP));
+        g3Mappings.add(new G3PlcJoinRequestTimestampMapping(G3_PLC_JOIN_REQ_TIMESTAMP_ATTR2));
+        return g3Mappings;
     }
 
 }
