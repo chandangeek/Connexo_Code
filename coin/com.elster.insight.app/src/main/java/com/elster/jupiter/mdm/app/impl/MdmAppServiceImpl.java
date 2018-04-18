@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.DynamicPrivilegesRegister;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -25,11 +26,15 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.mdm.app",
@@ -48,6 +53,7 @@ public class MdmAppServiceImpl implements MdmAppService, ApplicationPrivilegesPr
     private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
     private volatile License license;
+    private List<String> dynamicPrivileges = new ArrayList<>();
 
     public MdmAppServiceImpl() {
     }
@@ -92,7 +98,8 @@ public class MdmAppServiceImpl implements MdmAppService, ApplicationPrivilegesPr
 
     @Override
     public List<String> getApplicationPrivileges() {
-        return MdmAppPrivileges.getApplicationAllPrivileges();
+        return Stream.concat(MdmAppPrivileges.getApplicationAllPrivileges().stream(), dynamicPrivileges.stream())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -115,5 +122,14 @@ public class MdmAppServiceImpl implements MdmAppService, ApplicationPrivilegesPr
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
         return translationKeys;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCustomTaskFactory(DynamicPrivilegesRegister dynamicPrivilegesRegister) {
+        dynamicPrivileges.addAll(dynamicPrivilegesRegister.getPrivileges(getApplicationName()));
+    }
+
+    public void removeCustomTaskFactory(DynamicPrivilegesRegister dynamicPrivilegesRegister) {
+        dynamicPrivileges.removeAll(dynamicPrivilegesRegister.getPrivileges(getApplicationName()));
     }
 }
