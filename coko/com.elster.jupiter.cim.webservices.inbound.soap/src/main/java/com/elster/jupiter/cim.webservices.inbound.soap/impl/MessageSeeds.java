@@ -53,9 +53,9 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_GET_USAGE_POINT(2016, "UnableToGetUsagePoint", "Unable to get usage point"),
     INVALID_METROLOGY_CONTRACT_REQUIRMENT(2017, "UnableToInactivateMandatoryPurpose", "Mandatory purpose can''t be inactive."),
     UNABLE_TO_CHANGE_STATE_OPTIONAL_CONTRACT(2018, "UnableToChangeStateOptionalContract", "Unable to change state of optional contract."),
-    NO_METROLOGYCONFIG_FOR_USAGEPOINT(2018, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS(2019, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
-    MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2020, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT(2019, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(2020, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
+    MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2021, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings"),

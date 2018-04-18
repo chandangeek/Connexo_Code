@@ -57,6 +57,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -373,6 +374,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     }
 
     @Test
+    @Ignore
     public void testSetSeveralNamesInUsagePointConfig() throws Exception {
         // Prepare request
         UsagePointConfig usagePointConfig = new UsagePointConfig();
