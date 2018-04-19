@@ -11,51 +11,42 @@ Ext.define('Apr.view.taskoverview.SetQueue', {
     },
     requires: [
         'Apr.store.TasksType',
+        'Uni.view.form.ComboBoxWithEmptyComponent'
     ],
 
     initComponent: function () {
         var me = this;
-
         me.items = [
             {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                width: 500,
-                items: [
-                    {
-                        xtype: 'combobox',
-                        itemId: 'task-type',
-                        name: 'taskType',
-                        fieldLabel: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
-                        labelWidth: 150,
-                        required: true,
-                        store: 'Apr.store.TasksType',
-                        editable: false,
-                        disable: false,
-                        emptyText: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
-                        allowBlank: false,
-                        displayField: 'queue',
-                        valueField: 'queue',
-                        width: 400,
-                        listeners: {
-                            render: {
-                                fn: function () {
-                                    var mee = this,
-                                        taskStore = mee.getStore();
+                xtype: 'comboboxwithemptycomponent',
+                fieldLabel: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
+                itemId: 'cmb-queue',
 
-                                    taskStore.getProxy().setUrl(me.record.getId());
-                                    taskStore.load();
-
-                                }
-                            }
+                config: {
+                    name: 'queue',
+                    emptyText: Uni.I18n.translate('general.selectqueue', 'APR', 'Select queue'),
+                    store: 'Apr.store.TasksType',
+                    queryMode: 'local',
+                    displayField: 'queue',
+                    noObjectsText: Uni.I18n.translate('general.noQueue', 'APR', 'No queue defined for selected task type'),
+                    valueField: 'queue',
+                    required: true,
+                    allowBlank: false,
+                    editable: false,
+                    width: 500,
+                    listeners: {
+                        afterrender: function (field) {
+                            field.focus(false, 200);
                         }
                     }
-
-                ],
-                action: 'applyAction'
+                },
+                prepareLoading: function (store) {
+                    store.getProxy().setUrl(me.record.getId());
+                    return store;
+                },
+                style: {
+                    margin: '0px 10px 0 10px'
+                }
             }
         ];
 

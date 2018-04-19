@@ -95,7 +95,7 @@ Ext.define('Apr.controller.TaskOverview', {
 
 
             id: confirmationWindow.record.getId(),
-            queue: confirmationWindow.down('#task-type').getValue()
+            queue: confirmationWindow.down('#cmb-queue').getValue()
         };
 
         Ext.Ajax.request({
@@ -104,13 +104,12 @@ Ext.define('Apr.controller.TaskOverview', {
             jsonData: Ext.encode(updatedData),
             success: function (response) {
                 confirmationWindow.close();
-                router.getApplication().fireEvent('acknowledge', successMessage);
-                router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
+                me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText, true);
                 if (json && json.errors) {
-                    confirmationWindow.down('#task-type').markInvalid(json.errors[0].msg);
+                    confirmationWindow.down('#cmb-queue').markInvalid(json.errors[0].msg);
 
                 }
             }
