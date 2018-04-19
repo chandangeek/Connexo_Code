@@ -412,8 +412,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
             case DeviceMessageConstants.newMasterKeyAttributeName:
+            case DeviceMessageConstants.vpnSharedSecret:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.certificateWrapperAttributeName:
+            case DeviceMessageConstants.vpnRemoteCertificate:
 
                 //Is it a certificate renewal or just an addition of a certificate (e.g. trusted CA certificate) to the Beacon?
                 // ==> If there's a passive (temp) value, it's a renewal for sure, use this value.
@@ -2729,6 +2731,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void setVPNRemoteCertificate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         //TODO: see how this user info should be sent toward protocol....as der encoded string or using a connexo specific certificate placeholder
         String remoteCertificate = getStringAttributeValue(pendingMessage, vpnRemoteCertificate);
+        if (remoteCertificate == null || remoteCertificate.isEmpty()) {
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
+        }
+
         try {
             getVPNSetupIC(pendingMessage, collectedMessage).setRemoteCertificate(remoteCertificate);
         } catch (IOException e) {

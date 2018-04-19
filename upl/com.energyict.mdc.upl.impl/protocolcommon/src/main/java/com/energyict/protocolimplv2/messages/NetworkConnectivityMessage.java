@@ -519,7 +519,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
             );
         }
     },
@@ -527,7 +527,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
             );
         }
     },
