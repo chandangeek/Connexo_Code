@@ -353,6 +353,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .newUsagePoint(
                         usagePointInfo.name,
                         usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
+                .withLifeCycle(usagePointInfo.lifeCycle.name)
                 .withIsSdp(usagePointInfo.isSdp)
                 .withIsVirtual(usagePointInfo.isVirtual)
                 .withReadRoute(usagePointInfo.readRoute)

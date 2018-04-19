@@ -355,6 +355,37 @@ public class UsagePointResource {
         return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByNameOrThrowException(name));
     }
 
+    @PUT
+    @Path("/{name}/usagepointlifecycle")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    public Response updateUsagePointLifeCycle(@PathParam("name") String name, String newLifeCycle) {
+        if (newLifeCycle == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "usagePointLifeCycleId");
+        }
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+
+        ChangeUsagePointLifeCycleInfo changeUsagePointLifeCycleInfo = new ChangeUsagePointLifeCycleInfo();
+        changeUsagePointLifeCycleInfo.usagePointName = usagePoint.getName();
+        changeUsagePointLifeCycleInfo.newUsagePointLifeCycle = meteringService.findUsagePointLifeCycle(newLifeCycle)
+                .getName();
+        changeUsagePointLifeCycleInfo.usagePointState = usagePointInfoFactory.fullInfoFrom(usagePoint).state.name;
+
+        if (!meteringService.findUsagePointLifeCycle(newLifeCycle)
+                .getStates()
+                .stream()
+                .filter(state -> state.getName().equals(usagePoint.getState().getName()))
+                .findAny()
+                .isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(changeUsagePointLifeCycleInfo).build();
+        }
+
+        usagePoint.setLifeCycle(newLifeCycle);
+        usagePoint.update();
+        return Response.ok(usagePointInfoFactory.from(usagePoint)).build();
+    }
+
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Consumes(MediaType.APPLICATION_JSON)

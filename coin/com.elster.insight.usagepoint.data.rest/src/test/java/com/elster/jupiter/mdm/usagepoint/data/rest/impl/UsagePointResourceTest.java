@@ -66,6 +66,7 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -172,6 +173,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
 
         when(serviceCategory.newUsagePoint(eq("test"), any(Instant.class))).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withLifeCycle(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsVirtual(anyBoolean())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withReadRoute(anyString())).thenReturn(usagePointBuilder);
@@ -1041,7 +1043,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         calendarOnUsagePointInfo.immediately = true;
         calendarOnUsagePointInfo.usagePointId = 1L;
         usagePointInfo.calendars = Collections.singletonList(calendarOnUsagePointInfo);
-
         return usagePointInfo;
     }
 
@@ -1087,6 +1088,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         calendarOnUsagePointInfo.immediately = true;
         calendarOnUsagePointInfo.usagePointId = 1L;
         info.calendars = Collections.singletonList(calendarOnUsagePointInfo);
+        info.lifeCycle = new UsagePointLifeCycleInfo();
+        info.lifeCycle.name = "LifeCycleName";
         return info;
     }
 }
