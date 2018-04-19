@@ -281,7 +281,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getClearedEventType() {
-        return null;// TODO
+        return new EndDeviceEventType("0.17.44.28");
     }
 
     public static EndDeviceEventType getPowerManagementSwitchLowPowerEventType() {
@@ -337,7 +337,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getIdisMultiMasterEventType() {
-        return null;//new EndDeviceEventType(""); // TODO
+        return new EndDeviceEventType("0.0.0.0");
     }
 
     public static EndDeviceEventType getIdisPlcEquipmentInStateNewEventType() {
@@ -345,7 +345,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getIdisExtendedAlarmStatusEventType() {
-        return new EndDeviceEventType("0.17.285."); // TODO
+        return new EndDeviceEventType("0.17.285.3");
     }
 
     public static EndDeviceEventType getIdisMeterDeletedEventType() {
@@ -353,23 +353,23 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getIdisStackEventEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.17.43.0");
     }
 
     public static EndDeviceEventType getPlcPrimeRestartedEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.17.43.53");
     }
 
     public static EndDeviceEventType getPlcPrimeStackEventEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.17.43.0");
     }
 
     public static EndDeviceEventType getPlcPrimeRegisterNodeEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.10.43.42");
     }
 
     public static EndDeviceEventType getPlcPrimeUnregisterNodeEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.10.43.68");
     }
 
     public static EndDeviceEventType getPlcG3RestartedEventType() {
@@ -377,7 +377,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getPlcG3StackEventEventType() {
-        return new EndDeviceEventType("0."); // TODO
+        return new EndDeviceEventType("0.0.43.0");
     }
 
     public static EndDeviceEventType getPlcG3RegisterNodeEventType() {
@@ -421,7 +421,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getDlmsOtherEventType() {
-        return new EndDeviceEventType("0.1.0.0"); // TODO
+        return new EndDeviceEventType("0.1.0.0");
     }
 
     public static EndDeviceEventType getDlmsUpstreamTestEventType() {
@@ -433,355 +433,355 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getModemWdgHwResetEventType() {
-        return new EndDeviceEventType("0.19.?.214"); // TODO
+        return new EndDeviceEventType("0.19.3.214");
     }
 
     public static EndDeviceEventType getModemWdgRebootRequestedEventType() {
-        return new EndDeviceEventType("0.19.?.?"); // TODO
+        return new EndDeviceEventType("0.19.3.214");
     }
 
     public static EndDeviceEventType getModemConnectedEventType() {
-        return null;
+        return new EndDeviceEventType("0.19.0.42");
     }
 
     public static EndDeviceEventType getModemDisconnectedEventType() {
-        return null;
+        return new EndDeviceEventType("0.19.0.68");
     }
 
     public static EndDeviceEventType getModemWakeUpEventType() {
-        return null;
+        return new EndDeviceEventType("0.19.0.54");
     }
 
     public static EndDeviceEventType getProtocolPreliminaryTaskCompletedEventType() {
-        return null;
+        return new EndDeviceEventType("0.1.0.58");
     }
 
     public static EndDeviceEventType getProtocolPreliminaryTaskFailedEventType() {
-        return null;
+        return new EndDeviceEventType("0.1.0.85");
     }
 
     public static EndDeviceEventType getProtocolConsecutiveFailureEventType() {
-        return null;
+        return new EndDeviceEventType("0.1.0.85");
     }
 
     public static EndDeviceEventType getFirmwareUpgradeEventType() {
-        return null;
+        return new EndDeviceEventType("10.11.0.52");
     }
 
     public static EndDeviceEventType getFirmwareModifiedEventType() {
-        return null;
+        return new EndDeviceEventType("10.11.0.24");
     }
 
     public static EndDeviceEventType getCpuOverloadEventType() {
-        return null;
+        return new EndDeviceEventType("10.0.82.177");
     }
 
     public static EndDeviceEventType getRamTooHighEventType() {
-        return null;
+        return new EndDeviceEventType("10.18.85.177");
     }
 
     public static EndDeviceEventType getDiskUsageTooHighEventType() {
-        return null;
+        return new EndDeviceEventType("10.0.109.177");
     }
 
     public static EndDeviceEventType getPaceExceptionEventType() {
-        return null;
+        return new EndDeviceEventType("10.0.202.85");
     }
 
     public static EndDeviceEventType getSshLoginEventType() {
-        return null;
+        return new EndDeviceEventType("10.12.211.2");
     }
 
     public static EndDeviceEventType getFactoryResetEventType() {
-        return null;
+        return new EndDeviceEventType("10.0.88.214");
     }
 
     public static EndDeviceEventType getWebportalLoginEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.65.2");
     }
 
     public static EndDeviceEventType getWebportalActionEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.1.30");
     }
 
     public static EndDeviceEventType getWebportalFailedLoginEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.65.85");
     }
 
     public static EndDeviceEventType getWebportalLockedUserEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.1.227");
     }
 
     public static EndDeviceEventType getMeterMulticastUpgradeStartEventType() {
-        return null;
+        return new EndDeviceEventType("3.11.83.54");
     }
 
     public static EndDeviceEventType getMeterMulticastUpgradeCompletedEventType() {
-        return null;
+        return new EndDeviceEventType("3.11.83.58");
     }
 
     public static EndDeviceEventType getMeterMulticastUpgradeFailedEventType() {
-        return null;
+        return new EndDeviceEventType("3.11.83.85");
     }
 
     public static EndDeviceEventType getMeterMulticastUpgradeInfoEventType() {
-        return null;
+        return new EndDeviceEventType("3.11.83.0");
     }
 
     public static EndDeviceEventType getGeneralSecurityErrorEventType() {
-        return null;
+        return new EndDeviceEventType("10.12.0.79");
     }
 
     public static EndDeviceEventType getWrapKeyErrorEventType() {
-        return null;
+        return new EndDeviceEventType("10.12.32.79");
     }
 
     public static EndDeviceEventType getDlmsAuthenticationLevelUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.1.24");
     }
 
     public static EndDeviceEventType getDlmsSecurityPolicyUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.32.24");
     }
 
     public static EndDeviceEventType getDlmsSecuritySuiteUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.32.24");
     }
 
     public static EndDeviceEventType getDlmsKeysUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.32.24");
     }
 
     public static EndDeviceEventType getDlmsAccessViolationEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.1.38");
     }
 
     public static EndDeviceEventType getDlmsAuthenticationFailureEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.1.85");
     }
 
     public static EndDeviceEventType getDlmsCipheringErrorEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.16.79");
     }
 
     public static EndDeviceEventType getUnknownRegisterEventType() {
-        return null;
+        return new EndDeviceEventType("0.0.89.61");
     }
 
     public static EndDeviceEventType getPlcG3BlacklistEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.68.161");
     }
 
     public static EndDeviceEventType getPlcG3NodeLinkLostEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.68.51");
     }
 
     public static EndDeviceEventType getPlcG3NodeLinkRecoveredEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.68.49");
     }
 
     public static EndDeviceEventType getPlcG3PanIdEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.68.33");
     }
 
     public static EndDeviceEventType getPlcG3TopologyUpdateEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.68.24");
     }
 
     public static EndDeviceEventType getModemNewSimEventType() {
-        return null;
+        return new EndDeviceEventType("0.19.146.52");
     }
 
     public static EndDeviceEventType getModemNewEquipmentEventType() {
-        return null;
+        return new EndDeviceEventType("0.19.146.242");
     }
 
     public static EndDeviceEventType getCheckDataConcentratorConfigEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.31.3");
     }
 
     public static EndDeviceEventType getLinkUpEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.15.42");
     }
 
     public static EndDeviceEventType getLinkDownEventType() {
-        return null;
+        return new EndDeviceEventType("10.23.15.68");
     }
 
     public static EndDeviceEventType getUsbAddEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.60.83");
     }
 
     public static EndDeviceEventType getUsbRemoveEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.60.212");
     }
 
     public static EndDeviceEventType getFileTransferCompletedEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.31.58");
     }
 
     public static EndDeviceEventType getFileTransferFailedEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.31.85");
     }
 
     public static EndDeviceEventType getScriptExecutionStartedEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.83.242");
     }
 
     public static EndDeviceEventType getScriptExecutionCompletedEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.83.58");
     }
 
     public static EndDeviceEventType getScriptExecutionFailedEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.83.85");
     }
 
     public static EndDeviceEventType getScriptExecutionScheduledEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.83.225");
     }
 
     public static EndDeviceEventType getScriptExecutionDescheduledEventType() {
-        return null;
+        return new EndDeviceEventType("10.7.83.55");
     }
 
     public static EndDeviceEventType getWebportalCsrfAttackEventType() {
-        return null;
+        return new EndDeviceEventType("10.12.1.257");
     }
 
     public static EndDeviceEventType getSnmpOtherEventType() {
-        return null;
+        return new EndDeviceEventType("10.17.300.0");
     }
 
     public static EndDeviceEventType getSnmpInfoEventType() {
-        return null;
+        return new EndDeviceEventType("10.17.300.0");
     }
 
     public static EndDeviceEventType getSnmpUnsupportedVersionEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.40");
     }
 
     public static EndDeviceEventType getSnmpUnsupportedSecModelEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.85");
     }
 
     public static EndDeviceEventType getSnmpInvalidUserNameEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.257");
     }
 
     public static EndDeviceEventType getSnmpInvalidEngineIdEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.61");
     }
 
     public static EndDeviceEventType getSnmpAuthenticationFailureEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.85");
     }
 
     public static EndDeviceEventType getSnmpKeysUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("10.14.300.24");
     }
 
     public static EndDeviceEventType getCrlUpdatedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.24");
     }
 
     public static EndDeviceEventType getCrlUpdateRejectedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.85");
     }
 
     public static EndDeviceEventType getKeyUpdateRequestEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.32.243");
     }
 
     public static EndDeviceEventType getCrlRemovedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.212");
     }
 
     public static EndDeviceEventType getDot1xSuccessEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.74.58");
     }
 
     public static EndDeviceEventType getDot1xFailureEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.74.85");
     }
 
     public static EndDeviceEventType getReplayAttackEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.1.257");
     }
 
     public static EndDeviceEventType getCertificateAddedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.83");
     }
 
     public static EndDeviceEventType getCertificateRemovedEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.212");
     }
 
     public static EndDeviceEventType getCertificateExpiredEventType() {
-        return null;
+        return new EndDeviceEventType("0.12.21.64");
     }
 
     public static EndDeviceEventType getPowerDownPowerLostEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.59");
     }
 
     public static EndDeviceEventType getPowerDownUserRequestEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.243");
     }
 
     public static EndDeviceEventType getPowerDownSoftwareFaultEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownHardwareFaultEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownNetworkInactivityEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownFirmwareUpgradeEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownFirmwareRollbackEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.47.68");
     }
 
     public static EndDeviceEventType getPowerDownDiskErrorEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.60.68");
     }
 
     public static EndDeviceEventType getPowerDownConfigurationErrorEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownFactoryResetEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.47.68");
     }
 
     public static EndDeviceEventType getPowerDownTamperingEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownTemperatureEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.0.68");
     }
 
     public static EndDeviceEventType getPowerDownSystemWatchdogEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.3.68");
     }
 
     public static EndDeviceEventType getPowerDownWwanModemWatchdogEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.3.68");
     }
 
     public static EndDeviceEventType getPowerDownSecureElementWatchdogEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.3.68");
     }
 
     public static EndDeviceEventType getPowerDownExternalWatchdogEventType() {
-        return null;
+        return new EndDeviceEventType("10.26.3.68");
     }
 
     public static EndDeviceEventType getProtocolLogClearedEventType() {
