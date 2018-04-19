@@ -15,6 +15,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.usagepointmanagement.store.ServiceCategories',
+        'Imt.usagepointmanagement.store.UsagePointLifeCycles',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.usagepointmanagement.store.PhaseCodes',
         'Imt.usagepointmanagement.store.BypassStatuses',

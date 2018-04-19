@@ -31,6 +31,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     stores: [
         'Imt.usagepointmanagement.store.ServiceCategories',
+        'Imt.usagepointmanagement.store.UsagePointLifeCycles',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.usagepointmanagement.store.PhaseCodes',
         'Imt.usagepointmanagement.store.BypassStatuses',
@@ -130,8 +131,14 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
                 me.getWizard().loadRecord(Ext.create('Imt.usagepointmanagement.model.UsagePoint'));
             }
+
             mainView.setLoading(false);
-        });
+        }),
+
+            me.getStore('Imt.usagepointmanagement.store.UsagePointLifeCycles').load(function (records) {
+                usagePointLifeCycleCombo = mainView.down('#usage-point-life-cycle-combo');
+                usagePointLifeCycleCombo.setValue(usagePointLifeCycleCombo.store.findRecord('isDefault', true));
+            });
     },
 
     moveTo: function (button) {
@@ -204,6 +211,13 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         wizard.updateRecord();
         wizard.setLoading();
         record = wizard.getRecord();
+
+        record.beginEdit();
+        record.set('lifeCycle', {
+            id: wizard.down('#usage-point-life-cycle-combo').getValue(),
+            name: wizard.down('#usage-point-life-cycle-combo').getRawValue()
+        });
+        record.endEdit();
         modelProxy = record.getProxy();
         record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url

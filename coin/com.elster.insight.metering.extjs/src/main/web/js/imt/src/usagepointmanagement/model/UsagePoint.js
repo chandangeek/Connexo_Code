@@ -13,6 +13,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'id', type: 'int'},
         {name: 'mRID', type: 'string'},
         {name: 'serviceCategory', type: 'string'},
+        {name: 'lifeCycle', type: 'auto', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'createTime', type: 'int', defaultValue: null, useNull: true},
@@ -58,7 +59,6 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'meterRoles', type: 'auto', defaultValue: null},
         {name: 'hasEffectiveMCs', type: 'boolean', defaultValue: false},
         {name: 'meterActivations', type: 'auto', defaultValue: null},
-        {name: 'lifeCycle', type: 'auto', persist: false},
         {
             name: 'metrologyConfiguration_id',
             persist: false,

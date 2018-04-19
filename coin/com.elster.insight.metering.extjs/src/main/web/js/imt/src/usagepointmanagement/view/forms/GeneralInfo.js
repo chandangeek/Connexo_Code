@@ -100,6 +100,36 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 + '</span>'
             },
             {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('usagepoint.add.usagePointLifecycle', 'IMT', 'Usage point life cycle'),
+                required: true,
+                itemId: 'usage-point-life-cycle-field',
+                msgTarget: 'under',
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'usage-point-life-cycle-combo',
+                        name: 'lifeCycle',
+                        width: 335,
+                        store: 'Imt.usagepointmanagement.store.UsagePointLifeCycles',
+                        emptyText: Uni.I18n.translate('usagepoint.add.emptyText.selectUsagePointLifeCycle', 'IMT', 'Select a usage point life cycle...'),
+                        editable: false,
+                        msgTarget: 'under',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        valueField: 'id'
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'no-usage-point-life-cycles',
+                        hidden: true,
+                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('usagepoint.add.noUsagePointLifeCyclesMsg', 'IMT', 'No usage point life cycles defined') + '</div>',
+                        width: 335
+                    }
+                ]
+            },
+            {
                 xtype: 'techinfo-installationtimefield',
                 dateFieldName: 'installationTime',
                 itemId: 'up-createTime-installationtimefield',

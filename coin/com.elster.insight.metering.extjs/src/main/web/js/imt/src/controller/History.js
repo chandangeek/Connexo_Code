@@ -184,6 +184,13 @@ Ext.define('Imt.controller.History', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointStartProcess'
                         },
+                        'change': {
+                            title: Uni.I18n.translate('usagePointLifeCycle.change', 'IMT', 'Change usage point life cycle'),
+                            route: 'change',
+                            controller: 'Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showChangeUsagePointLifeCycle'
+                        },
                         servicecalls: {
                             title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                             route: 'servicecalls',
@@ -672,6 +679,9 @@ Ext.define('Imt.controller.History', {
                             privileges: function () {
                                 return Apr.TaskManagementApp.canAdministrate();
                             },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
+                            },
                             controller: 'Imt.controller.TaskManagement',
                             action: 'showAddTask'
                         },
@@ -692,6 +702,9 @@ Ext.define('Imt.controller.History', {
                                     return taskManagement.controller.canView();
                                 }
                                 return false;
+                            },
+                            haveDependenciesLoaded: function () {
+                                return Apr.TaskManagementApp.dependenciesLoaded();
                             },
                             controller: 'Imt.controller.TaskManagement',
                             action: 'viewTask',
@@ -715,6 +728,9 @@ Ext.define('Imt.controller.History', {
                                         }
                                         return false;
                                     },
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     controller: 'Imt.controller.TaskManagement',
                                     action: 'editTask',
                                     callback: function (route) {
@@ -732,12 +748,18 @@ Ext.define('Imt.controller.History', {
                                     privileges: Imt.privileges.TaskManagement.view,
                                     controller: 'Imt.controller.TaskManagement',
                                     action: 'viewHistoryTask',
+                                    haveDependenciesLoaded: function () {
+                                        return Apr.TaskManagementApp.dependenciesLoaded();
+                                    },
                                     items: {
                                         occurrence: {
                                             title: '',
                                             route: '{occurrenceId}',
                                             controller: 'Imt.controller.TaskManagement',
                                             action: 'viewHistoryTaskLog',
+                                            haveDependenciesLoaded: function () {
+                                                return Apr.TaskManagementApp.dependenciesLoaded();
+                                            },
                                             callback: function (route) {
                                                 this.getApplication().on('viewHistoryTaskLog', function (name) {
                                                     route.setTitle(name);
