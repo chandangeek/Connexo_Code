@@ -40,11 +40,16 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
         margin: '1px 0 0 0'
     },
 
+    prepareLoading: function (store) {
+        return store;
+    },
+
     initComponent: function () {
         var me = this,
             combo;
         me.initConfig(me.config);
         me.store = Ext.data.StoreManager.lookup(me.getStore());
+        me.store = me.prepareLoading(me.store);
         me.store.load({
             callback: function (record, operation, success) {
                 me.removeAll();
@@ -75,10 +80,14 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                         fieldLabel: '',
                         value: me.getNoObjectsText(),
                         fieldStyle: {
-                            color: '#EB5642'
+                            color: '#EB5642',
+                            'margin-top': '6px'
                         },
                         validate: function () {
                             return me.config.allowBlank;
+                        },
+                        style: {
+                            'margin-top': '0px !important'
                         }
                     });
                     //me.style = {
@@ -91,6 +100,7 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
 
         me.callParent(arguments)
     },
+
 
     onComboEvent: function(event, func, scope) {
         var me = this;
