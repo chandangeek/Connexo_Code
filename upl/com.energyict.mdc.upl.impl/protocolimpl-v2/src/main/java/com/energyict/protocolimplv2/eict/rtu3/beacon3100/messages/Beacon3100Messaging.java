@@ -191,6 +191,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate.get(this.propertySpecService, this.nlsService, this.converter),
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
@@ -375,6 +376,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.previousEndDate:
             case DeviceMessageConstants.currentStartDate:
             case DeviceMessageConstants.currentEndDate:
+            case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.configurationCAImageFileAttributeName:
@@ -544,6 +546,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, nlsService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate)) {
+                        verifyAndActivateFirmwareAtGivenActivationDate(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE)) {
                         transferCAConfigImage(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -1797,6 +1801,70 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else {
             return getCosemObjectFactory().getScheduleManager(SCHEDULE_MANAGER_NEW_OBISCODE);
         }
+    }
+
+    protected Array convertLongDateToDlmsArray(Long epoch) {
+        Date actionTime = new Date(epoch);
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTime(actionTime);
+        return convertDateToDLMSArray(cal);
+    }
+
+    protected boolean isTemporaryFailure(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
+    }
+
+    private CollectedMessage verifyAndActivateFirmwareAtGivenActivationDate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName).getValue();
+        ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
+
+        if (imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
+            try {
+                imageTransfer.verifyAndPollForSuccess();
+            } catch (DataAccessResultException e) {
+                String errorMsg = "Verification of image failed: " + e.getMessage();
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+        }
+
+        if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_SUCCESSFUL)) {
+            try {
+                if (activationDate.isEmpty()) {
+                    imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
+                    imageTransfer.imageActivation();
+                    collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+                } else {
+                    SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+                    sas.writeExecutionTime(convertLongDateToDlmsArray(Long.valueOf(activationDate)));
+                }
+            } catch (IOException e) {
+                if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
+                } else if (e.getMessage().toLowerCase().contains("timeout")) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation timed out, meter is rebooting. Moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            String errorMsg = "The ImageTransfer is in an invalid state: expected state '3' (Image verification successful), but was '" +
+                    imageTransferStatus.getValue() + "' (" + imageTransferStatus.getInfo() + "). " +
+                    "The activation will not be executed.";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
+
+        return collectedMessage;
     }
 
     private void imageTransfer(OfflineDeviceMessage pendingMessage, String attributeName) throws IOException {
