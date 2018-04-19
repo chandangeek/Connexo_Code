@@ -81,7 +81,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
             noIntervalOutputsComponent;
 
         intervalDataViewComponent = {
-            title: Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Interval data view'),
+            title: Uni.I18n.translate('purpose.summary.intervalDataView', 'IMT', 'Interval data view'),
             itemId: 'purpose-data-view',
             items: {
                 xtype: 'purpose-data-view',
@@ -102,7 +102,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
         };
 
         noIntervalOutputsComponent = {
-            title: Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Interval data view'),
+            title: Uni.I18n.translate('purpose.summary.intervalDataView', 'IMT', 'Interval data view'),
             itemId: 'purpose-data-view',
             items: {
                 xtype: 'uni-form-empty-message',
