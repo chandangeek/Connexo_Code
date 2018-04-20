@@ -375,7 +375,7 @@ public class UsagePointResource {
         if (!meteringService.findUsagePointLifeCycle(newLifeCycle)
                 .getStates()
                 .stream()
-                .filter(state -> state.getName().equals(usagePoint.getState().getName()))
+                .filter(state -> thesaurus.getString(state.getName(), state.getName()).equals(usagePoint.getState().getName()))
                 .findAny()
                 .isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(changeUsagePointLifeCycleInfo).build();
