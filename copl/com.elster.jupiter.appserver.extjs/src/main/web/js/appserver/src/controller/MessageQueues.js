@@ -155,6 +155,7 @@ Ext.define('Apr.controller.MessageQueues',{
             fn: function (state) {
                 if (state === 'confirm') {
                     me.removeMessageQueue(record);
+
                 }
             }
         });
@@ -176,6 +177,14 @@ Ext.define('Apr.controller.MessageQueues',{
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('messageQueue.remove.confirmation', 'APR', 'Queue removed'));
             },
             failure: function (object, operation) {
+                var error = Ext.JSON.decode(operation.response.responseText, true).error;
+                var errorCode = Ext.JSON.decode(operation.response.responseText, true).errorCode;
+                if (error) {
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('messageQueue.removeErrorTitle', 'APR', 'Couldn\'t perform your action'),
+                        Uni.I18n.translate('messageQueue.removeErrorMsg', 'APR', 'Error during removal of queue') + "." +
+                        error, errorCode
+                    );
+                }
                 view.setLoading(false);
             }
         });
