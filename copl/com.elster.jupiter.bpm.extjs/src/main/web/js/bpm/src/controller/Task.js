@@ -239,6 +239,29 @@ Ext.define('Bpm.controller.Task', {
         me.getController('Bpm.controller.OpenTask').taskId = null;
     },
 
+    findProcessVariable: function (processNodeRecord, variableName) {
+        var nodes = processNodeRecord.processInstanceNodes();
+        // console.log(nodes);
+        var continueLoop = true;
+        var returnVariable = undefined;
+        if (!Ext.isEmpty(nodes)) {
+            nodes.each(function (item) {
+                var variables = item.get('processInstanceVariables');
+                if (!Ext.isEmpty(variables)) {
+                    Ext.Array.each(variables, function (variable) {
+                        if (variable.variableName === variableName) {
+                            continueLoop = false;
+                            returnVariable = variable;
+                        }
+                        return continueLoop;
+                    });
+                }
+                return continueLoop;
+            });
+        }
+        return returnVariable;
+    },
+
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
@@ -246,6 +269,47 @@ Ext.define('Bpm.controller.Task', {
             previewForm = page.down('bpm-task-preview-form');
 
         Ext.getStore('Bpm.store.Clipboard').set('latest-tasks-filter', Uni.util.QueryString.getQueryStringValues(false));
+        Ext.Ajax.request({
+            url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodes', record.get('processInstancesId')),
+            method: 'GET',
+            success: function (option) {
+                var response = Ext.JSON.decode(option.responseText),
+                    reader = Bpm.monitorprocesses.model.ProcessNodes.getProxy().getReader(),
+                    resultSet = reader.readRecords(response),
+                    nodeRecord = resultSet.records[0];
+                var variable = me.findProcessVariable(nodeRecord, "usagePointId");
+                if (variable) {
+                    Ext.Ajax.request({
+                        method: 'GET',
+                        url: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint',
+                        params: {
+                            filter: Ext.JSON.encode([{"property": "mRID", "value": [{"operator": "==", "criteria": variable.value, "filter": ""}]}])
+                        },
+                        success: function (option) {
+                            var responseUP = Ext.JSON.decode(option.responseText),
+                                searchResults = responseUP.searchResults;
+                            //console.log(searchResults);
+                            if (!Ext.isEmpty(searchResults)) {
+
+                                record.set(variable.variableName, searchResults[0].name);
+                                previewForm.loadRecord(record);
+                            }
+                        }
+                    });
+                    // Ext.suspendLayouts();
+                    // preview.setTitle(record.get('name'));
+                    // previewForm.loadRecord(record);
+                    // if (preview.down('bpm-task-action-menu')) {
+                    //     preview.down('bpm-task-action-menu').record = record;
+                    //     me.setupMenuItems(record);
+                    // }
+                    // Ext.resumeLayouts();
+
+                }
+            }
+        });
+        // console.log("DUPA");
+        // console.log(record);
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));

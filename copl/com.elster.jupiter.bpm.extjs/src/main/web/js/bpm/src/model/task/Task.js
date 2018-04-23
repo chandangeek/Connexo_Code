@@ -137,6 +137,10 @@ Ext.define('Bpm.model.task.Task', {
         {
             name: 'optLock',
             type: 'number'
+        },
+        {
+            name: 'usagePointId',
+            type: 'string'
         }
     ],
     proxy: {
