@@ -45,6 +45,8 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -72,7 +74,7 @@ public class DataPushNotificationParser {
     private CollectedRegisterList collectedRegisters;
     private ComChannel comChannel;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
-    private TimeZone timeZone;
+    private Map<DeviceIdentifier, TimeZone> timeZones = new HashMap<>();
 
     public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
@@ -369,19 +371,27 @@ public class DataPushNotificationParser {
     }
 
     protected TimeZone getDeviceTimeZone() {
-        if (timeZone == null) {
-            if (getDeviceIdentifier() == null) {
-                timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+        return getDeviceTimeZone(getDeviceIdentifier());
+    }
+
+    protected TimeZone getDeviceTimeZone(DeviceIdentifier deviceIdentifier) {
+        if (timeZones.get(deviceIdentifier) == null) {
+            if (deviceIdentifier == null) {
+                return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            }
+            TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
+            if (deviceProtocolProperties == null) {
+                timeZones.put(deviceIdentifier, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
             } else {
-                TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-                if (deviceProtocolProperties == null) {
-                    timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+                TimeZone timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
+                if (timeZoneInUse == null || timeZoneInUse == null) {
+                    timeZones.put(deviceIdentifier, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
                 } else {
-                    return deviceProtocolProperties.getTypedProperty(TIMEZONE, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
+                    timeZones.put(deviceIdentifier, timeZoneInUse);
                 }
             }
         }
-        return timeZone;
+        return timeZones.get(deviceIdentifier);
     }
 
     public CollectedRegisterList getCollectedRegisters() {

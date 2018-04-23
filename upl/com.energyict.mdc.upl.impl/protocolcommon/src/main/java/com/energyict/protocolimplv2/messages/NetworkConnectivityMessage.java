@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -520,7 +519,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
             );
         }
     },
@@ -528,7 +527,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
             );
         }
     },
@@ -558,7 +557,9 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES(4070, "Add a new routing entry using IPv6AddressAndPrefixLength property") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList();
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.cleanUpExistingEntry, DeviceMessageConstants.cleanUpExistingEntryDefaultTranslation, true)
+            );
         }
     },
 

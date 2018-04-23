@@ -139,6 +139,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode WEB_PORTAL_SETUP_OLD_OBIS = ObisCode.fromString("0.0.128.0.13.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    private static final int ROUTING_ENTRY_ID_INDEX = 1;
+    private static final int DESTINATION_INDEX = 3;
+    private static final int DESTINATION_LENGTH_INDEX = 4;
 
 
     /**
@@ -188,6 +191,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate.get(this.propertySpecService, this.nlsService, this.converter),
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
@@ -372,6 +376,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.previousEndDate:
             case DeviceMessageConstants.currentStartDate:
             case DeviceMessageConstants.currentEndDate:
+            case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.configurationCAImageFileAttributeName:
@@ -409,8 +414,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
             case DeviceMessageConstants.newMasterKeyAttributeName:
+            case DeviceMessageConstants.vpnSharedSecret:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.certificateWrapperAttributeName:
+            case DeviceMessageConstants.vpnRemoteCertificate:
 
                 //Is it a certificate renewal or just an addition of a certificate (e.g. trusted CA certificate) to the Beacon?
                 // ==> If there's a passive (temp) value, it's a renewal for sure, use this value.
@@ -539,6 +546,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, nlsService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate)) {
+                        verifyAndActivateFirmwareAtGivenActivationDate(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.TRANSFER_CA_CONFIG_IMAGE)) {
                         transferCAConfigImage(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -1794,6 +1803,70 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
     }
 
+    protected Array convertLongDateToDlmsArray(Long epoch) {
+        Date actionTime = new Date(epoch);
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTime(actionTime);
+        return convertDateToDLMSArray(cal);
+    }
+
+    protected boolean isTemporaryFailure(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
+    }
+
+    private CollectedMessage verifyAndActivateFirmwareAtGivenActivationDate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName).getValue();
+        ImageTransferStatus imageTransferStatus = imageTransfer.readImageTransferStatus();
+
+        if (imageTransferStatus.equals(ImageTransferStatus.TRANSFER_INITIATED)) {
+            try {
+                imageTransfer.verifyAndPollForSuccess();
+            } catch (DataAccessResultException e) {
+                String errorMsg = "Verification of image failed: " + e.getMessage();
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+        }
+
+        if (imageTransferStatus.equals(ImageTransferStatus.VERIFICATION_SUCCESSFUL)) {
+            try {
+                if (activationDate.isEmpty()) {
+                    imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
+                    imageTransfer.imageActivation();
+                    collectedMessage.setDeviceProtocolInformation("Image has been activated.");
+                } else {
+                    SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+                    sas.writeExecutionTime(convertLongDateToDlmsArray(Long.valueOf(activationDate)));
+                }
+            } catch (IOException e) {
+                if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
+                } else if (e.getMessage().toLowerCase().contains("timeout")) {
+                    collectedMessage.setDeviceProtocolInformation("Image activation timed out, meter is rebooting. Moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            String errorMsg = "The ImageTransfer is in an invalid state: expected state '3' (Image verification successful), but was '" +
+                    imageTransferStatus.getValue() + "' (" + imageTransferStatus.getInfo() + "). " +
+                    "The activation will not be executed.";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
+
+        return collectedMessage;
+    }
+
     private void imageTransfer(OfflineDeviceMessage pendingMessage, String attributeName) throws IOException {
         String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, attributeName).getValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
@@ -2539,7 +2612,30 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         BigDecimal routingEntryId = new BigDecimal(ROUTING_ENTRY_ID); //always ID = 1
         String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(getBeacon3100Properties().getIPv6AddressAndPrefixLength());
         BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(getBeacon3100Properties().getIPv6AddressAndPrefixLength()));
-        executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+        boolean removeExistingEntryIfNeeded = getBooleanAttribute(pendingMessage);
+
+        validateExistingRoutingEntriesAndCleanUpIfNeeded(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, removeExistingEntryIfNeeded);
+    }
+
+    private void validateExistingRoutingEntriesAndCleanUpIfNeeded(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean removeExistingEntryIfNeeded) throws IOException {
+        if(removeExistingEntryIfNeeded) {
+            BorderRouterIC borderRouterIC = getBorderRouterIC(pendingMessage, collectedMessage);
+            Array routingEntries = borderRouterIC.readRoutingEntries();
+            if(routingEntries.nrOfDataTypes() > 1) {
+                this.getLogger().log(Level.WARNING, "More than one routing entry was found. Reset router");
+                borderRouterIC.resetRouter();
+                executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+            } else {
+                Unsigned16 entryId = routingEntries.getDataType(0).getStructure().getDataType(ROUTING_ENTRY_ID_INDEX).getUnsigned16();
+                String destination = ProtocolTools.getHexStringFromBytes(routingEntries.getDataType(0).getStructure().getDataType(DESTINATION_INDEX).getContentByteArray(), "");
+                Unsigned8 destinationLength = routingEntries.getDataType(0).getStructure().getDataType(DESTINATION_LENGTH_INDEX).getUnsigned8();
+
+                if(!destination.equalsIgnoreCase(routingDestination) || destinationLength.intValue() != routingDestinationLength.intValue()) {
+                    borderRouterIC.removeRoutingEntry(entryId.intValue());
+                    executeAddRoutingEntryAction(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, false, true);
+                }
+            }
+        }
     }
 
     private void executeAddRoutingEntryAction(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, TypeEnum routingEntryType, BigDecimal routingEntryId, String routingDestination, BigDecimal routingDestinationLength, boolean compressionContextMulticast, boolean compressionContextAllowed) throws IOException {
@@ -2593,15 +2689,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void fetchLogging(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         try {
-            //TODO: Check how files should be saved in Connexo
+            String folderPath = "/log/Beacon_logging/";
             OctetString logging = getDebugLogIC(pendingMessage, collectedMessage).fetchLogging();
-            File log = new File("/log/Beacon_logs/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
-            getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
-            FileOutputStream fileOutputStream = new FileOutputStream(log);
-            fileOutputStream.write(logging.toByteArray());
-            fileOutputStream.close();
+            File folder = new File(folderPath);
+            boolean folderPathExists = folder.exists() || folder.mkdirs();
+            if(folderPathExists) {
+                File log = new File(folder.getAbsolutePath()+ "/" + pendingMessage.getDeviceSerialNumber() + "_" + System.currentTimeMillis() + ".txt");
+                FileOutputStream fileOutputStream = new FileOutputStream(log.getPath());
+                fileOutputStream.write(logging.toByteArray());
+                fileOutputStream.close();
+                getLogger().log(Level.WARNING, "log file saved at following location:" + log.getAbsolutePath());
+            } else {
+                this.getLogger().log(Level.SEVERE, "Logging folder does not exists: "+folder.getAbsolutePath());
+            }
         } catch (IOException e) {
-            this.getLogger().log(Level.WARNING, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
+            this.getLogger().log(Level.SEVERE, "Failed to read and store beacon logging using Debug log IC : [" + e.getMessage() + "]", e);
             throw e;
         }
     }
@@ -2697,6 +2799,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void setVPNRemoteCertificate(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         //TODO: see how this user info should be sent toward protocol....as der encoded string or using a connexo specific certificate placeholder
         String remoteCertificate = getStringAttributeValue(pendingMessage, vpnRemoteCertificate);
+        if (remoteCertificate == null || remoteCertificate.isEmpty()) {
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
+        }
+
         try {
             getVPNSetupIC(pendingMessage, collectedMessage).setRemoteCertificate(remoteCertificate);
         } catch (IOException e) {

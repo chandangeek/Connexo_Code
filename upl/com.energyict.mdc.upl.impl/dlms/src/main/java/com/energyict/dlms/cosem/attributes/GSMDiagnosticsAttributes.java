@@ -5,21 +5,31 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
 /**
- * Created by H245796 on 18.12.2017.
+ * Created by H165680 on 17/04/2017.
  */
-public enum NTPSetupAttributes implements DLMSClassAttributes {
+public enum GSMDiagnosticsAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    ACTIVATED(2, 0x08),
-    SERVER_ADDRESS(3, 0x10),
-    SERVER_PORT(4, 0x18),
-    AUTHENTICATION_METHOD(5, 0x20),
-    AUTHENTICATION_KEYS(6, 0x28);
+    OPERATOR(2, 0x08),
+    STATUS(3, 0x10),
+    CS_ATTACHMENT(4, 0x18),
+    PS_STATUS(5, 0x20),
+    CELL_INFO(6, 0x28),
+    ADJACENT_CELLS(7, 0x30),
+    CAPTURE_TIME(8, 0x38),
+    MODEM_TYPE(-1, 0xFF),
+    MODEM_VERSION(-2, 0xFF),
+    IMEI(-3, 0xFF),
+    IMSI(-4, 0xFF),
+    SIM_CARD_ID(-5, 0xFF),
+    MS_ISDN_NUMBER(-6, 0xFF),
+    TOTAL_TX_BYTES(-7, 0xFF),
+    TOTAL_RX_BYTES(-8, 0xFF);
 
     private final int attributeNumber;
     private final int shortName;
 
-    private NTPSetupAttributes(int attrNr, int sn) {
+    private GSMDiagnosticsAttributes(int attrNr, int sn) {
         this.attributeNumber = attrNr;
         this.shortName = sn;
     }
@@ -34,7 +44,7 @@ public enum NTPSetupAttributes implements DLMSClassAttributes {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.NTP_SETUP;
+        return DLMSClassId.GSM_DIAGNOSTICS;
     }
 
     /**
@@ -44,15 +54,6 @@ public enum NTPSetupAttributes implements DLMSClassAttributes {
      */
     public int getShortName() {
         return this.shortName;
-    }
-
-    public static NPTServerAddressAttributes findByAttributeNumber(int attribute) {
-        for (NPTServerAddressAttributes limiterAttribute : NPTServerAddressAttributes.values()) {
-            if (limiterAttribute.getAttributeNumber() == attribute) {
-                return limiterAttribute;
-            }
-        }
-        throw new IllegalArgumentException("No attributeNumber found for id = " + attribute);
     }
 
     public DLMSAttribute getDLMSAttribute(ObisCode obisCode) {

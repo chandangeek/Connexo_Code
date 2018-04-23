@@ -1651,6 +1651,8 @@ public final class DeviceMessageConstants {
     public static final String keyAccessorTypeAttributeName = "keyAccessorType";
     public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";
 
+    public static final String cleanUpExistingEntry = "NetworkConnectivityMessage.cleanUpExistingEntry";
+    public static final String cleanUpExistingEntryDefaultTranslation = "Remove existing entry if needed";
     public static final String routingEntryType = "NetworkConnectivityMessage.routingEntryType";
     public static final String routingEntryTypeDefaultTranslation = "Routing entry type";
     public static final String routingEntryId = "NetworkConnectivityMessage.routingEntryId";

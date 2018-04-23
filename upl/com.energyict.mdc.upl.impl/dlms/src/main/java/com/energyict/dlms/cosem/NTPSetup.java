@@ -3,8 +3,8 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
 import com.energyict.obis.ObisCode;
 
@@ -46,7 +46,7 @@ public class NTPSetup extends AbstractCosemObject {
     }
 
     public AbstractDataType readServerPort() throws IOException {
-        return readDataType(NTPSetupAttributes.SERVER_PORT, Integer64.class);
+        return readDataType(NTPSetupAttributes.SERVER_PORT, Unsigned16.class);
     }
 
 }

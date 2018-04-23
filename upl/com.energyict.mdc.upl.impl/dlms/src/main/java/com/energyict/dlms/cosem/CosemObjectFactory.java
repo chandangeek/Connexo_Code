@@ -842,4 +842,12 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public VPNSetupIC getVPNSetupIC(ObisCode obisCode) throws NotInObjectListException {
         return new VPNSetupIC(this.protocolLink, this.getObjectReference(obisCode));
     }
+
+    public LTEMonitoringIC getLTEMonitoringIC(ObisCode obisCode) throws NotInObjectListException {
+        return new LTEMonitoringIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
+    public GSMDiagnosticsIC getGSMDiagnosticsIC(ObisCode obisCode) throws NotInObjectListException {
+        return new GSMDiagnosticsIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
 }

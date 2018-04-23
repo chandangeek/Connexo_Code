@@ -204,6 +204,8 @@ public class Beacon3100RegisterFactory {
             } else if (attribute.isArray() || attribute.isStructure()) {
                 addResult(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                 registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.toString());
+            } else if (attribute.isTypeEnum()) {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getTypeEnum().getValue()+"");
             } else if (attribute.isBitString()) {
                 if (isAlarmRegister(universalObject)) {
                     BitString value = attribute.getBitString();

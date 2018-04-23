@@ -31,6 +31,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100StandardEventLog;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySystemTitle;
@@ -41,10 +42,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class EventPushNotificationParser extends DataPushNotificationParser {
@@ -340,7 +338,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             throw DataParseException.ioException(new ProtocolException("Expected a structure with 3 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
 
-        parseWrappedMeterEvent(structure);
+        parseWrappedMeterEvent(structure, dateTime);
     }
 
     private boolean isPowerUpWithJsonPayload(int eventCode, String eventDescription) {
@@ -352,7 +350,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                 && eventDescription.contains("port");
     }
 
-    private void parseWrappedMeterEvent(Structure structure) {
+    private void parseWrappedMeterEvent(Structure structure, Date dateTime) {
         OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
@@ -455,10 +453,11 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         int nrOfDataTypes = structure.nrOfDataTypes();
 
         if (nrOfDataTypes == 3) {
-            Date dateTime = parseDateTime(structure.getDataType(0).getOctetString());
+            Date dateTime = parseDateTime(structure.getDataType(0).getOctetString(), getDeviceTimeZone(originDeviceId));
             Unsigned32 eventCode = structure.getDataType(1).getUnsigned32();
             Unsigned32 deviceCode = structure.getDataType(2).getUnsigned32();
-            String description = "Event code=" + eventCode.getValue() + ", deviceCode=" + deviceCode.getValue() + ", relayed by " + deviceIdentifier + ", from " + originDeviceId;
+            String description = "Event code=" + eventCode.getValue() + ", deviceCode=" + deviceCode.getValue() +
+                    ", relayed by " + deviceIdentifier + ", from " + originDeviceId + " at " + dateTime;
             log(description);
             logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
 
@@ -628,10 +627,9 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     }
 
     private void parseEvent(Structure structure) {
-        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         int numberOfElements = structure.nrOfDataTypes();
 
-        if (numberOfElements == 2) {
+        if (numberOfElements == 2){
             Date dateTime = new Date();
             Unsigned32 protocolCode = structure.getDataType(1).getUnsigned32();
             logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
@@ -641,11 +639,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             int eiCode = structure.getDataType(2).intValue();
             int protocolCode = structure.getDataType(3).intValue();
             String description = parseDescription(structure);
-
-            meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-            collectedLogBook = getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+            createCollectedLogBook(dateTime, eiCode, protocolCode, description);
         }
-        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
@@ -878,20 +873,19 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         createCollectedLogBook(MeterAlarmParser.parseAlarmCode(dateTime, attributeValue.getValue(), alarmRegister));
     }
 
-    private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
-        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
-        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
-    }
-
     protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         for (MeterEvent meterEvent : meterEvents) {
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
-        collectedLogBook = this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
-        collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
+        createCollectedLogBookFromProtocolEvents(meterProtocolEvents);
+    }
+
+    private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
+        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
+        MeterProtocolEvent meterProtocolEvent = MeterEvent.mapMeterEventToMeterProtocolEvent(Beacon3100StandardEventLog.buildMeterEvent(dateTime, eiCode, protocolCode, description, Beacon3100StandardEventLog.LOGBOOK_NAME));
+        meterProtocolEvents.add(meterProtocolEvent);
+        createCollectedLogBookFromProtocolEvents(meterProtocolEvents);
     }
 
     protected void createCollectedLogBookFromProtocolEvents(List<MeterProtocolEvent> meterProtocolEvents) {
@@ -927,11 +921,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     }
 
     protected Date parseDateTime(OctetString octetString) {
+        return parseDateTime(octetString, getDeviceTimeZone());
+    }
+
+    protected Date parseDateTime(OctetString octetString, TimeZone tz) {
         if (octetString == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
         }
         try {
-            return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
+            return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, tz).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {
             throw DataParseException.ioException(e);
         }

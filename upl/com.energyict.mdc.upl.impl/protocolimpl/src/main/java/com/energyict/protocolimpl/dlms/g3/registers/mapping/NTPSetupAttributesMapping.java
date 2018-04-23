@@ -45,7 +45,7 @@ public class NTPSetupAttributesMapping extends RegisterMapping {
             case 4:
                 return ntpSetup.readServerPort();
             default:
-                throw new NoSuchRegisterException("Limiter attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("NTPSetup attribute [" + obisCode.getB() + "] not supported!");
 
         }
     }
@@ -61,9 +61,9 @@ public class NTPSetupAttributesMapping extends RegisterMapping {
             case 3:
                 return new RegisterValue(obisCode, abstractDataType.getOctetString().stringValue());
             case 4:
-                return new RegisterValue(obisCode, abstractDataType.getOctetString().stringValue());
+                return new RegisterValue(obisCode, "" + abstractDataType.getUnsigned16().getValue());
             default:
-                throw new NoSuchRegisterException("Limiter attribute [" + obisCode.getB() + "] not supported!");
+                throw new NoSuchRegisterException("NTPSetup attribute [" + obisCode.getB() + "] not supported!");
 
         }
     }
