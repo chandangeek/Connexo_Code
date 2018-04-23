@@ -184,7 +184,8 @@ public class DestinationSpecResource {
 
     private SubscriberSpec getSubscriber4(String queueTypeName) {
         return messageService.getSubscribers().stream()
-                .filter((SubscriberSpec s) -> s.getDestination().getName().equals(queueTypeName)).findFirst()
+                .filter((SubscriberSpec subscriberSpec) -> subscriberSpec.getDestination().getName().equals(queueTypeName))
+                .findFirst()
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

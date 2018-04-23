@@ -9,6 +9,10 @@ public class DestinationSpecTypeName {
 
     public List<DestinationSpecTypeNameInfo> data;
 
+    public DestinationSpecTypeName() {
+
+    }
+
     private DestinationSpecTypeName(List<DestinationSpecTypeNameInfo> data) {
         this.data = data;
     }
