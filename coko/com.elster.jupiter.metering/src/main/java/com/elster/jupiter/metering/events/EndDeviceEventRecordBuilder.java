@@ -34,6 +34,8 @@ public interface EndDeviceEventRecordBuilder {
 
     EndDeviceEventRecordBuilder addProperty(String key, String value);
 
+    EndDeviceEventRecordBuilder setDeviceEventType(String value);
+
     EndDeviceEventRecord create();
 
 }

@@ -100,6 +100,12 @@ public class EndDeviceEventRecordBuilderImpl implements EndDeviceEventRecordBuil
     }
 
     @Override
+    public EndDeviceEventRecordBuilder setDeviceEventType(String value) {
+        underConstruction.setDeviceEventType(value);
+        return this;
+    }
+
+    @Override
     public EndDeviceEventRecord create() {
         EndDeviceEventRecordImpl record = this.underConstruction;
         this.underConstruction = null;
