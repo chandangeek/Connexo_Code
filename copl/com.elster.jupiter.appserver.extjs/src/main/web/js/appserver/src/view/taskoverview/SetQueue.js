@@ -33,7 +33,7 @@ Ext.define('Apr.view.taskoverview.SetQueue', {
                     required: true,
                     allowBlank: false,
                     editable: false,
-                    width: 500,
+                    width: 400,
                     listeners: {
                         afterrender: function (field) {
                             field.focus(false, 200);

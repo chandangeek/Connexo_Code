@@ -135,7 +135,7 @@ Ext.define('Apr.controller.TaskOverview', {
         });
 
         confirmationWindow.show({
-            title: Uni.I18n.translate('general.setqueue', 'APR', "Set queue '{0}'?", record.data.name, false)
+            title: Uni.I18n.translate('general.setqueue', 'APR', "Set queue for '{0}'?", record.data.name, false)
         });
 
         function getConfirmationWindow() {
