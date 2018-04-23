@@ -127,49 +127,15 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
     },
 
     getRegisterIntervalColumn: function () {
-        var me = this;
-
-        if ((me.output.get('deliverableType') === 'numerical' || me.output.get('deliverableType') === 'billing') && (me.output.get('isCummulative') || me.output.get('isBilling'))) {
-            return {
-                header: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
-                flex: 2,
-                dataIndex: 'interval',
-                renderer: function (value, meataData, record) {
-                    if (!Ext.isEmpty(value)) {
-                        var endDate = new Date(value.end);
-                        if (!!value.start && !!value.end) {
-                            var startDate = new Date(value.start);
-                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                        } else {
-                            return Uni.DateTime.formatDateTimeShort(endDate) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                        }
-                    }
-                    return '-';
-                }
-            };
-        } else if (!me.output.get('hasEvent')) {
-            return {
-                header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
-                flex: 1,
-                dataIndex: 'timeStamp',
-                renderer: function (value, metaData, record) {
-                    return Ext.isEmpty(value) ? '-' : Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
-                }
-            };
-        }
-
-        if (me.output.get('hasEvent')){
-            me.columns.push(
-                {
-                    header: Uni.I18n.translate('device.registerData.eventTime', 'IMT', 'Event time'),
-                    dataIndex: 'eventDate',
-                    itemId: 'eventTime',
-                    renderer: me.renderMeasurementTime,
-                    flex: 1
-                }
-            );
-        }
+        return {
+            header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+            flex: 1,
+            dataIndex: 'timeStamp',
+            renderer: function (value, metaData, record) {
+                return Ext.isEmpty(value) ? '-' : Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
+                    [Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
+            }
+        };
     },
 
     renderMeasurementTime: function (value, metaData, record) {

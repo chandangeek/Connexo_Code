@@ -19,7 +19,14 @@ Ext.define('Imt.purpose.view.history.HistoryRegisterPreview', {
         var me = this;
 
         return [
-            me.getTime(),
+            {
+                fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+                name: 'timeStamp',
+                itemId: 'register-preview-measurementTime-field',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                }
+            },
             {
                 fieldLabel: Uni.I18n.translate('historyGrid.changedOn', 'IMT', 'Changed on'),
                 name: 'reportedDateTime',
@@ -61,30 +68,5 @@ Ext.define('Imt.purpose.view.history.HistoryRegisterPreview', {
                 fieldLabel: ''
             }
         ];
-    },
-
-
-    /**
-     * @private
-     */
-    getTime: function(){
-        var me = this;
-
-        if ((me.output.get('deliverableType') === 'numerical' || me.output.get('deliverableType') === 'billing') &&
-            (me.output.get('isCummulative') || me.output.get('isBilling'))) {
-            return {
-                fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'IMT', 'Measurement period'),
-                name: 'interval',
-                itemId: 'register-preview-measurementPeriod-field',
-                renderer: Imt.purpose.util.DataFormatter.formatIntervalLong
-            };
-        } else if (!me.output.get('hasEvent')) {
-            return {
-                fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
-                name: 'timeStamp',
-                itemId: 'register-preview-measurementTime-field',
-                renderer: Imt.purpose.util.DataFormatter.formatDateLong
-            };
-        }
     }
 });
