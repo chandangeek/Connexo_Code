@@ -33,11 +33,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class EndDeviceEventsBuilder {
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
+    public static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
 
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
@@ -66,7 +68,6 @@ public class EndDeviceEventsBuilder {
     public EndDeviceEvents build() throws FaultMessage {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
-
         endDevices.stream().forEach(
                 endDevice -> endDevice.getDeviceEvents(timePeriods).stream().forEach(
                         deviceEvent -> endDeviceEventList.add(asEndDeviceEvent(deviceEvent))));
@@ -123,7 +124,6 @@ public class EndDeviceEventsBuilder {
         endDeviceEvent.setStatus(toStatus(record.getStatus()));
         endDeviceEvent.setReason(record.getDescription());
         endDeviceEvent.setAssets(createAsset(record.getEndDevice()));
-
         record.getProperties().entrySet().stream().forEach(property -> {
                     EndDeviceEventDetail endDeviceEventDetail = payloadObjectFactory.createEndDeviceEventDetail();
                     endDeviceEventDetail.setName(property.getKey());
@@ -131,7 +131,22 @@ public class EndDeviceEventsBuilder {
                     endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
                 }
         );
+        Optional<EndDeviceEventDetail> optionalOfEndDeviceEventDetail = setDeviceEventTypeDetail(record);
+        if (optionalOfEndDeviceEventDetail.isPresent()) {
+            endDeviceEvent.getEndDeviceEventDetails().add(optionalOfEndDeviceEventDetail.get());
+        }
         return endDeviceEvent;
+    }
+
+    private Optional<EndDeviceEventDetail> setDeviceEventTypeDetail(EndDeviceEventRecord record) {
+        String deviceEventType = record.getDeviceEventType();
+        if (Objects.nonNull(deviceEventType) && !deviceEventType.isEmpty()) {
+            EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+            endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
+            endDeviceEventDetail.setValue(deviceEventType);
+            return Optional.of(endDeviceEventDetail);
+        }
+        return Optional.empty();
     }
 
     private Optional<String> extractMrid(Meter meter) {
