@@ -2,6 +2,8 @@ package com.elster.jupiter.messaging.rest.impl;
 
 class DestinationSpecBean {
 
+    private static String CHARACTERS_ONLY = "[a-zA-Z]+";
+
     private String name;
     private String queueTypeName;
 
@@ -11,9 +13,7 @@ class DestinationSpecBean {
     }
 
     String getName() {
-        String value = name.trim();
-        value = value.replace(" ", "_");
-        return value;
+        return name.trim().toUpperCase();
     }
 
     String getQueueTypeName() {
@@ -21,11 +21,11 @@ class DestinationSpecBean {
     }
 
     boolean isWrongNameDefined() {
-        return name == null || name.trim().isEmpty();
+        return name == null || name.trim().isEmpty() || !name.matches(CHARACTERS_ONLY);
     }
 
     boolean isWrongQueueTypeNameDefined() {
-        return queueTypeName == null || queueTypeName.trim().isEmpty();
+        return queueTypeName == null || queueTypeName.trim().isEmpty() || !queueTypeName.matches(CHARACTERS_ONLY);
     }
 
 }
