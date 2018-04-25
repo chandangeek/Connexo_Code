@@ -34,6 +34,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.validation.ConstraintViolation;
@@ -121,22 +122,46 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+
         ServiceKind serviceKind = Arrays.stream(ServiceKind.values())
                 .filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString))
                 .findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber(), serviceKindString));
         Optional<UsagePoint> foundUsagePoint = findUsagePointByIdentifier(identifier);
         Optional<ServiceCategory> serviceCategory = getContext().getMeteringService().getServiceCategory(serviceKind);
+
         if (foundUsagePoint.isPresent()) {
             UsagePoint usagePoint = foundUsagePoint.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
+            }
+
+            if (data.getLifeCycle() != null) {
+                String usagePointStateName = usagePoint.getState().getName();
+
+                if (getContext().getMeteringService()
+                        .findUsagePointLifeCycle(data.getLifeCycle()) == null) {
+                    throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE, data.getLineNumber(), data.getLifeCycle());
+                }
+
+                UsagePointLifeCycle usagePointLifeCycle = getContext().getMeteringService()
+                        .findUsagePointLifeCycle(data.getLifeCycle());
+
+                usagePointLifeCycle.getStates()
+                        .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
+                        .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE, data
+                                .getLineNumber(), data
+                                .getLifeCycle(), usagePointStateName));
             }
             usagePoint = getContext().getMeteringService()
                     .findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
+            if (getContext().getMeteringService()
+                    .findUsagePointLifeCycle(data.getLifeCycle()) == null) {
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE, data.getLineNumber(), data.getLifeCycle());
+            }
             UsagePoint usagePoint = usagePointImportHelper.createUsagePointForInsight(serviceCategory.get()
                     .newUsagePoint(identifier, data.getInstallationTime()
                             .orElse(getContext().getClock().instant())), data);

@@ -24,6 +24,7 @@ public class UsagePointImportRecord extends FileImportRecord {
     //General
     private String usagePointIdentifier;
     private String serviceKind;
+    private String lifeCycle;
     private boolean isSdp;
     private boolean isVirtual;
     private Instant installationTime;
@@ -92,6 +93,14 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public void setServiceKind(String serviceKind) {
         this.serviceKind = serviceKind != null ? serviceKind.toUpperCase() : null;
+    }
+
+    public String getLifeCycle() {
+        return lifeCycle;
+    }
+
+    public void setLifeCycle(String lifeCycle) {
+        this.lifeCycle = lifeCycle;
     }
 
     public List<String> getLocation() {

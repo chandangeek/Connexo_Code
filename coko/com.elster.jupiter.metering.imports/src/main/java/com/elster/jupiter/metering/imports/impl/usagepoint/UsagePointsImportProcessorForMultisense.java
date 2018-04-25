@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.ServiceCategory;

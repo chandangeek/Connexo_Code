@@ -5,14 +5,14 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
-import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.FileImportDescription;
-import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
 import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
+import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.metering.imports.impl.parsers.BooleanParser;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
@@ -78,6 +78,10 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withSetter(record::setServiceKind)
                 .withName("serviceKind")
                 .markMandatory()
+                .build());
+        fields.put("lifeCycle", CommonField.withParser(stringParser)
+                .withSetter(record::setLifeCycle)
+                .withName("lifeCycle")
                 .build());
         fields.put("isSdp", CommonField.withParser(booleanParser)
                 .withSetter(record::setSdp)

@@ -37,6 +37,7 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1022, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, "Can''t process line {0}: No service category found with name: {1}"),
     IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE(1023, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, "Can''t process line {0}: It''s not possible to change service category on usage point"),
     IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, "Can''t process line {0}: No such active versions for {1}"),
+    IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE(1024, Constants.IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE, "Can''t process line {0}: The life cycle: {1} doesn''t contain usage point state: {2}"),
     LINE_MISSING_LOCATION_VALUE(2002, Constants.LINE_MISSING_LOCATION_VALUE, "Format error for line {0}: missing mandatory value for field {1}."),
     BAD_METROLOGY_CONFIGURATION(2003, Constants.BAD_METROLOGY_CONFIGURATION, "Can''t process line {0}: No such active metrology configuration"),
     SERVICE_CATEGORIES_DO_NOT_MATCH(2004, Constants.SERVICE_CATEGORIES_DO_NOT_MATCH, "Can''t process line {0}: The service category of usage point doesn't match to service category of metrology configuration"),
@@ -50,7 +51,8 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION(2012, Constants.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION, "Transition date must be greater or equal to 'Created' date of usage point", Level.WARNING),
     PRE_TRANSITION_CHECK_FAILED(2013, Constants.PRE_TRANSITION_CHECK_FAILED, "Pre-transition check failed {0}", Level.WARNING),
     CALENDAR_DOES_NOT_EXIST(2014, Constants.CALENDAR_DOES_NOT_EXIST, "Can''t process line {0}: No such {1} calendar"),
-    NO_SUCH_MANDATORY_CPS_VALUE(2015, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}");
+    NO_SUCH_MANDATORY_CPS_VALUE(2015, Constants.NO_SUCH_MANDATORY_CPS_VALUE, "Can''t process line {0}: Missing mandatory value {1} for custom property set {2}"),
+    IMPORT_USAGEPOINT_LIFE_CYCLE(2016, Constants.IMPORT_USAGEPOINT_INVALID_LIFE_CYCLE, "Can''t process line {0}: Invalid life cycle ''{1}''");
 
     private final int number;
     private final String key;
@@ -115,6 +117,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_INVALID_DATA = "up.invalid.date";
         public static final String IMPORT_USAGEPOINT_SERVICEKIND_INVALID = "up.no.service.kind";
         public static final String IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND = "up.invalid.service.kind";
+        public static final String IMPORT_USAGEPOINT_INVALID_LIFE_CYCLE = "up.invalid.lifecycle";
         public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID = "up.invalid.service.category";
         public static final String IMPORT_USAGEPOINT_INVALID_SERVICELOCATION = "up.invalid.service.location";
         public static final String IMPORT_PARSER_INVALID = "up.invalid.parser";
@@ -124,6 +127,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_CONSTRAINT_VOLATION = "up.constraint.violation";
         public static final String IMPORT_QUANITITY_OUT_OF_BOUNDS = "quantity.out.of.bounds";
         public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE = "up.service.category.cannot.change";
+        public static final String IMPORT_USAGEPOINT_LIFE_CYCLE_CHANGE = "up.life.cycle.cannot.change";
         public static final String LINE_MISSING_LOCATION_VALUE = "line.missing.location.value";
         public static final String BAD_METROLOGY_CONFIGURATION = "bad.metrology.configuration";
         public static final String CALENDAR_DOES_NOT_EXIST = "calendar.does.not.exist";
