@@ -77,7 +77,7 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
-    public static interface Keys {
+    public interface Keys {
         String MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY = "queue.retries.outofrange";
         String RETRY_DELAY_OUT_OF_RANGE_KEY = "queue.retrydelay.outofrange";
         String EMPTY_QUEUE_NAME = "queue.name.empty";
@@ -89,4 +89,3 @@ public enum MessageSeeds implements MessageSeed {
     }
 
 }
-
