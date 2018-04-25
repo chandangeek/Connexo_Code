@@ -39,6 +39,7 @@ public class TaskInfo {
     public String lastRunStatus;
     public Long lastRunDate;
     public Long lastRunDuration;
+    public boolean isExtraQueueCreationEnabled;
 
     private static final String PLANNED = "Planned";
     private static final String BUSY = "Busy";
@@ -50,6 +51,7 @@ public class TaskInfo {
         name = recurrentTask.getName();
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
+        isExtraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
         trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
                 thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
