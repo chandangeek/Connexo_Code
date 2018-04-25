@@ -27,6 +27,9 @@ import java.util.Optional;
  */
 public class TaskInfo {
 
+    private static final String PLANNED = "Planned";
+    private static final String BUSY = "Busy";
+    private static final String NOTSCHEDULED = "Not scheduled";
     public Long id;
     public String name;
     public IdWithNameInfo application;
@@ -40,10 +43,6 @@ public class TaskInfo {
     public Long lastRunDate;
     public Long lastRunDuration;
     public boolean isExtraQueueCreationEnabled;
-
-    private static final String PLANNED = "Planned";
-    private static final String BUSY = "Busy";
-    private static final String NOTSCHEDULED = "Not scheduled";
 
 
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
@@ -88,7 +87,7 @@ public class TaskInfo {
     }
 
     private void setPlannedOn(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
-        long plannedDate = recurrentTask.getNextExecution().toEpochMilli();
+        long plannedDate = getNextExecutionPlannedDate(recurrentTask);
         setQueueStatus(PLANNED, plannedDate);
         if (lastOccurrence != null) {
             if (lastOccurrence.getStartDate().isPresent() && lastOccurrence.getEndDate().isPresent()) {
@@ -101,6 +100,13 @@ public class TaskInfo {
                 }
             }
         }
+    }
+
+    private long getNextExecutionPlannedDate(RecurrentTask recurrentTask) {
+        if (recurrentTask.getNextExecution() == null) {
+            return 0;
+        }
+        return recurrentTask.getNextExecution().toEpochMilli();
     }
 
     private void setLastRunStatus(TaskOccurrence lastOccurrence) {
