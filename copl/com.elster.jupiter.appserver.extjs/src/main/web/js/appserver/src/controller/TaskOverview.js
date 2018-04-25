@@ -92,8 +92,6 @@ Ext.define('Apr.controller.TaskOverview', {
             updatedData;
 
         updatedData = {
-
-
             id: confirmationWindow.record.getId(),
             queue: confirmationWindow.down('#cmb-queue').getValue()
         };

@@ -168,26 +168,43 @@ Ext.define('Apr.controller.MessageQueues',{
             queuePreviewContainerPanel = me.getQueuePreviewContainer(),
             view = queueGrid || queuePreviewContainerPanel;
 
-        view.setLoading();
+        jsonData = {
+            active: record.getRecordData().active,
+            buffered: record.getRecordData().buffered,
+            isDefault: record.getRecordData().isDefault,
+            name: record.getRecordData().name,
+            numberOfErrors: record.getRecordData().numberOfErrors,
+            numberOfRetries: record.getRecordData().numberOfRetries,
+            queueTypeName: record.getRecordData().queueTypeName,
+            retrayDelayInSeconds: record.getRecordData().retrayDelayInSeconds,
+            subscriberSpecInfos: record.getRecordData().subscriberSpecInfos,
+            tasks: record.getRecordData().tasks,
+            type: record.getRecordData().type,
+            version: record.getRecordData().version
+        };
 
-        record.destroy({
+        Ext.Ajax.request({
+            url: '/api/msg/destinationspec/' + record.get('name'),
+            method: 'DELETE',
+            jsonData: jsonData,
             success: function () {
-                me.getController('Uni.controller.history.Router').getRoute('administration/messagequeues').forward();
                 view.setLoading(false);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('messageQueue.remove.confirmation', 'APR', 'Queue removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('messageQueue.queue.removed', 'APR', 'Queue removed'));
+                queueGrid.getStore().load();
             },
-            failure: function (object, operation) {
-                var error = Ext.JSON.decode(operation.response.responseText, true).error;
-                var errorCode = Ext.JSON.decode(operation.response.responseText, true).errorCode;
-                if (error) {
-                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('messageQueue.removeErrorTitle', 'APR', 'Couldn\'t perform your action'),
-                        Uni.I18n.translate('messageQueue.removeErrorMsg', 'APR', 'Error during removal of queue') + "." +
-                        error, errorCode
-                    );
+            failure: function (response) {
+                var errorInfo = Uni.I18n.translate('messageQueue.queue.removeErrorMsg', 'APR', 'Error during removal message queue');
+                var errorText = Uni.I18n.translate('messageQueue.error.unknown', 'APR', "Unknown error occurred");
+                if (response.status == 403) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.error) {
+                        errorText = json.error;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
                 }
-                view.setLoading(false);
             }
         });
+
     },
 
 
@@ -247,15 +264,12 @@ Ext.define('Apr.controller.MessageQueues',{
     },
 
     chooseAction: function(menu, item) {
-        var me = this,
-            record = menu.record || me.getQueueGrid().getSelectionModel().getLastSelected();
-
         switch (item.action) {
             case 'clearErrorQueue':
                 this.clearErrorQueue(menu.record);
                 break;
             case 'remove':
-                this.remove(record);
+                this.remove(menu.record);
                 break;
         }
     },
