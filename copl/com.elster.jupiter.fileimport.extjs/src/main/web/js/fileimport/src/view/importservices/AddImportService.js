@@ -78,7 +78,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         emptyText: Uni.I18n.translate('general.logLevel.selectPrompt', 'FIM', 'Select a log level...'),
                         required: true,
                         name: 'logLevel',
-                        width: 500,
+                        width: 600,
                         itemId: 'fim-data-logLevels',
                         allowBlank: false,
                         store: 'LogLevelsStore',
