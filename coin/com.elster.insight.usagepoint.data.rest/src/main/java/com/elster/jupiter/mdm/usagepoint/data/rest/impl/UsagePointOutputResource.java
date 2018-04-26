@@ -133,6 +133,7 @@ public class UsagePointOutputResource {
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
+    private final Provider<PurposeValidationResource> purposeValidationResourceProvider;
     private final Thesaurus thesaurus;
 
 
@@ -164,7 +165,8 @@ public class UsagePointOutputResource {
             TransactionService transactionService,
             UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper,
             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
-            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
+            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider,
+            Provider<PurposeValidationResource> purposeValidationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -190,6 +192,7 @@ public class UsagePointOutputResource {
         this.usagePointOutputsHistoryHelper = usagePointOutputsHistoryHelper;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
+        this.purposeValidationResourceProvider = purposeValidationResourceProvider;
     }
 
     @GET
@@ -377,6 +380,12 @@ public class UsagePointOutputResource {
     public UsagePointOutputEstimationResource getUsagePointOutputEstimationResource() {
         return usagePointOutputEstimationResourceProvider.get();
     }
+
+    @Path("/{purposeId}/validationrulesets")
+    public PurposeValidationResource getPurposeValidationResource() {
+        return purposeValidationResourceProvider.get();
+    }
+
 
     @GET
     @Transactional

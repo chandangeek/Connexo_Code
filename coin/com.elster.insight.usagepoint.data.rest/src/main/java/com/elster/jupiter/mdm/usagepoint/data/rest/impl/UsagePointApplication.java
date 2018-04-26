@@ -146,7 +146,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 FieldResource.class,
                 FavoritesResource.class,
                 UsagePointOutputValidationResource.class,
-                UsagePointOutputEstimationResource.class);
+                UsagePointOutputEstimationResource.class,
+                PurposeValidationResource.class);
     }
 
     @Override
