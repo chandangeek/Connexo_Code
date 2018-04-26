@@ -41,7 +41,7 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
     public enum Labels implements TranslationKey {
         USAGEPOINT_FILE_IMPORTER(UsagePointsImporterFactory.NAME, "Usage point importer [STD]"),
         USAGEPOINT_MESSAGE_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle usage point import"),
-        USAGEPOINT_READING_IMPORTER(UsagePointReadingImporterFactory.NAME, "Usage point reading importer [STD]"),
+
         // Properties translations
         DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
         DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),
@@ -61,7 +61,12 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
         IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} usage point(s) processed successfully, {1} usage point(s) skipped due to errors. "),
         IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note, {2} usage point(s) skipped due to errors."),
         IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note."),
-        IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: {1}"),;
+        IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: {1}"),
+
+        //UsagePoint Record Importer
+
+        USAGEPOINT_READING_IMPORTER(UsagePointReadingImporterFactory.NAME, "Usage point Reading importer [STD]"),
+        USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER(UsagePointReadingMessageHandlerFactory.SUBSCRIBER_NAME, "Handle usage point reading import");
         private final String key;
         private final String defaultFormat;
 

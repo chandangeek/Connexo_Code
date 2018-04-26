@@ -51,7 +51,7 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpecUPReadImport = queueTableSpec.createDestinationSpec(UsagePointReadingMessageHandlerFactory.DESTINATION_NAME, 60);
         destinationSpecUPReadImport.save();
         destinationSpecUPReadImport.activate();
-        destinationSpecUPReadImport.subscribe(TranslationKeysUsagePointReadingImporter.Labels.USAGEPOINT_READING_IMPORTER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpecUPReadImport.subscribe(TranslationKeys.Labels.USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }

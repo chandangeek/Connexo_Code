@@ -27,6 +27,7 @@ import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.DATE
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.DELIMITER;
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.NUMBER_FORMAT;
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.TIME_ZONE;
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.USAGEPOINT_READING_IMPORTER;
 
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointReadingImporterFactory",
@@ -57,7 +58,7 @@ public class UsagePointReadingImporterFactory implements FileImporterFactory {
 
     @Override
     public String getDisplayName() {
-        return "UsagePoint Reading Import";
+        return getContext().getThesaurus().getFormat(USAGEPOINT_READING_IMPORTER).format();
     }
 
     @Override
