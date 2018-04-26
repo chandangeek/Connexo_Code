@@ -15,26 +15,19 @@ import java.math.BigDecimal;
 public class PurposeOutputsDataInfoFactory {
 
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
-
     @Inject
     public PurposeOutputsDataInfoFactory( OutputChannelDataInfoFactory outputChannelDataInfoFactory){
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
     }
 
-    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Long channelId, BigDecimal channelData, IntervalInfo intervalInfo){
+    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Long channelId, OutputChannelDataInfo outputChannelDataInfo, IntervalInfo intervalInfo){
         PurposeOutputsDataInfo info = new PurposeOutputsDataInfo();
-        info.channelData.put(channelId, channelData);
+        info.channelData.put(channelId, outputChannelDataInfo);
         info.interval = intervalInfo;
         return info;
     }
 
-    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (IntervalInfo intervalInfo){
-        PurposeOutputsDataInfo info = new PurposeOutputsDataInfo();
-        info.interval = intervalInfo;
-        return info;
-    }
-
-    public void addValues (PurposeOutputsDataInfo info, Long channelId, BigDecimal channelData){
-        info.channelData.put(channelId, channelData);
+    public void addValues (PurposeOutputsDataInfo info, Long channelId, OutputChannelDataInfo outputChannelDataInfo){
+        info.channelData.put(channelId, outputChannelDataInfo);
     }
 }

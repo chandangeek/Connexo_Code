@@ -58,6 +58,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.json.JSONObject;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -685,10 +686,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 1);
+        assertThat(jsonModel.<String>get("$.data[0].channelData[1].value")).isEqualTo("1");
         assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1", 10);
+        assertThat(jsonModel.<String>get("$.data[1].channelData[1].value")).isEqualTo("10");
+        Map<String, String> jsonObjectMap = jsonModel.get("$.data[1].channelData[1]");
+        assertThat(jsonObjectMap).containsKey("validationResult");
+        assertThat(jsonObjectMap).containsKey("readingQualities");
+        assertThat(jsonObjectMap).containsKey("reportedDateTime");
+        assertThat(jsonObjectMap).containsKey("dataValidated");
+
     }
 
     @Test
@@ -723,7 +730,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 11);
+        assertThat(jsonModel.<String>get("$.data[0].channelData[1].value")).isEqualTo("11");
+        Map<String, String> jsonObjectMap = jsonModel.get("$.data[0].channelData[1]");
+        assertThat(jsonObjectMap).containsKey("validationResult");
+        assertThat(jsonObjectMap).containsKey("readingQualities");
+        assertThat(jsonObjectMap).containsKey("reportedDateTime");
+        assertThat(jsonObjectMap).containsKey("dataValidated");
     }
 
     @Test

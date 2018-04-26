@@ -248,6 +248,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getIntervalLength()).thenReturn(Optional.empty());
+        when(readingType.getFullAliasName()).thenReturn("fullAliasName");
         return readingType;
     }
 
