@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ArmServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DefaultDeviceServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisableLoadLimitServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLimitServiceCallHandler;
@@ -34,6 +35,7 @@ import java.util.Optional;
 public class ServiceCallCommands {
 
     public enum ServiceCallTypeMapping {
+        other(DefaultDeviceServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DefaultDeviceServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OTHER),
         connectBreaker(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ConnectServiceCallHandler.VERSION, EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH),
         disconnectBreaker(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DisconnectServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH),
         armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
@@ -103,7 +105,7 @@ public class ServiceCallCommands {
 
     private ServiceCallType getServiceCallType(EndDeviceControlType endDeviceControlType) {
         if (!getServiceCallTypesMapping().containsKey(endDeviceControlType)) {
-            ServiceCallTypeMapping serviceCallTypeMapping = ServiceCallTypeMapping.getServiceCallTypeMappingFor(endDeviceControlType).orElseThrow(IllegalStateException::new);
+            ServiceCallTypeMapping serviceCallTypeMapping = ServiceCallTypeMapping.getServiceCallTypeMappingFor(endDeviceControlType).orElse(ServiceCallTypeMapping.other);
             ServiceCallType serviceCallType = serviceCallService.findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                             .format(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())));
