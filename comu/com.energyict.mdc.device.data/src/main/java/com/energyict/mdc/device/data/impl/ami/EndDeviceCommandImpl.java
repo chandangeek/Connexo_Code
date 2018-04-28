@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
+public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSenseEndDeviceCommand {
 
     private final EndDevice endDevice;
     private final EndDeviceControlType endDeviceControlType;
@@ -86,8 +87,6 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
         }
         getPropertyValueMap().put(propertySpec, value);
     }
-
-    public abstract List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate);
 
     protected boolean hasCommandArgumentValueFor(Class clazz) {
         return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getValueFactory().getValueType().equals(clazz));
