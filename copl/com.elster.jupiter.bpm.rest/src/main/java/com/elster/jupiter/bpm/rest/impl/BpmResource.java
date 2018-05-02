@@ -14,15 +14,10 @@ import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.bpm.UserTaskInfos;
-import com.elster.jupiter.bpm.rest.exception.BpmProcessNotAvailable;
-import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
 import com.elster.jupiter.bpm.rest.BusinessObject;
 import com.elster.jupiter.bpm.rest.DeploymentInfo;
 import com.elster.jupiter.bpm.rest.DeploymentInfos;
 import com.elster.jupiter.bpm.rest.Errors;
-import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
-import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
-import com.elster.jupiter.bpm.rest.exception.NoTaskWithIdException;
 import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
@@ -32,6 +27,11 @@ import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
+import com.elster.jupiter.bpm.rest.exception.BpmProcessNotAvailable;
+import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
+import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
+import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
+import com.elster.jupiter.bpm.rest.exception.NoTaskWithIdException;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -1149,6 +1149,10 @@ public class BpmResource {
                         .supplier());
 
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
+        if (taskContentInfos.extraProperties != null) {
+            taskContentInfos.extraProperties.stream()
+                    .forEach(ep -> expectedParams.put(ep.propertyName, ep.propertyValue));
+        }
         List<Errors> err = new ArrayList<>();
         TaskContentInfos taskContents = getProcessContent(id,deploymentId, auth);
         taskContentInfos.properties.stream()
