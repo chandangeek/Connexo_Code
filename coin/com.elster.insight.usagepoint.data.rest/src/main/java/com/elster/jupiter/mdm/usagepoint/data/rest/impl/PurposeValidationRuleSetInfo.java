@@ -11,6 +11,9 @@ public class PurposeValidationRuleSetInfo extends ValidationRuleSetInfo {
 
     public boolean isActive;
 
+    public PurposeValidationRuleSetInfo() {
+    }
+
     public PurposeValidationRuleSetInfo(ValidationRuleSet ruleSet, boolean isActive) {
         super(ruleSet);
         this.isActive = isActive;

@@ -75,6 +75,7 @@ public enum MessageSeeds implements MessageSeed {
     ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
     CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can''t link calendar before start date of this calendar."),
     CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(73, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible."),
     ;
 
     private final int number;
