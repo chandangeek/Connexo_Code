@@ -460,6 +460,12 @@
                 <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.demo.customtask</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- third parties -->
             <!-- Logging -->
@@ -720,6 +726,7 @@
                 <module>../com.energyict.mdc.protocols.test</module>
                 <module>../com.energyict.mdc.servicecall.examples</module>
                 <module>../com.energyict.mdc.test.api.rest</module>
+                <module>../com.energyict.mdc.demo.customtask</module>
             </modules>
         </profile>
 
