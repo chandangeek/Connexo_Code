@@ -135,6 +135,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.TaskManagementDataCollectionKpi',
         'Mdc.controller.setup.TaskManagementRegisteredDevices',
         'Mdc.crlrequest.controller.TaskManagementCrlRequest',
+        'Apr.controller.CustomTask',
         'Mdc.controller.setup.TaskManagement'
     ],
 
@@ -158,6 +159,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
+        me.getController('Apr.controller.CustomTask');
         me.getController('Mdc.controller.setup.TaskManagementDataCollectionKpi');
         me.getController('Mdc.controller.setup.TaskManagementRegisteredDevices');
         me.getController('Mdc.crlrequest.controller.TaskManagementCrlRequest');
