@@ -47,7 +47,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         //SqlBuilder builder = mapper.builder("RT");
         SqlBuilder builder = new SqlBuilder();
-        builder.append("select * from (");
+        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, ROWNUM as rnum from (");
         builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, ROWNUM as rnum ");
         builder.append(" from TSK_RECURRENT_TASK RT ");
         builder.append(" inner join ");
@@ -135,7 +135,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         builder.append("order by TSKSTATUS, STARTDATE ");
-        builder.append(") ");
+        builder.append(")) ");
 
         // add pagging
         builder.append(" where rnum <=  ");
