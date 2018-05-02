@@ -6,6 +6,7 @@ Ext.define('Apr.view.taskmanagement.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.task-management-add',
     requires: [
+        'Apr.store.CustomTaskTypes',
         'Uni.util.FormErrorMessage'
     ],
 
@@ -43,7 +44,6 @@ Ext.define('Apr.view.taskmanagement.Add', {
                         width: 600,
                         itemId: 'task-management-task-type',
                         allowBlank: false,
-                        store: me.storeTypes,
                         editable: false,
                         queryMode: 'local',
                         displayField: 'name',
