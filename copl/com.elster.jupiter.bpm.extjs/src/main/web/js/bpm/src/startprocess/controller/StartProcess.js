@@ -120,12 +120,21 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
                 businessObject[param.name] = param.value;
             });
 
+
+            var deviceId = startProcessPanel.properties.device.mRID;
+
             startProcessRecord.set('businessObject', businessObject);
             startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
             startProcessRecord.set('id', me.processRecord.processId);
             startProcessRecord.set('versionDB', me.processRecord.versionDB);
             startProcessRecord.set('processName', me.processRecord.name);
             startProcessRecord.set('processVersion', me.processRecord.version);
+            startProcessRecord.set('extraProperties', [
+                {
+                    propertyName: 'deviceId',
+                    propertyValue: deviceId
+                }
+            ]);
 
             startProcessRecord.save({
                 success: function () {

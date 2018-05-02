@@ -277,11 +277,23 @@ Ext.define('Bpm.controller.Task', {
                     reader = Bpm.monitorprocesses.model.ProcessNodes.getProxy().getReader(),
                     resultSet = reader.readRecords(response),
                     nodeRecord = resultSet.records[0];
-                var variable = me.findProcessVariable(nodeRecord, "usagePointId");
+                var variable = null,
+                    urlString = null,
+                    usagePointVariable = me.findProcessVariable(nodeRecord, "usagePointId"),
+                    deviceVariable = me.findProcessVariable(nodeRecord, "deviceId");
+
+                if (usagePointVariable) {
+                    variable = usagePointVariable;
+                    urlString = '/api/jsr/search/com.elster.jupiter.metering.UsagePoint';
+                }
+                if (deviceVariable) {
+                    variable = deviceVariable;
+                    urlString = '/api/jsr/search/com.energyict.mdc.device.data.Device';
+                }
                 if (variable) {
                     Ext.Ajax.request({
                         method: 'GET',
-                        url: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint',
+                        url: urlString,
                         params: {
                             filter: Ext.JSON.encode([{"property": "mRID", "value": [{"operator": "==", "criteria": variable.value, "filter": ""}]}])
                         },

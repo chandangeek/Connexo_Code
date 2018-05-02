@@ -121,6 +121,32 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                                         return null;
                                     }
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('bpm.task.device', 'BPM', 'Device'),
+                                name: 'deviceId',
+                                itemId: 'bpm-task-view-Device',
+                                usagePointLink: null,
+                                renderer: function (value) {
+                                    var appName = 'Multisense',
+                                        url;
+                                    if (value) {
+                                        this.show();
+                                        if (Ext.isEmpty(value)) {
+                                            return '-'
+                                        } else {
+                                            if (Uni.store.Apps.checkApp(appName)) {
+                                                url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value));
+                                                return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
+                                            }
+                                            return Ext.String.htmlEncode(value);
+                                        }
+                                    } else {
+                                        this.hide();
+                                        return null;
+                                    }
+                                }
                             }
                         ]
                     }

@@ -141,6 +141,10 @@ Ext.define('Bpm.model.task.Task', {
         {
             name: 'usagePointId',
             type: 'string'
+        },
+        {
+            name: 'deviceId',
+            type: 'string'
         }
     ],
     proxy: {
