@@ -1265,13 +1265,13 @@ public class SecurityManagementServiceImplIT {
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert2");
         certificateWrapper.setCertificate(certificate);
 
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=test, OU=unit, O=org, C=BE\"}]");
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=RA, OU=Smart energy, O=Honeywell, ST=West vlaanderen, C=BE\"}]");
 
         Finder<CertificateWrapper> reloaded = securityManagementService.getSubjectsByFilter(new SubjectParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
-        assertEquals("CN=test, OU=unit, O=org, C=BE", certificates.get(0).getSubject());
+        assertEquals("CN=RA, OU=Smart energy, O=Honeywell, ST=West vlaanderen, C=BE", certificates.get(0).getSubject());
     }
 
     @Test
