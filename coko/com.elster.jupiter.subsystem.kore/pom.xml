@@ -252,6 +252,14 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>customtask</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>customtask.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>system</artifactId>
         </dependency>
         <dependency>
