@@ -6,6 +6,7 @@
 
 package com.elster.jupiter.metering.imports.impl.parsers.csv.fields;
 
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.CsvRecordWrapper;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.exception.ObjectMapperNotRecoverableException;
@@ -28,6 +29,10 @@ public class InstantCsvField extends CsvField<Instant> {
 
     @Override
     public Instant getValue(CsvRecordWrapper record) throws ObjectMapperNotRecoverableException {
-        return parser.parse(record.getValue(super.getFieldNames().get(0)));
+        try {
+            return parser.parse(record.getValue(super.getFieldNames().get(0)));
+        } catch (ValueParserException e) {
+            throw new ObjectMapperNotRecoverableException(e);
+        }
     }
 }

@@ -15,39 +15,32 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
+import com.elster.jupiter.metering.imports.impl.TranslationKeys;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointReadingImportProcessor", service = {UsagePointReadingImportProcessor.class})
 public class UsagePointReadingImportProcessor {
 
     private MeteringService meteringService;
     private DataAggregationService dataAggregationService;
+    private Thesaurus thesaurus;
 
 
-    public UsagePointReadingImportProcessor() {
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setDataAggregationService(DataAggregationService dataAggregationService) {
+    public UsagePointReadingImportProcessor(MeteringDataImporterContext context, DataAggregationService dataAggregationService) {
+        this.meteringService = context.getMeteringService();
         this.dataAggregationService = dataAggregationService;
+        this.thesaurus = context.getThesaurus();
     }
 
     public void process(UsagePointImportRecordModel usagePointRecord) throws UsagePointReadingImportProcessorException {
         UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointRecord.getUsagePointName())
-                .orElseThrow(() -> new UsagePointReadingImportProcessorException("Invalid usage point name"));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_UP_NAME).format()));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(usagePointRecord.getReadingDate())
                 .orElseThrow(() -> new UsagePointReadingImportProcessorException("No meterology config found!"));
         List<MetrologyContract> contracts = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts();
         MetrologyContract metrologyContract = contracts.stream()

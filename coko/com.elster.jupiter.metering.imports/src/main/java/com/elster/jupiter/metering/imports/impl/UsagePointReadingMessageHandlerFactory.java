@@ -34,15 +34,16 @@ import java.util.List;
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointReadingMessageHandlerFactory", property = {"subscriber=" + UsagePointReadingMessageHandlerFactory.SUBSCRIBER_NAME, "destination=" + UsagePointReadingMessageHandlerFactory.DESTINATION_NAME}, service = MessageHandlerFactory.class, immediate = true)
 public class UsagePointReadingMessageHandlerFactory implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider {
 
-    static final String COMPONENT_NAME = "MTI";
-    static final String DESTINATION_NAME = "UsgPointReadingImpDest";
-    static final String SUBSCRIBER_NAME = "UsgPointReadingImpSub";
+    static final String COMPONENT_NAME = "RUI";
+    static final String DESTINATION_NAME = "UsgPointReadingImp";
+    static final String SUBSCRIBER_NAME = "UsgPointReadingImp";
 
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
     private volatile UpgradeService upgradeService;
     private volatile OrmService ormService;
 
+    @Inject
     public UsagePointReadingMessageHandlerFactory() {
     }
 
@@ -65,7 +66,7 @@ public class UsagePointReadingMessageHandlerFactory implements MessageHandlerFac
             }
         });
         upgradeService.register(
-                InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.COMPONENT_NAME),
+                InstallIdentifier.identifier("Pulse", UsagePointReadingMessageHandlerFactory.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
                 ImmutableMap.of());

@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.imports.impl.parsers;
 
 import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
-import com.elster.jupiter.metering.imports.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.util.Checks;
 
 import java.time.Instant;
@@ -46,7 +45,7 @@ public class InstantParser implements FieldParser<Instant> {
 
             DateTimeFormatter dataTimeFormatter = DateTimeFormatter.ofPattern(format);
             LocalDateTime localDateTime = LocalDateTime.parse(value, dataTimeFormatter);
-            ZoneId zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
+            ZoneId zoneId = ZoneId.of(timeZone);
             return ZonedDateTime.of(localDateTime, zoneId).toInstant();
         } catch (Exception e) {
             throw new ValueParserException(value, format);

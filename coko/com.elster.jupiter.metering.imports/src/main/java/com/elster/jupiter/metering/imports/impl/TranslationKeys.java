@@ -66,7 +66,11 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
         //UsagePoint Record Importer
 
         USAGEPOINT_READING_IMPORTER(UsagePointReadingImporterFactory.NAME, "Usage point Reading importer [STD]"),
-        USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER(UsagePointReadingMessageHandlerFactory.SUBSCRIBER_NAME, "Handle usage point reading import");
+        USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER(UsagePointReadingMessageHandlerFactory.SUBSCRIBER_NAME, "Handle usage point reading import"),
+        UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS("UpReadingImportResultFailWithErrors", "Failed to complete. {0} usage point reading(s) processed successfully, {1} usage point reading(s) skipped due to errors."),
+        UP_READING_IMPORT_RESULT_SUCCESS("UpReadingImportResultSuccess", "Finished successfully. {0} usage point reading(s) processed successfully."),
+        UP_READING_INVALID_NUMBER_FORMAT("UpReadingInvalidNumberFormat", "Invalid number format {0}."),
+        UP_READING_INVALID_UP_NAME("UpReadingInvalidUPName","Invalid usage point name");
         private final String key;
         private final String defaultFormat;
 

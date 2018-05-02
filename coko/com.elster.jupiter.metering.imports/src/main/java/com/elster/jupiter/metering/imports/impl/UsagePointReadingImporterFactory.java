@@ -9,6 +9,7 @@ package com.elster.jupiter.metering.imports.impl;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointReadingImporter;
 import com.elster.jupiter.properties.PropertySpec;
@@ -37,13 +38,15 @@ public class UsagePointReadingImporterFactory implements FileImporterFactory {
 
     static final String NAME = "UsgPointReadingImportFact";
     private volatile MeteringDataImporterContext context;
+    private volatile DataAggregationService dataAggregationService;
 
     public UsagePointReadingImporterFactory() {
     }
 
     @Inject
-    public UsagePointReadingImporterFactory(MeteringDataImporterContext context) {
+    public UsagePointReadingImporterFactory(MeteringDataImporterContext context, DataAggregationService dataAggregationService) {
         setMeteringDataImporterContext(context);
+        setDataAggregationService(dataAggregationService);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class UsagePointReadingImporterFactory implements FileImporterFactory {
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT
                 .getPropertyKey())).getFormat();
-        return new UsagePointReadingImporter(delimiter, dateFormat, timeZone, numberFormat);
+        return new UsagePointReadingImporter(context, dataAggregationService, delimiter, dateFormat, timeZone, numberFormat);
     }
 
     @Override
@@ -98,6 +101,11 @@ public class UsagePointReadingImporterFactory implements FileImporterFactory {
     @Reference
     public void setMeteringDataImporterContext(MeteringDataImporterContext context) {
         this.context = context;
+    }
+
+    @Reference
+    private void setDataAggregationService(DataAggregationService dataAggregationService) {
+        this.dataAggregationService = dataAggregationService;
     }
 
     public MeteringDataImporterContext getContext() {

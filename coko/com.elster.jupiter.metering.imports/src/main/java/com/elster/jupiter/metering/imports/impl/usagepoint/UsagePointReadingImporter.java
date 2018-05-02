@@ -8,6 +8,9 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
+import com.elster.jupiter.metering.imports.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.CsvParserWrapper;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.CsvRecordWrapper;
@@ -17,7 +20,7 @@ import com.elster.jupiter.metering.imports.impl.parsers.csv.exception.ObjectMapp
 import com.elster.jupiter.metering.imports.impl.parsers.csv.exception.ObjectMapperRecovarableException;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.FakeCSVField;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.InstantCsvField;
-import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.KeyValueRepetition;
+import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.KeyStringValueBigDecimalRepetition;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.StringCsvField;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
@@ -26,9 +29,14 @@ import org.apache.commons.csv.CSVRecord;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS;
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_SUCCESS;
+
 public class UsagePointReadingImporter implements FileImporter {
 
     private static final char COMMENT_MARKER = '#';
+    private final MeteringDataImporterContext context;
+    private final DataAggregationService dataAggregationService;
 
     private Logger logger;
     private String delimiter;
@@ -37,7 +45,9 @@ public class UsagePointReadingImporter implements FileImporter {
     private SupportedNumberFormat numberFormat;
 
 
-    public UsagePointReadingImporter(String delimiter, String dateFormat, String timeZone, SupportedNumberFormat numberFormat) {
+    public UsagePointReadingImporter(MeteringDataImporterContext context, DataAggregationService dataAggregationService, String delimiter, String dateFormat, String timeZone, SupportedNumberFormat numberFormat) {
+        this.context = context;
+        this.dataAggregationService = dataAggregationService;
         this.delimiter = delimiter;
         this.dateFormat = dateFormat;
         this.timeZone = timeZone;
@@ -48,40 +58,42 @@ public class UsagePointReadingImporter implements FileImporter {
     public void process(FileImportOccurrence fileImportOccurrence) {
         int lineErrors = 0;
         int linesSuccess = 0;
-
+        int numberOfTotalLines = 0;
         try {
-            UsagePointReadingImportProcessor usagePointProcessor = new UsagePointReadingImportProcessor();
+            UsagePointReadingImportProcessor usagePointProcessor = new UsagePointReadingImportProcessor(context, dataAggregationService);
             ObjectMapper<UsagePointImportRecordModel> objectMapper = getObjectMapper();
             CsvParserWrapper csvParser = new CsvParserWrapper(fileImportOccurrence.getContents(), delimiter, COMMENT_MARKER);
             Iterator<CSVRecord> recordIterator = csvParser.getCsvParser().iterator();
-
-            while (recordIterator.hasNext()){
+            while (recordIterator.hasNext()) {
+                numberOfTotalLines++;
                 try {
                     CsvRecordWrapper next = new CsvRecordWrapper(recordIterator.next());
                     UsagePointImportRecordModel usagePointRecord = objectMapper.getObject(next);
                     usagePointProcessor.process(usagePointRecord);
                     linesSuccess++;
-                } catch (ObjectMapperRecovarableException| UsagePointReadingImportProcessorException e){
+                } catch (ObjectMapperRecovarableException | UsagePointReadingImportProcessorException e) {
                     logger.warning(e.getMessage());
                     lineErrors++;
                 }
             }
-            markEnd(fileImportOccurrence, linesSuccess, lineErrors, csvParser.getNumberOfLines());
+            markEnd(fileImportOccurrence, linesSuccess, lineErrors, numberOfTotalLines);
         } catch (ObjectMapperInitException e) {
             // nothing to do: this means we could not continue processing the file.
             fileImportOccurrence.markFailure(e.getMessage());
         } catch (ObjectMapperNotRecoverableException e) {
-            fileImportOccurrence.markSuccessWithFailures(e.getMessage() +" success lines:" + linesSuccess + " error lines:" + lineErrors);
+            fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(linesSuccess, lineErrors));
+
         }
 
     }
 
     private void markEnd(FileImportOccurrence fileImportOccurrence, int lineSuccess, int lineErrors, int allLines) {
-        if (lineSuccess == allLines){
-            fileImportOccurrence.markSuccess("All ok");
+        if (lineSuccess == allLines) {
+            fileImportOccurrence.markSuccess(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_SUCCESS).format(lineSuccess));
         }
-            fileImportOccurrence.markSuccessWithFailures("Some failures");
-
+        if ((lineSuccess - lineErrors) < allLines && lineErrors < allLines) {
+            fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(lineSuccess, lineErrors));
+        }
     }
 
 
@@ -94,7 +106,7 @@ public class UsagePointReadingImporter implements FileImporter {
         objectMapper.add(new StringCsvField(UsagePointImportRecordModel.UsagePointImportRecordMapping.PURPOSE.getObjectField(), UsagePointImportRecordModel.UsagePointImportRecordMapping.PURPOSE
                 .getCsvHeader(), 2));
         objectMapper.add(new FakeCSVField(UsagePointImportRecordModel.UsagePointImportRecordMapping.RECORD_LINE_NUMBER.getObjectField()));
-        objectMapper.add(new KeyValueRepetition(UsagePointImportRecordModel.UsagePointImportRecordMapping.TYPE_AND_VALUE.getObjectField(), 3));
+        objectMapper.add(new KeyStringValueBigDecimalRepetition(UsagePointImportRecordModel.UsagePointImportRecordMapping.TYPE_AND_VALUE.getObjectField(), 3, new BigDecimalParser(numberFormat)));
         return objectMapper;
     }
 
