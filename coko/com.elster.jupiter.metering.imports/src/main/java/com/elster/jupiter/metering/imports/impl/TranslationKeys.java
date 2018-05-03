@@ -70,7 +70,10 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
         UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS("UpReadingImportResultFailWithErrors", "Failed to complete. {0} usage point reading(s) processed successfully, {1} usage point reading(s) skipped due to errors."),
         UP_READING_IMPORT_RESULT_SUCCESS("UpReadingImportResultSuccess", "Finished successfully. {0} usage point reading(s) processed successfully."),
         UP_READING_INVALID_NUMBER_FORMAT("UpReadingInvalidNumberFormat", "Invalid number format {0}."),
-        UP_READING_INVALID_UP_NAME("UpReadingInvalidUPName","Invalid usage point name");
+        UP_READING_INVALID_UP_NAME("UpReadingInvalidUPName","Invalid usage point name"),
+        UP_READING_NO_LINKED_METRO("UpReadingNoLinkedMetro", "No linked metrology found at {0}"),
+        UP_READING_INVALID_PURPOSE("UpReadingInvalidPurpose", "Invalid purpose {0}"),
+        UP_READING_INVALID_MRID("UpReadingInvalidMrid", "Invalid Mrid {0}");
         private final String key;
         private final String defaultFormat;
 

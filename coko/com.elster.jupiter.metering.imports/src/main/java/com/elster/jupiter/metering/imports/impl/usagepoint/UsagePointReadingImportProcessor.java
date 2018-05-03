@@ -41,18 +41,18 @@ public class UsagePointReadingImportProcessor {
         UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointRecord.getUsagePointName())
                 .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_UP_NAME).format()));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(usagePointRecord.getReadingDate())
-                .orElseThrow(() -> new UsagePointReadingImportProcessorException("No meterology config found!"));
+                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_NO_LINKED_METRO).format(usagePointRecord.getReadingDate())));
         List<MetrologyContract> contracts = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts();
         MetrologyContract metrologyContract = contracts.stream()
                 .filter(contract -> contract.getMetrologyPurpose().getName().equals(usagePointRecord.getPurpose()))
                 .findFirst()
-                .orElseThrow(() -> new UsagePointReadingImportProcessorException("Invalid purpose"));
+                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_PURPOSE).format(usagePointRecord.getPurpose())));
         for (Map.Entry<String, BigDecimal> typeValue : usagePointRecord.getMapBetweenReadingTypeAndValue().entrySet()) {
             ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
                     .stream()
                     .filter(red -> red.getReadingType().getMRID().equals(typeValue.getKey()))
                     .findFirst()
-                    .orElseThrow(() -> new UsagePointReadingImportProcessorException("Invalid Reading type"));
+                    .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_MRID).format(typeValue.getKey())));
             IntervalReadingImpl intervalReading = IntervalReadingImpl.of(usagePointRecord.getReadingDate(), typeValue.getValue());
             intervalReading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.PROJECTEDGENERIC).getCode(), "");
             dataAggregationService.edit(usagePoint, metrologyContract, readingTypeDeliverable, QualityCodeSystem.MDM).update(intervalReading).save();

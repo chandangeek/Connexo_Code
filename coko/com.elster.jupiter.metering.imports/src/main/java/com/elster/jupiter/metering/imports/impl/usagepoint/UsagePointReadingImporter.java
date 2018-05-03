@@ -78,7 +78,7 @@ public class UsagePointReadingImporter implements FileImporter {
             }
             markEnd(fileImportOccurrence, linesSuccess, lineErrors, numberOfTotalLines);
         } catch (ObjectMapperInitException e) {
-            // nothing to do: this means we could not continue processing the file.
+            logger.severe(e.getMessage());
             fileImportOccurrence.markFailure(e.getMessage());
         } catch (ObjectMapperNotRecoverableException e) {
             fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(linesSuccess, lineErrors));
