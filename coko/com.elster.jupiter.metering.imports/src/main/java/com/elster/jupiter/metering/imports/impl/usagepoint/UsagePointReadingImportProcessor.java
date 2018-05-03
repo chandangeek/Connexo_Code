@@ -39,7 +39,7 @@ public class UsagePointReadingImportProcessor {
 
     public void process(UsagePointImportRecordModel usagePointRecord) throws UsagePointReadingImportProcessorException {
         UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointRecord.getUsagePointName())
-                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_UP_NAME).format()));
+                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_UP_NAME).format(usagePointRecord.getUsagePointName())));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(usagePointRecord.getReadingDate())
                 .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_NO_LINKED_METRO).format(usagePointRecord.getReadingDate())));
         List<MetrologyContract> contracts = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts();

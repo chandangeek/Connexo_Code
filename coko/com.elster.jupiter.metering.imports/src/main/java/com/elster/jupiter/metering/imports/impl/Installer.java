@@ -33,6 +33,8 @@ final class Installer implements FullInstaller {
                     this::createQueue,
                     logger
             );
+        }
+        if (!messageService.getDestinationSpec(UsagePointReadingMessageHandlerFactory.DESTINATION_NAME).isPresent()) {
             doTry("Create Usage Point Reading Import queue",
                     this::createUsagePointReadingImporterQueue,
                     logger
@@ -51,7 +53,7 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpecUPReadImport = queueTableSpec.createDestinationSpec(UsagePointReadingMessageHandlerFactory.DESTINATION_NAME, 60);
         destinationSpecUPReadImport.save();
         destinationSpecUPReadImport.activate();
-        destinationSpecUPReadImport.subscribe(TranslationKeys.Labels.USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER, UsagePointFileImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpecUPReadImport.subscribe(TranslationKeys.Labels.USAGEPOINT_RECORD_MESSAGE_SUBSCRIBER, UsagePointReadingMessageHandlerFactory.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }

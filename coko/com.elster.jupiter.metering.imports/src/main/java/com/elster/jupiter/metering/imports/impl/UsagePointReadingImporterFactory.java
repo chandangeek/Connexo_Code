@@ -11,6 +11,7 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.metering.imports.impl.properties.UsagePointReadingImportProperties;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointReadingImporter;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -56,7 +57,15 @@ public class UsagePointReadingImporterFactory implements FileImporterFactory {
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT
                 .getPropertyKey())).getFormat();
-        return new UsagePointReadingImporter(context, dataAggregationService, delimiter, dateFormat, timeZone, numberFormat);
+        UsagePointReadingImportProperties usagePointReadingImportProperties = new UsagePointReadingImportProperties.UsagePointReadingImportPropertiesBuilder()
+                .withDataAggregServ(dataAggregationService)
+                .withMeteringDataImpContext(context)
+                .withDateFormat(dateFormat)
+                .withDelimiter(delimiter)
+                .withNumberFormat(numberFormat)
+                .withTimeZone(timeZone)
+                .build();
+        return new UsagePointReadingImporter(usagePointReadingImportProperties);
     }
 
     @Override

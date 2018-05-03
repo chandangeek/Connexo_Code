@@ -23,12 +23,14 @@ import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.InstantCsvFie
 import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.KeyStringValueBigDecimalRepetition;
 import com.elster.jupiter.metering.imports.impl.parsers.csv.fields.StringCsvField;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.metering.imports.impl.properties.UsagePointReadingImportProperties;
 
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAILED;
 import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS;
 import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_SUCCESS;
 
@@ -45,17 +47,18 @@ public class UsagePointReadingImporter implements FileImporter {
     private SupportedNumberFormat numberFormat;
 
 
-    public UsagePointReadingImporter(MeteringDataImporterContext context, DataAggregationService dataAggregationService, String delimiter, String dateFormat, String timeZone, SupportedNumberFormat numberFormat) {
-        this.context = context;
-        this.dataAggregationService = dataAggregationService;
-        this.delimiter = delimiter;
-        this.dateFormat = dateFormat;
-        this.timeZone = timeZone;
-        this.numberFormat = numberFormat;
+    public UsagePointReadingImporter(UsagePointReadingImportProperties usagePointReadingImportProperties) {
+        this.context = usagePointReadingImportProperties.getContext();
+        this.dataAggregationService = usagePointReadingImportProperties.getDataAggregationService();
+        this.delimiter = usagePointReadingImportProperties.getDelimiter();
+        this.dateFormat = usagePointReadingImportProperties.getDateFormat();
+        this.timeZone = usagePointReadingImportProperties.getTimeZone();
+        this.numberFormat = usagePointReadingImportProperties.getNumberFormat();
     }
 
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
+        logger = fileImportOccurrence.getLogger();
         int lineErrors = 0;
         int linesSuccess = 0;
         int numberOfTotalLines = 0;
@@ -90,8 +93,9 @@ public class UsagePointReadingImporter implements FileImporter {
     private void markEnd(FileImportOccurrence fileImportOccurrence, int lineSuccess, int lineErrors, int allLines) {
         if (lineSuccess == allLines) {
             fileImportOccurrence.markSuccess(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_SUCCESS).format(lineSuccess));
-        }
-        if ((lineSuccess - lineErrors) < allLines && lineErrors < allLines) {
+        } else if (lineErrors == allLines) {
+            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAILED).format());
+        } else {
             fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(lineSuccess, lineErrors));
         }
     }
