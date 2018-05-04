@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -47,6 +48,7 @@ public class CertPathValidatorTest {
     }
 
     @Test
+    @Ignore
     public void testValidValidateCertChain() throws Exception {
         X509Certificate root = loadCertificate("myRootCA.cert");
         X509Certificate subCa = loadCertificate("mySubCA.cert");
