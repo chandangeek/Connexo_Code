@@ -121,7 +121,12 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             });
 
 
-            var deviceId = startProcessPanel.properties.device.mRID;
+            //var deviceId = startProcessPanel.properties.device.mRID;  // lori - initial
+            // url is like "#/devices/SPG01000005/processes"
+            // I extract the value of device from it
+            var pattern = "#/devices/",
+                temp = url.substr(pattern.length),
+                deviceId = temp.substr(0, temp.indexOf('/'));
 
             startProcessRecord.set('businessObject', businessObject);
             startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
