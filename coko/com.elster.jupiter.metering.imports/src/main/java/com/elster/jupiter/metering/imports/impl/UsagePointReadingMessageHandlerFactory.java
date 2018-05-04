@@ -30,6 +30,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 
+import static com.elster.jupiter.orm.Version.version;
+
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.UsagePointReadingMessageHandlerFactory", property = {"subscriber=" + UsagePointReadingMessageHandlerFactory.SUBSCRIBER_NAME, "destination=" + UsagePointReadingMessageHandlerFactory.DESTINATION_NAME}, service = MessageHandlerFactory.class, immediate = true)
 public class UsagePointReadingMessageHandlerFactory implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider {
@@ -69,7 +71,8 @@ public class UsagePointReadingMessageHandlerFactory implements MessageHandlerFac
                 InstallIdentifier.identifier("Pulse", UsagePointReadingMessageHandlerFactory.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of());
+                ImmutableMap.of(version(10, 5), UpgraderV10_5.class
+                ));
     }
 
     @Deactivate

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -39,6 +40,7 @@ public class MeteringImportsModule extends AbstractModule {
         requireBinding(UsagePointLifeCycleService.class);
         requireBinding(PropertyValueInfoService.class);
         requireBinding(TransactionService.class);
+        requireBinding(OrmService.class);
 
         bind(MeteringDataImporterContext.class).in(Scopes.SINGLETON);
         bind(UsagePointsImporterFactory.class).in(Scopes.SINGLETON);

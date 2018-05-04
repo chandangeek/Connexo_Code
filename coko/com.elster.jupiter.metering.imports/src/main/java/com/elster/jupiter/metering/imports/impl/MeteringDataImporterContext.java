@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -40,6 +41,7 @@ public class MeteringDataImporterContext {
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile TransactionService transactionService;
+    private OrmService ormService;
 
     public MeteringDataImporterContext() {
     }
@@ -57,7 +59,7 @@ public class MeteringDataImporterContext {
                                        CalendarService calendarService,
                                        UsagePointLifeCycleService usagePointLifeCycleService,
                                        PropertyValueInfoService propertyValueInfoService,
-                                       TransactionService transactionService) {
+                                       TransactionService transactionService, OrmService ormService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -71,6 +73,7 @@ public class MeteringDataImporterContext {
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setPropertyValueInfoService(propertyValueInfoService);
         setTransactionService(transactionService);
+        setOrmService(ormService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -157,6 +160,15 @@ public class MeteringDataImporterContext {
     @Reference
     public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    public OrmService getOrmService() {
+        return ormService;
     }
 
     @Reference
