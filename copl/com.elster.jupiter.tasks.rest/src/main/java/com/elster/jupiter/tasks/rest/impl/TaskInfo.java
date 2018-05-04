@@ -42,27 +42,46 @@ public class TaskInfo {
 
     private static final String PLANNED = "Planned";
     private static final String BUSY = "Busy";
+    private static final String NOTSCHEDULED = "Not scheduled";
 
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         id = recurrentTask.getId();
         name = recurrentTask.getName();
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
-        trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
+        trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
+                thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
         if (lastOccurrence.isPresent()) {
             TaskOccurrence occurrence = lastOccurrence.get();
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
                 setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli(), clock);
-            } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
+            } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET) && (recurrentTask.getNextExecution() != null)) {
                 setPlannedOn(recurrentTask, null);
+            } else if (recurrentTask.getNextExecution() == null) {
+                setNotScheduled(recurrentTask, occurrence);
             } else {
                 setPlannedOn(recurrentTask, occurrence);
             }
         } else {
             setPlannedOn(recurrentTask, null);
         }
-        nextRun = recurrentTask.getNextExecution().toEpochMilli();
+        nextRun = recurrentTask.getNextExecution() != null ? recurrentTask.getNextExecution().toEpochMilli() : null;
+    }
+
+    private void setNotScheduled(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
+        setQueueStatus(NOTSCHEDULED, null);
+        if (lastOccurrence != null) {
+            if (lastOccurrence.getStartDate().isPresent() && lastOccurrence.getEndDate().isPresent()) {
+                setLastRunStatus(lastOccurrence);
+            } else {
+                // startdate is not set yet because task is not picked up by the queue yet, so we take the previous ocurence
+                List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
+                if (occurences.size() > 1) {
+                    setLastOccurence(occurences);
+                }
+            }
+        }
     }
 
     private void setPlannedOn(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
@@ -91,7 +110,7 @@ public class TaskInfo {
 
     private void setBusySince(RecurrentTask recurrentTask, Long startDate, Clock clock) {
         setQueueStatus(BUSY, startDate);
-        // Take the previous occurence to check the last run status
+        // Take the previous occurrence to check the last run status
         List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
         if (occurences.size() > 1) {
             setLastOccurence(occurences);
