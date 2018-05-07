@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -25,7 +24,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(CustomTaskImpl.class);
-            table.since(version(10, 5));
+            table.since(version(10, 4));
             table.setJournalTableName("CTK_CUSTOMTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("TASKTYPE").varChar(NAME_LENGTH).notNull().map("taskType").add();
@@ -45,7 +44,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(CustomTaskOccurrenceImpl.class);
-            table.since(version(10, 5));
+            table.since(version(10, 4));
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column customTask = table.column("CUSTOMTASK").number().notNull().add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
