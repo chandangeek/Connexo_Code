@@ -214,10 +214,5 @@
             <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>
