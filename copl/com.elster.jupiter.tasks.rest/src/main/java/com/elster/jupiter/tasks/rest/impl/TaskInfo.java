@@ -58,13 +58,15 @@ public class TaskInfo {
             TaskOccurrence occurrence = lastOccurrence.get();
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
                 setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli(), clock);
-            } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
-                setPlannedOn(recurrentTask, null);
+                // } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
+                //     setPlannedOn(recurrentTask, null);
             } else if (recurrentTask.getNextExecution() == null) {
                 setNotScheduled(recurrentTask, occurrence);
             } else {
                 setPlannedOn(recurrentTask, occurrence);
             }
+        } else if (recurrentTask.getNextExecution() == null) {
+            setNotScheduled(recurrentTask, null);
         } else {
             setPlannedOn(recurrentTask, null);
         }
