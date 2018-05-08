@@ -10,6 +10,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
         'Uni.view.toolbar.PreviousNextNavigation',
         'Imt.purpose.view.summary.PurposeDataView',
         'Imt.purpose.view.summary.PurposeRegisterDataView',
+        'Imt.purpose.view.summary.validation.RulesSetMainView',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputReadings'
     ],
@@ -29,7 +30,8 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
                 items: [
                     me.getOverviewComponent(),
                     me.getIntervalDataViewComponent(),
-                    me.getRegisterDataViewComponent()
+                    me.getRegisterDataViewComponent(),
+                    me.getValidationConfigurationComponent()
                 ]
             }
         ];
@@ -149,6 +151,42 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
             }
         };
         return me.registersCount ? registerDataViewComponent : noRegisterOutputsComponent;
+    },
+
+    getValidationConfigurationComponent: function () {
+        var me = this,
+            validationConfigurationComponent,
+            novalidationConfigurationComponent;
+
+        validationConfigurationComponent = {
+            title: Uni.I18n.translate('purpose.summary.validationConfigurationView', 'IMT', 'Validation configuration'),
+            itemId: 'validation-configuration-component',
+            items: {
+                xtype: 'validationConfigurationRulesSetMainView',
+                purpose: me.purpose,
+                usagePoint: me.usagePoint,
+                router: me.router,
+                outputs: me.outputs,
+                prevNextListLink: me.prevNextListLink
+            },
+            listeners: {
+                activate: me.controller.showValidationConfigurationTab,
+                scope: me.controller
+            },
+            usagePoint: me.usagePoint,
+            purpose: me.purpose
+        };
+
+        noValidationConfigurationComponent = {
+            title: Uni.I18n.translate('purpose.summary.validationConfigurationView', 'IMT', 'Validation configuration'),
+            itemId: 'validation-no-configuration-component',
+            items: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'purpose-data-view-empty-message',
+                text: Uni.I18n.translate('purpose.summary.dataView.no.regsiter.outputs', 'IMT', 'No register outputs on this purpose')
+            }
+        };
+        return validationConfigurationComponent;
     }
 
 });

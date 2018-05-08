@@ -11,7 +11,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.Outputs',
         'Imt.purpose.view.OutputChannelMain',
         'Uni.store.DataIntervalAndZoomLevels',
-        'Imt.purpose.view.summary.PurposeMain'
+        'Imt.purpose.view.summary.PurposeMain',
+        'Imt.purpose.view.summary.validation.RulesSetGrid'
     ],
 
     stores: [
@@ -32,7 +33,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.FilteredOutputs',
         'Imt.purpose.store.IntervalFilter',
         'Imt.purpose.store.RegisterFilter',
-        'Imt.purpose.store.UnitFilter'
+        'Imt.purpose.store.UnitFilter',
+        'Imt.purpose.store.PurposeValidationConfiguration',
+        'Imt.purpose.store.PurposeValidationConfigurationStatus'
     ],
 
     models: [
@@ -44,6 +47,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.purpose.model.OutputValidationConfiguration',
         'Imt.purpose.model.OutputEstimationConfiguration'
+
     ],
 
     views: [
@@ -53,7 +57,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.ValidationDate',
         'Uni.view.window.Confirmation',
         'Ext.ProgressBar',
-        'Cfg.configuration.view.RuleWithAttributesEdit'
+        'Cfg.configuration.view.RuleWithAttributesEdit',
+        'Imt.purpose.view.summary.validation.RulesSetMainView',
+        'Imt.purpose.view.summary.validation.RulePreview'
     ],
 
     refs: [
@@ -76,6 +82,34 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'purposeIntervalDataPreviewPanel',
             selector: 'purpose-data-preview'
+        },
+        {
+            ref: 'rulesSetGrid',
+            selector: '#validationConfigurationRulesSetGrid'
+        },
+        {
+            ref: 'rulesSetVersionPreviewCt',
+            selector: '#validationConfigurationRuleSetVersionsPreviewCt'
+        },
+        {
+            ref: 'ruleSetBrowsePreviewCt',
+            selector: '#validationConfigurationRulesSetPreviewCt'
+        },
+        {
+            ref: 'ruleSetsGrid',
+            selector: 'validationConfigurationRulesGrid'
+        },
+        {
+            ref: 'ruleItemPreviewCt',
+            selector: '#ruleItemPreviewContainer'
+        },
+        {
+            ref: 'ruleGrid',
+            selector: '#validationConfigurationRulesGrid'
+        },
+        {
+            ref: 'ruleSetVersionPreview',
+            selector: '#validationConfigurationRulesSetVersionPreview'
         }
     ],
 
@@ -97,8 +131,87 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             'purpose-data-view #purpose-data-grid': {
                 select: this.loadPurposeDataPreview
+            },
+            'validationConfigurationRulesSetMainView #validationConfigurationRulesSetGrid': {
+                select: this.previewValidationRuleSet
+            },
+            'validationConfigurationRulesSetPreview #validationConfigurationRuleSetVersionsGrid': {
+                select: this.previewVersionValidationRule
+            },
+            '#validationConfigurationRulesGrid': {
+                select: this.previewValidationRule
             }
         });
+    },
+
+    previewValidationRule: function (grid, record) {
+        Ext.suspendLayouts();
+
+        var me = this,
+            itemPanel = me.getRuleSetVersionPreview(),
+            itemForm = itemPanel.down('#ruleItemPreviewContainer'),
+            selectedRule;
+        if (grid.view) {
+            selectedRule = grid.view.getSelectionModel().getLastSelected();
+        } else {
+            selectedRule = record;
+        }
+        me.ruleId = selectedRule.internalId;
+
+        itemForm.updateValidationRule(selectedRule);
+        Ext.resumeLayouts();
+    },
+
+    previewValidationRuleSet: function (selectionModel, record) {
+        if (record) {
+            Ext.suspendLayouts();
+
+            this.getRuleSetBrowsePreviewCt().removeAll(true);
+            var rulesPreviewContainerPanel = Ext.widget('validationConfigurationRulesSetPreview', {
+                ruleSetId: record.getId(),
+                title: record.get('name'),
+                isSecondPagination: true
+            });
+            this.ruleSetId = record.getId();
+            Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
+                item.hide();
+            });
+            this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
+
+            Ext.resumeLayouts(true);
+        }
+    },
+
+    previewVersionValidationRule: function (selectionModel, record) {
+        var me = this;
+
+        if (record) {
+            Ext.suspendLayouts();
+
+            this.getRulesSetVersionPreviewCt().removeAll(true);
+            var versionValidationRulesPreviewContainerPanel = Ext.widget('validationConfigurationRulesSetVersionPreview', {
+                ruleSetId: me.ruleSetId,
+                versionId: record.getId(),
+                title: record.get('name'),
+                ui: 'medium',
+                padding: 0,
+                isSecondPagination: true
+            });
+            this.versionId = record.getId();
+            if (me.getRuleSetsGrid()) {
+                Ext.Array.each(Ext.ComponentQuery.query('#newVersion'), function (item) {
+                    item.hide();
+                });
+                Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
+                    item.hide();
+                });
+            }
+
+            this.getRulesSetVersionPreviewCt().add(versionValidationRulesPreviewContainerPanel);
+
+            Ext.resumeLayouts(true);
+        }
+
     },
 
     loadOutputs: function (usagePointId, purposeId, callback) {
@@ -270,6 +383,36 @@ Ext.define('Imt.purpose.controller.Purpose', {
             purposeId: panel.purpose.getId()
         };
         registerDataStore.load();
+    },
+
+    showValidationConfigurationTab: function (panel) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            validationConfigurationStore,
+            validationStatusStore;
+
+
+        if (router.arguments.tab != 'registerData') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.queryParams.tab = 'registerData';
+            router.getRoute('usagepoints/view/purpose').forward();
+        }
+
+        validationConfigurationStore = Ext.getStore('Imt.purpose.store.PurposeValidationConfiguration');
+        validationConfigurationStore.getProxy().extraParams = {
+            usagePointId: panel.usagePoint.get('name'),
+            purposeId: panel.purpose.getId()
+        };
+        validationConfigurationStore.load();
+
+
+        validationStatusStore = Ext.getStore('Imt.purpose.store.PurposeValidationConfigurationStatus');
+        validationStatusStore.getProxy().extraParams = {
+            usagePointId: panel.usagePoint.get('name'),
+            purposeId: panel.purpose.getId()
+        };
+        validationStatusStore.load();
     },
 
     showOutputPreview: function (selectionModel, record) {
