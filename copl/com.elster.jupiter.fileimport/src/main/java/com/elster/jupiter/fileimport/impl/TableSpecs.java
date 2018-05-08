@@ -26,6 +26,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 enum TableSpecs {
 
@@ -37,7 +38,7 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("FIM_IMPORT_SCHEDULEJRNL");
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("LOGLEVEL").number().conversion(NUMBER2INT).installValue("0").map("logLevel").add().since(Version.version(10,5));
+            table.column("LOGLEVEL").number().conversion(NUMBER2INT).installValue("0").map("logLevel").since(version(10,5)).add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
@@ -48,7 +49,7 @@ enum TableSpecs {
             table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("successDirectory").add();
             table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("failureDirectory").add();
-            table.column("ACTIVEINUI").bool().notNull().map("activeInUI").installValue("'N'").since(Version.version(10, 3)).add();
+            table.column("ACTIVEINUI").bool().notNull().map("activeInUI").installValue("'N'").since(version(10, 3)).add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
@@ -132,7 +133,7 @@ enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<FileImportHistory> table = dataModel.addTable(name(), FileImportHistory.class);
-            table.since(Version.version(10, 3)).map(FileImportHistoryImpl.class);
+            table.since(version(10, 3)).map(FileImportHistoryImpl.class);
             Column id = table.addAutoIdColumn();
             table.setJournalTableName("FIM_FILE_IMPORT_HISTORYJRNL");
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
