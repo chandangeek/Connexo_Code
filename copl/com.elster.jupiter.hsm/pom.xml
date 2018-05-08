@@ -19,6 +19,7 @@
     <properties>
         <bouncycastle.version>1.58</bouncycastle.version>
         <spring.version>4.3.10.RELEASE</spring.version>
+        <jackson.version>2.4.0</jackson.version>
     </properties>
 
     <build>
@@ -31,7 +32,7 @@
                     <instructions>
                         <_include>bnd.bnd</_include>
                         <Embed-Dependency>
-                            artifactId=jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|lobback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx
+                            artifactId=jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|lobback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|jackson-core|jackson-databind|jackson-annotations|jackson-datatype-guava
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -70,6 +71,31 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>compile</scope>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>compile</scope>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>compile</scope>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-guava</artifactId>
+            <scope>compile</scope>
+            <version>${jackson.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
