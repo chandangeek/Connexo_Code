@@ -31,6 +31,7 @@ import com.elster.jupiter.systemadmin.rest.imp.response.ComponentInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.SystemInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.VersionInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -204,6 +205,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(LicenseInfoFactory.class).to(LicenseInfoFactory.class);
             bind(NlsService.class).to(NlsService.class);
             bind(clock).to(Clock.class);
+            bind(VersionInfoFactory.class).to(VersionInfoFactory.class);
         }
     }
 }

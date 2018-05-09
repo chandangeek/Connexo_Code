@@ -16,6 +16,8 @@ import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.VersionInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.VersionInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -35,13 +37,15 @@ public class FieldResource {
     private BundleTypeInfoFactory bundleTypeInfoFactory;
     private ComponentStatusInfoFactory componentStatusInfoFactory;
     private SubsystemService subsystemService;
+    private VersionInfoFactory versionInfoFactory;
 
     @Inject
-    public FieldResource(ApplicationInfoFactory applicationInfoFactory, BundleTypeInfoFactory bundleTypeInfoFactory, ComponentStatusInfoFactory componentStatusInfoFactory, SubsystemService subsystemService) {
+    public FieldResource(ApplicationInfoFactory applicationInfoFactory, BundleTypeInfoFactory bundleTypeInfoFactory, ComponentStatusInfoFactory componentStatusInfoFactory, SubsystemService subsystemService, VersionInfoFactory versionInfoFactory) {
         this.applicationInfoFactory = applicationInfoFactory;
         this.bundleTypeInfoFactory = bundleTypeInfoFactory;
         this.componentStatusInfoFactory = componentStatusInfoFactory;
         this.subsystemService = subsystemService;
+        this.versionInfoFactory = versionInfoFactory;
     }
 
     @GET
@@ -68,5 +72,12 @@ public class FieldResource {
     public PagedInfoList getComponentStatuses(@BeanParam JsonQueryParameters queryParams) {
         List<ComponentStatusInfo> componentStatusInfoList = Arrays.stream(ComponentStatus.values()).map(componentStatusInfoFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("componentStatuses", componentStatusInfoList, queryParams);
+    }
+
+    @GET
+    @Path("/versionInfo")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public VersionInfo getVersionInfo() {
+        return versionInfoFactory.asInfo();
     }
 }
