@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -84,6 +85,12 @@ public interface ValidationService {
     boolean validationEnabled(Meter meter);
 
     boolean isValidationActive(ChannelsContainer channelsContainer);
+
+    boolean isValidationActive(MetrologyContract metrologyContract);
+
+    void activateValidation(MetrologyContract metrologyContract);
+
+    void deactivateValidation(MetrologyContract metrologyContract);
 
     /**
      * Method to update validation statuses of channels in provided channels container.

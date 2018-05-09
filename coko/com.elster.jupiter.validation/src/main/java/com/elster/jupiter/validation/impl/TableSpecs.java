@@ -177,6 +177,24 @@ public enum TableSpecs {
         }
     },
 
+    VAL_MC_VALIDATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<MetrologyContractValidationImpl> table = dataModel.addTable(name(), MetrologyContractValidationImpl.class);
+            table.map(MetrologyContractValidationImpl.class);
+            table.since(version(10, 5));
+            Column metrologyContractId = table.column("METROLOGY_CONTRACT").number().notNull().conversion(NUMBER2LONG).add();
+            table.column("ACTIVE").bool().map("isActive").add();
+            table.primaryKey("VAL_PK_MC_VALIDATION").on(metrologyContractId).add();
+            table.foreignKey("VAL_FK_MC_VALIDATION")
+                    .references(MetrologyContract.class)
+                    .onDelete(RESTRICT)
+                    .map("metrologyContract")
+                    .on(metrologyContractId)
+                    .add();
+        }
+    },
+
     VAL_READINGTYPEINVALRULE {
         @Override
         void addTo(DataModel dataModel) {

@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -984,7 +985,7 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testOnlyRuleSetsWithSpecificQualitySystemsAreExecuted() {
-        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
@@ -997,6 +998,7 @@ public class ValidationServiceImplTest {
         when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
+        setValidationStatusOnMeter(true);
 
         validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
 
@@ -1006,7 +1008,7 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testRuleSetsWithAnyQualitySystemsAreExecuted() {
-        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
@@ -1019,10 +1021,18 @@ public class ValidationServiceImplTest {
         when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
+        setValidationStatusOnMeter(true);
 
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         verify(validationRuleSetResolver).resolve(any(ValidationContext.class));
-        verify(channelsContainerValidation, times(2)).init(eq(channelsContainer));
+        verify(channelsContainerValidation).init(eq(channelsContainer));
     }
+
+    private void setValidationStatusOnMeter(boolean status){
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(status);
+    }
+
 }

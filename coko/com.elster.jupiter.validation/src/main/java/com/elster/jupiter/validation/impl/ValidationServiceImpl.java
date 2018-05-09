@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -357,6 +358,60 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
+    public boolean isValidationActive(MetrologyContract metrologyContract){
+        if (metrologyContract == null){
+            throw new IllegalArgumentException("Metrology contract cannot be null");
+        }
+
+        return getMetrologyContractValidation(metrologyContract)
+                .map(MetrologyContractValidationImpl::getActivationStatus)
+                .orElse(false);
+    }
+
+    @Override
+    public void activateValidation(MetrologyContract metrologyContract) {
+        if (metrologyContract == null){
+            throw new IllegalArgumentException("Metrology contract cannot be null");
+        }
+
+        Optional<MetrologyContractValidationImpl> mcValidationOptional = getMetrologyContractValidation(metrologyContract);
+        if (mcValidationOptional.isPresent()) {
+            MetrologyContractValidationImpl mcValidation = mcValidationOptional.get();
+            if (!mcValidation.getActivationStatus()) {
+                mcValidation.setActivationStatus(true);
+                mcValidation.save();
+            }
+        } else {
+            createMetrologyContractValidation(metrologyContract);
+        }
+    }
+
+    @Override
+    public void deactivateValidation(MetrologyContract metrologyContract) {
+        if (metrologyContract == null){
+            throw new IllegalArgumentException("Metrology contract cannot be null");
+        }
+
+        this.getMetrologyContractValidation(metrologyContract)
+                .filter(MetrologyContractValidationImpl::getActivationStatus)
+                .ifPresent(mcValidation -> {
+                            mcValidation.setActivationStatus(false);
+                            mcValidation.save();
+                        }
+                );
+    }
+
+    private Optional<MetrologyContractValidationImpl> getMetrologyContractValidation(MetrologyContract metrologyContract){
+        return dataModel.mapper(MetrologyContractValidationImpl.class).getOptional(metrologyContract.getId());
+    }
+
+    private void createMetrologyContractValidation(MetrologyContract metrologyContract) {
+        MetrologyContractValidationImpl metrologyContractValidation = new MetrologyContractValidationImpl(dataModel).init(metrologyContract);
+        metrologyContractValidation.setActivationStatus(true);
+        metrologyContractValidation.save();
+    }
+
+    @Override
     public void forceUpdateValidationStatus(ChannelsContainer channelsContainer) {
         getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
     }
@@ -539,24 +594,40 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return Ranges.copy(range).withoutUpperBound();
     }
 
+
     private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
-        Set<QualityCodeSystem> toValidate = validationContext.getQualityCodeSystems();
-        if (toValidate == null || toValidate.isEmpty()) {
-            toValidate = EnumSet.allOf(QualityCodeSystem.class);
-        } else {
-            toValidate = EnumSet.copyOf(toValidate); // make an editable copy
-        }
-        if (toValidate.contains(QualityCodeSystem.MDC) && !isValidationActiveOnMeter(validationContext.getMeter())) {
+        Set<QualityCodeSystem> toValidate = this.getEditableCopy(validationContext.getQualityCodeSystems());
+
+        if (toValidate.contains(QualityCodeSystem.MDC) && !isValidationActiveOnMeter(validationContext)) {
             toValidate.remove(QualityCodeSystem.MDC);
         }
+
+       if (toValidate.contains(QualityCodeSystem.MDM) && !isValidationActiveOnPurpose(validationContext)) {
+            toValidate.remove(QualityCodeSystem.MDM);
+        }
+
         return toValidate;
     }
 
-    private Boolean isValidationActiveOnMeter(Optional<Meter> meter) {
-        return meter
+    private Set<QualityCodeSystem> getEditableCopy(Set<QualityCodeSystem> qualityCodeSystems){
+        if (qualityCodeSystems == null || qualityCodeSystems.isEmpty()) {
+            return EnumSet.allOf(QualityCodeSystem.class);
+        }
+        return EnumSet.copyOf(qualityCodeSystems);
+    }
+
+    private boolean isValidationActiveOnMeter(ValidationContext validationContext){
+        return validationContext.getMeter()
                 .flatMap(this::getMeterValidation)
                 .map(MeterValidationImpl::getActivationStatus)
-                .orElse(!meter.isPresent());
+                .orElse(false);
+    }
+
+    private boolean isValidationActiveOnPurpose(ValidationContext validationContext){
+        return validationContext.getMetrologyContract()
+                .flatMap(this::getMetrologyContractValidation)
+                .map(MetrologyContractValidationImpl::getActivationStatus)
+                .orElse(false);
     }
 
     private boolean isValidationActiveOnStorage(ChannelsContainer channelsContainer) {

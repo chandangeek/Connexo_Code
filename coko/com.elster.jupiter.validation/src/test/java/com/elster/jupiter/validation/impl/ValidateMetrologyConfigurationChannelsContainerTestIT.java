@@ -31,6 +31,8 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -65,6 +67,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -217,6 +220,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         when(inMemoryBootstrapModule.getDataAggregationMock().calculate(eq(usagePoint), eq(metrologyContract), any(Range.class))).thenReturn(calculatedMetrologyContractData);
 
         ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        inMemoryBootstrapModule.get(ValidationService.class).activateValidation(metrologyContract);
         inMemoryBootstrapModule.get(ValidationService.class).validate(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
 
         List<ReadingQualityRecord> readingQualityRecords = channelsContainer.getChannel(outputReadingType)
