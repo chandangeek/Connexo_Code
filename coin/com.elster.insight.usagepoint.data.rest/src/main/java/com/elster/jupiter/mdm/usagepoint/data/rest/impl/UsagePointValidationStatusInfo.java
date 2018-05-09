@@ -15,4 +15,5 @@ public class UsagePointValidationStatusInfo {
     public Set<ValidationRuleInfoWithNumber> suspectReason;
     public Set<ValidationRuleInfoWithNumber> informativeReason;
     public Set<EstimationRuleInfoWithNumber> estimateReason;
+    public boolean hasValidation;
 }

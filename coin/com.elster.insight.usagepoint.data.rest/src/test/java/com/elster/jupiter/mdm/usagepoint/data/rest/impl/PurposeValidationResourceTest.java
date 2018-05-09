@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 
 public class PurposeValidationResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    private static final String USAGEPOINT_NAME = "UP001";
     private static final Long CONTRACT_ID = 13L;
+    static final String USAGEPOINT_NAME = "UP001";
     static final String URL = "/usagepoints/" + USAGEPOINT_NAME + "/purposes/" + CONTRACT_ID + "/validationrulesets";
 
     @Mock

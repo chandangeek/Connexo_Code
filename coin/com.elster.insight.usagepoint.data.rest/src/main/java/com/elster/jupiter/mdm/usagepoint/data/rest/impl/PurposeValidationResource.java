@@ -43,7 +43,6 @@ public class PurposeValidationResource {
     private final ValidationStatusFactory validationStatusFactory;
     private final ExceptionFactory exceptionFactory;
 
-
     @Inject
     PurposeValidationResource(UsagePointConfigurationService usagePointConfigurationService,
                               ResourceHelper resourceHelper,
@@ -62,7 +61,7 @@ public class PurposeValidationResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public Response getValidationRuleSetsForPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
+    public Response getValidationRuleSets(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
@@ -84,9 +83,43 @@ public class PurposeValidationResource {
                 ListPager.of(ruleSetInfos).from(queryParameters).find(), queryParameters)).build();
     }
 
+    @Path("/{validationRuleSetId}/status")
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
+    public Response setValidationRuleSetStatus(@PathParam("name") String name,
+                                               @PathParam("purposeId") long contractId,
+                                               @PathParam("validationRuleSetId") long validationRuleSetId,
+                                               PurposeValidationRuleSetInfo info) {
 
-    @GET
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        ChannelsContainer channelsContainer = currentEffectiveMC.getChannelsContainer(metrologyContract)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
+
+        ValidationRuleSet ruleSet = this.getValidationRuleSet(validationRuleSetId);
+        this.setValidationRuleSetActivationStatus(channelsContainer, ruleSet, info.isActive);
+        return Response.ok().build();
+    }
+
+    private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
+        return validationService.getValidationRuleSet(validationRuleSetId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private void setValidationRuleSetActivationStatus(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet, boolean status) {
+        if (status) {
+            validationService.activate(channelsContainer, ruleSet);
+        } else {
+            validationService.deactivate(channelsContainer, ruleSet);
+        }
+    }
+
     @Path("/validationstatus")
+    @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
@@ -98,45 +131,29 @@ public class PurposeValidationResource {
 
         UsagePointValidationStatusInfo validationStatusInfo = currentEffectiveMC.getChannelsContainer(metrologyContract)
                 .map(channelsContainer -> validationStatusFactory.getValidationStatusInfo(currentEffectiveMC, metrologyContract, channelsContainer))
-                .orElse(new UsagePointValidationStatusInfo());
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
 
         return Response.ok(validationStatusInfo).build();
     }
 
 
-
+    @Path("/validationstatus")
     @PUT
-    @Path("/{validationRuleSetId}/status")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
-    public Response setValidationRuleSetStatusOnPurpose(@PathParam("name") String name,
-                                                        @PathParam("purposeId") long contractId,
-                                                        @PathParam("validationRuleSetId") long validationRuleSetId,
-                                                        PurposeValidationRuleSetInfo info) {
+    public Response setValidationStatus(@PathParam("name") String name,
+                                        @PathParam("purposeId") long contractId,
+                                        UsagePointValidationStatusInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
 
-        ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-        ChannelsContainer channelsContainer = currentEffectiveMC.getChannelsContainer(metrologyContract)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleSet.getName()));
-
-        setValidationRuleSetActivationStatus(channelsContainer, ruleSet, info.isActive);
-        return Response.ok(new PurposeValidationRuleSetInfo(ruleSet, info.isActive)).build();
-    }
-
-    private void setValidationRuleSetActivationStatus(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet, boolean status) {
-        if (status) {
-            validationService.activate(channelsContainer, ruleSet);
+        if (info.validationActive){
+            validationService.activateValidation(metrologyContract);
         } else {
-            validationService.deactivate(channelsContainer, ruleSet);
+            validationService.deactivateValidation(metrologyContract);
         }
-    }
-
-    private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
-        return validationService.getValidationRuleSet(validationRuleSetId)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok().build();
     }
 }

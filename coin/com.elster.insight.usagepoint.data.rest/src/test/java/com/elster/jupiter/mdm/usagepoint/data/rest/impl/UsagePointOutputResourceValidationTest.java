@@ -154,7 +154,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.of(DAY_BEFORE));
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
         when(validationEvaluator.isValidationEnabled(channel)).thenReturn(true);
-        when(validationService.isValidationActive(channelsContainer)).thenReturn(true);
+        when(validationService.isValidationActive(metrologyContract)).thenReturn(true);
         when(suspectDataValidationStatus.completelyValidated()).thenReturn(false);
         when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(channel), eq(Collections.emptyList()), any()))
                 .thenReturn(Arrays.asList(suspectDataValidationStatus, informativeDataValidationStatus, estimatedDataValidationStatus));
