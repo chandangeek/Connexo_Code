@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@charset "UTF-8";
+
+@font-face {
+    font-family: "Lato";
+    src: url("../../../sky/build/resources/fonts/Lato-Regular.eot");
+    src: url("../../../sky/build/resources/fonts/Lato-Regular.eot?#iefix") format("embedded-opentype"),
+    url("../../../sky/build/resources/fonts/Lato-Regular.woff") format("woff"),
+    url("../../../sky/build/resources/fonts/Lato-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Open Sans Condensed";
+    src: url("../../../sky/build/resources/fonts/OpenSans-CondLight.eot");
+    src: url("../../../sky/build/resources/fonts/OpenSans-CondLight.eot?#iefix") format("embedded-opentype"),
+    url("../../../sky/build/resources/fonts/OpenSans-CondLight.woff") format("woff"),
+    url("../../../sky/build/resources/fonts/OpenSans-CondLight.ttf") format("truetype");
+    url("../../../sky/build/resources/fonts/OpenSans-CondLight.svg#OpenSans-CondLight") format("svg");
+}
+
+body {
+    background-image: url("../../../sky/build/resources/images/container/loginBackground.png") !important;
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+}
+
+h1 {
+    font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
+    color: #1e7d9e;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+}
+
+h2 {
+    font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
+    color: #1e7d9e;
+    font-size: 24px;
+    font-weight: 300;
+    text-align: left;
+}
+
+p {
+    font-family: "Lato", helvetica, arial, verdana, sans-serif;
+    color: #686868;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+}
+
+.external-link {
+    font-family: "Lato", helvetica, arial, verdana, sans-serif;
+    color: #686868;
+    text-decoration: underline;
+}
+
+li {
+    margin: 0 0 8px 0;
+    font-family: "Lato", helvetica, arial, verdana, sans-serif;
+    color: #686868;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+}
+
+#about {
+    border-radius: 10px;
+    background-color: #ffffff;
+    width: 652px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10%;
+    padding: 20px;
+}
