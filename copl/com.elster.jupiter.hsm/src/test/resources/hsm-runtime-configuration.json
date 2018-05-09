@@ -3,8 +3,8 @@
   "version": 105,
   "rawHsms": [
     {
-      "id": 2,
-      "name": "WHI HSM",
+      "id": 1,
+      "name": "HSM1",
       "type": "ASM7.6a",
       "description": "",
       "host": "10.0.0.84",
@@ -15,293 +15,28 @@
         "stateValue": 1
       },
       "protocol": "KS"
+    },
+    {
+      "id": 2,
+      "name": "HSM2",
+      "type": "ASM7.6a",
+      "description": "",
+      "host": "10.0.0.85",
+      "port": 9000,
+      "moduleId": 0,
+      "secure": false,
+      "protocol": "KS"
     }
   ],
   "rawLabels": [
     {
-      "id": 22,
-      "name": "ENXS-KEY-P1",
+      "id": 1,
+      "name": "LABEL1",
       "kek": false,
       "mappings": [
         {
-          "hsmId": 2,
+          "hsmId": 1,
           "keyAddress": "DB KEY AUTH  000",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 23,
-      "name": "ENXS-KEY-P2",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "DB-KEY-P2",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 24,
-      "name": "ENXS-FMI-PEM01",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "FMI_PEM0000001",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 25,
-      "name": "ENXS-FMI-PEM02",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "FMI_PEM0000002",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 26,
-      "name": "ENXS-KEK DB-Keys AuthEnc/Dec",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 27,
-      "name": "ENXS-KEK-DB-KEY-P2",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 28,
-      "name": "ENXS-KEK-SF",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 29,
-      "name": "ENXS-SF-KEK-EICT",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "SF-IMP-KEK-EICT",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 30,
-      "name": "ENXS-SF-KEK-ENEX",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "SF-IMP-KEK-ENEX",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 31,
-      "name": "ENXS-SF-WK-EICT",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "SF-IMP-WK_-EICT",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 32,
-      "name": "ENXS-SF-WK-ENEX",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "SF-IMP-WK_-ENEX",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "name": "GKEK_BASE",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 3,
-      "name": "GKEK_CONFIGURATION",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 4,
-      "name": "GKEK_DEVICE",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 5,
-      "name": "GKEK_ICC",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 6,
-      "name": "GKEK_SECRET",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 7,
-      "name": "GKEK_STORAGE",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 8,
-      "name": "GKEK_TRANSFER",
-      "kek": true,
-      "mappings": []
-    },
-    {
-      "id": 9,
-      "name": "IMP-DC-KEK",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-DC-KEK",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 10,
-      "name": "IMP-SM-KEK",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SM-KEK",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "name": "IMP-SM-WK",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SM-WK",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 12,
-      "name": "IMP-SM-WK-DC",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SMDC",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 13,
-      "name": "IMP-SM-WK-P0",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SMP0",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 14,
-      "name": "IMP-SM-WK-P1",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SMP1",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 15,
-      "name": "IMP-SSH",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "P-IMP-SSH",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 16,
-      "name": "S-DB",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "S-DB",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 17,
-      "name": "S-SSH",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "S-SSH",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 18,
-      "name": "TK-CS",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "TK-CS",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 19,
-      "name": "TK-P1",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 2,
-          "keyAddress": "TK-P1",
           "enabled": true
         }
       ]
@@ -313,5 +48,12 @@
       "timeoutMillis": 500
     }
   ],
-  "rawRoutingEngineRules": []
+  "rawRoutingEngineRules": [
+    {
+      "id":1,
+      "hsmId":1,
+      "functionName":"f1",
+      "ruleExpression":"expr1"
+    }
+  ]
 }

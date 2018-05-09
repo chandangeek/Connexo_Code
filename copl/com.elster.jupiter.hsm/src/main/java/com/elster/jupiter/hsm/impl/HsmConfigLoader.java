@@ -31,7 +31,7 @@ public class HsmConfigLoader {
 
     public RawConfiguration load(File f){
         GsonBuilder gsbuilder = new GsonBuilder();
-        gsbuilder.registerTypeAdapter(DefaultRawConfiguration.class, (InstanceCreator<DefaultRawConfiguration>) (a) -> {return DefaultRawConfiguration.builder().build();});
+        gsbuilder.registerTypeAdapter(DefaultRawConfiguration.class, (InstanceCreator<DefaultRawConfiguration>) (a) -> DefaultRawConfiguration.builder().build());
         gsbuilder.registerTypeAdapter(RawHsm.class, (InstanceCreator<RawHsm>) (a) -> RawHsm.builder().build());
         gsbuilder.registerTypeAdapter(RawLabel.class, (InstanceCreator<RawLabel>) (a) -> RawLabel.builder().build());
         gsbuilder.registerTypeAdapter(RawLabelMapping.class, (InstanceCreator<RawLabelMapping>) (a) ->  RawLabelMapping.builder().build());
@@ -59,7 +59,7 @@ public class HsmConfigLoader {
         public ImmutableList<?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
             TypeToken<ImmutableList<?>> immutableListToken = (TypeToken<ImmutableList<?>>) TypeToken.of(type);
             TypeToken<? super ImmutableList<?>> listToken = immutableListToken.getSupertype(List.class);
-            List<?> list = (List)context.deserialize(json, listToken.getType());
+            List<?> list = context.deserialize(json, listToken.getType());
             return ImmutableList.copyOf(list);
         }
     }
@@ -71,7 +71,12 @@ public class HsmConfigLoader {
         @Override
         public HSMState deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject obj = json.getAsJsonObject();
-            return HSMState.getHSMStateById(obj.get("stateValue").getAsInt());
+
+            JsonElement stateValue = obj.get("stateValue");
+            if (stateValue == null) {
+                return null;
+            }
+            return HSMState.getHSMStateById(stateValue.getAsInt());
         }
     }
 

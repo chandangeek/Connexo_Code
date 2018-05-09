@@ -32,7 +32,7 @@
                     <instructions>
                         <_include>bnd.bnd</_include>
                         <Embed-Dependency>
-                            artifactId=jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|lobback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|jackson-core|jackson-databind|jackson-annotations|jackson-datatype-guava
+                            artifactId=jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|lobback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -70,30 +70,6 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <scope>compile</scope>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>compile</scope>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <scope>compile</scope>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <scope>compile</scope>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
