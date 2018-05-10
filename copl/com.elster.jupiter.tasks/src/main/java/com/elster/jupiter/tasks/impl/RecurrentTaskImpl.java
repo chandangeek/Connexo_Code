@@ -52,7 +52,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String application;
-    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
 
     private String name;
@@ -464,4 +464,11 @@ class RecurrentTaskImpl implements RecurrentTask {
         Save.CREATE.validate(dataModel, nrt);
         nextRecurrentTasks.add(nrt);
     }
+
+    @Override
+    public void setDestination(String destination) {
+        this.destination = destination;
+        Save.UPDATE.save(dataModel, this);
+    }
+
 }

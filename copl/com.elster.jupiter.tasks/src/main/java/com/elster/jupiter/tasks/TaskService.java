@@ -5,9 +5,9 @@
 package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -46,4 +46,6 @@ public interface TaskService {
     void shutDown();
 
     QueryExecutor<TaskOccurrence> getTaskOccurrenceQueryExecutor();
+
+    List<DestinationSpec> getCompatibleQueues4(String destination);
 }

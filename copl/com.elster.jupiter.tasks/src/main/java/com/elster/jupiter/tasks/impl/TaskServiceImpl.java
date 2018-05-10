@@ -6,6 +6,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
@@ -41,6 +42,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -69,8 +71,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
-           service = { TaskService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-           property = "name=" + TaskService.COMPONENTNAME, immediate = true)
+        service = {TaskService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        property = "name=" + TaskService.COMPONENTNAME, immediate = true)
 public class TaskServiceImpl implements TaskService, TranslationKeyProvider, MessageSeedProvider {
 
     private DueTaskFetcher dueTaskFetcher;
@@ -330,6 +332,26 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public List<DestinationSpec> getCompatibleQueues4(String destination) {
+        List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
+        String queueTypeName = getQueueTypeName(destinationSpecs, destination);
+
+        return destinationSpecs.stream()
+                .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
+                .filter(Predicates.not(destinationSpec -> destinationSpec.getName().equals(destination)))
+                .collect(Collectors.toList());
+    }
+
+    private static String getQueueTypeName(List<DestinationSpec> destinationSpecs, String destinationSpecName) {
+        return destinationSpecs.stream()
+                .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .filter(destinationSpec -> destinationSpec.getName().equals(destinationSpecName))
+                .map(DestinationSpec::getQueueTypeName)
+                .findAny().orElse(null);
     }
 
 }
