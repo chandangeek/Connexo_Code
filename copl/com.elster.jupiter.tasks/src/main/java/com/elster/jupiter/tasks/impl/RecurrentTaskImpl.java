@@ -7,6 +7,7 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -17,9 +18,10 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskAdHocExecution;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
@@ -34,6 +36,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -325,8 +328,16 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public Optional<TaskOccurrence> getLastOccurrence() {
-        return dataModel.query(TaskOccurrence.class).select(Operator.EQUAL.compare("recurrentTaskId", this.getId()), new Order[]{Order.descending("id")},
-                false, new String[]{}, 1, 1).stream().findAny();
+        DataMapper<TaskOccurrenceImpl> mapper = dataModel.mapper(TaskOccurrenceImpl.class);
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("select ID, RECURRENTTASKID, TRIGGERTIME, RETRYTIME, ADHOCTIME, SCHEDULED, STARTDATE, ENDDATE, STATUS ");
+        builder.append("from TSK_TASK_OCCURRENCE ");
+        builder.append("where ID in (");
+        builder.append("select MAX(ID) from TSK_TASK_OCCURRENCE where RECURRENTTASKID = " + this.getId() + ")");
+        try (Fetcher<TaskOccurrenceImpl> fetcher = mapper.fetcher(builder)) {
+            Iterator<TaskOccurrenceImpl> occuranceTaskIterator = fetcher.iterator();
+            return occuranceTaskIterator.hasNext() ? Optional.of((TaskOccurrence) occuranceTaskIterator.next()) : Optional.empty();
+        }
     }
 
     @Override
