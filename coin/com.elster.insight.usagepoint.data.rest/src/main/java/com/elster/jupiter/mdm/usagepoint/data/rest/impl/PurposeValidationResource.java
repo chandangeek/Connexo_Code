@@ -93,13 +93,7 @@ public class PurposeValidationResource {
                                                @PathParam("purposeId") long contractId,
                                                @PathParam("validationRuleSetId") long validationRuleSetId,
                                                PurposeValidationRuleSetInfo info) {
-
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
-        ChannelsContainer channelsContainer = currentEffectiveMC.getChannelsContainer(metrologyContract)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
-
+        ChannelsContainer channelsContainer = this.getChannelsContainer(name, contractId);
         ValidationRuleSet ruleSet = this.getValidationRuleSet(validationRuleSetId);
         this.setValidationRuleSetActivationStatus(channelsContainer, ruleSet, info.isActive);
         return Response.ok().build();
@@ -145,15 +139,20 @@ public class PurposeValidationResource {
     public Response setValidationStatus(@PathParam("name") String name,
                                         @PathParam("purposeId") long contractId,
                                         UsagePointValidationStatusInfo info) {
+        ChannelsContainer channelsContainer = this.getChannelsContainer(name, contractId);
+        if (info.validationActive){
+            validationService.activateValidation(channelsContainer);
+        } else {
+            validationService.deactivateValidation(channelsContainer);
+        }
+        return Response.ok().build();
+    }
+
+    private ChannelsContainer getChannelsContainer(String name, long contractId) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
-
-        if (info.validationActive){
-            validationService.activateValidation(metrologyContract);
-        } else {
-            validationService.deactivateValidation(metrologyContract);
-        }
-        return Response.ok().build();
+        return currentEffectiveMC.getChannelsContainer(metrologyContract)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
     }
 }

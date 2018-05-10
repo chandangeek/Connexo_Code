@@ -64,24 +64,26 @@ public class ValidationConfigurationTest extends PurposeValidationResourceTest {
 
     @Test
     public void activateConfiguration() {
+        when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
         info.validationActive = true;
 
         Response response = target(URL + "/validationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).activateValidation(metrologyContract);
+        verify(validationService).activateValidation(channelsContainer);
     }
 
     @Test
     public void deactivateConfiguration() {
+        when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
         info.validationActive = false;
 
         Response response = target(URL + "/validationstatus").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).deactivateValidation(metrologyContract);
+        verify(validationService).deactivateValidation(channelsContainer);
     }
 
 
@@ -90,7 +92,7 @@ public class ValidationConfigurationTest extends PurposeValidationResourceTest {
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
         when(validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)).thenReturn(false);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationService.isValidationActive(metrologyContract)).thenReturn(false);
+        when(validationService.isValidationActive(channelsContainer)).thenReturn(false);
         when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose())).thenReturn(Optional.empty());
         when(channelsContainer.hasData()).thenReturn(true);
     }

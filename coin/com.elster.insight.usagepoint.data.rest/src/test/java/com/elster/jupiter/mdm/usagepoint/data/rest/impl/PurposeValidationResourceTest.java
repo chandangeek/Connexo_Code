@@ -24,9 +24,9 @@ import static org.mockito.Mockito.when;
 
 public class PurposeValidationResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    private static final Long CONTRACT_ID = 13L;
+    private static final Long ID = 13L;
     static final String USAGEPOINT_NAME = "UP001";
-    static final String URL = "/usagepoints/" + USAGEPOINT_NAME + "/purposes/" + CONTRACT_ID + "/validationrulesets";
+    static final String URL = "/usagepoints/" + USAGEPOINT_NAME + "/purposes/" + ID + "/validationrulesets";
 
     @Mock
     UsagePoint usagePoint;
@@ -40,24 +40,14 @@ public class PurposeValidationResourceTest extends UsagePointDataRestApplication
     ChannelsContainer channelsContainer;
 
     @Before
-    public void setup(){
+    public void setup() {
         when(meteringService.findUsagePointByName(USAGEPOINT_NAME)).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getName()).thenReturn(USAGEPOINT_NAME);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
-        when(metrologyContract.getId()).thenReturn(CONTRACT_ID);
-    }
-
-
-    ValidationRuleSet mockValidationRuleSet(long id, String name) {
-        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
-        when(ruleSet.getId()).thenReturn(id);
-        when(ruleSet.getName()).thenReturn(name);
-        when(ruleSet.getDescription()).thenReturn("MyDescription");
-        when(ruleSet.getRuleSetVersions()).thenReturn(Collections.emptyList());
-        when(ruleSet.getVersion()).thenReturn(23L);
-        return ruleSet;
+        when(metrologyContract.getId()).thenReturn(ID);
+        when(channelsContainer.getId()).thenReturn(ID);
     }
 }

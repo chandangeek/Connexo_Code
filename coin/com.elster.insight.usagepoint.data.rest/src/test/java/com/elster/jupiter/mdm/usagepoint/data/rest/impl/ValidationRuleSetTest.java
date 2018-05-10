@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -154,5 +154,15 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(validationService).deactivate(channelsContainer, ruleSet);
+    }
+
+    ValidationRuleSet mockValidationRuleSet(long id, String name) {
+        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
+        when(ruleSet.getId()).thenReturn(id);
+        when(ruleSet.getName()).thenReturn(name);
+        when(ruleSet.getDescription()).thenReturn("MyDescription");
+        when(ruleSet.getRuleSetVersions()).thenReturn(Collections.emptyList());
+        when(ruleSet.getVersion()).thenReturn(23L);
+        return ruleSet;
     }
 }
