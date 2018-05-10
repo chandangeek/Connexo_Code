@@ -220,7 +220,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         when(inMemoryBootstrapModule.getDataAggregationMock().calculate(eq(usagePoint), eq(metrologyContract), any(Range.class))).thenReturn(calculatedMetrologyContractData);
 
         ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-        inMemoryBootstrapModule.get(ValidationService.class).activateValidation(metrologyContract);
+        inMemoryBootstrapModule.get(ValidationService.class).activateValidation(channelsContainer);
         inMemoryBootstrapModule.get(ValidationService.class).validate(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
 
         List<ReadingQualityRecord> readingQualityRecords = channelsContainer.getChannel(outputReadingType)

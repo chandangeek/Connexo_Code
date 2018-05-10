@@ -24,7 +24,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -123,6 +122,7 @@ public class ValidationServiceImplTest {
     private static final QualityCodeSystem SYSTEM = QualityCodeSystem.MDC;
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
+
 
     @Mock
     private volatile MessageService messageService;
@@ -231,6 +231,10 @@ public class ValidationServiceImplTest {
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private SearchService searchService;
+    @Mock
+    private DataMapper<PurposeValidationImpl> purposeValidationFactory;
+    @Mock
+    private PurposeValidationImpl purposeValidation;
 
     RangeSet<Instant> rangeSet = TreeRangeSet.create();
 
@@ -302,6 +306,7 @@ public class ValidationServiceImplTest {
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
+
     }
 
     private void setupValidationRuleSet(ChannelValidation channelValidation, Channel channel, boolean activeRules, ReadingQualityType... qualities) {
@@ -401,6 +406,7 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(any(ValidationContext.class)))
                 .thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
+        this.setValidationStatusOnPurpose(true);
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         ArgumentCaptor<ChannelsContainerValidation> channelsContainerValidationArgumentCaptor = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
@@ -471,6 +477,7 @@ public class ValidationServiceImplTest {
                 .thenReturn(new ChannelsContainerValidationImpl(dataModel, clock));
 
         when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
+        this.setValidationStatusOnPurpose(true);
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         List<? extends ChannelsContainerValidation> channelsContainerValidations = validationService
@@ -1021,18 +1028,24 @@ public class ValidationServiceImplTest {
         when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
-        setValidationStatusOnMeter(true);
-
+        this.setValidationStatusOnMeter(true);
+        this.setValidationStatusOnPurpose(true);
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         verify(validationRuleSetResolver).resolve(any(ValidationContext.class));
-        verify(channelsContainerValidation).init(eq(channelsContainer));
+        verify(channelsContainerValidation, times(2)).init(eq(channelsContainer));
     }
 
     private void setValidationStatusOnMeter(boolean status){
         when(meter.getId()).thenReturn(ID);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(status);
+    }
+
+    private void setValidationStatusOnPurpose(boolean status){
+        when(dataModel.mapper(PurposeValidationImpl.class)).thenReturn(purposeValidationFactory);
+        when(purposeValidationFactory.getOptional(channelsContainer.getId())).thenReturn(Optional.of(purposeValidation));
+        when(purposeValidation.getActivationStatus()).thenReturn(status);
     }
 
 }

@@ -5,7 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -15,21 +15,21 @@ import javax.inject.Inject;
 /**
  * Maps the Validation Configuration Status on a purpose on a usage point
  */
-public class MetrologyContractValidationImpl {
+public class PurposeValidationImpl {
 
     private boolean isActive = false;
-    private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
 
     private transient boolean saved = true;
     private final DataModel dataModel;
 
     @Inject
-    MetrologyContractValidationImpl(DataModel dataModel) {
+    PurposeValidationImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    MetrologyContractValidationImpl init(MetrologyContract metrologyContract) {
-        this.metrologyContract.set(metrologyContract);
+    PurposeValidationImpl init(ChannelsContainer channelsContainer) {
+        this.channelsContainer.set(channelsContainer);
         saved = false;
         return this;
     }
@@ -38,8 +38,8 @@ public class MetrologyContractValidationImpl {
         return isActive;
     }
 
-    public MetrologyContract getMetrologyContract() {
-        return metrologyContract.get();
+    public ChannelsContainer getChannelsContainer() {
+        return channelsContainer.get();
     }
 
     void setActivationStatus(boolean status) {

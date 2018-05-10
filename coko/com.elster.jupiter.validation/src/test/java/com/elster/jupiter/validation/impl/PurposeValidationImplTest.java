@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.Reference;
@@ -22,14 +22,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetrologyContractValidationImplTest {
+public class PurposeValidationImplTest {
 
-    private MetrologyContractValidationImpl metrologyContractValidation;
+    private PurposeValidationImpl purposeValidation;
 
     @Mock
     private DataModel dataModel;
     @Mock
-    private MetrologyContract metrologyContract;
+    private ChannelsContainer channelsContainer;
     @Mock
     private javax.validation.ValidatorFactory validatorFactory;
     @Mock
@@ -40,39 +40,39 @@ public class MetrologyContractValidationImplTest {
     public void setUp(){
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
-        metrologyContractValidation = new MetrologyContractValidationImpl(dataModel);
+        purposeValidation = new PurposeValidationImpl(dataModel);
 
     }
 
     @Test
     public void setActivationStatus(){
-        assertFalse(metrologyContractValidation.getActivationStatus());
-        metrologyContractValidation.setActivationStatus(true);
-        assertTrue(metrologyContractValidation.getActivationStatus());
+        assertFalse(purposeValidation.getActivationStatus());
+        purposeValidation.setActivationStatus(true);
+        assertTrue(purposeValidation.getActivationStatus());
     }
 
     @Test
     public void save(){
-        metrologyContractValidation.init(metrologyContract);
+        purposeValidation.init(channelsContainer);
 
-        metrologyContractValidation.save();
+        purposeValidation.save();
 
-        verify(dataModel).persist(metrologyContractValidation);
+        verify(dataModel).persist(purposeValidation);
     }
 
     @Test
     public void update(){
         simulateSavedData();
 
-        metrologyContractValidation.save();
+        purposeValidation.save();
 
-        verify(dataModel).update(metrologyContractValidation);
+        verify(dataModel).update(purposeValidation);
     }
 
     private void simulateSavedData(){
-        Reference<MetrologyContract> reference = ValueReference.absent();
-        reference.set(metrologyContract);
-        field("metrologyContract").ofType(Reference.class).in(metrologyContractValidation).set(reference);
+        Reference<ChannelsContainer> reference = ValueReference.absent();
+        reference.set(channelsContainer);
+        field("channelsContainer").ofType(Reference.class).in(purposeValidation).set(reference);
     }
 
 }

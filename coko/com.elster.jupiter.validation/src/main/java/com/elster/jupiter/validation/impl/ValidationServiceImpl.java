@@ -353,62 +353,54 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public boolean isValidationActive(ChannelsContainer channelsContainer) {
-        return activeChannelsContainerValidationsFor(channelsContainer).isActive();
-    }
-
-    @Override
-    public boolean isValidationActive(MetrologyContract metrologyContract){
-        if (metrologyContract == null){
-            throw new IllegalArgumentException("Metrology contract cannot be null");
+    public boolean isValidationActive(ChannelsContainer channelsContainer){
+        if (channelsContainer == null){
+            throw new IllegalArgumentException("Channels container cannot be null");
         }
-
-        return getMetrologyContractValidation(metrologyContract)
-                .map(MetrologyContractValidationImpl::getActivationStatus)
+        return getPurposeValidation(channelsContainer)
+                .map(PurposeValidationImpl::getActivationStatus)
                 .orElse(false);
     }
 
     @Override
-    public void activateValidation(MetrologyContract metrologyContract) {
-        if (metrologyContract == null){
-            throw new IllegalArgumentException("Metrology contract cannot be null");
+    public void activateValidation(ChannelsContainer channelsContainer) {
+        if (channelsContainer == null){
+            throw new IllegalArgumentException("Channels container cannot be null");
         }
-
-        Optional<MetrologyContractValidationImpl> mcValidationOptional = getMetrologyContractValidation(metrologyContract);
-        if (mcValidationOptional.isPresent()) {
-            MetrologyContractValidationImpl mcValidation = mcValidationOptional.get();
-            if (!mcValidation.getActivationStatus()) {
-                mcValidation.setActivationStatus(true);
-                mcValidation.save();
+        Optional<PurposeValidationImpl> purposeValidationOptional = getPurposeValidation(channelsContainer);
+        if (purposeValidationOptional.isPresent()) {
+            PurposeValidationImpl purposeValidation = purposeValidationOptional.get();
+            if (!purposeValidation.getActivationStatus()) {
+                purposeValidation.setActivationStatus(true);
+                purposeValidation.save();
             }
         } else {
-            createMetrologyContractValidation(metrologyContract);
+            createPurposeValidation(channelsContainer);
         }
     }
 
     @Override
-    public void deactivateValidation(MetrologyContract metrologyContract) {
-        if (metrologyContract == null){
-            throw new IllegalArgumentException("Metrology contract cannot be null");
+    public void deactivateValidation(ChannelsContainer channelsContainer) {
+        if (channelsContainer == null) {
+            throw new IllegalArgumentException("Channels container cannot be null");
         }
-
-        this.getMetrologyContractValidation(metrologyContract)
-                .filter(MetrologyContractValidationImpl::getActivationStatus)
-                .ifPresent(mcValidation -> {
-                            mcValidation.setActivationStatus(false);
-                            mcValidation.save();
+        this.getPurposeValidation(channelsContainer)
+                .filter(PurposeValidationImpl::getActivationStatus)
+                .ifPresent(purposeValidation -> {
+                            purposeValidation.setActivationStatus(false);
+                            purposeValidation.save();
                         }
                 );
     }
 
-    private Optional<MetrologyContractValidationImpl> getMetrologyContractValidation(MetrologyContract metrologyContract){
-        return dataModel.mapper(MetrologyContractValidationImpl.class).getOptional(metrologyContract.getId());
+    private Optional<PurposeValidationImpl> getPurposeValidation(ChannelsContainer channelsContainer){
+        return dataModel.mapper(PurposeValidationImpl.class).getOptional(channelsContainer.getId());
     }
 
-    private void createMetrologyContractValidation(MetrologyContract metrologyContract) {
-        MetrologyContractValidationImpl metrologyContractValidation = new MetrologyContractValidationImpl(dataModel).init(metrologyContract);
-        metrologyContractValidation.setActivationStatus(true);
-        metrologyContractValidation.save();
+    private void createPurposeValidation(ChannelsContainer channelsContainer) {
+        PurposeValidationImpl purposeValidation = new PurposeValidationImpl(dataModel).init(channelsContainer);
+        purposeValidation.setActivationStatus(true);
+        purposeValidation.save();
     }
 
     @Override
@@ -624,9 +616,9 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     private boolean isValidationActiveOnPurpose(ValidationContext validationContext){
-        return validationContext.getMetrologyContract()
-                .flatMap(this::getMetrologyContractValidation)
-                .map(MetrologyContractValidationImpl::getActivationStatus)
+        ChannelsContainer channelsContainer = validationContext.getChannelsContainer();
+        return this.getPurposeValidation(channelsContainer)
+                .map(PurposeValidationImpl::getActivationStatus)
                 .orElse(false);
     }
 

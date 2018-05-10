@@ -8,9 +8,9 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataMapper;
@@ -50,7 +50,7 @@ public class ValidationServiceForPurposeTest {
 
     private static final long ID = 1L;
     private ValidationService validationService;
-    private  MetrologyContractValidationImpl metrologyContractValidation;
+    private PurposeValidationImpl purposeValidation;
 
     @Mock
     private OrmService ormService;
@@ -59,9 +59,9 @@ public class ValidationServiceForPurposeTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private DataMapper<MetrologyContractValidationImpl> mcValidationFactory;
+    private DataMapper<PurposeValidationImpl> purposeValidationFactory;
     @Mock
-    private MetrologyContract metrologyContract;
+    private ChannelsContainer channelsContainer;
     @Mock
     private javax.validation.ValidatorFactory validatorFactory;
     @Mock
@@ -72,10 +72,10 @@ public class ValidationServiceForPurposeTest {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
-        when(dataModel.mapper(MetrologyContractValidationImpl.class)).thenReturn(mcValidationFactory);
+        when(dataModel.mapper(PurposeValidationImpl.class)).thenReturn(purposeValidationFactory);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
-        when(metrologyContract.getId()).thenReturn(ID);
+        when(channelsContainer.getId()).thenReturn(ID);
 
         validationService = new ValidationServiceImpl(
                 mock(BundleContext.class),
@@ -95,29 +95,29 @@ public class ValidationServiceForPurposeTest {
                 mock(MetrologyConfigurationService.class),
                 mock(SearchService.class));
 
-        metrologyContractValidation = new MetrologyContractValidationImpl(dataModel);
-        when(mcValidationFactory.getOptional(ID)).thenReturn(Optional.of(metrologyContractValidation));
+        purposeValidation = new PurposeValidationImpl(dataModel);
+        when(purposeValidationFactory.getOptional(ID)).thenReturn(Optional.of(purposeValidation));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void isValidationActive_whenContractIsNull_thenThrowException(){
-        validationService.isValidationActive((MetrologyContract) null);
+        validationService.isValidationActive((ChannelsContainer) null);
     }
 
     @Test
     public void whenValidationIsNotPresent_thenReturnInactive(){
-        when(mcValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
+        when(purposeValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
 
-        boolean active = validationService.isValidationActive(metrologyContract);
+        boolean active = validationService.isValidationActive(channelsContainer);
 
         assertFalse(active);
     }
 
     @Test
     public void whenValidationIsPresent_thenReturnActiveStatus() {
-        metrologyContractValidation.setActivationStatus(true);
+        purposeValidation.setActivationStatus(true);
 
-        boolean active = validationService.isValidationActive(metrologyContract);
+        boolean active = validationService.isValidationActive(channelsContainer);
 
         assertTrue(active);
     }
@@ -125,71 +125,71 @@ public class ValidationServiceForPurposeTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void activateValidation_whenContractIsNull_thenThrowException(){
-        validationService.activateValidation((MetrologyContract) null);
+        validationService.activateValidation((ChannelsContainer) null);
     }
 
     @Test
     public void whenValidationIsNotPresent_thenCreateNewAndActivate() {
-        when(mcValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
+        when(purposeValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
 
-        validationService.activateValidation(metrologyContract);
+        validationService.activateValidation(channelsContainer);
 
-        verify(dataModel).persist(any(MetrologyContractValidationImpl.class));
+        verify(dataModel).persist(any(PurposeValidationImpl.class));
     }
 
     @Test
     public void whenStatusIsInactive_thenActivate() {
-        metrologyContractValidation.setActivationStatus(false);
+        purposeValidation.setActivationStatus(false);
 
-        validationService.activateValidation(metrologyContract);
+        validationService.activateValidation(channelsContainer);
 
-        assertTrue(metrologyContractValidation.getActivationStatus());
-        verify(dataModel).update(metrologyContractValidation);
+        assertTrue(purposeValidation.getActivationStatus());
+        verify(dataModel).update(purposeValidation);
     }
 
     @Test
     public void whenStatusIsActive_thenSkipActivate() {
-        metrologyContractValidation.setActivationStatus(true);
+        purposeValidation.setActivationStatus(true);
 
-        validationService.activateValidation(metrologyContract);
+        validationService.activateValidation(channelsContainer);
 
-        assertTrue(metrologyContractValidation.getActivationStatus());
-        verify(dataModel, times(0)).update(metrologyContractValidation);
+        assertTrue(purposeValidation.getActivationStatus());
+        verify(dataModel, times(0)).update(purposeValidation);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deactivateValidation_whenContractIsNull_thenThrowException(){
-        validationService.deactivateValidation((MetrologyContract) null);
+        validationService.deactivateValidation((ChannelsContainer) null);
     }
 
     @Test
     public void whenStatusIsInactive_thenSkipDeactivate() {
-        metrologyContractValidation.setActivationStatus(false);
+        purposeValidation.setActivationStatus(false);
 
-        validationService.deactivateValidation(metrologyContract);
+        validationService.deactivateValidation(channelsContainer);
 
-        assertFalse(metrologyContractValidation.getActivationStatus());
-        verify(dataModel, times(0)).update(metrologyContractValidation);
+        assertFalse(purposeValidation.getActivationStatus());
+        verify(dataModel, times(0)).update(purposeValidation);
     }
 
     @Test
     public void whenStatusIsActive_thenDeactivate() {
-        metrologyContractValidation.setActivationStatus(true);
+        purposeValidation.setActivationStatus(true);
 
-        validationService.deactivateValidation(metrologyContract);
+        validationService.deactivateValidation(channelsContainer);
 
-        assertFalse(metrologyContractValidation.getActivationStatus());
-        verify(dataModel).update(metrologyContractValidation);
+        assertFalse(purposeValidation.getActivationStatus());
+        verify(dataModel).update(purposeValidation);
     }
 
     @Test
     public void whenValidationIsNotPresent_thenSkipDeactivate() {
-        when(mcValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
+        when(purposeValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
 
-        validationService.deactivateValidation(metrologyContract);
+        validationService.deactivateValidation(channelsContainer);
 
-        verify(dataModel, times(0)).persist(any(MetrologyContractValidationImpl.class));
-        verify(dataModel, times(0)).update(any(MetrologyContractValidationImpl.class));
+        verify(dataModel, times(0)).persist(any(PurposeValidationImpl.class));
+        verify(dataModel, times(0)).update(any(PurposeValidationImpl.class));
     }
 }

@@ -27,10 +27,6 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -177,20 +173,20 @@ public enum TableSpecs {
         }
     },
 
-    VAL_MC_VALIDATION {
+    VAL_PURPOSE_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<MetrologyContractValidationImpl> table = dataModel.addTable(name(), MetrologyContractValidationImpl.class);
-            table.map(MetrologyContractValidationImpl.class);
+            Table<PurposeValidationImpl> table = dataModel.addTable(name(), PurposeValidationImpl.class);
+            table.map(PurposeValidationImpl.class);
             table.since(version(10, 5));
-            Column metrologyContractId = table.column("METROLOGY_CONTRACT").number().notNull().conversion(NUMBER2LONG).add();
+            Column channelsContainerId = table.column("CHANNELS_CONTAINER").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
-            table.primaryKey("VAL_PK_MC_VALIDATION").on(metrologyContractId).add();
-            table.foreignKey("VAL_FK_MC_VALIDATION")
-                    .references(MetrologyContract.class)
+            table.primaryKey("VAL_PK_PURPOSE_VALIDATION").on(channelsContainerId).add();
+            table.foreignKey("VAL_FK_PURPOSE_VALIDATION")
+                    .references(ChannelsContainer.class)
                     .onDelete(RESTRICT)
-                    .map("metrologyContract")
-                    .on(metrologyContractId)
+                    .map("channelsContainer")
+                    .on(channelsContainerId)
                     .add();
         }
     },

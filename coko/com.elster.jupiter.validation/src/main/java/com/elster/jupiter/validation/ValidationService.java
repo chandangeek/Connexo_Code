@@ -86,11 +86,9 @@ public interface ValidationService {
 
     boolean isValidationActive(ChannelsContainer channelsContainer);
 
-    boolean isValidationActive(MetrologyContract metrologyContract);
+    void activateValidation(ChannelsContainer channelsContainer);
 
-    void activateValidation(MetrologyContract metrologyContract);
-
-    void deactivateValidation(MetrologyContract metrologyContract);
+    void deactivateValidation(ChannelsContainer channelsContainer);
 
     /**
      * Method to update validation statuses of channels in provided channels container.
