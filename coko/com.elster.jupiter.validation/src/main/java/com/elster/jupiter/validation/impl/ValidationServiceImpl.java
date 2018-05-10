@@ -40,6 +40,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_5SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
@@ -196,7 +197,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 InstallerImpl.class,
                 ImmutableMap.of(
                         Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 3), UpgraderV10_3.class
+                        Version.version(10, 3), UpgraderV10_3.class,
+                        Version.version(10, 5), V10_5SimpleUpgrader.class
                 ));
     }
 
