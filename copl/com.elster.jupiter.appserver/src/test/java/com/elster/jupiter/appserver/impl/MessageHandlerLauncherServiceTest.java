@@ -11,6 +11,7 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -18,15 +19,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
 import org.osgi.service.component.ComponentContext;
 
 import java.util.Arrays;
@@ -36,16 +29,34 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageHandlerLauncherServiceTest {
 
+    public static final String DESTINATION = "destination";
     private static final String SUBSCRIBER = "Subscriber";
     private static final String BATCH_EXECUTOR = "batch executor";
     private static final String NAME = "name";
-    public static final String DESTINATION = "destination";
     private MessageHandlerLauncherService messageHandlerLauncherService;
 
     @Mock
@@ -75,6 +86,8 @@ public class MessageHandlerLauncherServiceTest {
     private DestinationSpec destination;
     @Mock
     private Registration registration;
+    @Mock
+    private MessageService messageService;
 
     @Before
     public void setUp() {
@@ -97,6 +110,7 @@ public class MessageHandlerLauncherServiceTest {
         messageHandlerLauncherService.setUserService(userService);
         messageHandlerLauncherService.setThreadPrincipalService(threadPrincipalService);
         messageHandlerLauncherService.setTransactionService(transactionService);
+        messageHandlerLauncherService.setMessageService(messageService);
     }
 
     @After
@@ -421,10 +435,11 @@ public class MessageHandlerLauncherServiceTest {
         try {
             messageHandlerLauncherService.activate();
 
+
             messageHandlerLauncherService.addResource(factory, map);
 
-            assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
-            assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
+            assertThat(messageHandlerLauncherService.futureReport().size() == 1);
+            assertThat(messageHandlerLauncherService.threadReport().size() == 1);
 
         } catch (Exception e) {
             e.printStackTrace();

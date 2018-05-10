@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -55,16 +54,6 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 public class MessageHandlerLauncherService implements IAppService.CommandListener {
 
     private static final Logger LOGGER = Logger.getLogger(MessageHandlerLauncherService.class.getName());
-
-    private volatile IAppService appService;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile UserService userService;
-    private volatile TransactionService transactionService;
-    private volatile boolean active = false;
-    private volatile boolean reconfigureNeeded = false;
-
-    private ThreadGroup threadGroup;
-
     private final Object configureLock = new Object();
     @GuardedBy("configureLock")
     private final Map<SubscriberKey, MessageHandlerLauncherPojo> executors = new HashMap<>();
@@ -72,7 +61,13 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private final Map<CancellableTaskExecutorService, List<Future<?>>> futures = new HashMap<>();
     private final Queue<SubscriberKey> toBeLaunched = new LinkedList<>();
     private final Map<SubscriberKey, MessageHandlerFactory> handlerFactories = new ConcurrentHashMap<>();
-
+    private volatile IAppService appService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
+    private volatile TransactionService transactionService;
+    private volatile boolean active = false;
+    private volatile boolean reconfigureNeeded = false;
+    private ThreadGroup threadGroup;
     private Principal batchPrincipal;
     private Registration commandRegistration;
     private MessageService messageService;
@@ -345,14 +340,21 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private void shutDownServiceWithCancelling(MessageHandlerLauncherPojo pojo) {
         CancellableTaskExecutorService executorService = pojo.getCancellableTaskExecutorService();
-        for (Future<?> future : futures.get(executorService)) {
-            future.cancel(false);
-        }
+        cancelFutureTask(executorService);
         executorService.shutdownNow();
         try {
             executorService.awaitTermination(1, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private void cancelFutureTask(CancellableTaskExecutorService executorService) {
+        if (futures.isEmpty()) {
+            return;
+        }
+        for (Future<?> future : futures.get(executorService)) {
+            future.cancel(false);
         }
     }
 
