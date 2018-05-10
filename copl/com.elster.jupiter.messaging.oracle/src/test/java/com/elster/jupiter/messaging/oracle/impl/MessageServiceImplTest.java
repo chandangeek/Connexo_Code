@@ -17,6 +17,8 @@ import com.elster.jupiter.upgrade.UpgradeService;
 
 import oracle.jdbc.OracleConnection;
 
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -33,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -76,6 +77,10 @@ public class MessageServiceImplTest {
     private UpgradeService upgradeService;
     @Mock
     private AQFacade aqFacade;
+    @Mock
+    private ValidatorFactory validationFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() throws SQLException {
@@ -106,13 +111,16 @@ public class MessageServiceImplTest {
 
     @Test
     public void testCreateQueueTableSpec() {
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        when(dataModel.getValidatorFactory()).thenReturn(validationFactory);
+        when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
+
         QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QTS, RAW, MULTI_CONSUMER);
 
         assertThat(queueTableSpec).isNotNull();
         assertThat(queueTableSpec.getName()).isEqualTo(QTS);
         assertThat(queueTableSpec.getPayloadType()).isEqualTo(RAW);
         assertThat(queueTableSpec.isMultiConsumer()).isTrue();
-        verify(queueTableSpecFactory).persist(queueTableSpec);
     }
 
     @Test
