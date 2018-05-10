@@ -39,12 +39,4 @@ public class CsvParserWrapper {
     public CSVParser getCsvParser() {
         return csvParser;
     }
-
-    public int getNumberOfLines() throws ObjectMapperNotRecoverableException {
-        try {
-            return this.csvParser.getRecords().size();
-        } catch (IOException e) {
-            throw new ObjectMapperNotRecoverableException(e);
-        }
-    }
 }

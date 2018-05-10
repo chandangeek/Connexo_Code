@@ -21,6 +21,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -29,19 +32,22 @@ public class UsagePointReadingImportProcessor {
     private MeteringService meteringService;
     private DataAggregationService dataAggregationService;
     private Thesaurus thesaurus;
+    private String dateFormat;
 
 
-    public UsagePointReadingImportProcessor(MeteringDataImporterContext context, DataAggregationService dataAggregationService) {
+    public UsagePointReadingImportProcessor(MeteringDataImporterContext context, DataAggregationService dataAggregationService, String dateFormat) {
         this.meteringService = context.getMeteringService();
         this.dataAggregationService = dataAggregationService;
         this.thesaurus = context.getThesaurus();
+        this.dateFormat = dateFormat;
     }
 
     public void process(UsagePointImportRecordModel usagePointRecord) throws UsagePointReadingImportProcessorException {
         UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointRecord.getUsagePointName())
                 .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_UP_NAME).format(usagePointRecord.getUsagePointName())));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(usagePointRecord.getReadingDate())
-                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_NO_LINKED_METRO).format(usagePointRecord.getReadingDate())));
+                .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_NO_LINKED_METRO).format(DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId
+                        .systemDefault()).format(Instant.ofEpochSecond(usagePointRecord.getReadingDate().getEpochSecond())))));
         List<MetrologyContract> contracts = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration().getContracts();
         MetrologyContract metrologyContract = contracts.stream()
                 .filter(contract -> contract.getMetrologyPurpose().getName().equals(usagePointRecord.getPurpose()))

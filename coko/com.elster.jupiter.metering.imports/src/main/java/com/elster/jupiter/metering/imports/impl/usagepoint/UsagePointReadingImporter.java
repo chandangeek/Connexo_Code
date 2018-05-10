@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAILED;
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAILED_INIT_ERROR;
 import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS;
 import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.UP_READING_IMPORT_RESULT_SUCCESS;
 
@@ -63,7 +64,7 @@ public class UsagePointReadingImporter implements FileImporter {
         int linesSuccess = 0;
         int numberOfTotalLines = 0;
         try {
-            UsagePointReadingImportProcessor usagePointProcessor = new UsagePointReadingImportProcessor(context, dataAggregationService);
+            UsagePointReadingImportProcessor usagePointProcessor = new UsagePointReadingImportProcessor(context, dataAggregationService, dateFormat);
             ObjectMapper<UsagePointImportRecordModel> objectMapper = getObjectMapper();
             CsvParserWrapper csvParser = new CsvParserWrapper(fileImportOccurrence.getContents(), delimiter, COMMENT_MARKER);
             Iterator<CSVRecord> recordIterator = csvParser.getCsvParser().iterator();
@@ -82,7 +83,7 @@ public class UsagePointReadingImporter implements FileImporter {
             markEnd(fileImportOccurrence, linesSuccess, lineErrors, numberOfTotalLines);
         } catch (ObjectMapperInitException e) {
             logger.severe(e.getMessage());
-            fileImportOccurrence.markFailure(e.getMessage());
+            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAILED_INIT_ERROR).format(e.getMessage()));
         } catch (ObjectMapperNotRecoverableException e) {
             fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(linesSuccess, lineErrors));
 
@@ -94,7 +95,7 @@ public class UsagePointReadingImporter implements FileImporter {
         if (lineSuccess == allLines) {
             fileImportOccurrence.markSuccess(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_SUCCESS).format(lineSuccess));
         } else if (lineErrors == allLines) {
-            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAILED).format());
+            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAILED).format(lineSuccess, allLines));
         } else {
             fileImportOccurrence.markSuccessWithFailures(context.getThesaurus().getFormat(UP_READING_IMPORT_RESULT_FAIL_WITH_ERRORS).format(lineSuccess, lineErrors));
         }
