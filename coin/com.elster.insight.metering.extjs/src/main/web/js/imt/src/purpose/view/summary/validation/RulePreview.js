@@ -67,6 +67,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
         }
 
         me.loadRecord(validationRule);
+        me.setTitle(Ext.String.htmlEncode(validationRule.get('name')));
         me.addProperties(validationRule);
         me.addReadingTypes(validationRule);
 

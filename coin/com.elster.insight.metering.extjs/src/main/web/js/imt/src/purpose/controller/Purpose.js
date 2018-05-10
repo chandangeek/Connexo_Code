@@ -140,6 +140,38 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             '#validationConfigurationRulesGrid': {
                 select: this.previewValidationRule
+            },
+            '#changeRuleSetStateActionMenuItem': {
+                click: this.changeRuleSetStatus
+            }
+
+        });
+    },
+    changeRuleSetStatus: function () {
+        var me = this,
+            ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id'),
+            record = this.getRulesSetGrid().getStore().getById(ruleSetId),
+            ruleSetIsActive = record.get('isActive'),
+            page = me.getPage();
+
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/' + ruleSetId + '/status',
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: {
+                isActive: !ruleSetIsActive,
+                device: _.pick(page.device.getRecordData(), 'name', 'version', 'parent')
+            },
+            success: function (res) {
+                var data = Ext.decode(res.responseText);
+                page.device.set(data.device);
+                me.getRulesSetGrid().getStore().reload({
+                    callback: function () {
+                        me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
+                            Uni.I18n.translate('device.dataValidation.ruleSet.deactivated', 'IMT', 'Validation rule set deactivated') :
+                            Uni.I18n.translate('device.dataValidation.ruleSet.activated', 'IMT', 'Validation rule set activated'));
+                    }
+                });
             }
         });
     },
