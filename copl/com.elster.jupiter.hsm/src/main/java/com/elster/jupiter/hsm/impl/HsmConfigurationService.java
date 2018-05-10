@@ -11,12 +11,13 @@ import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
 
-@Component(name = "com.elster.jupiter.hsm.console", service = {HsmConsoleService.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=initHsm"}, immediate = true)
+@Component(name = "com.elster.jupiter.hsm.console", service = {HsmConfigurationService.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=initJss", "osgi.command.function=encrypt"}, immediate = true)
+public class HsmConfigurationService {
 
-public class HsmConsoleService {
 
+    private boolean initialized = false;
 
-    public void initHsm(String file) {
+    public void initJss(String file) {
         try {
             setClassLoader();
 
@@ -24,6 +25,7 @@ public class HsmConsoleService {
             RawConfiguration cfg = new HsmConfigLoader().load(f);
             JSSRuntimeControl.initialize();
             JSSRuntimeControl.newConfiguration(cfg);
+            this.initialized = true;
         } catch (Throwable e) {
             System.out.println(e);
             throw (e);
@@ -42,4 +44,7 @@ public class HsmConsoleService {
     }
 
 
+    public boolean isInit() {
+        return initialized;
+    }
 }
