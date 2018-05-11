@@ -31,7 +31,7 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
     @Test
     public void testDoCreateDestinationSpec() {
         givenMessagingService4Create();
-        givenDestinationSpecInfo("E2", "DataExport");
+        givenDestinationSpecInfo("Expo", "DataExport");
         whenClientCallsPost("/destinationspec/", info);
         thenResponseStatusIs(Response.Status.OK.getStatusCode());
     }
@@ -96,8 +96,8 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
     @Test
     public void testDeleteDestinationSpec() {
         givenMessagingService(false);
-        givenDestinationSpecInfo("E1", "DataExport");
-        whenClientCallsDelete("/destinationspec/E1", info);
+        givenDestinationSpecInfo("Expo", "DataExport");
+        whenClientCallsDelete("/destinationspec/Expo", info);
         thenResponseStatusIs(Response.Status.OK.getStatusCode());
     }
 
