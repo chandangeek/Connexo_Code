@@ -59,7 +59,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Ext.ProgressBar',
         'Cfg.configuration.view.RuleWithAttributesEdit',
         'Imt.purpose.view.summary.validation.RulesSetMainView',
-        'Imt.purpose.view.summary.validation.RulePreview'
+        'Imt.purpose.view.summary.validation.RulePreview',
+        'Imt.purpose.view.summary.validation.RulesSetActionMenu'
     ],
 
     refs: [
@@ -110,6 +111,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'ruleSetVersionPreview',
             selector: '#validationConfigurationRulesSetVersionPreview'
+        },
+        {
+            ref: 'changeRuleSetStateActionMenuItem',
+            selector: '#changeRuleSetStateActionMenuItem'
+        },
+        {
+            ref: 'page',
+            selector: '#validationConfigurationRulesSetMainView'
         }
     ],
 
@@ -143,10 +152,286 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             '#changeRuleSetStateActionMenuItem': {
                 click: this.changeRuleSetStatus
+            },
+            '#validationConfigurationStateChangeBtn': {
+                click: this.changeDataValidationStatus
+            },
+            '#validationFromDate': {
+                change: this.onValidationFromDateChange
             }
+
 
         });
     },
+    changeDataValidationStatus: function (btn) {
+        btn.action === 'activate' ? this.showActivationConfirmation(this.getPage()) : this.showDeactivationConfirmation(this.getPage());
+    },
+
+    showActivationConfirmation: function (view) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'activationConfirmationWindow',
+                green: true,
+                confirmBtnUi: 'action',
+                confirmText: Uni.I18n.translate('general.activate', 'IMT', 'Activate'),
+                confirmAndRunText: Uni.I18n.translate('general.activateAndRun', 'IMT', 'Activate & Run'),
+                confirmation: function () {
+                    me.activateDataValidation(view, this, false);
+                },
+                confirmationAndRun: function () {
+                    me.activateDataValidation(view, this, true);
+                }
+
+            });
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
+            method: 'GET',
+            timeout: 60000,
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                me.hasValidation = res.hasValidation;
+                if (res.lastChecked) {
+                    me.dataValidationLastChecked = new Date(res.lastChecked);
+                } else {
+                    me.dataValidationLastChecked = new Date();
+                }
+
+                if (res.hasValidation) {
+                    confirmationWindow.insert(1, me.getActivationConfirmationContent());
+
+                    // remove confirm and cancel buttons
+                    var buttonConfirm = confirmationWindow.down('button[name=confirm]'),
+                        buttonCancel = confirmationWindow.down('button[name=cancel]'),
+                        owner = buttonConfirm.ownerCt;
+
+                    owner.remove(buttonConfirm);
+                    owner.remove(buttonCancel);
+
+                    // add 3 new buttons
+                    owner.insert(1, me.getButtonContent(confirmationWindow));
+
+                    confirmationWindow.show({
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.deviceId)
+                    });
+                } else {
+                    confirmationWindow.show({
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.deviceId),
+                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'IMT', 'There are currently no readings for this device.')
+                    });
+                }
+            }
+        });
+        confirmationWindow.on('close', function () {
+            this.destroy();
+        });
+    },
+
+    getActivationConfirmationContent: function () {
+        var me = this;
+        return Ext.create('Ext.container.Container', {
+            defaults: {
+                labelAlign: 'left',
+                labelStyle: 'font-weight: normal; padding-left: 50px'
+            },
+            width: 500,
+            items: [
+                {
+                    xtype: 'datefield',
+                    itemId: 'validationFromDate',
+                    editable: false,
+                    showToday: false,
+                    value: me.dataValidationLastChecked,
+                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item', 'IMT', 'Validate data from'),
+                    labelWidth: 175,
+                    labelPad: 1
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'validationDateErrors',
+                    hidden: true,
+                    bodyStyle: {
+                        color: '#eb5642',
+                        padding: '0 0 15px 65px'
+                    },
+                    html: ''
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'validationProgress',
+                    layout: 'fit',
+                    padding: '0 0 0 50'
+                }
+            ]
+        });
+    },
+
+    showDeactivationConfirmation: function (view) {
+        var me = this;
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate')
+        }).show({
+            title: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'IMT', 'Deactivate data validation on device {0}?', [me.deviceId]),
+            msg: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.msg', 'IMT', 'The data of this device will no longer be validated'),
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.deactivateDataValidation(view);
+                }
+            }
+        });
+    },
+
+    deactivateDataValidation: function (view) {
+        var me = this;
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: {
+                validationActive: 'false',
+            },
+            success: function () {
+                me.updateValidationConfigurationStatusSection();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.dataValidation.deactivation.successMsg', 'MDC', 'Data validation deactivated'));
+            }
+        });
+    },
+
+    getButtonContent: function (confWindow) {
+        var me = this;
+        return Ext.create('Ext.container.Container', {
+            layout: {
+                type: 'hbox'
+            },
+            items: [
+                {
+                    xtype: 'button',
+                    action: 'confirm',
+                    name: 'confirm',
+                    scope: confWindow,
+                    text: confWindow.confirmText,
+                    ui: confWindow.confirmBtnUi,
+                    handler: confWindow.confirmation,
+                    margin: '0 0 0 ' + confWindow.iconWidth
+                },
+                {
+                    xtype: 'button',
+                    action: 'confirmAndRun',
+                    name: 'confirmAndRun',
+                    scope: confWindow,
+                    text: confWindow.confirmAndRunText,
+                    ui: confWindow.confirmBtnUi,
+                    handler: confWindow.confirmationAndRun,
+                    margin: '0 0 0 10'
+                },
+                {
+                    xtype: 'button',
+                    action: 'cancel',
+                    name: 'cancel',
+                    scope: confWindow,
+                    text: confWindow.cancelText,
+                    ui: 'link',
+                    handler: confWindow.cancellation
+                }
+            ]
+
+
+        });
+    },
+
+    activateDataValidation: function (view, confWindow, runNow) {
+        var me = this;
+
+        me.confirmationWindowButtonsDisable(true);
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: {
+                validationActive: 'true',
+                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : new Date().getTime()),
+            },
+            success: function () {
+                me.updateValidationConfigurationStatusSection();
+                if (runNow) {
+                    me.isValidationRunImmediately = true;
+                    me.getModel('Mdc.model.Device').load(me.deviceId, {
+                        success: function (record) {
+                            me.validateData(confWindow, record);
+                        }
+                    });
+                } else {
+                    me.destroyConfirmationWindow();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.activated', 'IMT', 'Data validation activated'));
+                }
+            },
+            failure: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+
+                if (response.status === 400) {
+                    me.showValidationActivationErrors(res.errors[0].msg);
+                    me.confirmationWindowButtonsDisable(false);
+                } else {
+                    me.destroyConfirmationWindow();
+                }
+            }
+        });
+    },
+    confirmationWindowButtonsDisable: function (value) {
+        var activationConfirmationWindow;
+
+        activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+            var button = activationConfirmationWindow.down('button[name=confirm]');
+
+            button = activationConfirmationWindow.down('button[name=confirm]');
+            if (button) {
+                button.setDisabled(value);
+            }
+
+            button = activationConfirmationWindow.down('button[name=confirmAndRun]');
+            if (button) {
+                button.setDisabled(value);
+            }
+
+            button = activationConfirmationWindow.down('button[name=cancel]');
+            if (button) {
+                button.setDisabled(value);
+            }
+        }
+    },
+    destroyConfirmationWindow: function () {
+        var activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+            activationConfirmationWindow.removeAll(true);
+            activationConfirmationWindow.destroy();
+        }
+    },
+    showValidationActivationErrors: function (errors) {
+        var activationConfirmationWindow, validationDateErrors;
+
+        activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+            validationDateErrors = Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors');
+            if (validationDateErrors) {
+                validationDateErrors.update(errors);
+                validationDateErrors.setVisible(true);
+            }
+        }
+    },
+    onValidationFromDateChange: function () {
+        var activationConfirmationWindow, validationDateErrors;
+
+        activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+            validationDateErrors = Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors');
+            if (validationDateErrors) {
+                validationDateErrors.update('');
+                validationDateErrors.setVisible(false);
+            }
+        }
+    },
+
     changeRuleSetStatus: function () {
         var me = this,
             ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id'),
@@ -155,16 +440,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
             page = me.getPage();
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/' + ruleSetId + '/status',
+            url: '/api/udr/usagepoints/' + page.usagePoint.getData().name + '/purposes/' + page.purpose.getData().id + '/validationrulesets/' + ruleSetId + '/status',
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
-                isActive: !ruleSetIsActive,
-                device: _.pick(page.device.getRecordData(), 'name', 'version', 'parent')
+                isActive: !ruleSetIsActive
             },
             success: function (res) {
                 var data = Ext.decode(res.responseText);
-                page.device.set(data.device);
+                //page.device.set(data.device);
                 me.getRulesSetGrid().getStore().reload({
                     callback: function () {
                         me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
@@ -209,6 +493,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 item.hide();
             });
             this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
+            var menuItem = this.getChangeRuleSetStateActionMenuItem();
+            if (!!menuItem) {
+                menuItem.setText(record.get('isActive') ?
+                    Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
+                    Uni.I18n.translate('general.activate', 'IMT', 'Activate'))
+            }
 
             Ext.resumeLayouts(true);
         }
@@ -438,14 +728,54 @@ Ext.define('Imt.purpose.controller.Purpose', {
         };
         validationConfigurationStore.load();
 
-
-        validationStatusStore = Ext.getStore('Imt.purpose.store.PurposeValidationConfigurationStatus');
-        validationStatusStore.getProxy().extraParams = {
-            usagePointId: panel.usagePoint.get('name'),
-            purposeId: panel.purpose.getId()
-        };
-        validationStatusStore.load();
+        me.updateValidationConfigurationStatusSection();
     },
+
+    updateValidationConfigurationStatusSection: function () {
+        var me = this;
+        view = me.getPage();
+
+        if (view.down('#validationConfigurationStatusField')) {
+            view.down('#validationConfigurationStatusField').setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'IMT', 'Updating status...'));
+            view.down('#validationConfigurationStatusPanel').setLoading(true);
+            !!view.down('#validationConfigurationStateChangeBtn') && view.down('#validationConfigurationStateChangeBtn').setDisabled(true);
+        }
+
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
+            //url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
+            method: 'GET',
+            timeout: 60000,
+            callback: function () {
+                var validationConfigurationStatusPanel = view.down('#validationConfigurationStatusPanel');
+
+                if (validationConfigurationStatusPanel) {
+                    validationConfigurationStatusPanel.setLoading(false);
+                }
+            },
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                if (view.down('#validationConfigurationStatusPanel')) {
+                    view.down('#validationConfigurationStatusField').setValue(res.validationActive ?
+                        Uni.I18n.translate('general.active', 'IMT', 'Active') : //+ ' ' + validateOnStorage:
+                        Uni.I18n.translate('general.inactive', 'IMT', 'Inactive')
+                    );
+                    if (!!view.down('#validationConfigurationStateChangeBtn')) {
+                        view.down('#validationConfigurationStateChangeBtn').setText((res.validationActive ?
+                                Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
+                                Uni.I18n.translate('general.activate', 'IMT', 'Activate')) +
+                            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'IMT', 'data validation')
+                        );
+                        view.down('#validationConfigurationStateChangeBtn').action = res.validationActive ? 'deactivate' : 'activate';
+                        view.down('#validationConfigurationStateChangeBtn').setDisabled(false);
+                    }
+
+                }
+            }
+        });
+    },
+
+
 
     showOutputPreview: function (selectionModel, record) {
         var me = this;

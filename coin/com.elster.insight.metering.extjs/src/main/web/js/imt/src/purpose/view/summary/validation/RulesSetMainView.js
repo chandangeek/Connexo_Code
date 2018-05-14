@@ -25,7 +25,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulesSetMainView', {
                     {
                         xtype: 'panel',
                         margin: '0 0 0 -10',
-                        itemId: 'dataValidationStatusPanel',
+                        itemId: 'validationConfigurationStatusPanel',
                         ui: 'medium',
                         title: Uni.I18n.translate('general.status', 'IMT', 'Status'),
                         layout: 'fit',
@@ -37,14 +37,8 @@ Ext.define('Imt.purpose.view.summary.validation.RulesSetMainView', {
                                     itemId: 'validationConfigurationStatusField',
                                     columnWidth: 1,
                                     labelAlign: 'left',
-                                    store: 'Imt.purpose.store.PurposeValidationConfigurationStatus',
                                     fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
-                                    name: 'validationActive',
-                                    renderer: function (value) {
-                                        return value
-                                            ? Uni.I18n.translate('general.inactive', 'IMT', 'Inactive')
-                                            : Uni.I18n.translate('general.active', 'IMT', 'Active');
-                                    }
+                                    value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'IMT', 'Updating status...')
                                 },
                                 '->',
                                 {
@@ -53,7 +47,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulesSetMainView', {
                                     style: {
                                         'background-color': '#71adc7'
                                     },
-                                    privileges: Cfg.privileges.Validation.device,
+                                    // privileges: Cfg.privileges.Validation.device,
                                     action: '',
                                     //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions
                                 }

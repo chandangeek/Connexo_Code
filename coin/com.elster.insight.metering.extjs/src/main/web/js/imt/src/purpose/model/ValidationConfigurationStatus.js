@@ -18,7 +18,6 @@ Ext.define('Imt.purpose.model.ValidationConfigurationStatus', {
         timeout: 60000,
         reader: {
             type: 'json',
-            // root: 'rulesets',
             totalProperty: 'total'
         }
     }
