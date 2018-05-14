@@ -18,10 +18,13 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.inject.Inject;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Statement;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -29,8 +32,11 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 import static com.elster.jupiter.util.Checks.is;
 
 class Installer implements FullInstaller {
+
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String PUBLIC_KEY_FILE_NAME = "publicKey.txt";
+    private static final TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey("WhiteboardSubscriber",
+            "Handle events to propagate login/logout/login_failed/token_renewal/token_expiration into MSG_RAWTOPICTABLE");
 
     private final DataModel dataModel;
     private final DataVaultService dataVaultService;
@@ -71,6 +77,11 @@ class Installer implements FullInstaller {
                 this::createEventTypes,
                 logger
         );
+        doTry(
+                "Create Additional Events",
+                this::createAdditionalEventTypes,
+                logger
+        );
     }
 
     private void createKeys() {
@@ -98,49 +109,78 @@ class Installer implements FullInstaller {
     }
 
     protected void createEventTypes() {
-        if (!this.eventService.getEventType(WhiteboardEvent.LOGIN.topic()).isPresent()) {
-            this.eventService.buildEventTypeWithTopic(WhiteboardEvent.LOGIN.topic())
-                    .name(WhiteboardEvent.LOGIN.name())
-                    .component(BasicAuthentication.COMPONENT_NAME)
-                    .category("Login")
-                    .scope("System")
-                    .shouldPublish()
-                    .withProperty("userName", ValueType.STRING, "name")
-                    .withProperty("description", ValueType.STRING, "description")
-                    .withProperty("version", ValueType.LONG, "version")
-                    .withProperty("lastSuccessfulLogin", ValueType.STRING, "lastSuccessfulLogin")
-                    .create();
-        }
-        if (!this.eventService.getEventType(WhiteboardEvent.LOGOUT.topic()).isPresent()) {
-            this.eventService.buildEventTypeWithTopic(WhiteboardEvent.LOGOUT.topic())
-                    .name(WhiteboardEvent.LOGOUT.name())
-                    .component(BasicAuthentication.COMPONENT_NAME)
-                    .category("Login")
-                    .scope("System")
-                    .shouldPublish()
-                    .withProperty("userName", ValueType.STRING, "name")
-                    .withProperty("description", ValueType.STRING, "description")
-                    .withProperty("version", ValueType.LONG, "version")
-                    .withProperty("lastSuccessfulLogin", ValueType.STRING, "lastSuccessfulLogin")
-                    .create();
-        }
-        TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey("WhiteboardSubscriber",
-        "Handle events to propagate login/logout into MSG_RAWTOPICTABLE");
-
-        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if (destinationSpec.isPresent()) {
-            DestinationSpec jupiterEvents = destinationSpec.get();
-
-            if (!jupiterEvents.getSubscribers().stream()
-                .anyMatch(s -> s.getName().equals(SUBSCRIBER_DISPLAYNAME.getKey()))) {
-
-                jupiterEvents
-                        .subscribe(SUBSCRIBER_DISPLAYNAME,
-                                BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
-                                whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
-                                        .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
-                        );
-            }
-        }
+        addEventType(WhiteboardEvent.LOGIN);
+        addEventType(WhiteboardEvent.LOGOUT);
+        addSubscriber4CreatedEventTypes();
     }
+
+    private void addEventType(WhiteboardEvent event) {
+        if (this.eventService.getEventType(event.topic()).isPresent()) {
+            return;
+        }
+
+        this.eventService.buildEventTypeWithTopic(event.topic())
+                .name(event.name())
+                .component(BasicAuthentication.COMPONENT_NAME)
+                .category("Login")
+                .scope("System")
+                .shouldPublish()
+                .withProperty("userName", ValueType.STRING, "name")
+                .withProperty("description", ValueType.STRING, "description")
+                .withProperty("version", ValueType.LONG, "version")
+                .withProperty("lastSuccessfulLogin", ValueType.STRING, "lastSuccessfulLogin")
+                .create();
+
+    }
+
+    private void addSubscriber4CreatedEventTypes() {
+        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+        if (!destinationSpec.isPresent()) {
+            return;
+        }
+
+        DestinationSpec jupiterEvents = destinationSpec.get();
+        if (isSubscriberDefined4(jupiterEvents)) {
+            return;
+        }
+
+        jupiterEvents.subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
+                whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
+                        .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
+        );
+    }
+
+    private boolean isSubscriberDefined4(DestinationSpec jupiterEvents) {
+        return jupiterEvents.getSubscribers().stream()
+                .anyMatch(s -> s.getName().equals(SUBSCRIBER_DISPLAYNAME.getKey()));
+    }
+
+    protected void createAdditionalEventTypes() {
+        addEventType(WhiteboardEvent.LOGIN_FAILED);
+        addEventType(WhiteboardEvent.TOKEN_RENEWAL);
+        addEventType(WhiteboardEvent.TOKEN_EXPIRED);
+        addSubscriber4AdditionalEventTypes();
+    }
+
+    private void addSubscriber4AdditionalEventTypes() {
+        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+        if (!destinationSpec.isPresent()) {
+            return;
+        }
+
+        DestinationSpec jupiterEvents = destinationSpec.get();
+        if (isSubscriberDefined4(jupiterEvents)) {
+            jupiterEvents.unSubscribe(SUBSCRIBER_DISPLAYNAME.getKey());
+        }
+
+        jupiterEvents
+                .subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
+                        whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
+                                .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
+                                .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN_FAILED.topic()))
+                                .or(whereCorrelationId().isEqualTo(WhiteboardEvent.TOKEN_RENEWAL.topic()))
+                                .or(whereCorrelationId().isEqualTo(WhiteboardEvent.TOKEN_EXPIRED.topic()))
+                );
+    }
+
 }

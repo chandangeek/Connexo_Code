@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -50,6 +51,8 @@ public class SecurityTokenImpl {
     private static final String USER_NOT_FOUND = "User not found ";
     private static final String USER_DISABLED = "User account disabled ";
     private Logger tokenRenewal = Logger.getLogger("tokenRenewal");
+
+    private EventService eventService;
 
 
     public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut) throws
@@ -100,10 +103,11 @@ public class SecurityTokenImpl {
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
             signedJWT.sign(signer);
-            if(count > 0){
-                logMessage(TOKEN_RENEWAL, "["+ user.getDomain() + "/" + user.getName()+"]", ipAddr);
-            }else{
-                logMessage(TOKEN_GENERATED, "["+ user.getDomain() + "/" + user.getName()+"]", ipAddr);
+            if (count > 0) {
+                logMessage(TOKEN_RENEWAL, "[" + user.getDomain() + "/" + user.getName() + "]", ipAddr);
+                logMessage2EventService(WhiteboardEvent.TOKEN_RENEWAL, user.getName());
+            } else {
+                logMessage(TOKEN_GENERATED, "[" + user.getDomain() + "/" + user.getName() + "]", ipAddr);
             }
             return signedJWT.serialize();
 
@@ -111,6 +115,10 @@ public class SecurityTokenImpl {
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     class TokenValidation {
@@ -150,13 +158,15 @@ public class SecurityTokenImpl {
         Optional<User> user = Optional.empty();
         try {
             Optional<SignedJWT> signedJWT = checkTokenIntegrity(token, ipAddr);
+
             if (signedJWT.isPresent() && (Long) signedJWT.get()
                     .getJWTClaimsSet()
                     .getCustomClaim("cnt") < maxTokenCount) {
                 long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
                 user = userService.getLoggedInUser(userId);
+
                 if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
-                    if(!user.isPresent()) {
+                    if (!user.isPresent()) {
                         logMessage(USER_NOT_FOUND, "[id: " + userId + "]", ipAddr);
                     }
                     return new TokenValidation(user.isPresent(), user.orElse(null), token);
@@ -165,15 +175,15 @@ public class SecurityTokenImpl {
                         .getExpirationTime()
                         .getTime() + timeOut * 1000))) {
                     if (userService.getUser(userId).isPresent()) {
-                        if(userService.getUser(userId).get().getStatus()) {
+                        if (userService.getUser(userId).get().getStatus()) {
                             long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
                             String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count, ipAddr);
                             return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
-                        }else {
+                        } else {
                             logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getDomain() + "/" + userService.getUser(userId).get().getName() + "]", ipAddr);
                         }
                     } else {
-                        if(user.isPresent()) {
+                        if (user.isPresent()) {
                             logMessage(USER_NOT_FOUND, "[name: " + user.get().getDomain() + "/" + user.get().getName() + "]", ipAddr);
                         } else {
                             logMessage(USER_NOT_FOUND, "[id: " + userId + "]", ipAddr);
@@ -181,6 +191,7 @@ public class SecurityTokenImpl {
                     }
                 } else {
                     logMessage(TOKEN_EXPIRED, "[" + user.get().getDomain() + "/" + user.get().getName() + "]", ipAddr);
+                    logMessage2EventService(WhiteboardEvent.TOKEN_EXPIRED, user.get().getName());
                 }
             } else {
                 logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
@@ -190,6 +201,12 @@ public class SecurityTokenImpl {
             logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         }
         return new TokenValidation(false, null, null);
+    }
+
+    private void logMessage2EventService(WhiteboardEvent eventType, String userName) {
+        if (eventService != null) {
+            eventService.postEvent(eventType.topic(), new LocalEventUserSource(userName));
+        }
     }
 
     public boolean compareTokens(String cookie, String token, String ipAddr) {
@@ -240,12 +257,12 @@ public class SecurityTokenImpl {
         return Optional.empty();
     }
 
-    private void logMessage(String message, String userName, String ipAddr){
+    private void logMessage(String message, String userName, String ipAddr) {
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
-        if(message.equals(TOKEN_INVALID)){
-            tokenRenewal.log(Level.WARNING, message + userName + " " , ipAddr);
-        } else if(message.equals(TOKEN_GENERATED) || message.equals(TOKEN_EXPIRED) || message.equals(TOKEN_RENEWAL) || message.equals(USER_DISABLED) || message.equals(USER_NOT_FOUND)){
-            tokenRenewal.log(Level.INFO, message + userName + " " , ipAddr);
+        if (message.equals(TOKEN_INVALID)) {
+            tokenRenewal.log(Level.WARNING, message + userName + " ", ipAddr);
+        } else if (message.equals(TOKEN_GENERATED) || message.equals(TOKEN_EXPIRED) || message.equals(TOKEN_RENEWAL) || message.equals(USER_DISABLED) || message.equals(USER_NOT_FOUND)) {
+            tokenRenewal.log(Level.INFO, message + userName + " ", ipAddr);
         }
     }
 

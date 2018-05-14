@@ -47,7 +47,7 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
-        property = {"name="+BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
+        property = {"name=" + BasicAuthentication.COMPONENT_NAME, "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
         immediate = true, service = {HttpAuthenticationService.class})
 public final class BasicAuthentication implements HttpAuthenticationService {
 
@@ -176,7 +176,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
-        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class));
+        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class, version(10, 4, 1), UpgraderV10_4_2.class));
         initSecurityTokenImpl();
 
         host = getOptionalStringProperty("com.elster.jupiter.url.rewrite.host", context);
@@ -236,6 +236,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
                         dataVaultService.decrypt(keyStore.get().getPrivateKey()),
                         tokenExpTime, tokenRefreshMaxCount, timeout);
+                securityToken.setEventService(eventService);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
@@ -328,17 +329,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return loginUrl + LOGIN_URI + "?" + "page=" + loginUrl + request.getRequestURI();
     }
 
-
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         // Invalidate token & server side session
         Optional<Cookie> tokenCookie = getTokenCookie(request);
-        Object logoutParameter = request.getUserPrincipal() ;
+        Object logoutParameter = request.getUserPrincipal();
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
             invalidateSession(request);
         }
-        if(logoutParameter instanceof User) {
+        if (logoutParameter instanceof User) {
             //the eventService is sent ONLY if the Object is an instance of User class,
             eventService.postEvent(WhiteboardEvent.LOGOUT.topic(), new LocalEventUserSource((User) logoutParameter));
         }
@@ -390,6 +390,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             eventService.postEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
+            eventService.postEvent(WhiteboardEvent.LOGIN_FAILED.topic(), new LocalEventUserSource(""));
             return deny(request, response);
         }
     }
