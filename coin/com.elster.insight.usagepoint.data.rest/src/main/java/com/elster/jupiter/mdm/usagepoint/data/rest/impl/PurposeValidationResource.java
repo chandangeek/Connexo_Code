@@ -96,7 +96,7 @@ public class PurposeValidationResource {
         ChannelsContainer channelsContainer = this.getChannelsContainer(name, contractId);
         ValidationRuleSet ruleSet = this.getValidationRuleSet(validationRuleSetId);
         this.setValidationRuleSetActivationStatus(channelsContainer, ruleSet, info.isActive);
-        return Response.ok().build();
+        return Response.ok(new PurposeValidationRuleSetInfo(ruleSet, info.isActive)).build();
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {

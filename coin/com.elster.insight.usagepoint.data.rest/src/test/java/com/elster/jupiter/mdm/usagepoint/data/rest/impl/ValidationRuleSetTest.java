@@ -70,7 +70,7 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
 
     @Test
     public void noActiveRuleSets() throws IOException {
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1L, "rule set");
+        ValidationRuleSet ruleSet = mockValidationRuleSet(ID, "rule set");
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(ruleSet));
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(validationService.activeRuleSets(channelsContainer)).thenReturn(Collections.emptyList());
@@ -86,7 +86,7 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
 
     @Test
     public void bothActiveAndInactiveRuleSets() throws IOException {
-        ValidationRuleSet ruleSet1 = mockValidationRuleSet(1L, "inactive rule set");
+        ValidationRuleSet ruleSet1 = mockValidationRuleSet(ID, "inactive rule set");
         ValidationRuleSet ruleSet2 = mockValidationRuleSet(2L, "active rule set");
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
@@ -101,18 +101,16 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
         assertThat(jsonModel.<String>get("$.rulesets[1].name")).isEqualTo("inactive rule set");
         assertThat(jsonModel.<Boolean>get("$.rulesets[0].isActive")).isTrue();
         assertThat(jsonModel.<Boolean>get("$.rulesets[1].isActive")).isFalse();
-        assertThat(jsonModel.<Integer>get("$.rulesets[0].numberOfVersions")).isEqualTo(0);
-        assertThat(jsonModel.<Integer>get("$.rulesets[1].numberOfVersions")).isEqualTo(0);
     }
 
     @Test
     public void noChannelsContainer() {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.empty());
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1L, "rule set");
-        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(1L);
+        ValidationRuleSet ruleSet = mockValidationRuleSet(ID, "rule set");
+        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(ID);
         PurposeValidationRuleSetInfo info = new PurposeValidationRuleSetInfo(ruleSet, true);
 
-        Response response = target(URL + "/1/status").request().put(Entity.json(info));
+        Response response = target(URL + "/13/status").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         verifyZeroInteractions(validationService);
@@ -121,11 +119,11 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
     @Test
     public void ruleSetNotFound() throws IOException {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
-        when(validationService.getValidationRuleSet(1L)).thenReturn(Optional.empty());
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1L, "rule set");
+        when(validationService.getValidationRuleSet(ID)).thenReturn(Optional.empty());
+        ValidationRuleSet ruleSet = mockValidationRuleSet(ID, "rule set");
         PurposeValidationRuleSetInfo info = new PurposeValidationRuleSetInfo(ruleSet, true);
 
-        Response response = target(URL + "/1/status").request().put(Entity.json(info));
+        Response response = target(URL + "/13/status").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -133,27 +131,31 @@ public class ValidationRuleSetTest extends PurposeValidationResourceTest {
     @Test
     public void activateRuleSet() throws IOException {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1L, "rule set");
-        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(1L);
+        ValidationRuleSet ruleSet = mockValidationRuleSet(ID, "rule set");
+        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(ID);
         PurposeValidationRuleSetInfo info = new PurposeValidationRuleSetInfo(ruleSet, true);
 
-        Response response = target(URL + "/1/status").request().put(Entity.json(info));
+        Response response = target(URL + "/13/status").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).activate(channelsContainer, ruleSet);
+        JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.isActive")).isTrue();
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("rule set");
     }
 
     @Test
     public void deactivateRuleSet() throws IOException {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
-        ValidationRuleSet ruleSet = mockValidationRuleSet(1L, "rule set");
-        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(1L);
+        ValidationRuleSet ruleSet = mockValidationRuleSet(ID, "rule set");
+        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(ID);
         PurposeValidationRuleSetInfo info = new PurposeValidationRuleSetInfo(ruleSet, false);
 
-        Response response = target(URL + "/1/status").request().put(Entity.json(info));
+        Response response = target(URL + "/13/status").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).deactivate(channelsContainer, ruleSet);
+        JsonModel jsonModel = JsonModel.model((InputStream)response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.isActive")).isFalse();
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("rule set");
     }
 
     ValidationRuleSet mockValidationRuleSet(long id, String name) {
