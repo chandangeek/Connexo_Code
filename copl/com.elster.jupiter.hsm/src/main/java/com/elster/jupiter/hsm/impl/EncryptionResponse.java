@@ -6,8 +6,8 @@ public class EncryptionResponse {
 
     private final byte[] bytes;
 
-    public EncryptionResponse(SymmetricResponse encrypt) {
-        this.bytes = encrypt.getData();
+    public EncryptionResponse(byte[] encrypt) {
+        this.bytes = encrypt;
     }
 
     public byte[] getBytes() {

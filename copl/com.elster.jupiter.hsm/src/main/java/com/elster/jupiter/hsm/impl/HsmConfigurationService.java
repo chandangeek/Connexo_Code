@@ -41,8 +41,8 @@ public class HsmConfigurationService {
      * requires setting of context class loader. This seems to fix init issues for spring context but not necessary fixing later problems that can be induced by same root cause (wrong class loader in context)
      */
     private void setClassLoader() {
-        // setting up a custom classloader is needed while we have resources in parent classloader path (AppLauncher), specifically in felix conf folder but also embedded in JSS jar file provided by ATOS.
-        // JVM needs to be started having felix conf folder in class path
+        // setting up a custom classloader is needed while we have resources in parent classloader path (AppLauncher), in felix conf folder but also embedded in JSS jar file provided by ATOS.
+        // besides following lines we must assure that JVM will be started having felix conf folder in class path
         ClassLoader hsmClassLoader = JssEmbeddedRuntimeConfig.class.getClassLoader();
         URLClassLoader appClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
         ClassLoader loader = new URLClassLoader(appClassLoader.getURLs(), hsmClassLoader);

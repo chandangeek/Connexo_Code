@@ -1,6 +1,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
+import com.atos.worldline.jss.api.basecrypto.Asymmetric;
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
 import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.api.basecrypto.Symmetric;
@@ -15,17 +16,27 @@ public class HsmSecurityService {
 
     private HsmConfigurationService hsmConfigService;
 
-    public EncryptionResponse encrypt(String label, String plainTextKey) {
+    public EncryptionResponse encrypt(String label, String plainTextKey, String etype) {
         checkInit();
+        EncryptionType type = EncryptionType.valueOf(etype.toUpperCase());
         try {
             KeyLabel keyLabel = new KeyLabel(label);
-            SymmetricResponse encrypt = Symmetric.encrypt(keyLabel, KeyDerivation.FIXED_KEY_ARRAY, plainTextKey.getBytes(), null, PaddingAlgorithm.PKCS, ChainingMode.CBC);
+            byte[] encrypt = delegate(plainTextKey, keyLabel, type);
             return new EncryptionResponse(encrypt);
         } catch (FunctionFailedException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
+
+    private byte[] delegate(String plainTextKey, KeyLabel keyLabel, EncryptionType type) throws FunctionFailedException {
+        if (EncryptionType.SYMMETRIC.equals(type)) {
+            return Symmetric.encrypt(keyLabel, KeyDerivation.FIXED_KEY_ARRAY, plainTextKey.getBytes(), null, PaddingAlgorithm.PKCS, ChainingMode.CBC).getData();
+        }
+        return Asymmetric.encrypt(keyLabel, plainTextKey.getBytes(), PaddingAlgorithm.PKCS);
+    }
+
+
 
     private void checkInit() {
         if (!hsmConfigService.isInit()) {
