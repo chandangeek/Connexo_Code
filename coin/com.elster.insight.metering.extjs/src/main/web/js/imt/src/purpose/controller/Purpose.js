@@ -211,12 +211,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     owner.insert(1, me.getButtonContent(confirmationWindow));
 
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.getPage().purpose.getData().name)
+                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on purpose {0}?', me.getPage().purpose.getData().name)
                     });
                 } else {
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.getPage().purpose.getData().name),
-                        msg: Uni.I18n.translate('validationConfiguration.activateMsg', 'IMT', 'There are currently no readings for this device.')
+                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on purpose {0}?', me.getPage().purpose.getData().name),
+                        msg: Uni.I18n.translate('validationConfiguration.activateMsg', 'IMT', 'There are currently no readings for this purpose.')
                     });
                 }
             }
@@ -362,7 +362,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     // });
                 } else {
                     me.destroyConfirmationWindow();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.activated', 'IMT', 'Data validation activated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationConfiguration.activation.activated', 'IMT', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -736,14 +736,13 @@ Ext.define('Imt.purpose.controller.Purpose', {
         view = me.getPage();
 
         if (view.down('#validationConfigurationStatusField')) {
-            view.down('#validationConfigurationStatusField').setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'IMT', 'Updating status...'));
+            view.down('#validationConfigurationStatusField').setValue(Uni.I18n.translate('validationConfiguration.updatingStatus', 'IMT', 'Updating status...'));
             view.down('#validationConfigurationStatusPanel').setLoading(true);
             !!view.down('#validationConfigurationStateChangeBtn') && view.down('#validationConfigurationStateChangeBtn').setDisabled(true);
         }
 
         Ext.Ajax.request({
             url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
-            //url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             callback: function () {
