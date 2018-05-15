@@ -211,12 +211,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     owner.insert(1, me.getButtonContent(confirmationWindow));
 
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.deviceId)
+                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.getPage().purpose.getData().name)
                     });
                 } else {
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.deviceId),
-                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'IMT', 'There are currently no readings for this device.')
+                        title: Uni.I18n.translate('validationConfiguration.activateConfirmation.title', 'IMT', 'Activate data validation on device {0}?', me.getPage().purpose.getData().name),
+                        msg: Uni.I18n.translate('validationConfiguration.activateMsg', 'IMT', 'There are currently no readings for this device.')
                     });
                 }
             }
@@ -241,7 +241,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item', 'IMT', 'Validate data from'),
+                    fieldLabel: Uni.I18n.translate('validationConfiguration.activateConfirmation.item', 'IMT', 'Validate data from'),
                     labelWidth: 175,
                     labelPad: 1
                 },
@@ -270,8 +270,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate')
         }).show({
-            title: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'IMT', 'Deactivate data validation on device {0}?', [me.deviceId]),
-            msg: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.msg', 'IMT', 'The data of this device will no longer be validated'),
+            title: Uni.I18n.translate('validationConfiguration.deactivateConfirmation.title', 'IMT', 'Deactivate data validation on purpose {0}?', [me.getPage().purpose.getData().name]),
+            msg: Uni.I18n.translate('validationConfiguration.deactivateConfirmation.msg', 'IMT', 'The data of this purpose will no longer be validated'),
             fn: function (state) {
                 if (state === 'confirm') {
                     me.deactivateDataValidation(view);
@@ -292,7 +292,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             success: function () {
                 me.updateValidationConfigurationStatusSection();
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('device.dataValidation.deactivation.successMsg', 'MDC', 'Data validation deactivated'));
+                    Uni.I18n.translate('validationConfiguration.deactivation.successMsg', 'IMT', 'Data validation deactivated'));
             }
         });
     },
@@ -355,11 +355,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 me.updateValidationConfigurationStatusSection();
                 if (runNow) {
                     me.isValidationRunImmediately = true;
-                    me.getModel('Mdc.model.Device').load(me.deviceId, {
-                        success: function (record) {
-                            me.validateData(confWindow, record);
-                        }
-                    });
+                    // me.getModel('Mdc.model.Device').load(me.deviceId, {
+                    //     success: function (record) {
+                    //         me.validateData(confWindow, record);
+                    //     }
+                    // });
                 } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.activated', 'IMT', 'Data validation activated'));
@@ -452,8 +452,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 me.getRulesSetGrid().getStore().reload({
                     callback: function () {
                         me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
-                            Uni.I18n.translate('device.dataValidation.ruleSet.deactivated', 'IMT', 'Validation rule set deactivated') :
-                            Uni.I18n.translate('device.dataValidation.ruleSet.activated', 'IMT', 'Validation rule set activated'));
+                            Uni.I18n.translate('validationConfiguration.ruleSet.deactivated', 'IMT', 'Validation rule set deactivated') :
+                            Uni.I18n.translate('validationConfiguration.ruleSet.activated', 'IMT', 'Validation rule set activated'));
                     }
                 });
             }
@@ -764,7 +764,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         view.down('#validationConfigurationStateChangeBtn').setText((res.validationActive ?
                                 Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
                                 Uni.I18n.translate('general.activate', 'IMT', 'Activate')) +
-                            ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'IMT', 'data validation')
+                            ' ' + Uni.I18n.translate('validationConfiguration.statusSection.buttonAppendix', 'IMT', 'data validation')
                         );
                         view.down('#validationConfigurationStateChangeBtn').action = res.validationActive ? 'deactivate' : 'activate';
                         view.down('#validationConfigurationStateChangeBtn').setDisabled(false);
