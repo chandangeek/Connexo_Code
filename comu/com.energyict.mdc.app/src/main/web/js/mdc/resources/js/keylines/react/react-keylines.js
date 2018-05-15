@@ -1,7 +1,7 @@
 //
-//     React components KeyLines v3.8.0-3469
+//     React components KeyLines v4.3.1-5376
 //
-//     Copyright © 2011-2017 Cambridge Intelligence Limited.
+//     Copyright © 2011-2018 Cambridge Intelligence Limited.
 //     All rights reserved.
 //
 
@@ -24,6 +24,7 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
     
     constructor(props) {
       super(props);
+        KeyLines.promisify();
       // save the type of KeyLines component
       this.type = type;
       // save the onLoad function
@@ -45,8 +46,8 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
         options: this.props.options 
       };
 
-      KeyLines.create(def, (err, loaded) => {
-        this.component = loaded;
+        KeyLines.create(def).then((component) = > {
+            this.component = component;
         this.onResize();
         this.component.bind('all', this.onEvent);
         this.applyProps(this.props, () => {
@@ -108,10 +109,8 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
     // handled differently
     applyProps(props, cb) {
       if (this.component) {
-        this.component.load(props.data, () => {
-          // the next call needs to be careful with undefined:
-          // passing undefined doesn't call the callback
-          this.onLoad({ animate: !!this.props.animateOnLoad }, () => {
+          this.component.load(props.data).then(() = > {
+              this.onLoad({animate: !!this.props.animateOnLoad}).then(() = > {
             this.component.selection(this.props.selection);
             invoke(cb);
           });
@@ -155,10 +154,10 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
 };
 
 function createChartComponent() {
-  
-  function onLoad(options, callback) {
+
+    function onLoad(options) {
     // default behaviour when loading data in the chart
-    this.component.layout('standard', options, callback);
+        return this.component.layout('standard', options);
   }
   
   function onResize() {
@@ -181,10 +180,10 @@ function createChartComponent() {
 export const Chart = createChartComponent();
 
 function createTimebarComponent() {
-  
-  function onLoad(options, callback) {  
+
+    function onLoad(options) {
     // default behaviour when loading data in the timebar
-    this.component.zoom('fit', options, callback);
+        return this.component.zoom('fit', options);
   }
   
   function onResize() {
