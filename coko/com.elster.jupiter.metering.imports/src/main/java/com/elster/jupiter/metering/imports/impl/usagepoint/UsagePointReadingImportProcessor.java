@@ -60,7 +60,7 @@ public class UsagePointReadingImportProcessor {
                     .findFirst()
                     .orElseThrow(() -> new UsagePointReadingImportProcessorException(thesaurus.getFormat(TranslationKeys.Labels.UP_READING_INVALID_MRID).format(typeValue.getKey())));
             IntervalReadingImpl intervalReading = IntervalReadingImpl.of(usagePointRecord.getReadingDate(), typeValue.getValue());
-            intervalReading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.PROJECTEDGENERIC).getCode(), "");
+            intervalReading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC).getCode(), "");
             dataAggregationService.edit(usagePoint, metrologyContract, readingTypeDeliverable, QualityCodeSystem.MDM).update(intervalReading).save();
         }
     }
