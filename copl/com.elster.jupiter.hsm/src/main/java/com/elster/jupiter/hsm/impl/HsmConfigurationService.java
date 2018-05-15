@@ -27,12 +27,20 @@ public class HsmConfigurationService {
             RawConfiguration cfg = new HsmConfigLoader().load(f);
             JSSRuntimeControl.initialize();
             JSSRuntimeControl.newConfiguration(cfg);
+            checkInit();
             this.initialized = true;
         } catch (Throwable e) {
             System.out.println(e);
             throw (e);
         }
         System.out.println("JSS initialized");
+    }
+
+    private void checkInit() {
+        System.out.println("Waiting for HSM initialization, please be patient...");
+        if (!JSSRuntimeControl.waitSecondsForAvailableHsms(10)) {
+            throw new RuntimeException("No HSM available! Initialization failed");
+        }
     }
 
     /**
