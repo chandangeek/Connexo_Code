@@ -1,7 +1,7 @@
 //
-//     Copyright © 2011-2017 Cambridge Intelligence Limited.
+//     Copyright © 2011-2018 Cambridge Intelligence Limited.
 //     All rights reserved.
-//     KeyLines v3.8.0-3469 professional
+//     KeyLines v4.3.1-5376 professional
 //
 declare module KeyLines {
   
@@ -29,7 +29,7 @@ declare module KeyLines {
     bu?: Bubble,
     /** The fill colour. Default: No fill. */
     c?: string,
-    /** Whether the image should be a cutout circle from the original image. This feature is affected by cross-origin and some SVG security restrictions. Does not apply to font icons. Default: false. */
+      /** Whether the image should be a cutout circle from the original image. This feature is affected by cross-origin restrictions. Does not apply to font icons. Default: false. */
     ci?: boolean,
     /** The 'd' parameter stands for data. Use this to store custom data on the node. */
     d?: any,
@@ -75,9 +75,11 @@ declare module KeyLines {
     ha9?: Halo,
     /** Whether the node is hidden. Default: false. */
     hi?: boolean,
+      /** The style of a combo when open. */
+      oc?: OpenStyleOptions,
     /** An object describing the position of the node on the map when in map mode. */
     pos?: Location,
-    /** The node's shape: Either 'box', 'circle', 'e' for an east-pointing signpost, or 'w' for a west-pointing signpost. Default: 'circle'. */
+      /** The node's shape. Options are: 'box', 'circle', 'e' (east-pointing signpost, deprecated),  'w' (west-pointing signpost, deprecated). Default: 'circle'. */
     sh?: "box" | "circle" | "e" | "w",
     /** The node label. Use new lines for multiline labels. Default: No label. */
     t?: string,
@@ -136,7 +138,7 @@ declare module KeyLines {
     ls?: "solid" | "dashed" | "dotted",
     /** Specifies the offset of the midpoint of the link, and so controls how curved the link is. A zero offset gives a straight line for links between two different nodes, and a standard curve for "self links". Default: 0. */
     off?: number,
-    /** The link style. If 'h', the link is a horizontal link, with a central section at a specified y-position, and diagonal sections at each end. Otherwise, the link is a standard link. */
+      /** [deprecated] The link style. If 'h', the link is a horizontal link, with a central section at a specified y-position, and diagonal sections at each end. Otherwise, the link is a standard link. */
     st?: "h",
     /** The label positioned at the centre of the link. Use new lines for multiline labels. */
     t?: string,
@@ -146,7 +148,7 @@ declare module KeyLines {
     t2?: string | LinkEndLabel,
     /** The width of the link line. If you add arrows to links, this width will affect the size of the arrowheads. Default: 1. */
     w?: number,
-    /** The position of the central section of the link along the Y-axis, in world coordinates. Only applies when the st property is 'h'. Default: 0. */
+      /** [deprecated] The position of the central section of the link along the Y-axis, in world coordinates. Only applies when the st property is 'h'. Default: 0. */
     y?: number
   }
       
@@ -287,8 +289,8 @@ declare module KeyLines {
     ff?: string,
     /** The font icon to use as a glyph. */
     fi?: FontIcon,
-    /** The position of the glyph relative to the node. Four positions are supported - 'ne', 'se', 'sw' and 'nw'. Glyph positions are only supported on nodes. Links draw glyphs in the order of the array. Bubbles only draw a single glyph, at the left of the bubble. */
-    p?: "ne" | "se" | "sw" | "nw",
+      /** The position of the glyph relative to the node. Glyph positions are only supported on nodes. Use compass points ('n', ne', 'e', 'se', 's', 'sw', 'w' and 'nw') or integers representing angles measured in degrees clockwise from north (in the range 0-359). */
+      p?: "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw" | number,
     /** The label for the glyph. If a label is specified then it takes precedence over the image. For standard glyphs, with 'w' false, a maximum of four characters can be shown. For wide glyphs, with 'w' true,
     a maximum of 25 characters can be shown. Longer labels are truncated. */
     t?: string,
@@ -342,14 +344,21 @@ declare module KeyLines {
   }
       
   interface TimeBarItem {
-    /** The timestamp or timestamps associated with this item. Either a single timestamp or an array of timestamps may be supplied. Each timestamp may be either a JavaScript Date object or a millisecond number. */
-    dt: Date | number | Array<Date | number>,
+      /** The time entry or time entries associated with this item. Either a single time entry or an array of time entries may be supplied. Each time entry may be either a JavaScript Date object, a millisecond number, or a TimePeriod object. */
+      dt: Date | number | TimePeriod | Array<Date | number | TimePeriod>,
     /** The identity that this item is associated with. It must not end with a '\' character. */
     id: string,
     /** The value associated with each timestamp, for example, the amount of a transaction.
     Values should be greater than zero. The same number of values should be supplied as the number of timestamps. If values are not supplied, then the time bar counts the number of timestamps, instead of adding up the corresponding values. Default: 1. */
     v?: number | Array<number>
   }
+
+    interface TimePeriod {
+        /** The timestamp for the start of the time period, either a JavaScript Date object or a millisecond number. */
+        dt1?: Date | number,
+        /** The timestamp for the end of the time period, either a JavaScript Date object or a millisecond number. */
+        dt2?: Date | number
+    }
     
   interface AnimatePropertiesOptions {
     /** The time the animation should take, in milliseconds. Default: 1000. */
@@ -397,7 +406,9 @@ declare module KeyLines {
       
   interface EachOptions {
     /** Either 'all', 'node', or 'link'. Default: 'all'. */
-    type?: "node" | "link" | "all"
+        type?: "node" | "link" | "all",
+      /** The chart items to iterate over when using combos. Options are:'underlying': iterates over items that are not combo nodes or combo links.'toplevel': iterates over items, including combos, that are not inside other combos.'all': iterates over every item.. Default: 'underlying'. */
+      items?: "underlying" | "toplevel" | "all"
   }
       
   interface ExpandLayoutOptions {
@@ -418,11 +429,11 @@ declare module KeyLines {
     level?: string,
     /** The orientation of the hierarchy layout.  There are four orientations available: 'up', 'down', 'left' and 'right'. Default: 'down'. */
     orientation?: "down" | "right" | "up" | "left",
-    /**  How to space nodes at each level of the sequential layout. To compare spacing options, see the Use Sequential Layout demo. Options are: ‘auto’: A natural-looking layout with nodes spaced to minimise link lengths. Connected components are nested together to make the most of screen space.          ‘equal’: node positions are more regular with equal spacing within each connected component and a clear separation between them.          ‘stretched’: as for ‘equal’ but each level’s spacing is stretched so they take up an equal amount of space.. Default: 'auto'. */
+      /** How to space nodes at each level of the sequential layout. Options are 'auto', 'equal', and 'stretched'. Default: 'auto'. */
     spacing?: string,
     /** If true, curved links are straightened. If false, they remain curved. Default: true. */
     straighten?: boolean,
-    /** The tidy option pushes apart the components of the chart so they don't overlap. Not used for 'lens'. Default: true. */
+      /** The tidy option pushes apart the components of the chart so they don't overlap. Not used for 'lens'. Default: false. */
     tidy?: boolean,
     /** A number (0 -> 10) which controls how close the nodes should be. Higher values make the nodes closer. Default: 5. */
     tightness?: number,
@@ -434,13 +445,13 @@ declare module KeyLines {
   interface ExpandFilter {
     /** A function which takes an item as its argument, returning true if the item should be visible, false otherwise. */
     filterFn?: Function,
-    /** If true, the filter rules that decide what data to show or hide will apply to the individual items inside the combo. The combo will be hidden if all of its contents are. If false, filtering rules will apply to the combo itself. Default: false. */
-    combos?: boolean,
+      /** The chart items to iterate over when using combos. Options are:'underlying': iterates over items that are not combo nodes or combo links.'toplevel': iterates over items, including combos, that are not inside other combos.. Default: 'underlying'. */
+      items: "underlying" | "toplevel",
     /** Whether isolated nodes should be hidden, even if the filter function returns true for them. The default is true if type is 'link', false otherwise. */
     hideSingletons?: boolean,
     /** The type of item to show or hide - either 'node', 'link' or 'all'. Default: 'all'. */
     type?: "node" | "link" | "all",
-    /** If combos is true, update the text of the NE glyph on combo nodes to equal the number of nodes that are visible inside the combo node. Default: true. */
+      /** If items is 'underlying', update the text of the glyph on combo nodes to equal the number of nodes that are visible inside the combo node. Default: true. */
     updateGlyph?: boolean
   }
       
@@ -504,9 +515,9 @@ declare module KeyLines {
     time?: number,
     /** The type of item to show or hide. Either 'node', 'link' or 'all'. Default: 'all'. */
     type?: "node" | "link" | "all",
-    /** If true, the filter rules that decide what data to show or hide will apply to the individual items inside the combo. The combo will be hidden if all  of its contents are. If false, filtering rules will apply to the combo itself. Default: false. */
-    combos?: boolean,
-    /** If combos is true, update the text of the NE glyph on combo nodes to equal the number of nodes that are visible inside the combo node. Default: true. */
+      /** The chart items to iterate over when using combos. Options are:'underlying': iterates over items that are not combo nodes or combo links.'toplevel': iterates over items, including combos, that are not inside other combos.. Default: 'underlying'. */
+      items?: "underlying" | "toplevel",
+      /** If items is 'underlying', update the text of the glyph on combo nodes to equal the number of nodes that are visible inside the combo node. Default: true. */
     updateGlyph?: boolean
   }
       
@@ -530,8 +541,10 @@ declare module KeyLines {
   interface ForegroundOptions {
     /** The type of item to foreground/background - either 'node', 'link' or 'all'. Default: 'node'. */
     type?: "node" | "link" | "all",
-    /** Pass the contents of the combo rather than the combo itself.  The combo will be in the background if  all of its contents are. Default: false. */
-    combos?: boolean
+      /** The chart items to iterate over when using combos. Options are:'underlying': iterates over items that are not combo nodes or combo links.'toplevel': iterates over items, including combos, that are not inside other combos.. Default: 'underlying'. */
+      items?: "underlying" | "toplevel",
+      /** Defines whether an open combo can be put in the foreground. Set this to false to put all open combos in the background. Default: true. */
+      foregroundOpenCombos?: boolean
   }
       
   interface HideOptions {
@@ -549,7 +562,9 @@ declare module KeyLines {
     /** Top */
     y1: number,
     /** Bottom */
-    y2: number
+    y2: number,
+      /** Font Size at current zoom */
+      fs: number
   }
       
   interface LayoutOptions {
@@ -570,7 +585,7 @@ declare module KeyLines {
     level?: string,
     /** The orientation of the hierarchy layout.  There are four orientations available: 'up', 'down', 'left' and 'right'. Default: 'down'. */
     orientation?: "down" | "right" | "up" | "left",
-    /**  How to space nodes at each level of the sequential layout. To compare spacing options, see the Use Sequential Layout demo. Options are: ‘auto’: A natural-looking layout with nodes spaced to minimise link lengths. Connected components are nested together to make the most of screen space.               ‘equal’: node positions are more regular with equal spacing within each connected component and a clear separation between them.               ‘stretched’: as for ‘equal’ but each level’s spacing is stretched so they take up an equal amount of space.. Default: 'auto'. */
+      /** How to space nodes at each level of the sequential layout. Options are 'auto', 'equal', and 'stretched'. Default: 'auto'. */
     spacing?: string,
     /** If true, curved links are straightened. If false, they remain curved. Default: true. */
     straighten?: boolean,
@@ -621,9 +636,14 @@ declare module KeyLines {
   interface LinkEnds {
     /** Whether link ends should avoid node labels. Default: true. */
     avoidLabels?: boolean,
-    /** Controls the spacing between link ends and nodes. Possible vaues are:'loose' - there is a small gap between the link end and and the node.'tight' - there is no gap between the link end and the node.. Default: 'tight'. */
+      /** Controls the spacing between link ends and nodes. Possible values are:'loose' - there is a small gap between the link end and and the node.'tight' - there is no gap between the link end and the node. Default: 'tight'. */
     spacing?: "loose" | "tight"
   }
+
+    interface LinkStyle {
+        /** Controls the positioning of multiple glyphs on links without labels. Possible values are:'along' - glyphs are drawn along the link.'horizontal' - glyphs are drawn horizontally.. Default: 'horizontal'. */
+        glyphs?: "along" | "horizontal"
+    }
       
   interface Bands {
     /** An array of objects defining each of the bands. */
@@ -686,6 +706,10 @@ declare module KeyLines {
     fs?: number,
     /** The style of the link line. This can be either 'solid', 'dashed' or 'dotted'. This feature is supported only by newer HTML5 browser versions. */
     ls?: "solid" | "dashed" | "dotted",
+      /** The link label positioned at the id1 end. Use new lines for multiline labels. Can be one of the following options:string - Add a new label to inherit properties from the label at the centre of the link.LinkEndLabel - Use LinkEndLabel properties. */
+      t1?: string | LinkEndLabel,
+      /** The link label positioned at the id2 end. Use new lines for multiline labels. Can be one of the following options:string - Add a new label to inherit properties from the label at the centre of the link.LinkEndLabel - Use LinkEndLabel properties. */
+      t2?: string | LinkEndLabel,
     /** The width of the link line. */
     w?: number
   }
@@ -731,6 +755,8 @@ declare module KeyLines {
     ha8?: Halo,
     /** A halo object. */
     ha9?: Halo,
+      /** The style of a combo when open. */
+      oc?: OpenStyleOptions,
     /** Whether resize handles should be shown. */
     re?: boolean,
     /** The URL of the node image. */
@@ -784,8 +810,8 @@ declare module KeyLines {
     backgroundAlpha?: number,
     /** Set to give the chart a set of labelled vertical background bands. options.bands = { top: true, bottom: true, bands: [{x: 100, w: 100, c: '#F0F0F0', t: 'Band 1'}, {x: 200, w: 100, c: '#F8F8F8', t: 'Band 2'}]}; */
     bands?: Bands,
-    /** The rgb colour to use for the navigation and overview window controls. 
-    Only the hue and saturation of the colour are used: the lightness is fixed. Note: The overview window is not supported in WebGL mode. */
+    /** The rgb colour to use for the navigation and overview window controls.
+     Only the hue and saturation of the colour are used: the lightness is fixed. */
     controlColour?: string,
     /** If true, drag operations will pan the chart automatically
     if the mouse or touch position moves near the edge of or outside the chart area.
@@ -804,7 +830,7 @@ declare module KeyLines {
     /** If true, dragging the chart background drags all items. 
     If false, dragging the chart background draws a bounding box for selecting items. Default: false. */
     handMode?: boolean,
-    /** The number of milliseconds delay before the hover event is triggered. Default: 1000. */
+      /** The number of milliseconds delay before the hover event is triggered. Default: 150. */
     hover?: number,
     /** The default font family to use for font icons, for example 'FontAwesome' or 'Octicons'.
     If not set, the font family 'sans-serif' is used.
@@ -817,6 +843,8 @@ declare module KeyLines {
     labelOffset?: number,
     /** Contains settings that control how the ends of links are drawn. */
     linkEnds?: LinkEnds,
+      /** Settings to control how links are drawn. */
+      linkStyle?: LinkStyle,
     /** Settings for the logo to be displayed in a corner of the chart. */
     logo?: Logo,
     /** Controls how links are selected when dragging a selection marquee. Possible values are: 'centre', 'ends' or 'off'. Default: 'centre'. */
@@ -825,11 +853,11 @@ declare module KeyLines {
     maxItemZoom?: number,
     /** Sets the minimum zoom for the view.
     Use a smaller value to allow the chart to be zoomed out further.
-    The value can be from 0.01 to 1. Default: 0.05. */
+     The value can be from 0.001 to 1. Default: 0.05. */
     minZoom?: number,
     /** An object whose properties are the settings for the navigation controls. */
     navigation?: NavigationOptions,
-    /** An object whose properties are the settings for the overview window.Note: The overview window is not supported in WebGL mode. */
+      /** An object whose properties are the settings for the overview window. */
     overview?: OverviewOptions,
     /** Specifies how to draw selected links. If present, its value is an object whose
     properties override the properties of selected links when they are drawn. If null or undefined, selected links are drawn in a default way. */
@@ -930,45 +958,103 @@ declare module KeyLines {
     ids?: string | Array<string>
   }
 
+    interface ComboArrangeOptions {
+        /** Whether the operation should be animated. Default: true. */
+        animate?: boolean,
+        /** Controls how nodes are arranged when the combo is open. Possible values are: 'lens' - items are arranged automatically with connected nodes next to each other.  'concentric' - items are arranged automatically inside a circle with larger items at the centre. 'none' - items are kept in their original positions.. Default: lens. */
+        name?: "lens" | "concentric" | "none",
+        /** If true, the combos will be resized to fit their contents. If false, they will not be resized, unless the contents are beyond the current boundary. Default: true. */
+        resize?: boolean,
+        /** If animated, the time the animation should take, in milliseconds. Default: 250. */
+        time?: number
+    }
+
+    interface CloseOptions {
+        /** Whether the operation should be animated. Default: true. */
+        animate?: boolean,
+        /** If animated, the time the animation should take, in milliseconds. Default: 250. */
+        time?: number
+    }
+
+    interface OpenStyleOptions {
+        /** The colour of the open combo's border. Default: grey. */
+        b?: string,
+        /** The width of the open combo's border. Default: 1. */
+        bw?: number,
+        /** The colour of the open combo. Default: light grey. */
+        c?: string,
+        /** The style of the border line. This can be either 'solid' or 'dashed'. Newer HTML5 browser versions support this. Default: solid. */
+        bs?: string
+    }
+      
   interface ComboDefinition {
-    /** If defined, all properties will be transfered to the new combo's d property. */
+      /** If defined, all properties will be transferred to the new combo's d property. */
     d?: any,
     /** An x offset for positions of members of the combo if it is later uncombined. Default: 0. */
     dx?: number,
     /** A y offset for positions of members of the combo if it is later uncombined. Default: 0. */
     dy?: number,
-    /** An array of id strings of nodes to combine. This is the only mandatory property and can contain one or more node ids. */
+      /** An array of id strings of nodes to combine. This can contain one or more node ids. */
     ids: string | Array<string>,
-    /** The style of glyph to create. The default is red in the top right corner showing the number of nodes contained within the combo. Set to null for no Glyph. You can add more glyphs using "style.g". */
+      /** The style of glyph to create. Glyphs are only shown on closed combos. The default is red in the top right corner showing the number of nodes contained within the combo. Set to null for no glyph. You can add more glyphs using "style.g". */
     glyph?: Glyph,
-    /** The label to use for the combo. If not specified, the label will be composed of the labels of the nodes in the order of the ids array. */
+      /** The label to use for the combo. If not specified, the node labels in the order of the array of ids will form the label. */
     label?: string,
     /** The style of the combo node using the standard node property names. If not specified, the style will be the same as the first node in the ids array. If style.hi is not specified, the combo will be visible if any of its member nodes are visible. */
     style?: NodeStyle,
-    /** The position of the final combo: 'average' or 'first'. Default: 'average'. */
+      /** The style of the combo node when open using the standard node property names. If not specified, the style will be the default for open combos. */
+      openStyle?: OpenStyleOptions,
+      /** Whether the combo should be created in the open state. Default: false. */
+      open?: boolean,
+      /** The chart position of the final combo. Possible values are:  'average' - use the average position of the nodes to centre the arrangement.'first' - use the position of the first node in the ids array.. Default: 'average'. */
     position?: "average" | "first"
   }
       
   interface CombineOptions {
     /** Whether the combination(s) should be animated. Default: true. */
     animate?: boolean,
-    /** Whether the resulting combo(s) should be selected. Default: true. */
+      /** Controls how nodes are positioned within the combo. Possible values are: 'lens' - items are arranged automatically with connected nodes next to each other.  'concentric' - items are arranged inside a circle with larger items at the centre. 'none' - items are kept in their original positions.. Default: lens. */
+      arrange?: "lens" | "concentric" | "none",
+      /** Whether the combo(s) should be selected. Default: true. */
     select?: boolean,
     /** If animated, the time the animation should take, in milliseconds. Default: 250. */
     time?: number
   }
+
+    interface ComboFindOptions {
+        /** There's a parent/child relationship between a combo and the items it contains. The parent can be one of two values: 'first': finds the immediate parent of the item.'top': finds the parent at the top of the nested combo hierarchy.. Default: 'top'. */
+        parent?: "top" | "first"
+    }
       
   interface IsComboOptions {
     /** Specifies which types of item are tested: either 'all', 'node', or 'link'. Default: 'all'. */
     type?: "node" | "link" | "all"
   }
+
+    interface OpenOptions {
+        /** Whether the operation should be animated. Default: true. */
+        animate?: boolean,
+        /** If animated, the time the animation should take, in milliseconds. Default: 250. */
+        time?: number
+    }
+
+    interface TransferOptions {
+        /** Whether the transfer operation should be animated. Default: true. */
+        animate?: boolean,
+        /** Controls how nodes inside source and destination combos are positioned. Possible values are: 'lens' - items are arranged automatically with connected nodes next to each other.  'concentric' - items are arranged inside a circle with larger items at the centre. 'none' - items are kept in their original positions.. Default: lens. */
+        arrange?: "lens" | "concentric" | "none",
+        /** If true, the combos will be resized to fit their contents. If false, they will not be resized, unless the contents are beyond the current boundary. Default: true. */
+        resize?: boolean,
+        /** If animated, the time the animation should take, in milliseconds. Default: 250. */
+        time?: number
+    }
       
   interface UncombineOptions {
     /** Whether the operation should be animated. Default: true. */
     animate?: boolean,
-    /** Whether all nodes within the combo should be shown. If false, just the first level of the combo is shown again. Default: false. */
+      /** Whether all nodes inside the combo (including nodes inside nested combos) should be uncombined. If false, just the first level of the combo is uncombined. Default: false. */
     full?: boolean,
-    /** Whether the resulting nodes should be selected. Default: true. */
+      /** Whether the uncombined nodes should be selected. Default: true. */
     select?: boolean,
     /** If animated, the time the animation should take, in milliseconds. Default: 250. */
     time?: number
@@ -1130,7 +1216,7 @@ declare module KeyLines {
     element?: HTMLElement,
     /** The type of component to create, either 'chart' or 'timebar'. The default is 'chart'. */
     type?: "chart" | "timebar",
-    /** Chart or Time Bar options for the new component (optional). */
+      /** The chart or time bar options for the new component (optional). */
     options?: ChartOptions | TimeBarOptions,
   }
       
@@ -1147,12 +1233,14 @@ declare module KeyLines {
   }
 
   interface DragControlOptions {
-    /**  whether dragging is allowed in the x-direction. Default: true. */
+      /** whether dragging is allowed in the x-direction. Default: true. */
     x?: boolean,
     /** whether dragging is allowed in the y-direction. Default: true. */
     y?: boolean,
-    /** tan array of ids of items that will also be dragged, even if they are not selected. Applies to the 'move' dragger only. */
-    add?: Array<string>
+      /** an array of ids of items that will also be dragged, even if they are not selected. Applies to the 'move' dragger only. */
+      add?: Array<string>,
+      /** whether dragging nodes in combos also drags the combos. Applies to the 'move' dragger only. Default: true. */
+      combos?: boolean
   }
  
   interface Locale {
@@ -1365,7 +1453,7 @@ declare module KeyLines {
         
     /** labelPosition returns information about the label by the item with the id specified. This function does not return the label position for 't1' or 't2' labels.
     * @param id The identity of the item.
-    * @returns An object containing label coordinate properties: {x1: (left), x2: (right), y1: (top), y2: (bottom)}.*/
+     * @returns An object containing label coordinate properties: {x1: (left), x2: (right), y1: (top), y2: (bottom), fs: (font size at current zoom)}.*/
     labelPosition(id: string): LabelPosition;
         
     /** The layout function positions the nodes of the chart.
@@ -1495,8 +1583,8 @@ declare module KeyLines {
     * @param y The y location of the right-click in view coordinates.
     * @param sub The sub-widget, or null if over the main part of the item.*/
     bind(name: 'contextmenu', handler: (id?: string, x?: number, y?: number, sub?: string) => void): void;
-        
-    /** The dblclick event is triggered when the end-user double-clicks on the chart surface. On touch devices this is triggered when the end-user double-taps the chart. Default action: Zoom in (animated) when double-clicking the background. Return true to override this behaviour.
+
+      /** The dblclick event is triggered when the end-user double-clicks on the chart surface. On touch devices this is triggered when the end-user double-taps the chart. Default action: Zoom in (animated) when double-clicking the background; open or close a combo. Return true to override this behaviour.
     * @param id The id of the item that was double-clicked, or null if the mouse was on the chart background.
     * @param x The x location of the double-click in view coordinates.
     * @param y The y location of the double-click in view coordinates.
@@ -1526,8 +1614,8 @@ declare module KeyLines {
     * @param y The y location of the drag in view coordinates.
     * @param sub The sub-widget hovered over, or null if the hover is over the main part of the item.*/
     bind(name: 'dragover', handler: (id?: string, x?: number, y?: number, sub?: string) => void): void;
-        
-    /** The dragstart event is fired at the beginning of a drag. Return true from your event handler to prevent the default drag action occuring. For 'move' and 'hand' draggers, you can also return an object to control the drag operation, with the following properties: x (boolean) - whether dragging is allowed in the x-direction. The default is true. y (boolean) - whether dragging is allowed in the y-direction. The default is true. add (array) - an array of ids of items that will also be dragged, even if they are not selected. Applies to the 'move' dragger only.
+
+      /** The dragstart event is fired at the beginning of a drag. Return true from your event handler to prevent the default drag action occuring. For 'move' and 'hand' draggers, you can also return an object to control the drag operation, with the following properties: x (boolean) - whether dragging is allowed in the x-direction. The default is true. y (boolean) - whether dragging is allowed in the y-direction. The default is true. The 'move' dragger objects also support these properties: add (array) - an array of ids of items that will also be dragged, even if they are not selected. combos (boolean) - whether dragging nodes in combos also drags the combos. The default is true.
     * @param type The type of the drag: 'move' or 'hand'
     * @param id The id of the item that is being dragged, or null if no item is being dragged.
     * @param x The x location of the drag in view coordinates.
@@ -1580,7 +1668,7 @@ declare module KeyLines {
     bind(name: 'overview', handler: (state?: string) => void): void;
         
     /** The prechange event is triggered whenever the chart changes by either a user action, such as dragging items, or programmatically by calling API methods.
-    * @param change The change that is happening - one of 'arrange', 'combine', 'delete', 'expand', 'hide', 'layout', 'merge', 'move', 'offset', 'properties' or 'resize'.*/
+     * @param change The change that is happening - one of 'arrange', 'arrange combo', 'close', 'combine', 'delete', 'expand', 'hide', 'layout', 'merge', 'move', 'offset', 'open', 'properties', 'resize', 'transfer' or 'uncombine'.*/
     bind(name: 'prechange', handler: (change?: string) => void): void;
         
     /** The progress event is triggered during long running tasks such as layouts and centrality calculations.
@@ -1622,7 +1710,7 @@ declare module KeyLines {
     load(data: TimeBarData): Promise<void>;
         
     /** Inserts new data into the time bar, merging it with any existing time bar data.
-    * @param items The KeyLines Time Bar data object or array of items to merge into the existing time bar data*/
+     * @param items The KeyLines time bar data object or array of items to merge into the existing time bar data*/
     merge(items: TimeBarItem | TimeBarData): Promise<void>;
         
     /** The options function gets options for the time bar.*/
@@ -1653,11 +1741,11 @@ declare module KeyLines {
     * @param dt2 the new end time for the time range of the time bar
     * @param options Options controlling the operation*/
     range(dt1: Date | number, dt2: Date | number, options?: TimeBarRangeOptions): Promise<void>;
-        
-    /** Gets the Time Bar selection lines.*/
+
+      /** Gets the time bar selection lines.*/
     selection(): Array<string>;
-        
-    /** Sets the Time Bar selection lines.
+
+      /** Sets the time bar selection lines.
     * @param items An array of items to be selected in the time bar, or an object if just one selection is made.
     * @returns An array of the current selections.*/
     selection(items: SelectionOptions | Array<SelectionOptions>): Array<string>;
@@ -1766,6 +1854,18 @@ declare module KeyLines {
   }
   
   interface Combo {
+      /** Arrange the items within a combo.
+       * @param id The id or the array of ids of the combos to be arranged.
+       * @param options Options controlling the arrange operation.
+       * @returns A Promise.*/
+      arrange(id: string | Array<string>, options?: ComboArrangeOptions): Promise<void>;
+
+      /** Closes the specified open combo(s) so the items inside are no longer visible.
+       * @param ids The id string or array of id strings of the combos to be closed.
+       * @param options Options controlling the close operation.
+       * @returns A Promise.*/
+      close(ids: string | Array<string>, options?: CloseOptions): Promise<void>;
+        
     /** Combines the nodes specified into a single 'combo' node.  Any links between the nodes are no longer displayed.
     * @param comboDefinition A definition of the combo to create, or an array of definitions.
     * @param options Options controlling the combine operation.
@@ -1774,26 +1874,54 @@ declare module KeyLines {
         
     /** find(ids) Returns an array of combo ids that contains the given items.                
     * @param ids The ids of the items to be looked up.
+     * @param options Options controlling how the find operates.
     * @returns The ids of the combos containing the given items, or null if not found.*/
-    find(ids: Array<string>): Array<string>;
-        
-    /** find(id) Returns a string     
+      find(ids: Array<string>, options?: ComboFindOptions): Array<string>;
+
+      /** find(id) Returns the string id of the combo containing the given item.
     * @param id The id of the item to be looked up.
+       * @param options Options controlling how the find operates.
     * @returns The id of the combo containing the given items, or null if not found.*/
-    find(id: string): string;
-        
-    /** Returns all the nodes and links within the combo, or null if the id is not a combo.
+      find(id: string, options?: ComboFindOptions): string;
+
+      /** Returns the nodes and links inside a combo, or null if the id is not a combo.
     * @param id The id of the combo.
     * @returns An object in the form {links:[link1, link2, ..], nodes:[node1, node2, ..]}*/
     info(id: string): any;
-        
-    /** isCombo is used to test whether a node or link is a combo, or just a normal item.
+
+      /** isCombo tests node or link ids to find out whether they are combo nodes or combo links.
     * @param id The id string or the array of id strings of the items to be tested.
     * @param options Options controlling whether links or nodes are tested.
     * @returns True if any node or link id are a combo, false otherwise.*/
     isCombo(id: string | Array<string>, options?: IsComboOptions): boolean;
-        
-    /** Uncombines the specified combo: any nodes within the combo will be shown again on chart surface.
+
+      /** isOpen tests whether an item is an open combo.
+       * @param id The id string of the item to be tested.
+       * @returns True if the item id is an open combo, false otherwise.*/
+      isOpen(id: string): boolean;
+
+      /** Opens the specified combo(s) so the contents are visible inside a combo border on the chart.
+       * @param ids The id string or array of id strings of the combos to be opened.
+       * @param options Options controlling the open operation.
+       * @returns A Promise.*/
+      open(ids: string | Array<string>, options?: OpenOptions): Promise<void>;
+
+      /** The reveal function sets the list of revealed links as an array of ids.
+       * @param ids The id string, or array of id strings, of the links to be revealed.
+       * @returns The currently revealed links as an array of id strings.*/
+      reveal(ids?: string | Array<string>): Array<string>;
+
+      /** The reveal function gets the list of revealed links as an array of ids.*/
+      reveal(): Array<string>;
+
+      /** Transfers the specified items into or out of a combo.
+       * @param id The id string or array of id strings of nodes to be transferred into or out of a combo.
+       * @param comboId The id of the combo to transfer the items to, or null to transfer items out of the combo and onto the chart.
+       * @param options Options controlling the transfer operation.
+       * @returns A Promise.*/
+      transfer(id: string | Array<string>, comboId: string, options?: TransferOptions): Promise<void>;
+
+      /** Uncombines the specified combo nodes and combo links: items inside the combo are displayed on the chart.
     * @param id The id or the array of ids of the combos to be uncombined.
     * @param options Options controlling the uncombine operation.
     * @returns A Promise.*/
@@ -1801,7 +1929,7 @@ declare module KeyLines {
   }
   
   interface Map {
-    /** Hide the map that was displayed with the show function. Chart nodes with lat and lng  properties are repositioned as specified by the 'transition'options setting. The speed of the transition depends on settings made with the options function. 
+      /** Hide the map that was displayed with the show function. Chart nodes with lat and lng  properties are repositioned as specified by the 'transition'options setting. The speed of the transition depends on settings made with the options function.
     * @returns A Promise.*/
     hide(): Promise<void>;
         
@@ -1814,11 +1942,11 @@ declare module KeyLines {
     /** Use mapCoordinates to discover the exact latitude and longitude coordinates of a point given its view coordinates.
     * @param x The x position in view coordinates.
     * @param y The y position in view coordinates.
-    * @returns An object {lat: lat, lng: lng} containing the map coordinates        */
+     * @returns An object {lat: lat, lng: lng} containing the map coordinates*/
     mapCoordinates(x: number, y: number): Location;
         
     /** The options function sets the options for the map.
-    * @param val sets the map options    
+     * @param val sets the map options
     * @returns The current options*/
     options(val: MapOptions): Promise<void>;
         
@@ -1831,7 +1959,7 @@ declare module KeyLines {
     /** Use viewCoordinates to discover the exact position in view coordinates of a point given its latitude and longitude.
     * @param lat The latitude position of the point.
     * @param lng The longitude position of the point.
-    * @returns An object {x: x, y: y} containing the view coordinates    */
+     * @returns An object {x: x, y: y} containing the view coordinates*/
     viewCoordinates(lat: number, lng: number): Coordinates;
   }
   
