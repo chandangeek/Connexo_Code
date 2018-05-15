@@ -26,12 +26,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -79,7 +81,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -607,13 +608,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class,
-                        version(10, 2, 1), UpgraderV10_2_1.class,
-                        version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class)
-        );
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 2, 1), UpgraderV10_2_1.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(version(10, 4, 2), UpgraderV10_4_2.class)
+                        .build());
         this.registerRealServices(bundleContext);
     }
 
