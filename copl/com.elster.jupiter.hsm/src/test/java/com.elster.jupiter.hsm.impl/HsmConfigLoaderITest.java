@@ -25,7 +25,7 @@ public class HsmConfigLoaderITest {
     @org.junit.Test
     public void load() {
         // bellow resource should be found in src/test/resources
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("hsm-runtime-configuration.json");
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("hsm-junit-test.json");
         RawConfiguration cfg = hl.load(is);
 
         assertNotNull(cfg);
@@ -50,7 +50,7 @@ public class HsmConfigLoaderITest {
 
         // assert routingEngineRules
         assertEquals(1, cfg.getRawRoutingEngineRules().size());
-        RawRoutingEngineRule r1 = RawRoutingEngineRule.builder().id(1).hsmId(1).functionName("f1").ruleExpression("expr1").build();
+        RawRoutingEngineRule r1 = RawRoutingEngineRule.builder().id(1).hsmId(1).functionName("f1").ruleExpression("rex1").build();
         assertEquals(r1, cfg.getRawRoutingEngineRules().get(0));
     }
 }
