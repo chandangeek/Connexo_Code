@@ -23,11 +23,15 @@ import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfo;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfos;
 import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
+import com.elster.jupiter.bpm.rest.ProcessVariable;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.bpm.rest.exception.BpmProcessNotAvailable;
+import com.elster.jupiter.bpm.rest.exception.BpmProcessVariableNotAvailableInFlow;
 import com.elster.jupiter.bpm.rest.exception.BpmResourceAssignUserException;
 import com.elster.jupiter.bpm.rest.exception.LocalizedFieldException;
 import com.elster.jupiter.bpm.rest.exception.NoBpmConnectionException;
@@ -326,7 +330,7 @@ public class BpmResource {
             }
             payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
             jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
-            if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
                 arr = obj.getJSONArray("tasks");
@@ -363,7 +367,8 @@ public class BpmResource {
             rest += String.valueOf(id);
             payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
             jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent))
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 taskInfo = new UserTaskInfo(obj, "");
             }
@@ -404,7 +409,8 @@ public class BpmResource {
         JSONObject jsnobject = null;
         try {
             jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/"+processInstanceId+"/node", auth);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
             }
         } catch (JSONException e) {
@@ -622,20 +628,49 @@ public class BpmResource {
                 .collect(Collectors.toList());
         return new ProcessAssociationInfos(infos);
     }
-
     @PUT
     @Transactional
     @Path("/process/activate/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
-    public Response activateProcess(ProcessDefinitionInfo info) {
+    public Response activateProcess(ProcessDefinitionInfo info, @HeaderParam("Authorization") String auth) {
         Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.type);
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.emptyList();
+        List<Errors> err = new ArrayList<>();
+        ProcessDefinitionWithVariablesInfos processDefinitionInfos = getBpmProcessDefinitionsWithVariables(auth);
+
+        Optional<ProcessDefinitionWithVariablesInfo> processDefinitionInfo =
+                processDefinitionInfos.processes
+                        .stream()
+                        .filter(p -> p.name.equals(info.name)) // search after process name
+                        .filter(p -> p.version.equals(info.version))  // and process version
+                        .findFirst();
+        if (!processDefinitionInfo.isPresent()) {
+            err.add(new Errors("startOn", MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()));
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        }
+
+        HashMap<String, String> connexoFlowHashMap = new HashMap<>();
+        connexoFlowHashMap.put("devicealarm", "alarmId");
+        connexoFlowHashMap.put("device", "deviceId");
+        connexoFlowHashMap.put("usagepoint", "usagePointId");
+        connexoFlowHashMap.put("datacollectionissue", "issueId");
+
+        String requiredVariable = connexoFlowHashMap.get(info.type);
+
+        Optional<ProcessVariable> processVariable = processDefinitionInfo.get()
+                .variables
+                .stream()
+                .filter(v -> v.name.equals(requiredVariable))
+                .findFirst();
+        if (!processVariable.isPresent()) {
+            throw new BpmProcessVariableNotAvailableInFlow(thesaurus, requiredVariable);
+        }
 
         // This section is only required for 10.1 backward compatibility, as backend validators would break this
         // When enabling backend validators, this section can be removed
-        List<Errors> err = new ArrayList<>();
+
         for (PropertyInfo property : info.properties) {
             if (property.getPropertyValueInfo().value == null && property.required) {
                 err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
@@ -827,7 +862,8 @@ public class BpmResource {
         JSONArray arr = null;
         try {
             jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
             }
@@ -839,6 +875,26 @@ public class BpmResource {
                     .build());
         }
         return new ProcessDefinitionInfos(arr);
+    }
+
+    private ProcessDefinitionWithVariablesInfos getBpmProcessDefinitionsWithVariables(String auth) {
+        String jsonContent;
+        JSONArray arr = null;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("processDefinitionList");
+            }
+        } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
+        }
+        return new ProcessDefinitionWithVariablesInfos(arr);
     }
 
     @GET
@@ -901,7 +957,8 @@ public class BpmResource {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
                 arr = obj.getJSONArray("processInstances");
@@ -944,7 +1001,8 @@ public class BpmResource {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
                 arr = obj.getJSONArray("processHistories");
@@ -1087,7 +1145,8 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-            if (!"".equals(jsonContent)) {
+            //if (!"".equals(jsonContent)) {
+            if (jsonContent != null && !"".equals(jsonContent)) {
                 if (!"Connection refused: connect".equals(jsonContent)) {
                     obj = new JSONObject(jsonContent);
                 } else {
@@ -1124,6 +1183,7 @@ public class BpmResource {
             }
 
             if (!"".equals(jsonContent)) {
+                // if (jsonContent!=null && !"".equals(jsonContent)){
                 obj = new JSONObject(jsonContent);
             }
 
@@ -1149,7 +1209,7 @@ public class BpmResource {
                         .supplier());
 
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
-        if (taskContentInfos.extraProperties != null) {
+        if (taskContentInfos.extraProperties != null) { //Lori ....
             taskContentInfos.extraProperties.stream()
                     .forEach(ep -> expectedParams.put(ep.propertyName, ep.propertyValue));
         }

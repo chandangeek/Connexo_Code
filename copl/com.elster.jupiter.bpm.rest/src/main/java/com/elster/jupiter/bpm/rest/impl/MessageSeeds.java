@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     COMPLETE_TASK_CONCURRENT_TITLE(14, Constants.COMPLETE_TASK_CONCURRENT_TITLE, "Failed to complete task ''{0}''", Level.SEVERE ),
     COMPLETE_TASK_CONCURRENT_BODY(15, Constants.COMPLETE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE ),
     SAVE_TASK_CONCURRENT_TITLE(14, Constants.SAVE_TASK_CONCURRENT_TITLE, "Failed to save task ''{0}''", Level.SEVERE ),
-    SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE )
+    SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE),
+    PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW(16, Constants.PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW, "Process variable having name {0} not defined in Flow.", Level.SEVERE),
     ;
 
     public static final String COMPONENT_NAME = "BPM";
@@ -87,6 +88,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String EDIT_PROCESS_CONCURRENT_BODY = "BPM.EditProcessConcurrentBody";
         public static final String START_PROCESS_CONCURRENT_BODY = "BPM.StartProcessConcurrentBody";
         public static final String NO_TASK_WITH_ID = "BPM.NoTaskWithId";
+        public static final String PROCESS_VARIABLE_NOT_AVAILABLE_IN_FLOW = "BPM.ProcessVariableNotAvailableInFlow";
     }
 
 }
