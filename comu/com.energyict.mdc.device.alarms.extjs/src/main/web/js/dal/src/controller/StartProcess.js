@@ -38,7 +38,7 @@ Ext.define('Dal.controller.StartProcess', {
                             alarmReasons: alarm.data.reason,
                             privileges: Ext.encode(me.getPrivileges())
                         },
-                        device: alarm.get('device'),
+                        device: alarm.get('device'),  // lori - e bun, dar nu e suficient !!!
                         startProcessParams: [
                             {
                                 name: 'type',
