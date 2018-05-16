@@ -25,5 +25,7 @@ public interface PlaintextSymmetricKey extends SymmetricKeyWrapper {
 
     void setKey(String key, String label);
 
-    String getKeyLabel();
+    Optional<String> getKeyLabel();
+
+    Optional<String> getKeyFromLabel(String label);
 }

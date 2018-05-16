@@ -126,8 +126,16 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     @Override
-    public String getKeyLabel() {
-        return label;
+    public Optional<String> getKeyLabel() {
+        return Optional.of(label);
+    }
+
+    @Override
+    public Optional<String> getKeyFromLabel(String label) {
+        if (this.label == null || this.label.isEmpty()) {
+            throw new UnsupportedOperationException("Unsupported operation, please contact your system administrator!");
+        }
+            return label.equals(this.label) ? Optional.of(label) : Optional.empty();
     }
 
     @Override
