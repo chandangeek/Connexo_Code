@@ -587,6 +587,16 @@ public class DeviceResource {
 
     @GET
     @Transactional
+    @Path("/byMRID/{mrid}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public DeviceInfo findDeviceByMrid(@PathParam("mrid") String mrid, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+        return DeviceInfo.from(device);
+    }
+
+    @GET
+    @Transactional
     @Path("/{name}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})

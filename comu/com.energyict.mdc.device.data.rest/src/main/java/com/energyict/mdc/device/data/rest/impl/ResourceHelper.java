@@ -46,7 +46,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
-import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.Register;
@@ -172,6 +171,10 @@ public class ResourceHelper {
 
     public Device findDeviceByNameOrThrowException(String deviceName) {
         return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
+    }
+
+    public Device findDeviceByMridOrThrowException(String mrid) {
+        return deviceService.findDeviceByMrid(mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mrid));
     }
 
     public Optional<Device> findDeviceByName(String deviceName) {
