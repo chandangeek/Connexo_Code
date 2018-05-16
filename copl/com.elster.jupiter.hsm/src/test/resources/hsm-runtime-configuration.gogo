@@ -1,0 +1,19 @@
+This file contains some examples based on gogo commands that should work taking into account our runtime environment (adjacent json file).
+Of course these commands need to be changed based on each individual environment (paths)!
+
+#############################
+Init JSS
+#############################
+initJss C:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration.json
+
+#############################
+Encrypt
+#############################
+Following command does not work while label is not allowing this operation (TBF)
+encrypt ENXS-KEY-P1 12345678901234567890abcdefabcdef SYMMETRIC
+
+
+#############################
+Auth encrypt
+#############################
+authDataEncrypt ENXS-KEY-P1 12345678901234567890abcdefabcdef
