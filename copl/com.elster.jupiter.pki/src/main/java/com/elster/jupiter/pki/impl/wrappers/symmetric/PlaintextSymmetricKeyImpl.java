@@ -135,7 +135,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         if (this.label == null || this.label.isEmpty()) {
             throw new UnsupportedOperationException("Unsupported operation, please contact your system administrator!");
         }
-            return label.equals(this.label) ? Optional.of(label) : Optional.empty();
+            return label.equals(this.label) ? Optional.of(this.encryptedKey) : Optional.empty();
     }
 
     @Override
