@@ -75,6 +75,7 @@ public enum MessageSeeds implements MessageSeed {
     ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
     CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can''t link calendar before start date of this calendar."),
     CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
+    NO_USAGE_POINT_WITH_MRID(73, Keys.NO_USAGE_POINT_WITH_MRID, "No usage point with mrid {0}"),
     ;
 
     private final int number;
@@ -137,6 +138,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS = "UnsatisfiedReadingTypeRequirements";
         public static final String NO_TRANSITION_WITH_ID = "NoTransitionWithId";
         public static final String NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT = "NoMetrologyConfigForUsagePointInThisTime";
+        public static final String NO_USAGE_POINT_WITH_MRID = "NoUsagePointWithMRID";
     }
-
 }

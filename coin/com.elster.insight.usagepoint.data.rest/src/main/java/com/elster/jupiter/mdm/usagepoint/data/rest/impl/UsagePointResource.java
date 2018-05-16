@@ -355,6 +355,15 @@ public class UsagePointResource {
         return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByNameOrThrowException(name));
     }
 
+    @GET
+    @Path("/byMRID/{mrid}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public UsagePointInfo getUsagePointbyMRID(@PathParam("mrid") String mrid) {  //lori
+        return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMRIDOrThrowException(mrid));
+    }
+
     @PUT
     @Path("/{name}/usagepointlifecycle")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
