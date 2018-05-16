@@ -19,7 +19,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>c:/Programming/felix-connexo/logs/jss.log</file>
+        <file>${log.dir}/logs/jss.log</file>
         <encoder>
             <pattern>${defaultPattern}</pattern>
         </encoder>
@@ -41,8 +41,6 @@
       * other: do not trace network traffic
     -->
     <logger name="jss.hsm.trace" level="WARN" additivity="false">
-        <appender-ref ref="HSMTRACE" />
-		<appender-ref ref="CONSOLE" />
     </logger>
 
     <!-- ================================================================================================ -->
@@ -114,9 +112,6 @@
 
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-		<appender-ref ref="HSMTRACE"/>
-		
     </root>
 
 </configuration>
