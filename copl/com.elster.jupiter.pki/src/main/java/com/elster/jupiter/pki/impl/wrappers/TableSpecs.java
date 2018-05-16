@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     SSM_PLAINTEXTPK {
@@ -63,6 +64,11 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .add();
+            table.column("LABEL")
+                    .varChar()
+                    .map(PlaintextSymmetricKeyImpl.Fields.LABEL.fieldName())
+                    .since(version(10, 4, 2))
                     .add();
             table.column("EXPIRATION")
                     .number()

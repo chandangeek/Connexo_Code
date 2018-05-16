@@ -22,4 +22,8 @@ public interface PlaintextSymmetricKey extends SymmetricKeyWrapper {
      * @param key The plaintext SecretKey to store.
      */
     void setKey(SecretKey key);
+
+    void setKey(String key, String label);
+
+    String getKeyLabel();
 }
