@@ -145,6 +145,56 @@ Ext.define('Bpm.view.task.ViewTask', {
                                         fieldLabel: Uni.I18n.translate('bpm.task.creationDate', 'BPM', 'Creation date'),
                                         name: 'createdOnDisplay',
                                         itemId: 'bpm-task-view-createdOn'
+                                    },
+                                    {  // lori
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('bpm.task.device', 'BPM', 'Device'),
+                                        name: 'deviceId',
+                                        itemId: 'bpm-task-view-Device',  // lori - vezi in TaskPreviewForm
+                                        renderer: function (value) {
+                                            var appName = 'Multisense',
+                                                url;
+                                            if (value) {
+                                                this.show();
+                                                if (Ext.isEmpty(value)) {
+                                                    return '-'
+                                                } else {
+                                                    if (Uni.store.Apps.checkApp(appName)) {
+                                                        url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value));
+                                                        return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
+                                                    }
+                                                    return Ext.String.htmlEncode(value);
+                                                }
+                                            } else {
+                                                this.hide();
+                                                return null;
+                                            }
+                                        }
+                                    },
+                                    {  // lori
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('bpm.task.usagePoint', 'BPM', 'Usage point'),
+                                        name: 'usagePointId',
+                                        itemId: 'bpm-task-view-usagePointId',
+                                        renderer: function (value) {
+                                            var appName = 'Insight',
+                                                url;
+                                            if (value) {
+                                                this.show();
+                                                if (Ext.isEmpty(value)) {
+                                                    return '-'
+                                                } else {
+                                                    if (Uni.store.Apps.checkApp(appName)) {
+                                                        url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value));
+                                                        return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
+                                                    }
+                                                    return Ext.String.htmlEncode(value);
+                                                }
+                                            } else {
+                                                this.hide();
+                                                return null;
+                                            }
+                                        }
                                     }
                                 ]
                             }

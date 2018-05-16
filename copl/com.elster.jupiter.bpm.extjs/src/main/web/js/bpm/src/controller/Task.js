@@ -91,32 +91,74 @@ Ext.define('Bpm.controller.Task', {
         listLink = me.makeLinkToList(router);
         task.load(taskId, {
             success: function (taskRecord) {
-                view = Ext.widget('bpm-task-view-task', {
-                    taskRecord: taskRecord,
-                    router: router,
-                    listLink: listLink
-                });
-                me.getController('Bpm.controller.OpenTask').taskId = taskId;
-                me.getApplication().fireEvent('changecontentevent', view);
-                view.down('form').loadRecord(taskRecord);
-                view.down('#task-title').setTitle(taskRecord.get('name'));
-                if (view.down('bpm-task-action-menu')) {
-                    me.setupMenuItems(taskRecord);
-                }
-                me.getApplication().fireEvent('task', taskRecord);
-                performTask.load(taskId, {
-                    success: function (performTaskRecord) {
-                        if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
-                            view.down('property-form').loadRecord(performTaskRecord);
-                        } else {
-                            if(taskRecord.get('status') === 'Completed') {
-                                view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', 'Task execution attributes are not available because task is completed.'))
-                            }
-                            view.down('property-form').down('uni-form-empty-message').show();
+                Ext.Ajax.request({
+                    url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodes', taskRecord.get('processInstancesId')),
+                    method: 'GET',
+                    success: function (option) {
+                        var response = Ext.JSON.decode(option.responseText),
+                            reader = Bpm.monitorprocesses.model.ProcessNodes.getProxy().getReader(),
+                            resultSet = reader.readRecords(response),
+                            nodeRecord = resultSet.records[0];
+                        var variable = null,
+                            urlString = null,
+                            usagePointVariable = me.findProcessVariable(nodeRecord, "usagePointId"),
+                            deviceVariable = me.findProcessVariable(nodeRecord, "deviceId");
+
+                        if (usagePointVariable) {
+                            variable = usagePointVariable;
+                            urlString = '/api/jsr/search/com.elster.jupiter.metering.UsagePoint';
+                        }
+                        if (deviceVariable) {
+                            variable = deviceVariable;
+                            urlString = '/api/jsr/search/com.energyict.mdc.device.data.Device';
+                        }
+                        if (variable) {
+                            Ext.Ajax.request({
+                                method: 'GET',
+                                url: urlString,
+                                params: {
+                                    filter: Ext.JSON.encode([{"property": "mRID", "value": [{"operator": "==", "criteria": variable.value, "filter": ""}]}])
+                                },
+                                success: function (option) {
+                                    var responseUP = Ext.JSON.decode(option.responseText),
+                                        searchResults = responseUP.searchResults;
+                                    //console.log(searchResults);
+                                    if (!Ext.isEmpty(searchResults)) {
+                                        taskRecord.set(variable.variableName, searchResults[0].name);
+                                        view = Ext.widget('bpm-task-view-task', {
+                                            taskRecord: taskRecord,
+                                            router: router,
+                                            listLink: listLink
+                                        });
+                                        me.getController('Bpm.controller.OpenTask').taskId = taskId;
+                                        me.getApplication().fireEvent('changecontentevent', view);
+                                        view.down('form').loadRecord(taskRecord);
+                                        view.down('#task-title').setTitle(taskRecord.get('name'));
+                                        if (view.down('bpm-task-action-menu')) {
+                                            me.setupMenuItems(taskRecord);
+                                        }
+                                        me.getApplication().fireEvent('task', taskRecord);
+                                        performTask.load(taskId, {
+                                            success: function (performTaskRecord) {
+                                                if (performTaskRecord && performTaskRecord.properties() && performTaskRecord.properties().count()) {
+                                                    view.down('property-form').loadRecord(performTaskRecord);
+                                                } else {
+                                                    if (taskRecord.get('status') === 'Completed') {
+                                                        view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', 'Task execution attributes are not available because task is completed.'))
+                                                    }
+                                                    view.down('property-form').down('uni-form-empty-message').show();
+                                                }
+                                            }
+                                        })
+
+                                    }
+                                }
+                            });
                         }
                     }
-                })
-            }
+                });
+
+            }//
         });
     },
 
@@ -239,9 +281,9 @@ Ext.define('Bpm.controller.Task', {
         me.getController('Bpm.controller.OpenTask').taskId = null;
     },
 
-    findProcessVariable: function (processNodeRecord, variableName) {
+    findProcessVariable: function (processNodeRecord, variableName) {  // lori
         var nodes = processNodeRecord.processInstanceNodes();
-        // console.log(nodes);
+        console.log(nodes);
         var continueLoop = true;
         var returnVariable = undefined;
         if (!Ext.isEmpty(nodes)) {
@@ -320,8 +362,8 @@ Ext.define('Bpm.controller.Task', {
                 }
             }
         });
-        // console.log("DUPA");
-        // console.log(record);
+        console.log("DUPA");  // lori
+        console.log(record);
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));

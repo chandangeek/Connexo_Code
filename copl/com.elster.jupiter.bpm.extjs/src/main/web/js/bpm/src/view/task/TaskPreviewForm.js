@@ -92,6 +92,12 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                             },
                             {
                                 xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
+                                name: 'processInstancesId',
+                                itemId: 'bpm-preview-process-id'
+                            },
+                            {
+                                xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.creationDate', 'BPM', 'Creation date'),
                                 name: 'createdOnDisplay',
                                 itemId: 'bpm-preview-createdOn'
