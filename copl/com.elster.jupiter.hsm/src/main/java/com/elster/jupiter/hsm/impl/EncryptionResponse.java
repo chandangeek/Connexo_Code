@@ -1,6 +1,5 @@
 package com.elster.jupiter.hsm.impl;
 
-import com.atos.worldline.jss.api.basecrypto.SymmetricResponse;
 
 public class EncryptionResponse {
 
@@ -12,5 +11,9 @@ public class EncryptionResponse {
 
     public byte[] getBytes() {
         return bytes;
+    }
+
+    public String toString(){
+        return new String(bytes);
     }
 }
