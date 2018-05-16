@@ -1,5 +1,11 @@
 package com.elster.jupiter.hsm.impl;
 
+import com.elster.jupiter.hsm.EncryptionType;
+import com.elster.jupiter.hsm.HsmEncryptionService;
+import com.elster.jupiter.hsm.model.DecryptResponse;
+import com.elster.jupiter.hsm.model.EncryptionResponse;
+import com.elster.jupiter.hsm.model.HsmException;
+
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.Asymmetric;
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
@@ -10,12 +16,13 @@ import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.hsm.console.HsmConfigurationService", service = {HsmEncryptionService.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=encrypt", "osgi.command.function=decrypt"}, immediate = true)
-public class HsmEncryptionService {
+@Component(name = "com.elster.jupiter.hsm.console.HsmEncryptionServiceImpl", service = {HsmEncryptionServiceImpl.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=encrypt", "osgi.command.function=decrypt"}, immediate = true)
+public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     private HsmConfigurationService hsmConfigService;
 
-    public EncryptionResponse encrypt(String label, String plainTextKey, String etype) {
+    @Override
+    public EncryptionResponse encrypt(String label, String plainTextKey, String etype) throws HsmException {
         checkInit();
         EncryptionType type = EncryptionType.valueOf(etype.toUpperCase());
         try {
@@ -24,7 +31,7 @@ public class HsmEncryptionService {
             return new EncryptionResponse(encrypt);
         } catch (FunctionFailedException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new HsmException(e);
         }
     }
 
@@ -35,13 +42,14 @@ public class HsmEncryptionService {
         return Asymmetric.encrypt(keyLabel, plainTextKey.getBytes(), PaddingAlgorithm.ANSI_X9_23);
     }
 
-    public DecryptResponse decrypt(String label, String cipherTxt, String etype) {
+    @Override
+    public DecryptResponse decrypt(String label, String cipherTxt, String etype) throws HsmException {
         try {
             byte[] decrypt = getDecrypt(label, cipherTxt, EncryptionType.valueOf(etype.toUpperCase()));
             return new DecryptResponse(decrypt);
         } catch (FunctionFailedException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new HsmException(e);
         }
 
     }

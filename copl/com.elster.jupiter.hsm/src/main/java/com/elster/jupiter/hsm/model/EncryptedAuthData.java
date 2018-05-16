@@ -1,12 +1,12 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.model;
 
 import com.atos.worldline.jss.api.basecrypto.AuthDataEncryptionResponse;
 
-public class AuthData {
+public class EncryptedAuthData {
 
     private final byte[] data;
 
-    public AuthData(AuthDataEncryptionResponse authDataEncryptionResponse) {
+    public EncryptedAuthData(AuthDataEncryptionResponse authDataEncryptionResponse) {
         this.data = authDataEncryptionResponse.getData();
     }
 
