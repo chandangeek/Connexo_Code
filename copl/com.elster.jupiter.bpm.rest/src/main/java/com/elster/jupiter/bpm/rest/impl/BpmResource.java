@@ -1209,7 +1209,7 @@ public class BpmResource {
                         .supplier());
 
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
-        if (taskContentInfos.extraProperties != null) { //Lori ....
+        if (taskContentInfos.extraProperties != null) {
             taskContentInfos.extraProperties.stream()
                     .forEach(ep -> expectedParams.put(ep.propertyName, ep.propertyValue));
         }

@@ -32,9 +32,9 @@ public class ProcessDefinitionWithVariablesInfo {
     public String deploymentId;
     public String appKey;
     public List<ProcessesPrivilegesInfo> privileges;
-    public List<PropertyInfo> properties = Collections.emptyList();  // lori - propeerties legate de ce se alege la "Activate" process
+    public List<PropertyInfo> properties = Collections.emptyList();
     public long versionDB;
-    public List<ProcessVariable> variables; // lori
+    public List<ProcessVariable> variables; // CXO-8771
 
     public ProcessDefinitionWithVariablesInfo() {
 
@@ -45,7 +45,7 @@ public class ProcessDefinitionWithVariablesInfo {
             this.name = jsonObject.getString("name");
             this.processId = jsonObject.getString("id");
             this.version = jsonObject.getString("version");
-            this.deploymentId = jsonObject.getString("deploymentId");         // lori
+            this.deploymentId = jsonObject.getString("deploymentId");
             this.variables = new ArrayList<>();
             String flowProcessVariables = jsonObject.getString("variables");
             Map<String, String> processVarMap = new ObjectMapper().readValue(flowProcessVariables, Map.class);
