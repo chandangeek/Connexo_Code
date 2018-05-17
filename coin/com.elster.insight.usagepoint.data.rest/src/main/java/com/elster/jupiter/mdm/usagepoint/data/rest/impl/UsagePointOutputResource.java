@@ -133,6 +133,7 @@ public class UsagePointOutputResource {
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
+    private final Provider<PurposeEstimationResource> purposeEstimationResourceProvider;
     private final Thesaurus thesaurus;
 
 
@@ -164,7 +165,8 @@ public class UsagePointOutputResource {
             TransactionService transactionService,
             UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper,
             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
-            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
+            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider,
+            Provider<PurposeEstimationResource> purposeEstimationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -190,6 +192,7 @@ public class UsagePointOutputResource {
         this.usagePointOutputsHistoryHelper = usagePointOutputsHistoryHelper;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
+        this.purposeEstimationResourceProvider = purposeEstimationResourceProvider;
     }
 
     @GET
@@ -376,6 +379,11 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/estimation")
     public UsagePointOutputEstimationResource getUsagePointOutputEstimationResource() {
         return usagePointOutputEstimationResourceProvider.get();
+    }
+
+    @Path("/{purposeId}/estimationrulesets")
+    public PurposeEstimationResource getPurposeEstimationResource() {
+        return purposeEstimationResourceProvider.get();
     }
 
     @GET

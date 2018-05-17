@@ -75,6 +75,7 @@ public enum MessageSeeds implements MessageSeed {
     ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
     CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can''t link calendar before start date of this calendar."),
     CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
+    METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(73, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container")
     ;
 
     private final int number;
