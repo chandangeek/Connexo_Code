@@ -1,13 +1,13 @@
 //
-//     Angular directive for KeyLines v3.8.0-3469
+//     Angular directive for KeyLines v4.3.1-5376
 //
-//     Copyright © 2011-2017 Cambridge Intelligence Limited.
+//     Copyright © 2011-2018 Cambridge Intelligence Limited.
 //     All rights reserved.
 //
 
 angular.module('ngKeylines', [])
 
-.factory('klComponentsFactory', ['$q', function($q) {
+    .factory('klComponentsFactory', ['$q', function ($q) {
   function klPaths(base, images) {
     var paths = {
       assets: base + 'assets/',
@@ -22,33 +22,27 @@ angular.module('ngKeylines', [])
   // Define the factory
   var factory = {};
 
-  factory.create = function(klComponents, klBasePath, klImagesPath) {
+        factory.create = function (klComponents, klBasePath, klImagesPath) {
     // KeyLines paths configuration
     var paths = klPaths(klBasePath || '', klImagesPath);
     KeyLines.paths(paths);
+            // Use promise object $q from AngularJS
+            KeyLines.promisify($q);
 
     // KeyLines create components
-    return $q(function(resolve, reject){
-        KeyLines.create(klComponents, function(error, components) {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(components);
-        }
-      });
-    });
+            return KeyLines.create(klComponents);
   };
 
   return factory;
 }])
 
-.controller('klComponentsController', ['klComponentsFactory', function(klComponentsFactory) {
-  var that = this,
-      listToCreate = [],
-      klComponentCtrls = {};
+    .controller('klComponentsController', ['klComponentsFactory', function (klComponentsFactory) {
+        var that = this;
+        var listToCreate = [];
+        var klComponentCtrls = {};
 
   // Declare a new component to create
-  that.declareComponent = function(component, controller) {
+        that.declareComponent = function (component, controller) {
     // Save the component to create
     listToCreate.push(component);
     // Save the controller of the component
@@ -56,13 +50,13 @@ angular.module('ngKeylines', [])
   };
 
   // Create the KeyLines components using the factory
-  that.createComponents = function() {
+        that.createComponents = function () {
     // Call the service only if there is something to create
     if (listToCreate.length > 0) {
       // Call the service to create all the kl components
       klComponentsFactory
         .create(listToCreate, that.klBasePath, that.klImagesPath)
-        .then(function(klComponents) {
+          .then(function (klComponents) {
           // Notify all the component controllers
           notifyControllers(klComponents);
 
@@ -71,7 +65,7 @@ angular.module('ngKeylines', [])
             that.klReady()(klComponents);
           }
         })
-        .catch(function(error) {
+          .catch(function (error) {
           throw new Error(error);
         });
     }
@@ -80,7 +74,7 @@ angular.module('ngKeylines', [])
   // Notify controllers of components
   function notifyControllers(components) {
     if (angular.isArray(components)) {
-      angular.forEach(components, function(component) {
+        angular.forEach(components, function (component) {
         notifyController(component);
       });
     } else {
@@ -97,14 +91,14 @@ angular.module('ngKeylines', [])
   }
 }])
 
-.controller('klComponentController', ['$parse', '$timeout', 'klComponentsFactory', function($parse, $timeout, klComponentsFactory) {
-  var that = this,
-      klComponent = false,
-      klParentContext = false,
-      klEvents = {};
+    .controller('klComponentController', ['$parse', '$timeout', 'klComponentsFactory', function ($parse, $timeout, klComponentsFactory) {
+        var that = this;
+        var klComponent = false;
+        var klParentContext = false;
+        var klEvents = {};
 
   // Init the component
-  that.initComponent = function(attributes, parentContext) {
+        that.initComponent = function (attributes, parentContext) {
     // Save the parent context
     klParentContext = parentContext;
     // Register events based on attributes
@@ -112,11 +106,11 @@ angular.module('ngKeylines', [])
   };
 
   // Create the KeyLines component using the factory
-  that.createComponent = function(toCreate) {
+        that.createComponent = function (toCreate) {
     // Call the service to create the kl component
     klComponentsFactory
       .create(toCreate, that.klBasePath, that.klImagesPath)
-      .then(function(klComponent) {
+        .then(function (klComponent) {
         // Notify that the component is created
         that.onComponentCreated(klComponent);
 
@@ -125,13 +119,13 @@ angular.module('ngKeylines', [])
           that.klReady()(klComponent);
         }
       })
-      .catch(function(error) {
+        .catch(function (error) {
         throw new Error(error);
       });
   };
 
   // Once the component is created
-  that.onComponentCreated = function(component) {
+        that.onComponentCreated = function (component) {
     // Save the component
     klComponent = component;
     // Bind events
@@ -139,10 +133,10 @@ angular.module('ngKeylines', [])
   };
 
   // Unbind registered events for the component
-  that.unbindEvents = function() {
+        that.unbindEvents = function () {
     if (klComponent) {
       // unbind the KeyLines events asked to the component
-      angular.forEach(klEvents, function(eventFn, eventName) {
+        angular.forEach(klEvents, function (eventFn, eventName) {
         klComponent.unbind(eventName);
       });
     }
@@ -150,7 +144,7 @@ angular.module('ngKeylines', [])
 
   // Register the events found on attributes
   function registerEvents(attributes) {
-    angular.forEach(attributes, function(expression, eventName) {
+      angular.forEach(attributes, function (expression, eventName) {
       // Determine if it's a kl events
       if (!that[eventName] && eventName.search(/kl/i) !== -1) {
         // https://docs.google.com/presentation/d/15XgHRI8Ng2MXKZqglzP3PugWFZmIDKOnlAXDGZW2Djg/edit#slide=id.g2a0ec7d53_00
@@ -165,8 +159,8 @@ angular.module('ngKeylines', [])
   function bindEvents() {
     if (klComponent && klParentContext) {
       // bind the KeyLines events asked to the component
-      angular.forEach(klEvents, function(eventFn, eventName) {
-        klComponent.bind(eventName, function() {
+        angular.forEach(klEvents, function (eventFn, eventName) {
+            klComponent.bind(eventName, function () {
           // Force to trigger a new digest cycle
           // Ensure that the parent scope will be refreshed
           // It's necessary to update the variables attached to the scope of the controller used in the view
@@ -181,7 +175,7 @@ angular.module('ngKeylines', [])
   }
 }])
 
-.directive('klComponents', function() {
+    .directive('klComponents', function () {
   return {
     // Restriction on elements and attributes
     restrict: 'AE',
@@ -198,14 +192,14 @@ angular.module('ngKeylines', [])
     // Controller to register components
     controller: 'klComponentsController',
     // Create the HTML component
-    link: function(scope, element, attrs, klComponentsController) {
+      link: function (scope, element, attrs, klComponentsController) {
       // Create the components
       klComponentsController.createComponents();
     }
   };
 })
 
-.directive('klComponent', function() {
+    .directive('klComponent', function () {
   return {
     // Require the klComponents directive
     require: '^?klComponents', // optional
@@ -233,9 +227,9 @@ angular.module('ngKeylines', [])
     // Controller to expose the API of the component
     controller: 'klComponentController',
     // Register the HTML component
-    link: function(scope, element, attrs, klComponentsController) {
-      var id = attrs.id,
-          klComponentController = scope.componentCtrl;
+      link: function (scope, element, attrs, klComponentsController) {
+          var id = attrs.id;
+          var klComponentController = scope.componentCtrl;
       // Define the component to create
       var toCreate = {
         type: klComponentController.klType || 'chart',
@@ -266,7 +260,7 @@ angular.module('ngKeylines', [])
       }
 
       // Unbind all events
-      scope.$on('$destroy', function() {
+          scope.$on('$destroy', function () {
         klComponentController.unbindEvents();
       });
     }
