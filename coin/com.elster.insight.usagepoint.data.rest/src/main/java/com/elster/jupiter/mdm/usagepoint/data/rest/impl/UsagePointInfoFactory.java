@@ -226,6 +226,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return UsagePoint.class;
     }
 
+    public String getUsagePointName(UsagePoint usagePoint) {
+        return usagePoint.getName();
+    }
+
     public UsagePointInfo fullInfoFrom(UsagePoint usagePoint) {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();

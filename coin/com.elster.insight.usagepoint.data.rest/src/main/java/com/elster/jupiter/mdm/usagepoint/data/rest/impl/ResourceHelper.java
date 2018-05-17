@@ -124,7 +124,7 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 
-    public UsagePoint findUsagePointByMRIDOrThrowException(String mrid) {  //lori
+    public UsagePoint findUsagePointByMRIDOrThrowException(String mrid) {
         return meteringService.findUsagePointByMRID(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_MRID, mrid));
     }

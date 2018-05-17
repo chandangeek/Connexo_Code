@@ -355,14 +355,23 @@ public class UsagePointResource {
         return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByNameOrThrowException(name));
     }
 
+//    @GET
+//    @Path("/byMRID/{mrid}")
+//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+//            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+//    public UsagePointInfo getUsagePointbyMRID(@PathParam("mrid") String mrid) {
+//        return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMRIDOrThrowException(mrid));
+//    }   // this returns an usage point with all its info
+
     @GET
     @Path("/byMRID/{mrid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public UsagePointInfo getUsagePointbyMRID(@PathParam("mrid") String mrid) {  //lori
-        return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMRIDOrThrowException(mrid));
-    }
+    public String getUsagePointNamebyMRID(@PathParam("mrid") String mrid) {
+        return usagePointInfoFactory.getUsagePointName(resourceHelper.findUsagePointByMRIDOrThrowException(mrid));
+    }  // this returns only the usage point name
 
     @PUT
     @Path("/{name}/usagepointlifecycle")
