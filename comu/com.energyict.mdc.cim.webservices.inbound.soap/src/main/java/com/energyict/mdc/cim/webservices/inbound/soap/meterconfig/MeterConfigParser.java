@@ -64,6 +64,7 @@ public class MeterConfigParser {
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
         meterInfo.setModelVersion(extractModelVersion(meter).orElse(null));
         meterInfo.setMultiplier(extractMultiplier(meter).orElse(null));
+        meterInfo.setElectronicAddress(meter.getElectronicAddress());
         return meterInfo;
     }
 
