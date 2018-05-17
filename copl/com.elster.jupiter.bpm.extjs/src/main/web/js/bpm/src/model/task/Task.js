@@ -139,7 +139,7 @@ Ext.define('Bpm.model.task.Task', {
             type: 'number'
         },
         {
-            name: 'usagePointId',  //lori
+            name: 'usagePointId',
             type: 'string'
         },
         {

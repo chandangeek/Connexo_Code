@@ -130,10 +130,10 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
 
             if (startProcessPanel.properties.device) // null or undefined
             {
-                var deviceId = startProcessPanel.properties.device.mRID;  // lori - revin cand analizez device-ul !!!
+                var deviceId = startProcessPanel.properties.device.mRID;
                 if (deviceId)
                 {
-                    startProcessRecord.set('extraProperties', [  // lori
+                    startProcessRecord.set('extraProperties', [
                         {
                             propertyName: 'deviceId',
                             propertyValue: deviceId

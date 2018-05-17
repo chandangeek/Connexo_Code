@@ -281,7 +281,7 @@ Ext.define('Bpm.controller.Task', {
         me.getController('Bpm.controller.OpenTask').taskId = null;
     },
 
-    findProcessVariable: function (processNodeRecord, variableName) {  // lori
+    findProcessVariable: function (processNodeRecord, variableName) {
         var nodes = processNodeRecord.processInstanceNodes();
         console.log(nodes);
         var continueLoop = true;
@@ -362,8 +362,8 @@ Ext.define('Bpm.controller.Task', {
                 }
             }
         });
-        console.log("DUPA");  // lori
-        console.log(record);
+        //console.log("After get");
+        //console.log(record);
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));

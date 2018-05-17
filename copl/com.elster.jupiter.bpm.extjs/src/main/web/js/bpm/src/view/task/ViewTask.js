@@ -146,11 +146,11 @@ Ext.define('Bpm.view.task.ViewTask', {
                                         name: 'createdOnDisplay',
                                         itemId: 'bpm-task-view-createdOn'
                                     },
-                                    {  // lori
+                                    {
                                         xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('bpm.task.device', 'BPM', 'Device'),
                                         name: 'deviceId',
-                                        itemId: 'bpm-task-view-Device',  // lori - vezi in TaskPreviewForm
+                                        itemId: 'bpm-task-view-Device',
                                         renderer: function (value) {
                                             var appName = 'Multisense',
                                                 url;
@@ -171,7 +171,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                                             }
                                         }
                                     },
-                                    {  // lori
+                                    {
                                         xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('bpm.task.usagePoint', 'BPM', 'Usage point'),
                                         name: 'usagePointId',
