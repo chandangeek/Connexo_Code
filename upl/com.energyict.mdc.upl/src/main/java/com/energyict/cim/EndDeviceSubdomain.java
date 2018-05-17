@@ -166,7 +166,8 @@ public enum EndDeviceSubdomain  implements CimMnemonicProvider {
     SELFREAD(231, "SelfRead"),
     SPECIFICGRAVITY(240, "SpecificGravity"),
     THRESHOLD(261, "Threshold"),
-    WRITEACCESS(282, "WriteAccess");
+    WRITEACCESS(282, "WriteAccess"),
+    RECODER(300,"Recoder");
 
     private int value;
     private String mnemonic;
