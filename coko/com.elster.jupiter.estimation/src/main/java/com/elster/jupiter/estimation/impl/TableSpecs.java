@@ -8,8 +8,9 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -169,6 +170,53 @@ public enum TableSpecs {
                     .since(version(10, 3))
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
+        }
+    },
+
+    EST_RULESETS_ACTIVATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ChannelsContainerEstimation> table = dataModel.addTable(name(), ChannelsContainerEstimation.class);
+            table.map(ChannelsContainerEstimationImpl.class);
+            table.since(version(10, 5));
+            Column idColumn = table.addAutoIdColumn();
+            Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
+            Column channelsContainer = table.column("CHANNELS_CONTAINER").number().conversion(NUMBER2LONG).add();
+            table.column("ACTIVE").bool().map("active").add();
+            table.primaryKey("EST_PK_RS_ACTIVATION").on(idColumn).add();
+            table.foreignKey("EST_FK_RS_ACTIVATION_RS")
+                    .references(ChannelsContainer.class)
+                    .onDelete(RESTRICT)
+                    .map("channelsContainer")
+                    .on(channelsContainer)
+                    .add();
+            table.foreignKey("EST_PK_RS_ACTIVATION_ERS")
+                    .references(EST_ESTIMATIONRULESET.name())
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("estimationRuleSet")
+                    .on(ruleSetColumn)
+                    .add();
+            table.unique("EST_RS_ESTIMATION_U")
+                    .on(ruleSetColumn, channelsContainer)
+                    .add();
+        }
+    },
+
+    EST_PURPOSE_ESTIMATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<PurposeEstimationImpl> table = dataModel.addTable(name(), PurposeEstimationImpl.class);
+            table.map(PurposeEstimationImpl.class);
+            table.since(version(10, 5));
+            Column channelsContainerId = table.column("CHANNELS_CONTAINER").number().notNull().conversion(NUMBER2LONG).add();
+            table.column("ACTIVE").bool().map("isActive").add();
+            table.primaryKey("VAL_PK_PURPOSE_ESTIMATION").on(channelsContainerId).add();
+            table.foreignKey("VAL_FK_PURPOSE_ESTIMATION")
+                    .references(ChannelsContainer.class)
+                    .onDelete(RESTRICT)
+                    .map("channelsContainer")
+                    .on(channelsContainerId)
+                    .add();
         }
     };
 

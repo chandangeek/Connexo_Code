@@ -84,4 +84,16 @@ public interface EstimationService {
     Optional<? extends  EstimationRule> findEstimationRuleByQualityType(ReadingQualityType readingQualityType);
 
     EstimationResultBuilder getEstimationResultBuilder();
+
+    List<EstimationRuleSet> activeRuleSets(ChannelsContainer channelsContainer);
+
+    void activate(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet);
+
+    void deactivate(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet);
+
+    boolean isEstimationActive(ChannelsContainer channelsContainer);
+
+    void activateEstimation(ChannelsContainer channelsContainer);
+
+    void deactivateEstimation(ChannelsContainer channelsContainer);
 }

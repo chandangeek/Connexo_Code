@@ -50,6 +50,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_5SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.UpdatableHolder;
@@ -182,7 +183,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     InstallerImpl.class,
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
-                            version(10, 3), UpgraderV10_3.class
+                            version(10, 3), UpgraderV10_3.class,
+                            version(10,5), V10_5SimpleUpgrader.class
                     ));
         } catch (Exception e) {
             e.printStackTrace();
@@ -712,4 +714,109 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         }
     }
 
+    @Override
+    public List<EstimationRuleSet> activeRuleSets(ChannelsContainer channelsContainer){
+        checkChannelsContainer(channelsContainer);
+        return getActivePersistedChannelsContainerEstimations(channelsContainer).stream()
+                .map(ChannelsContainerEstimation::getEstimationRuleSet)
+                .collect(Collectors.toList());
+    }
+
+    private List<ChannelsContainerEstimation> getActivePersistedChannelsContainerEstimations(ChannelsContainer channelsContainer) {
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer)
+                .and(where("active").isEqualTo(true));
+        return dataModel.query(ChannelsContainerEstimation.class).select(condition);
+    }
+
+
+    @Override
+    public void activate(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet) {
+        checkChannelsContainer(channelsContainer);
+        checkRuleSet(ruleSet);
+        ChannelsContainerEstimation channelsContainerEstimation = findChannelsContainerEstimation(channelsContainer, ruleSet)
+                .orElse(newChannelsContainerEstimation(channelsContainer, ruleSet));
+
+        if (!channelsContainerEstimation.isActive()) {
+            channelsContainerEstimation.setActive(true);
+            channelsContainerEstimation.save();
+        }
+    }
+    
+    private Optional<ChannelsContainerEstimation>findChannelsContainerEstimation(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet) {
+        return getPersistedChannelsContainerEstimations(channelsContainer).stream()
+                .filter(channelsContainerValidation -> channelsContainerValidation.getEstimationRuleSet().equals(ruleSet))
+                .findFirst();
+    }
+
+    private ChannelsContainerEstimation newChannelsContainerEstimation(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet){
+        return new ChannelsContainerEstimationImpl(dataModel).init(channelsContainer, ruleSet);
+    }
+
+    private List<ChannelsContainerEstimation> getPersistedChannelsContainerEstimations(ChannelsContainer channelsContainer) {
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer);
+        return dataModel.query(ChannelsContainerEstimation.class).select(condition);
+    }
+
+    @Override
+    public void deactivate(ChannelsContainer channelsContainer, EstimationRuleSet ruleSet) {
+        checkChannelsContainer(channelsContainer);
+        checkRuleSet(ruleSet);
+        findChannelsContainerEstimation(channelsContainer, ruleSet)
+                .filter(ChannelsContainerEstimation::isActive)
+                .ifPresent(channelsContainerEstimation -> {
+                    channelsContainerEstimation.setActive(false);
+                    channelsContainerEstimation.save();
+                });
+    }
+
+    private void checkChannelsContainer(ChannelsContainer channelsContainer) {
+        if (channelsContainer == null) {
+            throw new IllegalArgumentException("Channels container cannot be null");
+        }
+    }
+
+    private void checkRuleSet(EstimationRuleSet ruleSet) {
+        if (ruleSet == null) {
+            throw new IllegalArgumentException("Estimation rule set cannot be null");
+        }
+    }
+
+    @Override
+    public void activateEstimation(ChannelsContainer channelsContainer){
+        checkChannelsContainer(channelsContainer);
+
+        PurposeEstimationImpl purposeEstimation = this.getPurposeEstimation(channelsContainer)
+                .orElse(newPurposeEstimation(channelsContainer));
+        if (!purposeEstimation.isActive()){
+            purposeEstimation.setActivationStatus(true);
+            purposeEstimation.save();
+        }
+    }
+
+    private Optional<PurposeEstimationImpl> getPurposeEstimation(ChannelsContainer channelsContainer){
+        return dataModel.mapper(PurposeEstimationImpl.class).getOptional(channelsContainer.getId());
+    }
+
+    private PurposeEstimationImpl newPurposeEstimation(ChannelsContainer channelsContainer){
+        return new PurposeEstimationImpl(dataModel).init(channelsContainer);
+    }
+
+    @Override
+    public void deactivateEstimation(ChannelsContainer channelsContainer){
+        checkChannelsContainer(channelsContainer);
+        getPurposeEstimation(channelsContainer)
+                .filter(PurposeEstimationImpl::isActive)
+                .ifPresent(purposeEstimation -> {
+                    purposeEstimation.setActivationStatus(false);
+                    purposeEstimation.save();
+                });
+    }
+
+    @Override
+    public boolean isEstimationActive(ChannelsContainer channelsContainer) {
+        checkChannelsContainer(channelsContainer);
+        return getPurposeEstimation(channelsContainer)
+                .map(PurposeEstimationImpl::isActive)
+                .orElse(false);
+    }
 }
