@@ -4,12 +4,15 @@
 
 package com.elster.jupiter.pki;
 
+import aQute.bnd.annotation.ProviderType;
+
 import javax.crypto.SecretKey;
 import java.util.Optional;
 
 /**
  * Created by bvn on 3/17/17.
  */
+@ProviderType
 public interface PlaintextSymmetricKey extends SymmetricKeyWrapper {
     /**
      * Plaintext keys expose the actual secret key. As the word implies, this key is intended to be kept secret.
@@ -23,9 +26,7 @@ public interface PlaintextSymmetricKey extends SymmetricKeyWrapper {
      */
     void setKey(SecretKey key);
 
-    void setKey(String key, String label);
+    void setKey(byte[] key, String label);
 
     Optional<String> getKeyLabel();
-
-    Optional<String> getKeyFromLabel(String label);
 }

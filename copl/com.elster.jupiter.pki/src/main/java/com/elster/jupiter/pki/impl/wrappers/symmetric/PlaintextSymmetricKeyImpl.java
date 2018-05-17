@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -119,8 +120,8 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     @Override
-    public void setKey(String key, String label) {
-        this.encryptedKey = key;
+    public void setKey(byte[] key, String label) {
+        this.encryptedKey = Arrays.toString(key);
         this.label = label;
         this.save();
     }
@@ -128,14 +129,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     @Override
     public Optional<String> getKeyLabel() {
         return Optional.of(label);
-    }
-
-    @Override
-    public Optional<String> getKeyFromLabel(String label) {
-        if (this.label == null || this.label.isEmpty()) {
-            throw new UnsupportedOperationException("Unsupported operation, please contact your system administrator!");
-        }
-            return label.equals(this.label) ? Optional.of(this.encryptedKey) : Optional.empty();
     }
 
     @Override
