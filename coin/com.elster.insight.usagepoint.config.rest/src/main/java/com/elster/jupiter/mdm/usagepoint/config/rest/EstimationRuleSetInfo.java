@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
+package com.elster.jupiter.mdm.usagepoint.config.rest;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -10,10 +10,14 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Comparator;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EstimationRuleSetInfo {
+
+    public static Comparator<EstimationRuleSetInfo> ESTIMATION_RULESET_NAME_COMPARATOR = Comparator.comparing(info -> info.name.toLowerCase());
+
     public long id;
     public String name;
     public String description;
