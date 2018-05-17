@@ -77,6 +77,10 @@ public class DeviceInfo extends DeviceVersionInfo {
     public DeviceInfo() {
     }
 
+    public static String getDeviceName(Device device) {
+        return device.getName();
+    }
+
     public static DeviceInfo from(Device device) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
