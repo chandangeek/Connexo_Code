@@ -38,7 +38,7 @@ Ext.define('Isu.controller.StartProcess', {
                             issueReasons: issue.data.reason,
                             privileges: Ext.encode(me.getPrivileges())
                         },
-                        device: issue.get('device'),   // lori
+                        device: issue.get('device'),
                         startProcessParams: [
                             {
                                 name: 'type',
