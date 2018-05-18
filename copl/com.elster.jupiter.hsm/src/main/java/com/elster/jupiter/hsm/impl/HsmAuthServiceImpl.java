@@ -15,27 +15,20 @@ import javax.inject.Inject;
 @Component(name = "com.elster.jupiter.hsm.impl.HsmAuthServiceImpl", service = {HsmAuthServiceImpl.class},  immediate = true)
 public class HsmAuthServiceImpl implements HsmAuthService {
 
-    private HsmConfigurationService hsmCfgService;
+    private HsmConfigurationService hsmConfigurationService;
 
     @Override
     public EncryptedAuthData encrypt(String keyLabel, String plainTxt) throws HsmException{
         try {
-            checkInit();
+            this.hsmConfigurationService.checkInit();
             return new EncryptedAuthData(Symmetric.authDataEncrypt(new KeyLabel(keyLabel), plainTxt.getBytes(), null, null));
         } catch (FunctionFailedException e) {
             throw new HsmException(e);
         }
     }
 
-    private void checkInit() {
-        if (!hsmCfgService.isInit()) {
-            throw new RuntimeException("JSS not initialized!");
-        }
-    }
-
     @Reference
-    public void setHsmCfgService (HsmConfigurationService hsmCfgService) {
-        this.hsmCfgService = hsmCfgService;
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService){
+        this.hsmConfigurationService = hsmConfigurationService;
     }
-
 }

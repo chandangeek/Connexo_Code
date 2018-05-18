@@ -23,7 +23,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public EncryptionResponse encrypt(String label, String plainTextKey, String etype) throws HsmException {
-        checkInit();
+        this.hsmConfigService.checkInit();
         EncryptionType type = EncryptionType.valueOf(etype.toUpperCase());
         try {
             KeyLabel keyLabel = new KeyLabel(label);
@@ -44,6 +44,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public DecryptResponse decrypt(String label, String cipherTxt, String etype) throws HsmException {
+        this.hsmConfigService.checkInit();
         try {
             byte[] decrypt = getDecrypt(label, cipherTxt, EncryptionType.valueOf(etype.toUpperCase()));
             return new DecryptResponse(decrypt);
@@ -62,14 +63,8 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
 
-    private void checkInit() {
-        if (!hsmConfigService.isInit()) {
-            throw new RuntimeException("JSS not initialized!");
-        }
-    }
-
     @Reference
-    public void setHsmConfigService(HsmConfigurationService hsmConfigService){
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigService){
         this.hsmConfigService = hsmConfigService;
     }
 
