@@ -8,6 +8,10 @@ import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -55,7 +59,6 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -86,6 +89,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile Clock clock;
     private volatile LicenseService licenseService;
     private Thesaurus thesaurus;
+    private volatile MeteringService meteringService;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -102,7 +106,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                       UserService userService,
                                       Clock clock,
-                                      LicenseService licenseService){
+                                      LicenseService licenseService,
+                                      MeteringService meteringService) {
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -113,6 +118,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setUserService(userService);
         this.setClock(clock);
         this.setLicenseService(licenseService);
+        this.setMeteringService(meteringService);
     }
 
     @Reference
@@ -158,6 +164,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -438,15 +449,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     @Override
     public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp) {
-        eventType
-                .newInstance(
-                        device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
-                        String.valueOf(device.getId()),
-                        Device.class.getName(),
-                        device.getState().getName(),
-                        effectiveTimestamp,
-                        Collections.emptyMap())
-                .publish();
+        this.toEndDevice(device).ifPresent(endDevice -> {
+            eventType
+                    .newInstance(
+                            device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
+                            String.valueOf(endDevice.getId()),
+                            Device.class.getName(),
+                            device.getState().getName(),
+                            effectiveTimestamp,
+                            Collections.emptyMap())
+                    .publish();
+        });
     }
 
     @Override
@@ -486,5 +499,22 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 DateTimeFormatGenerator.Mode.LONG,
                 this.userService.getUserPreferencesService(),
                 this.threadPrincipalService.getPrincipal());
+    }
+
+    private Optional<EndDevice> toEndDevice(Device device) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            return this.findEndDevice(amrSystem.get(), device);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<AmrSystem> getMdcAmrSystem() {
+        return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
+    }
+
+    private Optional<EndDevice> findEndDevice(AmrSystem amrSystem, Device device) {
+        return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
     }
 }
