@@ -13,13 +13,13 @@ import org.osgi.service.component.annotations.Component;
 import java.io.File;
 import java.net.URLClassLoader;
 
-@Component(name = "com.elster.jupiter.hsm.console", service = {HsmConfigurationService.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=initJss", "osgi.command.function=encrypt"}, immediate = true)
+@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationService", service = {HsmConfigurationService.class}, immediate = true)
 public class HsmConfigurationService {
 
 
     private boolean initialized = false;
 
-    public void initJss(String file) {
+    public void init(String file) {
         try {
             setClassLoader();
 

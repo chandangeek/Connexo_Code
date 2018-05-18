@@ -8,6 +8,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface HsmAuthService {
 
-    EncryptedAuthData authDataEncrypt(String keyLabel, String plainTxt) throws HsmException;
+    EncryptedAuthData encrypt(String keyLabel, String plainTxt) throws HsmException;
 
 }

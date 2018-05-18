@@ -16,7 +16,7 @@ import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.hsm.console.HsmEncryptionServiceImpl", service = {HsmEncryptionServiceImpl.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=encrypt", "osgi.command.function=decrypt"}, immediate = true)
+@Component(name = "com.elster.jupiter.hsm.console.HsmEncryptionServiceImpl", service = {HsmEncryptionServiceImpl.class}, immediate = true)
 public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     private HsmConfigurationService hsmConfigService;
