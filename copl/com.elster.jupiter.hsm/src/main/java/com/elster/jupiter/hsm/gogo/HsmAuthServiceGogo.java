@@ -1,8 +1,9 @@
 package com.elster.jupiter.hsm.gogo;
 
 import com.elster.jupiter.hsm.impl.HsmAuthServiceImpl;
-import com.elster.jupiter.hsm.model.EncryptedAuthData;
-import com.elster.jupiter.hsm.model.HsmException;
+import com.elster.jupiter.hsm.model.AuthDataEncryptRequest;
+import com.elster.jupiter.hsm.model.AuthDataEncryptResponse;
+import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -12,8 +13,8 @@ public class HsmAuthServiceGogo {
 
     private HsmAuthServiceImpl hsmAuthService;
 
-    public EncryptedAuthData jssAuthEncrypt(String keyLabel, String plainTxt) throws HsmException {
-        return this.hsmAuthService.encrypt(keyLabel, plainTxt);
+    public AuthDataEncryptResponse jssAuthEncrypt(String keyLabel, String s) throws EncryptBaseException {
+        return this.hsmAuthService.encrypt(new AuthDataEncryptRequest(keyLabel, s.getBytes(), null, null));
     }
 
     @Reference

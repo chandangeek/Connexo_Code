@@ -1,15 +1,9 @@
 package com.elster.jupiter.hsm.model;
 
-public class DecryptResponse {
+public class DecryptResponse extends Message {
 
-    private byte[] data;
-
-    public DecryptResponse(byte[] decrypt) {
-        this.data = decrypt;
+    public DecryptResponse(byte[] data) {
+        super(data);
     }
 
-
-    public byte[] getData() {
-        return data;
-    }
 }

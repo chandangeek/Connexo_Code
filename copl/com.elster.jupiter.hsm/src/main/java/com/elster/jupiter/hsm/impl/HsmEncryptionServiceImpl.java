@@ -2,9 +2,11 @@ package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.EncryptionType;
 import com.elster.jupiter.hsm.HsmEncryptionService;
+import com.elster.jupiter.hsm.model.DecryptRequest;
 import com.elster.jupiter.hsm.model.DecryptResponse;
-import com.elster.jupiter.hsm.model.EncryptionResponse;
-import com.elster.jupiter.hsm.model.HsmException;
+import com.elster.jupiter.hsm.model.EncryptRequest;
+import com.elster.jupiter.hsm.model.EncryptResponse;
+import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.Asymmetric;
@@ -22,44 +24,41 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     private HsmConfigurationService hsmConfigService;
 
     @Override
-    public EncryptionResponse encrypt(String label, String plainTextKey, String etype) throws HsmException {
+    public EncryptResponse encrypt(EncryptRequest eRequest) throws EncryptBaseException {
         this.hsmConfigService.checkInit();
-        EncryptionType type = EncryptionType.valueOf(etype.toUpperCase());
         try {
-            KeyLabel keyLabel = new KeyLabel(label);
-            byte[] encrypt = getEncrypt(plainTextKey, keyLabel, type);
-            return new EncryptionResponse(encrypt);
+            return new EncryptResponse(getEncrypt(eRequest.getBytes(), new KeyLabel(eRequest.getKeyLabel()), eRequest.getType()));
         } catch (FunctionFailedException e) {
             e.printStackTrace();
-            throw new HsmException(e);
+            throw new EncryptBaseException(e);
         }
     }
 
-    private byte[] getEncrypt(String plainTextKey, KeyLabel keyLabel, EncryptionType etype) throws FunctionFailedException {
+    private byte[] getEncrypt(byte[] bytes, KeyLabel keyLabel, EncryptionType etype) throws FunctionFailedException {
         if (EncryptionType.SYMMETRIC.equals(etype)) {
-            return Symmetric.encrypt(keyLabel, KeyDerivation.FIXED_KEY_ARRAY, plainTextKey.getBytes(), null, PaddingAlgorithm.ANSI_X9_23, ChainingMode.CBC).getData();
+            return Symmetric.encrypt(keyLabel, KeyDerivation.FIXED_KEY_ARRAY, bytes, null, PaddingAlgorithm.ANSI_X9_23, ChainingMode.CBC).getData();
         }
-        return Asymmetric.encrypt(keyLabel, plainTextKey.getBytes(), PaddingAlgorithm.ANSI_X9_23);
+        return Asymmetric.encrypt(keyLabel, bytes, PaddingAlgorithm.ANSI_X9_23);
     }
 
     @Override
-    public DecryptResponse decrypt(String label, String cipherTxt, String etype) throws HsmException {
+    public DecryptResponse decrypt(DecryptRequest dRequest) throws EncryptBaseException {
         this.hsmConfigService.checkInit();
         try {
-            byte[] decrypt = getDecrypt(label, cipherTxt, EncryptionType.valueOf(etype.toUpperCase()));
+            byte[] decrypt = getDecrypt(dRequest.getKeyLabel(), dRequest.getBytes(), dRequest.getType(), Mapper.map(dRequest.getPaddingAlgorithm()), Mapper.map(dRequest.getChainingMode()));
             return new DecryptResponse(decrypt);
         } catch (FunctionFailedException e) {
             e.printStackTrace();
-            throw new HsmException(e);
+            throw new EncryptBaseException(e);
         }
 
     }
 
-    private byte[] getDecrypt(String label, String cipherTxt, EncryptionType etype) throws FunctionFailedException {
+    private byte[] getDecrypt(String label, byte[] bytes, EncryptionType etype, PaddingAlgorithm pAlg, ChainingMode cMode) throws FunctionFailedException {
         if (EncryptionType.SYMMETRIC.equals(etype)) {
-            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipherTxt.getBytes(), null, PaddingAlgorithm.ANSI_X9_23, ChainingMode.CBC);
+            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, null, pAlg, cMode);
         }
-      return   Asymmetric.decrypt(new KeyLabel(label), cipherTxt.getBytes(),  PaddingAlgorithm.ANSI_X9_23);
+      return   Asymmetric.decrypt(new KeyLabel(label), bytes,  PaddingAlgorithm.ANSI_X9_23);
     }
 
 

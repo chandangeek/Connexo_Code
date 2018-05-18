@@ -1,16 +1,18 @@
 package com.elster.jupiter.hsm;
 
+import com.elster.jupiter.hsm.model.DecryptRequest;
 import com.elster.jupiter.hsm.model.DecryptResponse;
-import com.elster.jupiter.hsm.model.EncryptionResponse;
-import com.elster.jupiter.hsm.model.HsmException;
+import com.elster.jupiter.hsm.model.EncryptRequest;
+import com.elster.jupiter.hsm.model.EncryptResponse;
+import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface HsmEncryptionService {
 
-    EncryptionResponse encrypt(String label, String plainTextKey, String etype) throws HsmException;
+    EncryptResponse encrypt(EncryptRequest eRequest) throws EncryptBaseException;
 
-    DecryptResponse decrypt(String label, String cipherTxt, String etype) throws HsmException;
+    DecryptResponse decrypt(DecryptRequest dRequest) throws EncryptBaseException;
 
 }

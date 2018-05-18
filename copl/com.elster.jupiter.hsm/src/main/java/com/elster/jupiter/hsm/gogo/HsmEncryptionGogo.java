@@ -1,9 +1,15 @@
 package com.elster.jupiter.hsm.gogo;
 
+import com.elster.jupiter.hsm.EncryptionType;
 import com.elster.jupiter.hsm.impl.HsmEncryptionServiceImpl;
+import com.elster.jupiter.hsm.model.ChainingMode;
+import com.elster.jupiter.hsm.model.DecryptRequest;
 import com.elster.jupiter.hsm.model.DecryptResponse;
-import com.elster.jupiter.hsm.model.EncryptionResponse;
-import com.elster.jupiter.hsm.model.HsmException;
+import com.elster.jupiter.hsm.model.EncryptRequest;
+import com.elster.jupiter.hsm.model.EncryptResponse;
+import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.PaddingAlgorithm;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -13,12 +19,12 @@ public class HsmEncryptionGogo {
 
     private HsmEncryptionServiceImpl encService;
 
-    public EncryptionResponse jssEncrypt(String label, String plainTextKey, String etype) throws HsmException {
-        return this.encService.encrypt(label, plainTextKey, etype);
+    public EncryptResponse jssEncrypt(String keyLabel, String stringToEncrypt, String encryptionType) throws EncryptBaseException {
+        return this.encService.encrypt(new EncryptRequest(keyLabel, EncryptionType.valueOf(encryptionType), stringToEncrypt));
     }
 
-    public DecryptResponse jssDecrypt(String label, String cipherTxt, String etype) throws HsmException {
-        return this.encService.decrypt(label, cipherTxt, etype);
+    public DecryptResponse jssDecrypt(String keyLabel, String encryptedString, String encryptionType) throws EncryptBaseException {
+        return this.encService.decrypt(new DecryptRequest(keyLabel, EncryptionType.valueOf(encryptionType), encryptedString));
     }
 
     @Reference
