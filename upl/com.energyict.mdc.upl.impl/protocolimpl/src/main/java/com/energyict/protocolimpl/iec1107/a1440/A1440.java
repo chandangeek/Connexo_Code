@@ -243,7 +243,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     @Override
     public String getSerialNumber() {
         try {
-            return ProtocolTools.removeLeadingZerosFromString(getMeterSerial());
+            return getMeterSerial();
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
@@ -362,7 +362,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2016-05-31 09:07:29 +0300 (Tue, 31 May 2016)$";
+        return "$Date: 2018-05-18 09:05:00 +0300 (Fri, 18 May 2018)$";
     }
 
     @Override
@@ -927,7 +927,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (this.meterSerial == null) {
             this.meterSerial = (String) getA1440Registry().getRegister(
                     this.useEquipmentIdentifierAsSerial
-                            ? A1440Registry.IEC1107_ADDRESS_EL
+                            ? A1440Registry.UTILITY_ID_1
                             : A1440Registry.SERIAL
             );
         }
