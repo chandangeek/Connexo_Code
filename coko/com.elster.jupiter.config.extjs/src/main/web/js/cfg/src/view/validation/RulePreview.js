@@ -13,7 +13,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         'Cfg.view.validation.RuleActionMenu'
     ],
 
-    title: Uni.I18n.translate('general.details','CFG','Details'),
+    title: Uni.I18n.translate('general.details', 'IMT', 'Details'),
 
     layout: {
         type: 'vbox'
@@ -29,40 +29,40 @@ Ext.define('Cfg.view.validation.RulePreview', {
     items: [
         {
             name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
+            fieldLabel: Uni.I18n.translate('validation.validationRule', 'IMT', 'Validation rule')
         },
         {
             name: 'displayName',
-            fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator')
+            fieldLabel: Uni.I18n.translate('validation.validator', 'IMT', 'Validator')
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
+            fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
             renderer: function (value) {
                 if (value) {
-                    return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                    return Uni.I18n.translate('validation.active', 'IMT', 'Active')
                 } else {
-                    return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                    return Uni.I18n.translate('validation.inactive', 'IMT', 'Inactive')
                 }
             }
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
+            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'IMT', 'Reading types'),
             itemId: 'readingTypesArea',
             margin: '0 0 0 0'
         },
         {
             name: 'action',
             margin: '0 0 -8 0',
-            fieldLabel: Uni.I18n.translate('validation.dataQualityLevel', 'CFG', 'Data quality level'),
+            fieldLabel: Uni.I18n.translate('validation.dataQualityLevel', 'IMT', 'Data quality level'),
             renderer: function (value) {
                 if (value == "FAIL") {
-                    return Uni.I18n.translate('validation.dataQualityLevelFail', 'CFG', 'Suspect')
+                    return Uni.I18n.translate('validation.dataQualityLevelFail', 'IMT', 'Suspect')
                 } if (value == "WARN_ONLY") {
-                    return Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'CFG', 'Informative')
+                    return Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'IMT', 'Informative')
                 }else {
-                    return Uni.I18n.translate('general.none', 'CFG', 'None')
+                    return Uni.I18n.translate('general.none', 'IMT', 'None')
                 }
             }
         },
@@ -119,7 +119,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         Ext.suspendLayouts();
         this.down('#readingTypesArea').removeAll();
         for (var i = 0; i < selectedRule.data.readingTypes.length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'IMT', 'Reading types'),
                 readingType = selectedRule.data.readingTypes[i];
 
             this.down('#readingTypesArea').add(
