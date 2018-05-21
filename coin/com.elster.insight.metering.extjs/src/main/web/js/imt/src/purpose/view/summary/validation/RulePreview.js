@@ -46,14 +46,18 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
         },
         {
             xtype: 'property-form',
-            padding: '5 10 0 10',
             width: '100%',
-            isEdit: false
+            isEdit: false,
+            layout: 'vbox',
+            defaults: {
+                labelWidth: 260,
+                width: 500
+            }
         }
     ],
-    initComponent: function () {
-        this.callParent(arguments);
-    },
+    // initComponent1: function () {
+    //     this.callParent(arguments);
+    // },
 
     updateValidationRule: function (validationRule) {
         var me = this;
@@ -65,6 +69,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
         if (me.rendered) {
             Ext.suspendLayouts();
         }
+
 
         me.loadRecord(validationRule);
         me.setTitle(Ext.String.htmlEncode(validationRule.get('name')));
@@ -84,14 +89,15 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
         Ext.suspendLayouts();
         this.down('#readingTypesArea').removeAll();
         for (var i = 0; i < selectedRule.data.readingTypes.length; i++) {
-            var label = Uni.I18n.translate('validation.readingTypes', 'IMT', 'Reading types')
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types')
             readingType = selectedRule.data.readingTypes[i];
 
             this.down('#readingTypesArea').add(
                 {
                     xtype: 'reading-type-displayfield',
-                    fieldLabel: label,
-                    value: readingType
+                    fieldLabel: fieldlabel,
+                    value: readingType,
+                    labelWidth: 260
                 }
             );
         }

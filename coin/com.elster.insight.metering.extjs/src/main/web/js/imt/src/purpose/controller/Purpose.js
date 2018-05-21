@@ -287,7 +287,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
-                validationActive: 'false',
+                validationActive: 'false'
             },
             success: function () {
                 me.updateValidationConfigurationStatusSection();
@@ -351,15 +351,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 validationActive: 'true',
                 lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : new Date().getTime()),
             },
-            success: function () {
+            success: function (record) {
                 me.updateValidationConfigurationStatusSection();
                 if (runNow) {
                     me.isValidationRunImmediately = true;
-                    // me.getModel('Mdc.model.Device').load(me.deviceId, {
-                    //     success: function (record) {
-                    //         me.validateData(confWindow, record);
-                    //     }
-                    // });
+                    me.validateData(confWindow, record);
                 } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationConfiguration.activation.activated', 'IMT', 'Data validation activated'));
@@ -399,6 +395,83 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 button.setDisabled(value);
             }
         }
+    },
+
+    validateData: function (confWindow, record) {
+        var me = this,
+            view = me.getPage();
+
+        confWindow.down('#validationProgress').add(Ext.create('Ext.ProgressBar', {
+            margin: '5 0 15 0'
+        })).wait({
+            duration: 120000,
+            text: Uni.I18n.translate('validationConfiguration.isInProgress', 'IMT', 'Data validation is in progress. Please wait...'),
+            fn: function () {
+                me.destroyConfirmationWindow();
+                Ext.widget('messagebox', {
+                    buttons: [
+                        {
+                            text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
+                            ui: 'remove',
+                            handler: function () {
+                                this.up('window').close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        close: function () {
+                            this.destroy();
+                        }
+                    }
+                }).show({
+                    ui: 'notification-error',
+                    title: Uni.I18n.translate('validationConfiguration.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
+                    msg: Uni.I18n.translate('validationConfiguration.timeout.message', 'IMT', 'Data validation takes longer than expected and will continue in the background.'),
+                    icon: Ext.MessageBox.ERROR
+                });
+            }
+        });
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validate',
+            method: 'PUT',
+            timeout: 600000,
+            isNotEdit: true,
+            jsonData: {
+                name: view.purpose.get('name'),
+                id: view.purpose.getId(),
+                parent: {
+                    id: view.usagePoint.get('id'),
+                    version: view.usagePoint.get('version')
+                },
+                validationInfo: view.purpose.getRecordData().validationInfo,
+                version: view.purpose.getRecordData().version
+
+            },
+            success: function () {
+                me.destroyConfirmationWindow();
+                if (me.isValidationRunImmediately) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('validationConfiguration.activation.validated', 'IMT', 'Data validation completed'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('validationConfiguration.activation.activated', 'IMT', 'Data validation activated'));
+                }
+            },
+            failure: function (response) {
+                var res;
+
+                if (confWindow) {
+                    if (response.status === 400) {
+                        res = Ext.JSON.decode(response.responseText);
+                        confWindow.down('#validationProgress').removeAll(true);
+                        me.showValidationActivationErrors(res.errors[0].msg);
+                        me.confirmationWindowButtonsDisable(false);
+                    } else {
+                        me.destroyConfirmationWindow();
+                    }
+                }
+            }
+        });
     },
     destroyConfirmationWindow: function () {
         var activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
@@ -473,6 +546,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             selectedRule = record;
         }
         me.ruleId = selectedRule.internalId;
+
 
         itemForm.updateValidationRule(selectedRule);
         Ext.resumeLayouts();
@@ -720,6 +794,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router.queryParams.tab = 'registerData';
             router.getRoute('usagepoints/view/purpose').forward();
         }
+
 
         validationConfigurationStore = Ext.getStore('Imt.purpose.store.PurposeValidationConfiguration');
         validationConfigurationStore.getProxy().extraParams = {
