@@ -134,6 +134,7 @@ public class UsagePointOutputResource {
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
     private final Provider<PurposeEstimationResource> purposeEstimationResourceProvider;
+    private final Provider<PurposeValidationResource> purposeValidationResourceProvider;
     private final Thesaurus thesaurus;
 
 
@@ -166,7 +167,8 @@ public class UsagePointOutputResource {
             UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper,
             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
             Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider,
-            Provider<PurposeEstimationResource> purposeEstimationResourceProvider) {
+            Provider<PurposeEstimationResource> purposeEstimationResourceProvider,
+            Provider<PurposeValidationResource> purposeValidationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -193,6 +195,7 @@ public class UsagePointOutputResource {
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
         this.purposeEstimationResourceProvider = purposeEstimationResourceProvider;
+        this.purposeValidationResourceProvider = purposeValidationResourceProvider;
     }
 
     @GET
@@ -385,6 +388,12 @@ public class UsagePointOutputResource {
     public PurposeEstimationResource getPurposeEstimationResource() {
         return purposeEstimationResourceProvider.get();
     }
+
+    @Path("/{purposeId}/validationrulesets")
+    public PurposeValidationResource getPurposeValidationResource() {
+        return purposeValidationResourceProvider.get();
+    }
+
 
     @GET
     @Transactional

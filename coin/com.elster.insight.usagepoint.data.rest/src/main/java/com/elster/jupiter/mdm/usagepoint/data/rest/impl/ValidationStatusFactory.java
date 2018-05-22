@@ -131,6 +131,7 @@ public class ValidationStatusFactory {
         info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose()).orElse(null);
         info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
         info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
+        info.hasValidation = channelsContainer.hasData();
         return info;
     }
 
