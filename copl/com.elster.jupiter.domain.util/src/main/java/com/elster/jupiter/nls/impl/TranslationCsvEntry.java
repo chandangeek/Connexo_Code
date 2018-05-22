@@ -35,17 +35,17 @@ class TranslationCsvEntry {
     static Optional<TranslationCsvEntry> parseFrom(String csvLine, Locale locale, String separator) {
         Optional<TranslationCsvEntry> extractedEntry = Optional.empty();
 
-        // Assuming the csv line contains: COMPONENT;LAYER;TRANSLATION KEY;ENGLISH TRANSLATION;SPECIFIC LANGUAGE TRANSLATION
-        String[] values = csvLine.split(separator);
+        // Assuming the csv line contains: COMPONENT;LAYER;TRANSLATION KEY;SPECIFIC LANGUAGE TRANSLATION
+        String[] values = csvLine.split(separator, 4);
         if(validateValues(values)) {
-            extractedEntry = Optional.of(new TranslationCsvEntry(locale, values[0], values[1], values[2], values[4]));
+            extractedEntry = Optional.of(new TranslationCsvEntry(locale, values[0], values[1], values[2], values[3]));
         }
 
         return extractedEntry;
     }
 
     private static boolean validateValues(String[] values) {
-        return (values.length >= 5 && !values[0].isEmpty() && !values[1].isEmpty() && !values[2].isEmpty());
+        return (values.length >= 4 && !values[0].isEmpty() && !values[1].isEmpty() && !values[2].isEmpty());
     }
 
     private TranslationCsvEntry(Locale locale, String component, String layer, String key, String translation) {
@@ -121,8 +121,6 @@ class TranslationCsvEntry {
     }
 
     public static void main(String[] args) {
-        Optional<TranslationCsvEntry> csvEntry = parseFrom("APR;REST;appServers.configureWebServicesSuccess;Webservice-Endpunkte gespeichert;", Locale.GERMANY, ";");
-        System.out.println("csvEntry = " + csvEntry.get());
     }
 
 }
