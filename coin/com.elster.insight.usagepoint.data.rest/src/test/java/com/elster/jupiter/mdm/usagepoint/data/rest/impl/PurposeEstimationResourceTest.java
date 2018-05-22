@@ -37,7 +37,8 @@ public class PurposeEstimationResourceTest extends UsagePointDataRestApplication
     ChannelsContainer channelsContainer;
 
     @Before
-    public void setup(){
+    public void setUp() throws Exception {
+        super.setUp();
         when(meteringService.findUsagePointByName(USAGEPOINT_NAME)).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getName()).thenReturn(USAGEPOINT_NAME);

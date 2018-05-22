@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.EstimationStatusInfo;
@@ -134,8 +135,9 @@ public class PurposeEstimationResource {
         return Response.ok().build();
     }
 
-    private EstimationRuleSet getEstimationRuleSet(long validationRuleSetId) {
-        return estimationService.getEstimationRuleSet(validationRuleSetId)
+    private EstimationRuleSet getEstimationRuleSet(long estimationRuleSetId) {
+        return estimationService.getEstimationRuleSet(estimationRuleSetId)
+                .filter(ruleSet -> QualityCodeSystem.MDM.equals(ruleSet.getQualityCodeSystem()))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
