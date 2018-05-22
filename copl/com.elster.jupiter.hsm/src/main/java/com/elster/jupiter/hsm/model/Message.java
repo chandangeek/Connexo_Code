@@ -1,5 +1,6 @@
 package com.elster.jupiter.hsm.model;
 
+import javax.annotation.Nonnull;
 import java.nio.charset.Charset;
 
 public class Message {
@@ -8,18 +9,18 @@ public class Message {
     private final Charset charSet;
 
 
-    public Message(byte[] data) {
+    public Message(@Nonnull byte[] data) {
         this.bytes = data;
         this.charSet = Charset.defaultCharset();
     }
 
 
-    public Message(String string) {
+    public Message(@Nonnull  String string) {
         this.charSet = Charset.defaultCharset();
         this.bytes = string.getBytes(this.getCharSet());
     }
 
-    public Message(String s, Charset charSet) {
+    public Message(@Nonnull String s, @Nonnull Charset charSet) {
         this.bytes = s.getBytes(charSet);
         this.charSet = charSet;
     }
@@ -33,8 +34,6 @@ public class Message {
         return charSet;
     }
 
-    public byte[] getBytes() {
-        return this.bytes;
-    }
+    public byte[] getBytes() { return this.bytes; }
 
 }

@@ -1,6 +1,8 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmAuthService;
+import com.elster.jupiter.hsm.model.AuthDataDecryptRequest;
+import com.elster.jupiter.hsm.model.AuthDataDecryptResponse;
 import com.elster.jupiter.hsm.model.AuthDataEncryptRequest;
 import com.elster.jupiter.hsm.model.AuthDataEncryptResponse;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
@@ -20,10 +22,22 @@ public class HsmAuthServiceImpl implements HsmAuthService {
     public AuthDataEncryptResponse encrypt(AuthDataEncryptRequest authDataEncRequest) throws EncryptBaseException {
         this.hsmConfigurationService.checkInit();
         try {
-            return new AuthDataEncryptResponse(Symmetric.authDataEncrypt(new KeyLabel(authDataEncRequest.getKeyLabel()), authDataEncRequest.getBytes(), null, null));
+            return new AuthDataEncryptResponse(Symmetric.authDataEncrypt(new KeyLabel(authDataEncRequest.getKeyLabel()), authDataEncRequest.getBytes(), authDataEncRequest.getAuthData(), authDataEncRequest.getInitialVector()));
         } catch (FunctionFailedException e) {
             throw new EncryptBaseException(e);
         }
+    }
+
+    @Override
+    public AuthDataDecryptResponse decrypt(AuthDataDecryptRequest authDataEncRequest) throws EncryptBaseException {
+        this.hsmConfigurationService.checkInit();
+        try {
+            return new AuthDataDecryptResponse(Symmetric.authDataDecrypt(new KeyLabel(authDataEncRequest.getKeyLabel()), authDataEncRequest.getBytes(), authDataEncRequest.getAuthData(), authDataEncRequest.getInitialVector(), authDataEncRequest.getAuthTag()));
+        } catch (FunctionFailedException e) {
+            throw new EncryptBaseException(e);
+        }
+
+
     }
 
     @Reference

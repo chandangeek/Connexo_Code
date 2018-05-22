@@ -1,5 +1,7 @@
 package com.elster.jupiter.hsm.model;
 
+import javax.annotation.Nonnull;
+
 public class AuthDataEncryptRequest extends Message {
 
     private final String keyLabel;
@@ -7,16 +9,14 @@ public class AuthDataEncryptRequest extends Message {
     private final byte[] initialVector;
 
 
-    public AuthDataEncryptRequest(String keyLabel, byte[] data,  byte[] authData, byte[] initialVector) {
+    public AuthDataEncryptRequest(@Nonnull String keyLabel,@Nonnull byte[] data, byte[] authData, byte[] initialVector) {
         super(data);
         this.keyLabel = keyLabel;
         this.authData = authData;
         this.initialVector = initialVector;
     }
 
-    public String getKeyLabel() {
-        return keyLabel;
-    }
+    public String getKeyLabel() { return keyLabel; }
 
     public byte[] getAuthData() {
         return authData;
