@@ -40,7 +40,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
-    private volatile Optional<ImporterExtension> importExtension;
+    private volatile ImporterExtension importExtension;
 
     @Override
     public String getName() {
@@ -105,9 +105,9 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         this.deviceService = deviceService;
     }
 
-    @Reference(target="(importer.extension=SecureDeviceShipmentImporter)", cardinality = ReferenceCardinality.OPTIONAL)
+    @Reference
     public void setImporterExtension(ImporterExtension importExtension)
-    { this.importExtension = Optional.ofNullable(importExtension); }
+    { this.importExtension = importExtension; }
 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {

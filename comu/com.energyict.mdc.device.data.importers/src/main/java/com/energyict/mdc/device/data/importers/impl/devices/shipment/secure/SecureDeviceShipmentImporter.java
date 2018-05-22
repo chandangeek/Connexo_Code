@@ -83,12 +83,12 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private final DeviceService deviceService;
     private final SecurityManagementService securityManagementService;
 
-    private final Optional<ImporterExtension> importerExtension;
+    private final ImporterExtension importerExtension;
 
     public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore,
                                         DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
                                         SecurityManagementService securityManagementService,
-                                        Optional<ImporterExtension> importerExtension) {
+                                        ImporterExtension importerExtension) {
         this.thesaurus = thesaurus;
         this.trustStore = trustStore;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -144,7 +144,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             trustStore.validate(certificate.get());
         }
 
-        PublicKey publicKey = getPublicKeyFromShipmentFile(logger, shipment, certificate).orElseThrow(()->new ImportFailedException(MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION));
+        PublicKey publicKey = getPublicKeyFromShipmentFile(logger, shipment, certificate).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION));
 
         verifySignature(inputStreamProvider.stream(), publicKey, logger);
         DeviceCreator deviceCreator = getDeviceCreator(shipment);
@@ -218,7 +218,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         } else {
             final SecurityAccessorType securityAccessorType = securityAccessorTypeOptional.get();
             final WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
-            if (wrapKey==null) {
+            if (wrapKey == null) {
                 throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
             }
             byte[] encryptedSymmetricKey = wrapKey.getSymmetricKey().getCipherData().getCipherValue();
@@ -252,9 +252,9 @@ public class SecureDeviceShipmentImporter implements FileImporter {
      */
     private Map<String, WrapKey> createWrapKeyMap(Shipment shipment) {
         return shipment.getHeader()
-                    .getWrapKey()
-                    .stream()
-                    .collect(toMap(WrapKey::getLabel, Function.identity()));
+                .getWrapKey()
+                .stream()
+                .collect(toMap(WrapKey::getLabel, Function.identity()));
     }
 
     private String getSymmetricAlgorithm(NamedEncryptedDataType deviceKey) throws
@@ -269,7 +269,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     }
 
     private String getAsymmetricAlgorithm(WrapKey wrapKey) {
-        if (wrapKey.getSymmetricKey().getEncryptionMethod()!=null && wrapKey.getSymmetricKey().getEncryptionMethod().getAlgorithm()!=null) {
+        if (wrapKey.getSymmetricKey().getEncryptionMethod() != null && wrapKey.getSymmetricKey().getEncryptionMethod().getAlgorithm() != null) {
             return wrapKey.getSymmetricKey().getEncryptionMethod().getAlgorithm();
         } else {
             return DEFAULT_ASYMMETRIC_ALGORITHM;
@@ -315,7 +315,6 @@ public class SecureDeviceShipmentImporter implements FileImporter {
      * Hook to allow post processing on created devices by more specialized importers. XMl attributes can be obtained by calling xmlDevice.getAttribute().
      * This method is called from within a transaction. Make sure to call Device.save() to apply changes.
      *
-     *
      * @param device The device that has just been created by the importer.
      * @param xmlDevice The XML Node from the shipment file that was used to create the device.
      * @param shipment The complete shipment file, in case any information is required from a larger scope.
@@ -323,13 +322,13 @@ public class SecureDeviceShipmentImporter implements FileImporter {
      */
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
-        List<NamedAttribute> deviceAttributesList =  xmlDevice.getAttribute();
+        List<NamedAttribute> deviceAttributesList = xmlDevice.getAttribute();
 
-        Map<String,String> values = deviceAttributesList
+        Map<String, String> values = deviceAttributesList
                 .stream()
                 .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
-        if(importerExtension.isPresent()) {
-            importerExtension.get().process(device, values, logger);
+        if (importerExtension != null) {
+            importerExtension.process(device, values, logger);
             device.save();
         }
     }
@@ -374,7 +373,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
             XMLSignature signature = fac.unmarshalXMLSignature(validateContext);
-            if(!signature.validate(validateContext)) {
+            if (!signature.validate(validateContext)) {
                 throw new ImportFailedException(MessageSeeds.INVALID_SIGNATURE);
             } else {
                 log(logger, MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY);
@@ -392,10 +391,10 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     }
 
     private Optional<X509Certificate> findCertificate(Shipment shipment, Logger logger) throws CertificateException {
-        for(Object keyInfoObject : shipment.getSignature().getKeyInfo().getContent()) {
-            if(keyInfoObject instanceof JAXBElement && ((JAXBElement) keyInfoObject).getValue() instanceof X509DataType) {
-                for(Object x509DataObject : ((X509DataType) ((JAXBElement) keyInfoObject).getValue()).getX509IssuerSerialOrX509SKIOrX509SubjectName()) {
-                    if(x509DataObject instanceof JAXBElement && ((JAXBElement) x509DataObject).getName().getLocalPart().equals("X509Certificate")) {
+        for (Object keyInfoObject : shipment.getSignature().getKeyInfo().getContent()) {
+            if (keyInfoObject instanceof JAXBElement && ((JAXBElement) keyInfoObject).getValue() instanceof X509DataType) {
+                for (Object x509DataObject : ((X509DataType) ((JAXBElement) keyInfoObject).getValue()).getX509IssuerSerialOrX509SKIOrX509SubjectName()) {
+                    if (x509DataObject instanceof JAXBElement && ((JAXBElement) x509DataObject).getName().getLocalPart().equals("X509Certificate")) {
                         InputStream certificateStream = new ByteArrayInputStream((byte[]) ((JAXBElement) x509DataObject).getValue());
                         try {
                             return Optional.of((X509Certificate) certificateFactory.generateCertificate(certificateStream));
@@ -411,10 +410,10 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     }
 
     public Optional<PublicKey> findPublicKey(Shipment shipment, Logger logger) {
-        for(Object keyInfoObject : shipment.getSignature().getKeyInfo().getContent()) {
-            if(keyInfoObject instanceof JAXBElement && ((JAXBElement) keyInfoObject).getValue() instanceof KeyValueType) {
-                for(Object keyObject : ((KeyValueType) ((JAXBElement) keyInfoObject).getValue()).getContent()) {
-                    if(keyObject instanceof JAXBElement && ((JAXBElement) keyObject).getValue() instanceof RSAKeyValueType) {
+        for (Object keyInfoObject : shipment.getSignature().getKeyInfo().getContent()) {
+            if (keyInfoObject instanceof JAXBElement && ((JAXBElement) keyInfoObject).getValue() instanceof KeyValueType) {
+                for (Object keyObject : ((KeyValueType) ((JAXBElement) keyInfoObject).getValue()).getContent()) {
+                    if (keyObject instanceof JAXBElement && ((JAXBElement) keyObject).getValue() instanceof RSAKeyValueType) {
                         RSAKeyValueType rsaKeyValueType = (RSAKeyValueType) ((JAXBElement) keyObject).getValue();
                         try {
                             KeyFactory factory = KeyFactory.getInstance("RSA");
@@ -423,7 +422,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                             RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
                             return Optional.of(factory.generatePublic(spec));
                         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                            if(logger != null){
+                            if (logger != null) {
                                 log(logger, MessageSeeds.FAILED_TO_CREATE_PUBLIC_KEY, e);
                             }
                             return Optional.empty();
