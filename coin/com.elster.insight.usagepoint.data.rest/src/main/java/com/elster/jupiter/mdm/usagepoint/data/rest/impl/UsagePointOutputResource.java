@@ -1127,7 +1127,7 @@ public class UsagePointOutputResource {
     private boolean validateIfPossible(ChannelsContainer channelsContainer, MetrologyContract contract, Instant lastCheckedCandidate) {
         Instant actuallyValidateFrom = resolveTimestampToValidateFrom(channelsContainer, lastCheckedCandidate);
         return Ranges.nonEmptyIntersection(channelsContainer.getInterval().toOpenClosedRange(), Range.atLeast(actuallyValidateFrom))
-                .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate))
+                .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate, channelsContainer))
                 .map(rangeToValidate -> {
                     validationService.validate(
                             new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, contract),
@@ -1144,17 +1144,30 @@ public class UsagePointOutputResource {
                 .plusMillis(1); // need to exclude lastChecked timestamp itself from validation
     }
 
-    private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate) {
+    private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate, ChannelsContainer channelsContainer) {
         Set<ReadingType> readingTypes = contract.getDeliverables().stream()
                 .map(ReadingTypeDeliverable::getReadingType)
                 .collect(Collectors.toSet());
-        return usagePointConfigurationService.getValidationRuleSets(contract).stream()
+
+        return this.getActiveValidationRuleSets(contract, channelsContainer)
+                .stream()
                 .map(ValidationRuleSet::getRuleSetVersions)
                 .flatMap(List::stream)
                 .filter(version -> Ranges.nonEmptyIntersection(version.getRange(), rangeToValidate).isPresent())
                 .map(version -> version.getRules(readingTypes))
                 .flatMap(List::stream)
                 .anyMatch(ValidationRule::isActive);
+    }
+
+    private List<ValidationRuleSet> getActiveValidationRuleSets(MetrologyContract contract, ChannelsContainer channelsContainer) {
+        if (validationService.isValidationActive(channelsContainer)) {
+            List<ValidationRuleSet> activeRuleSet = validationService.activeRuleSets(channelsContainer);
+            return usagePointConfigurationService.getValidationRuleSets(contract)
+                    .stream()
+                    .filter(activeRuleSet::contains)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @GET
