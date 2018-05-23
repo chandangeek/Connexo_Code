@@ -56,4 +56,3 @@ public interface QueueTableSpec extends HasName {
     DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled);
 
 }
-
