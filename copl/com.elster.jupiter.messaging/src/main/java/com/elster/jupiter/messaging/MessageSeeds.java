@@ -19,12 +19,13 @@ public enum MessageSeeds implements MessageSeed {
     UNDERLYING_JMS_EXCEPTION(1004, "jms.failed", "Underlying JMS Exception"),
     UNDERLYING_AQ_EXCEPTION(1005, "aq.failed", "Underlying AQ Exception"),
     MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE(1006, Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY, "The number of retries of a queue should be between {min} and {max}"),
-    EMPTY_QUEUE_NAME(1007, Keys.EMPTY_QUEUE_NAME, "Queue name is missing or contains forbidden characters."),
-    EMPTY_QUEUE_TYPE_NAME(1008, Keys.EMPTY_QUEUE_TYPE_NAME, "Queue type is missing from request."),
-    DUPLICATE_QUEUE(1009, Keys.DUPLICATE_QUEUE, "Queue is already defined"),
-    QUEUE_NAME_TOO_LONG(1010, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long."),
-    TASKS_NOT_EMPTY(1011, Keys.TASKS_NOT_EMPTY, "Before deleting the queue please remove the corresponding tasks"),
-    ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE(1012, Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, "Before deleting the queue please delete the corresponding message service");
+    RETRY_DELAY_OUT_OF_RANGE(1007, Keys.RETRY_DELAY_OUT_OF_RANGE_KEY, "The retry delay of a queue should be between {min} and {max} seconds"),
+    EMPTY_QUEUE_NAME(1008, Keys.EMPTY_QUEUE_NAME, "Queue name is missing or contains forbidden characters."),
+    EMPTY_QUEUE_TYPE_NAME(1009, Keys.EMPTY_QUEUE_TYPE_NAME, "Queue type is missing from request."),
+    DUPLICATE_QUEUE(1010, Keys.DUPLICATE_QUEUE, "Queue is already defined"),
+    QUEUE_NAME_TOO_LONG(1011, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long."),
+    TASKS_NOT_EMPTY(1012, Keys.TASKS_NOT_EMPTY, "Before deleting the queue please remove the corresponding tasks"),
+    ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE(1013, Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, "Before deleting the queue please delete the corresponding message service");
 
     private final int number;
     private final String key;
