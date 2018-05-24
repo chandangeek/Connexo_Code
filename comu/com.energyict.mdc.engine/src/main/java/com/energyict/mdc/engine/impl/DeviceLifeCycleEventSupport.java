@@ -11,6 +11,7 @@ import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.events.ConnectionTaskCompletionEventInfo;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

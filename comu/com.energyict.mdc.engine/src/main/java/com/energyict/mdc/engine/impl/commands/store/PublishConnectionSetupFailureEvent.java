@@ -9,7 +9,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
+import com.energyict.mdc.engine.events.ConnectionTaskCompletionEventInfo;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
