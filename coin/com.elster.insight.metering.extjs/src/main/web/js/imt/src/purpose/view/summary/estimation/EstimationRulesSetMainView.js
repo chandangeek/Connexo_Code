@@ -40,7 +40,7 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetMainView', {
                                         columnWidth: 1,
                                         labelAlign: 'left',
                                         fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
-                                        value: Uni.I18n.translate('estimationPurpose.updatingStatus', 'MDC', 'Updating status...')
+                                        value: Uni.I18n.translate('estimationPurpose.updatingStatus', 'IMT', 'Updating status...')
                                     },
                                     {
                                         xtype: 'button',
