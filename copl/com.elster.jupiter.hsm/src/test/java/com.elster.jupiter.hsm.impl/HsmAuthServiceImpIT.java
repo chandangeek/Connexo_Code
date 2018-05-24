@@ -12,23 +12,23 @@ import java.nio.charset.Charset;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-
 /**
- * This test is ignored while it is intended to be run only manually while it relies on a certain HSM and keys structure within HSM.
- *
+ * This test will be run by failsafe maven plugin only when E2E profile will be enabled (see pom.xml).
+ * See pom.xml configuration for details.
+ * <p>
+ * The purpose of this test is just to check some JSS/HSM call flows and they are intended to be run only on demand,
+ * not integrated in C.I (at least for the moment)
  */
-@Ignore
-public class HsmAuthServiceImplTest {
+public class HsmAuthServiceImpIT {
 
     private static HsmAuthServiceImpl hsmAuthService;
 
     @BeforeClass
-    public static void before() throws Exception {
+    public static void before() {
         HsmConfigurationService hsmCfgService = new HsmConfigurationService();
-        hsmCfgService.init(new File(HsmAuthServiceImplTest.class.getClassLoader().getResource("hsm-runtime-configuration.json").getFile()).getAbsolutePath());
+        hsmCfgService.init(new File(HsmAuthServiceImpIT.class.getClassLoader().getResource("hsm-runtime-configuration.json").getFile()).getAbsolutePath());
         hsmAuthService = new HsmAuthServiceImpl();
         hsmAuthService.setHsmConfigurationService(hsmCfgService);
     }
