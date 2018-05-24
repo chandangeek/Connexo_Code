@@ -221,7 +221,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
             items: {
                 xtype: 'uni-form-empty-message',
                 itemId: 'purpose-data-view-empty-message',
-                text: Uni.I18n.translate('purpose.summary.estimationCfgView', 'IMT', 'No estimationconfiguration on this purpose')
+                text: Uni.I18n.translate('purpose.summary.noEstimationCfgView', 'IMT', 'No estimationconfiguration on this purpose')
             }
         };
         return estimationCfgComponent;
