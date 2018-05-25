@@ -6,4 +6,6 @@ public class EncryptBaseException extends Exception {
     public EncryptBaseException(FunctionFailedException e) {
         super(e);
     }
+
+    public EncryptBaseException(String msg) { super(msg);  }
 }

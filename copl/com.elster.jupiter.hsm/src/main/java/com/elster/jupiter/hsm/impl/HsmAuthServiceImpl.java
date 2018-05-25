@@ -1,10 +1,10 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmAuthService;
-import com.elster.jupiter.hsm.model.AuthDataDecryptRequest;
-import com.elster.jupiter.hsm.model.AuthDataDecryptResponse;
-import com.elster.jupiter.hsm.model.AuthDataEncryptRequest;
-import com.elster.jupiter.hsm.model.AuthDataEncryptResponse;
+import com.elster.jupiter.hsm.model.request.AuthDataDecryptRequest;
+import com.elster.jupiter.hsm.model.response.AuthDataDecryptResponse;
+import com.elster.jupiter.hsm.model.request.AuthDataEncryptRequest;
+import com.elster.jupiter.hsm.model.response.AuthDataEncryptResponse;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import com.atos.worldline.jss.api.FunctionFailedException;

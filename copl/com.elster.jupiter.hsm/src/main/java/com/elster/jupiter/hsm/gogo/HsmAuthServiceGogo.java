@@ -1,10 +1,10 @@
 package com.elster.jupiter.hsm.gogo;
 
 import com.elster.jupiter.hsm.impl.HsmAuthServiceImpl;
-import com.elster.jupiter.hsm.model.AuthDataDecryptRequest;
-import com.elster.jupiter.hsm.model.AuthDataDecryptResponse;
-import com.elster.jupiter.hsm.model.AuthDataEncryptRequest;
-import com.elster.jupiter.hsm.model.AuthDataEncryptResponse;
+import com.elster.jupiter.hsm.model.request.AuthDataDecryptRequest;
+import com.elster.jupiter.hsm.model.response.AuthDataDecryptResponse;
+import com.elster.jupiter.hsm.model.request.AuthDataEncryptRequest;
+import com.elster.jupiter.hsm.model.response.AuthDataEncryptResponse;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import org.osgi.service.component.annotations.Component;

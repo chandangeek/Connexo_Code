@@ -1,5 +1,7 @@
-package com.elster.jupiter.hsm.model;
+package com.elster.jupiter.hsm.model.response;
 
+
+import com.elster.jupiter.hsm.model.Message;
 
 public class EncryptResponse extends Message {
 

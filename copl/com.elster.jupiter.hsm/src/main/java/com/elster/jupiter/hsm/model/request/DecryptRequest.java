@@ -1,6 +1,9 @@
-package com.elster.jupiter.hsm.model;
+package com.elster.jupiter.hsm.model.request;
 
 import com.elster.jupiter.hsm.EncryptionType;
+import com.elster.jupiter.hsm.model.ChainingMode;
+import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.PaddingAlgorithm;
 
 public class DecryptRequest extends Message {
 
@@ -15,14 +18,6 @@ public class DecryptRequest extends Message {
         this.type = type;
         this.paddingAlgorithm = paddingAlgorithm;
         this.chainingMode = chainingMode;
-    }
-
-    public DecryptRequest(String keyLabel, EncryptionType type, String clearString) {
-        super(clearString);
-        this.keyLabel = keyLabel;
-        this.type = type;
-        this.paddingAlgorithm = PaddingAlgorithm.ANSI_X9_23;
-        this.chainingMode = ChainingMode.CBC;
     }
 
 

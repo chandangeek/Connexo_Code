@@ -1,4 +1,4 @@
-package com.elster.jupiter.hsm.model;
+package com.elster.jupiter.hsm.model.request;
 
 import javax.annotation.Nonnull;
 

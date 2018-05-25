@@ -2,10 +2,10 @@ package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.EncryptionType;
 import com.elster.jupiter.hsm.HsmEncryptionService;
-import com.elster.jupiter.hsm.model.DecryptRequest;
-import com.elster.jupiter.hsm.model.DecryptResponse;
-import com.elster.jupiter.hsm.model.EncryptRequest;
-import com.elster.jupiter.hsm.model.EncryptResponse;
+import com.elster.jupiter.hsm.model.request.DecryptRequest;
+import com.elster.jupiter.hsm.model.response.DecryptResponse;
+import com.elster.jupiter.hsm.model.request.EncryptRequest;
+import com.elster.jupiter.hsm.model.response.EncryptResponse;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
@@ -32,11 +32,11 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
         }
     }
 
-    private byte[] getEncrypt(EncryptRequest eReq) throws FunctionFailedException {
+    private byte[] getEncrypt(EncryptRequest eReq) throws FunctionFailedException, EncryptBaseException {
         if (EncryptionType.SYMMETRIC.equals(eReq.getType())) {
-            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, Mapper.map(eReq.getPaddingAlgorithm()), Mapper.map(eReq.getChainingMode())).getData();
+            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, eReq.getPaddingAlgorithm().toJssFormat(), eReq.getChainingMode().toJssFormat()).getData();
         }
-        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), Mapper.map(eReq.getPaddingAlgorithm()));
+        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), eReq.getPaddingAlgorithm().toJssFormat());
     }
 
     @Override
@@ -52,11 +52,11 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     }
 
-    private byte[] getDecrypt(DecryptRequest dReq) throws FunctionFailedException {
+    private byte[] getDecrypt(DecryptRequest dReq) throws FunctionFailedException, EncryptBaseException {
         if (EncryptionType.SYMMETRIC.equals(dReq.getType())) {
-            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, Mapper.map(dReq.getPaddingAlgorithm()), Mapper.map(dReq.getChainingMode()));
+            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, dReq.getPaddingAlgorithm().toJssFormat(), dReq.getChainingMode().toJssFormat());
         }
-      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  Mapper.map(dReq.getPaddingAlgorithm()));
+      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  dReq.getPaddingAlgorithm().toJssFormat());
     }
 
 

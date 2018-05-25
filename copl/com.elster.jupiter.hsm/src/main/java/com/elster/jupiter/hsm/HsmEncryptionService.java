@@ -1,9 +1,9 @@
 package com.elster.jupiter.hsm;
 
-import com.elster.jupiter.hsm.model.DecryptRequest;
-import com.elster.jupiter.hsm.model.DecryptResponse;
-import com.elster.jupiter.hsm.model.EncryptRequest;
-import com.elster.jupiter.hsm.model.EncryptResponse;
+import com.elster.jupiter.hsm.model.request.DecryptRequest;
+import com.elster.jupiter.hsm.model.response.DecryptResponse;
+import com.elster.jupiter.hsm.model.request.EncryptRequest;
+import com.elster.jupiter.hsm.model.response.EncryptResponse;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 
 import aQute.bnd.annotation.ProviderType;
