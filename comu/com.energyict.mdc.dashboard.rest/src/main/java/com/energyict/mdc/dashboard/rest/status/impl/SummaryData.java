@@ -33,7 +33,7 @@ public class SummaryData {
     public SummaryData(TaskStatusOverview taskStatusOverview, long successWithFailedTasks) {
         this(taskStatusOverview);
         this.successWithFailedTasks = successWithFailedTasks;
-        this.success-=this.successWithFailedTasks;
+        this.success = Math.max(this.success - this.successWithFailedTasks, 0);
     }
 
     private Map<TaskStatus, Long> getTaskStatusCountsAsMap(TaskStatusOverview taskStatusOverview) {
