@@ -78,34 +78,36 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    private static final String USAGE_POINT_NAME = "Der Name";
+    static final String USAGE_POINT_NAME = "Der Name";
     private static final String EXPECTED_FORMULA_DESCRIPTION = "Formula Description";
-    private static final Instant INSTANT = Instant.ofEpochMilli(1467185935140L);
-    private static final Instant PREVIOUS_INSTANT = INSTANT.minus(60, ChronoUnit.MINUTES);
-    private static final Instant NEXT_INSTANT = INSTANT.plus(60, ChronoUnit.MINUTES);
-    private static final Instant OLD_INSTANT = PREVIOUS_INSTANT.minus(60, ChronoUnit.MINUTES);
+    static final Instant INSTANT = Instant.ofEpochMilli(1467185935140L);
+    static final Instant PREVIOUS_INSTANT = INSTANT.minus(60, ChronoUnit.MINUTES);
+    static final Instant NEXT_INSTANT = INSTANT.plus(60, ChronoUnit.MINUTES);
+    static final Instant OLD_INSTANT = PREVIOUS_INSTANT.minus(60, ChronoUnit.MINUTES);
 
     @Mock
-    private UsagePoint usagePoint;
+    UsagePoint usagePoint;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, previousEffectiveMC, oldEffectiveMC;
     @Mock
-    private ChannelsContainer channelsContainer1, channelsContainer2;
+    ChannelsContainer channelsContainer1, channelsContainer2;
     @Mock
     private DataValidationTask validationTask;
     @Mock
     private EstimationTask estimationTask;
     @Mock
-    private UsagePointGroup usagePointGroup;
+    private
+    UsagePointGroup usagePointGroup;
     @Mock
-    private Query<UsagePoint> usagePointQuery;
-
+    private
+    Query<UsagePoint> usagePointQuery;
     @Mock
-    private MetrologyContractCalculationIntrospector metrologyContractCalculationIntrospector;
+    private
+    MetrologyContractCalculationIntrospector metrologyContractCalculationIntrospector;
 
     private MetrologyContract optionalContract;
-    private MetrologyContract mandatoryContract1;
-    private MetrologyContract mandatoryContract2;
+    MetrologyContract mandatoryContract1;
+    MetrologyContract mandatoryContract2;
 
     @Before
     public void before() {
@@ -195,152 +197,6 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo(EXPECTED_FORMULA_DESCRIPTION);
-    }
-
-    @Test
-    public void testValidatePurposeOnRequest() {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        Range<Instant> range1 = Range.atLeast(PREVIOUS_INSTANT);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
-        Range<Instant> range2 = Range.closedOpen(OLD_INSTANT, PREVIOUS_INSTANT);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(INSTANT));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(PREVIOUS_INSTANT));
-        mockValidationRuleSet(mandatoryContract1, range1);
-        mockValidationRuleSet(mandatoryContract2, range1);
-        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, OLD_INSTANT);
-        // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
-
-        // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).getLastChecked(channelsContainer1);
-        verify(validationService).validate(
-                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer1, mandatoryContract1)),
-                eq(OLD_INSTANT.plusMillis(1)));
-        verify(validationService).getLastChecked(channelsContainer2);
-        verify(validationService).validate(
-                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer2, mandatoryContract2)),
-                eq(OLD_INSTANT.plusMillis(1)));
-        verifyNoMoreInteractions(validationService);
-    }
-
-    @Test
-    public void testValidatePurposeOnRequestWithOnlyOneContractValidatedDueToLastChecked() {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        Range<Instant> range1 = Range.atLeast(PREVIOUS_INSTANT);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
-        Range<Instant> range2 = Range.closedOpen(OLD_INSTANT, PREVIOUS_INSTANT);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(INSTANT));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(PREVIOUS_INSTANT));
-        mockValidationRuleSet(mandatoryContract1, range1);
-        mockValidationRuleSet(mandatoryContract2, range1);
-        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, NEXT_INSTANT);
-        // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
-
-        // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).getLastChecked(channelsContainer1);
-        verify(validationService).getLastChecked(channelsContainer2);
-        verify(validationService).validate(
-                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer1, mandatoryContract1)),
-                eq(INSTANT.plusMillis(1)));
-        verifyNoMoreInteractions(validationService);
-    }
-
-    @Test
-    public void testValidatePurposeOnRequestWithOnlyOneContractValidatedDueToRuleSetVersions() {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        Range<Instant> range1 = Range.atLeast(PREVIOUS_INSTANT);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
-        Range<Instant> range2 = Range.closedOpen(OLD_INSTANT, PREVIOUS_INSTANT);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(INSTANT));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(PREVIOUS_INSTANT));
-        mockValidationRuleSet(mandatoryContract1, range2);
-        mockValidationRuleSet(mandatoryContract2, range2);
-        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, OLD_INSTANT);
-        // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
-
-        // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(validationService).getLastChecked(channelsContainer1);
-        verify(validationService).getLastChecked(channelsContainer2);
-        verify(validationService).validate(
-                refEq(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer2, mandatoryContract2)),
-                eq(OLD_INSTANT.plusMillis(1)));
-        verifyNoMoreInteractions(validationService);
-    }
-
-    @Test
-    public void testValidatePurposeOnRequestWithoutActiveRuleSetVersions() throws IOException {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        Range<Instant> range1 = Range.greaterThan(PREVIOUS_INSTANT);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
-        Range<Instant> range2 = Range.openClosed(OLD_INSTANT, PREVIOUS_INSTANT);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(INSTANT));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(PREVIOUS_INSTANT));
-        mockValidationRuleSet(mandatoryContract1, range2);
-        mockValidationRuleSet(mandatoryContract2, range1);
-        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, OLD_INSTANT);
-        // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
-
-        // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        verify(validationService).getLastChecked(channelsContainer1);
-        verify(validationService).getLastChecked(channelsContainer2);
-        verifyNoMoreInteractions(validationService);
-
-        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<List<String>>get("$.errors[*].id")).containsExactly("validationInfo.lastChecked");
-        assertThat(model.<List<String>>get("$.errors[*].msg")).containsExactly(MessageSeeds.NOTHING_TO_VALIDATE.getDefaultFormat());
-    }
-
-    @Test
-    public void testValidatePurposeOnRequestWithNoRuleSetsConfigured() throws IOException {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        Range<Instant> range1 = Range.atLeast(PREVIOUS_INSTANT);
-        when(channelsContainer1.getInterval()).thenReturn(Interval.of(range1));
-        Range<Instant> range2 = Range.closedOpen(OLD_INSTANT, PREVIOUS_INSTANT);
-        when(channelsContainer2.getInterval()).thenReturn(Interval.of(range2));
-        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(INSTANT));
-        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(PREVIOUS_INSTANT));
-        when(usagePointConfigurationService.getValidationRuleSets(any(MetrologyContract.class))).thenReturn(Collections.emptyList());
-        PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, OLD_INSTANT);
-        // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/validate").request().put(Entity.json(purposeInfo));
-
-        // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        verify(validationService).getLastChecked(channelsContainer1);
-        verify(validationService).getLastChecked(channelsContainer2);
-        verifyNoMoreInteractions(validationService);
-
-        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<List<String>>get("$.errors[*].id")).containsExactly("validationInfo.lastChecked");
-        assertThat(model.<List<String>>get("$.errors[*].msg")).containsExactly(MessageSeeds.NOTHING_TO_VALIDATE.getDefaultFormat());
-    }
-
-    private void mockValidationRuleSet(MetrologyContract metrologyContract, Range<Instant> active) {
-        ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
-        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
-        ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
-        doReturn(Collections.singletonList(validationRuleSetVersion)).when(validationRuleSet).getRuleSetVersions();
-        when(validationRuleSetVersion.getRange()).thenReturn(active);
-        ValidationRule validationRule = mock(ValidationRule.class);
-        doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules();
-        Set<ReadingType> readingTypes = metrologyContract.getDeliverables().stream()
-                .map(ReadingTypeDeliverable::getReadingType)
-                .collect(Collectors.toSet());
-        doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules(readingTypes);
-        when(validationRule.isActive()).thenReturn(true);
     }
 
     @Test
@@ -499,11 +355,11 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         verify(effectiveMC).deactivateOptionalMetrologyContract(eq(optionalContract), any(Instant.class));
     }
 
-    private PurposeInfo createPurposeInfo(MetrologyContract metrologyContract) {
+    PurposeInfo createPurposeInfo(MetrologyContract metrologyContract) {
         return createPurposeInfo(metrologyContract, INSTANT);
     }
 
-    private PurposeInfo createPurposeInfo(MetrologyContract metrologyContract, Instant lastChecked) {
+    PurposeInfo createPurposeInfo(MetrologyContract metrologyContract, Instant lastChecked) {
         PurposeInfo purposeInfo = new PurposeInfo();
         purposeInfo.id = metrologyContract.getId();
         purposeInfo.version = metrologyContract.getVersion();
