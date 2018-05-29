@@ -1,14 +1,24 @@
 //
-//     Angular components KeyLines v3.8.0-3469
+//     Angular components KeyLines v4.3.1-5376
 //
-//     Copyright © 2011-2017 Cambridge Intelligence Limited.
+//     Copyright © 2011-2018 Cambridge Intelligence Limited.
 //     All rights reserved.
 //
-
 import {
-  Component, ElementRef, Input, Output, EventEmitter, Injectable, AfterViewInit, OnDestroy,
-  OnChanges, SimpleChange, ContentChildren, HostListener, ViewChild
-} from '@angular/core';
+    Component,
+    ElementRef,
+    Input,
+    Output,
+    EventEmitter,
+    Injectable,
+    AfterViewInit,
+    OnDestroy,
+    OnChanges,
+    SimpleChange,
+    ContentChildren,
+    HostListener,
+    ViewChild
+} from "@angular/core";
 
 // allow KeyLines global
 declare const KeyLines: KeyLines.KeyLines;
