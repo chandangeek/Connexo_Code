@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -25,11 +26,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 /**
@@ -89,7 +88,8 @@ public class MessageServiceImpl implements MessageService {
             }
         });
         upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
+                Version.version(10, 2), UpgraderV10_2.class,
+                Version.version(10, 5), UpgraderV10_5.class
         ));
     }
 
@@ -129,7 +129,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-     public List<SubscriberSpec> getSubscribers() {
+    public List<SubscriberSpec> getSubscribers() {
         return dataModel.mapper(SubscriberSpec.class).find();
     }
 

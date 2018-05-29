@@ -42,9 +42,9 @@ public enum TableSpecs {
             table.column("RETRIES").number().notNull().conversion(NUMBER2INT).map("retries").add();
             table.column("ACTIVE").bool().map("active").add();
             table.column("BUFFERED").bool().map("buffered").add();
-            table.column("ISDEFAULT").bool().map("isDefault").add();
-            table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").add();
-            table.column("IS_EXTRA_QUEUE_ENABLED").bool().map("isExtraQueueCreationEnabled").add();
+            table.column("ISDEFAULT").bool().map("isDefault").installValue("'Y'").since(version(10, 5)).add();
+            table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").since(version(10, 5)).add();
+            table.column("IS_EXTRA_QUEUE_ENABLED").bool().map("isExtraQueueCreationEnabled").installValue("'N'").since(version(10, 5)).add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
             table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTableSpec").on(queueTableNameColumn).add();
