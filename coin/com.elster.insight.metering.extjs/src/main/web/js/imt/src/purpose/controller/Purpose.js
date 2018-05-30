@@ -13,7 +13,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.view.summary.PurposeMain',
         'Imt.purpose.view.summary.validation.RulesSetGrid',
-        'Imt.purpose.view.summary.estimation.EstimationRulesGrid'
+        'Imt.purpose.view.summary.estimation.EstimationRulesSetPreview',
+        //'Imt.purpose.view.summary.estimation.EstimationRulesGrid'
     ],
 
     stores: [
@@ -64,7 +65,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.summary.validation.RulePreview',
         'Imt.purpose.view.summary.validation.RulesSetActionMenu',
         'Imt.purpose.view.summary.estimation.EstimationRulesSetMainView',
-        'Imt.purpose.view.summary.estimation.EstimationRulesSetPreview'
+        'Imt.purpose.view.summary.estimation.EstimationRulePreview',
+        'Imt.purpose.view.summary.estimation.EstimationRulesGrid'
     ],
 
     refs: [
@@ -129,9 +131,37 @@ Ext.define('Imt.purpose.controller.Purpose', {
             selector: '#estimationCfgRulesSetMainView'
         },
         {
-            ref: 'estimationRulePreview',
+            ref: 'estimationRuleSetPreview',
             selector: '#estimationCfgRulesSetPreviewCt'
         },
+        {
+            ref: 'estimationRulePreview',
+            selector: '#purpose-estimation-rule-preview'
+        },
+        {
+            ref: 'estimationCfgSetGrid',
+            selector: '#estimationCfgRulesSetGrid'
+        },
+        {
+            ref: 'estimationCfgRulesGrid',
+            selector: '#purpose-estimation-rules-grid'
+        },
+        {
+            ref: 'rulePreview',
+            selector: '#estimationCfgRulePreview'
+        },
+        {
+            ref: 'changeEstimationRuleSetStateActionMenuItem',
+            selector: '#changeEstimationRuleSetStateActionMenuItem'
+        },
+        {
+            ref: 'estimationPage',
+            selector: '#estimationCfgRulesSetMainView'
+        },
+        {
+            ref: 'estimationStatusField',
+            selector: '#estimationCfgStatusField'
+        }
 
     ],
 
@@ -172,15 +202,106 @@ Ext.define('Imt.purpose.controller.Purpose', {
             '#validationFromDate': {
                 change: this.onValidationFromDateChange
             },
-            'estimationCfgRulesSetMainView #purpose-estimation-rules-set-grid': {
+            'estimationCfgRulesSetMainView #estimationCfgRulesSetGrid': {
+                select: this.previewEstimationSetRule
+            },
+            'estimationCfgRulesSetPreview #purpose-estimation-rules-grid': {
                 select: this.previewEstimationRule
             },
+            '#changeEstimationRuleSetStateActionMenuItem': {
+                click: this.changeEstimationRuleSetStatus
+            },
+            '#estimationCfgStateChangeBtn': {
+                click: this.changeEstimationCfgStatus
+            }
 
 
         });
     },
     changeDataValidationStatus: function (btn) {
         btn.action === 'activate' ? this.showActivationConfirmation(this.getPage()) : this.showDeactivationConfirmation(this.getPage());
+    },
+    changeEstimationCfgStatus: function (btn) {
+        var me = this,
+            activate = btn.action === 'activate';
+
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: activate ? Uni.I18n.translate('general.activate', 'IMT', 'Activate') : Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate'),
+            itemId: 'activationConfirmationWindow',
+            green: activate
+        }).show({
+            title: activate
+                ? Uni.I18n.translate('estimationPurpose.activateConfirmation.title', 'IMT', "Activate data estimation on purpose '{0}'?", me.getEstimationPage().purpose.data.name)
+                : Uni.I18n.translate('estimationPurpose.deactivateConfirmation.title', 'IMT', "Deactivate data estimation on purpose '{0}'?", me.getEstimationPage().purpose.data.name),
+            msg: activate ? '' : Uni.I18n.translate('estimationPurpose.deactivateConfirmation.msg', 'IMT', 'The data of this purpose will no longer be estimated'),
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.activateDataEstimation(activate);
+                }
+            }
+        });
+
+    },
+
+    activateDataEstimation: function (activate) {
+        var me = this,
+
+            page = me.getEstimationPage();
+
+        //me.device.set('estimationStatus', { active: activate });
+        page.setLoading();
+
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/estimationrulesets/estimationstatus',
+            method: 'PUT',
+            jsonData: {
+                active: activate
+            },
+            isNotEdit: true,
+            success: function () {
+                var router = me.getController('Uni.controller.history.Router');
+                me.getApplication().fireEvent('acknowledge', activate
+                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'IMT', 'Data estimation activated')
+                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'IMT', 'Data estimation deactivated')
+                );
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
+    },
+
+    changeEstimationRuleSetStatus: function () {
+        var me = this,
+            ruleSetId = this.getEstimationCfgSetGrid().getSelectionModel().getLastSelected().get('id'),
+            record = this.getEstimationCfgSetGrid().getStore().getById(ruleSetId),
+            ruleSetName = record.get('name'),
+            ruleSetIsActive = record.get('isActive'),
+            page = me.getEstimationPage();
+
+
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/' + page.usagePoint.getData().name + '/purposes/' + page.purpose.getData().id + '/estimationrulesets/' + ruleSetId + '/status',
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: {
+                activeRules: record.get('activeRules'),
+                description: record.get('description'),
+                id: ruleSetId,
+                isActive: !ruleSetIsActive,
+                name: ruleSetName
+            },
+            success: function () {
+                me.getEstimationCfgSetGrid().getStore().reload({
+                    callback: function () {
+                        me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
+                            Uni.I18n.translate('estimationCfg.ruleSet.deactivated', 'IMT', 'Estimation rule set deactivated') :
+                            Uni.I18n.translate('estimationCfg.ruleSet.activated', 'IMT', 'Estimation rule set activated'));
+                    }
+                });
+            }
+        });
+
     },
 
     showActivationConfirmation: function (view) {
@@ -593,6 +714,43 @@ Ext.define('Imt.purpose.controller.Purpose', {
             Ext.resumeLayouts(true);
         }
     },
+    previewEstimationSetRule: function (selectionModel, record) {
+
+        var me = this,
+            estimationCfgRuleStore,
+            ruleSetId = selectionModel.getLastSelected().get('id');
+
+
+        if (record) {
+            Ext.suspendLayouts();
+
+            this.getEstimationRuleSetPreview().removeAll(true);
+            var estimationCfgPreviewPanel = Ext.widget('estimationCfgRulesSetPreview', {
+                ruleSetId: ruleSetId,
+                title: record.get('name'),
+                ui: 'medium',
+                padding: 0,
+                isSecondPagination: true
+            });
+            this.getEstimationRuleSetPreview().add(estimationCfgPreviewPanel);
+            var menuItem = this.getChangeEstimationRuleSetStateActionMenuItem();
+            if (!!menuItem) {
+                menuItem.setText(record.get('isActive') ?
+                    Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
+                    Uni.I18n.translate('general.activate', 'IMT', 'Activate'))
+            }
+            estimationCfgRuleStore = Ext.getStore('Imt.store.EstimationRules');
+            estimationCfgRuleStore.getProxy().extraParams = {
+                ruleSetId: ruleSetId,
+            };
+            estimationCfgRuleStore.load();
+
+
+            Ext.resumeLayouts(true);
+        }
+
+    },
+
     previewEstimationRule: function (selectionModel, record) {
 
         var me = this;
@@ -601,19 +759,54 @@ Ext.define('Imt.purpose.controller.Purpose', {
             Ext.suspendLayouts();
 
             this.getEstimationRulePreview().removeAll(true);
-            var estimationCfgPreviewPanel = Ext.widget('estimationCfgRulesSetPreview', {
-                ruleSetId: me.ruleSetId,
-                versionId: record.getId(),
-                title: record.get('name'),
+            var estimationRuleCfgPreviewPanel = Ext.widget('estimationCfgRulePreview', {
+                //ruleSetId: me.ruleSetId,
+                //title: record.get('name'),
                 ui: 'medium',
                 padding: 0,
                 isSecondPagination: true
             });
-            this.versionId = record.getId();
-            this.getEstimationRulePreview().add(estimationCfgPreviewPanel);
+            this.getEstimationRulePreview().add(estimationRuleCfgPreviewPanel);
+            me.updateEstimationPreview();
 
             Ext.resumeLayouts(true);
         }
+
+    },
+
+    updateEstimationPreview: function () {
+        var rulePreview = this.getRulePreview(),
+            grid = this.getEstimationCfgRulesGrid(),
+            estimationRule = grid.view.getSelectionModel().getLastSelected(),
+            readingTypes = estimationRule.data.readingTypes;
+
+        Ext.suspendLayouts();
+        rulePreview.loadRecord(estimationRule);
+        rulePreview.setTitle(Ext.String.htmlEncode(estimationRule.get('name')));
+        rulePreview.down('property-form').loadRecord(estimationRule);
+        rulePreview.down('#readingTypesArea').removeAll();
+        for (var i = 0; i < readingTypes.length; i++) {
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'IMT', 'Reading types'),
+                readingType = readingTypes[i];
+
+            rulePreview.down('#readingTypesArea').add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'reading-type-displayfield',
+                            fieldLabel: fieldlabel,
+                            labelWidth: 250,
+                            value: readingType
+                        }
+                    ]
+                }
+            );
+        }
+        Ext.resumeLayouts(true);
 
     },
 
@@ -847,7 +1040,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
     showEstimationCfgTab: function (panel) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            estimationCfgStore;
+            estimationCfgStore,
+            estimationCfgRuleStore;
 
 
         if (router.arguments.tab != 'registerData') {
@@ -892,6 +1086,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
+
                 if (view.down('#estimationCfgStatusPanel')) {
                     view.down('#estimationCfgStatusField').setValue(res.active ?
                         Uni.I18n.translate('general.active', 'IMT', 'Active') :

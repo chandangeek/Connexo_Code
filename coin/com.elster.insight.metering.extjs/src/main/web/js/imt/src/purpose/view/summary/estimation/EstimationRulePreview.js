@@ -4,13 +4,16 @@
 
 Ext.define('Imt.purpose.view.summary.estimation.EstimationRulePreview', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.deviceDataEstimationRulePreview',
+    alias: 'widget.estimationCfgRulePreview',
+    itemId: 'estimationCfgRulePreview',
     frame: true,
     requires: [
-        // 'Mdc.model.EstimationRule'
+        'Imt.purpose.model.EstimationRule'
     ],
     title: '',
-    layout: 'form',
+    layout: {
+        type: 'vbox'
+    },
     defaults: {
         xtype: 'displayfield',
         labelWidth: 250
@@ -47,8 +50,10 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulePreview', {
             xtype: 'property-form',
             itemId: 'rule-property-form',
             isEdit: false,
+            layout: 'vbox',
             defaults: {
-                labelWidth: 250
+                labelWidth: 260,
+                width: 500
             }
         },
         {

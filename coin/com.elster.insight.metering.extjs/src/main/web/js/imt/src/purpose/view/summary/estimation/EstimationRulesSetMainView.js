@@ -13,8 +13,7 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetMainView', {
     requires: [
         'Imt.purpose.view.summary.estimation.EstimationRulesSetGrid',
         'Imt.purpose.view.summary.estimation.EstimationRulesSetPreview',
-        'Uni.view.container.PreviewContainer',
-        //'Mdc.view.setup.device.DeviceMenu'
+        'Uni.view.container.PreviewContainer'
     ],
     initComponent: function () {
         var me = this;
@@ -61,8 +60,8 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetMainView', {
                             {
                                 xtype: 'preview-container',
                                 grid: {
-                                    xtype: 'estimationCfgRulesSetGrid',
-                                    itemId: 'purpose-estimation-rules-set-grid'
+                                    xtype: 'estimationCfgRulesSetGrid'
+                                    //itemId: 'purpose-estimation-rules-set-grid',
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',

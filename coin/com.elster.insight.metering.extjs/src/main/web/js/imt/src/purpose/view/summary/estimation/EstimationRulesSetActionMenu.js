@@ -4,7 +4,7 @@
 
 Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
-    alias: 'widget.deviceDataEstimationRulesSetActionMenu',
+    alias: 'widget.estimationCfgRulesSetActionMenu',
     initComponent: function () {
         this.items = [
             {

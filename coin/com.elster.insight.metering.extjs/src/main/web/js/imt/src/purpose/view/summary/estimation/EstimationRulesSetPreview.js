@@ -22,7 +22,7 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetPreview', {
                 xtype: 'preview-container',
                 grid: {
                     xtype: 'estimationCfgRulesGrid',
-                    itemId: 'device-data-estimation-rules-grid',
+                    itemId: 'purpose-estimation-rules-grid',
                     rulesSetId: me.rulesSetId
                 },
                 emptyComponent: {
@@ -41,8 +41,8 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetPreview', {
                     ]
                 },
                 previewComponent: {
-                    xtype: 'deviceDataEstimationRulePreview',
-                    itemId: 'device-data-estimation-rule-preview'
+                    xtype: 'estimationCfgRulePreview',
+                    itemId: 'purpose-estimation-rule-preview'
                 }
             }
         ];

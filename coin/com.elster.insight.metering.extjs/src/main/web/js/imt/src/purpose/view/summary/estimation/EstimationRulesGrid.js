@@ -5,6 +5,7 @@
 Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.estimationCfgRulesGrid',
+    itemId: 'estimationCfgRulesGrid',
     rulesSetId: null,
     title: '',
     requires: [
@@ -12,6 +13,7 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesGrid', {
         'Uni.view.toolbar.PagingTop',
         'Imt.store.EstimationRules'
     ],
+
     store: 'Imt.store.EstimationRules',
     overflowY: 'auto',
     initComponent: function () {

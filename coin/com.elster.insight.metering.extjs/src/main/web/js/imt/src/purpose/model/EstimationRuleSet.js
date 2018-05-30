@@ -4,10 +4,6 @@
 
 Ext.define('Imt.purpose.model.EstimationRuleSet', {
     extend: 'Ext.data.Model',
-    //extend: 'Uni.model.Version',
-    // requires: [
-    //     'Est.estimationrules.model.Rule'
-    // ],
     fields: [
         {
             name: 'id'
@@ -19,7 +15,6 @@ Ext.define('Imt.purpose.model.EstimationRuleSet', {
         {
             name: 'inactiveRules',
             type: 'int'
-            //persist: false
         },
         {
             name: 'activeRules',
@@ -31,7 +26,7 @@ Ext.define('Imt.purpose.model.EstimationRuleSet', {
         },
         {
             name: 'isActive',
-            type: 'string'
+            type: 'boolean'
         }
     ],
 

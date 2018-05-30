@@ -30,10 +30,13 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetGrid', {
                 dataIndex: 'isActive',
                 flex: 1,
                 renderer: function (value) {
-                    return value ?
-                        Uni.I18n.translate('general.active', 'IMT', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'IMT', 'Inactive');
-                }
+                    return value
+                        ? Uni.I18n.translate('general.active', 'IMT', 'Active')
+                        : Uni.I18n.translate('general.inactive', 'IMT', 'Inactive');
+                },
+                align: 'right',
+                sortable: false,
+                fixed: true
             },
             {
                 header: Uni.I18n.translate('general.activeRules', 'IMT', 'Active rules'),
@@ -51,7 +54,7 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulesSetGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {
-                    xtype: 'deviceDataEstimationRulesSetActionMenu'
+                    xtype: 'estimationCfgRulesSetActionMenu'
                 },
                 //privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice,
                 //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.estimationRuleSetsActions
