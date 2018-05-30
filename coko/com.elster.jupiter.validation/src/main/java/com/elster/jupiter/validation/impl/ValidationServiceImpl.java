@@ -307,8 +307,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
                         .map(MeterActivation::getChannelsContainer)
-                        .map(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)))
-                        .ifPresent(ChannelsContainerValidationList::activate);
+                        .ifPresent(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)));
             } // else already active
         } else {
             createMeterValidation(meter, true, false);
@@ -356,9 +355,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Override
     public boolean isValidationActive(ChannelsContainer channelsContainer){
-        if (channelsContainer == null){
-            throw new IllegalArgumentException("Channels container cannot be null");
-        }
+        this.checkChannelsContainer(channelsContainer);
         return getPurposeValidation(channelsContainer)
                 .map(PurposeValidationImpl::getActivationStatus)
                 .orElse(false);
@@ -366,26 +363,18 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Override
     public void activateValidation(ChannelsContainer channelsContainer) {
-        if (channelsContainer == null){
-            throw new IllegalArgumentException("Channels container cannot be null");
-        }
-        Optional<PurposeValidationImpl> purposeValidationOptional = getPurposeValidation(channelsContainer);
-        if (purposeValidationOptional.isPresent()) {
-            PurposeValidationImpl purposeValidation = purposeValidationOptional.get();
-            if (!purposeValidation.getActivationStatus()) {
-                purposeValidation.setActivationStatus(true);
-                purposeValidation.save();
-            }
-        } else {
-            createPurposeValidation(channelsContainer);
+        this.checkChannelsContainer(channelsContainer);
+        PurposeValidationImpl purposeValidation = getPurposeValidation(channelsContainer)
+                .orElse(createPurposeValidation(channelsContainer));
+        if (!purposeValidation.getActivationStatus()) {
+            purposeValidation.setActivationStatus(true);
+            purposeValidation.save();
         }
     }
 
     @Override
     public void deactivateValidation(ChannelsContainer channelsContainer) {
-        if (channelsContainer == null) {
-            throw new IllegalArgumentException("Channels container cannot be null");
-        }
+        this.checkChannelsContainer(channelsContainer);
         this.getPurposeValidation(channelsContainer)
                 .filter(PurposeValidationImpl::getActivationStatus)
                 .ifPresent(purposeValidation -> {
@@ -399,10 +388,14 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.mapper(PurposeValidationImpl.class).getOptional(channelsContainer.getId());
     }
 
-    private void createPurposeValidation(ChannelsContainer channelsContainer) {
-        PurposeValidationImpl purposeValidation = new PurposeValidationImpl(dataModel).init(channelsContainer);
-        purposeValidation.setActivationStatus(true);
-        purposeValidation.save();
+    private PurposeValidationImpl createPurposeValidation(ChannelsContainer channelsContainer) {
+        return new PurposeValidationImpl(dataModel).init(channelsContainer);
+    }
+
+    private void checkChannelsContainer(ChannelsContainer channelsContainer) {
+        if (channelsContainer == null) {
+            throw new IllegalArgumentException("Channels container cannot be null");
+        }
     }
 
     @Override
