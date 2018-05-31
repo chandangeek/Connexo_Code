@@ -27,16 +27,15 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
         try {
             return new EncryptResponse(getEncrypt(eRequest));
         } catch (FunctionFailedException e) {
-            e.printStackTrace();
             throw new EncryptBaseException(e);
         }
     }
 
     private byte[] getEncrypt(EncryptRequest eReq) throws FunctionFailedException, EncryptBaseException {
         if (EncryptionType.SYMMETRIC.equals(eReq.getType())) {
-            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, eReq.getPaddingAlgorithm().toJssFormat(), eReq.getChainingMode().toJssFormat()).getData();
+            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, eReq.getPaddingAlgorithm().toHsmFormat(), eReq.getChainingMode().toHsmFormat()).getData();
         }
-        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), eReq.getPaddingAlgorithm().toJssFormat());
+        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), eReq.getPaddingAlgorithm().toHsmFormat());
     }
 
     @Override
@@ -46,7 +45,6 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
             byte[] decrypt = getDecrypt(dRequest);
             return new DecryptResponse(decrypt);
         } catch (FunctionFailedException e) {
-            e.printStackTrace();
             throw new EncryptBaseException(e);
         }
 
@@ -54,9 +52,9 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     private byte[] getDecrypt(DecryptRequest dReq) throws FunctionFailedException, EncryptBaseException {
         if (EncryptionType.SYMMETRIC.equals(dReq.getType())) {
-            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, dReq.getPaddingAlgorithm().toJssFormat(), dReq.getChainingMode().toJssFormat());
+            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, dReq.getPaddingAlgorithm().toHsmFormat(), dReq.getChainingMode().toHsmFormat());
         }
-      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  dReq.getPaddingAlgorithm().toJssFormat());
+      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  dReq.getPaddingAlgorithm().toHsmFormat());
     }
 
 

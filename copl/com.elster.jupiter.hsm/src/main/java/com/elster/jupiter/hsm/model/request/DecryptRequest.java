@@ -1,18 +1,18 @@
 package com.elster.jupiter.hsm.model.request;
 
 import com.elster.jupiter.hsm.EncryptionType;
-import com.elster.jupiter.hsm.model.ChainingMode;
+import com.elster.jupiter.hsm.model.krypto.ChainingMode;
 import com.elster.jupiter.hsm.model.Message;
-import com.elster.jupiter.hsm.model.PaddingAlgorithm;
+import com.elster.jupiter.hsm.model.krypto.AsymmetricPaddingAlgorithm;
 
 public class DecryptRequest extends Message {
 
     private final String keyLabel;
     private final EncryptionType type;
-    private final PaddingAlgorithm paddingAlgorithm;
+    private final AsymmetricPaddingAlgorithm paddingAlgorithm;
     private final ChainingMode chainingMode;
 
-    public DecryptRequest(String keyLabel, EncryptionType type, String clearString, PaddingAlgorithm paddingAlgorithm, ChainingMode chainingMode) {
+    public DecryptRequest(String keyLabel, EncryptionType type, String clearString, AsymmetricPaddingAlgorithm paddingAlgorithm, ChainingMode chainingMode) {
         super(clearString);
         this.keyLabel = keyLabel;
         this.type = type;
@@ -29,7 +29,7 @@ public class DecryptRequest extends Message {
         return type;
     }
 
-    public PaddingAlgorithm getPaddingAlgorithm() {
+    public AsymmetricPaddingAlgorithm getPaddingAlgorithm() {
         return paddingAlgorithm;
     }
 
