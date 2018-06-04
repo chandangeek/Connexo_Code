@@ -11,6 +11,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -306,6 +307,15 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
                 .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ValidationRuleSet> getActiveValidationRuleSets(MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
+            List<ValidationRuleSet> activeRuleSet = validationService.activeRuleSets(channelsContainer);
+            return this.getValidationRuleSets(metrologyContract)
+                    .stream()
+                    .filter(activeRuleSet::contains)
+                    .collect(Collectors.toList());
     }
 
     @Deprecated

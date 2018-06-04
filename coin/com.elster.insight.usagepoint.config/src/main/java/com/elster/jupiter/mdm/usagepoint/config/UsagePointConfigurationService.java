@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.config;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -47,6 +48,8 @@ public interface UsagePointConfigurationService {
      */
     List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract, State state);
 
+
+    List<ValidationRuleSet> getActiveValidationRuleSets(MetrologyContract metrologyContract, ChannelsContainer channelsContainer);
     /**
      * Adds the specified {@link ValidationRuleSet} to the specified {@link MetrologyContract}.
      *
