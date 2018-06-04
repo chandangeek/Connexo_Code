@@ -1,12 +1,12 @@
 package com.elster.jupiter.hsm.model.keys;
 
-public class ImportedKey {
+public class IrreversibleKey {
 
     private final byte[] encryptedKey;
     private final String keyLabel;
 
 
-    public ImportedKey(byte[] encryptedKey, String keyLabel) {
+    public IrreversibleKey(byte[] encryptedKey, String keyLabel) {
         this.encryptedKey = encryptedKey;
         this.keyLabel = keyLabel;
     }

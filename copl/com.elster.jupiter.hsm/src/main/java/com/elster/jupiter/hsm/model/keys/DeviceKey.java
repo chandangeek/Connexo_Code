@@ -2,26 +2,28 @@ package com.elster.jupiter.hsm.model.keys;
 
 
 import com.elster.jupiter.hsm.model.EncryptBaseException;
-import com.elster.jupiter.hsm.impl.HsmFormatable;
-import com.elster.jupiter.hsm.model.krypto.ChainingMode;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
-import com.elster.jupiter.hsm.model.krypto.SymmetricPaddingAlgorithm;
 
-public class DeviceKey implements HsmFormatable<com.atos.worldline.jss.api.custom.energy.DeviceKey> {
+
+/**
+ * This class should is just a model based on info that can be extracted from XML import file (or not only XML). Basically requires all info needed to perform a secure import.
+ */
+public abstract class DeviceKey {
+
+    private final KeyType keyType;
 
     private final SymmetricAlgorithm alg;
-    private final ChainingMode mode;
-    private final SymmetricPaddingAlgorithm padding;
-
     private final int keyLength;
     private final byte[] encryptedKey;
+    private final byte[] initVector;
 
-    public DeviceKey(String encryptionSpec, int keyLength, byte[] encryptedKey) throws EncryptBaseException {
-        this.alg = SymmetricAlgorithm.from(encryptionSpec);
-        this.mode = ChainingMode.from(encryptionSpec);
-        this.padding = SymmetricPaddingAlgorithm.from(encryptionSpec);
+
+    public DeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws EncryptBaseException {
+        this.alg = algorithm;
         this.keyLength = keyLength;
         this.encryptedKey = encryptedKey;
+        this.initVector = initVector;
+        this.keyType = keyType;
     }
 
 
@@ -33,9 +35,17 @@ public class DeviceKey implements HsmFormatable<com.atos.worldline.jss.api.custo
         return encryptedKey;
     }
 
-
-    @Override
-    public com.atos.worldline.jss.api.custom.energy.DeviceKey toHsmFormat() {
-        return  null;
+    public KeyType getKeyType() {
+        return keyType;
     }
+
+    public byte[] getInitVector() {
+        return initVector;
+    }
+
+    public SymmetricAlgorithm getEncryptionAlgorithm() {
+        return alg;
+    }
+
+    public abstract com.atos.worldline.jss.api.custom.energy.DeviceKey toHsmFormat() throws EncryptBaseException;
 }

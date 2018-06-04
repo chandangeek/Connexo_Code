@@ -1,6 +1,6 @@
 package com.elster.jupiter.hsm.impl;
 
-import com.elster.jupiter.hsm.EncryptionType;
+import com.elster.jupiter.hsm.model.krypto.Type;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.model.request.DecryptRequest;
 import com.elster.jupiter.hsm.model.response.DecryptResponse;
@@ -32,10 +32,10 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     private byte[] getEncrypt(EncryptRequest eReq) throws FunctionFailedException, EncryptBaseException {
-        if (EncryptionType.SYMMETRIC.equals(eReq.getType())) {
-            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, eReq.getPaddingAlgorithm().toHsmFormat(), eReq.getChainingMode().toHsmFormat()).getData();
+        if (Type.SYMMETRIC.equals(eReq.getAlgorithm().getType())) {
+            return Symmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, eReq.getBytes(), null, eReq.getAlgorithm().getHsmSpecs().getPaddingAlgorithm(), eReq.getAlgorithm().getHsmSpecs().getChainingMode()).getData();
         }
-        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), eReq.getPaddingAlgorithm().toHsmFormat());
+        return Asymmetric.encrypt(new KeyLabel(eReq.getKeyLabel()), eReq.getBytes(), eReq.getAlgorithm().getHsmSpecs().getPaddingAlgorithm());
     }
 
     @Override
@@ -51,10 +51,10 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     private byte[] getDecrypt(DecryptRequest dReq) throws FunctionFailedException, EncryptBaseException {
-        if (EncryptionType.SYMMETRIC.equals(dReq.getType())) {
-            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, dReq.getPaddingAlgorithm().toHsmFormat(), dReq.getChainingMode().toHsmFormat());
+        if (Type.SYMMETRIC.equals(dReq.getAlgorithm().getType())) {
+            return Symmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY, dReq.getBytes(), null, dReq.getAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dReq.getAlgorithm().getHsmSpecs().getChainingMode());
         }
-      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  dReq.getPaddingAlgorithm().toHsmFormat());
+      return   Asymmetric.decrypt(new KeyLabel(dReq.getKeyLabel()), dReq.getBytes(),  dReq.getAlgorithm().getHsmSpecs().getPaddingAlgorithm());
     }
 
 

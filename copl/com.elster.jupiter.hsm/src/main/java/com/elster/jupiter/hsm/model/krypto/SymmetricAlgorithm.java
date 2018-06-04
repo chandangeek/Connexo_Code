@@ -1,31 +1,65 @@
 package com.elster.jupiter.hsm.model.krypto;
 
+import com.elster.jupiter.hsm.impl.HsmAlgorithmSpecs;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 
-public enum SymmetricAlgorithm  {
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
+import com.atos.worldline.jss.api.key.KEKEncryptionMethod;
 
-    AES, DES, DESede, RSA;
+public enum SymmetricAlgorithm implements Algorithm {
+    AES_256_CBC("AES/CBC/PKCS5PADDING", "http://www.w3.org/2001/04/xmlenc#aes256-cbc") {
+        @Override
+        public HsmAlgorithmSpecs getHsmSpecs() {
+            return new HsmAlgorithmSpecs(ChainingMode.CBC, PaddingAlgorithm.PKCS, KEKEncryptionMethod.CBC);
+        }
+    };
+
+    private String cipherName;
+    private String identifier;
+
+
+    private SymmetricAlgorithm(String cipherName, String identifier) {
+        this.cipherName = cipherName;
+        this.identifier = identifier;
+    }
+
 
     /**
-     * @param encryptionSpec as Java standard Cipher string (like AES/NOPADDING/NoPadding, AES/PKCS5/PKCS5Padding)
-     * @return enum described by received cipher
-     * @throws EncryptBaseException if algorithm could not have been extracted from string
+     * Get cipher name
+     *
+     * @return
      */
-    public static SymmetricAlgorithm from(String encryptionSpec) throws EncryptBaseException {
-        String[] split = validate(encryptionSpec);
-
-        return SymmetricAlgorithm.valueOf(split[0]);
+    public String getCipher() {
+        return cipherName;
     }
 
-    private static String[] validate(String encryptionSpec) throws EncryptBaseException {
-        if (encryptionSpec == null || encryptionSpec.isEmpty()) {
-            throw new EncryptBaseException("Cowardly refusing to build symmetric algorithm from null or empty string");
-        }
-
-        String[] split = encryptionSpec.split("/");
-        if (split.length != 3) {
-            throw new EncryptBaseException("Cowardly refusing to create symmetric algorithm with wrong input format:" + encryptionSpec + ". When expecting Cipher format (e.g: AES/NOPADDING/NoPadding)");
-        }
-        return split;
+    public String getIdentifier() {
+        return identifier;
     }
+
+
+    /**
+     * See https://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html#aes256-cbc
+     *
+     * @param identifier
+     * @return
+     * @throws EncryptBaseException
+     */
+    public static SymmetricAlgorithm getByIdentifier(String identifier) throws EncryptBaseException {
+        for (SymmetricAlgorithm symmetricAlgorithm : values()) {
+            if (symmetricAlgorithm.getIdentifier().equals(identifier)) {
+                return symmetricAlgorithm;
+            }
+        }
+        throw new EncryptBaseException("Unknown symmetric algorithm:" + identifier);
+    }
+
+    @Override
+    public Type getType() {
+        return Type.SYMMETRIC;
+    }
+
+
+
 }
