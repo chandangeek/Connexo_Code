@@ -40,7 +40,6 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceValidateTest extends UsagePointOutputResourceTest {
@@ -182,8 +181,9 @@ public class UsagePointOutputResourceValidateTest extends UsagePointOutputResour
     public void whenNoActiveRuleSets_thenNothingToValidate() throws IOException {
         mockValidationRuleSet(mandatoryContract1, channelsContainer1, range2);
         mockValidationRuleSet(mandatoryContract2, channelsContainer2, range2);
-        when(validationService.activeRuleSets(channelsContainer1)).thenReturn(Collections.emptyList());
-        when(validationService.activeRuleSets(channelsContainer2)).thenReturn(Collections.emptyList());
+        when(usagePointConfigurationService.getActiveValidationRuleSets(mandatoryContract1, channelsContainer1)).thenReturn(Collections.emptyList());
+        when(usagePointConfigurationService.getActiveValidationRuleSets(mandatoryContract2, channelsContainer2)).thenReturn(Collections.emptyList());
+
         PurposeInfo purposeInfo = createPurposeInfo(mandatoryContract1, OLD_INSTANT);
 
         // Business method
@@ -201,7 +201,7 @@ public class UsagePointOutputResourceValidateTest extends UsagePointOutputResour
     private void mockValidationRuleSet(MetrologyContract metrologyContract, ChannelsContainer channelsContainer, Range<Instant> active) {
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
-        when(validationService.activeRuleSets(channelsContainer)).thenReturn(Collections.singletonList(validationRuleSet));
+        when(usagePointConfigurationService.getActiveValidationRuleSets(metrologyContract, channelsContainer)).thenReturn(Collections.singletonList(validationRuleSet));
         mockValidationRuleSetVersion(validationRuleSet, metrologyContract, active);
     }
 
