@@ -38,15 +38,32 @@ Ext.define('Imt.purpose.view.summary.validation.RulesSetMainView', {
                                     columnWidth: 1,
                                     labelAlign: 'left',
                                     fieldLabel: Uni.I18n.translate('general.status', 'IMT', 'Status'),
-                                    value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'IMT', 'Updating status...')
+                                    htmlEncode: false,
+                                    valueToRaw: function (v) {
+                                        return v;
+                                    },
+                                    renderer: function (value) {
+                                        var status = 'Updating status ...',
+                                            icon = '';
+
+                                        switch (value) {
+                                            case true:
+                                                status = Uni.I18n.translate('purpose.validation.status.active', 'IMT', 'Active');
+                                                icon = '<span class="icon-checkmark-circle" style="color: #33CC33; margin-left: 10px"></span>';
+                                                break;
+                                            case false:
+                                                status = Uni.I18n.translate('purpose.validation.status.inactive', 'IMT', 'Inactive');
+                                                icon = '<span class="icon-blocked" style="color: #eb5642; margin-left: 10px"></span>';
+                                                break;
+                                        }
+                                        return status + icon
+                                    }
                                 },
                                 '->',
                                 {
                                     xtype: 'button',
                                     itemId: 'validationConfigurationStateChangeBtn',
-                                    style: {
-                                        'background-color': '#71adc7'
-                                    },
+                                    disabled: false,
                                     // privileges: Cfg.privileges.Validation.device,
                                     action: '',
                                     //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions
@@ -68,6 +85,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulesSetMainView', {
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',
+                                    itemId: 'noItemsFoundPanel',
                                     title: Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.title', 'IMT', 'No validation rule sets found'),
                                     reasons: [
                                         Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'IMT', 'No validation rule sets have been defined yet.'),

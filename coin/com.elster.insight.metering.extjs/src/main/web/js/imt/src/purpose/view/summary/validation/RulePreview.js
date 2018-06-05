@@ -11,12 +11,24 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
         'Cfg.model.ValidationRule'
     ],
     title: '',
+    //width:'100%',
+    // layout: {
+    //     type: 'vbox'
+    //     align: 'stretch'
+    //     autoSize:true,
+    // },
     layout: {
-        type: 'vbox'
+        type: 'vbox',
+        // align: 'stretch'
     },
+    // style: {
+    //     width: '100%'
+    // },
+    // flex:1,
     defaults: {
         xtype: 'displayfield',
         labelWidth: 260
+        //width: '100%'
     },
     items: [
         {
@@ -48,18 +60,20 @@ Ext.define('Imt.purpose.view.summary.validation.RulePreview', {
             xtype: 'property-form',
             width: '100%',
             isEdit: false,
-            layout: 'vbox',
+            layout: {
+                type: 'vbox'
+                // align: 'stretch'
+            },
+            flex: 1,
             defaults: {
                 labelWidth: 260,
                 width: 500
             }
         }
     ],
-    // initComponent1: function () {
-    //     this.callParent(arguments);
-    // },
 
     updateValidationRule: function (validationRule) {
+        //return;
         var me = this;
 
         if (!Ext.isDefined(validationRule)) {

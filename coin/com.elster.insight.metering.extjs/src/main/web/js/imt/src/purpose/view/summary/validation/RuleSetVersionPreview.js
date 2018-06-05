@@ -16,6 +16,10 @@ Ext.define('Imt.purpose.view.summary.validation.RuleSetVersionPreview', {
         'Imt.purpose.view.summary.validation.RulePreview',
         'Uni.util.FormEmptyMessage'
     ],
+    // layout: {
+    //     type: 'vbox'
+    //     //align: 'stretch'
+    // },
     initComponent: function () {
         var me = this;
 
