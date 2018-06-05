@@ -3,7 +3,7 @@ package com.elster.jupiter.hsm.impl;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 import com.elster.jupiter.hsm.model.keys.DeviceKey;
-import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
+import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.KeyType;
 import com.elster.jupiter.hsm.model.keys.TransportKey;
 
@@ -23,12 +23,12 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
      * @param keyType this should be configurable and known by the importer above (caller of this method)
      */
     @Override
-    public IrreversibleKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException{
+    public HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException{
         try {
             KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(dKey), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), keyType.toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-            return new IrreversibleKey(psk.getValue(), kekLabel);
+            return new HsmEncryptedKey(psk.getValue(), kekLabel);
         } catch (EncryptBaseException|FunctionFailedException e) {
             throw new EncryptBaseException(e);
         }
