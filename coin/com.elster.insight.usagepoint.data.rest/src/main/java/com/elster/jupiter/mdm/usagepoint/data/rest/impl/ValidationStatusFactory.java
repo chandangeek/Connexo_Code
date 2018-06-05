@@ -70,7 +70,7 @@ public class ValidationStatusFactory {
                                                                   Channel channel, Range<Instant> interval) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
         ValidationEvaluator validationEvaluator = validationService.getEvaluator();
-        info.validationActive = validationEvaluator.isValidationEnabled(channel);
+        info.validationActive = this.isValidationActive(validationEvaluator, channel);
         info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), channel.getMainReadingType()).orElse(null);
         if (interval != null) {
             setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
@@ -89,7 +89,7 @@ public class ValidationStatusFactory {
         for (ReadingTypeDeliverable readingTypeDeliverable : metrologyContract.getDeliverables()) {
             UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
             container.getChannel(readingTypeDeliverable.getReadingType()).ifPresent(channel -> {
-                info.validationActive = validationEvaluator.isValidationEnabled(channel);
+                info.validationActive = this.isValidationActive(validationEvaluator, channel);
                 info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), readingTypeDeliverable.getReadingType()).orElse(null);
                 info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
                 info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
@@ -214,6 +214,10 @@ public class ValidationStatusFactory {
         info.key.ruleSetId = estimationRuleWithNumberEntry.getKey().getRuleSet().getId();
         info.value = estimationRuleWithNumberEntry.getValue();
         return info;
+    }
+
+    private boolean isValidationActive(ValidationEvaluator evaluator, Channel channel) {
+        return validationService.isValidationActive(channel.getChannelsContainer()) && evaluator.isValidationEnabled(channel);
     }
 
 }
