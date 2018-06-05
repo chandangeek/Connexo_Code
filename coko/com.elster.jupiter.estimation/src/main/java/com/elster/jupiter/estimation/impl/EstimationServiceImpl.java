@@ -303,11 +303,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         EstimationReportImpl report;
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             report = new EstimationReportImpl();
-            if (channelsContainer.getRange().isConnected(period)) {
-                ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().sortReadingTypesByDependencyLevel().stream()
-                        .map(readingTypes -> previewEstimateForSuspects(system, channelsContainer, period, readingTypes, logger))
-                        .peek(subReport -> estimationEngine.applyEstimations(system, subReport))
-                        .forEach(report::add);
+            if (isEstimationActive(channelsContainer)) {
+                if (channelsContainer.getRange().isConnected(period)) {
+                    ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().sortReadingTypesByDependencyLevel().stream()
+                            .map(readingTypes -> previewEstimateForSuspects(system, channelsContainer, period, readingTypes, logger))
+                            .peek(subReport -> estimationEngine.applyEstimations(system, subReport))
+                            .forEach(report::add);
+                }
             }
         } else {
             report = previewEstimateForSuspects(system, channelsContainer, period, logger);
