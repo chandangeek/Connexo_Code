@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -83,6 +84,8 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
     private UsagePointValidation usagePointValidation;
     @Mock
     private UsagePointValidation.PropertyOverrider propertyOverrider;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void before() {
@@ -91,6 +94,8 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         when(usagePoint.getName()).thenReturn(USAGEPOINT_NAME);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
+        when(validationService.isValidationActive(channelsContainer)).thenReturn(false);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(metrologyContract.getId()).thenReturn(CONTRACT_ID);
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(readingTypeDeliverable));
@@ -106,6 +111,7 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
 
     private void mockValidationRule() {
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
+        when(usagePointConfigurationService.getActiveValidationRuleSets(metrologyContract, channelsContainer)).thenReturn(Collections.singletonList(validationRuleSet));
         doReturn(Collections.singletonList(validationRuleSetVersion)).when(validationRuleSet).getRuleSetVersions();
         when(validationRuleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules(eq(ImmutableSet.of(readingType)));
@@ -121,13 +127,17 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         when(validationRule.getProps()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, RULE_REQUIRED_PROP_VALUE, OPTIONAL_PROPERTY, RULE_OPT_PROP_VALUE));
     }
 
-    @Test
-    public void getValidationConfiguration() {
+    private void mockOverriddenProperties(){
         ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
         doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findOverriddenProperties(validationRule, readingType);
+    }
+
+    @Test
+    public void getValidationConfiguration() {
+        mockOverriddenProperties();
 
         // Business method
         String response = target(URL).request().get(String.class);
@@ -155,12 +165,8 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
 
     @Test
     public void getValidationRuleOverriddenProperties() {
-        ChannelValidationRuleOverriddenProperties overriddenProperties = mock(ChannelValidationRuleOverriddenProperties.class);
-        when(overriddenProperties.getId()).thenReturn(14L);
-        when(overriddenProperties.getVersion()).thenReturn(15L);
-        when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
+        mockOverriddenProperties();
 
-        doReturn(Optional.of(overriddenProperties)).when(usagePointValidation).findOverriddenProperties(validationRule, readingType);
         // Business method
         String response = target(URL + "/" + VALIDATION_RULE_ID).request().get(String.class);
 
@@ -255,5 +261,22 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         verify(overriddenProperties).delete();
+    }
+
+    @Test
+    public void whenConfigurationIsActive_thenTheIsActiveFieldIsTrue(){
+        mockOverriddenProperties();
+
+        when(validationService.isValidationActive(channelsContainer)).thenReturn(true);
+        when(validationRuleSet.getId()).thenReturn(VALIDATION_RULE_ID);
+        when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRule.isActive()).thenReturn(true);
+
+        // Business method
+        String response = target(URL).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Boolean>get("$.validation[0].isActive")).isTrue();
     }
 }

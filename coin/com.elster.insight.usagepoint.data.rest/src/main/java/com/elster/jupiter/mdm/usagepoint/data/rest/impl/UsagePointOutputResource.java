@@ -1153,11 +1153,15 @@ public class UsagePointOutputResource {
     }
 
     private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate, ChannelsContainer channelsContainer) {
+        if (!validationService.isValidationActive(channelsContainer)){
+            return false;
+        }
+
         Set<ReadingType> readingTypes = contract.getDeliverables().stream()
                 .map(ReadingTypeDeliverable::getReadingType)
                 .collect(Collectors.toSet());
 
-        return this.getActiveValidationRuleSets(contract, channelsContainer)
+        return usagePointConfigurationService.getActiveValidationRuleSets(contract, channelsContainer)
                 .stream()
                 .map(ValidationRuleSet::getRuleSetVersions)
                 .flatMap(List::stream)
@@ -1165,17 +1169,6 @@ public class UsagePointOutputResource {
                 .map(version -> version.getRules(readingTypes))
                 .flatMap(List::stream)
                 .anyMatch(ValidationRule::isActive);
-    }
-
-    private List<ValidationRuleSet> getActiveValidationRuleSets(MetrologyContract contract, ChannelsContainer channelsContainer) {
-        if (validationService.isValidationActive(channelsContainer)) {
-            List<ValidationRuleSet> activeRuleSet = validationService.activeRuleSets(channelsContainer);
-            return usagePointConfigurationService.getValidationRuleSets(contract)
-                    .stream()
-                    .filter(activeRuleSet::contains)
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
     }
 
     @GET

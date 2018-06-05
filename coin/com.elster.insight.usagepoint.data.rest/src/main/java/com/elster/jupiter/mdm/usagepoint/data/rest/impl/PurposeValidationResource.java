@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -122,11 +123,8 @@ public class PurposeValidationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
-
-        UsagePointValidationStatusInfo validationStatusInfo = currentEffectiveMC.getChannelsContainer(metrologyContract)
-                .map(channelsContainer -> validationStatusFactory.getValidationStatusInfo(currentEffectiveMC, metrologyContract, channelsContainer))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
-
+        ChannelsContainer channelsContainer = resourceHelper.findChannelsContainerOrThrowException(currentEffectiveMC, metrologyContract);
+        UsagePointValidationStatusInfo validationStatusInfo = validationStatusFactory.getValidationStatusInfo(currentEffectiveMC, metrologyContract, channelsContainer);
         return Response.ok(validationStatusInfo).build();
     }
 
@@ -152,7 +150,6 @@ public class PurposeValidationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
-        return currentEffectiveMC.getChannelsContainer(metrologyContract)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
+        return resourceHelper.findChannelsContainerOrThrowException(currentEffectiveMC, metrologyContract);
     }
 }
