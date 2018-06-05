@@ -16,6 +16,18 @@ Ext.define('Imt.purpose.view.summary.validation.RulesGrid', {
     ],
     store: Ext.create('Cfg.store.ValidationRules'),
     overflowY: 'auto',
+
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    //height: 200,
+    //width: '100%',
+    columns1: [{
+        header: 'test'
+    }
+
+    ],
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -24,12 +36,7 @@ Ext.define('Imt.purpose.view.summary.validation.RulesGrid', {
                 dataIndex: 'name',
                 flex: 6,
                 renderer: function (value, b, record) {
-                    /*
-                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
-                     + '/rules/' + record.getId() + '">' + value + '</a>';
-                     */
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
-
                 }
             },
             {

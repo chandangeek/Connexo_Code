@@ -65,6 +65,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     refs: [
         {
+            ref: 'purposeMain',
+            selector: '#purpose-main'
+        },
+        {
+            ref: 'purposeOverview',
+            selector: '#purpose-overview'
+        },
+        {
             ref: 'purposePage',
             selector: '#purpose-outputs'
         },
@@ -104,10 +112,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             ref: 'ruleItemPreviewCt',
             selector: '#ruleItemPreviewContainer'
         },
-        {
-            ref: 'ruleGrid',
-            selector: '#validationConfigurationRulesGrid'
-        },
+
         {
             ref: 'ruleSetVersionPreview',
             selector: '#validationConfigurationRulesSetVersionPreview'
@@ -119,6 +124,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'page',
             selector: '#validationConfigurationRulesSetMainView'
+        },
+        {
+            ref: 'validationButton',
+            selector: '#validationConfigurationStateChangeBtn'
         }
     ],
 
@@ -159,10 +168,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             '#validationFromDate': {
                 change: this.onValidationFromDateChange
             }
-
-
         });
     },
+
     changeDataValidationStatus: function (btn) {
         btn.action === 'activate' ? this.showActivationConfirmation(this.getPage()) : this.showDeactivationConfirmation(this.getPage());
     },
@@ -606,6 +614,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             this.getRulesSetVersionPreviewCt().add(versionValidationRulesPreviewContainerPanel);
 
             Ext.resumeLayouts(true);
+            this.getRulesSetVersionPreviewCt().doLayout();
         }
 
     },
@@ -728,6 +737,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         }
     },
 
+
     showOverviewTab: function(panel) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
@@ -785,13 +795,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             validationConfigurationStore,
-            validationStatusStore;
+            purposesStore,
+            purposes,
+            purpose;
 
 
-        if (router.arguments.tab != 'registerData') {
+        if (router.arguments.tab != 'validationCfg') {
             Uni.util.History.suspendEventsForNextCall();
             Uni.util.History.setParsePath(false);
-            router.queryParams.tab = 'registerData';
+            router.queryParams.tab = 'validationCfg';
             router.getRoute('usagepoints/view/purpose').forward();
         }
 
@@ -807,33 +819,49 @@ Ext.define('Imt.purpose.controller.Purpose', {
     },
 
     updateValidationConfigurationStatusSection: function () {
-        var me = this;
-        view = me.getPage();
+        var me = this,
+            purposesStore,
+            purposes,
+            purpose,
+
+            view = me.getPage(),
+            purposeOverview = me.getPurposeOverview(),
+            statusValidationBtn = view.down('#validationConfigurationStateChangeBtn'),
+            element = me.getRuleSetsGrid();
+
+        purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
+            purposesStore.getProxy().extraParams = {usagePointId: view.usagePoint.get('name')};
+        purposesStore.load(function (record) {
+            purposes = record;
+            purpose = _.find(purposes, function (p) {
+                return p.getId() == view.purpose.getId();
+            });
+            purposeOverview.purpose = purpose;
+        });
+
 
         if (view.down('#validationConfigurationStatusField')) {
-            view.down('#validationConfigurationStatusField').setValue(Uni.I18n.translate('validationConfiguration.updatingStatus', 'IMT', 'Updating status...'));
             view.down('#validationConfigurationStatusPanel').setLoading(true);
-            !!view.down('#validationConfigurationStateChangeBtn') && view.down('#validationConfigurationStateChangeBtn').setDisabled(true);
+            //!!view.down('#validationConfigurationStateChangeBtn') && view.down('#validationConfigurationStateChangeBtn').setDisabled(true);
         }
 
         Ext.Ajax.request({
             url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
+
             callback: function () {
                 var validationConfigurationStatusPanel = view.down('#validationConfigurationStatusPanel');
 
                 if (validationConfigurationStatusPanel) {
                     validationConfigurationStatusPanel.setLoading(false);
                 }
+
             },
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#validationConfigurationStatusPanel')) {
-                    view.down('#validationConfigurationStatusField').setValue(res.validationActive ?
-                        Uni.I18n.translate('general.active', 'IMT', 'Active') : //+ ' ' + validateOnStorage:
-                        Uni.I18n.translate('general.inactive', 'IMT', 'Inactive')
-                    );
+                    view.down('#validationConfigurationStatusField').setValue(res.validationActive);
                     if (!!view.down('#validationConfigurationStateChangeBtn')) {
                         view.down('#validationConfigurationStateChangeBtn').setText((res.validationActive ?
                                 Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
@@ -841,7 +869,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
                             ' ' + Uni.I18n.translate('validationConfiguration.statusSection.buttonAppendix', 'IMT', 'data validation')
                         );
                         view.down('#validationConfigurationStateChangeBtn').action = res.validationActive ? 'deactivate' : 'activate';
-                        view.down('#validationConfigurationStateChangeBtn').setDisabled(false);
+                        // if (!me.getRuleSetsGrid()) {
+                        //     statusValidationBtn.setDisabled(true);
+                        // }
                     }
 
                 }
