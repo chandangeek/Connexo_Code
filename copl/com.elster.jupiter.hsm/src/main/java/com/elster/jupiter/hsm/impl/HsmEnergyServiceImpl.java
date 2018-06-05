@@ -1,5 +1,6 @@
 package com.elster.jupiter.hsm.impl;
 
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.EncryptBaseException;
 import com.elster.jupiter.hsm.model.keys.DeviceKey;
 import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
@@ -12,7 +13,7 @@ import com.atos.worldline.jss.api.custom.energy.KeyImportResponse;
 import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKey;
 import com.atos.worldline.jss.api.key.KeyLabel;
 
-public class HsmEnergyServiceImpl {
+public class HsmEnergyServiceImpl implements HsmEnergyService {
 
     /**
      *
@@ -21,6 +22,7 @@ public class HsmEnergyServiceImpl {
      * @param deviceKeyLabel key label to be used for re-encryption of the device key. This should be according to keylabel schema configured.
      * @param keyType this should be configurable and known by the importer above (caller of this method)
      */
+    @Override
     public IrreversibleKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException{
         try {
             KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(dKey), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), keyType.toProtectedSessionKeyCapability());
