@@ -13,6 +13,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
@@ -23,6 +24,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -1264,7 +1266,29 @@ public class UsagePointOutputResource {
     }
 
     private EstimationReport estimate(ChannelsContainer channelsContainer) {
+        if (this.getActiveEstimationRuleSets(channelsContainer).isEmpty()){
+            throw exceptionFactory.newException(MessageSeeds.NOTHING_TO_ESTIMATE);
+        }
         return estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange());
+    }
+
+    private List<EstimationRuleSet> getActiveEstimationRuleSets(ChannelsContainer channelsContainer) {
+        if (estimationService.isEstimationActive(channelsContainer)) {
+            List<EstimationRuleSet> activeRuleSets = estimationService.activeRuleSets(channelsContainer);
+            return this.getLinkedRuleSets(channelsContainer)
+                    .stream()
+                    .filter(activeRuleSets::contains)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    private List<EstimationRuleSet> getLinkedRuleSets(ChannelsContainer channelsContainer){
+        if (channelsContainer instanceof MetrologyContractChannelsContainer){
+            MetrologyContract metrologyContract = ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract();
+            return usagePointConfigurationService.getEstimationRuleSets(metrologyContract);
+        }
+        return Collections.emptyList();
     }
 
     private void revalidate(EstimationReport estimationReport) {
