@@ -54,10 +54,10 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      */
     protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
     protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
-    private static final int PLC_G3_REGISTER_NODE = 0xC2;
-    private static final int PLC_G3_UNREGISTER_NODE = 0xC3;
-    private static final int PLC_G3_NODE_LINK_LOST = 0xCB;
-    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
+    private static final int PLC_G3_REGISTER_NODE = 0xC20000;
+    private static final int PLC_G3_UNREGISTER_NODE = 0xC30000;
+    private static final int PLC_G3_NODE_LINK_LOST = 0xCB0000;
+    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC0000;
     protected boolean provideProtocolJavaClasName = true;
     /**
      * Used to pass back any topology changes observed during push notifications
