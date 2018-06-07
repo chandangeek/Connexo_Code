@@ -915,7 +915,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void importClientEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
-            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid encoded value");
         }
 
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
@@ -930,12 +930,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
     private void importServerEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
-        if (base64EncodedCertificate == null || base64EncodedCertificate.isEmpty()) {
-            throw new ProtocolException("The provided Certificate cannot be resolved to a valid base 64 encoded value");
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
+        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
+            throw new ProtocolException("The provided Certificate cannot be resolved to a valid encoded value");
         }
 
-        byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
+        byte[] derEncodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
 
         getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
     }
