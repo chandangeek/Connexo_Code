@@ -33,7 +33,6 @@ public class DeviceTopologyInfo {
 
     public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         return timeline.getAllDevices().stream()
-                .filter(device -> hasNotEnded(timeline, device))
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
                 .map(d -> from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
@@ -47,7 +46,7 @@ public class DeviceTopologyInfo {
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
         info.creationTime = device.getCreateTime().toEpochMilli();
-        if (linkingTimeStamp.isPresent()) {
+        if (linkingTimeStamp.isPresent() && linkingTimeStamp.get() != Instant.MAX) {
             info.linkingTimeStamp = linkingTimeStamp.get().toEpochMilli();
         }
         info.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
