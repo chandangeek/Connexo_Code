@@ -67,5 +67,41 @@ Ext.define('Imt.purpose.view.summary.estimation.EstimationRulePreview', {
     ],
     initComponent: function () {
         this.callParent(arguments);
-    }
+    },
+
+    updateEstimationPreview: function (estimationRule) {
+
+        var me = this,
+            readingTypes = estimationRule.data.readingTypes;
+
+        Ext.suspendLayouts();
+        me.loadRecord(estimationRule);
+        me.setTitle(Ext.String.htmlEncode(estimationRule.get('name')));
+        me.down('property-form').loadRecord(estimationRule);
+        me.down('#readingTypesArea').removeAll();
+        for (var i = 0; i < readingTypes.length; i++) {
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'IMT', 'Reading types'),
+                readingType = readingTypes[i];
+
+            me.down('#readingTypesArea').add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'reading-type-displayfield',
+                            fieldLabel: fieldlabel,
+                            labelWidth: 250,
+                            value: readingType
+                        }
+                    ]
+                }
+            );
+        }
+        Ext.resumeLayouts(true);
+
+    },
+
 });

@@ -170,7 +170,21 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'validationButton',
             selector: '#validationConfigurationStateChangeBtn'
+        },
+        {
+            ref: 'estimationCfgRuleSetView',
+            selector: '#estimationCfgRulesSetPreview'
+
+        },
+        {
+            ref: 'ruleEstimationPreview',
+            selector: '#estimationCfgRulesSetPreview'
+        },
+        {
+            ref: 'noEstimationPanel',
+            selector: '#no-estimation-rule-sets'
         }
+
     ],
 
     hasEstimationRule: false,
@@ -216,6 +230,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             'estimationCfgRulesSetPreview #purpose-estimation-rules-grid': {
                 select: this.previewEstimationRule
             },
+
             '#changeEstimationRuleSetStateActionMenuItem': {
                 click: this.changeEstimationRuleSetStatus
             },
@@ -266,6 +281,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             isNotEdit: true,
             success: function () {
+                me.updateEstimationCfgStatusSection();
                 var router = me.getController('Uni.controller.history.Router');
                 me.getApplication().fireEvent('acknowledge', activate
                     ? Uni.I18n.translate('estimationDevice.activation.activated', 'IMT', 'Data estimation activated')
@@ -727,7 +743,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             estimationCfgRuleStore,
             ruleSetId = selectionModel.getLastSelected().get('id');
 
-
         if (record) {
             Ext.suspendLayouts();
 
@@ -758,64 +773,28 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     },
 
-    previewEstimationRule: function (selectionModel, record) {
-
-        var me = this;
-
-        if (record) {
-            Ext.suspendLayouts();
-
-            this.getEstimationRulePreview().removeAll(true);
-            var estimationRuleCfgPreviewPanel = Ext.widget('estimationCfgRulePreview', {
-                //ruleSetId: me.ruleSetId,
-                //title: record.get('name'),
-                ui: 'medium',
-                padding: 0,
-                isSecondPagination: true
-            });
-            this.getEstimationRulePreview().add(estimationRuleCfgPreviewPanel);
-            me.updateEstimationPreview();
-
-            Ext.resumeLayouts(true);
-        }
-
-    },
-
-    updateEstimationPreview: function () {
-        var rulePreview = this.getRulePreview(),
-            grid = this.getEstimationCfgRulesGrid(),
-            estimationRule = grid.view.getSelectionModel().getLastSelected(),
-            readingTypes = estimationRule.data.readingTypes;
+    previewEstimationRule: function (grid, record) {
 
         Ext.suspendLayouts();
-        rulePreview.loadRecord(estimationRule);
-        rulePreview.setTitle(Ext.String.htmlEncode(estimationRule.get('name')));
-        rulePreview.down('property-form').loadRecord(estimationRule);
-        rulePreview.down('#readingTypesArea').removeAll();
-        for (var i = 0; i < readingTypes.length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.readingTypes', 'IMT', 'Reading types'),
-                readingType = readingTypes[i];
 
-            rulePreview.down('#readingTypesArea').add(
-                {
-                    xtype: 'container',
-                    layout: {
-                        type: 'hbox'
-                    },
-                    items: [
-                        {
-                            xtype: 'reading-type-displayfield',
-                            fieldLabel: fieldlabel,
-                            labelWidth: 250,
-                            value: readingType
-                        }
-                    ]
-                }
-            );
+        var me = this,
+            itemPanel = me.getRuleEstimationPreview(),
+            itemForm = itemPanel.down('#purpose-estimation-rule-preview'),
+            selectedRule;
+        if (grid.view) {
+            selectedRule = grid.view.getSelectionModel().getLastSelected();
+        } else {
+            selectedRule = record;
         }
+        me.ruleId = selectedRule.internalId;
+
+
+        itemForm.updateEstimationPreview(selectedRule);
         Ext.resumeLayouts(true);
 
+
     },
+
 
     previewVersionValidationRule: function (selectionModel, record) {
         var me = this;
@@ -1026,9 +1005,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             validationConfigurationStore,
-            purposesStore,
-            purposes,
-            purpose;
+            purpose,
+            view = me.getPage();
 
 
         if (router.arguments.tab != 'validationCfg') {
@@ -1044,7 +1022,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
             usagePointId: panel.usagePoint.get('name'),
             purposeId: panel.purpose.getId()
         };
-        validationConfigurationStore.load();
+        validationConfigurationStore.load({
+            callback: function (records, operation, success) {
+                if (records.length == 0) {
+                    view.down('#validationConfigurationStateChangeBtn').setDisabled(true);
+                }
+            }
+
+        });
 
         me.updateValidationConfigurationStatusSection();
     },
@@ -1053,7 +1038,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             estimationCfgStore,
-            estimationCfgRuleStore;
+            view = me.getEstimationPage();
 
 
         if (router.arguments.tab != 'registerData') {
@@ -1069,20 +1054,28 @@ Ext.define('Imt.purpose.controller.Purpose', {
             usagePointId: panel.usagePoint.get('name'),
             purposeId: panel.purpose.getId()
         };
-        estimationCfgStore.load();
+        estimationCfgStore.load({
+            callback: function (records, operation, success) {
+                if (records.length == 0) {
+                    view.down('#estimationCfgStateChangeBtn').setDisabled(true);
+                }
+            }
+
+        });
+
 
         me.updateEstimationCfgStatusSection();
 
     },
     updateEstimationCfgStatusSection: function () {
 
-        var me = this;
+        var me = this,
         view = me.getEstimationPage();
 
         if (view.down('#estimationCfgStatusField')) {
-            view.down('#estimationCfgStatusField').setValue(Uni.I18n.translate('estimationCfg.updatingStatus', 'IMT', 'Updating status...'));
             view.down('#estimationCfgStatusPanel').setLoading(true);
-            !!view.down('#estimationCfgStateChangeBtn') && view.down('#estimationCfgStateChangeBtn').setDisabled(true);
+
+            // !!view.down('#estimationCfgStateChangeBtn') && view.down('#estimationCfgStateChangeBtn').setDisabled(true);
         }
 
         Ext.Ajax.request({
@@ -1100,10 +1093,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 var res = Ext.JSON.decode(response.responseText);
 
                 if (view.down('#estimationCfgStatusPanel')) {
-                    view.down('#estimationCfgStatusField').setValue(res.active ?
-                        Uni.I18n.translate('general.active', 'IMT', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'IMT', 'Inactive')
-                    );
+                    view.down('#estimationCfgStatusField').setValue(res.active);
                     if (!!view.down('#estimationCfgStateChangeBtn')) {
                         view.down('#estimationCfgStateChangeBtn').setText((res.active ?
                                 Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate') :
@@ -1111,7 +1101,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                             ' ' + Uni.I18n.translate('estimationCfg.statusSection.buttonAppendix', 'IMT', 'data estimation')
                         );
                         view.down('#estimationCfgStateChangeBtn').action = res.active ? 'deactivate' : 'activate';
-                        view.down('#estimationCfgStateChangeBtn').setDisabled(false);
+                        //view.down('#estimationCfgStateChangeBtn').setDisabled(false);
+
                     }
 
                 }
