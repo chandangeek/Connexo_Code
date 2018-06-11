@@ -15,6 +15,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
         //    'Bpm.view.task.TaskActionMenu'
     ],
 
+
     initComponent: function () {
         var me = this;
         me.columns = [
