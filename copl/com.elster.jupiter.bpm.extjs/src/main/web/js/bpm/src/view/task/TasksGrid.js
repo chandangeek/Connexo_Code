@@ -42,6 +42,11 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('bpm.task.processId', 'BPM', 'Process ID'),
+                dataIndex: 'processInstancesId',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('bpm.task.process', 'BPM', 'Process'),
                 dataIndex: 'processName',
                 flex: 1
