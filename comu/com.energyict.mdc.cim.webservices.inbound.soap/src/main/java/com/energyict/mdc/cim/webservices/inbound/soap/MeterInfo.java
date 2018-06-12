@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
+package com.energyict.mdc.cim.webservices.inbound.soap;
 
 import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
 import com.fasterxml.jackson.annotation.JsonGetter;

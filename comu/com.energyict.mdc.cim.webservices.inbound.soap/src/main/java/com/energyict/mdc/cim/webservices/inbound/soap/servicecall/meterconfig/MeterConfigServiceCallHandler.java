@@ -23,7 +23,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.BatchService;

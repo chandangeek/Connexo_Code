@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
 import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ConsumerType;

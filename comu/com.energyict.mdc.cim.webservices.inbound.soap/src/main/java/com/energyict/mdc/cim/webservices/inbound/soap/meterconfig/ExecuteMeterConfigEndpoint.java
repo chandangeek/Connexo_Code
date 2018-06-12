@@ -28,6 +28,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
