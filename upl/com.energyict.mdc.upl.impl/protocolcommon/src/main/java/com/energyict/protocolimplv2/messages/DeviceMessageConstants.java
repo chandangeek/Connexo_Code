@@ -1666,6 +1666,32 @@ public final class DeviceMessageConstants {
     public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
     public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
 
+    // SNMP Setup IC
+    public static final String snmpSystemContact = "NetworkConnectivityMessage.snmpSystemContact";
+    public static final String snmpSystemContactDefaultTranslation = "System contact";
+    public static final String snmpSystemLocation = "NetworkConnectivityMessage.snmpSystemLocation";
+    public static final String snmpSystemLocationDefaultTranslation = "System location";
+    public static final String snmpLocalEngineId = "NetworkConnectivityMessage.snmpLocalEngineId";
+    public static final String snmpLocalEngineIdDefaultTranslation = "SNMP engine ID";
+    public static final String snmpNotificationType = "NetworkConnectivityMessage.snmpNotificationType";
+    public static final String snmpNotificationTypeDefaultTranslation = "SNMP notification type";
+    public static final String snmpNotificationUserProfile = "NetworkConnectivityMessage.snmpNotificationUserProfile";
+    public static final String snmpNotificationUserProfileDefaultTranslation = "SMNP notification user profile";
+    public static final String snmpNotificationHost = "NetworkConnectivityMessage.snmpNotificationHost";
+    public static final String snmpNotificationHostDefaultTranslation = "SNMP notification host";
+    public static final String snmpNotificationPort = "NetworkConnectivityMessage.snmpNotificationPort";
+    public static final String snmpNotificationPortDefaultTranslation = "SNMP notification port";
+    public static final String snmpUserProfile = "NetworkConnectivityMessage.snmpUserProfile";
+    public static final String snmpUserProfileDefaultTranslation = "SNMP user profile";
+    public static final String snmpNewUserName = "NetworkConnectivityMessage.snmpNewUserName";
+    public static final String snmpNewUserNameDefaultTranslation = "New security name";
+    public static final String snmpPrivPassphrase = "NetworkConnectivityMessage.snmpPrivPassphrase";
+    public static final String snmpPrivPassphraseDefaultTranslation = "USM privacy passphrase";
+    public static final String snmpAuthPassphrase = "NetworkConnectivityMessage.snmpAuthPassphrase";
+    public static final String snmpAuthPassphraseDefaultTranslation = "USM authentication passphrase";
+    public static final String snmpUserState = "NetworkConnectivityMessage.snmpUserState";
+    public static final String snmpUserStateDefaultTranslation = "User state";
+
     //VPN Setup IC
     public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";
     public static final String vpnEnabledDefaultTranslation = "Set VPN enabled";

@@ -10,7 +10,9 @@ import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier
 import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributes.SNMPAttributes;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
+import com.energyict.dlms.cosem.methods.SNMPSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -245,6 +247,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.REFRESH_VPN_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+
+                // SNMP
+                NetworkConnectivityMessage.CHANGE_SNMP_AGENT_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CHANGE_SNMP_AGENT_USER_NAME.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CHANGE_SNMP_AGENT_USER_PASSPHRASES.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.ENABLE_SNMP_USER_PROFILE.get(this.propertySpecService, this.nlsService, this.converter),
 
                 ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
@@ -592,6 +600,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         writePrimaryDNSAddress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetSecondaryDNSAddress)) {
                         writeSecondaryDNSAddress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_SNMP_AGENT_CONFIGURATION)) {
+                        changeSNMPAgentConfiguration(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_SNMP_AGENT_USER_NAME)) {
+                        changeSNMPAgentUserName(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_SNMP_AGENT_USER_PASSPHRASES)) {
+                        changeSNMPAgentUserPassphrases(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ENABLE_SNMP_USER_PROFILE)) {
+                        enableSNMPUserProfile(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.PUSH_SETUP_NOTIFICATION_TYPE)) {
                         pushSetupNotificationType(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
@@ -2365,6 +2381,65 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void writeSecondaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getIPv4Setup().setSecondaryDNSAddress(address);
+    }
+
+    private void changeSNMPAgentConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String systemContact = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpSystemContact).getValue();
+        final String systemLocation = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpSystemLocation).getValue();
+        final String localEngineId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpLocalEngineId).getValue();
+        final String notificationType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpNotificationType).getValue();
+        final int notificationTypeInt = NetworkConnectivityMessage.SNMPNotificationType.valueOf(notificationType).getId();
+        final String notificationUserProfile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpNotificationUserProfile).getValue();
+        final int notificationUserProfileInt = NetworkConnectivityMessage.SNMPUserProfileType.valueOf(notificationUserProfile).getId();
+        final String notificationHost = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpNotificationHost).getValue();
+        final Integer notificationPort = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpNotificationPort).getValue());
+
+        final SNMPSetup snmpSetup = getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE);
+        snmpSetup.writeAttribute(SNMPAttributes.SYSTEM_CONTACT, UTF8String.fromString(systemContact));
+        snmpSetup.writeAttribute(SNMPAttributes.SYSTEM_LOCATION, UTF8String.fromString(systemLocation));
+        snmpSetup.writeAttribute(SNMPAttributes.LOCAL_ENGINE_ID, OctetString.fromString(localEngineId));
+        snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_TYPE, new TypeEnum(notificationTypeInt));
+        snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_USER, new TypeEnum(notificationUserProfileInt));
+        snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_HOST, OctetString.fromString(notificationHost));
+        snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_PORT, new Unsigned16(notificationPort));
+    }
+
+    private void changeSNMPAgentUserName(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String userProfile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpUserProfile).getValue();
+        final int userProfileInt = NetworkConnectivityMessage.SNMPUserProfileType.valueOf(userProfile).getId();
+        final String newUserName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpNewUserName).getValue();
+
+        final Structure data = new Structure()
+                .addDataType( new TypeEnum(userProfileInt) )
+                .addDataType( UTF8String.fromString(newUserName) );
+
+        getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE).invokeSNMPMethod(SNMPSetupMethods.CHANGE_USER_NAME, data);
+    }
+
+    private void changeSNMPAgentUserPassphrases(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String userProfile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpUserProfile).getValue();
+        final int userProfileInt = NetworkConnectivityMessage.SNMPUserProfileType.valueOf(userProfile).getId();
+        final String privacyPassphrase = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpPrivPassphrase).getValue();
+        final String authPassphrase = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpAuthPassphrase).getValue();
+
+        final Structure data = new Structure()
+                .addDataType( new TypeEnum(userProfileInt) )
+                .addDataType( UTF8String.fromString(privacyPassphrase) )
+                .addDataType( UTF8String.fromString(authPassphrase) );
+
+        getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE).invokeSNMPMethod(SNMPSetupMethods.CHANGE_USER_PASSPHRASES, data);
+    }
+
+    private void enableSNMPUserProfile(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String userProfile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpUserProfile).getValue();
+        final int userProfileInt = NetworkConnectivityMessage.SNMPUserProfileType.valueOf(userProfile).getId();
+        final Boolean userStateEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpUserState).getValue());
+
+        final Structure data = new Structure()
+                .addDataType( new TypeEnum(userProfileInt) )
+                .addDataType( new BooleanObject(userStateEnabled) );
+
+        getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE).invokeSNMPMethod(SNMPSetupMethods.ENABLE_USER, data);
     }
 
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
