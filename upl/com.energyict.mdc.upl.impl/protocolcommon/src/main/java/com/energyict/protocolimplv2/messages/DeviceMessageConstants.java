@@ -365,6 +365,14 @@ public final class DeviceMessageConstants {
     public static final String apnConfigurationsDefaultTranslation = "APN configurations";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String ntpAddressDefaultTranslation = "NTP address";
+    public static final String ntpSetActivated = "ConfigurationChangeDeviceMessage.ntpSetActivated";
+    public static final String ntpSetActivatedDefaultTranslation = "Activate NTP time synchronization";
+    public static final String ntpSetAuthMethod = "ConfigurationChangeDeviceMessage.ntpSetAuthMethod";
+    public static final String ntpSetAuthMethodDefaultTranslation = "NTP authentication method";
+    public static final String ntpAuthKeyId = "ConfigurationChangeDeviceMessage.ntpAuthKeyId";
+    public static final String ntpAuthKeyIdDefaultTranslation = "NTP authentication key ID";
+    public static final String ntpAuthKey = "ConfigurationChangeDeviceMessage.ntpAuthKey";
+    public static final String ntpAuthKeyDefaultTranslation = "NTP authentication key";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
     public static final String enableAutomaticDemandResetAttributeDefaultTranslation = "Enable automatic demand reset";
     public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";

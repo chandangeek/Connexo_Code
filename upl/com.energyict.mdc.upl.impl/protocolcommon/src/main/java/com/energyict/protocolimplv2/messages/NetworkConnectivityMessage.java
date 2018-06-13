@@ -662,9 +662,9 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum SNMPNotificationType {
-        None(0, "none"),
-        Trap(1, "trap"),
-        Inform(2, "inform");
+        None(0, "None"),
+        Trap(1, "Trap"),
+        Inform(2, "Inform");
 
         private final int id;
         private final String description;
@@ -701,10 +701,10 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum SNMPUserProfileType {
-        Public(0, "public"),
-        Read_Only(1, "read_only"),
-        Read_Write(2, "read_write"),
-        Management(3, "management");
+        Public(0, "Public"),
+        Read_Only(1, "Read_Only"),
+        Read_Write(2, "Read_Write"),
+        Management(3, "Management");
 
         private final int id;
         private final String description;

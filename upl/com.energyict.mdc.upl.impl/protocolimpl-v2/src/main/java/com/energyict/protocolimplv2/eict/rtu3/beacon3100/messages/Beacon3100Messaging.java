@@ -265,6 +265,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 ConfigurationChangeDeviceMessage.SetDeviceHostName.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetDeviceLocation.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SetNTPAddress.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SET_NTP_ACTIVATED.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
 //              ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.ConfigureAPNs.get(this.propertySpecService, this.nlsService, this.converter),

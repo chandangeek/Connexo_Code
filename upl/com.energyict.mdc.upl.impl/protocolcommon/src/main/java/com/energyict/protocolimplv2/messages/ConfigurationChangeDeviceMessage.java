@@ -2,13 +2,8 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -896,6 +891,45 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                     this.stringSpecBuilder(service, DeviceMessageConstants.executionTimeDateArray, DeviceMessageConstants.executionTimeDateArrayDefaultTranslation).finish()
             );
         }
+    },
+
+     SET_NTP_ACTIVATED(31091, "Defines if the NTP time synchronisation is active or not") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.booleanSpec(service, DeviceMessageConstants.ntpSetActivated, DeviceMessageConstants.ntpSetActivatedDefaultTranslation)
+            );
+        }
+    },
+
+    SET_NTP_AUTHENTICATION_METHOD(31092, "Defines the authentication mode used for NTP protocol") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.ntpSetAuthMethod, DeviceMessageConstants.ntpSetAuthMethodDefaultTranslation)
+                            .addValues(ConfigurationChangeDeviceMessage.NTPAuthMode.getDescriptionValues())
+                            .finish()
+            );
+        }
+    },
+
+    ADD_NTP_AUTHENTICATION_KEY(31093, "Adds a new symmetric authentication key to the NTP authentication key array") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ntpAuthKeyId, DeviceMessageConstants.ntpAuthKeyIdDefaultTranslation),
+                    this.keyAccessorReferenceSpec(service, DeviceMessageConstants.ntpAuthKey, DeviceMessageConstants.ntpAuthKeyDefaultTranslation)
+            );
+        }
+    },
+
+    DELETE_NTP_AUTHENTICATION_KEY(31094, "Deletes a symmetric authentication key from the NTP key array") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ntpAuthKeyId, DeviceMessageConstants.ntpAuthKeyIdDefaultTranslation)
+            );
+        }
     };
 
     private final long id;
@@ -1078,6 +1112,45 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 DeviceMessageCategories.CONFIGURATION_CHANGE,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
+    }
+
+    public enum NTPAuthMode {
+        No_Security(0, "No_Security"),
+        Shared_Secrets(1, "Shared_Secrets"),
+        Auto_Key_IFF(2, "Auto_Key_IFF");
+
+        private final int id;
+        private final String description;
+
+        NTPAuthMode(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static NTPAuthMode entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            NTPAuthMode[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 
     public enum PushType {
