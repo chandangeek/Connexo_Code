@@ -329,7 +329,6 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                 .stream()
                 .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
 
-
         values.putAll(shipmentAttributesList
                 .stream()
                 .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue)));
