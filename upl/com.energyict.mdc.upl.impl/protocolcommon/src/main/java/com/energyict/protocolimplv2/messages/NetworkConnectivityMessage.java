@@ -569,7 +569,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.snmpSystemContact, DeviceMessageConstants.snmpSystemContactDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.snmpSystemLocation, DeviceMessageConstants.snmpSystemLocationDefaultTranslation),
-                    this.hexStringSpec(service, DeviceMessageConstants.snmpLocalEngineId, DeviceMessageConstants.snmpLocalEngineIdDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.snmpLocalEngineId, DeviceMessageConstants.snmpLocalEngineIdDefaultTranslation),
                     this.stringSpecBuilder(service, DeviceMessageConstants.snmpNotificationType, DeviceMessageConstants.snmpNotificationTypeDefaultTranslation)
                             .addValues(SNMPNotificationType.getDescriptionValues())
                             .finish(),
