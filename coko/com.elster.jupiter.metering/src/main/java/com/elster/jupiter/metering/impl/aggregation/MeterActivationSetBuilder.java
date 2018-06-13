@@ -191,7 +191,8 @@ class MeterActivationSetBuilder {
      * @return The MeterActivationSet or <code>Optional.empty()</code> as described above
      */
     private Optional<MeterActivationSet> createMeterActivationSet(Instant switchTimestamp) {
-        if (this.period.hasUpperBound() && switchTimestamp.equals(this.period.upperEndpoint())) {
+        if ((this.period.hasUpperBound() && switchTimestamp.equals(this.period.upperEndpoint()) &&
+                !(this.period.hasLowerBound() && switchTimestamp.equals(this.period.lowerEndpoint())))) {
             return Optional.empty();
         } else {
             List<MeterActivation> meterActivations = this.getOverlappingMeterActivations()
