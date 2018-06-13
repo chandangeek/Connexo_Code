@@ -599,7 +599,8 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
-                            .addValues(SNMPUserProfileType.getDescriptionValues())
+                            // The public user profile (0) does not hold any credentials, and therefore cannot be used in this method.
+                            .addValues(Arrays.copyOfRange(SNMPUserProfileType.getDescriptionValues(), 1, SNMPUserProfileType.getDescriptionValues().length))
                             .finish(),
                     this.stringSpec(service, DeviceMessageConstants.snmpPrivPassphrase, DeviceMessageConstants.snmpPrivPassphraseDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.snmpAuthPassphrase, DeviceMessageConstants.snmpAuthPassphraseDefaultTranslation)
