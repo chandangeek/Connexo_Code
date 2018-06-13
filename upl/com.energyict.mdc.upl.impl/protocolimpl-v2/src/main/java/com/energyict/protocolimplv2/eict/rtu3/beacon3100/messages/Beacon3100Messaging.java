@@ -10,7 +10,9 @@ import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier
 import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
+import com.energyict.dlms.cosem.methods.NTPSetupMethods;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.cosem.methods.SNMPSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -425,6 +427,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.newMasterKeyAttributeName:
             case DeviceMessageConstants.vpnSharedSecret:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+            case DeviceMessageConstants.ntpAuthKey:
+                return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.certificateWrapperAttributeName:
             case DeviceMessageConstants.vpnRemoteCertificate:
 
@@ -625,6 +629,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         setDeviceLocation(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
                         setNTPAddress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_NTP_ACTIVATED)) {
+                        setNTPActivated(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_NTP_AUTHENTICATION_METHOD)) {
+                        setNTPAuthMethod(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ADD_NTP_AUTHENTICATION_KEY)) {
+                        addNTPAuthKey(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DELETE_NTP_AUTHENTICATION_KEY)) {
+                        deleteNTPAuthenticationKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
                         syncNTPServer(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL)) {
@@ -2186,6 +2198,39 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getNtpServerAddress().writeNTPServerName(address);
+    }
+
+    private void setNTPActivated(OfflineDeviceMessage pendingMessage) throws IOException {
+        final Boolean ntpActivated = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpSetActivated).getValue());
+
+        getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).writeNTPAttribute(NTPSetupAttributes.ACTIVATED, new BooleanObject(ntpActivated));
+    }
+
+    private void setNTPAuthMethod(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String ntpAuthMethod = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpSetAuthMethod).getValue();
+        final int ntpAuthMethodInt = ConfigurationChangeDeviceMessage.NTPAuthMode.valueOf(ntpAuthMethod).getId();
+
+        getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).writeNTPAttribute(NTPSetupAttributes.AUTHENTICATION_METHOD, new TypeEnum(ntpAuthMethodInt));
+    }
+
+    private void addNTPAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        final BigDecimal ntpAuthKeyId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpAuthKeyId).getValue());
+        final String ntpAuthKey = getStringAttributeValue(pendingMessage, DeviceMessageConstants.ntpAuthKey);
+
+        final Structure data = new Structure()
+                .addDataType( new Integer64Unsigned(ntpAuthKeyId.longValue()) )
+                .addDataType( OctetString.fromString(ntpAuthKey) );
+
+        getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).invokeNTPMethod(NTPSetupMethods.ADD_AUTHENTICATION_KEY, data);
+    }
+
+    private void deleteNTPAuthenticationKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        final BigDecimal ntpAuthKeyId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpAuthKeyId).getValue());
+
+        final Structure data = new Structure()
+                .addDataType( new Integer64Unsigned(ntpAuthKeyId.longValue()) );
+
+        getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).invokeNTPMethod(NTPSetupMethods.DELETE_AUTHENTICATION_KEY, data);
     }
 
     private NTPServerAddress getNtpServerAddress() throws NotInObjectListException {

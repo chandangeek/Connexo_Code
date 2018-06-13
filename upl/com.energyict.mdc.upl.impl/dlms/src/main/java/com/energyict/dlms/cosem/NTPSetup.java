@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
+import com.energyict.dlms.cosem.methods.NTPSetupMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -47,6 +48,14 @@ public class NTPSetup extends AbstractCosemObject {
 
     public AbstractDataType readServerPort() throws IOException {
         return readDataType(NTPSetupAttributes.SERVER_PORT, Unsigned16.class);
+    }
+
+    public void writeNTPAttribute(NTPSetupAttributes attribute, AbstractDataType data) throws IOException {
+        write(attribute, data);
+    }
+
+    public void invokeNTPMethod(NTPSetupMethods ntpSetupMethod, AbstractDataType data) throws IOException {
+        methodInvoke(ntpSetupMethod, data);
     }
 
 }
