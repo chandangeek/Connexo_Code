@@ -270,11 +270,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
             page = me.getEstimationPage();
 
-        //me.device.set('estimationStatus', { active: activate });
+
         page.setLoading();
 
         Ext.Ajax.request({
-            url: '/api/udr/usagepoints/' + view.usagePoint.get('name') + '/purposes/' + view.purpose.getId() + '/estimationrulesets/estimationstatus',
+            url: '/api/udr/usagepoints/' + page.usagePoint.getData().name + '/purposes/' + page.purpose.getData().id + '/estimationrulesets/estimationstatus',
             method: 'PUT',
             jsonData: {
                 active: activate
@@ -1041,10 +1041,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             view = me.getEstimationPage();
 
 
-        if (router.arguments.tab != 'registerData') {
+        if (router.arguments.purposeTab != 'estimationCfg') {
             Uni.util.History.suspendEventsForNextCall();
             Uni.util.History.setParsePath(false);
-            router.queryParams.tab = 'registerData';
+            router.queryParams.purposeTab = 'estimationCfg';
             router.getRoute('usagepoints/view/purpose').forward();
         }
 
