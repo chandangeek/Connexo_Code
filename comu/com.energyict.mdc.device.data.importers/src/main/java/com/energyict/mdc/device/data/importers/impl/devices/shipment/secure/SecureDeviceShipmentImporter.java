@@ -323,10 +323,17 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
         List<NamedAttribute> deviceAttributesList = xmlDevice.getAttribute();
+        List<NamedAttribute> shipmentAttributesList = shipment.getHeader().getAttribute();
 
         Map<String, String> values = deviceAttributesList
                 .stream()
                 .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
+
+
+        values.putAll(shipmentAttributesList
+                .stream()
+                .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue)));
+
         if (importerExtension != null) {
             importerExtension.process(device, values, logger);
             device.save();
