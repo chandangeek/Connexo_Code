@@ -100,12 +100,8 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
-        byte[] decrypt;
-        if (label == null || label.isEmpty()) {
-            decrypt = dataVaultService.decrypt(this.encryptedKey);
-        } else {
-            decrypt = this.encryptedKey.getBytes();
-        }
+
+        byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
         return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
     }
 
@@ -121,7 +117,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     @Override
     public void setKey(byte[] key, String label) {
-        this.encryptedKey = Arrays.toString(key);
+        this.encryptedKey = dataVaultService.encrypt(key);
         this.label = label;
         this.save();
     }
@@ -253,6 +249,5 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             return getKeyType().getKeySize();
         }
     }
-
 
 }
