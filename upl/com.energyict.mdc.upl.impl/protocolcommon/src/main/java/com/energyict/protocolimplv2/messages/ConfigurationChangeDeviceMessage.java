@@ -893,7 +893,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         }
     },
 
-     SET_NTP_ACTIVATED(31091, "Defines if the NTP time synchronisation is active or not") {
+     SET_NTP_ACTIVATED(31091, "NTP time synchronisation activation") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -902,7 +902,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         }
     },
 
-    SET_NTP_AUTHENTICATION_METHOD(31092, "Defines the authentication mode used for NTP protocol") {
+    SET_NTP_AUTHENTICATION_METHOD(31092, "Set authentication mode for NTP protocol") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -913,7 +913,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         }
     },
 
-    ADD_NTP_AUTHENTICATION_KEY(31093, "Adds a new symmetric authentication key to the NTP authentication key array") {
+    ADD_NTP_AUTHENTICATION_KEY(31093, "Add authentication key to NTP authentication") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -923,7 +923,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         }
     },
 
-    DELETE_NTP_AUTHENTICATION_KEY(31094, "Deletes a symmetric authentication key from the NTP key array") {
+    DELETE_NTP_AUTHENTICATION_KEY(31094, "Delete authentication key from the NTP") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
