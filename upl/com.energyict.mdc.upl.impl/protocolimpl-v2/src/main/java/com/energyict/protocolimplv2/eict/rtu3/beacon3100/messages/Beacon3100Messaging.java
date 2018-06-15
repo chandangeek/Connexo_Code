@@ -149,9 +149,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
 
     /**
-     * The set of supported messages (which, ironically, is not a Set).
+     * The set of supported messages (which, ironically, is not used).
      */
-    private static final List<DeviceMessageSpec> SUPPORTED_MESSAGES = new ArrayList<>();
+    private static final Set<DeviceMessageSpec> SUPPORTED_MESSAGES = new HashSet<>();
 
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
@@ -224,6 +224,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress.get(this.propertySpecService, this.nlsService, this.converter),
                 UplinkConfigurationDeviceMessage.WriteUplinkPingInterval.get(this.propertySpecService, this.nlsService, this.converter),
                 UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+                UplinkConfigurationDeviceMessage.WRITE_MAX_INACTIVE_UPLINK.get(this.propertySpecService, this.nlsService, this.converter),
                 // PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
                 // NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
@@ -383,7 +384,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.modemResetThreshold:
             case DeviceMessageConstants.pathDiscoveryTime:
             case DeviceMessageConstants.systemRebootThreshold:
-                return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
+                return String.valueOf(((Duration) messageAttribute).getSeconds());
+            case DeviceMessageConstants.uplinkMaxInactiveInterval:
+                return String.valueOf(((Duration) messageAttribute).getSeconds());
             case DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName:
                 return String.valueOf(((Duration) messageAttribute).toMinutes());
             case DeviceMessageConstants.previousStartDate:
@@ -600,6 +603,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         writeUplinkPingInterval(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout)) {
                         writeUplinkPingTimeout(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WRITE_MAX_INACTIVE_UPLINK)) {
+                        writeUplinkMaxInactiveInterval(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableModemWatchdog)) {
                         enableModemWatchdog(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemWatchdogParameters2)) {
@@ -2356,6 +2361,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getUplinkPingConfiguration().writeTimeout(timeout);
+    }
+
+    private void writeUplinkMaxInactiveInterval(OfflineDeviceMessage pendingMessage) throws IOException {
+        // TODO
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {

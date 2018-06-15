@@ -977,6 +977,8 @@ public final class DeviceMessageConstants {
     public static final String uplinkPingIntervalDefaultTranslation = "Uplink ping interval";
     public static final String uplinkPingTimeout = "UplinkConfigurationDeviceMessage.uplinkPingTimeout";
     public static final String uplinkPingTimeoutDefaultTranslation = "Uplink ping timeout";
+    public static final String uplinkMaxInactiveInterval = "UplinkConfigurationDeviceMessage.uplinkMaxInactiveInterval";
+    public static final String uplinkMaxInactiveIntervalDefaultTranslation = "Firmware maximum inactive uplink interval in seconds";
 
     public static final String ReferenceVoltageAttributeName = "PowerConfigurationDeviceMessage.referencevoltage";
     public static final String ReferenceVoltageAttributeDefaultTranslation = "Reference voltage";

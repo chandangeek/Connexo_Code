@@ -114,16 +114,6 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         return IntStream.range(1, 33).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
     }
 
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return ChannelConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
