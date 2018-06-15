@@ -85,7 +85,7 @@ public class TaskInfo {
     }
 
     private void setPlannedOn(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
-        long plannedDate = recurrentTask.getNextExecution().toEpochMilli();
+        long plannedDate = getNextExecutionPlannedDate(recurrentTask);
         setQueueStatus(PLANNED, plannedDate);
         if (lastOccurrence != null) {
             if (lastOccurrence.getStartDate().isPresent() && lastOccurrence.getEndDate().isPresent()) {
@@ -98,6 +98,13 @@ public class TaskInfo {
                 }
             }
         }
+    }
+
+    private long getNextExecutionPlannedDate(RecurrentTask recurrentTask) {
+        if (recurrentTask.getNextExecution() == null) {
+            return 0;
+        }
+        return recurrentTask.getNextExecution().toEpochMilli();
     }
 
     private void setLastRunStatus(TaskOccurrence lastOccurrence) {
