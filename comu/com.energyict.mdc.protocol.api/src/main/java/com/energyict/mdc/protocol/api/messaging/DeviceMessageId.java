@@ -166,6 +166,7 @@ public enum DeviceMessageId {
     SetHighLowLQI(3090),
     SetAdpLBPAssociationSetup_7_Parameters(3091),
     SetAdpLBPAssociationSetup_5_Parameters(3092),
+    RENEW_GMK(3093),
 
     NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM(4001),
     NETWORK_CONNECTIVITY_DEACTIVATE_SMS_WAKEUP(4002),
