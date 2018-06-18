@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -628,6 +629,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                     this.boundedBigDecimalSpec(service, DeviceMessageConstants.Active_scan_duration, DeviceMessageConstants.Active_scan_durationDefaultTranslation, new BigDecimal(0), new BigDecimal(255)));
         }
     },
+
+    RENEW_GMK(3093, "Generate a new GMK and initiates a rekeying process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return new ArrayList<>();
+        }
+    }
 
     ;
 

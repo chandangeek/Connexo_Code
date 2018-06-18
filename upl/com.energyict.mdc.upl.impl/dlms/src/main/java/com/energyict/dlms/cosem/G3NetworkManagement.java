@@ -296,6 +296,10 @@ public class G3NetworkManagement extends AbstractCosemObject {
         write(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, new Unsigned16(value));
     }
 
+    public final void renewGMK() throws IOException {
+        methodInvoke(G3NetworkManagementMethods.RENEW_GMK, new Unsigned8(0));
+    }
+
     /**
      * Performs a ping to the given node, returns the round trip time if the ping was successful or -1 if it wasn't.
      * Older firmware versions of the Rtu+Server return a boolean, in this case the protocol return +1 or -1.

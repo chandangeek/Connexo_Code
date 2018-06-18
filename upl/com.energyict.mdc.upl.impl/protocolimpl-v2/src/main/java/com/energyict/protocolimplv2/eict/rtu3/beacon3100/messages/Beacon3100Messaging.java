@@ -320,6 +320,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 PLCConfigurationDeviceMessage.RemoveMetersFromBlackList.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.PathRequestWithTimeout.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.ReadBlacklist.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.RENEW_GMK.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // Logbook resets.
                 LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),
@@ -786,6 +787,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ReadBlacklist)) {
                         this.readBlacklist(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RENEW_GMK)) {
+                        renewGMK();
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY)) {
                         this.addRoutingEntry(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES)) {
@@ -2735,6 +2738,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             this.setCollectedMessageAsFailed(collectedMessage, pendingMessage, e, "Failed to read out the blacklist : [" + e.getMessage() + "]");
         }
+    }
+
+    private void renewGMK() throws IOException {
+        getG3NetworkManagement().renewGMK();
     }
 
     private void addRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
