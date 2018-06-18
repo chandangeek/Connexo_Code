@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier
 import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributes.FirmwareConfigurationAttributes;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
 import com.energyict.dlms.cosem.methods.NTPSetupMethods;
@@ -2364,7 +2365,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void writeUplinkMaxInactiveInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        // TODO
+        int maxInactiveUplinkSeconds = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.uplinkMaxInactiveInterval).getValue());
+
+        Integer64Unsigned data = new Integer64Unsigned(maxInactiveUplinkSeconds);
+
+        getFirmwareConfigurationIC().writeFirmwareConfigurationAttribute(FirmwareConfigurationAttributes.MAX_INACTIVE_UPLINK, data);
+    }
+
+    private FirmwareConfigurationIC getFirmwareConfigurationIC() throws NotInObjectListException {
+        return getCosemObjectFactory().getFirmwareConfigurationIC();
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {

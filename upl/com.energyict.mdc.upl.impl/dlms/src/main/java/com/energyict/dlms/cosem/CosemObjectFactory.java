@@ -823,6 +823,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DataProtection(this.protocolLink, this.getObjectReference(DataProtection.OBIS_CODE));
     }
 
+    public FirmwareConfigurationIC getFirmwareConfigurationIC() throws NotInObjectListException {
+        return new FirmwareConfigurationIC(this.protocolLink, this.getObjectReference(FirmwareConfigurationIC.OBIS_CODE));
+    }
+
     public InactiveFirmwareIC getInactiveFirmwareIC() throws NotInObjectListException {
         return new InactiveFirmwareIC(this.protocolLink, this.getObjectReference(InactiveFirmwareIC.OBIS_CODE));
     }
