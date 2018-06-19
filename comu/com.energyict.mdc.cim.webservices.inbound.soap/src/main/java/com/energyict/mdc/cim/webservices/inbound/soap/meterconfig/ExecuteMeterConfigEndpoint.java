@@ -13,6 +13,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -42,6 +43,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import javax.inject.Inject;
 import java.util.Optional;
 
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint", service = MeterConfigPort.class, immediate = true)
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private static final String NOUN = "MeterConfig";
@@ -50,18 +52,23 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
 
-    private final TransactionService transactionService;
-    private final MeterConfigFaultMessageFactory faultMessageFactory;
-    private final MeterConfigFactory meterConfigFactory;
-    private final MeterConfigParser meterConfigParser;
-    private final ReplyTypeFactory replyTypeFactory;
-    private final EndPointHelper endPointHelper;
-    private final DeviceBuilder deviceBuilder;
+    private volatile TransactionService transactionService;
+    private volatile MeterConfigFaultMessageFactory faultMessageFactory;
+    private volatile MeterConfigFactory meterConfigFactory;
+    private volatile MeterConfigParser meterConfigParser;
+    private volatile ReplyTypeFactory replyTypeFactory;
+    private volatile EndPointHelper endPointHelper;
+    private volatile DeviceBuilder deviceBuilder;
 
-    private final ServiceCallCommands serviceCallCommands;
-    private final EndPointConfigurationService endPointConfigurationService;
-    private final WebServicesService webServicesService;
+    private volatile ServiceCallCommands serviceCallCommands;
+    private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile WebServicesService webServicesService;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
+
+    public ExecuteMeterConfigEndpoint(){
+
+    }
+
 
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
@@ -147,7 +154,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addCInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
+    public void addInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
         this.webServiceExtension = Optional.of(webServiceExtension);
     }
 
