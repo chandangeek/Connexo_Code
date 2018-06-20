@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>mdm.parent</artifactId>
+        <version>1.4.0${revision}</version>
+        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mdm.issue.data.validation</artifactId>
+    <version>1.0.0${revision}</version>
+    <packaging>bundle</packaging>
+    <name>[MDM] mdm.issue.data.validation</name>
+    <description>
+        Usage point issue data validation.
+    </description>
+
+    <dependencies>
+    </dependencies>
+
+</project>
