@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.orm.DataModel;
@@ -36,6 +37,7 @@ public class MdmAppInstaller {
     private volatile ValidationService validationService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile UsagePointService usagePointService;
+    private volatile IssueService issueService;
 
     @Activate
     public void activate() {
@@ -47,6 +49,36 @@ public class MdmAppInstaller {
             }
         });
         upgradeService.register(InstallIdentifier.identifier("Insight", "DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setUsagePointService(UsagePointService usagePointService) {
+        this.usagePointService = usagePointService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     static class Installer implements FullInstaller {
@@ -138,33 +170,20 @@ public class MdmAppInstaller {
 
                     //data quality kpi
                     com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
-                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
+
+                    //Issues
+                    com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+
+                    //issue configuration
+                    com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE
             };
         }
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setUsagePointService(UsagePointService usagePointService) {
-        this.usagePointService = usagePointService;
     }
 }

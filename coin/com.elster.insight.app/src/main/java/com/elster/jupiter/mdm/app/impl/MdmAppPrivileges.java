@@ -120,7 +120,19 @@ class MdmAppPrivileges {
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
 
                 //tasks
-                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+
+                //Issues
+                com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+
+                //issue configuration
+                com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE
         );
     }
 }

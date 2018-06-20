@@ -57,7 +57,11 @@ Ext.onReady(function () {
         {
             name: 'Apr',
             path: '../../apps/apr/src'
-        }
+        },
+        {
+            name: 'Isu',
+            path: '../../apps/isu/src'
+        },
 
     ];
 
