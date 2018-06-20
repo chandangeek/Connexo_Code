@@ -854,4 +854,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public GSMDiagnosticsIC getGSMDiagnosticsIC(ObisCode obisCode) throws NotInObjectListException {
         return new GSMDiagnosticsIC(this.protocolLink, this.getObjectReference(obisCode));
     }
+
+    public RenewGMKSingleActionScheduleIC getRenewGMKSingleActionScheduleIC() throws NotInObjectListException {
+        return new RenewGMKSingleActionScheduleIC(this.protocolLink, this.getObjectReference(RenewGMKSingleActionScheduleIC.OBIS_CODE));
+    }
 }

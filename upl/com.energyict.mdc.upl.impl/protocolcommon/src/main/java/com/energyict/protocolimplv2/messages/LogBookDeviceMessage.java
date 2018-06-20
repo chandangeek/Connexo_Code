@@ -187,16 +187,6 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateTimeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return LogBookDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

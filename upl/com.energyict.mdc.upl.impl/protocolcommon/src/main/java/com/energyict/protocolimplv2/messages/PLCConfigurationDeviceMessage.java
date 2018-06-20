@@ -635,6 +635,15 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return new ArrayList<>();
         }
+    },
+
+    WRITE_GMK_SCHEDULE_EXECUTION_TIME(3094, "Write GMK schedule execution time") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    dateTimeSpec(service, DeviceMessageConstants.RENEW_GMK_EXECUTION_TIME, DeviceMessageConstants.RENEW_GMK_EXECUTION_TIMEDefaultTranslation)
+            );
+        }
     }
 
     ;

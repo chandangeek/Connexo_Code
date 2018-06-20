@@ -1733,4 +1733,8 @@ public final class DeviceMessageConstants {
     public static final String remoteSyslogPortDefaultTranslation = "Port";
     public static final String remoteSyslogIpVersion = "DeviceActionMessage.remoteSyslogIpVersion";
     public static final String remoteSyslogIpVersionDefaultTranslation = "IP version";
+
+    // Renew GMK single action schedule IC
+    public static final String RENEW_GMK_EXECUTION_TIME = "DeviceActionMessage.RENEW_GMK_EXECUTION_TIME";
+    public static final String RENEW_GMK_EXECUTION_TIMEDefaultTranslation = "Execution time";
 }

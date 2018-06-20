@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanis
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.dlms.cosem.attributes.FirmwareConfigurationAttributes;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
+import com.energyict.dlms.cosem.attributes.RenewGMKSingleActionScheduleAttributes;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
 import com.energyict.dlms.cosem.methods.NTPSetupMethods;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
@@ -321,6 +322,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 PLCConfigurationDeviceMessage.PathRequestWithTimeout.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.ReadBlacklist.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.RENEW_GMK.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.WRITE_GMK_SCHEDULE_EXECUTION_TIME.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // Logbook resets.
                 LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),
@@ -396,6 +398,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.currentStartDate:
             case DeviceMessageConstants.currentEndDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
+                return String.valueOf(((Date) messageAttribute).getTime());
+            case DeviceMessageConstants.RENEW_GMK_EXECUTION_TIME:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.configurationCAImageFileAttributeName:
@@ -789,6 +793,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.readBlacklist(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RENEW_GMK)) {
                         renewGMK();
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WRITE_GMK_SCHEDULE_EXECUTION_TIME)) {
+                        writeGMKScheduleExecutionTime(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY)) {
                         this.addRoutingEntry(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES)) {
@@ -2742,6 +2748,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void renewGMK() throws IOException {
         getG3NetworkManagement().renewGMK();
+    }
+
+    private void writeGMKScheduleExecutionTime(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String dateInput = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.RENEW_GMK_EXECUTION_TIME).getValue();
+
+        getCosemObjectFactory().getRenewGMKSingleActionScheduleIC().writeAttribute(
+                RenewGMKSingleActionScheduleAttributes.EXECUTION_TIME, convertLongDateToDlmsArray(Long.valueOf(dateInput))
+        );
     }
 
     private void addRoutingEntry(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {

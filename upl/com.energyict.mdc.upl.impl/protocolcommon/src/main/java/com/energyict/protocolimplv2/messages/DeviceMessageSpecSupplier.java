@@ -56,4 +56,14 @@ public interface DeviceMessageSpecSupplier {
                 .markRequired()
                 .finish();
     }
+
+    default PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
 }
