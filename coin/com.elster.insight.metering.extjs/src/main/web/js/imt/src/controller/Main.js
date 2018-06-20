@@ -30,7 +30,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.view.PurposesOnMetrologyConfigarations',
         'Imt.processes.view.AvailableTransitions',
         'Imt.processes.view.InstallationDate',
-        'Imt.processes.view.MeterRoles'
+        'Imt.processes.view.MeterRoles',
+        'Isu.privileges.Issue'
     ],
 
     privileges: [],
@@ -43,6 +44,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.controller.Dashboard',
         'Imt.controller.TaskManagement',
         'Apr.controller.CustomTask',
+        'Isu.controller.Main',
         'Imt.dashboard.controller.OperatorDashboard',
         'Imt.dashboard.controller.FavoriteUsagePointGroups',
         'Imt.usagepointmanagement.controller.View',
@@ -107,6 +109,7 @@ Ext.define('Imt.controller.Main', {
         var me = this;
 
         me.getController('Apr.controller.CustomTask');
+        me.getController('Isu.controller.Main');
         me.getController('Imt.controller.History');
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
@@ -163,7 +166,9 @@ Ext.define('Imt.controller.Main', {
 
     initMenu: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            issuemanagement = null,
+            issuemanagementItems = [];
 
     	if (Imt.privileges.UsagePoint.canAdministrate()) {
 	        var menuItem = Ext.create('Uni.model.MenuItem', {
@@ -286,5 +291,6 @@ Ext.define('Imt.controller.Main', {
             });
             Uni.store.PortalItems.add(taskManagement);
         }
+
     }
 });

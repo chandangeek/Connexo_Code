@@ -15,6 +15,7 @@
         "com.energyict.mdc.bpm.extjs",
         "com.elster.jupiter.servicecall.extjs",
         "com.elster.jupiter.estimation.extjs",
-        "com.elster.jupiter.yellowfin.extjs"
+      "com.elster.jupiter.yellowfin.extjs",
+      "com.elster.jupiter.issue.extjs"
     ]
 }
