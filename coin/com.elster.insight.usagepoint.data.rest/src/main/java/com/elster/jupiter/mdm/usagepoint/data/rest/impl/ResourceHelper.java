@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -464,4 +465,11 @@ public class ResourceHelper {
                 .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
         return dateTimeFormatter.format(date);
     }
+
+
+    public ChannelsContainer findChannelsContainerOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyContract metrologyContract) {
+        return effectiveMC.getChannelsContainer(metrologyContract)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER, metrologyContract.getId()));
+    }
+
 }
