@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
@@ -53,8 +52,6 @@ public interface EndDevice extends HasId, IdentifiedObject {
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
-
-    List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
 
