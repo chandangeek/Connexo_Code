@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.estimation.rest.EstimationStatusInfo;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -63,7 +64,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean isMultiElementSlave;
     public String serviceCategory;
     public String usagePoint;
-    public DeviceEstimationStatusInfo estimationStatus;
+    public EstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
     public String location;
     public LocationInfo locationInfo;
@@ -144,7 +145,7 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.usagePoint = usagePoint.getName();
             deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
-        deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
+        deviceInfo.estimationStatus = new EstimationStatusInfo(device.forEstimation().isEstimationActive());
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, deviceState);
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
