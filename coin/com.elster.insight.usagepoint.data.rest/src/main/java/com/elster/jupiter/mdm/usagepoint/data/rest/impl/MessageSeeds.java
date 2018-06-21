@@ -76,8 +76,8 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can''t link calendar before start date of this calendar."),
     CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
     NO_USAGE_POINT_WITH_MRID(73, Keys.NO_USAGE_POINT_WITH_MRID, "No usage point with mrid {0}"),
-    METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(73, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container"),
-    NOTHING_TO_ESTIMATE(74,"nothing.is.estimated", "Estimation is not configured on this purpose of this usage point")
+    METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(74, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container"),
+    NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point")
     ;
 
     private final int number;
