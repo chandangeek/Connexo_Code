@@ -8,4 +8,6 @@ import com.elster.jupiter.hsm.model.keys.TransportKey;
 
 public interface HsmEnergyService {
     HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException;
+
+    HsmEncryptedKey renewKey(byte[] deviceKey, String signKeyLabel, String deviceKeyLabel) throws EncryptBaseException;
 }

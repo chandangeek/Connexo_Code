@@ -3,20 +3,6 @@
   "version": 461,
   "rawHsms": [
     {
-      "id": 12,
-      "name": "Sibelga Docker",
-      "type": "ASM7.7a",
-      "description": "",
-      "host": "158.138.233.184",
-      "port": 9000,
-      "moduleId": 0,
-      "secure": false,
-      "state": {
-        "stateValue": 1
-      },
-      "protocol": "KS"
-    },
-    {
       "id": 2,
       "name": "WHI HSM",
       "type": "ASM7.7a",
@@ -41,11 +27,6 @@
           "hsmId": 2,
           "keyAddress": "DB KEY AUTH  000",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "DB KEY AUTH  000",
-          "enabled": true
         }
       ]
     },
@@ -56,11 +37,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "DB-KEY-P2",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "DB-KEY-P2",
           "enabled": true
         }
@@ -75,11 +51,6 @@
           "hsmId": 2,
           "keyAddress": "FMI_PEM0000001",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "FMI_PEM0000001",
-          "enabled": true
         }
       ]
     },
@@ -90,11 +61,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "FMI_PEM0000002",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "FMI_PEM0000002",
           "enabled": true
         }
@@ -109,11 +75,6 @@
           "hsmId": 2,
           "keyAddress": "PRV_SIG_ECC_PRV",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "PRV_SIG_ECC_PRV",
-          "enabled": true
         }
       ]
     },
@@ -126,23 +87,6 @@
           "hsmId": 2,
           "keyAddress": "TK-CS-NEW",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "TK-CS-NEW",
-          "enabled": true
-        }
-      ]
-    },
-    {
-      "id": 162,
-      "name": "Cosem-Cmd-Signing",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 12,
-          "keyAddress": "PRV_SIG_ECC_476",
-          "enabled": true
         }
       ]
     },
@@ -153,11 +97,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "SF-IMP-KEK-EICT",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "SF-IMP-KEK-EICT",
           "enabled": true
         }
@@ -172,11 +111,6 @@
           "hsmId": 2,
           "keyAddress": "SF-IMP-KEK-ENEX",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "SF-IMP-KEK-ENEX",
-          "enabled": true
         }
       ]
     },
@@ -189,11 +123,6 @@
           "hsmId": 2,
           "keyAddress": "SF-IMP-WK_-EICT",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "SF-IMP-WK_-EICT",
-          "enabled": true
         }
       ]
     },
@@ -204,11 +133,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "SF-IMP-WK_-ENEX",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "SF-IMP-WK_-ENEX",
           "enabled": true
         }
@@ -299,18 +223,6 @@
       "mappings": []
     },
     {
-      "id": 153,
-      "name": "P-IMP-SMP1",
-      "kek": false,
-      "mappings": [
-        {
-          "hsmId": 12,
-          "keyAddress": "P-IMP-SMP1",
-          "enabled": true
-        }
-      ]
-    },
-    {
       "id": 42,
       "name": "dlms tls hes-dc",
       "kek": false,
@@ -341,11 +253,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "TK-P1-NEW",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "TK-P1-NEW",
           "enabled": true
         }
@@ -420,11 +327,6 @@
           "hsmId": 2,
           "keyAddress": "P-IMP-DC-KEK",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "P-IMP-DC-KEK",
-          "enabled": true
         }
       ]
     },
@@ -435,11 +337,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "P-IMP-SM-KEK",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "P-IMP-SM-KEK",
           "enabled": true
         }
@@ -454,11 +351,6 @@
           "hsmId": 2,
           "keyAddress": "P-IMP-SM-WK",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "P-IMP-SM-WK",
-          "enabled": true
         }
       ]
     },
@@ -471,11 +363,6 @@
           "hsmId": 2,
           "keyAddress": "P-IMP-SMDC",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "P-IMP-SMDC",
-          "enabled": true
         }
       ]
     },
@@ -486,11 +373,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "P-IMP-SMP0",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "P-IMP-SMP0",
           "enabled": true
         }
@@ -517,11 +399,6 @@
           "hsmId": 2,
           "keyAddress": "P-IMP-SSH",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "P-IMP-SSH",
-          "enabled": true
         }
       ]
     },
@@ -534,11 +411,6 @@
           "hsmId": 2,
           "keyAddress": "S-DB",
           "enabled": true
-        },
-        {
-          "hsmId": 12,
-          "keyAddress": "S-DB",
-          "enabled": true
         }
       ]
     },
@@ -549,11 +421,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "S-SSH",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "S-SSH",
           "enabled": true
         }
@@ -596,11 +463,6 @@
       "mappings": [
         {
           "hsmId": 2,
-          "keyAddress": "T_PRV_FW_SIG_01",
-          "enabled": true
-        },
-        {
-          "hsmId": 12,
           "keyAddress": "T_PRV_FW_SIG_01",
           "enabled": true
         }
