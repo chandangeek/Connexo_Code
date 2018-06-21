@@ -63,7 +63,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private volatile ServiceCallCommands serviceCallCommands;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
-    private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
+    private volatile Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
 
     public ExecuteMeterConfigEndpoint(){
 
