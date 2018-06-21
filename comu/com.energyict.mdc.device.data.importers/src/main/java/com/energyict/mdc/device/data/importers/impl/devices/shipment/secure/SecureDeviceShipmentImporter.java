@@ -333,6 +333,9 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                 .stream()
                 .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue)));
 
+        if (shipment.getHeader().getDeliveryDate() != null)
+            values.put("DeliveryDate", shipment.getHeader().getDeliveryDate().toString());
+
         if (importerExtension != null) {
             importerExtension.process(device, values, logger);
             device.save();
