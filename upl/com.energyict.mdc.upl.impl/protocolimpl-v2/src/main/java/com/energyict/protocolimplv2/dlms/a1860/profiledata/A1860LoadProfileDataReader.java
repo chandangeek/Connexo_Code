@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.a1860.profiledata;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsUnit;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -134,8 +133,7 @@ public class A1860LoadProfileDataReader {
         for (CapturedObject capturedObject : capturedObjects) {
             if(isRealChannelData(capturedObject)) {
                 Unit u = readUnitFromDevice(capturedObject);
-                Unit unit = Unit.get(DlmsUnit.fromValidDlmsCode(u.getDlmsCode()).getEisUnitCode(), 0);
-                unitMap.put(capturedObject.getLogicalName().getObisCode(), unit);
+                unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }
         }
