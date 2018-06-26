@@ -123,7 +123,8 @@ public final class OutboundSoapEndPoint implements ManagedEndpoint {
                 tracingFeature = null;
             }
         } else {
-            throw new IllegalStateException("Service already stopped");
+            logger.log(Level.SEVERE, "Service already stopped");  // CONM-252
+          //  throw new IllegalStateException("Service already stopped");
         }
     }
 
