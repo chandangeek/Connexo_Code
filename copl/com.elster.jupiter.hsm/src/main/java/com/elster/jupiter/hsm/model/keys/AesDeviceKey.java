@@ -8,7 +8,7 @@ import com.atos.worldline.jss.api.custom.energy.AESDeviceKey;
 public class AesDeviceKey extends DeviceKey {
     public AesDeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws EncryptBaseException {
         super(algorithm, keyLength, encryptedKey, initVector, keyType);
-        if (SymmetricAlgorithm.AES_256_CBC.equals(super.getEncryptionAlgorithm())) {
+        if (!SymmetricAlgorithm.AES_256_CBC.equals(super.getEncryptionAlgorithm())) {
             throw new EncryptBaseException("Trying to build a non AES encryption key using AES impl");
         }
     }
