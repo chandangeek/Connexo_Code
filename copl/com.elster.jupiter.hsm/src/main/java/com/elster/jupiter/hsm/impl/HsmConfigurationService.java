@@ -8,6 +8,8 @@ package com.elster.jupiter.hsm.impl;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.internal.spring.JssEmbeddedRuntimeConfig;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
@@ -16,8 +18,8 @@ import java.net.URLClassLoader;
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationService", service = {HsmConfigurationService.class}, immediate = true)
 public class HsmConfigurationService {
 
-
     private boolean initialized = false;
+    private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
 
     public void init(String file) {
         try {
@@ -61,6 +63,14 @@ public class HsmConfigurationService {
     public void checkInit() {
         if (!initialized) {
             throw new RuntimeException("JSS not initialized!");
+        }
+    }
+
+    @Activate
+    public void activate(BundleContext context) {
+        String configFile = context.getProperty(HSM_CONFIGURATION);
+        if (configFile != null) {
+            init(configFile);
         }
     }
 }

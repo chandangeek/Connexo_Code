@@ -10,7 +10,10 @@ import com.elster.jupiter.hsm.model.keys.TransportKey;
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.custom.energy.Energy;
 import com.atos.worldline.jss.api.custom.energy.KeyImportResponse;
+import com.atos.worldline.jss.api.custom.energy.KeyRenewalResponse;
 import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKey;
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyType;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import org.osgi.service.component.annotations.Component;
 
@@ -38,4 +41,21 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
         }
     }
 
+    public HsmEncryptedKey renewKey(byte[] deviceKey, String signKeyLabel, String deviceKeyLabel) throws EncryptBaseException {
+        try {
+            KeyLabel keyLabel = new KeyLabel(deviceKeyLabel);
+            ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(signKeyLabel), deviceKey);
+            KeyRenewalResponse response = Energy.cosemKeyRenewal(ProtectedSessionKeyCapability.SM_WK_CRYPTENC_RENEWAL,
+                    protectedSessionKey,
+                    keyLabel,
+                    ProtectedSessionKeyType.AES_256);
+            ProtectedSessionKey psk = response.getMdmStorageKey();
+            String kekLabel = ((KeyLabel) psk.getKek()).getValue();
+            return new HsmEncryptedKey(psk.getValue(), kekLabel);
+        } catch (FunctionFailedException e) {
+            throw new EncryptBaseException(e);
+        } catch (Exception e) {
+            throw new EncryptBaseException(e);
+        }
+    }
 }

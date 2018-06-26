@@ -11,4 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface HsmEnergyService {
     HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException;
+
+    HsmEncryptedKey renewKey(byte[] deviceKey, String signKeyLabel, String deviceKeyLabel) throws EncryptBaseException;
 }
