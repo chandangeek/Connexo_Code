@@ -3,7 +3,7 @@
  */
 Ext.define('Pkj.view.RevocationConfirmationWindow', {
     extend: 'Uni.view.window.Confirmation',
-    xtype: 'confirmation-window',
+    xtype: 'revconfirm-window',
     itemId: 'revocation-window',
     requires: [
         'Pkj.store.CertificateTimeouts'
