@@ -2245,8 +2245,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void deleteNTPAuthenticationKey(OfflineDeviceMessage pendingMessage) throws IOException {
         final BigDecimal ntpAuthKeyId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpAuthKeyId).getValue());
 
-        final Structure data = new Structure()
-                .addDataType( new Unsigned32(ntpAuthKeyId.longValue()) );
+        final Unsigned32 data = new Unsigned32(ntpAuthKeyId.longValue());
 
         getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).invokeNTPMethod(NTPSetupMethods.DELETE_AUTHENTICATION_KEY, data);
     }
