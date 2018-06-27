@@ -1,16 +1,7 @@
 package com.energyict.protocolimplv2.dlms.a1860.profiledata;
 
-import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DlmsUnit;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -18,6 +9,13 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -49,6 +47,8 @@ public class A1860LoadProfileDataReader {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
     private final OfflineDevice offlineDevice;
+
+    private static final int INSTRUMENTATION_OBIS_D_VALUE = 7;
 
     public A1860LoadProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, OfflineDevice offlineDevice) {
         this.protocol = protocol;
@@ -133,8 +133,7 @@ public class A1860LoadProfileDataReader {
         for (CapturedObject capturedObject : capturedObjects) {
             if(isRealChannelData(capturedObject)) {
                 Unit u = readUnitFromDevice(capturedObject);
-                Unit unit = Unit.get(DlmsUnit.fromValidDlmsCode(u.getDlmsCode()).getEisUnitCode(), 0);
-                unitMap.put(capturedObject.getLogicalName().getObisCode(), unit);
+                unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }
         }
@@ -160,8 +159,9 @@ public class A1860LoadProfileDataReader {
      * @throws java.io.IOException If there occurred an error while reading the unit from the device
      */
     public Unit readUnitFromDevice(final CapturedObject capturedObject) throws IOException {
-        final ObisCode obis = capturedObject.getObisCode();
+        ObisCode obis = capturedObject.getObisCode();
         final DLMSClassId classId = DLMSClassId.findById(capturedObject.getClassId());
+        obis = getInstrumentationReadableObisCode(obis, classId);
 
         final int attr = capturedObject.getAttributeIndex();
         switch (classId) {
@@ -194,6 +194,14 @@ public class A1860LoadProfileDataReader {
             }
 
         }
+    }
+
+    private ObisCode getInstrumentationReadableObisCode(ObisCode obis, DLMSClassId classId) {
+        //because the only the instant instrumentation obis is available to be readout as a separate register we need to change field D of the instrumentation channel and always set it to 7
+        if(classId.equals(DLMSClassId.REGISTER) || classId.equals(DLMSClassId.DEMAND_REGISTER)|| classId.equals(DLMSClassId.EXTENDED_REGISTER)) {
+            obis = new ObisCode(obis.getA(), obis.getB(), obis.getC(), INSTRUMENTATION_OBIS_D_VALUE, obis.getE(), obis.getF());
+        }
+        return obis;
     }
 
     private boolean isCumulative(ObisCode obisCode) {

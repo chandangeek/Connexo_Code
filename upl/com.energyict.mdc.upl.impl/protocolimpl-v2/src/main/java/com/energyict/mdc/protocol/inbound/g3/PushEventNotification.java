@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
-    private static final int METER_JOIN_ATTEMPT = 0xC5;
+    private static final int METER_JOIN_ATTEMPT = 0xC50000;
 
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
