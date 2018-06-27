@@ -2236,7 +2236,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final String ntpAuthKey = getStringAttributeValue(pendingMessage, DeviceMessageConstants.ntpAuthKey);
 
         final Structure data = new Structure()
-                .addDataType( new Integer64Unsigned(ntpAuthKeyId.longValue()) )
+                .addDataType( new Unsigned32(ntpAuthKeyId.longValue()) )
                 .addDataType( OctetString.fromString(ntpAuthKey) );
 
         getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).invokeNTPMethod(NTPSetupMethods.ADD_AUTHENTICATION_KEY, data);
@@ -2246,7 +2246,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final BigDecimal ntpAuthKeyId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpAuthKeyId).getValue());
 
         final Structure data = new Structure()
-                .addDataType( new Integer64Unsigned(ntpAuthKeyId.longValue()) );
+                .addDataType( new Unsigned32(ntpAuthKeyId.longValue()) );
 
         getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).invokeNTPMethod(NTPSetupMethods.DELETE_AUTHENTICATION_KEY, data);
     }
