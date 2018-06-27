@@ -54,6 +54,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.NlsKey;
@@ -71,6 +72,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
@@ -817,4 +819,14 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return where(CalendarUsageImpl.Fields.INTERVAL.fieldName()).isEffective(Range.atLeast(now));
     }
 
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery) {
+        Condition condition = inRange(range)
+                .and(ListOperator.IN.contains(subquery, "ENDDEVICEID"));
+        return dataModel.query(EndDeviceEventRecord.class).select(condition, Order.ascending("createdDateTime"));
+    }
+
+    private Condition inRange(Range<Instant> range) {
+        return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
+    }
 }

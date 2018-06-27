@@ -28,9 +28,7 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.time.Interval;
 
@@ -322,13 +320,6 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range) {
         return dataModel.query(EndDeviceEventRecord.class).select(inRange(range), Order.ascending("createdDateTime"));
-    }
-
-    @Override
-    public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery) {
-        Condition condition = inRange(range)
-                .and(ListOperator.IN.contains(subquery, "ENDDEVICEID"));
-        return dataModel.query(EndDeviceEventRecord.class).select(condition, Order.ascending("createdDateTime"));
     }
 
     @Override
