@@ -13,10 +13,6 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
@@ -38,12 +34,9 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCom
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint", service = MeterConfigPort.class, immediate = true)
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private static final String NOUN = "MeterConfig";
@@ -63,11 +56,8 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private volatile ServiceCallCommands serviceCallCommands;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
-    private volatile Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
+    private volatile InboundCIMWebServiceExtension webServiceExtension;
 
-    public ExecuteMeterConfigEndpoint(){
-
-    }
 
 
     @Inject
@@ -75,7 +65,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
                                       ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService) {
+                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtension) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -86,6 +76,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
+        this.webServiceExtension = webServiceExtension;
     }
 
     @Override
@@ -153,14 +144,6 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         }
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtension = Optional.of(webServiceExtension);
-    }
-
-    public void removeInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtension = Optional.empty();
-    }
 
     private String getReplyAddress(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
         String replyAddress = requestMessage.getHeader().getReplyAddress();
@@ -230,7 +213,8 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo){
-        webServiceExtension.ifPresent(inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
+        if (webServiceExtension != null)
+            webServiceExtension.extendMeterInfo(device, meterInfo);
     }
 
     @Override

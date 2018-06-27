@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
@@ -59,6 +60,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+
 @Singleton
 @Component(
         name = "com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator",
@@ -95,6 +97,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile JsonService jsonService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile WebServicesService webServicesService;
+    private volatile InboundCIMWebServiceExtension webServiceExtension;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -112,7 +115,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
-                                         WebServicesService webServicesService) {
+                                         WebServicesService webServicesService, InboundCIMWebServiceExtension
+                                         inboundCIMWebServiceExtension) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -133,6 +137,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         setWebServicesService(webServicesService);
+        setWebServiceExtension(inboundCIMWebServiceExtension);
         activate(bundleContext);
     }
 
@@ -162,6 +167,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(WebServicesService.class).toInstance(webServicesService);
+                bind(InboundCIMWebServiceExtension.class).toInstance(webServiceExtension);
             }
         };
     }
@@ -304,6 +310,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
+    }
+
+    @Reference
+    public void setWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtension = webServiceExtension;
     }
 
     @Override
