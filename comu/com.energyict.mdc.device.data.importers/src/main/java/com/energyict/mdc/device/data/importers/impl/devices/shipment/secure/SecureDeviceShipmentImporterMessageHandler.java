@@ -13,11 +13,15 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.energyict.mdc.device.data.importers.ImporterExtension;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 
@@ -40,6 +44,7 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
     private volatile OrmService ormService;
+    private volatile ImporterExtension importerExtension;
 
     // OSGi constructor
     public SecureDeviceShipmentImporterMessageHandler() {
@@ -54,6 +59,7 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
             protected void configure() {
                 bind(MessageService.class).toInstance(messageService);
                 bind(OrmService.class).toInstance(ormService);
+                bind(ImporterExtension.class).toInstance(importerExtension);
             }
         });
 
@@ -75,6 +81,16 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
         setMessageService(messageService);
         setOrmService(ormService);
     }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addImporterExtension(ImporterExtension importerExtension) {
+        this.importerExtension = importerExtension;
+    }
+
+    public void removeImporterExtension(ImporterExtension importerExtension) {
+        this.importerExtension = null;
+    }
+
 
     @Reference
     public final void setFileImportService(FileImportService fileImportService) {
