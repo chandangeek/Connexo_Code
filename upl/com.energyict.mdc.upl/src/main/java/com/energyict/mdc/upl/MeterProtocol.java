@@ -1,16 +1,17 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -389,5 +390,27 @@ public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSu
      * @throws IOException Thrown in case of an exception
      */
     void release() throws IOException;
+
+    /**
+     * This method is useful for V1 protocols implemented using the old interfaces where some protocols needs to read load profile data and events at the same time from device.
+     * For protocols that support reading events separate from the load profile data, this should return true and proper implementation should be available at device level to support this
+     * @return
+     */
+    default boolean hasSupportForSeparateEventsReading() {
+        return false;
+    }
+
+    /**
+     * This method will do a reading of events generated starting with lastReading date provided
+     *
+     * @param lastReading   retrieve all data younger than lastReading
+     *                      </p><p>
+     * @return meter events
+     *         </p>
+     * @throws IOException <br>
+     */
+    default List<MeterEvent> getMeterEvents(Date lastReading) throws IOException {
+        throw new UnsupportedException("Protocol driver does not support this method");
+    };
 
 }
