@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -9,8 +10,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpe
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
-import com.energyict.cbo.Quantity;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -95,6 +95,11 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return this.actual.getProfileData(from, to, includeEvents);
+    }
+
+    @Override
+    public List<MeterEvent> getMeterEvents(Date lastReading) throws IOException {
+        return this.actual.getMeterEvents(lastReading);
     }
 
     @Override
