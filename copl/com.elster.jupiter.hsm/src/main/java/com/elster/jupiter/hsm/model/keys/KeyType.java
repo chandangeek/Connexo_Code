@@ -14,7 +14,8 @@ public enum KeyType {
      * Ideally we can get rid of this if we can find the solution (mapping) between normal world algorithm + chaining mode + padding  and kek encryption from HSM/JSS
      */
     SM_KEK_AUTHENTIC(ProtectedSessionKeyCapability.SM_KEK_AUTHENTIC),
-    SM_KEK_NONAUTHENTIC(ProtectedSessionKeyCapability.SM_KEK_NONAUTHENTIC);
+    SM_KEK_NONAUTHENTIC(ProtectedSessionKeyCapability.SM_KEK_NONAUTHENTIC),
+    DC_WK_CRYPTENC_NONAUTHENTIC(ProtectedSessionKeyCapability.DC_WK_CRYPTENC_NONAUTHENTIC);
 
     private final ProtectedSessionKeyCapability pskc;
 

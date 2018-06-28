@@ -11,7 +11,7 @@ public enum SymmetricAlgorithm implements Algorithm {
     AES_256_CBC("AES/CBC/PKCS5PADDING", "http://www.w3.org/2001/04/xmlenc#aes256-cbc") {
         @Override
         public HsmAlgorithmSpecs getHsmSpecs() {
-            return new HsmAlgorithmSpecs(ChainingMode.CBC, PaddingAlgorithm.PKCS, KEKEncryptionMethod.CBC);
+            return new HsmAlgorithmSpecs(ChainingMode.CBC, PaddingAlgorithm.EME_PKCS1_V1_5, KEKEncryptionMethod.CBC);
         }
     };
 

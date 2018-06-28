@@ -8,6 +8,7 @@ import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
 
 public class TransportKey {
 
+    private final byte[] keyValue;
     private final String keyLabel;
     private final AsymmetricAlgorithm asymmetricAlgorithm;
 
@@ -17,7 +18,8 @@ public class TransportKey {
 
      * @param paddingAlgorithm for the asymmetric algorithm that was used to encrypt the transport key (to be used in correlation with keyLabel)
      */
-    public TransportKey(String keyLabel,  AsymmetricAlgorithm paddingAlgorithm) {
+    public TransportKey(String keyLabel,  AsymmetricAlgorithm paddingAlgorithm, byte[] keyValue) {
+        this.keyValue =  keyValue;
         this.keyLabel = keyLabel;
         this.asymmetricAlgorithm = paddingAlgorithm;
     }
@@ -25,7 +27,7 @@ public class TransportKey {
 
     public com.atos.worldline.jss.api.custom.energy.TransportKey toHsmFormat(DeviceKey dKey) throws EncryptBaseException {
         try {
-            return new com.atos.worldline.jss.api.custom.energy.TransportKey(new KeyLabel(keyLabel), dKey.getKeyLength(), dKey.getEncryptedKey());
+            return new com.atos.worldline.jss.api.custom.energy.TransportKey(new KeyLabel(keyLabel), dKey.getKeyLength() , keyValue);
         } catch (UnsupportedKEKEncryptionMethodException e) {
             throw new EncryptBaseException("Could not transform transport key", e);
         }
@@ -34,5 +36,9 @@ public class TransportKey {
 
     public AsymmetricAlgorithm getAsymmetricAlgorithm() {
         return asymmetricAlgorithm;
+    }
+
+    public byte[] getKeyValue() {
+        return keyValue;
     }
 }

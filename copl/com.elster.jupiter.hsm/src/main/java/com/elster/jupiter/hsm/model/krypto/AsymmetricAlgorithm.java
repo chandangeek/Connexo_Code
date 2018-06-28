@@ -11,7 +11,7 @@ public enum AsymmetricAlgorithm implements Algorithm {
     RSA_15("RSA/ECB/PKCS1Padding") {
         @Override
         public HsmAlgorithmSpecs getHsmSpecs() {
-            return new HsmAlgorithmSpecs(ChainingMode.ECB, PaddingAlgorithm.EME_PKCS1_V1_5, KEKEncryptionMethod.CBC);
+            return new HsmAlgorithmSpecs(ChainingMode.ECB, PaddingAlgorithm.EME_PKCS1_V1_5, KEKEncryptionMethod.ECB);
         }
     };
 
