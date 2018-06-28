@@ -348,6 +348,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<Device> findDeviceByMeterId(long meterID) {
+        return getDeviceMapper().getUnique(DeviceFields.METER_ID.fieldName(), meterID);
+    }
+
+    @Override
     public List<Device> findDevicesBySerialNumber(String serialNumber) {
         return getDeviceMapper().find(DeviceFields.SERIALNUMBER.fieldName(), serialNumber);
     }
