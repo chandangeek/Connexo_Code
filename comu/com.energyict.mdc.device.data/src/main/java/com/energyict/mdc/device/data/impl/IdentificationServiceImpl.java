@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
@@ -54,6 +55,11 @@ public class IdentificationServiceImpl implements IdentificationService {
     @Override
     public DeviceIdentifier createDeviceIdentifierByMRID(String mRID) {
         return new DeviceIdentifierByMRID(mRID);
+    }
+
+    @Override
+    public DeviceIdentifier createDeviceIdentifierByDeviceName(String deviceName){
+        return new DeviceIdentifierByDeviceName(deviceName);
     }
 
     @Override
