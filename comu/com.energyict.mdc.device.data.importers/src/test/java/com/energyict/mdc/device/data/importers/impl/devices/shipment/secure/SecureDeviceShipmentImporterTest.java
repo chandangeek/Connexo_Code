@@ -124,7 +124,7 @@ public class SecureDeviceShipmentImporterTest {
         }).collect(toList());
         when(deviceType.getSecurityAccessorTypes()).thenReturn(keyAccessorTypes);
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,importerExtension);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         secureDeviceShipmentImporter.process(fileImportOccurrence);
@@ -150,7 +150,7 @@ public class SecureDeviceShipmentImporterTest {
 
         when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,importerExtension);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         try {
@@ -171,7 +171,7 @@ public class SecureDeviceShipmentImporterTest {
 
         when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,importerExtension);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         try {
@@ -188,7 +188,7 @@ public class SecureDeviceShipmentImporterTest {
 
     @Test
     public void importShipmentFileMeters() throws Exception {
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,importerExtension);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("Shipment file example - meters.xml"));
 
         try {

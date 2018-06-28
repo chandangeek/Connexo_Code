@@ -25,6 +25,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 
+import java.util.Optional;
+
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler",
@@ -44,7 +46,7 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
     private volatile OrmService ormService;
-    private volatile ImporterExtension importerExtension;
+    private volatile Optional<ImporterExtension> importerExtension = Optional.empty();
 
     // OSGi constructor
     public SecureDeviceShipmentImporterMessageHandler() {
@@ -59,7 +61,6 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
             protected void configure() {
                 bind(MessageService.class).toInstance(messageService);
                 bind(OrmService.class).toInstance(ormService);
-                bind(ImporterExtension.class).toInstance(importerExtension);
             }
         });
 
@@ -84,11 +85,11 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void addImporterExtension(ImporterExtension importerExtension) {
-        this.importerExtension = importerExtension;
+        this.importerExtension = Optional.of(importerExtension);
     }
 
     public void removeImporterExtension(ImporterExtension importerExtension) {
-        this.importerExtension = null;
+        this.importerExtension = Optional.empty();
     }
 
 
