@@ -105,6 +105,24 @@ public class A1440Profile extends VDEWProfile {
 		return profileData;
 	}
 
+	public List<MeterEvent> getMeterEvents(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+		List<MeterEvent> meterEvents = doGetLogBook(fromCalendar,toCalendar);
+		for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
+			MeterEvent meterEventItem = (MeterEvent) iterator.next();
+			int deviceCode = meterEventItem.getProtocolCode();
+			int eiServerCode = mapEvent2EiEvent(deviceCode);
+			String message = mapEvent2Message(deviceCode);
+			MeterEvent newMeterEvent =
+					new MeterEvent(
+							meterEventItem.getTime(),
+							eiServerCode,
+							deviceCode,
+							message
+					);
+			meterEvents = checkOnOverlappingEvents(meterEvents);
+		}
+		return meterEvents;
+	}
 
 	public A1440ProfileHeader getProfileHeader(int profileNumber) throws IOException {
 		this.loadProfileNumber = profileNumber;
