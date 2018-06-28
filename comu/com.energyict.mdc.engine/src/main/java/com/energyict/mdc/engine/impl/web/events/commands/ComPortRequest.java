@@ -11,6 +11,8 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 import com.google.common.base.Strings;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +51,7 @@ class ComPortRequest extends IdBusinessObjectRequest {
     }
 
     @Override
-    public Set<Long> getBusinessObjectIds () {
+    public Set<Long> getBusinessObjectIds() {
         Set<Long> ids = super.getBusinessObjectIds();
         if (ids == null) {
             ids = this.comPorts.stream().map(ComPort::getId).distinct().collect(Collectors.toSet());
@@ -57,14 +59,14 @@ class ComPortRequest extends IdBusinessObjectRequest {
         return ids;
     }
 
-    private void validateComPortIds () {
+    private void validateComPortIds() {
         this.comPorts = this.getBusinessObjectIds()
                 .stream()
                 .map(this::findComPort)
                 .collect(Collectors.toList());
     }
 
-    private void validateComPortNames(List<String> comPortNames){
+    private void validateComPortNames(List<String> comPortNames) {
         this.comPorts = comPortNames
                 .stream()
                 .filter(((Predicate<? super String>) Strings::isNullOrEmpty).negate())
@@ -72,16 +74,24 @@ class ComPortRequest extends IdBusinessObjectRequest {
                 .collect(Collectors.toList());
     }
 
-    private ComPort findComPort (String comPortName) {
+    private ComPort findComPort(String comPortName) {
         return this.comServer.getComServer()
                 .getComPorts()
                 .stream()
-                .filter(each -> each.getName().equals(comPortName))
+                .filter(each -> {
+                    try {
+                        return each.getName()
+                                .equals(
+                                        URLDecoder.decode(comPortName, "UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        throw new NotFoundException("ComPort with name " + comPortName + " not found");
+                    }
+                })
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("ComPort with name " + comPortName + " not found"));
     }
 
-    private ComPort findComPort (long comPortId) {
+    private ComPort findComPort(long comPortId) {
         return this.comServer.getComServer()
                 .getComPorts()
                 .stream()
@@ -91,7 +101,7 @@ class ComPortRequest extends IdBusinessObjectRequest {
     }
 
     @Override
-    public void applyTo (EventPublisher eventPublisher) {
+    public void applyTo(EventPublisher eventPublisher) {
         eventPublisher.narrowInterestToComPorts(null, this.comPorts);
     }
 
