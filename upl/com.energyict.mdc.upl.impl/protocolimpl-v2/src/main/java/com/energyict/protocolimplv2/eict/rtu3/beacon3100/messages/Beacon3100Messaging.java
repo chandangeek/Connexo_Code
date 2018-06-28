@@ -76,6 +76,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.google.common.io.BaseEncoding;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
@@ -2375,7 +2376,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void writeUplinkMaxInactiveInterval(OfflineDeviceMessage pendingMessage) throws IOException {
         int maxInactiveUplinkSeconds = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.uplinkMaxInactiveInterval).getValue());
 
-        Integer64Unsigned data = new Integer64Unsigned(maxInactiveUplinkSeconds);
+        Unsigned32 data = new Unsigned32(maxInactiveUplinkSeconds);
 
         getFirmwareConfigurationIC().writeFirmwareConfigurationAttribute(FirmwareConfigurationAttributes.MAX_INACTIVE_UPLINK, data);
     }
@@ -2472,7 +2473,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final SNMPSetup snmpSetup = getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE);
         snmpSetup.writeAttribute(SNMPAttributes.SYSTEM_CONTACT, UTF8String.fromString(systemContact));
         snmpSetup.writeAttribute(SNMPAttributes.SYSTEM_LOCATION, UTF8String.fromString(systemLocation));
-        snmpSetup.writeAttribute(SNMPAttributes.LOCAL_ENGINE_ID, OctetString.fromString(localEngineId));
+        snmpSetup.writeAttribute(SNMPAttributes.LOCAL_ENGINE_ID, new OctetString( BaseEncoding.base16().decode(localEngineId) ));
         snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_TYPE, new TypeEnum(notificationTypeInt));
         snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_USER, new TypeEnum(notificationUserProfileInt));
         snmpSetup.writeAttribute(SNMPAttributes.NOTIFICATION_HOST, OctetString.fromString(notificationHost));
