@@ -1094,6 +1094,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     public enum NTPAuthMode {
         No_Security(0, "No_Security"),
         Shared_Secrets(1, "Shared_Secrets"),
+        // THIS IS NOT SUPPORTED BY THE BEACON as
         Auto_Key_IFF(2, "Auto_Key_IFF");
 
         private final int id;
