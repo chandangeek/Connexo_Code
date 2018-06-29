@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -48,8 +47,7 @@ public abstract class BaseComTaskExecutionInfoFactory<T extends BaseComTaskExecu
                         .map(ComTaskExecutionSession::getHighestPriorityCompletionCode)
                         .map(this::infoFrom)
                         .orElse(null);
-        info.startTime = comTaskExecution.getExecutionStartedTimestamp() == null || comTaskExecution.getExecutionStartedTimestamp() == Instant.EPOCH ?
-                comTaskExecution.getLastExecutionStartTimestamp() : comTaskExecution.getLastExecutionStartTimestamp();
+        info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         info.version = comTaskExecution.getVersion();
