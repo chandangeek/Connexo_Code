@@ -7,8 +7,8 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.engine.impl.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.engine.impl.DeviceIdentifierById;
-import com.energyict.mdc.engine.impl.DeviceIdentifierByMRID;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
@@ -36,13 +36,13 @@ class DeviceRequest extends IdBusinessObjectRequest {
         this.validateDeviceIds();
     }
 
-    DeviceRequest(DeviceService deviceService, String... deviceMRIDs) {
+    DeviceRequest(DeviceService deviceService, String... deviceNames) {
         super(null);
-        if (deviceMRIDs == null) {
-            throw new IllegalArgumentException("deviceMRID cannot be null");
+        if (deviceNames == null) {
+            throw new IllegalArgumentException("deviceName cannot be null");
         }
         this.deviceService = deviceService;
-        this.validateDeviceMRIDs(Arrays.asList(deviceMRIDs));
+        this.validateDeviceNames(Arrays.asList(deviceNames));
     }
 
     @Override
@@ -61,10 +61,10 @@ class DeviceRequest extends IdBusinessObjectRequest {
                 .collect(Collectors.toList());
     }
 
-    private void validateDeviceMRIDs(List<String> deviceMRIDs) {
-        this.devices = deviceMRIDs
+    private void validateDeviceNames(List<String> deviceNames) {
+        this.devices = deviceNames
                 .stream()
-                .map(this::findDeviceByMRIDOrThrowException)
+                .map(this::findDeviceByNameOrThrowException)
                 .collect(Collectors.toList());
     }
 
@@ -74,10 +74,10 @@ class DeviceRequest extends IdBusinessObjectRequest {
                 .orElseThrow(() -> CanNotFindForIdentifier.device(DeviceIdentifierById.from(id), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
-    private Device findDeviceByMRIDOrThrowException(String mRID) {
+    private Device findDeviceByNameOrThrowException(String deviceName) {
         return this.deviceService
-                .findDeviceByMrid(mRID)
-                .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierByMRID(mRID), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
+                .findDeviceByMrid(deviceName)
+                .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierByDeviceName(deviceName), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
     @Override
