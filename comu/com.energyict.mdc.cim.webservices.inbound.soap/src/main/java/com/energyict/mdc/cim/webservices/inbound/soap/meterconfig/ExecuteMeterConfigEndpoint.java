@@ -14,6 +14,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -24,7 +25,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
@@ -36,6 +36,7 @@ import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 
 import javax.inject.Inject;
+
 
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
@@ -56,8 +57,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private volatile ServiceCallCommands serviceCallCommands;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
-    private volatile InboundCIMWebServiceExtension webServiceExtension;
-
+    private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory ;
 
 
     @Inject
@@ -65,7 +65,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                                       MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder,
                                       ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtension) {
+                                      MeterConfigParser meterConfigParser, WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -76,7 +76,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
-        this.webServiceExtension = webServiceExtension;
+        this.webServiceExtensionFactory = webServiceExtensionFactory;
     }
 
     @Override
@@ -213,8 +213,10 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo){
-        if (webServiceExtension != null)
-            webServiceExtension.extendMeterInfo(device, meterInfo);
+        if (webServiceExtensionFactory != null) {
+            if (webServiceExtensionFactory.getWebServiceExtension().isPresent())
+                webServiceExtensionFactory.getWebServiceExtension().get().extendMeterInfo(device, meterInfo);
+        }
     }
 
     @Override

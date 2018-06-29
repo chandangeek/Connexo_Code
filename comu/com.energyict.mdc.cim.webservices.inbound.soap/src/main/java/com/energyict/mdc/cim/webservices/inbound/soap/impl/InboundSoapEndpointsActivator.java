@@ -32,6 +32,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -48,6 +49,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,6 +62,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 
 
 @Singleton
@@ -97,7 +101,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile JsonService jsonService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile WebServicesService webServicesService;
-    private volatile InboundCIMWebServiceExtension webServiceExtension;
+    private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory = new InboundCIMWebServiceExtensionFactory();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -115,8 +119,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
-                                         WebServicesService webServicesService, InboundCIMWebServiceExtension
-                                         inboundCIMWebServiceExtension) {
+                                         WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -137,7 +140,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         setWebServicesService(webServicesService);
-        setWebServiceExtension(inboundCIMWebServiceExtension);
+        setWebServiceExtensionFactory(webServiceExtensionFactory);
         activate(bundleContext);
     }
 
@@ -167,7 +170,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(WebServicesService.class).toInstance(webServicesService);
-                bind(InboundCIMWebServiceExtension.class).toInstance(webServiceExtension);
+                bind(InboundCIMWebServiceExtensionFactory.class).toInstance(webServiceExtensionFactory);
             }
         };
     }
@@ -312,9 +315,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         this.webServicesService = webServicesService;
     }
 
-    @Reference
-    public void setWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtension = webServiceExtension;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    public void setWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtensionFactory.setWebServiceExtension(webServiceExtension);
+    }
+
+    public void unsetWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtensionFactory.unsetWebServiceExtension(webServiceExtension);
     }
 
     @Override

@@ -108,9 +108,6 @@ public abstract class AbstractMockActivator {
     @Mock
     protected WebServicesService webServicesService;
 
-    @Mock
-    protected InboundCIMWebServiceExtension inboundCIMWebServiceExtension;
-
     private InboundSoapEndpointsActivator activator;
 
     @Before
@@ -150,7 +147,6 @@ public abstract class AbstractMockActivator {
         activator.setCustomPropertySetService(customPropertySetService);
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
-        activator.setWebServiceExtension(inboundCIMWebServiceExtension);
         activator.activate(mock(BundleContext.class));
     }
 

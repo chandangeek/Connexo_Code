@@ -63,7 +63,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
-    private InboundCIMWebServiceExtension webServiceExtension;
+    private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
 
     public MeterConfigServiceCallHandler(){
 
@@ -105,11 +105,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void addInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtension = webServiceExtension;
+        this.webServiceExtension = Optional.of(webServiceExtension);
     }
 
     public void removeInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtension = null;
+        this.webServiceExtension = Optional.empty();
     }
 
     private void processMeterConfigServiceCall(ServiceCall serviceCall)  {
@@ -191,8 +191,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo){
-        if(webServiceExtension != null)
-            webServiceExtension.extendMeterInfo(device, meterInfo);
+        webServiceExtension.ifPresent(inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
     }
 
     private DeviceBuilder getDeviceBuilder() {
