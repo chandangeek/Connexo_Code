@@ -170,13 +170,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.append(".id and ctes.comsession = cs.id ");
             if (!this.isNull(this.lastSessionStart)) {
                 this.appendWhereOrAnd();
-                this.appendIntervalWhereClause("ctes", "LASTEXECUTIONTIMESTAMP", this.lastSessionStart, IntervalBindStrategy.MILLIS);
+                this.appendIntervalWhereClause("cte", "LASTEXECUTIONTIMESTAMP", this.lastSessionStart, IntervalBindStrategy.MILLIS);
             }
             if (!this.isNull(this.lastSessionEnd)) {
                 this.append("and (ctes.successindicator =");
                 this.addInt(ComTaskExecutionSession.SuccessIndicator.Success.ordinal());
                 this.appendWhereOrAnd();
-                this.appendIntervalWhereClause("ctes", "LASTSUCCESSFULCOMPLETION", this.lastSessionEnd, IntervalBindStrategy.MILLIS);
+                this.appendIntervalWhereClause("cte", "LASTSUCCESSFULCOMPLETION", this.lastSessionEnd, IntervalBindStrategy.MILLIS);
                 this.append(" )");
             }
             this.append(")");
