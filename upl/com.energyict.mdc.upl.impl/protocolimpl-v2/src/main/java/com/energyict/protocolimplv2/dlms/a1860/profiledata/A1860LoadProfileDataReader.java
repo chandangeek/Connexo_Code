@@ -198,7 +198,10 @@ public class A1860LoadProfileDataReader {
 
     private ObisCode getInstrumentationReadableObisCode(ObisCode obis, DLMSClassId classId) {
         //because the only the instant instrumentation obis is available to be readout as a separate register we need to change field D of the instrumentation channel and always set it to 7
-        if(classId.equals(DLMSClassId.REGISTER) || classId.equals(DLMSClassId.DEMAND_REGISTER)|| classId.equals(DLMSClassId.EXTENDED_REGISTER)) {
+        if(obis.getD() < 7
+                || classId.equals(DLMSClassId.REGISTER)
+                || classId.equals(DLMSClassId.DEMAND_REGISTER)
+                || classId.equals(DLMSClassId.EXTENDED_REGISTER)) {
             obis = new ObisCode(obis.getA(), obis.getB(), obis.getC(), INSTRUMENTATION_OBIS_D_VALUE, obis.getE(), obis.getF());
         }
         return obis;
