@@ -76,7 +76,7 @@ class DeviceRequest extends IdBusinessObjectRequest {
 
     private Device findDeviceByNameOrThrowException(String deviceName) {
         return this.deviceService
-                .findDeviceByMrid(deviceName)
+                .findDeviceByName(deviceName)
                 .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierByDeviceName(deviceName), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
