@@ -8,6 +8,8 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -93,7 +95,7 @@ public class SecurityTokenImpl {
             claimsSet.setCustomClaim("roles", roles);
             claimsSet.setIssuer("Elster Connexo");
             claimsSet.setCustomClaim("cnt", count);
-            claimsSet.setJWTID("token" + count);
+            claimsSet.setJWTID(base64Encode(String.valueOf(new SecureRandom().nextLong())));
             claimsSet.setIssueTime(new Date());
             claimsSet.setExpirationTime(tokenExpiration);
 
@@ -225,12 +227,10 @@ public class SecurityTokenImpl {
                 String issuer = signedJWT.getJWTClaimsSet().getIssuer();
                 Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
                 Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-                long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-                long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
                 JWSVerifier verifier = new RSASSAVerifier(publicKey);
 
                 if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                        issueTime.before(expirationTime) && count == tokenNumericTermination) {
+                        issueTime.before(expirationTime) ) {
                     return Optional.of(signedJWT);
                 }
             }
@@ -249,4 +249,8 @@ public class SecurityTokenImpl {
         }
     }
 
+    private String base64Encode(String input)
+    {
+        return Base64.getUrlEncoder().encodeToString(input.getBytes());
+    }
 }
