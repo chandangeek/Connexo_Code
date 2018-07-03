@@ -83,12 +83,12 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private final DeviceService deviceService;
     private final SecurityManagementService securityManagementService;
 
-    private final ImporterExtension importerExtension;
+    private volatile Optional<ImporterExtension> importerExtension = Optional.empty();
 
     public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore,
                                         DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
                                         SecurityManagementService securityManagementService,
-                                        ImporterExtension importerExtension) {
+                                        Optional<ImporterExtension> importerExtension) {
         this.thesaurus = thesaurus;
         this.trustStore = trustStore;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -322,22 +322,22 @@ public class SecureDeviceShipmentImporter implements FileImporter {
      */
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
-        List<NamedAttribute> deviceAttributesList = xmlDevice.getAttribute();
-        List<NamedAttribute> shipmentAttributesList = shipment.getHeader().getAttribute();
+        if (importerExtension.isPresent()) {
+            List<NamedAttribute> deviceAttributesList = xmlDevice.getAttribute();
+            List<NamedAttribute> shipmentAttributesList = shipment.getHeader().getAttribute();
 
-        Map<String, String> values = deviceAttributesList
-                .stream()
-                .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
+            Map<String, String> values = deviceAttributesList
+                    .stream()
+                    .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue));
 
-        values.putAll(shipmentAttributesList
-                .stream()
-                .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue)));
+            values.putAll(shipmentAttributesList
+                    .stream()
+                    .collect(Collectors.toMap(NamedAttribute::getName, NamedAttribute::getValue)));
 
-        if (shipment.getHeader().getDeliveryDate() != null)
-            values.put("DeliveryDate", shipment.getHeader().getDeliveryDate().toString());
+            if (shipment.getHeader().getDeliveryDate() != null)
+                values.put("DeliveryDate", shipment.getHeader().getDeliveryDate().toString());
 
-        if (importerExtension != null) {
-            importerExtension.process(device, values, logger);
+            importerExtension.get().process(device, values, logger);
             device.save();
         }
     }

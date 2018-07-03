@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 
 /**
  * This factory creates importers for the Secure
@@ -40,7 +41,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
-    private volatile ImporterExtension importExtension;
+    private volatile Optional<ImporterExtension> importExtension = Optional.empty();
 
     @Override
     public String getName() {
@@ -105,9 +106,9 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         this.deviceService = deviceService;
     }
 
-    @Reference
+    @Reference(cardinality = OPTIONAL)
     public void setImporterExtension(ImporterExtension importExtension)
-    { this.importExtension = importExtension; }
+    { this.importExtension = Optional.of(importExtension); }
 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {
