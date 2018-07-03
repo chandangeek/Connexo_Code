@@ -357,7 +357,7 @@ public class SecureDeviceKeyImporter implements FileImporter {
     private DeviceConfiguration findDefaultDeviceConfig(DeviceType deviceType) {
         DeviceConfiguration defaultDeviceConfiguration = deviceType.getConfigurations()
                 .stream()
-                .filter(dc -> dc.getName().equals("Default"))
+                .filter(DeviceConfiguration::isDefault)
                 .findAny()
                 .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_DEFAULT_DEVICE_CONFIG_FOUND));
         if (!defaultDeviceConfiguration.isActive()) {
