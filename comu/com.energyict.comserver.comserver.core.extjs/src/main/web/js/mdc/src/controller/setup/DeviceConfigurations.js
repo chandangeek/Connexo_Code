@@ -79,7 +79,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'deviceConfigurationDetailDirectlyAddressableField', selector: '#mdc-deviceConfigurationDetail-directlyAddressable'},
         {ref: 'deviceConfigurationDetailGatewayField', selector: '#mdc-deviceConfigurationDetail-gateway'},
         {ref: 'deviceConfigurationDetailDataLoggerField', selector: '#mdc-deviceConfigurationDetail-dataLogger'},
-        {ref: 'deviceConfigurationDetailMultiElementField', selector: '#mdc-deviceConfigurationDetail-multiElement'}
+        {ref: 'deviceConfigurationDetailMultiElementField', selector: '#mdc-deviceConfigurationDetail-multiElement'},
+        {ref: 'setAsDefaultMenuItem', selector: '#setAsDefaultMenuItem'},
+        {ref: 'removeAsDefaultMenuItem', selector: '#removeAsDefaultMenuItem'},
+
     ],
 
     originalObisCode: null,
@@ -145,6 +148,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             'edit-logbook-configuration #mdc-restore-obiscode-btn': {
                 click: this.onRestoreObisCodeBtnClicked
+            },
+            'device-configuration-action-menu menuitem[action=setAsDefault]': {
+                click: this.setAsDefaultConfiguration
+            },
+            'device-configuration-action-menu menuitem[action=removeAsDefault]': {
+                click: this.setAsDefaultConfiguration
             }
         });
     },
@@ -1049,6 +1058,33 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var me = this;
         me.getObisCodeField().setValue(me.originalObisCode);
         me.onObisCodeChange(me.getObisCodeField(), me.originalObisCode);
-    }
+    },
 
+    setAsDefaultConfiguration: function (btn) {
+        var me = this,
+            record = btn.up('device-configuration-action-menu').record,
+            page = Ext.ComponentQuery.query('contentcontainer')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            deviceTypeId = router.arguments['deviceTypeId'],
+            newDefaultValue =  !record.get('isDefault');
+
+        page.setLoading();
+        record.set('isDefault', newDefaultValue);
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + deviceTypeId + "/deviceconfigurations/" + record.get('id') + '/default',
+            method: 'PUT',
+            jsonData: record.getData(),
+            success: function () {
+                router.getRoute().forward();
+                if (newDefaultValue){
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.setAsDefault', 'MDC', 'Device configuration set as default'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.removeAsDefault', 'MDC', 'Device configuration removed as default'));
+                }
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
+    }
 });

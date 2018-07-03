@@ -82,6 +82,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'isDefault',
+                                    fieldLabel: Uni.I18n.translate('general.default', 'MDC', 'Default'),
+                                    renderer: function (value) {
+                                        return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                     name: 'active',
                                     renderer: function (value) {
