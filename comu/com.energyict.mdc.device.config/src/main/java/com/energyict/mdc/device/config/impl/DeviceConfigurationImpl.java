@@ -104,6 +104,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 /**
  * Provides an implementation for the {@link DeviceConfiguration} interface.
  */
@@ -125,7 +127,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
         DATALOGGER_ENABLED("dataloggerEnabled"),
         VALIDATE_ON_STORE("validateOnStore"),
-        MULTI_ELEMENT_ENABLED("multiElementEnabled");
+        MULTI_ELEMENT_ENABLED("multiElementEnabled"),
+        IS_DEFAULT("isDefault");
 
         private final String javaFieldName;
 
@@ -192,6 +195,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private boolean dataloggerEnabled;
     private boolean multiElementEnabled;
     private boolean validateOnStore;
+    private boolean isDefault;
 
     private PropertySpecService propertySpecService;
 
@@ -1510,6 +1514,27 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public boolean isMultiElementEnabled() {
         return this.multiElementEnabled;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return this.isDefault;
+    }
+
+    @Override
+    public void setDefaultStatus(boolean value) {
+        if (value) {
+            this.clearOldDefault();
+        }
+        this.isDefault = value;
+        super.save();
+    }
+
+    private void clearOldDefault(){
+        getDataModel()
+                .query(DeviceConfigurationImpl.class)
+                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true))
+                .forEach(deviceConfiguration -> deviceConfiguration.setDefaultStatus(false));
     }
 
     public boolean getValidateOnStore() {

@@ -249,6 +249,12 @@ public enum TableSpecs {
             table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).since(version(10, 2)).add();
             table.column("VALIDATEONSTORE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.VALIDATE_ON_STORE.fieldName()).since(version(10, 3)).add();
             table.column("MULTI_ELEMENT").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.MULTI_ELEMENT_ENABLED.fieldName()).since(version(10, 3)).add();
+            table.column("ISDEFAULT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2BOOLEAN)
+                    .map(DeviceConfigurationImpl.Fields.IS_DEFAULT.fieldName())
+                    .since(version(10,4, 2))
+                    .add();
             table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();

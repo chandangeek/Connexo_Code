@@ -37,6 +37,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -132,6 +133,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
@@ -689,9 +691,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 4), UpgraderV10_4.class,
-                        Version.version(10, 4, 1), UpgraderV10_4_1.class
-                ));
-        initPrivileges();
+                        Version.version(10, 4, 1), UpgraderV10_4_1.class,
+                        Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class));
+                initPrivileges();
     }
 
     @Override

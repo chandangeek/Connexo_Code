@@ -54,8 +54,11 @@ import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
 import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -821,4 +824,29 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createSubmeterConfigWithoutResourcesTest").add();
         deviceConfiguration.activate();
     }
+
+    @Test
+    @Transactional
+    public void newConfigurationIsNotSetAsDefault(){
+        DeviceConfiguration deviceConfiguration = this.deviceType.newConfiguration("configuration").add();
+        assertFalse(deviceConfiguration.isDefault());
+    }
+
+    @Test
+    @Transactional
+    public void onlyOneConfigurationIsDefault(){
+        DeviceConfiguration deviceConfiguration1 = this.deviceType.newConfiguration("configuration1").add();
+        DeviceConfiguration deviceConfiguration2 = this.deviceType.newConfiguration("configuration2").add();
+
+        deviceConfiguration1.setDefaultStatus(true);
+        deviceConfiguration2.setDefaultStatus(true);
+
+        List<DeviceConfigurationImpl> configurations = inMemoryPersistence.getDataModel()
+                .query(DeviceConfigurationImpl.class)
+                .select(where(DeviceConfigurationImpl.Fields.IS_DEFAULT.fieldName()).isEqualTo(true));
+
+        assertThat(configurations.size()).isEqualTo(1);
+        assertEquals("configuration2", configurations.get(0).getName());
+    }
+
 }
