@@ -60,13 +60,13 @@ public class ConnexoSecurityTokenManager {
                     Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
                     Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
                     long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-                    long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
+                    //long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
 
                     JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) rsaKey);
 
 
                     if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                            issueTime.before(expirationTime) && count == tokenNumericTermination && count < MAX_COUNT) {
+                            issueTime.before(expirationTime) && count < MAX_COUNT) {// && count == tokenNumericTermination
                         if (new Date().before(new Date(expirationTime.getTime()))) {
                             return constructPrincipal(signedJWT, token);
                         } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
