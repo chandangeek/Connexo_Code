@@ -41,6 +41,7 @@ public class DeviceConfigurationInfo {
     public VersionInfo<Long> parent;
     public Boolean dataloggerEnabled;
     public Boolean multiElementEnabled;
+    public Boolean isDefault;
 
     public DeviceConfigurationInfo() {
     }
@@ -68,6 +69,7 @@ public class DeviceConfigurationInfo {
                 deviceFunction = deviceProtocol.getDeviceFunction();
             }
         });
+        isDefault = deviceConfiguration.isDefault();
     }
 
     public static List<DeviceConfigurationInfo> from(List<DeviceConfiguration> deviceConfigurations) {

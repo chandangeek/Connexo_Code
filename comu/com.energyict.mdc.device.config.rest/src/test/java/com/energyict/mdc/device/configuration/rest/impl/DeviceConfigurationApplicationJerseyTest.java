@@ -23,6 +23,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
@@ -42,6 +43,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -50,6 +52,8 @@ import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.DeviceService;
@@ -88,7 +92,9 @@ import org.junit.BeforeClass;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -353,5 +359,37 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(deviceLifeCycle.getId()).thenReturn(1L);
         when(deviceLifeCycle.getName()).thenReturn("Default");
         return deviceLifeCycle;
+    }
+
+    protected <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).then(invocation -> list.stream());
+        return finder;
+    }
+
+    DeviceConfiguration mockDeviceConfiguration(long id, DeviceType deviceType) {
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
+        when(deviceConfiguration.getId()).thenReturn(id);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        deviceType.getConfigurations().add(deviceConfiguration);
+        List<RegisterSpec> registerSpec = new ArrayList<>();
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(registerSpec);
+        List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(partialConnectionTasks);
+
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findDeviceConfiguration(id);
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService)
+                .findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService)
+                .findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION);
+
+        return deviceConfiguration;
     }
 }
