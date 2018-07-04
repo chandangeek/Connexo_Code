@@ -8,6 +8,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -24,6 +25,8 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -56,12 +59,13 @@ public class UsagePointOutputValidationResource {
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
+    private final ValidationService validationService;
 
     @Inject
     UsagePointOutputValidationResource(UsagePointService usagePointService, UsagePointConfigurationService usagePointConfigurationService,
                                        PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
                                        ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory,
-                                       ResourceHelper resourceHelper) {
+                                       ResourceHelper resourceHelper, ValidationService validationService) {
         this.usagePointService = usagePointService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
@@ -69,6 +73,7 @@ public class UsagePointOutputValidationResource {
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
+        this.validationService = validationService;
     }
 
     @GET
@@ -81,24 +86,32 @@ public class UsagePointOutputValidationResource {
     public PagedInfoList getUsagePointChannelValidationConfiguration(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        ReadingTypeDeliverable deliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, usagePoint.getName());
+        ChannelsContainer channelsContainer = resourceHelper.findChannelsContainerOrThrowException(currentEffectiveMC, metrologyContract);
         ReadingType readingType = deliverable.getReadingType();
         UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
-        List<ChannelValidationRuleInfo> infos = usagePointConfigurationService.getValidationRuleSets(deliverable.getMetrologyContract())
+        List<ChannelValidationRuleInfo> infos = usagePointConfigurationService.getValidationRuleSets(metrologyContract)
                 .stream()
                 .flatMap(validationRuleSet -> validationRuleSet.getRuleSetVersions().stream())
                 .flatMap(validationRuleSetVersion -> validationRuleSetVersion.getRules(Collections.singleton(readingType)).stream())
-                .map(validationRule -> asInfo(validationRule, readingType, usagePointValidation))
+                .map(validationRule -> asInfo(validationRule, readingType, usagePointValidation, metrologyContract, channelsContainer))
                 .collect(Collectors.toMap(Function.identity(), Function.identity(), ChannelValidationRuleInfo::chooseEffectiveOne)).values().stream()
                 .sorted(ChannelValidationRuleInfo.defaultComparator())
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("validation", infos, queryParameters);
     }
 
-    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, UsagePointValidation usagePointValidation) {
+    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, UsagePointValidation usagePointValidation, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
+        boolean validationActive = validationService.isValidationActive(channelsContainer);
+        List<ValidationRuleSet> activeRuleSets = validationActive ?
+                usagePointConfigurationService.getActiveValidationRuleSets(metrologyContract, channelsContainer) :
+                Collections.emptyList();
+
         return usagePointValidation.findOverriddenProperties(validationRule, readingType)
-                .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties))
-                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType));
+                .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties, activeRuleSets, validationActive))
+                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, activeRuleSets, validationActive));
     }
 
     @GET
@@ -113,11 +126,14 @@ public class UsagePointOutputValidationResource {
                                                                             @PathParam("outputId") long outputId, @PathParam("ruleId") long ruleId,
                                                                             @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        ReadingTypeDeliverable deliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, usagePoint.getName());
+        ChannelsContainer channelsContainer = resourceHelper.findChannelsContainerOrThrowException(currentEffectiveMC, metrologyContract);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
         validateRuleApplicability(validationRule, deliverable);
         UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
-        return asInfo(validationRule, deliverable.getReadingType(), usagePointValidation);
+        return asInfo(validationRule, deliverable.getReadingType(), usagePointValidation, metrologyContract, channelsContainer);
     }
 
     @POST

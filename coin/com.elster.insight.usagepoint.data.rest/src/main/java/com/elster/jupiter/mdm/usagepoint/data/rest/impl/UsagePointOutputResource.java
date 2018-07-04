@@ -13,6 +13,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
@@ -23,6 +24,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -133,6 +135,8 @@ public class UsagePointOutputResource {
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
+    private final Provider<PurposeEstimationResource> purposeEstimationResourceProvider;
+    private final Provider<PurposeValidationResource> purposeValidationResourceProvider;
     private final Thesaurus thesaurus;
 
 
@@ -164,7 +168,9 @@ public class UsagePointOutputResource {
             TransactionService transactionService,
             UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper,
             Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
-            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
+            Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider,
+            Provider<PurposeEstimationResource> purposeEstimationResourceProvider,
+            Provider<PurposeValidationResource> purposeValidationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -190,6 +196,8 @@ public class UsagePointOutputResource {
         this.usagePointOutputsHistoryHelper = usagePointOutputsHistoryHelper;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
+        this.purposeEstimationResourceProvider = purposeEstimationResourceProvider;
+        this.purposeValidationResourceProvider = purposeValidationResourceProvider;
     }
 
     @GET
@@ -377,6 +385,17 @@ public class UsagePointOutputResource {
     public UsagePointOutputEstimationResource getUsagePointOutputEstimationResource() {
         return usagePointOutputEstimationResourceProvider.get();
     }
+
+    @Path("/{purposeId}/estimationrulesets")
+    public PurposeEstimationResource getPurposeEstimationResource() {
+        return purposeEstimationResourceProvider.get();
+    }
+
+    @Path("/{purposeId}/validationrulesets")
+    public PurposeValidationResource getPurposeValidationResource() {
+        return purposeValidationResourceProvider.get();
+    }
+
 
     @GET
     @Transactional
@@ -1118,7 +1137,7 @@ public class UsagePointOutputResource {
     private boolean validateIfPossible(ChannelsContainer channelsContainer, MetrologyContract contract, Instant lastCheckedCandidate) {
         Instant actuallyValidateFrom = resolveTimestampToValidateFrom(channelsContainer, lastCheckedCandidate);
         return Ranges.nonEmptyIntersection(channelsContainer.getInterval().toOpenClosedRange(), Range.atLeast(actuallyValidateFrom))
-                .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate))
+                .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate, channelsContainer))
                 .map(rangeToValidate -> {
                     validationService.validate(
                             new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, contract),
@@ -1135,11 +1154,17 @@ public class UsagePointOutputResource {
                 .plusMillis(1); // need to exclude lastChecked timestamp itself from validation
     }
 
-    private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate) {
+    private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate, ChannelsContainer channelsContainer) {
+        if (!validationService.isValidationActive(channelsContainer)){
+            return false;
+        }
+
         Set<ReadingType> readingTypes = contract.getDeliverables().stream()
                 .map(ReadingTypeDeliverable::getReadingType)
                 .collect(Collectors.toSet());
-        return usagePointConfigurationService.getValidationRuleSets(contract).stream()
+
+        return usagePointConfigurationService.getActiveValidationRuleSets(contract, channelsContainer)
+                .stream()
                 .map(ValidationRuleSet::getRuleSetVersions)
                 .flatMap(List::stream)
                 .filter(version -> Ranges.nonEmptyIntersection(version.getRange(), rangeToValidate).isPresent())
@@ -1241,7 +1266,29 @@ public class UsagePointOutputResource {
     }
 
     private EstimationReport estimate(ChannelsContainer channelsContainer) {
+        if (this.getActiveEstimationRuleSets(channelsContainer).isEmpty()){
+            throw exceptionFactory.newException(MessageSeeds.NOTHING_TO_ESTIMATE);
+        }
         return estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange());
+    }
+
+    private List<EstimationRuleSet> getActiveEstimationRuleSets(ChannelsContainer channelsContainer) {
+        if (estimationService.isEstimationActive(channelsContainer)) {
+            List<EstimationRuleSet> activeRuleSets = estimationService.activeRuleSets(channelsContainer);
+            return this.getLinkedRuleSets(channelsContainer)
+                    .stream()
+                    .filter(activeRuleSets::contains)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    private List<EstimationRuleSet> getLinkedRuleSets(ChannelsContainer channelsContainer){
+        if (channelsContainer instanceof MetrologyContractChannelsContainer){
+            MetrologyContract metrologyContract = ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract();
+            return usagePointConfigurationService.getEstimationRuleSets(metrologyContract);
+        }
+        return Collections.emptyList();
     }
 
     private void revalidate(EstimationReport estimationReport) {
