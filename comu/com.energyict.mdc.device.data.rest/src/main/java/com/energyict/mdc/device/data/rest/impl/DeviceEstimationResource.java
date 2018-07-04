@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.rest.EstimationStatusInfo;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -12,7 +13,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -81,7 +81,7 @@ public class DeviceEstimationResource {
         return Response.ok().build();
     }
 
-    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
+    private void updateEstimationStatus(EstimationStatusInfo info, Device device) {
         if (info.active) {
             device.forEstimation().activateEstimation();
         } else {

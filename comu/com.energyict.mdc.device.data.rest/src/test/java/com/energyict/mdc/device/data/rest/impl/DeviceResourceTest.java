@@ -31,6 +31,7 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.rest.EstimationStatusInfo;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -2501,7 +2502,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13l;
-        info.estimationStatus = new DeviceEstimationStatusInfo();
+        info.estimationStatus = new EstimationStatusInfo();
         info.estimationStatus.active = true;
         info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
@@ -2525,7 +2526,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.estimationStatus = new DeviceEstimationStatusInfo();
+        info.estimationStatus = new EstimationStatusInfo();
         info.estimationStatus.active = false;
         info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
