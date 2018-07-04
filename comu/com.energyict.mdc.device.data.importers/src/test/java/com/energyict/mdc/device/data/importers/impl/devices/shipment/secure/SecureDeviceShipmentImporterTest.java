@@ -97,6 +97,7 @@ public class SecureDeviceShipmentImporterTest {
         when(deviceConfig.isActive()).thenReturn(true);
         when(deviceConfig.isDefault()).thenReturn(true);
         SecureDeviceShipmentImporter secureDeviceShipmentImporter = this.setupSecureShipmentImporter(deviceConfig);
+
         secureDeviceShipmentImporter.process(fileImportOccurrence);
 
         verify(deviceSecretImporter, times(160)).importSecret(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
