@@ -12,11 +12,30 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
         'Bpm.store.task.TasksFilterProcesses',
         'Bpm.store.task.TasksFilterStatuses',
         'Bpm.store.task.TasksFilterWorkgroups',
-        'Bpm.store.task.TasksFilterUsers'
+        'Bpm.store.task.TasksFilterUsers',
+        'Bpm.store.task.Devices'
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            objectStore = Ext.getStore('Bpm.store.task.Devices') || Ext.create('Bpm.store.task.Devices'),
+            applicationName = Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'],
+            objectType, dataIndex, emptyText;
+
+        if (applicationName === 'MDC') {
+            objectStore.getProxy().setExtraParam('nameOnly', true);
+            objectStore.getProxy().setMdcUrl();
+            objectType = 'deviceId';
+            dataIndex = 'name';
+            emptyText = Uni.I18n.translate('bpm.filter.device', 'BPM', 'Device');
+        }
+        else if (applicationName === 'INS') {
+            objectStore.getProxy().setExtraParam('nameOnly', true);
+            objectStore.getProxy().setMdmUrl();
+            objectType = 'usagePointId';
+            dataIndex = 'name';
+            emptyText = Uni.I18n.translate('bpm.filter.usagePoint', 'BPM', 'Usage point');
+        }
 
         me.filters = [
             {
@@ -69,8 +88,61 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Bpm.store.task.TasksFilterUsers'
-            }
+            },
+            {
+                type: 'combobox',
+                itemId: 'object-filter',
+                dataIndex: dataIndex,
+                emptyText: emptyText,
+                displayField: 'name',
+                valueField: 'name',
+                store: objectStore,
+                queryMode: 'remote',
+                queryParam: 'name',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                forceSelection: false,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                },
+                applyParamValue: function (params, includeUndefined, flattenObjects) {
+                    var me = this,
+                        record = me.findRecord(me.valueField || me.displayField, me.getValue());
+                    if (record) {
+                        var mRID = record.get('mRID'),
+                            queryString = Uni.util.QueryString.getQueryStringValues(false);
+
+                        params[objectType] = mRID;
+                        queryString[objectType] = mRID;
+                        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    }
+
+                }
+            },
         ];
         me.callParent(arguments);
+    },
+
+    comboLimitNotification: function (combo) {
+        var picker = combo.getPicker(),
+            fn = function (view) {
+                var store = view.getStore(),
+                    el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+                if (store.getTotalCount() > store.getCount()) {
+                    el.appendChild({
+                        tag: 'li',
+                        html: Uni.I18n.translate('bpm.limitNotification', 'BPM', 'Keep typing to narrow down'),
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
+                    });
+                }
+            };
+
+        picker.on('refresh', fn);
+        picker.on('beforehide', function () {
+            picker.un('refresh', fn);
+        }, combo, {single: true});
     }
     });

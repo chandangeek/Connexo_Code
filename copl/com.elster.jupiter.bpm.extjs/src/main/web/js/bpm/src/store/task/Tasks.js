@@ -5,7 +5,6 @@
 Ext.define('Bpm.store.task.Tasks', {
     extend: 'Uni.data.store.Filterable',
     model: 'Bpm.model.task.Task',
-    //autoLoad: false,
 
     proxy: {
         type: 'rest',
@@ -34,7 +33,7 @@ Ext.define('Bpm.store.task.Tasks', {
                 var value = queryString[dataIndex];
 
                 if (queryString.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
-                    if(!Ext.isArray(value)){
+                    if (!Ext.isArray(value) && dataIndex != 'deviceId' && dataIndex != 'usagePointId') {
                         value = [value];
                     }
                     var filter = {
