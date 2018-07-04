@@ -79,7 +79,9 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Functions;
@@ -137,6 +139,8 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -266,15 +270,43 @@ public class UsagePointResource {
     public PagedInfoList getUsagePoints(@BeanParam JsonQueryParameters queryParameters,
                                         @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<UsagePoint> list = queryUsagePoints(true, params);
+        if (params.containsKey("nameOnly")) {
+            Condition condition;
+            condition = Condition.TRUE;
+            if (!params.isEmpty()) {
+                String name = params.getFirst("name");
+                if (name != null) {
+                    condition = condition.and(where("name").likeIgnoreCase(name.length() == 0 ? "*" : "*" + name + "*"));
+                }
+            }
+            List<UsagePoint> list;
+            Query<UsagePoint> query = meteringService.getUsagePointQuery();
+            Order order = Order.ascending("upper(name)");
+            Optional<Integer> start = queryParameters.getStart();
+            Optional<Integer> limit = queryParameters.getLimit();
+            if (start.isPresent() && limit.isPresent()) {
+                int from = start.get() + 1;
+                list = query.select(condition, from, from + limit.get(), order);
+            } else {
+                list = query.select(condition, order);
+            }
+            List<UsagePointInfo> usagePointInfos = list
+                    .stream()
+                    .map(usagePointInfoFactory::asMinimalInfo)
+                    .collect(Collectors.toList());
 
-        List<UsagePointInfo> usagePointInfos = ListPager.of(list)
-                .from(queryParameters).find()
-                .stream()
-                .map(usagePointInfoFactory::fullInfoFrom)
-                .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
+        } else {
+            List<UsagePoint> list = queryUsagePoints(true, params);
 
-        return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
+            List<UsagePointInfo> usagePointInfos = ListPager.of(list)
+                    .from(queryParameters).find()
+                    .stream()
+                    .map(usagePointInfoFactory::fullInfoFrom)
+                    .collect(Collectors.toList());
+
+            return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
+        }
     }
 
     private List<UsagePoint> queryUsagePoints(boolean maySeeAny, QueryParameters queryParameters) {

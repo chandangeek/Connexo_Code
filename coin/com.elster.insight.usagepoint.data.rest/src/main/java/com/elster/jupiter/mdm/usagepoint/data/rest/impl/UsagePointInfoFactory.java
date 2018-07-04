@@ -230,6 +230,14 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return usagePoint.getName();
     }
 
+    public UsagePointInfo asMinimalInfo(UsagePoint usagePoint) {
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = usagePoint.getId();
+        info.mRID = usagePoint.getMRID();
+        info.name = usagePoint.getName();
+        return info;
+    }
+
     public UsagePointInfo fullInfoFrom(UsagePoint usagePoint) {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
