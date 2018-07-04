@@ -15,12 +15,14 @@ public class DeviceVersionInfo {
 
     public String name;
     public long version;
+    public String mRID;
     public VersionInfo<Long> parent;
 
     public static DeviceVersionInfo from(Device device) {
         DeviceVersionInfo deviceVersionInfo = new DeviceVersionInfo();
         deviceVersionInfo.version = device.getVersion();
         deviceVersionInfo.name = device.getName();
+        deviceVersionInfo.mRID = device.getmRID();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         deviceVersionInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return deviceVersionInfo;
