@@ -26,6 +26,7 @@ import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.remote.services.cdi.ProcessRequestBean;
@@ -56,6 +57,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -284,6 +286,40 @@ public class JbpmTaskResource {
                     .filter(deploymentPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
                     .filter(workGroupPredicate.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
                     .collect(Collectors.toList());
+
+            // filter by deviceId or usagePointId
+            if (filterProperties.containsKey("deviceId") || filterProperties.containsKey("usagepointId")){
+                String variableId = filterProperties.containsKey("deviceId") ? "deviceId" : "usagepointId";
+                String variableValue = filterProperties.get(variableId).getTextValue();
+
+                List<Long> processInstanceIds = tasks.stream()
+                        .map(Task::getTaskData)
+                        .map(TaskData::getProcessInstanceId)
+                        .collect(Collectors.toList());
+
+                if (processInstanceIds.size() >0 ) {
+                    String queryString = "select p.PROCESSINSTANCEID as processLogid " +
+                            "from processinstancelog p " +
+                            "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
+                            "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) " +
+                            " and p.PROCESSINSTANCEID IN (:processInstanceid) ";
+
+                    Query processQuery = em.createNativeQuery(queryString);
+                    processQuery.setParameter("variableid", variableId);
+                    processQuery.setParameter("variablevalue", variableValue);
+                    processQuery.setParameter("processInstanceid", processInstanceIds);
+                    List<Object> processInstanceList = processQuery.getResultList();
+                    List<Long> processInstanceListIDs = processInstanceList.stream()
+                            .map(objects -> ((BigDecimal) objects).longValue())
+                            .collect(Collectors.toList());
+
+                    List<java.util.function.Predicate<Task>> processInstanceP = new ArrayList<>();
+                    processInstanceP.add((task) -> processInstanceListIDs.contains(task.getTaskData().getProcessInstanceId()));
+                    tasks = tasks.stream()
+                            .filter(processInstanceP.stream().reduce(java.util.function.Predicate::or).orElse(t -> true))
+                            .collect(Collectors.toList());
+                }
+            }
 
             List<Comparator<Task>> sort = new ArrayList<>();
             if (!sortProperties.isEmpty()) {
