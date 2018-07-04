@@ -1077,9 +1077,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function () {
                 router.getRoute().forward();
                 if (newDefaultValue){
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.setAsDefault', 'MDC', 'Device configuration set as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.acknowledge.setAsDefault', 'MDC', 'Device configuration set as default'));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.removeAsDefault', 'MDC', 'Device configuration removed as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.acknowledge.removeAsDefault', 'MDC', 'Device configuration removed as default'));
                 }
             },
             callback: function () {
