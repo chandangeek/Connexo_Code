@@ -288,8 +288,8 @@ public class JbpmTaskResource {
                     .collect(Collectors.toList());
 
             // filter by deviceId or usagePointId
-            if (filterProperties.containsKey("deviceId") || filterProperties.containsKey("usagepointId")){
-                String variableId = filterProperties.containsKey("deviceId") ? "deviceId" : "usagepointId";
+            if (filterProperties.containsKey("deviceId") || filterProperties.containsKey("usagePointId")){
+                String variableId = filterProperties.containsKey("deviceId") ? "deviceId" : "usagePointId";
                 String variableValue = filterProperties.get(variableId).getTextValue();
 
                 List<Long> processInstanceIds = tasks.stream()
