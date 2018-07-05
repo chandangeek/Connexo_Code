@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import java.util.stream.Stream;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
-import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 
 /**
  * This factory creates importers for the Secure
@@ -106,9 +106,14 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         this.deviceService = deviceService;
     }
 
-    @Reference(cardinality = OPTIONAL)
-    public void setImporterExtension(ImporterExtension importExtension)
-    { this.importExtension = Optional.of(importExtension); }
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void setImporterExtension(ImporterExtension importExtension) {
+        this.importExtension = Optional.of(importExtension);
+    }
+
+    public void unsetImporterExtension(ImporterExtension importerExtension) {
+        this.importExtension = Optional.empty();
+    }
 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {
