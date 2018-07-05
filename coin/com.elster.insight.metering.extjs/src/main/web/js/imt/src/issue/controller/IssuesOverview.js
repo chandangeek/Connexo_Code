@@ -179,7 +179,7 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
     },
     /*
      setOverviewAlarmComponets: function (widget) {
-     widget.down('#issue-panel').setTitle(Uni.I18n.translate('device.alarms', 'DAL', 'Alarms'));
+     widget.down('#issue-panel').setTitle(Uni.I18n.translate('device.alarms', 'IMT', 'Alarms'));
      widget.down('#issues-grouping-toolbar').setVisible(false);
      widget.down('#issues-group-grid').setVisible(false);
      widget.down('menuseparator').setVisible(false);
