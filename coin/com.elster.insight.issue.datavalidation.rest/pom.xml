@@ -115,6 +115,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.issue.datavalidation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data</artifactId>
+        </dependency>
 
         <!--Test-->
         <dependency>
@@ -140,11 +144,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
