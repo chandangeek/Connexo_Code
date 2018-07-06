@@ -9,6 +9,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEnd
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -33,6 +34,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -323,6 +327,23 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     public void unsetWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
         this.webServiceExtensionFactory.unsetWebServiceExtension(webServiceExtension);
     }
+
+
+    @Reference(target = "(name=" + MeterConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMeterConfigMasterCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + MeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMeterConfigCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + GetEndDeviceEventsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setGetEndDeviceEventsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
 
     @Override
     public Layer getLayer() {
