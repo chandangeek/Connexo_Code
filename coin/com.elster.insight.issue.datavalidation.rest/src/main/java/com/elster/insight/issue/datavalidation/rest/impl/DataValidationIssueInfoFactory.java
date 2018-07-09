@@ -8,7 +8,6 @@ import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -18,7 +17,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-
 import com.elster.insight.issue.datavalidation.IssueDataValidation;
 import com.elster.insight.issue.datavalidation.IssueDataValidationService;
 import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
@@ -29,7 +27,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name="issue.data.validation.info.factory", service = { InfoFactory.class }, immediate = true)
+@Component(name = "issue.data.validation.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataValidation> {
 
     private ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -101,10 +98,10 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
         return info;
     }
 
-    private DataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<NotEstimatedBlock> blocks){
-    //, Register register) {
+    private DataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<NotEstimatedBlock> blocks) {
+        //, Register register) {
         DataValidationIssueInfo.NotEstimatedDataInfo info = new DataValidationIssueInfo.NotEstimatedDataInfo();
-       // info.registerId = register.getRegisterSpecId();
+        // info.registerId = register.getRegisterSpecId();
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
             DataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new DataValidationIssueInfo.NotEstimatedBlockInfo();
