@@ -9,6 +9,7 @@ public enum IssueTypes {
 
     DATA_COLLECTION("DCI", "datacollection"),
     DATA_VALIDATION("DVI", "datavalidation"),
+    USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
     DEVICE_ALARM("ALM", "devicealarm"),
     NA ("NA", "notapplicable");
 
@@ -32,6 +33,7 @@ public enum IssueTypes {
         switch (name){
             case "datacollection" : return IssueTypes.DATA_COLLECTION;
             case "datavalidation" : return IssueTypes.DATA_VALIDATION;
+            case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "devicealarm" : return IssueTypes.DEVICE_ALARM;
             default:return IssueTypes.NA;
         }
@@ -42,6 +44,7 @@ public enum IssueTypes {
         switch (name){
             case "DCI" : return IssueTypes.DATA_COLLECTION;
             case "DVI" : return IssueTypes.DATA_VALIDATION;
+            case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "ALM" : return IssueTypes.DEVICE_ALARM;
             default:return IssueTypes.NA;
         }
