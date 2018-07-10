@@ -62,6 +62,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
     private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
+    private static final String READ_LOGBOOK_AND_LP_COMBINED = "ReadLogbookAndLoadProfilesCombined";
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -116,6 +117,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private int limitMaxNrOfDays = 0;
     private boolean invertBillingOrder;
     private boolean useEquipmentIdentifierAsSerial;
+    private boolean readLogbookAndLoadProfilesCombined;
 
     public A1440(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
@@ -237,7 +239,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.stringSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
                 this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL),
                 this.integerSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
-                this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX));
+                this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
+                this.integerSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -288,6 +291,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
         this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
         this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
+        this.readLogbookAndLoadProfilesCombined = getBooleanProperty(properties, READ_LOGBOOK_AND_LP_COMBINED);
     }
 
     protected boolean isDataReadout() {
@@ -1026,7 +1030,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public boolean hasSupportForSeparateEventsReading() {
-        return true;
+        return !readLogbookAndLoadProfilesCombined;
     }
 
     @Override
