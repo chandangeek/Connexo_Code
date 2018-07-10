@@ -148,13 +148,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         if (loadProfiles != null) {
             for (LoadProfileReader loadProfileReader : loadProfiles) {
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
-                    if (logBookReader != null) {
+                    if (logBookReader != null && !((UPLMeterProtocolAdapter)meterProtocol).getActual().hasSupportForSeparateEventsReading()) {
                         logBookReadNotRead = false;
-                        if(((UPLMeterProtocolAdapter)meterProtocol).getActual().hasSupportForSeparateEventsReading()) { //read meter events separately, without reading the load profile
-                            collectedData.addAll(getLogBookData(logBookReader));
-                        } else {
-                            collectedData.addAll(getSingleProfileData(loadProfileReader, logBookReader));
-                        }
+                        collectedData.addAll(getSingleProfileData(loadProfileReader, logBookReader));
                     } else {
                         collectedData.addAll(getSingleProfileData(loadProfileReader));
                     }
