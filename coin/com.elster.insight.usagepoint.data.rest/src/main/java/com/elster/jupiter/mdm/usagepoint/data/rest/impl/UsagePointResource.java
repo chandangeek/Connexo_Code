@@ -281,6 +281,7 @@ public class UsagePointResource {
             }
             List<UsagePoint> list;
             Query<UsagePoint> query = meteringService.getUsagePointQuery();
+            query.setRestriction(Where.where("obsoleteTime").isNull());
             Order order = Order.ascending("upper(name)");
             Optional<Integer> start = queryParameters.getStart();
             Optional<Integer> limit = queryParameters.getLimit();
