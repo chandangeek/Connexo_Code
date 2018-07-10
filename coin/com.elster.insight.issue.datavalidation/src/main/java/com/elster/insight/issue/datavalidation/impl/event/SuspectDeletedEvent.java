@@ -7,7 +7,7 @@ package com.elster.insight.issue.datavalidation.impl.event;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.insight.issue.datavalidation.IssueDataValidationService;
 import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
@@ -15,6 +15,7 @@ import com.elster.insight.issue.datavalidation.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
@@ -23,8 +24,8 @@ public class SuspectDeletedEvent extends DataValidationEvent {
     private Instant readingTimestamp;
 
     @Inject
-    public SuspectDeletedEvent(Thesaurus thesaurus, ServerMeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService) {
-        super(thesaurus, meteringService, issueDataValidationService, issueService);
+    public SuspectDeletedEvent(Thesaurus thesaurus, MeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService, Clock clock) {
+        super(thesaurus, meteringService, issueDataValidationService, issueService, clock);
     }
 
     @Override

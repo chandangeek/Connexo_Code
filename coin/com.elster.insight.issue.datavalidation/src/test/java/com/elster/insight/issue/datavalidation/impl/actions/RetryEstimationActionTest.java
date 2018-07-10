@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RetryEstimationActionTest extends BaseTest {
-    public static final String ISSUE_DEFAULT_TYPE_UUID = "datavalidation";
+    public static final String ISSUE_DEFAULT_TYPE_UUID = "usagepointdatavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
 
     private static long intervalStart = 1410774630000L;

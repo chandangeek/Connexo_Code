@@ -96,7 +96,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "when\n" +
                 "\tevent : CannotEstimateDataEvent(metrologyConfigId in (@{" + METROLOGY_CONFIGS + "}))\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tLOGGER.info(\"Trying to create issue by usage point datavalidation rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "\n" +
@@ -104,7 +104,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "when\n" +
                 "\tevent: SuspectDeletedEvent(metrologyConfigId in (@{" + METROLOGY_CONFIGS + "}))\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tLOGGER.info(\"Trying to resolve issue by usage point datavalidation rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }

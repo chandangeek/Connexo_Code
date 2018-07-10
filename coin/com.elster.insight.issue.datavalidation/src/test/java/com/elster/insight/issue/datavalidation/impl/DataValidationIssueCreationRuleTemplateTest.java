@@ -47,7 +47,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -332,7 +332,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     }
 
     private MetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
-        ServiceCategory serviceCategory = inMemoryPersistence.getService(ServerMeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get();
+        ServiceCategory serviceCategory = inMemoryPersistence.getService(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get();
         MetrologyConfigurationService metrologyConfigurationService = inMemoryPersistence.getService(MetrologyConfigurationService.class);
         MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
         MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
@@ -351,7 +351,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     }
 
     private UsagePoint createUsagePoint(MetrologyConfiguration metrologyConfiguration, String name, Instant creationTime) {
-        MeteringService meteringService = inMemoryPersistence.getService(ServerMeteringService.class);
+        MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new IllegalStateException(ServiceKind.ELECTRICITY.getDisplayName() + " is not available"));
         UsagePointBuilder usagePointBuilder = serviceCategory.newUsagePoint(name, Instant.now());

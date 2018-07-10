@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CloseIssueActionTest extends BaseTest {
-    public static final String ISSUE_DEFAULT_TYPE_UUID = "datavalidation";
+    public static final String ISSUE_DEFAULT_TYPE_UUID = "usagepointdatavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
         @Override

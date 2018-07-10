@@ -15,9 +15,9 @@ import java.util.Optional;
 @ProviderType
 public interface IssueDataValidationService {
 
-    String COMPONENT_NAME = "IDV";
-    String ISSUE_TYPE_NAME = "datavalidation";
-    String DATA_VALIDATION_ISSUE_PREFIX = "DVI";
+    String COMPONENT_NAME = "IUV";
+    String ISSUE_TYPE_NAME = "usagepointdatavalidation";
+    String DATA_VALIDATION_ISSUE_PREFIX = "UVI";
     String DATA_VALIDATION_ISSUE_REASON = "reason.cant.estimate.data";
 
     Optional<? extends IssueDataValidation> findIssue(long id);

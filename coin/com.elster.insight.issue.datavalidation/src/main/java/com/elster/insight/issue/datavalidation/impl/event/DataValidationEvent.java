@@ -11,9 +11,9 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasId;
 import com.elster.insight.issue.datavalidation.DataValidationIssueFilter;
@@ -22,6 +22,7 @@ import com.elster.insight.issue.datavalidation.IssueDataValidationService;
 
 import com.google.inject.Inject;
 
+import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,16 +33,18 @@ public abstract class DataValidationEvent implements IssueEvent {
     protected Long metrologyConfigId;
 
     private final Thesaurus thesaurus;
-    private final ServerMeteringService meteringService;
+    private final MeteringService meteringService;
     private final IssueDataValidationService issueDataValidationService;
     private final IssueService issueService;
+    private final Clock clock;
 
     @Inject
-    public DataValidationEvent(Thesaurus thesaurus, ServerMeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService) {
+    public DataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService, Clock clock) {
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.issueDataValidationService = issueDataValidationService;
         this.issueService = issueService;
+        this.clock = clock;
     }
 
     abstract void init(Map<?, ?> jsonPayload);
@@ -58,7 +61,7 @@ public abstract class DataValidationEvent implements IssueEvent {
 
     public long getMetrologyConfigId() {
         if (metrologyConfigId == null) {
-            metrologyConfigId = getUsagePoint().getEffectiveMetrologyConfiguration(meteringService.getClock().instant()).map(HasId::getId).orElse(-1L);
+            metrologyConfigId = getUsagePoint().getEffectiveMetrologyConfiguration(clock.instant()).map(HasId::getId).orElse(-1L);
         }
         return metrologyConfigId;
     }
@@ -94,7 +97,7 @@ public abstract class DataValidationEvent implements IssueEvent {
     }
 
     private UsagePoint getUsagePoint() {
-        return findMeter().get().getUsagePoint(this.meteringService.getClock().instant()).orElse(null);
+        return findMeter().get().getUsagePoint(clock.instant()).orElse(null);
     }
 
     protected Thesaurus getThesaurus() {

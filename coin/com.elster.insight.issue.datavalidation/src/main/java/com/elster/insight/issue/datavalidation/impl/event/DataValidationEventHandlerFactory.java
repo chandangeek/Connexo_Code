@@ -9,7 +9,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,7 +38,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
-    private volatile ServerMeteringService meteringService;
+    private volatile MeteringService meteringService;
     private volatile IssueDataValidationService issueDataValidationService;
 
     //for OSGI
@@ -46,7 +46,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Inject
-    public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, ServerMeteringService meteringService, IssueDataValidationService issueDataValidationService) {
+    public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, IssueDataValidationService issueDataValidationService) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -63,7 +63,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(ServerMeteringService.class).toInstance(meteringService);
+                bind(MeteringService.class).toInstance(meteringService);
                 bind(IssueDataValidationService.class).toInstance(issueDataValidationService);
             }
         });
@@ -87,7 +87,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
