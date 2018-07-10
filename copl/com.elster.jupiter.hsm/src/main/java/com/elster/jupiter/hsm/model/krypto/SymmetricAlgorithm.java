@@ -8,7 +8,7 @@ import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.api.key.KEKEncryptionMethod;
 
 public enum SymmetricAlgorithm implements Algorithm {
-    AES_256_CBC("AES/CBC/PKCS5PADDING", "http://www.w3.org/2001/04/xmlenc#aes256-cbc") {
+    AES_256_CBC("AES/CBC/PKCS5PADDING", "http://www.w3.org/2001/04/xmlenc#aes256-cbc", 32) {
         @Override
         public HsmAlgorithmSpecs getHsmSpecs() {
             return new HsmAlgorithmSpecs(ChainingMode.CBC, PaddingAlgorithm.EME_PKCS1_V1_5, KEKEncryptionMethod.CBC);
@@ -17,11 +17,18 @@ public enum SymmetricAlgorithm implements Algorithm {
 
     private String cipherName;
     private String identifier;
+    private int keySize;
 
-
-    private SymmetricAlgorithm(String cipherName, String identifier) {
+    /**
+     *
+     * @param cipherName
+     * @param identifier
+     * @param keySize expressed in bytes, therefore AES 256 is 32 bytes
+     */
+    private SymmetricAlgorithm(String cipherName, String identifier, int keySize) {
         this.cipherName = cipherName;
         this.identifier = identifier;
+        this.keySize = keySize;
     }
 
 
@@ -37,6 +44,8 @@ public enum SymmetricAlgorithm implements Algorithm {
     public String getIdentifier() {
         return identifier;
     }
+
+    public int getKeySize(){  return this.keySize;  }
 
 
     /**

@@ -4,7 +4,11 @@ Of course these commands need to be changed based on each individual environment
 #############################
 Init JSS
 #############################
-jssinit C:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration.json
+jssinit D:/programming/intellij-workspace/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration.json
+
+Init local JSS
+#############################
+jssinit D:/programming/intellij-workspace/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/localhsm.json
 
 #############################
 Encrypt

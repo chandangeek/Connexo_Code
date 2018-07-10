@@ -32,7 +32,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
     @Override
     public HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException{
         try {
-            KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(dKey), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), keyType.toProtectedSessionKeyCapability());
+            KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), keyType.toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
