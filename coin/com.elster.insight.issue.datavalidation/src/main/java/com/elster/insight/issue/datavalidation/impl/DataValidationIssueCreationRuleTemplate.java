@@ -190,7 +190,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
             return metrologyConfigurationService
                     .findMetrologyConfiguration(Long.parseLong(stringValue))
                     //by name findMetrologyConfiguration(stringValue)
-                    //.filter(MetrologyConfiguration::isActive)
+                    .filter(MetrologyConfiguration::isActive)
                     .map(MetrologyConfigurationInfo::new)
                     .orElse(null);
         }

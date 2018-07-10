@@ -18,7 +18,7 @@ public interface IssueDataValidationService {
     String COMPONENT_NAME = "IUV";
     String ISSUE_TYPE_NAME = "usagepointdatavalidation";
     String DATA_VALIDATION_ISSUE_PREFIX = "UVI";
-    String DATA_VALIDATION_ISSUE_REASON = "reason.cant.estimate.data";
+    String DATA_VALIDATION_ISSUE_REASON = "reason.cant.estimate.usagedata";
 
     Optional<? extends IssueDataValidation> findIssue(long id);
 
