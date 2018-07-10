@@ -25,7 +25,13 @@ public class Message {
         this.charSet = charSet;
     }
 
+    public Message(byte[] bytes, Charset charSet) {
+        this.bytes = bytes;
+        this.charSet = charSet;
+    }
 
+
+    @Override
     public String toString() {
         return new String(bytes, charSet);
     }
@@ -35,5 +41,6 @@ public class Message {
     }
 
     public byte[] getBytes() { return this.bytes; }
+
 
 }

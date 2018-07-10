@@ -35,4 +35,16 @@ public enum AsymmetricAlgorithm implements Algorithm {
     public Type getType() {
         return Type.ASYMMETRIC;
     }
+
+    public String getAlgorithm(){
+        return this.cipherName.split("/")[0];
+    }
+
+    public String getChainingMode(){
+        return this.cipherName.split("/")[1];
+    }
+
+    public String getPadding(){
+        return this.cipherName.split("/")[2];
+    }
 }
