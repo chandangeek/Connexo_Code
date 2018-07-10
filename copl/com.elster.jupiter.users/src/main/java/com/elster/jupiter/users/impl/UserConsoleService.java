@@ -21,7 +21,14 @@ import java.security.Principal;
  * Created by albertv on 12/16/2014.
  */
 
-@Component(name = "com.elster.jupiter.users.console", service = {UserConsoleService.class}, property = {"name=" + "USR" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=addUser", "osgi.command.function=addApacheUserDirectory", "osgi.command.function=addActiveUserDirectory"}, immediate = true)
+@Component(name = "com.elster.jupiter.users.console", service = {UserConsoleService.class},
+        property = {"name=" + "USR" + ".console",
+                "osgi.command.scope=jupiter",
+                "osgi.command.function=addUser",
+                "osgi.command.function=addApacheUserDirectory",
+                "osgi.command.function=addActiveUserDirectory",
+                "osgi.command.function=renameGroupName" },
+        immediate = true)
 
 public class UserConsoleService {
 
@@ -110,6 +117,20 @@ public class UserConsoleService {
                 return "Jupiter Installer";
             }
         };
+    }
+
+
+    @SuppressWarnings("unused")
+    public void renameGroupName(String groupName, String newName) {
+
+        this.threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+
+            GroupImpl group = (GroupImpl) userService.findGroup(groupName).get();
+            group.setName(newName);
+            group.update();
+            context.commit();
+        }
     }
 
     @Reference
