@@ -2,13 +2,13 @@ This file contains some examples based on gogo commands that should work taking 
 Of course these commands need to be changed based on each individual environment (paths)!
 
 #############################
-Init JSS
+Init JSS with BE HSM
 #############################
-jssinit D:/programming/intellij-workspace/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration.json
+jssinit c:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration-be.json
 
-Init local JSS
+Init JSS with RO HSM
 #############################
-jssinit D:/programming/intellij-workspace/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/localhsm.json
+jssinit c:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration-ro.json
 
 #############################
 Encrypt
