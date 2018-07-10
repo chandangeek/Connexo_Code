@@ -17,6 +17,8 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -50,6 +52,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
     public static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
+    public static final String USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE = "UsagePointDataValidationIssueCreationRuleTemplate";
     public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
     private static final String SEPARATOR = ":";
@@ -59,6 +62,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final TimeService timeService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     private String type;
     private String reason;
@@ -69,13 +73,14 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.timeService = timeService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -226,6 +231,27 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
+        } else if (template.getName().equals(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE)) {
+            List<HasIdAndName> metrologyConfigurations = new ArrayList<>();
+            metrologyConfigurationService
+                    .findAllMetrologyConfigurations()
+                    .stream()
+                    .filter(MetrologyConfiguration::isActive)
+                    .forEach(metrologyConfiguration -> metrologyConfigurations.add(new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return metrologyConfiguration.getId();
+                        }
+
+                        @Override
+                        public String getName() {
+                            return metrologyConfiguration.getName();
+                        }
+                    }));
+
+            if (!metrologyConfigurations.isEmpty()) {
+                properties.put(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE + ".metrologyConfigurations", metrologyConfigurations);
+            }
         }
         return properties;
     }
