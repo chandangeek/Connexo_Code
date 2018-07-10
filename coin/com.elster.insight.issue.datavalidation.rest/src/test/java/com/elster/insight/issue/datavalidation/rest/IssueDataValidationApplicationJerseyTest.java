@@ -85,7 +85,7 @@ public abstract class IssueDataValidationApplicationJerseyTest extends FelixRest
     }
 
     protected IssueType getDefaultIssueType() {
-        return mockIssueType("datavalidation", "Data Validation");
+        return mockIssueType("usagepointdatavalidation", "Usage Point Data Validation");
     }
 
     protected IssueReason mockReason(String key, String name, IssueType issueType) {
