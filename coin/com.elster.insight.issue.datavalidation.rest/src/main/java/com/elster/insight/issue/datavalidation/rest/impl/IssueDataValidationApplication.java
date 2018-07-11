@@ -33,7 +33,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdm.issue.datavalidation.rest", service = {Application.class}, immediate = true, property = {"alias=/iuv", "app=MDM", "name=" + IssueDataValidationApplication.ISSUEDATAVALIDATION_REST_COMPONENT})
 public class IssueDataValidationApplication extends Application {
-    private static final String APP_KEY = "MDM";
+    private static final String APP_KEY = "INS";
     static final String ISSUEDATAVALIDATION_REST_COMPONENT = "IUV";
 
     private volatile TransactionService transactionService;
