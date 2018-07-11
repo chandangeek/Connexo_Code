@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.DeviceKey;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.KeyType;
@@ -30,18 +30,18 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
 
     static final String COMPONENTNAME = "HsmEnergyServiceImpl";
     @Override
-    public HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws EncryptBaseException{
+    public HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, KeyType keyType) throws HsmBaseException {
         try {
             KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), keyType.toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
-        } catch (EncryptBaseException|FunctionFailedException e) {
-            throw new EncryptBaseException(e);
+        } catch (HsmBaseException |FunctionFailedException e) {
+            throw new HsmBaseException(e);
         }
     }
 
-    public HsmEncryptedKey renewKey(byte[] deviceKey, String signKeyLabel, String deviceKeyLabel) throws EncryptBaseException {
+    public HsmEncryptedKey renewKey(byte[] deviceKey, String signKeyLabel, String deviceKeyLabel) throws HsmBaseException {
         try {
             KeyLabel keyLabel = new KeyLabel(deviceKeyLabel);
             ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(signKeyLabel), deviceKey);
@@ -53,9 +53,9 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
         } catch (FunctionFailedException e) {
-            throw new EncryptBaseException(e);
+            throw new HsmBaseException(e);
         } catch (Exception e) {
-            throw new EncryptBaseException(e);
+            throw new HsmBaseException(e);
         }
     }
 }

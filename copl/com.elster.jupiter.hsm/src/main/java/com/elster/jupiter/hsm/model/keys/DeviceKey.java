@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.model.keys;
 
 
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
 
@@ -18,7 +18,7 @@ public abstract class DeviceKey {
     private final byte[] initVector;
 
 
-    public DeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws EncryptBaseException {
+    public DeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws HsmBaseException {
         this.alg = algorithm;
         this.keyLength = keyLength;
         this.encryptedKey = encryptedKey;
@@ -47,5 +47,5 @@ public abstract class DeviceKey {
         return alg;
     }
 
-    public abstract com.atos.worldline.jss.api.custom.energy.DeviceKey toHsmFormat() throws EncryptBaseException;
+    public abstract com.atos.worldline.jss.api.custom.energy.DeviceKey toHsmFormat() throws HsmBaseException;
 }

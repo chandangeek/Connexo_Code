@@ -15,6 +15,8 @@ public enum KeyType {
      */
     SM_KEK_AUTHENTIC(ProtectedSessionKeyCapability.SM_KEK_AUTHENTIC),
     SM_KEK_NONAUTHENTIC(ProtectedSessionKeyCapability.SM_KEK_NONAUTHENTIC),
+    SM_KEK_RENEWAL(ProtectedSessionKeyCapability.SM_KEK_RENEWAL),
+
     DC_WK_CRYPTENC_NONAUTHENTIC(ProtectedSessionKeyCapability.DC_WK_CRYPTENC_NONAUTHENTIC);
 
     private final ProtectedSessionKeyCapability pskc;

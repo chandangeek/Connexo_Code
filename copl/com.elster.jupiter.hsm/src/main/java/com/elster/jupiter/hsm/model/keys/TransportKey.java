@@ -1,6 +1,6 @@
 package com.elster.jupiter.hsm.model.keys;
 
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 
 import com.atos.worldline.jss.api.key.KeyLabel;
@@ -27,11 +27,11 @@ public class TransportKey {
     }
 
 
-    public com.atos.worldline.jss.api.custom.energy.TransportKey toHsmFormat() throws EncryptBaseException {
+    public com.atos.worldline.jss.api.custom.energy.TransportKey toHsmFormat() throws HsmBaseException {
         try {
             return new com.atos.worldline.jss.api.custom.energy.TransportKey(new KeyLabel(keyLabel), keyLength , keyValue);
         } catch (UnsupportedKEKEncryptionMethodException e) {
-            throw new EncryptBaseException("Could not transform transport key", e);
+            throw new HsmBaseException("Could not transform transport key", e);
         }
     }
 

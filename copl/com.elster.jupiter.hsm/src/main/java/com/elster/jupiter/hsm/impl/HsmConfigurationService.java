@@ -5,6 +5,9 @@
 package com.elster.jupiter.hsm.impl;
 
 
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
+
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.internal.spring.JssEmbeddedRuntimeConfig;
@@ -14,12 +17,15 @@ import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.Objects;
 
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationService", service = {HsmConfigurationService.class}, immediate = true)
 public class HsmConfigurationService {
 
     private boolean initialized = false;
     private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
+
+    private HsmConfiguration hsmConfiguration;
 
     public void init(String file) {
         try {
@@ -69,8 +75,13 @@ public class HsmConfigurationService {
     @Activate
     public void activate(BundleContext context) {
         String configFile = context.getProperty(HSM_CONFIGURATION);
-        if (configFile != null) {
-            init(configFile);
+        if (Objects.nonNull(configFile)) {
+            try {
+                this.hsmConfiguration = new HsmConfigurationPropFileImpl(configFile);
+                init(hsmConfiguration.getJssInitFile());
+            } catch (HsmBaseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ import com.elster.jupiter.hsm.model.request.AuthDataDecryptRequest;
 import com.elster.jupiter.hsm.model.response.AuthDataDecryptResponse;
 import com.elster.jupiter.hsm.model.request.AuthDataEncryptRequest;
 import com.elster.jupiter.hsm.model.response.AuthDataEncryptResponse;
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class HsmAuthServiceImpIT {
 
 
     @Test
-    public void testEncrypt() throws EncryptBaseException {
+    public void testEncrypt() throws HsmBaseException {
         String keyLabel = "ENXS-KEY-P1";
         Message msg = new Message("abcd1234", Charset.defaultCharset());
         AuthDataEncryptResponse encrypt = hsmAuthService.encrypt(new AuthDataEncryptRequest(keyLabel, msg.getBytes(), null, null));

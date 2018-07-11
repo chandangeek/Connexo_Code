@@ -5,7 +5,7 @@
 package com.elster.jupiter.hsm.gogo;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 
 import org.osgi.service.component.annotations.Component;
@@ -20,7 +20,7 @@ public class HsmRenewGogo {
 
     private HsmEnergyService engService;
 
-    public HsmEncryptedKey renewKey(String deviceKey, String signKeyLabel, String deviceKeyLabel) throws EncryptBaseException {
+    public HsmEncryptedKey renewKey(String deviceKey, String signKeyLabel, String deviceKeyLabel) throws HsmBaseException {
         return this.engService.renewKey(deviceKey.getBytes(), signKeyLabel, deviceKeyLabel);
     }
 

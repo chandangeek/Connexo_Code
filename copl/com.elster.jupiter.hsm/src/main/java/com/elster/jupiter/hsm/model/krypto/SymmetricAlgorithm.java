@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.model.krypto;
 
 import com.elster.jupiter.hsm.impl.HsmAlgorithmSpecs;
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
 import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
@@ -66,15 +66,15 @@ public enum SymmetricAlgorithm implements Algorithm {
      *
      * @param identifier
      * @return
-     * @throws EncryptBaseException
+     * @throws HsmBaseException
      */
-    public static SymmetricAlgorithm getByIdentifier(String identifier) throws EncryptBaseException {
+    public static SymmetricAlgorithm getByIdentifier(String identifier) throws HsmBaseException {
         for (SymmetricAlgorithm symmetricAlgorithm : values()) {
             if (symmetricAlgorithm.getIdentifier().equals(identifier)) {
                 return symmetricAlgorithm;
             }
         }
-        throw new EncryptBaseException("Unknown symmetric algorithm:" + identifier);
+        throw new HsmBaseException("Unknown symmetric algorithm:" + identifier);
     }
 
     @Override

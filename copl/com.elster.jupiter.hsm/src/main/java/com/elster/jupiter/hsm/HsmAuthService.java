@@ -4,15 +4,15 @@ import com.elster.jupiter.hsm.model.request.AuthDataDecryptRequest;
 import com.elster.jupiter.hsm.model.response.AuthDataDecryptResponse;
 import com.elster.jupiter.hsm.model.request.AuthDataEncryptRequest;
 import com.elster.jupiter.hsm.model.response.AuthDataEncryptResponse;
-import com.elster.jupiter.hsm.model.EncryptBaseException;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface HsmAuthService {
 
-    AuthDataEncryptResponse encrypt(AuthDataEncryptRequest authDataEncRequest) throws EncryptBaseException;
+    AuthDataEncryptResponse encrypt(AuthDataEncryptRequest authDataEncRequest) throws HsmBaseException;
 
-    AuthDataDecryptResponse decrypt(AuthDataDecryptRequest authDataEncRequest) throws EncryptBaseException;
+    AuthDataDecryptResponse decrypt(AuthDataDecryptRequest authDataEncRequest) throws HsmBaseException;
 
 }
