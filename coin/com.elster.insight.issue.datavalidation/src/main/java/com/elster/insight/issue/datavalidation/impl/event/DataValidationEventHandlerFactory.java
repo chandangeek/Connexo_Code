@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
         immediate = true)
 public class DataValidationEventHandlerFactory implements MessageHandlerFactory {
 
-    public static final String AQ_DATA_VALIDATION_EVENT_SUBSCRIBER = "IssueCreationDV";
+    public static final String AQ_DATA_VALIDATION_EVENT_SUBSCRIBER = "IssueCreationUPDV";
 
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
