@@ -78,7 +78,7 @@ public class IssueDataValidationServiceTest {
 
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
-    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(UsagePointDataValidationIssueCreationRuleTemplateTest.getTransactionService());
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueDataValidationService issueDataValidationService;
@@ -86,35 +86,35 @@ public class IssueDataValidationServiceTest {
 
     @BeforeClass
     public static void initialize() throws SQLException {
-        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(MetrologyConfigurationService.class));
-        DataValidationIssueCreationRuleTemplateTest.initializeClock();
-        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
+        UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(MetrologyConfigurationService.class));
+        UsagePointDataValidationIssueCreationRuleTemplateTest.initializeClock();
+        UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
 
-        try (TransactionContext ctx = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService().getContext()) {
-            DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(FiniteStateMachineService.class);
-            DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+        try (TransactionContext ctx = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService().getContext()) {
+            UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(FiniteStateMachineService.class);
+            UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
             ctx.commit();
         }
     }
 
     @AfterClass
     public static void cleanUpDataBase() throws SQLException {
-        DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.cleanUpDataBase();
+        UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.cleanUpDataBase();
     }
 
     public static TransactionService getTransactionService() {
-        return DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService();
+        return UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService();
     }
 
     @Before
     public void setUp() throws Exception {
         UsagePoint usagePoint = mock(UsagePoint.class);
-        issueService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueService.class);
-        DataValidationIssueCreationRuleTemplate template = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
+        issueService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueService.class);
+        UsagePointDataValidationIssueCreationRuleTemplate template = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UsagePointDataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
-        issueDataValidationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
-        MetrologyConfigurationService metrologyConfigurationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MetrologyConfigurationService.class);
+        issueDataValidationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+        MetrologyConfigurationService metrologyConfigurationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MetrologyConfigurationService.class);
         Finder deviceTypeFinder = mock(Finder.class);
         MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
         long metrologyConfigurationId = 1L;
@@ -125,8 +125,8 @@ public class IssueDataValidationServiceTest {
         HasIdAndName deviceConfig = mock(HasIdAndName.class);
         when(deviceConfig.getId()).thenReturn(metrologyConfigurationId);
         value.add(deviceConfig);
-        props.put(DataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
-        issueCreationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
+        props.put(UsagePointDataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
+        issueCreationRule = ruleBuilder.setTemplate(UsagePointDataValidationIssueCreationRuleTemplate.NAME)
                 .setName("Test")
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                 .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
@@ -194,14 +194,14 @@ public class IssueDataValidationServiceTest {
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
 
-        LdapUserDirectory local = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
+        LdapUserDirectory local = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
         local.setSecurity("sec");
         local.setUrl("url");
         local.setDirectoryUser("dirUser");
         local.setPassword("pass");
         local.update();
 
-        User assignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
+        User assignee = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
         assignee.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.assignTo(assignee.getId(), null);
@@ -224,7 +224,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
 
         filter = new DataValidationIssueFilter();
-        User anotherAssignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
+        User anotherAssignee = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
         anotherAssignee.update();
         filter.setAssignee(anotherAssignee);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
@@ -272,7 +272,7 @@ public class IssueDataValidationServiceTest {
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
 
-        AmrSystem amrSystem = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         EndDevice endDevice = amrSystem.createEndDevice("360", "METER");
         endDevice.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
@@ -342,7 +342,7 @@ public class IssueDataValidationServiceTest {
     public void testCreateIssueWithNonEstimatedBlocks() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
@@ -405,7 +405,7 @@ public class IssueDataValidationServiceTest {
     public void testUpdateIssueWithNonEstimatedBlocks() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
@@ -468,7 +468,7 @@ public class IssueDataValidationServiceTest {
     public void testUpdateIssueWithNonEstimatedBlocksOnRegister() {
         Instant now = Instant.now();
 
-        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
@@ -574,7 +574,7 @@ public class IssueDataValidationServiceTest {
     @Test
     @Transactional
     public void testCloseIssue() {
-        MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
+        MeteringService meteringService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");

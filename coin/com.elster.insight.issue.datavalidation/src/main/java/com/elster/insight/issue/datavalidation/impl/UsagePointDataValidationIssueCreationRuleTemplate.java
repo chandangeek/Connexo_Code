@@ -39,12 +39,12 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.elster.insight.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
-        property = {"name=" + DataValidationIssueCreationRuleTemplate.NAME},
+@Component(name = "com.elster.insight.issue.datavalidation.impl.UsagePointDataValidationIssueCreationRuleTemplate",
+        property = {"name=" + UsagePointDataValidationIssueCreationRuleTemplate.NAME},
         service = CreationRuleTemplate.class, immediate = true)
-public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
+public class UsagePointDataValidationIssueCreationRuleTemplate implements CreationRuleTemplate {
 
-    static final String NAME = "DataValidationIssueCreationRuleTemplate";
+    static final String NAME = "UsagePointDataValidationIssueCreationRuleTemplate";
 
     public static final String METROLOGY_CONFIGS = NAME + ".metrologyConfigurations";
 
@@ -55,12 +55,12 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     //for OSGI
-    public DataValidationIssueCreationRuleTemplate() {
+    public UsagePointDataValidationIssueCreationRuleTemplate() {
     }
 
     @Inject
-    public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
-                                                   NlsService nlsService, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
+    public UsagePointDataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
+                                                             NlsService nlsService, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
         this();
         setIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
@@ -148,7 +148,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         builder.add(
                 propertySpecService
                         .specForValuesOf(new DeviceConfigurationInfoValueFactory())
-                        .named(METROLOGY_CONFIGS, TranslationKeys.DEVICE_CONFIGURATIONS_PROPERTY)
+                        .named(METROLOGY_CONFIGS, TranslationKeys.METROLOGY_CONFIGURATIONS_PROPERTY)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .markMultiValued(",")

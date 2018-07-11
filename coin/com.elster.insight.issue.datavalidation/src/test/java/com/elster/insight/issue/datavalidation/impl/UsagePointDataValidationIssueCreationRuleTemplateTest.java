@@ -47,7 +47,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -86,15 +85,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class DataValidationIssueCreationRuleTemplateTest {
+public class UsagePointDataValidationIssueCreationRuleTemplateTest {
 
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
     static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
-    public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(UsagePointDataValidationIssueCreationRuleTemplateTest.getTransactionService());
 
-    private DataValidationIssueCreationRuleTemplate template;
+    private UsagePointDataValidationIssueCreationRuleTemplate template;
     private IssueService issueService;
     private IssueCreationService issueCreationService;
     private IssueDataValidationService issueDataValidationService;
@@ -108,7 +107,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public static void initialize() throws SQLException {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
-        inMemoryPersistence.initializeDatabase("DataValidationIssueCreationRuleTemplateTest", false);
+        inMemoryPersistence.initializeDatabase("UsagePointDataValidationIssueCreationRuleTemplateTest", false);
         when(inMemoryPersistence.getClock().instant()).thenReturn(fixedTime);
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(FiniteStateMachineService.class);
@@ -129,7 +128,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Before
     public void setUp() throws Exception {
         issueService = inMemoryPersistence.getService(IssueService.class);
-        template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
+        template = inMemoryPersistence.getService(UsagePointDataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
@@ -172,7 +171,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(propertySpecs).hasSize(1);
 
         PropertySpec propertySpec = propertySpecs.get(0);
-        assertThat(propertySpec.getName()).isEqualTo(DataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS);
+        assertThat(propertySpec.getName()).isEqualTo(UsagePointDataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS);
 
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues.getAllValues()).hasSize(1);
@@ -367,8 +366,8 @@ public class DataValidationIssueCreationRuleTemplateTest {
             when(deviceConfig.getId()).thenReturn(config.getId());
             value.add(deviceConfig);
         }
-        props.put(DataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
-        return ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
+        props.put(UsagePointDataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
+        return ruleBuilder.setTemplate(UsagePointDataValidationIssueCreationRuleTemplate.NAME)
                 .setName(name)
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                 .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
