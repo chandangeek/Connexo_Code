@@ -15,7 +15,7 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
     COMMUNICATION_FAILED("Connection setup failed", "UNABLE_TO_CONNECT", "reason.connection.setup.failed"),
     CONNECTION_SETUP_LOST("Device communication failed", "DEVICE_COMMUNICATION_FAILURE", "reason.failed.to.communicate"),
     CANNOT_ESTIMATE_SUSPTECTS("Create issue when suspects can't be estimated","CANNOT_ESTIMATE_DATA", "reason.cant.estimate.data", DueInType.DAY, 0L, IssueRuleBuilder.BASIC_DATA_VALIDATION_RULE_TEMPLATE, Priority.DEFAULT, true),
-    CANOT_ESTIMATE_USAGEDATA("Create issue when usage data suspects can't be estimated","CANNOT_ESTIMATE__USAGEDATA", "reason.cant.estimate.usagedata", DueInType.DAY, 0L, IssueRuleBuilder.USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE, Priority.DEFAULT, true),
+    CANOT_ESTIMATE_USAGEDATA("Create issue when usage data suspects can't be estimated","CANNOT_ESTIMATE_DATA", "reason.cant.estimate.usagedata", DueInType.DAY, 0L, IssueRuleBuilder.USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE, Priority.DEFAULT, true),
     DEVICE_ALARM("Tampering", "END_DEVICE_EVENT_CREATED", "Tampering", DueInType.DAY, 0L, IssueRuleBuilder.BASIC_DEVICE_ALARM_RULE_TEMPLATE, Priority.get(30,30), true)
     ;
 
