@@ -128,8 +128,12 @@ Ext.define('Imt.purpose.view.summary.PurposeDataPreview', {
         var isDataValidated = true,
             channels = record.get('channelData');
         for (var channelId in channels){
-            isDataValidated = isDataValidated && channels[channelId].dataValidated;
+            if (channels[channelId].dataValidated === false){
+                isDataValidated = false;
+                break;
+            }
         }
+        return isDataValidated;
     },
 
     addReadingValueItems: function (id, channelId, channels) {
