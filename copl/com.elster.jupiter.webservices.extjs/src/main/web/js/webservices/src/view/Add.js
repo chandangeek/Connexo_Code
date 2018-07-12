@@ -229,7 +229,7 @@ Ext.define('Wss.view.Add', {
                 allowBlank: false,
                 afterBodyEl: [
                     '<div class="x-form-display-field" style="padding-right:10px;color:#686868"><i>',
-                    direction.toUpperCase()==='INBOUND'?Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.inboundURLFormatText', 'WSS', 'Define the path in the URL which has the following format http://host:port/<path>')):Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.outboundURLFormatText', 'WSS', 'Define the url which has the format http://<host>:<port>/<path>')),
+                    direction.toUpperCase() === 'INBOUND' ? Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.inboundURLFormatTextPath', 'WSS', 'Define the \'path\' in the URL. It will make the service listen at http://connexo_host:connexo_port/<path>')) : Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.outboundURLFormatText', 'WSS', 'Define the url which has the format http://<host>:<port>/<path>')),
                     '</i></div>'
                 ]
             },
