@@ -16,7 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.elster.jupiter.hsm.impl.HsmAuthServiceImpl", service = {HsmAuthServiceImpl.class},  immediate = true)
 public class HsmAuthServiceImpl implements HsmAuthService {
 
-    private HsmConfigurationService hsmConfigurationService;
+    private HsmConfigurationServiceImpl hsmConfigurationService;
 
     @Override
     public AuthDataEncryptResponse encrypt(AuthDataEncryptRequest authDataEncRequest) throws HsmBaseException {
@@ -41,7 +41,7 @@ public class HsmAuthServiceImpl implements HsmAuthService {
     }
 
     @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService){
+    public void setHsmConfigurationService(HsmConfigurationServiceImpl hsmConfigurationService){
         this.hsmConfigurationService = hsmConfigurationService;
     }
 }

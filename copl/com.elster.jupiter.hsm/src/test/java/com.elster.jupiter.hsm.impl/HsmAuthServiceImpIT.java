@@ -27,7 +27,7 @@ public class HsmAuthServiceImpIT {
 
     @BeforeClass
     public static void before() {
-        HsmConfigurationService hsmCfgService = new HsmConfigurationService();
+        HsmConfigurationServiceImpl hsmCfgService = new HsmConfigurationServiceImpl();
         hsmCfgService.init(new File(HsmAuthServiceImpIT.class.getClassLoader().getResource("hsm-runtime-configuration-be.json").getFile()).getAbsolutePath());
         hsmAuthService = new HsmAuthServiceImpl();
         hsmAuthService.setHsmConfigurationService(hsmCfgService);

@@ -19,9 +19,10 @@ import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Objects;
 
-@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationService", service = {HsmConfigurationService.class}, immediate = true)
-public class HsmConfigurationService {
+@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationServiceImpl.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
+public class HsmConfigurationServiceImpl implements com.elster.jupiter.hsm.HsmConfigurationService {
 
+    static final String COMPONENTNAME = "HsmConfigurationServiceImpl";
     private boolean initialized = false;
     private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
 
@@ -83,5 +84,10 @@ public class HsmConfigurationService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public HsmConfiguration getHsmConfiguration() {
+        return hsmConfiguration;
     }
 }

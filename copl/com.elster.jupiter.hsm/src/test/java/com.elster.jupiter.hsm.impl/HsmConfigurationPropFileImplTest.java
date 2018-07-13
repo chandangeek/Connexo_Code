@@ -56,8 +56,8 @@ public class HsmConfigurationPropFileImplTest {
     @Test
     public void testJssInitFileIsReturned() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-        String expectedJssFilePath = "D:/hsm-runtime-configuration.json";
-        assertEquals(expectedJssFilePath, hsmConfigurationPropFile.getJssInitFile());
+
+        assertEquals(CONFIG_FILE, hsmConfigurationPropFile.getJssInitFile());
     }
 
     @Test
@@ -103,5 +103,6 @@ public class HsmConfigurationPropFileImplTest {
         assertEquals("PUB_KEK", hsmLabelConfiguration.getFileImportLabel());
         assertEquals(KeyType.SM_KEK_AUTHENTIC, hsmLabelConfiguration.getImportKeyType());
         assertEquals(KeyType.SM_KEK_RENEWAL, hsmLabelConfiguration.getRenewKeyType());
+        assertEquals(label, hsmLabelConfiguration.getImportReEncryptHsmLabel());
     }
 }

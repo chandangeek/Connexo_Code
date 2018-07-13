@@ -17,7 +17,7 @@ import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyType;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import org.osgi.service.component.annotations.Component;
 
-@Component(name = "com.elster.jupiter.hsmenergyservice", service = {HsmEnergyService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.HsmEnergyServiceImpl", service = {HsmEnergyService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService {
 
     /**

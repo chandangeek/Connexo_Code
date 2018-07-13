@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.elster.jupiter.hsm.console.HsmEncryptionServiceImpl", service = {HsmEncryptionServiceImpl.class}, immediate = true)
 public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
-    private HsmConfigurationService hsmConfigService;
+    private HsmConfigurationServiceImpl hsmConfigService;
 
     @Override
     public EncryptResponse encrypt(EncryptRequest eRequest) throws HsmBaseException {
@@ -59,7 +59,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
 
     @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigService){
+    public void setHsmConfigurationService(HsmConfigurationServiceImpl hsmConfigService){
         this.hsmConfigService = hsmConfigService;
     }
 
