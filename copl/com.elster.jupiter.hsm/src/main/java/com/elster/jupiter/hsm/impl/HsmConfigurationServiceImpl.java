@@ -5,8 +5,9 @@
 package com.elster.jupiter.hsm.impl;
 
 
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
@@ -19,8 +20,8 @@ import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Objects;
 
-@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationServiceImpl.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
-public class HsmConfigurationServiceImpl implements com.elster.jupiter.hsm.HsmConfigurationService {
+@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
+public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
     static final String COMPONENTNAME = "HsmConfigurationServiceImpl";
     private boolean initialized = false;
