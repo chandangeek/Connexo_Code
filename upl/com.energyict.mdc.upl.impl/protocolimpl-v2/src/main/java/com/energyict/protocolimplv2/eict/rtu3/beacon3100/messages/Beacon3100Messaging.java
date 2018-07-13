@@ -841,7 +841,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }   //Else: throw communication exception
             } catch (IndexOutOfBoundsException | NullPointerException | IllegalArgumentException e) {
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setDeviceProtocolInformation(e.toString());
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             } finally {
@@ -2661,18 +2660,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void resetAlarmDescriptor(OfflineDeviceMessage pendingMessage) throws IOException {
         BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getValue());
-        getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_DESCRIPTOR)).setValueAttr(new BitString(alarmBits.longValue(), 45));
+        getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_DESCRIPTOR)).setValueAttr(new BitString(alarmBits.longValue(), 67, 67));
     }
 
     protected void resetAllAlarmBits() throws IOException {
         Data data = getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_BITS_REGISTER));
-        data.setValueAttr(new BitString(0, 45)); // to reset the alarm bits we have to write zero back to the register
+        data.setValueAttr(new BitString(0, 67, 67)); // to reset the alarm bits we have to write zero back to the register
     }
 
     protected void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
         BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
         Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
-        data.setValueAttr(new BitString(filter.longValue(), 45));
+        data.setValueAttr(new BitString(filter.longValue(), 67, 67));
     }
 
     private void configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
