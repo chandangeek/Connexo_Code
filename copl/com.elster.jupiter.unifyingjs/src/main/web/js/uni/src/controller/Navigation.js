@@ -273,9 +273,9 @@ Ext.define('Uni.controller.Navigation', {
         var hits = [],
             duplicates = [];
 
-        store.each(function (record) {
-            var text = record.get('text'),
-                portal = record.get('portal');
+        store.each(function (record) {  // CONM-293
+            var text = Ext.String.trim(record.get('text')),
+                portal = Ext.String.trim(record.get('portal'));
 
             if (hits[text + portal]) {
                 duplicates.push(record);
