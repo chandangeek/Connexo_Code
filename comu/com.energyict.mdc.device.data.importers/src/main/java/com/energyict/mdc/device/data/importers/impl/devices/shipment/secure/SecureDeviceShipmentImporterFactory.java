@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
-    private volatile Optional<ImporterExtension> importExtension;
+    private volatile Optional<ImporterExtension> importExtension = Optional.empty();
 
     @Override
     public String getName() {
@@ -105,9 +106,14 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         this.deviceService = deviceService;
     }
 
-    @Reference(target="(importer.extension=SecureDeviceShipmentImporter)", cardinality = ReferenceCardinality.OPTIONAL)
-    public void setImporterExtension(ImporterExtension importExtension)
-    { this.importExtension = Optional.ofNullable(importExtension); }
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void setImporterExtension(ImporterExtension importExtension) {
+        this.importExtension = Optional.of(importExtension);
+    }
+
+    public void unsetImporterExtension(ImporterExtension importerExtension) {
+        this.importExtension = Optional.empty();
+    }
 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {

@@ -238,5 +238,6 @@ public class DeviceDataImporterContext {
     public FileImportService getFileImportService(){return fileImportService;}
 
     @Reference
-    public void setFileImportService(FileImportService fileImportService) { this.fileImportService =fileImportService;}
+    public void setFileImportService(FileImportService fileImportService) { this.fileImportService = fileImportService;}
+
 }

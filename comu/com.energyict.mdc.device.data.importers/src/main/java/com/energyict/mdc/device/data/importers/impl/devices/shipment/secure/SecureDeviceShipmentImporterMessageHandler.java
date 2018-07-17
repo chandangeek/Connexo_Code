@@ -13,13 +13,19 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
+import com.energyict.mdc.device.data.importers.ImporterExtension;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -40,6 +46,7 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
     private volatile OrmService ormService;
+    private volatile Optional<ImporterExtension> importerExtension = Optional.empty();
 
     // OSGi constructor
     public SecureDeviceShipmentImporterMessageHandler() {
@@ -75,6 +82,16 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
         setMessageService(messageService);
         setOrmService(ormService);
     }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addImporterExtension(ImporterExtension importerExtension) {
+        this.importerExtension = Optional.of(importerExtension);
+    }
+
+    public void removeImporterExtension(ImporterExtension importerExtension) {
+        this.importerExtension = Optional.empty();
+    }
+
 
     @Reference
     public final void setFileImportService(FileImportService fileImportService) {
