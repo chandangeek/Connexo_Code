@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HsmConfigurationPropFileImplTest {
 
-    private final static String CONFIG_FILE = "hsm-bundle-configuration.properties";
+    private final static String CONFIG_FILE = "hsm-test-bundle-configuration.properties";
     private String testFilePath;
 
     @Mock
@@ -57,7 +57,7 @@ public class HsmConfigurationPropFileImplTest {
     public void testJssInitFileIsReturned() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
 
-        assertEquals("c:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration-be.json", hsmConfigurationPropFile.getJssInitFile());
+        assertEquals("hsm-test-runtime-configuration-be.json", hsmConfigurationPropFile.getJssInitFile());
     }
 
     @Test
