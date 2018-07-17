@@ -481,4 +481,16 @@ public class DeviceConfigurationResource {
                                 && conflict.getDestinationDeviceConfiguration().getId() == destinationConfigurationId && !conflict.isSolved()).collect(Collectors.toList()), thesaurus);
         return PagedInfoList.fromCompleteList("conflictMappings", deviceConfigConflictMappingInfos, queryParameters);
     }
+
+    @PUT
+    @Path("/{deviceConfigurationId}/default")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response updateDefaultStatus(@PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
+        deviceConfiguration.setDefaultStatus(info.isDefault);
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
 }

@@ -331,26 +331,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return deviceLifeCycle;
     }
 
-    private DeviceConfiguration mockDeviceConfiguration(long id, DeviceType deviceType) {
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
-        when(deviceConfiguration.getId()).thenReturn(id);
-        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
-        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        deviceType.getConfigurations().add(deviceConfiguration);
-        List<RegisterSpec> registerSpec = new ArrayList<>();
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(registerSpec);
-        List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
-        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(partialConnectionTasks);
 
-        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findDeviceConfiguration(id);
-        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService)
-                .findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION);
-        doReturn(Optional.empty()).when(deviceConfigurationService)
-                .findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION);
-
-        return deviceConfiguration;
-    }
 
 
     private DeviceConfiguration mockDeviceConfiguration(String name, long id) {
@@ -503,7 +484,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(20);
+        assertThat(jsonDeviceConfiguration).hasSize(21);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -541,6 +522,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("validateOnStore")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isLogicalSlave")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("isDefault")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -1922,15 +1905,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         };
     }
 
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        return finder;
-    }
 
     private ObisCode mockObisCode() {
         ObisCode obisCode = mock(ObisCode.class);

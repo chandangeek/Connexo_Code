@@ -1189,15 +1189,4 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
         return securityAccessor1;
     }
-
-    <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenAnswer(invocation -> list.stream()); // Make sure to answer with a new stream each time
-        return finder;
-    }
 }
