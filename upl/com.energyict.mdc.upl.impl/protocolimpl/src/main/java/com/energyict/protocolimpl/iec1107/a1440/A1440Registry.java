@@ -20,6 +20,8 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  */
 public class A1440Registry extends AbstractVDEWRegistry {
 
+    public static final String UTILITY_ID_1 = "UTILITY_ID_1";
+
     public static final String ID1 = "ID1";
     public static final String ID2 = "ID2";
     public static final String ID3 = "ID3";
@@ -67,11 +69,13 @@ public class A1440Registry extends AbstractVDEWRegistry {
     protected void initRegisters() {
         // KV TO_DO change OBIS B value to control channel id
         String obisB = Integer.toString(getRegisterSet());
-        this.registers.put(SERIAL, new VDEWRegister("0.0.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
+        this.registers.put(SERIAL, new VDEWRegister("C.1.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
         this.registers.put(FIRMWARE, new VDEWRegister("C0800000000", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
         this.registers.put(HARDWARE, new VDEWRegister("C06001E0000", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
 
         this.registers.put(FIRMWAREID, new VDEWRegister("0.2.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
+
+        this.registers.put(UTILITY_ID_1, new VDEWRegister("0.0.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
 
         this.registers.put(ID1, new VDEWRegister("C0100080004", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
         this.registers.put(ID2, new VDEWRegister("C010008000C", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));

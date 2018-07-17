@@ -70,8 +70,24 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
         this(value, 32);
     }
 
+    // TODO this constructor has a bug, please fix it
     public BitString(final long value, final int size) {
         this.nrOfBits = size > Long.SIZE ? Long.SIZE : size;
+        this.bitSet = new BitSet(this.nrOfBits);
+        for (int i = 0; i < size; i++) {
+            final long bitValue = (value >> i) & 0x01;
+            this.bitSet.set(this.nrOfBits - (i + 1), bitValue != 0);
+        }
+    }
+
+    /**
+     * Improved BitString constructor
+     * @param value
+     * @param size
+     * @param nrOfBits this parameter is ignored
+     */
+    public BitString(final long value, final int size, final int nrOfBits) {
+        this.nrOfBits = size;
         this.bitSet = new BitSet(this.nrOfBits);
         for (int i = 0; i < size; i++) {
             final long bitValue = (value >> i) & 0x01;

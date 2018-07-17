@@ -239,6 +239,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     IEC1107_FAIL_ON_UNIT_MISMATCH_DESCRIPTION("upl.property.iec1107.failOnUnitMismatch.description", "Fail on unit mismatch"),
     IEC1107_HALF_DUPLEX("upl.property.iec1107.halfDuplex", "Half duplex"),
     IEC1107_HALF_DUPLEX_DESCRIPTION("upl.property.iec1107.halfDuplex.description", "Half duplex"),
+    READ_LOGBOOK_AND_LP_COMBINED("upl.property.iec1107.readLogbookAndLpCombined", "Read logbook and load profile combined"),
+    READ_LOGBOOK_AND_LP_COMBINED_DESCRIPTION("upl.property.iec1107.readLogbookAndLpCombined.description", "Read logbook and load profile combined"),
     IEC1107_DELAY_BEFORE_CONNECT("upl.property.iec1107.delayBeforeConnect", "Delay before connect"),
     IEC1107_DELAY_BEFORE_CONNECT_DESCRIPTION("upl.property.iec1107.delayBeforeConnect.description", "Delay before connect"),
     IEC1107_COMPATIBLE("upl.property.iec1107.compatible", "IEC1107 compatible"),

@@ -1,15 +1,14 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -72,33 +71,77 @@ public abstract class RegisterMapping {
      * Common method to shortly describe the elements of an array.
      * Each element is structure with some numerical values
      */
-    protected String getShortDescription(Array array) {
+    protected String getShortDescription(Array array, boolean displayOctetStringAsIs) {
         StringBuilder sb = new StringBuilder();
-        for (AbstractDataType abstractStructure : array) {
-            Structure structure = abstractStructure.getStructure();
-            if (structure != null) {
+        if (array.nrOfDataTypes() == 0) {
+            sb.append("No entry available");
+        } else {
+            for (AbstractDataType abstractStructure : array) {
+                Structure structure = abstractStructure.getStructure();
+                if (structure != null) {
 
-                //Skip empty elements
-                if (structure.getDataType(0).intValue() == 0xFFFF && structure.getDataType(1).intValue() == 0xFFFF) {
-                    continue;
-                }
-
-                //Add valid elements to the StringBuilder
-                for (int index = 0; index < structure.nrOfDataTypes(); index++) {
-                    sb.append(index == 0 ? "" : ",");   //Separate values of the structure with a comma
-                    String element = "";
-
-                    AbstractDataType dataType = structure.getDataType(index);
-                    if (dataType.isOctetString()) {
-                        element = dataType.getOctetString().stringValue();
-                    } else if (dataType.isBitString()) {
-                        element = "0x" + Long.toHexString(dataType.getBitString().longValue());
-                    } else {
-                        element = String.valueOf(dataType.intValue());
+                    //Skip empty elements
+                    if (structure.getDataType(0).intValue() == 0xFFFF && structure.getDataType(1).intValue() == 0xFFFF) {
+                        continue;
                     }
-                    sb.append(element);
+
+                    //Add valid elements to the StringBuilder
+                    for (int index = 0; index < structure.nrOfDataTypes(); index++) {
+                        sb.append(index == 0 ? "" : ",");   //Separate values of the structure with a comma
+                        String element = "";
+
+                        AbstractDataType dataType = structure.getDataType(index);
+                        if (dataType.isOctetString()) {
+                            if(displayOctetStringAsIs) {
+                                element = ProtocolTools.getHexStringFromBytes(dataType.getContentByteArray(), "");
+                            } else {
+                                element = dataType.getOctetString().stringValue();
+                            }
+                        } else if (dataType.isVisibleString()) {
+                            element = dataType.getVisibleString().getStr();
+                        } else if (dataType.isBitString()) {
+                            element = "0x" + Long.toHexString(dataType.getBitString().longValue());
+                        } else if (dataType.isTypeEnum()) {
+                            element = dataType.getTypeEnum().getValue()+"";
+                        } else if (dataType.isUtf8String()) {
+                            element = dataType.getUtf8String().stringValue();
+                        } else if (dataType.isBooleanObject()) {
+                            element = dataType.getBooleanObject().getState()+"";
+                        } else {
+                            element = String.valueOf(dataType.intValue());
+                        }
+                        sb.append(element);
+                    }
+                    sb.append("; ");                             //Separate elements with a ;
                 }
-                sb.append(";");                             //Separate elements with a ;
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Common method to shortly describe the elements of an array.
+     * Each element should have only one level
+     */
+    protected String getArrayDescription(Array array) {
+        StringBuilder sb = new StringBuilder();
+        if (array.nrOfDataTypes() == 0) {
+            sb.append("No entry available");
+        } else {
+            for (int index = 0; index < array.nrOfDataTypes(); index++) {
+                sb.append(index == 0 ? "" : ",");   //Separate values of the structure with a comma
+                String element = "";
+                AbstractDataType dataType = array.getDataType(index);
+                if (dataType.isOctetString()) {
+                    element = dataType.getOctetString().stringValue();
+                } else if (dataType.isBitString()) {
+                    element = "0x" + Long.toHexString(dataType.getBitString().longValue());
+                } else if (dataType.isTypeEnum()) {
+                    element = dataType.getTypeEnum().getValue()+"";
+                } else {
+                    element = String.valueOf(dataType.intValue());
+                }
+                sb.append(element);
             }
         }
         return sb.toString();

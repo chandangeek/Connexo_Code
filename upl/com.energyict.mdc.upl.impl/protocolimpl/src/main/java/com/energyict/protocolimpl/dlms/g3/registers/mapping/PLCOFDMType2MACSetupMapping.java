@@ -74,13 +74,13 @@ public class PLCOFDMType2MACSetupMapping extends RegisterMapping {
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.MINUTE)));
 
             case 11:
-                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType));
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType, false));
 
             case 14:
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.intValue(), Unit.get(BaseUnit.SECOND)));
 
             case 5:
-                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType));
+                return new RegisterValue(obisCode, getShortDescription((Array) abstractDataType, false));
 
             case 6:
             case 19:

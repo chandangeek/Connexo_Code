@@ -13,6 +13,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100AbstractEventLog;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,10 +54,10 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      */
     protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
     protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
-    private static final int PLC_G3_REGISTER_NODE = 0xC2;
-    private static final int PLC_G3_UNREGISTER_NODE = 0xC3;
-    private static final int PLC_G3_NODE_LINK_LOST = 0xCB;
-    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC;
+    private static final int PLC_G3_REGISTER_NODE = 0xC20000;
+    private static final int PLC_G3_UNREGISTER_NODE = 0xC30000;
+    private static final int PLC_G3_NODE_LINK_LOST = 0xCB0000;
+    private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC0000;
     protected boolean provideProtocolJavaClasName = true;
     /**
      * Used to pass back any topology changes observed during push notifications
@@ -139,21 +140,21 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
              * Generated when node is considered lost (i.e. does no longer respond without proper de-registration from the network)
              */
             case PLC_G3_NODE_LINK_LOST:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
+                this.collectedTopology = extractNodeInformation(extractReceivedDescription(receivedEvent), TopologyAction.REMOVE);
                 break;
 
             /**
              * Generated when a node recovered from the lost state (i.e. it is reachable again after being unreachable for prolonged period of time).
              */
             case PLC_G3_NODE_LINK_RECOVERED:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.ADD);
+                this.collectedTopology = extractNodeInformation(extractReceivedDescription(receivedEvent), TopologyAction.ADD);
                 break;
 
             /**
              * Generated when node leaves the PAN.
              */
             case PLC_G3_UNREGISTER_NODE:
-                this.collectedTopology = extractNodeInformation(receivedEvent.getMessage(), TopologyAction.REMOVE);
+                this.collectedTopology = extractNodeInformation(extractReceivedDescription(receivedEvent), TopologyAction.REMOVE);
         }
 
         logWhatWeDiscovered();
@@ -200,7 +201,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     * Generates when node successfully joins the PAN.
     */
     public CollectedTopology extractTopologyUpdateFromRegisterEvent(MeterProtocolEvent receivedEvent) throws JSONException {
-        String message = receivedEvent.getMessage();
+        String message = extractReceivedDescription(receivedEvent);
 
         if (message == null || message.isEmpty()) {
             return null;
@@ -208,12 +209,12 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
         CollectedTopology deviceTopology = null;
 
-        deviceTopology = extractRegisterEventBeacon10(receivedEvent.getMessage());
+        deviceTopology = extractRegisterEventBeacon10(message);
         if (deviceTopology != null) {
             return deviceTopology;
         }
 
-        deviceTopology = extractRegisterEventBeacon11(receivedEvent.getMessage());
+        deviceTopology = extractRegisterEventBeacon11(message);
 
         return deviceTopology;
     }
@@ -371,6 +372,16 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
 
         return collectedData;
+    }
+
+    /**
+     * We extract only the part received from device. The description mapped in our MeterEvent class will be removed
+     * @param receivedEvent
+     * @return
+     */
+    protected String extractReceivedDescription(MeterProtocolEvent receivedEvent) {
+        String prefixToReplace = Beacon3100AbstractEventLog.getDescriptionPrefix(receivedEvent.getEiCode());
+        return receivedEvent.getMessage().replaceFirst(prefixToReplace, "");
     }
 
 }

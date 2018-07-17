@@ -16,12 +16,7 @@ import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDe
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -196,37 +191,6 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
         }
         return result;
     }
-
-    @Override
-    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int dlmsCode, int deviceCode, String message) {
-        int eiCode = MeterEvent.OTHER;
-        String eventDescription = getDefaultEventDescription(dlmsCode, deviceCode, message);
-
-        switch (deviceCode) {
-            case 0x0036:
-                eiCode = MeterEvent.OTHER;
-                eventDescription = " PROTOCOL_PRELIMINARY_TASK_COMPLETED";
-                break;
-            case 0x0037:
-                eiCode = MeterEvent.OTHER;
-                eventDescription = " PROTOCOL_PRELIMINARY_TASK_FAILED";
-                break;
-            case 0x0038:
-                eiCode = MeterEvent.OTHER;
-                eventDescription = " PROTOCOL_CONSECUTIVE_FAILURE";
-                break;
-
-
-            case 255:
-                eiCode = MeterEvent.EVENT_LOG_CLEARED;
-                eventDescription = getLogBookName() + " cleared";
-                break;
-            default:
-                // just the defaults
-        }
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), dlmsCode, deviceCode, " Event: "+eventDescription+" - "+message));
-    }
-
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, String message) {
         meterEvents.add(new MeterEvent(eventTimeStamp, 0, 0, message));
