@@ -115,6 +115,14 @@ public interface DeviceService {
     Optional<Device> findDeviceByMrid(String mrId);
 
     /**
+     * Finds the Device based on the METERID.
+     *
+     * @param meterId the METERID of the device
+     * @return the requested Device or null if none was found
+     */
+    Optional<Device> findDeviceByMeterId(long meterId);
+
+    /**
      * Finds the Devices (multiple are possible) based on the given serialNumber.
      *
      * @param serialNumber the serialNumber of the device

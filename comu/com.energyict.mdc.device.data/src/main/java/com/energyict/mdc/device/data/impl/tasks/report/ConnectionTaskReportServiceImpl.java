@@ -244,9 +244,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
             sqlBuilder.append(" and ct.lastsession is not null ");
         }
         sqlBuilder.append(" and ct.lastSessionSuccessIndicator = 0");
-        sqlBuilder.append(" and exists (select * from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
-        sqlBuilder.append(" ctes where ctes.COMSESSION = ct.lastSession and ctes.SUCCESSINDICATOR = 0)");
+        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(true, sqlBuilder);
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = stmnt.executeQuery()) {

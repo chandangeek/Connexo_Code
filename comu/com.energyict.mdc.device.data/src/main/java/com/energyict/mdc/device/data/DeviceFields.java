@@ -24,7 +24,8 @@ public enum DeviceFields implements ImplField {
     MANUFACTURER("manufacturer"),
     MODEL_NBR("modelNbr"),
     MODEL_VERSION("modelVersion"),
-    KEY_ACCESSORS("keyAccessors")
+    KEY_ACCESSORS("keyAccessors"),
+    METER_ID("METERID")
     ;
 
     private final String javaFieldName;

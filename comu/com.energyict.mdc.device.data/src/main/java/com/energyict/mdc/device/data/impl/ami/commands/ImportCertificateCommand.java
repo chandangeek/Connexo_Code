@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.ami.commands;
 
 import com.elster.jupiter.metering.EndDevice;
@@ -14,7 +18,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class ImportCertificateCommand extends EndDeviceCommandImpl {
 
     public ImportCertificateCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
@@ -26,6 +29,5 @@ public class ImportCertificateCommand extends EndDeviceCommandImpl {
         return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(),
                 Arrays.asList(DeviceMessageId.SECURITY_IMPORT_CERTIFICATE, DeviceMessageId.IMPORT_CLIENT_END_DEVICE_CERTIFICATE, DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE));
     }
-
 
 }
