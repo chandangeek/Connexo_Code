@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +53,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     public enum Fields {
         ENCRYPTED_KEY("encryptedKey"),
+        LABEL("label"),
         KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),
-        ;
+        EXPIRATION("expirationTime"),;
 
         private final String fieldName;
 
@@ -68,8 +69,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     private long id;
-    @Size(max = Table.MAX_STRING_LENGTH, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String encryptedKey;
+    private String label;
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
@@ -93,10 +95,12 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
+    @Override
     public Optional<SecretKey> getKey() {
         if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
+
         byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
         return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
     }
@@ -105,9 +109,22 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         return keyTypeReference.get();
     }
 
+    @Override
     public void setKey(SecretKey key) {
-        this.encryptedKey=dataVaultService.encrypt(key.getEncoded());
+        this.encryptedKey = dataVaultService.encrypt(key.getEncoded());
         this.save();
+    }
+
+    @Override
+    public void setKey(byte[] key, String label) {
+        this.encryptedKey = dataVaultService.encrypt(key);
+        this.label = label;
+        this.save();
+    }
+
+    @Override
+    public Optional<String> getKeyLabel() {
+        return Optional.of(label);
     }
 
     @Override
@@ -185,8 +202,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             void copyToMap(Map<String, Object> properties, PropertySetter propertySetter) {
                 properties.put(getPropertyName(), propertySetter.key);
             }
-        },
-        ;
+        },;
 
         private final String propertyName;
 
@@ -195,7 +211,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
+
         abstract void copyFromMap(Map<String, Object> properties, PropertySetter key);
+
         abstract void copyToMap(Map<String, Object> properties, PropertySetter key);
 
         String getPropertyName() {
@@ -206,8 +224,8 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     /**
      * Intermediate class: properties are gotten and set by this class, allowing intermediate validation
      */
-    @KeySize(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}")
-    public class PropertySetter  {
+    @KeySize(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_KEY_SIZE + "}")
+    public class PropertySetter {
         @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}")
         private String key; // field name must match property name
 
@@ -231,6 +249,5 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             return getKeyType().getKeySize();
         }
     }
-
 
 }

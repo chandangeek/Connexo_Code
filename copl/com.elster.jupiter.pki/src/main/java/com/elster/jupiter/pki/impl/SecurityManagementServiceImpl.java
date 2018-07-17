@@ -78,6 +78,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -307,7 +308,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class));
+                        version(10, 4, 1), UpgraderV10_4_1.class,
+                        version(10, 4, 2), V10_4_2SimpleUpgrader.class));
     }
 
     private AbstractModule getModule() {
