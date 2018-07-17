@@ -4,6 +4,12 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
+
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,9 +33,10 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -46,6 +53,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -57,6 +65,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+
 
 @Singleton
 @Component(
@@ -94,6 +103,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile JsonService jsonService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile WebServicesService webServicesService;
+    private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory = new InboundCIMWebServiceExtensionFactory();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -111,7 +121,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
-                                         WebServicesService webServicesService) {
+                                         WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -132,6 +142,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         setWebServicesService(webServicesService);
+        setWebServiceExtensionFactory(webServiceExtensionFactory);
         activate(bundleContext);
     }
 
@@ -161,6 +172,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(WebServicesService.class).toInstance(webServicesService);
+                bind(InboundCIMWebServiceExtensionFactory.class).toInstance(webServiceExtensionFactory);
             }
         };
     }
@@ -304,6 +316,32 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
     }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    public void setWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtensionFactory.setWebServiceExtension(webServiceExtension);
+    }
+
+    public void unsetWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtensionFactory.unsetWebServiceExtension(webServiceExtension);
+    }
+
+
+    @Reference(target = "(name=" + MeterConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMeterConfigMasterCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + MeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setMeterConfigCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + GetEndDeviceEventsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setGetEndDeviceEventsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
 
     @Override
     public Layer getLayer() {

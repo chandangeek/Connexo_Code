@@ -51,6 +51,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EndDeviceEventsBuilder {
     private static final String ALARM_SEVERITY = "alarm";
 
+    private static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
     private static final String END_DEVICE_EVENTS_ITEM = "EndDeviceEvents";
     private static final String END_DEVICE_EVENT_ITEM = END_DEVICE_EVENTS_ITEM + ".EndDeviceEvent";
     private static final String END_DEVICE_EVENT_ASSETS_ITEM = END_DEVICE_EVENT_ITEM + ".Assets";
@@ -60,6 +61,7 @@ public class EndDeviceEventsBuilder {
     private static final String OBIS_CODE_PROPERTY = "endDeviceEvents.obisCode";
 
     private static final String WEBSERVICE_NAME = "CIM EndDeviceEvents";
+    private static final String NULL_CIM_CODE = "0.0.0.0";
 
     private final DeviceAlarmService deviceAlarmService;
     private final DeviceService deviceService;
@@ -137,8 +139,13 @@ public class EndDeviceEventsBuilder {
             });
             issuerID.ifPresent(builder::setIssuerID);
             issuerTrackingID.ifPresent(builder::setIssuerTrackingID);
-            eventData.ifPresent(value -> value.entrySet().stream().forEach(property -> builder.addProperty(property.getKey(), property.getValue())));
+            eventData.ifPresent(value -> value.entrySet().stream().forEach(property -> {
+                if (!property.getKey().equals(DEVICE_PROTOCOL_CODE_LABEL)) {
+                    builder.addProperty(property.getKey(), property.getValue());
+                }
+            }));
             status.ifPresent(value -> builder.setStatus(buildStatus(value)));
+            builder.setDeviceEventType(eventData.get().get(DEVICE_PROTOCOL_CODE_LABEL));
 
             return endDeviceEventsFactory.asEndDeviceEvents(builder.create(), endDevice);
         };
@@ -166,9 +173,10 @@ public class EndDeviceEventsBuilder {
 
             EndDeviceEventType eventType = meteringService.getEndDeviceEventType(eventTypeCode)
                     .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
+            Optional<String> endDeviceEventType = getEndDeviceEventType(endDeviceEvent);
 
-            Condition condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(endDevice.getId())
-                    .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType.getMRID()));
+            Condition condition = getCondition(endDevice, eventType, endDeviceEventType);
+
             List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenDeviceAlarms(condition).find()
                     .stream().map(alarm -> {
                         alarm.addComment(thesaurus.getFormat(TranslationKeys.ALARM_CLOSURE_COMMENT).format(user.getName()), user);
@@ -177,6 +185,29 @@ public class EndDeviceEventsBuilder {
 
             return endDeviceEventsFactory.asEndDeviceEvents(closedAlarms);
         };
+    }
+
+    private Condition getCondition(EndDevice endDevice, EndDeviceEventType eventType, Optional<String> endDeviceEventType) {
+        Condition condition;
+        if(endDeviceEventType.isPresent() && eventType.getMRID().equals(NULL_CIM_CODE)) {
+            condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(endDevice.getId())
+                    .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType.getMRID())).and(where("deviceAlarmRelatedEvents.deviceCode").isEqualTo(endDeviceEventType.get()));
+        } else {
+            condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(endDevice.getId())
+                    .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType.getMRID()));
+        }
+        return condition;
+    }
+
+    private Optional<String> getEndDeviceEventType(EndDeviceEvent endDeviceEvent) {
+        Optional<Map<String, String>> optionalofEndDeviceEventDetailsMap = extractProperties(endDeviceEvent);
+        if(optionalofEndDeviceEventDetailsMap.isPresent()) {
+            Map<String, String> endDevEventDetailMap = optionalofEndDeviceEventDetailsMap.get();
+            if (endDevEventDetailMap.containsKey(DEVICE_PROTOCOL_CODE_LABEL)) {
+              return  Optional.of(endDevEventDetailMap.get(DEVICE_PROTOCOL_CODE_LABEL));
+            }
+        }
+        return Optional.empty();
     }
 
     @FunctionalInterface
@@ -255,7 +286,7 @@ public class EndDeviceEventsBuilder {
 
     private Optional<Map<String, String>> extractProperties(EndDeviceEvent endDeviceEvent) {
         return Optional.ofNullable(endDeviceEvent.getEndDeviceEventDetails())
-                .map(list -> list.stream().filter(details -> !Checks.is(details.getName()).emptyOrOnlyWhiteSpace())
+                .map(list -> list.stream().filter(details -> !Checks.is(details.getName()).emptyOrOnlyWhiteSpace() && details.getName().equals(DEVICE_PROTOCOL_CODE_LABEL))
                         .collect(Collectors.toMap(EndDeviceEventDetail::getName, EndDeviceEventDetail::getValue)));
     }
 

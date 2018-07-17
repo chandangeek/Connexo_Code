@@ -5,6 +5,8 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -14,19 +16,25 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Clock;
@@ -50,11 +58,31 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile DeviceService deviceService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
+    private volatile MeterConfigParser meterConfigParser;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
+    private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
 
+    public MeterConfigServiceCallHandler(){
+
+    }
+    @Inject
+    public MeterConfigServiceCallHandler(MeterConfigParser meterConfigParser, Thesaurus thesaurus, Clock clock, BatchService batchService,
+            DeviceLifeCycleService deviceLifeCycleService,
+            DeviceConfigurationService deviceConfigurationService,
+            DeviceService deviceService,
+            JsonService jsonService){
+        this.meterConfigParser = meterConfigParser;
+        this.batchService = batchService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
+        this.clock = clock;
+        this.deviceService = deviceService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.jsonService = jsonService;
+        this.thesaurus = thesaurus;
+    }
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
@@ -75,16 +103,28 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         }
     }
 
-    private void processMeterConfigServiceCall(ServiceCall serviceCall) {
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtension = Optional.of(webServiceExtension);
+    }
+
+    public void removeInboundCIMWebServiceExtension(InboundCIMWebServiceExtension webServiceExtension) {
+        this.webServiceExtension = Optional.empty();
+    }
+
+    private void processMeterConfigServiceCall(ServiceCall serviceCall)  {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        MeterInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
         try {
+            Device device;
             switch (OperationEnum.getFromString(extensionFor.getOperation())) {
                 case CREATE:
-                    getDeviceBuilder().prepareCreateFrom(meter).build();
+                    device = getDeviceBuilder().prepareCreateFrom(meterInfo).build();
+                    postProcessDevice(device, meterInfo);
                     break;
                 case UPDATE:
-                    getDeviceBuilder().prepareChangeFrom(meter).build();
+                    device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
+                    postProcessDevice(device, meterInfo);
                     break;
                 default:
                     break;
@@ -148,6 +188,10 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
+    private void postProcessDevice(Device device, MeterInfo meterInfo){
+        webServiceExtension.ifPresent(inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
     }
 
     private DeviceBuilder getDeviceBuilder() {

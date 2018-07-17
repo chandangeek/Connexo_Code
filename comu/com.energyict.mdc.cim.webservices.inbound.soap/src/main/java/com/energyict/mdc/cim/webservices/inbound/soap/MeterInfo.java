@@ -2,8 +2,9 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
+package com.energyict.mdc.cim.webservices.inbound.soap;
 
+import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -28,6 +29,7 @@ public class MeterInfo {
     private Instant statusEffectiveDate;
     private Instant multiplierEffectiveDate;
     private String configurationEventReason;
+    private ElectronicAddressInfo electronicAddressInfo;
 
     public MeterInfo(){}
 
@@ -190,5 +192,13 @@ public class MeterInfo {
 
     public void setConfigurationEventReason(String configurationEventReason) {
         this.configurationEventReason = configurationEventReason;
+    }
+
+    public ElectronicAddressInfo getElectronicAddress(){
+        return electronicAddressInfo;
+    }
+
+    public void setElectronicAddress(ElectronicAddress electronicAddress){
+        electronicAddressInfo = new ElectronicAddressInfo(electronicAddress);
     }
 }

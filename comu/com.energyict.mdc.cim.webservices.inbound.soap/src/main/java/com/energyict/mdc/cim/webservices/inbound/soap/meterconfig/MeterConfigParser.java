@@ -16,6 +16,7 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
@@ -64,6 +65,7 @@ public class MeterConfigParser {
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
         meterInfo.setModelVersion(extractModelVersion(meter).orElse(null));
         meterInfo.setMultiplier(extractMultiplier(meter).orElse(null));
+        meterInfo.setElectronicAddress(meter.getElectronicAddress());
         return meterInfo;
     }
 
