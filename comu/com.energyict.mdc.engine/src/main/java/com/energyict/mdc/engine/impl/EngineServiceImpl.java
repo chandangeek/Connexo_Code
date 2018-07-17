@@ -591,6 +591,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
+        public DeviceIdentifier createDeviceIdentifierByDeviceName(String deviceName) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByDeviceName(deviceName))
+                    .orElseThrow(IdentificationServiceMissingException::new);
+        }
+
+        @Override
         public DeviceIdentifier createDeviceIdentifierBySerialNumber(String serialNumber) {
             return this.identificationService
                     .get()
