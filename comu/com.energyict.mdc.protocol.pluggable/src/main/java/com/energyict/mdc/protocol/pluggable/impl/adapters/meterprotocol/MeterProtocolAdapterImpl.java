@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolT
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -317,6 +318,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     public String getSerialNumber() {
         if (meterProtocol instanceof SerialNumberSupport) {
             return ((SerialNumberSupport) meterProtocol).getSerialNumber();
+        } else if (meterProtocol instanceof UPLMeterProtocolAdapter &&
+                ((UPLMeterProtocolAdapter) meterProtocol).getActual() != null &&
+                ((UPLMeterProtocolAdapter) meterProtocol).getActual() instanceof SerialNumberSupport) {
+            // old V1 protocols
+            return ((SerialNumberSupport) ((UPLMeterProtocolAdapter) meterProtocol).getActual()).getSerialNumber();
         } else {
            throw new CommunicationException(MessageSeeds.SERIAL_NUMBER_NOT_SUPPORTED);
         }

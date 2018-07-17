@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.*;
@@ -147,7 +148,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         if (loadProfiles != null) {
             for (LoadProfileReader loadProfileReader : loadProfiles) {
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
-                    if (logBookReader != null) {
+                    if (logBookReader != null && !((UPLMeterProtocolAdapter)meterProtocol).getActual().hasSupportForSeparateEventsReading()) {
                         logBookReadNotRead = false;
                         collectedData.addAll(getSingleProfileData(loadProfileReader, logBookReader));
                     } else {
@@ -324,8 +325,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         List<CollectedData> collectedDataList = new ArrayList<>(1);
         CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
-            ProfileData profileData = this.meterProtocol.getProfileData(logBookReader.getLastLogBook(), true);
-            deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
+            if(((UPLMeterProtocolAdapter)meterProtocol).getActual().hasSupportForSeparateEventsReading()) { //read meter events separately, without reading the load profile
+                List<MeterEvent> meterEvents = this.meterProtocol.getMeterEvents(logBookReader.getLastLogBook());
+                deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+            } else {
+                ProfileData profileData = this.meterProtocol.getProfileData(logBookReader.getLastLogBook(), true);
+                deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
+            }
         } catch (IOException e) {
             if (isTimeout(e)) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
