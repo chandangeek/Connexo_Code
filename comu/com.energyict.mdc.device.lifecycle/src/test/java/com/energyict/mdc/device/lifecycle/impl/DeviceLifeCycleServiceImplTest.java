@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -142,6 +143,8 @@ public class DeviceLifeCycleServiceImplTest {
     private StateTransitionTriggerEvent event;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void initializeMocks() {
@@ -865,7 +868,7 @@ public class DeviceLifeCycleServiceImplTest {
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
         return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
-                .systemDefaultZone(), this.licenseService);
+                .systemDefaultZone(), this.licenseService, this.meteringService);
     }
 
     public static class NoTranslation implements NlsMessageFormat {

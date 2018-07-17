@@ -69,7 +69,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             String deviceId = event.getSourceId();
             try {
                 Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
-                Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("amrId").isEqualTo(deviceId));
+                Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("id").isEqualTo(deviceId));
                 endDeviceQuery.select(condition)
                         .stream()
                         .findFirst()
