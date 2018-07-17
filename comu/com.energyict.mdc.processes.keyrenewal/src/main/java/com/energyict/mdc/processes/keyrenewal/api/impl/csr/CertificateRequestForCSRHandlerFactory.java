@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.processes.keyrenewal.api.impl.csr;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
