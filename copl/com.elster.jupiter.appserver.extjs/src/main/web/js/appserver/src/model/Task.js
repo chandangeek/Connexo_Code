@@ -13,6 +13,8 @@ Ext.define('Apr.model.Task', {
                     return Uni.I18n.translate('general.busySince','APR','Busy since {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('queueStatusDate'))),false);
                 } else if (record.get('queueStatus')==='Planned'){
                     return Uni.I18n.translate('general.plannedOn','APR','Planned on {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('queueStatusDate'))),false);
+                } else {
+                    return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
                 }
                 else {
                     return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');

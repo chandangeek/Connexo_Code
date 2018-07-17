@@ -67,7 +67,7 @@ Ext.define('Apr.controller.TaskManagement', {
 
     showTaskManagement: function () {
         var me = this,
-            queuesStore = me.getStore('Apr.store.QueuesByApplication');
+            queuesStore = me.getStore('Apr.store.QueuesByApplication'), widget;
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
         widget = Ext.widget('task-management-setup', {
