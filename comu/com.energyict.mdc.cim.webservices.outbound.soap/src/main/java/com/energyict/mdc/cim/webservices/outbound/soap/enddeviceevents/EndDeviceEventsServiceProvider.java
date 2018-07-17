@@ -15,6 +15,7 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceevents.NameType;
@@ -23,7 +24,6 @@ import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -45,6 +45,7 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
 
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
+    private static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -151,6 +152,10 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
                 endDeviceEvent.setReason(record.getDescription());
                 endDeviceEvent.setUserID(record.getUserID());
                 endDeviceEvent.setSeverity(record.getSeverity());
+                EndDeviceEventDetail endDeviceEventDetail =  new EndDeviceEventDetail();
+                endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
+                endDeviceEventDetail.setValue(record.getDeviceEventType());
+                endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
                 EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
                 eventType.setRef(record.getEventTypeCode());
                 endDeviceEvent.setEndDeviceEventType(eventType);

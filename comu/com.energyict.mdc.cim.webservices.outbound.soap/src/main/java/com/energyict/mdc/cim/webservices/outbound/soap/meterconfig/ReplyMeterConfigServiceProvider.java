@@ -4,17 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
-import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
-import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.Name;
-import ch.iec.tc57._2011.schema.message.ObjectType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -27,6 +16,18 @@ import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
+import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.Name;
+import ch.iec.tc57._2011.schema.message.ObjectType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
@@ -127,7 +128,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
             try {
                 getMeterConfigPorts()
                         .stream()
-                        .filter(port -> isValidMeterConfigPortService(port, endPointConfiguration))
+                        .filter(port -> isValidMeterConfigPortService(port))
                         .findAny()
                         .ifPresent(meterConfigPortService -> {
                             try {
@@ -151,7 +152,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         try {
             getMeterConfigPorts()
                     .stream()
-                    .filter(port -> isValidMeterConfigPortService(port, endPointConfiguration))
+                    .filter(port -> isValidMeterConfigPortService(port))
                     .findAny()
                     .ifPresent(meterConfigPortService -> {
                         try {
@@ -242,7 +243,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfigEventMessageType;
     }
 
-    private boolean isValidMeterConfigPortService(MeterConfigPort meterConfigPort, EndPointConfiguration endPointConfiguration) {
-        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(meterConfigPort))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
+    private boolean isValidMeterConfigPortService(MeterConfigPort meterConfigPort) {
+        return ((JaxWsClientProxy) (Proxy.getInvocationHandler(meterConfigPort))).getRequestContext()
+                .containsKey(Message.ENDPOINT_ADDRESS);
     }
 }
