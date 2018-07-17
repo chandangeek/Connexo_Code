@@ -37,7 +37,13 @@ public enum EventType {
     DEVICE_DELETED("device/DELETED"),
     DEVICE_UPDATED("device/UPDATED"),
     DEVICE_BEFORE_DELETE("device/BEFORE_DELETE"),
-    DEVICE_UPDATED_IPADDRESSV6("device/UPDATED_IPV6"),
+    DEVICE_UPDATED_IPADDRESSV6("device/UPDATED_IPV6") {
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder
+                    .withProperty("MRID", ValueType.STRING, "MRID")
+                    .shouldPublish();
+        }
+    },
     LOADPROFILE_CREATED("loadprofile/CREATED"),
     LOADPROFILE_DELETED("loadprofile/DELETED"),
     LOADPROFILE_UPDATED("loadprofile/UPDATED"),
