@@ -16,16 +16,20 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 
 /**
  * Provides functionality to create finders for MDC objects.
  */
+@ProviderType
 public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByDatabaseId(long id);
 
     DeviceIdentifier createDeviceIdentifierByMRID(String mRID);
+
+    DeviceIdentifier createDeviceIdentifierByDeviceName(String deviceName);
 
     /**
      * Creates a DeviceIdentifier based on the serialNumber of the device.
