@@ -176,7 +176,8 @@ public enum EndDeviceSubDomain implements HasNumericCode {
     VERSION("Version", 124, "Related to a specific iteration or translation"),
     VOLTAGE("Voltage", 38, "Related to the electrical force that would drive an electric current between two points"),
     WINDOW("Window", 73, "Related to a period of time during which a device can be linked/paired with a meter or other device"),
-    WRITEACCESS("WriteAccess", 282, "Related to the permission level one has; as in read, write, update");
+    WRITEACCESS("WriteAccess", 282, "Related to the permission level one has; as in read, write, update"),
+    RECODER("Recoder", 300, "A device for encoding");
 
     private final String mnemonic;
     private final int value;
