@@ -57,7 +57,7 @@ public class HsmConfigurationPropFileImplTest {
     public void testJssInitFileIsReturned() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
 
-        assertEquals(CONFIG_FILE, hsmConfigurationPropFile.getJssInitFile());
+        assertEquals("c:/Users/H251454/git/jupiter/copl/com.elster.jupiter.hsm/src/test/resources/hsm-runtime-configuration-be.json", hsmConfigurationPropFile.getJssInitFile());
     }
 
     @Test
@@ -96,13 +96,12 @@ public class HsmConfigurationPropFileImplTest {
     }
 
     @Test
-    public void testMapReturnConfiguredLabel() throws HsmBaseException {
+    public void testConfiguredLabel() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-        String label = "S_DB";
+        String label = "IMP-SM-KEK";
         HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationPropFile.get(label);
-        assertEquals("PUB_KEK", hsmLabelConfiguration.getFileImportLabel());
+        assertEquals("Pub_KEK_SM", hsmLabelConfiguration.getFileImportLabel());
         assertEquals(KeyType.SM_KEK_AUTHENTIC, hsmLabelConfiguration.getImportKeyType());
-        assertEquals(KeyType.SM_KEK_RENEWAL, hsmLabelConfiguration.getRenewKeyType());
-        assertEquals(label, hsmLabelConfiguration.getImportReEncryptHsmLabel());
+        assertEquals("S_DB", hsmLabelConfiguration.getImportReEncryptHsmLabel());
     }
 }

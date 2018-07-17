@@ -76,9 +76,17 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
             if (key instanceof String && ((String) key).startsWith(HSM_CONFIG_LABEL_PREFIX)) {
                 HsmLabelConfiguration cfg = new HsmLabelConfiguration((String) entry.getValue());
                 String label = ((String) key).replace(HSM_CONFIG_LABEL_PREFIX, "");
-                importToHsmLabelMap.put(cfg.getFileImportLabel(), label);
+                importToHsmLabelMap.put(getFileImportLabel(label, cfg), label);
                 labelToConfigMap.put(label, cfg);
             }
+        }
+    }
+
+    private String getFileImportLabel(String fileLabel, HsmLabelConfiguration cfg) {
+        try {
+            return cfg.getFileImportLabel();
+        } catch (HsmBaseException e) {
+            return fileLabel;
         }
     }
 }

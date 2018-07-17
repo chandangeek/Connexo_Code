@@ -15,12 +15,14 @@ public class HsmLabelConfiguration {
 
     private final String label;
     private final KeyType importKeyType;
+    private final Integer importDeviceKeyLength;
     private final KeyType renewKeyType;
     private final String importReEncryptHsmLabel;
 
-    public HsmLabelConfiguration(String label, KeyType importKeyType, KeyType renewKeyType, String importReEncryptHsmLabel) {
+    public HsmLabelConfiguration(String label, KeyType importKeyType,int importDeviceKeyLength, KeyType renewKeyType, String importReEncryptHsmLabel) {
         this.label = label;
         this.importKeyType = importKeyType;
+        this.importDeviceKeyLength = importDeviceKeyLength;
         this.renewKeyType = renewKeyType;
         this.importReEncryptHsmLabel = importReEncryptHsmLabel;
     }
@@ -29,12 +31,14 @@ public class HsmLabelConfiguration {
         String[] split = value.split(",");
 
         try {
-            this.label = initString(split[0]);
+            this.label = initString(split[0].trim());
             String importKeyExtracted = split[1].trim();
             this.importKeyType = importKeyExtracted.isEmpty()? null:KeyType.valueOf(importKeyExtracted);
-            String renewKeyExtracted = split[2].trim();
+            String importKeyLength = split[2].trim();
+            this.importDeviceKeyLength = importKeyLength.isEmpty()? null: Integer.parseInt(importKeyLength);
+            String renewKeyExtracted = split[3].trim();
             this.renewKeyType = renewKeyExtracted.isEmpty()? null:KeyType.valueOf(renewKeyExtracted);
-            String reEncryptImportLabel = split.length == 4? split[3].trim(): "";
+            String reEncryptImportLabel = split.length == 5? split[4].trim(): "";
             this.importReEncryptHsmLabel = initString(reEncryptImportLabel);
         } catch (IllegalArgumentException e) {
             throw new HsmBaseException(e);
@@ -72,5 +76,9 @@ public class HsmLabelConfiguration {
             throw new HsmBaseException(msg);
         }
         return obj;
+    }
+
+    public Integer getImportDeviceKeyLength() {
+        return importDeviceKeyLength;
     }
 }
