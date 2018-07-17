@@ -136,6 +136,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.TaskManagementRegisteredDevices',
         'Apr.controller.CustomTask',
         'Mdc.crlrequest.controller.TaskManagementCrlRequest',
+        'Apr.controller.CustomTask',
         'Mdc.controller.setup.TaskManagement'
     ],
 

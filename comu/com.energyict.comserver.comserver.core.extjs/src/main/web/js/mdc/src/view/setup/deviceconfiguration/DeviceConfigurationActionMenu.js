@@ -27,6 +27,24 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                text: Uni.I18n.translate('general.setAsDefault', 'MDC', 'Set as default'),
+                itemId: 'setAsDefaultMenuItem',
+                action: 'setAsDefault',
+                visible: function () {
+                    return !!this.record.get('active') && !this.record.get('isDefault')
+                },
+                section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default'),
+                itemId: 'removeAsDefaultMenuItem',
+                action: 'removeAsDefault',
+                visible: function () {
+                    return !!this.record.get('active') && !!this.record.get('isDefault')
+                },
+                section: this.SECTION_ACTION
+            },
+            {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                 itemId: 'editDeviceconfigurationMenuItem',
                 action: 'editDeviceConfiguration',

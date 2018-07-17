@@ -23,6 +23,11 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
         var me = this;
         this.columns = [
             {
+                xtype: 'uni-default-column',
+                dataIndex: 'isDefault',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
