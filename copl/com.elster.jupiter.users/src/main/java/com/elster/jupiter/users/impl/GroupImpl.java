@@ -41,7 +41,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class},
+        message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
 final class GroupImpl implements Group {
 
 	//persistent fields
@@ -100,6 +101,10 @@ final class GroupImpl implements Group {
 	public String getName() {
 		return name;
 	}
+
+    public void setName(String _name) {
+        name = _name;
+    }   // CONM-324
 
 	@Override
 	public boolean hasPrivilege(String applicationName, String privilegeCode) {
