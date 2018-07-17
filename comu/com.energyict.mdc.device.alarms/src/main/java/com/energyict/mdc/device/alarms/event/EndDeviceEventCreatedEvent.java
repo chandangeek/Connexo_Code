@@ -40,7 +40,7 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
     public void init(Map<?, ?> jsonPayload) {
         try {
             this.endDeviceId = ((Number) jsonPayload.get(ModuleConstants.DEVICE_IDENTIFIER)).longValue();
-            this.eventTimestamp = Instant.ofEpochSecond(((Number) jsonPayload.get(ModuleConstants.EVENT_TIMESTAMP)).longValue());
+            this.eventTimestamp = Instant.ofEpochMilli(((Number) jsonPayload.get(ModuleConstants.EVENT_TIMESTAMP)).longValue());
             this.endDeviceEventType = (String) jsonPayload.get(ModuleConstants.END_DEVICE_EVENT_TYPE);
             this.deviceCode = (String) jsonPayload.get(ModuleConstants.DEVICE_EVENT_TYPE);
         } catch (Exception e) {

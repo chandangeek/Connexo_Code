@@ -78,9 +78,9 @@ public class DeviceAlarmEventHandler implements MessageHandler {
     }
 
     private Device getDeviceFromEventMap(Map<?, ?> map) {
-        Optional<Long> amrId = getLong(map, ModuleConstants.DEVICE_IDENTIFIER);
-        if (amrId.isPresent()) {
-            return getDeviceService().findDeviceById(amrId.get()).orElse(null);
+        Optional<Long> meterId = getLong(map, ModuleConstants.DEVICE_IDENTIFIER);
+        if (meterId.isPresent()) {
+            return getDeviceService().findDeviceByMeterId(meterId.get()).orElse(null);
         } else {
             return null; // providing no device requires the event implementation to 'identify' the device in another way
         }
