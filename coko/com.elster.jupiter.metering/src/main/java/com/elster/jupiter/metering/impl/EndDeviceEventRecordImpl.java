@@ -71,6 +71,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private long logBookId;
     private int logBookPosition;
     private Instant createdDateTime;
+    private long createdDateTimeMillis;
     
     @SuppressWarnings("unused")
 	private long version;
@@ -115,6 +116,10 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public Instant getCreatedDateTime() {
         return createdDateTime;
+    }
+
+    public long getCreatedDateTimeMillis() {
+        return createdDateTimeMillis;
     }
 
     @Override
@@ -290,6 +295,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Instant createdDateTime) {
         this.endDevice.set(endDevice);
         this.createdDateTime = createdDateTime;
+        this.createdDateTimeMillis = createdDateTime.toEpochMilli();
         this.eventType.set(eventType);        
         return this;
     }

@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
@@ -244,4 +245,6 @@ public interface MeteringService {
     ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment);
 
     Optional<ReadingQualityComment> findReadingQualityComment(long id);
+
+    List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, Subquery subquery);
 }
