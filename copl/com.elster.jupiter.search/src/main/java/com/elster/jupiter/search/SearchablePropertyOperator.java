@@ -24,8 +24,11 @@ public enum SearchablePropertyOperator {
     LESS_THAN("<") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
+            if (Number.class.isAssignableFrom(valueType)) {
                 criterionBuilder.isLessThan(value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isLessThan((Instant) value);
             } else {
                 super.appendSingle(searchableProperty, criterionBuilder, value);
             }
@@ -37,8 +40,11 @@ public enum SearchablePropertyOperator {
     LESS_OR_EQUAL_TO("<=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
             if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
                 criterionBuilder.isLessThanOrEqualTo(value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isLessThanOrEqualTo((Instant) value);
             } else {
                 super.appendSingle(searchableProperty, criterionBuilder, value);
             }
@@ -50,8 +56,11 @@ public enum SearchablePropertyOperator {
     GREATER_THAN(">") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
             if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
                 criterionBuilder.isGreaterThan(value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isGreaterThan((Instant) value);
             } else {
                 super.appendSingle(searchableProperty, criterionBuilder, value);
             }
@@ -63,8 +72,11 @@ public enum SearchablePropertyOperator {
     GREATER_OR_EQUAL_TO(">=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
             if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
                 criterionBuilder.isGreaterThanOrEqualTo(value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isGreaterThanOrEqualTo((Instant) value);
             } else {
                 super.appendSingle(searchableProperty, criterionBuilder, value);
             }
@@ -118,8 +130,8 @@ public enum SearchablePropertyOperator {
                 criterionBuilder.isNotEqualTo((String) value);
             }else if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
                 criterionBuilder.is(!(Boolean) value);
-            }else if (String.class.isAssignableFrom(valueType)) {
-                criterionBuilder.isNotEqualTo((String) value);
+            } else if (Instant.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isNotEqualTo((Instant) value);
             } else {
                 criterionBuilder.isNotEqualTo(value);
             }
