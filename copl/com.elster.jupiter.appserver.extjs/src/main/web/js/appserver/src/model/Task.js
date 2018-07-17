@@ -16,9 +16,6 @@ Ext.define('Apr.model.Task', {
                 } else {
                     return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
                 }
-                else {
-                    return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
-                }
             }
         },
         {
