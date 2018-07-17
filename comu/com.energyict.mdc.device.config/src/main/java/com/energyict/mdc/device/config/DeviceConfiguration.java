@@ -163,4 +163,12 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void setMultiElementEnabled(boolean enabled);
 
+    boolean isDefault();
+
+    /**
+     * Sets the current device configuration as default on a device type.
+     * Sets the old configuration default status to false
+     * @param value true if setAsDefault, false if removeAsDefault
+     */
+    void setDefaultStatus(boolean value);
 }
