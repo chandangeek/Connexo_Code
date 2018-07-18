@@ -15,7 +15,7 @@
     </parent>
 
     <artifactId>mdc.firmware</artifactId>
-    <version>4.1.0${revision}</version>
+    <version>4.1.2${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.firmware [init FWC]</name>
     <description>
