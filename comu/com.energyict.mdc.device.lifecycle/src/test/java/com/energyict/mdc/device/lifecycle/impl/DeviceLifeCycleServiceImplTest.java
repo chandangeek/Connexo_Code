@@ -14,6 +14,9 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -193,6 +196,8 @@ public class DeviceLifeCycleServiceImplTest {
                 .evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
+
+        when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -435,6 +440,12 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
+
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(DEVICE_ID);
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(amrSystem.findMeter(String.valueOf(DEVICE_ID))).thenReturn(Optional.of(meter));
+        when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
 
         // Business method
         service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
