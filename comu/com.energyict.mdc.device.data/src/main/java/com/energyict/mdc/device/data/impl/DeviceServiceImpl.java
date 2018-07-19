@@ -369,6 +369,9 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Optional<Device> findDeviceByIdentifier(DeviceIdentifier identifier) {
         try {
+            if (identifier == null) {
+                return Optional.empty();
+            }
             return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
         } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException | NotUniqueException e) {
             return Optional.empty();
