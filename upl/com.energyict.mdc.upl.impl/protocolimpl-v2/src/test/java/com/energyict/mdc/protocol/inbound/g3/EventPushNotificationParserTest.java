@@ -430,8 +430,8 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(1489576684000L, meterProtocolEvent.getTime().getTime());
-        assertEquals("Other event. 02237EFFFEFDAF26", meterProtocolEvent.getMessage());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
+        assertEquals("PLC G3 node link lost. 02237EFFFEFDAF26", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PLC_G3_NODE_LINK_LOST, meterProtocolEvent.getEiCode());
         assertEquals(13303808, meterProtocolEvent.getProtocolCode());
 
 
