@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -22,6 +22,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.time.Clock;
 
 @Component(name = "com.elster.insight.issue.datavalidation.DataValidationEventHandlerFactory",
         service = MessageHandlerFactory.class,
@@ -39,19 +41,20 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
-    private volatile IssueDataValidationService issueDataValidationService;
+    private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
+    private volatile Clock clock;
 
     //for OSGI
     public DataValidationEventHandlerFactory() {
     }
 
     @Inject
-    public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, IssueDataValidationService issueDataValidationService) {
+    public DataValidationEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
-        setIssueDataValidationService(issueDataValidationService);
+        setUsagePointIssueDataValidationService(usagePointIssueDataValidationService);
     }
 
     @Override
@@ -64,10 +67,11 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
                 bind(IssueService.class).toInstance(issueService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(IssueDataValidationService.class).toInstance(issueDataValidationService);
+                bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
+                bind(Clock.class).toInstance(clock);
             }
         });
-        return new DataValidationEventHandler(injector);
+        return new UsagePointDataValidationEventHandler(injector);
     }
 
     @Reference
@@ -83,7 +87,7 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -92,7 +96,12 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
+    public void setUsagePointIssueDataValidationService(UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

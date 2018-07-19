@@ -11,8 +11,8 @@ import aQute.bnd.annotation.ProviderType;
 import java.util.List;
 
 @ProviderType
-public interface IssueDataValidation extends Issue {
+public interface UsagePointIssueDataValidation extends Issue {
 
-    List<NotEstimatedBlock> getNotEstimatedBlocks();
+    List<UsagePointNotEstimatedBlock> getNotEstimatedBlocks();
     
 }

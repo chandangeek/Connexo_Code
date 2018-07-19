@@ -12,7 +12,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 
 @ProviderType
-public interface NotEstimatedBlock {
+public interface UsagePointNotEstimatedBlock {
     
     Channel getChannel();
 

@@ -12,10 +12,10 @@ import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
 
-public enum DataValidationEventDescription {
+public enum UsagePointDataValidationEventDescription {
 
-    CANNOT_ESTIMATE_DATA("com/elster/jupiter/estimation/estimationblock/FAILURE", CannotEstimateDataEvent.class),
-    READINGQUALITY_DELETED("com/elster/jupiter/metering/readingquality/DELETED", SuspectDeletedEvent.class) {
+    CANNOT_ESTIMATE_USAGEPOINT_DATA("com/elster/jupiter/estimation/estimationblock/FAILURE", CannotEstimateUsagePointDataEvent.class),
+    USAGEPOINT_READINGQUALITY_DELETED("com/elster/jupiter/metering/readingquality/DELETED", UsagePointSuspectDeletedEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
             // TODO: refactor to choose proper quality code system when issue management becomes available for MDM
@@ -27,9 +27,9 @@ public enum DataValidationEventDescription {
     ;
     
     private String topic;
-    private Class<? extends DataValidationEvent> eventClass;
+    private Class<? extends UsagePointDataValidationEvent> eventClass;
     
-    private DataValidationEventDescription(String topic, Class<? extends DataValidationEvent> eventClass) {
+    private UsagePointDataValidationEventDescription(String topic, Class<? extends UsagePointDataValidationEvent> eventClass) {
         this.topic = topic;
         this.eventClass = eventClass;
     }
@@ -38,7 +38,7 @@ public enum DataValidationEventDescription {
         return topic;
     }
     
-    public Class<? extends DataValidationEvent> getEventClass() {
+    public Class<? extends UsagePointDataValidationEvent> getEventClass() {
         return eventClass;
     }
     

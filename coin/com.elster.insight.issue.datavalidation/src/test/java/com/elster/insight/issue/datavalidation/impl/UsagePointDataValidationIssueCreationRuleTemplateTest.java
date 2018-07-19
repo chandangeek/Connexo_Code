@@ -56,9 +56,9 @@ import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.insight.issue.datavalidation.DataValidationIssueFilter;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 
 import java.math.BigDecimal;
@@ -96,7 +96,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
     private UsagePointDataValidationIssueCreationRuleTemplate template;
     private IssueService issueService;
     private IssueCreationService issueCreationService;
-    private IssueDataValidationService issueDataValidationService;
+    private UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private MessageHandler messageHandler;
     private MetrologyConfiguration metrologyConfiguration;
     private UsagePoint usagePoint;
@@ -111,7 +111,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(fixedTime);
         try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
             inMemoryPersistence.getService(FiniteStateMachineService.class);
-            inMemoryPersistence.getService(IssueDataValidationService.class);
+            inMemoryPersistence.getService(UsagePointIssueDataValidationService.class);
             ctx.commit();
         }
     }
@@ -131,7 +131,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         template = inMemoryPersistence.getService(UsagePointDataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
-        issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
+        usagePointIssueDataValidationService = inMemoryPersistence.getService(UsagePointIssueDataValidationService.class);
         messageHandler = inMemoryPersistence.getService(DataValidationEventHandlerFactory.class).newMessageHandler();
 
         metrologyConfiguration = createMetrologyConfiguration("Default", mock(List.class));
@@ -159,7 +159,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
     @Test
     @Transactional
     public void testTemplateGetters() {
-        assertThat(template.getIssueType().getId()).isEqualTo(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get().getId());
+        assertThat(template.getIssueType().getId()).isEqualTo(issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get().getId());
     }
 
     @Test
@@ -187,14 +187,14 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        IssueDataValidation issueDataValidation = issues.get(0);
-        assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getChannel()).isEqualTo(channel);
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getReadingType()).isEqualTo(readingType);
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
-        assertThat(issueDataValidation.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now);
+        UsagePointIssueDataValidation usagePointIssueDataValidation = issues.get(0);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks()).hasSize(1);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks().get(0).getChannel()).isEqualTo(channel);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks().get(0).getReadingType()).isEqualTo(readingType);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now);
     }
 
     @Test
@@ -208,13 +208,13 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(0);//nothing has been created because device configuration in not mentioned in the rule
 
         CreationRule rule = createRuleForMetrologyConfiguration("Rule #2", metrologyConfiguration, altMetroConfig);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
         messageHandler.process(message);
-        issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getDevice().getId()).isEqualTo(usagePoint.getId());
         assertThat(issues.get(0).getRule().getId()).isEqualTo(rule.getId());
@@ -228,19 +228,19 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        IssueDataValidation issueDataValidation = issues.get(0);
-        assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
+        UsagePointIssueDataValidation usagePointIssueDataValidation = issues.get(0);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks()).hasSize(1);
 
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES));
         message = mockCannotEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
 
-        issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        issueDataValidation = issues.get(0);
-        assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(2);
+        usagePointIssueDataValidation = issues.get(0);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks()).hasSize(2);
     }
 
     @Test
@@ -251,16 +251,16 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        IssueDataValidation issueDataValidation = issues.get(0);
-        assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
-        issueDataValidationService.findOpenIssue(issueDataValidation.getId()).get().close(issueService.findStatus(IssueStatus.RESOLVED).get());
+        UsagePointIssueDataValidation usagePointIssueDataValidation = issues.get(0);
+        assertThat(usagePointIssueDataValidation.getNotEstimatedBlocks()).hasSize(1);
+        usagePointIssueDataValidationService.findOpenIssue(usagePointIssueDataValidation.getId()).get().close(issueService.findStatus(IssueStatus.RESOLVED).get());
 
         message = mockCannotEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
 
-        issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(2);//open and closed
     }
 
@@ -279,7 +279,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES));
         message = mockCannotEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -287,7 +287,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         readingQuality.delete();
         message = mockSuspectDeletedMessage(fixedTime, channel, "2.5.258", readingType);
         messageHandler.process(message);
-        issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issues.get(0).getNotEstimatedBlocks()).hasSize(1);
@@ -297,8 +297,8 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         //resolve issue completely
         message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "2.5.258", readingType);
         messageHandler.process(message);
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getStatus().getKey()).isEqualTo(IssueStatus.RESOLVED);
         assertThat(issues.get(0).getNotEstimatedBlocks()).isEmpty();
@@ -369,8 +369,8 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         props.put(UsagePointDataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
         return ruleBuilder.setTemplate(UsagePointDataValidationIssueCreationRuleTemplate.NAME)
                 .setName(name)
-                .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
-                .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
+                .setIssueType(issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get())
+                .setReason(issueService.findReason(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                 .setPriority(Priority.DEFAULT)
                 .activate()
                 .setDueInTime(DueInType.YEAR, 5)

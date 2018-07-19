@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -56,7 +56,7 @@ public class UpgraderV10_2 implements Upgrader {
 
     private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
-        statement.setString(1, IssueDataValidationService.COMPONENT_NAME);
+        statement.setString(1, UsagePointIssueDataValidationService.COMPONENT_NAME);
         statement.setString(2, Layer.DOMAIN.name());
         statement.setString(3, TranslationKeys.AQ_SUBSCRIBER.getKey());
         return statement;

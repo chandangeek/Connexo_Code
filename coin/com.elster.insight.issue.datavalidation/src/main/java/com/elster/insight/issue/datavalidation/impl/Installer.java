@@ -17,10 +17,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction;
-import com.elster.insight.issue.datavalidation.impl.actions.RetryEstimationAction;
-import com.elster.insight.issue.datavalidation.impl.event.DataValidationEventDescription;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.impl.actions.CloseUsagePointIssueAction;
+import com.elster.insight.issue.datavalidation.impl.actions.UsagePointRetryEstimationAction;
+import com.elster.insight.issue.datavalidation.impl.event.UsagePointDataValidationEventDescription;
 import com.google.inject.Inject;
 
 import java.util.logging.Logger;
@@ -50,7 +50,7 @@ class Installer implements FullInstaller {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
                 "Create issue view operation",
-                () -> new CreateIssueViewOperation(dataModel).execute(),
+                () -> new CreateUsagePointIssueViewOperation(dataModel).execute(),
                 logger
         );
         run(() -> {
@@ -71,14 +71,14 @@ class Installer implements FullInstaller {
     }
 
     private void createIssueTypeAndReasons(IssueType type) {
-        IssueReason failedToEstimateReason = issueService.createReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type,
+        IssueReason failedToEstimateReason = issueService.createReason(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type,
                 TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
-        issueActionService.createActionType(DataValidationActionsFactory.ID, RetryEstimationAction.class.getName(), failedToEstimateReason);
-        issueActionService.createActionType(DataValidationActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
+        issueActionService.createActionType(UsagePtDataValidationActionFactory.ID, UsagePointRetryEstimationAction.class.getName(), failedToEstimateReason);
+        issueActionService.createActionType(UsagePtDataValidationActionFactory.ID, CloseUsagePointIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
     }
 
     private void publishEvents() {
-        for (DataValidationEventDescription eventDescription : DataValidationEventDescription.values()) {
+        for (UsagePointDataValidationEventDescription eventDescription : UsagePointDataValidationEventDescription.values()) {
             eventService.getEventType(eventDescription.getTopic()).ifPresent(eventType -> {
                 eventType.setPublish(true);
                 eventType.update();
@@ -87,18 +87,18 @@ class Installer implements FullInstaller {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE, IssueDataValidationService.DATA_VALIDATION_ISSUE_PREFIX);
+        return issueService.createIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE, UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_PREFIX);
     }
 
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         destinationSpec.subscribe(
                 TranslationKeys.AQ_SUBSCRIBER,
-                IssueDataValidationService.COMPONENT_NAME,
+                UsagePointIssueDataValidationService.COMPONENT_NAME,
                 Layer.DOMAIN,
                 whereCorrelationId()
-                        .isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
-                        .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())));
+                        .isEqualTo(UsagePointDataValidationEventDescription.CANNOT_ESTIMATE_USAGEPOINT_DATA.getTopic())
+                        .or(whereCorrelationId().isEqualTo(UsagePointDataValidationEventDescription.USAGEPOINT_READINGQUALITY_DELETED.getTopic())));
     }
     private void run(Runnable runnable, String explanation, Logger logger) {
         doTry(

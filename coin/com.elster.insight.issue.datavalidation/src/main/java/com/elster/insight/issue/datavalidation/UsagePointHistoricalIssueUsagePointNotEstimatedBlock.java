@@ -7,6 +7,6 @@ package com.elster.insight.issue.datavalidation;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface OpenIssueNotEstimatedBlock extends NotEstimatedBlock {
+public interface UsagePointHistoricalIssueUsagePointNotEstimatedBlock extends UsagePointNotEstimatedBlock {
 
 }

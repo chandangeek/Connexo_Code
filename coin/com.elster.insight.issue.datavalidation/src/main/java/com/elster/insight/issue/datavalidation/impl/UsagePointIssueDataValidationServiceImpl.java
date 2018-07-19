@@ -38,13 +38,13 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.insight.issue.datavalidation.DataValidationIssueFilter;
-import com.elster.insight.issue.datavalidation.HistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
-import com.elster.insight.issue.datavalidation.impl.entity.IssueDataValidationImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
+import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointIssueDataValidationImpl;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -54,6 +54,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -61,10 +62,10 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.insight.issue.datavalidation",
-           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
-           property = "name=" + IssueDataValidationService.COMPONENT_NAME,
+           service = { TranslationKeyProvider.class, MessageSeedProvider.class, UsagePointIssueDataValidationService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
+           property = "name=" + UsagePointIssueDataValidationService.COMPONENT_NAME,
            immediate = true)
-public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
+public class UsagePointIssueDataValidationServiceImpl implements UsagePointIssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
 
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
@@ -75,15 +76,16 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
     private volatile EstimationService estimationService;
+    private volatile Clock clock;
 
     private volatile DataModel dataModel;
 
     //for OSGI
-    public IssueDataValidationServiceImpl() {
+    public UsagePointIssueDataValidationServiceImpl() {
     }
 
     @Inject
-    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
+    public UsagePointIssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setIssueService(issueService);
@@ -103,13 +105,14 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueActionService.class).toInstance(issueActionService);
-                bind(IssueDataValidationService.class).toInstance(IssueDataValidationServiceImpl.this);
+                bind(UsagePointIssueDataValidationService.class).toInstance(UsagePointIssueDataValidationServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(Clock.class).toInstance(clock);
             }
         });
         upgradeService.register(
-                InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME),
+                InstallIdentifier.identifier("MultiSense", UsagePointIssueDataValidationService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
@@ -118,8 +121,8 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Override
-    public Optional<? extends IssueDataValidation> findIssue(long id) {
-        Optional<OpenIssueDataValidation> issue = findOpenIssue(id);
+    public Optional<? extends UsagePointIssueDataValidation> findIssue(long id) {
+        Optional<UsagePointOpenIssueDataValidation> issue = findOpenIssue(id);
         if (issue.isPresent()) {
             return issue;
         }
@@ -127,7 +130,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Override
-    public Optional<? extends IssueDataValidation> findAndLockIssueDataValidationByIdAndVersion(long id, long version) {
+    public Optional<? extends UsagePointIssueDataValidation> findAndLockIssueDataValidationByIdAndVersion(long id, long version) {
         Optional<? extends Issue> issue = issueService.findAndLockIssueByIdAndVersion(id, version);
         if (issue.isPresent()) {
             return findOpenIssue(id);
@@ -136,24 +139,24 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Override
-    public Optional<OpenIssueDataValidation> findOpenIssue(long id) {
-        return dataModel.query(OpenIssueDataValidation.class, OpenIssue.class)
-                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+    public Optional<UsagePointOpenIssueDataValidation> findOpenIssue(long id) {
+        return dataModel.query(UsagePointOpenIssueDataValidation.class, OpenIssue.class)
+                        .select(Where.where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
                         .stream()
                         .findFirst();
     }
 
     @Override
-    public Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id) {
-        return dataModel.query(HistoricalIssueDataValidation.class, HistoricalIssue.class)
-                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+    public Optional<UsagePointHistoricalIssueDataValidation> findHistoricalIssue(long id) {
+        return dataModel.query(UsagePointHistoricalIssueDataValidation.class, HistoricalIssue.class)
+                        .select(Where.where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
                         .stream()
                         .findFirst();
     }
 
     @Override
-    public OpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
-        OpenIssueDataValidationImpl issue = dataModel.getInstance(OpenIssueDataValidationImpl.class);
+    public UsagePointOpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+        UsagePointOpenIssueDataValidationImpl issue = dataModel.getInstance(UsagePointOpenIssueDataValidationImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
         issue.save();
@@ -162,7 +165,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Override
     public String getComponentName() {
-        return IssueDataValidationService.COMPONENT_NAME;
+        return UsagePointIssueDataValidationService.COMPONENT_NAME;
     }
 
     @Override
@@ -182,7 +185,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(IssueDataValidationService.COMPONENT_NAME, "Issue Data Validation");
+        dataModel = ormService.newDataModel(UsagePointIssueDataValidationService.COMPONENT_NAME, "Issue Data Validation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -200,7 +203,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -228,58 +231,63 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-        return issue instanceof OpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
+        return issue instanceof UsagePointOpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-        return issue instanceof HistoricalIssueDataValidation ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+        return issue instanceof UsagePointHistoricalIssueDataValidation ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
 
     @Override
-    public Finder<? extends IssueDataValidation> findAllDataValidationIssues(DataValidationIssueFilter filter) {
+    public Finder<? extends UsagePointIssueDataValidation> findAllDataValidationIssues(UsagePointDataValidationIssueFilter filter) {
         Condition condition = buildConditionFromFilter(filter);
 
-        Class<? extends IssueDataValidation> mainClass;
+        Class<? extends UsagePointIssueDataValidation> mainClass;
         Class<? extends Issue> issueEager;
         List<IssueStatus> statuses = filter.getStatuses();
         if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
-            mainClass = OpenIssueDataValidation.class;
+            mainClass = UsagePointOpenIssueDataValidation.class;
             issueEager = OpenIssue.class;
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
-            mainClass = HistoricalIssueDataValidation.class;
+            mainClass = UsagePointHistoricalIssueDataValidation.class;
             issueEager = HistoricalIssue.class;
         } else {
-            mainClass = IssueDataValidation.class;
+            mainClass = UsagePointIssueDataValidation.class;
             issueEager = Issue.class;
         }
         return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class,  IssueReason.class, IssueType.class);
     }
 
-    private Condition buildConditionFromFilter(DataValidationIssueFilter filter) {
+    private Condition buildConditionFromFilter(UsagePointDataValidationIssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by assignee
         Condition assigneeCondition = Condition.TRUE;
         if (filter.getAssignee().isPresent()) {
-            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get());
+            assigneeCondition = where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get());
         }
         if (filter.isUnassignedOnly()) {
-            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isNull();
+            assigneeCondition = where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isNull();
         }
         condition = condition.and(assigneeCondition);
         //filter by reason
         if (filter.getIssueReason().isPresent()) {
-            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".reason").isEqualTo(filter.getIssueReason().get()));
+            condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".reason").isEqualTo(filter.getIssueReason().get()));
         }
         //filter by device
         if (filter.getDevice().isPresent()) {
-            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".device").isEqualTo(filter.getDevice().get()));
+            condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".device").isEqualTo(filter.getDevice().get()));
         }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
-            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
+            condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
         }
         return condition;
     }

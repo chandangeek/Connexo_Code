@@ -9,12 +9,12 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
-public class NotEstimatedBlockImpl implements NotEstimatedBlock {
+public class UsagePointUsagePointNotEstimatedBlockImpl implements UsagePointNotEstimatedBlock {
     
     public enum Fields {
         ISSUE("issue"),
@@ -46,7 +46,7 @@ public class NotEstimatedBlockImpl implements NotEstimatedBlock {
     @NotNull
     private Instant endTime;
 
-    NotEstimatedBlockImpl init(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
+    UsagePointUsagePointNotEstimatedBlockImpl init(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
         this.channel.set(channel);
         this.readingType.set(readingType);
         this.startTime = startTime;

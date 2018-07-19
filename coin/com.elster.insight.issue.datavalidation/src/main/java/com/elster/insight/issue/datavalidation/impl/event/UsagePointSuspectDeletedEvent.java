@@ -9,8 +9,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.impl.MessageSeeds;
 
 import com.google.inject.Inject;
@@ -19,19 +19,19 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
-public class SuspectDeletedEvent extends DataValidationEvent {
+public class UsagePointSuspectDeletedEvent extends UsagePointDataValidationEvent {
 
     private Instant readingTimestamp;
 
     @Inject
-    public SuspectDeletedEvent(Thesaurus thesaurus, MeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService, Clock clock) {
-        super(thesaurus, meteringService, issueDataValidationService, issueService, clock);
+    public UsagePointSuspectDeletedEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
+        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService, clock);
     }
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof OpenIssueDataValidation) {
-            OpenIssueDataValidation dataValidationIssue = (OpenIssueDataValidation) issue;
+        if (issue instanceof UsagePointOpenIssueDataValidation) {
+            UsagePointOpenIssueDataValidation dataValidationIssue = (UsagePointOpenIssueDataValidation) issue;
             dataValidationIssue.removeNotEstimatedBlock(findChannel().get(), findReadingType().get(), readingTimestamp);
         }
     }

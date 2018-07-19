@@ -173,7 +173,7 @@ public class InMemoryIntegrationPersistence {
                 new EstimationModule(),
                 new TimeModule(),
                 new IssueModule(),
-                new IssueDataValidationModule(),
+                new UsagePointIssueDataValidationModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
                 new FileImportModule()

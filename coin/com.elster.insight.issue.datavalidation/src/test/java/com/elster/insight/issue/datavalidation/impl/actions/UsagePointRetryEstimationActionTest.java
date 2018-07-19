@@ -17,8 +17,8 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 import com.elster.insight.issue.datavalidation.impl.BaseTest;
 
 import com.google.common.collect.Range;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RetryEstimationActionTest extends BaseTest {
+public class UsagePointRetryEstimationActionTest extends BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "usagepointdatavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
 
@@ -52,7 +52,7 @@ public class RetryEstimationActionTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
-        action = getDefaultActionsFactory().createIssueAction(RetryEstimationAction.class.getName());
+        action = getDefaultActionsFactory().createIssueAction(UsagePointRetryEstimationAction.class.getName());
     }
 
     @Test
@@ -60,8 +60,8 @@ public class RetryEstimationActionTest extends BaseTest {
     public void testCreateAndExecuteAction() {
         Map<String, Object> properties = new HashMap<>();
 
-        List<NotEstimatedBlock> nonEstimatedBlocks = new ArrayList<>();
-        NotEstimatedBlock nonEstimatedBlock = mock(NotEstimatedBlock.class);
+        List<UsagePointNotEstimatedBlock> nonEstimatedBlocks = new ArrayList<>();
+        UsagePointNotEstimatedBlock nonEstimatedBlock = mock(UsagePointNotEstimatedBlock.class);
         Channel channel = mock(Channel.class);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         MeterActivation meterActivation = mock(MeterActivation.class);
@@ -88,7 +88,7 @@ public class RetryEstimationActionTest extends BaseTest {
         doReturn(estimationReport).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(ChannelsContainer.class), any(Range.class));
         doReturn(estimationResult).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(ChannelsContainer.class), any(Range.class), any(ReadingType.class), any());
 
-        IssueDataValidation issue = mock(IssueDataValidation.class);
+        UsagePointIssueDataValidation issue = mock(UsagePointIssueDataValidation.class);
         IssueStatus issueStatus = mock(IssueStatus.class);
         when(issue.getNotEstimatedBlocks()).thenReturn(nonEstimatedBlocks);
         when(issue.getStatus()).thenReturn(issueStatus);

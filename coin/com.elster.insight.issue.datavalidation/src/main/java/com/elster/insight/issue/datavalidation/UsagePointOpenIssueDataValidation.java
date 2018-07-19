@@ -14,9 +14,9 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 
 @ProviderType
-public interface OpenIssueDataValidation extends OpenIssue, IssueDataValidation {
+public interface UsagePointOpenIssueDataValidation extends OpenIssue, UsagePointIssueDataValidation {
     
-    HistoricalIssueDataValidation close(IssueStatus status);
+    UsagePointHistoricalIssueDataValidation close(IssueStatus status);
 
     void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp);
     

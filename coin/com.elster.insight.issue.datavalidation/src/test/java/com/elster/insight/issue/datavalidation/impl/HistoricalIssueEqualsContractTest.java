@@ -9,8 +9,8 @@ import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.impl.entity.HistoricalIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointHistoricalIssueDataValidationImpl;
 
 import java.time.Clock;
 import java.util.Collections;
@@ -30,19 +30,19 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
     @Mock
     IssueService issueService;
     @Mock
-    IssueDataValidationService issueDataValidationService;
+    UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     @Mock
     Thesaurus thesaurus;
 
     HistoricalIssueImpl baseIssue;
-    HistoricalIssueDataValidationImpl issueDataValidation;
+    UsagePointHistoricalIssueDataValidationImpl issueDataValidation;
 
     @Override
     protected Object getInstanceA() {
         if (issueDataValidation == null) {
             baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
-            issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
+            issueDataValidation = new UsagePointHistoricalIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
             issueDataValidation.setIssue(baseIssue);
         }
         return issueDataValidation;
@@ -52,7 +52,7 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
     protected Object getInstanceEqualToA() {
         HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
-        HistoricalIssueDataValidationImpl issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
+        UsagePointHistoricalIssueDataValidationImpl issueDataValidation = new UsagePointHistoricalIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
         return issueDataValidation;
     }
@@ -61,7 +61,7 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
     protected Iterable<?> getInstancesNotEqualToA() {
         HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
-        HistoricalIssueDataValidationImpl issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
+        UsagePointHistoricalIssueDataValidationImpl issueDataValidation = new UsagePointHistoricalIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
         return Collections.singletonList(issueDataValidation);
     }

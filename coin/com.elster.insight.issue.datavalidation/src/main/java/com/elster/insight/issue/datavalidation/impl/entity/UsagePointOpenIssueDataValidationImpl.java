@@ -15,10 +15,10 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
-import com.elster.insight.issue.datavalidation.HistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 
 import com.google.common.collect.Range;
 
@@ -31,17 +31,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl implements OpenIssueDataValidation {
+public final class UsagePointOpenIssueDataValidationImpl extends UsagePointIssueDataValidationImpl implements UsagePointOpenIssueDataValidation {
 
     @IsPresent
     private Reference<OpenIssue> baseIssue = ValueReference.absent();
 
     @Valid
-    private List<OpenIssueNotEstimatedBlockImpl> notEstimatedBlocks = new ArrayList<>();
+    private List<UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl> notEstimatedBlocks = new ArrayList<>();
 
     @Inject
-    public OpenIssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
-        super(dataModel, issueDataValidationService);
+    public UsagePointOpenIssueDataValidationImpl(DataModel dataModel, UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+        super(dataModel, usagePointIssueDataValidationService);
     }
 
     @Override
@@ -54,8 +54,8 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
     }
 
     @Override
-    public HistoricalIssueDataValidation close(IssueStatus status) {
-        HistoricalIssueDataValidationImpl historicalDataValidationIssue = getDataModel().getInstance(HistoricalIssueDataValidationImpl.class);
+    public UsagePointHistoricalIssueDataValidation close(IssueStatus status) {
+        UsagePointHistoricalIssueDataValidationImpl historicalDataValidationIssue = getDataModel().getInstance(UsagePointHistoricalIssueDataValidationImpl.class);
         historicalDataValidationIssue.copy(this);
         this.delete(); // Remove reference to baseIssue
         HistoricalIssue historicalBaseIssue = getBaseIssue().closeInternal(status);
@@ -68,7 +68,7 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
     public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
         Range<Instant> interval = computeNotEstimatedBlockInterval(channel, timeStamp);
 
-        List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
+        List<Pair<Range<Instant>, UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
                 .map(block -> Pair.of(Range.openClosed(block.getStartTime(), block.getEndTime()), block))
@@ -90,7 +90,7 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
     public void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
         Range<Instant> interval = computeNotEstimatedBlockInterval(channel, timeStamp);
 
-        Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
+        Optional<UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
                 .filter(block -> block.getReadingType().equals(readingType))
                 .filter(block -> Range.openClosed(block.getStartTime(), block.getEndTime()).encloses(interval))
@@ -111,7 +111,7 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
     }
 
     @Override
-    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
+    public List<UsagePointNotEstimatedBlock> getNotEstimatedBlocks() {
         return Collections.unmodifiableList(notEstimatedBlocks);
     }
 
@@ -131,7 +131,7 @@ public final class OpenIssueDataValidationImpl extends IssueDataValidationImpl i
     }
 
     private void createNewBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
-        OpenIssueNotEstimatedBlockImpl block = getDataModel().getInstance(OpenIssueNotEstimatedBlockImpl.class);
+        UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl block = getDataModel().getInstance(UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl.class);
         block.init(this, channel, readingType, startTime, endTime);
         notEstimatedBlocks.add(block);
     }

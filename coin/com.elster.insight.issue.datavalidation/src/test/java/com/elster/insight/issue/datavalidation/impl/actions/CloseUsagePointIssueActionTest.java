@@ -22,9 +22,9 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.impl.BaseTest;
-import com.elster.insight.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CloseIssueActionTest extends BaseTest {
+public class CloseUsagePointIssueActionTest extends BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "usagepointdatavalidation";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
@@ -56,7 +56,7 @@ public class CloseIssueActionTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
-        action = getDefaultActionsFactory().createIssueAction(com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.class.getName());
+        action = getDefaultActionsFactory().createIssueAction(CloseUsagePointIssueAction.class.getName());
 
     }
 
@@ -80,7 +80,7 @@ public class CloseIssueActionTest extends BaseTest {
         return builder.complete();
     }
 
-    protected OpenIssueDataValidation createIssueMinInfo() {
+    protected UsagePointOpenIssueDataValidation createIssueMinInfo() {
         IssueServiceImpl issueService = (IssueServiceImpl) getIssueService();
         IssueType type = issueService.findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
         issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
@@ -92,7 +92,7 @@ public class CloseIssueActionTest extends BaseTest {
         issue.setRule(rule);
         issue.save();
 
-        OpenIssueDataValidationImpl issueDC = getDataModel().getInstance(OpenIssueDataValidationImpl.class);
+        UsagePointOpenIssueDataValidationImpl issueDC = getDataModel().getInstance(UsagePointOpenIssueDataValidationImpl.class);
         issueDC.setIssue(issue);
         issueDC.save();
         return issueDC;
@@ -103,8 +103,8 @@ public class CloseIssueActionTest extends BaseTest {
     public void testCreateAndExecuteAction() {
         Map<String, Object> properties = new HashMap<>();
         IssueStatus resolvedStatus = getIssueService().findStatus(IssueStatus.RESOLVED).get();
-        properties.put(com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.CLOSE_STATUS, new com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.Status(resolvedStatus));
-        properties.put(com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.COMMENT, new com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.Comment("Comment"));
+        properties.put(CloseUsagePointIssueAction.CLOSE_STATUS, new CloseUsagePointIssueAction.Status(resolvedStatus));
+        properties.put(CloseUsagePointIssueAction.COMMENT, new CloseUsagePointIssueAction.Comment("Comment"));
         OpenIssue issue = createIssueMinInfo();
 
         LdapUserDirectory local = getUserService().createApacheDirectory("local");
@@ -128,11 +128,11 @@ public class CloseIssueActionTest extends BaseTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_NOT_POSSIBLE_VALUE + "}", property = "properties.CloseIssueAction.status", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_NOT_POSSIBLE_VALUE + "}", property = "properties.CloseUsagePointIssueAction.status", strict = true)
     public void testExecuteActionWrongClosingStatus() {
         Map<String, Object> properties = new HashMap<>();
         IssueStatus inProgressStatus = getIssueService().findStatus(IssueStatus.IN_PROGRESS).get();
-        properties.put(com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.CLOSE_STATUS, new com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.Status(inProgressStatus));
+        properties.put(CloseUsagePointIssueAction.CLOSE_STATUS, new CloseUsagePointIssueAction.Status(inProgressStatus));
 
         action.initAndValidate(properties);
     }
@@ -142,7 +142,7 @@ public class CloseIssueActionTest extends BaseTest {
     public void testExecuteActionIssueIsNotApplicable() {
         Map<String, Object> properties = new HashMap<>();
         IssueStatus resolvedStatus = getIssueService().findStatus(IssueStatus.RESOLVED).get();
-        properties.put(com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction.CLOSE_STATUS, new CloseIssueAction.Status(resolvedStatus));
+        properties.put(CloseUsagePointIssueAction.CLOSE_STATUS, new CloseUsagePointIssueAction.Status(resolvedStatus));
         Issue issue = mock(Issue.class);
         when(issue.getStatus()).thenReturn(resolvedStatus);
 
@@ -153,7 +153,7 @@ public class CloseIssueActionTest extends BaseTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}", property = "properties.CloseIssueAction.status", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}", property = "properties.CloseUsagePointIssueAction.status", strict = true)
     public void testValidateMandatoryParameters() {
         action.initAndValidate(new HashMap<>());
     }

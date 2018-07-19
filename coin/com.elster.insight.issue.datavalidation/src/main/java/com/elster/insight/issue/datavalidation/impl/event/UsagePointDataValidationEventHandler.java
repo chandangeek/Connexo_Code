@@ -20,15 +20,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class DataValidationEventHandler implements MessageHandler {
+public class UsagePointDataValidationEventHandler implements MessageHandler {
     
-    public static final Logger LOGGER = Logger.getLogger(DataValidationEventHandler.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(UsagePointDataValidationEventHandler.class.getName());
 
     private Injector injector;
     private JsonService jsonService;
     private IssueCreationService issueCreationService;
 
-    public DataValidationEventHandler(Injector injector) {
+    public UsagePointDataValidationEventHandler(Injector injector) {
         this.injector = injector;
         this.jsonService = injector.getInstance(JsonService.class);
         this.issueCreationService = injector.getInstance(IssueCreationService.class);
@@ -37,23 +37,26 @@ public class DataValidationEventHandler implements MessageHandler {
     @Override
     public void process(Message message) {
         createEvent(jsonService.deserialize(message.getPayload(), Map.class))
-                .filter(e -> e.getEndDevice().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                .filter(e -> e instanceof UsagePointDataValidationEvent)
+                .filter(e -> ((UsagePointDataValidationEvent)e).getUsagePoint().isPresent())
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
+               // .filter(e -> e.getEndDevice().isPresent())
+               // .filter(e -> e.getEndDevice().get().getState().isPresent())
+              //  .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
+              //  .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+              //  .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 
     private Optional<IssueEvent> createEvent(Map<?, ?> map) {
-        return Arrays.asList(DataValidationEventDescription.values()).stream()
+        return Arrays.asList(UsagePointDataValidationEventDescription.values()).stream()
                 .filter(eventDescription -> eventDescription.matches(map))
                 .findFirst()
                 .map(eventDescription -> createEventsBasedOnDescription(map, eventDescription))
                 .orElse(Optional.empty());
     }
 
-    private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, DataValidationEventDescription description) {
-        DataValidationEvent event = injector.getInstance(description.getEventClass());
+    private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, UsagePointDataValidationEventDescription description) {
+        UsagePointDataValidationEvent event = injector.getInstance(description.getEventClass());
         try {
             event.init(map);
         } catch (UnableToCreateEventException e) {

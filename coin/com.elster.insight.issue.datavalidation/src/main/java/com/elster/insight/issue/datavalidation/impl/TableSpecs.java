@@ -14,18 +14,17 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
-import com.elster.insight.issue.datavalidation.HistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.HistoricalIssueNotEstimatedBlock;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
-import com.elster.insight.issue.datavalidation.OpenIssueNotEstimatedBlock;
-import com.elster.insight.issue.datavalidation.impl.entity.HistoricalIssueDataValidationImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.HistoricalIssueNotEstimatedBlockImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.IssueDataValidationImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.NotEstimatedBlockImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
-import com.elster.insight.issue.datavalidation.impl.entity.OpenIssueNotEstimatedBlockImpl;
+import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueUsagePointNotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueUsagePointNotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointHistoricalIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointHistoricalIssueUsagePointUsagePointNotEstimatedBlockImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointUsagePointNotEstimatedBlockImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -36,8 +35,8 @@ public enum TableSpecs {
     IUV_ISSUE_OPEN() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<OpenIssueDataValidation> table = dataModel.addTable(name(), OpenIssueDataValidation.class);
-            table.map(OpenIssueDataValidationImpl.class);
+            Table<UsagePointOpenIssueDataValidation> table = dataModel.addTable(name(), UsagePointOpenIssueDataValidation.class);
+            table.map(UsagePointOpenIssueDataValidationImpl.class);
             table.since(version(10, 5));
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
 
@@ -47,7 +46,7 @@ public enum TableSpecs {
                 .foreignKey("IUV_ISSUE_OPEN_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(OpenIssue.class)
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                .map(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName())
                 .add();
         }
     },
@@ -55,8 +54,8 @@ public enum TableSpecs {
     IUV_ISSUE_HISTORY() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<HistoricalIssueDataValidation> table = dataModel.addTable(name(), HistoricalIssueDataValidation.class);
-            table.map(HistoricalIssueDataValidationImpl.class);
+            Table<UsagePointHistoricalIssueDataValidation> table = dataModel.addTable(name(), UsagePointHistoricalIssueDataValidation.class);
+            table.map(UsagePointHistoricalIssueDataValidationImpl.class);
             table.since(version(10, 5));
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
 
@@ -66,7 +65,7 @@ public enum TableSpecs {
                 .foreignKey("IUV_ISSUE_HIST_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(HistoricalIssue.class)
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                .map(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName())
                 .add();
         }
     },
@@ -74,8 +73,8 @@ public enum TableSpecs {
     IUV_ISSUE_ALL() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<IssueDataValidation> table = dataModel.addTable(name(), IssueDataValidation.class);
-            table.map(IssueDataValidationImpl.class);
+            Table<UsagePointIssueDataValidation> table = dataModel.addTable(name(), UsagePointIssueDataValidation.class);
+            table.map(UsagePointIssueDataValidationImpl.class);
             table.doNotAutoInstall();//because it is mapped to view
             table.since(version(10, 5));
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
@@ -86,7 +85,7 @@ public enum TableSpecs {
                 .foreignKey("IUV_ISSUE_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
-                .map(IssueDataValidationImpl.Fields.BASEISSUE.fieldName())
+                .map(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName())
                 .add();
         }
     },
@@ -94,34 +93,34 @@ public enum TableSpecs {
     IUV_NOTESTIMATEDBLOCK() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<OpenIssueNotEstimatedBlock> table = dataModel.addTable(name(), OpenIssueNotEstimatedBlock.class);
-            table.map(OpenIssueNotEstimatedBlockImpl.class);
+            Table<UsagePointOpenIssueUsagePointNotEstimatedBlock> table = dataModel.addTable(name(), UsagePointOpenIssueUsagePointNotEstimatedBlock.class);
+            table.map(UsagePointOpenIssueUsagePointUsagePointNotEstimatedBlockImpl.class);
             table.since(version(10, 5));
             Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
             Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
             Column readingTypeRef = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
-            table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
+            table.column("ENDTIME").number().map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
 
             table.primaryKey("IUV_NOTESTBLOCK_PK").on(issueRef, channelRef, readingTypeRef, startTime).add();
             table.foreignKey("IUV_NOTESTBLOCK_FK_ISSUE")
                     .on(issueRef)
                     .references(IUV_ISSUE_OPEN.name())
-                    .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
-                    .reverseMap(IssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.ISSUE.fieldName())
+                    .reverseMap(UsagePointIssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName())
                     .composition()
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("IUV_NOTESTBLOCK_FK_CHANNEL")
                     .on(channelRef)
                     .references(Channel.class)
-                    .map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("IUV_NOTESTBLOCK_FK_RT")
                     .on(readingTypeRef)
                     .references(ReadingType.class)
-                    .map(NotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
         }
@@ -130,33 +129,33 @@ public enum TableSpecs {
     IUV_NOTESTIMATEDBLOCK_HISTORY() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<HistoricalIssueNotEstimatedBlock> table = dataModel.addTable(name(), HistoricalIssueNotEstimatedBlock.class);
-            table.map(HistoricalIssueNotEstimatedBlockImpl.class);
+            Table<UsagePointHistoricalIssueUsagePointNotEstimatedBlock> table = dataModel.addTable(name(), UsagePointHistoricalIssueUsagePointNotEstimatedBlock.class);
+            table.map(UsagePointHistoricalIssueUsagePointUsagePointNotEstimatedBlockImpl.class);
             table.since(version(10, 5));
             Column issueRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
             Column channelRef = table.column("CHANNEL").number().conversion(NUMBER2LONG).notNull().add();
             Column readingTypeRef = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(NotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
-            table.column("ENDTIME").number().map(NotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            Column startTime = table.column("STARTTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.STARTTIME.fieldName()).notNull().add();
+            table.column("ENDTIME").number().map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.ENDTIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
 
             table.primaryKey("IUV_HISTNOTESTBLOCK_PK").on(issueRef, channelRef, readingTypeRef, startTime).add();
             table.foreignKey("IUV_HISTNOTESTBLOCK_FK_ISSUE")
                     .on(issueRef)
                     .references(IUV_ISSUE_HISTORY.name())
-                    .map(NotEstimatedBlockImpl.Fields.ISSUE.fieldName())
-                    .reverseMap(IssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.ISSUE.fieldName())
+                    .reverseMap(UsagePointIssueDataValidationImpl.Fields.NOTESTIMATEDBLOCKS.fieldName())
                     .composition()
                     .onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("IUV_HISTNOTESTBLOCK_FK_CHANNEL")
                     .on(channelRef)
                     .references(Channel.class)
-                    .map(NotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.CHANNEL.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("IUV_HISTNOTESTBLOCK_FK_RT")
                     .on(readingTypeRef)
                     .references(ReadingType.class)
-                    .map(NotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
+                    .map(UsagePointUsagePointNotEstimatedBlockImpl.Fields.READINGTYPE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
         }

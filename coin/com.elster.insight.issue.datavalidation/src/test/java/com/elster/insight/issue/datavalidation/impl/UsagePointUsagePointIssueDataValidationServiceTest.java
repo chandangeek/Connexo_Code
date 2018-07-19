@@ -45,12 +45,12 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.insight.issue.datavalidation.DataValidationIssueFilter;
-import com.elster.insight.issue.datavalidation.HistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
+import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -74,25 +74,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueDataValidationServiceTest {
+public class UsagePointUsagePointIssueDataValidationServiceTest {
 
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(UsagePointDataValidationIssueCreationRuleTemplateTest.getTransactionService());
     private IssueService issueService;
     private IssueCreationService issueCreationService;
-    private IssueDataValidationService issueDataValidationService;
+    private UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private CreationRule issueCreationRule;
 
     @BeforeClass
     public static void initialize() throws SQLException {
         UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence = new InMemoryIntegrationPersistence(mock(MetrologyConfigurationService.class));
         UsagePointDataValidationIssueCreationRuleTemplateTest.initializeClock();
-        UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("IssueDataValidationServiceTest", false);
+        UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.initializeDatabase("UsagePointUsagePointIssueDataValidationServiceTest", false);
 
         try (TransactionContext ctx = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getTransactionService().getContext()) {
             UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(FiniteStateMachineService.class);
-            UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+            UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UsagePointIssueDataValidationService.class);
             ctx.commit();
         }
     }
@@ -113,7 +113,7 @@ public class IssueDataValidationServiceTest {
         UsagePointDataValidationIssueCreationRuleTemplate template = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UsagePointDataValidationIssueCreationRuleTemplate.class);
         ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
-        issueDataValidationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
+        usagePointIssueDataValidationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UsagePointIssueDataValidationService.class);
         MetrologyConfigurationService metrologyConfigurationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MetrologyConfigurationService.class);
         Finder deviceTypeFinder = mock(Finder.class);
         MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
@@ -128,8 +128,8 @@ public class IssueDataValidationServiceTest {
         props.put(UsagePointDataValidationIssueCreationRuleTemplate.METROLOGY_CONFIGS, value);
         issueCreationRule = ruleBuilder.setTemplate(UsagePointDataValidationIssueCreationRuleTemplate.NAME)
                 .setName("Test")
-                .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
-                .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
+                .setIssueType(issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get())
+                .setReason(issueService.findReason(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                 .setPriority(Priority.DEFAULT)
                 .activate()
                 .setDueInTime(DueInType.YEAR, 5)
@@ -146,35 +146,35 @@ public class IssueDataValidationServiceTest {
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(2);
 
         long firstIssue = issues.get(0).getId();
         long secondIssue = issues.get(1).getId();
 
-        Optional<? extends IssueDataValidation> issue = issueDataValidationService.findIssue(firstIssue);
+        Optional<? extends UsagePointIssueDataValidation> issue = usagePointIssueDataValidationService.findIssue(firstIssue);
         assertThat(issue).isPresent();
-        assertThat(issue.get() instanceof OpenIssueDataValidation).isTrue();
+        assertThat(issue.get() instanceof UsagePointOpenIssueDataValidation).isTrue();
 
         //close first issue
-        OpenIssueDataValidation closedIssue = (OpenIssueDataValidation) issue.get();
+        UsagePointOpenIssueDataValidation closedIssue = (UsagePointOpenIssueDataValidation) issue.get();
         closedIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get());
 
-        issue = issueDataValidationService.findIssue(firstIssue);
+        issue = usagePointIssueDataValidationService.findIssue(firstIssue);
         assertThat(issue).isPresent();
-        assertThat(issue.get() instanceof HistoricalIssueDataValidation).isTrue();
+        assertThat(issue.get() instanceof UsagePointHistoricalIssueDataValidation).isTrue();
 
-        issue = issueDataValidationService.findIssue(secondIssue);
+        issue = usagePointIssueDataValidationService.findIssue(secondIssue);
         assertThat(issue).isPresent();
-        assertThat(issue.get() instanceof OpenIssueDataValidation).isTrue();
+        assertThat(issue.get() instanceof UsagePointOpenIssueDataValidation).isTrue();
 
-        issue = issueDataValidationService.findOpenIssue(firstIssue);
+        issue = usagePointIssueDataValidationService.findOpenIssue(firstIssue);
         assertThat(issue).isEmpty();
 
-        issue = issueDataValidationService.findHistoricalIssue(firstIssue);
+        issue = usagePointIssueDataValidationService.findHistoricalIssue(firstIssue);
         assertThat(issue).isPresent();
 
-        issue = issueDataValidationService.findOpenIssue(secondIssue);
+        issue = usagePointIssueDataValidationService.findOpenIssue(secondIssue);
         assertThat(issue).isPresent();
     }
 
@@ -189,9 +189,9 @@ public class IssueDataValidationServiceTest {
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
 
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
         filter.setUnassignedOnly();
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
 
         LdapUserDirectory local = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
@@ -203,31 +203,31 @@ public class IssueDataValidationServiceTest {
 
         User assignee = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
         assignee.update();
-        IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
+        UsagePointIssueDataValidation issue = usagePointIssueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.assignTo(assignee.getId(), null);
         issue.update();
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.setUnassignedOnly();
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.setAssignee(assignee);
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
-        assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
+        assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         User anotherAssignee = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
         anotherAssignee.update();
         filter.setAssignee(anotherAssignee);
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
     }
 
@@ -242,22 +242,22 @@ public class IssueDataValidationServiceTest {
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
 
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        filter.setIssueReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get());
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
+        filter.setIssueReason(issueService.findReason(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get());
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
-        IssueDataValidation issue = issues.get(0);
+        UsagePointIssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
-        assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
+        assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
-        filter = new DataValidationIssueFilter();
-        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(),
+        filter = new UsagePointDataValidationIssueFilter();
+        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get(),
                 TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
         reason.update();
         filter.setIssueReason(reason);
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
     }
 
@@ -275,26 +275,26 @@ public class IssueDataValidationServiceTest {
         AmrSystem amrSystem = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         EndDevice endDevice = amrSystem.createEndDevice("360", "METER");
         endDevice.update();
-        IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
+        UsagePointIssueDataValidation issue = usagePointIssueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.setDevice(endDevice);
         issue.update();
 
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
         filter.setDevice(endDevice);
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
-        assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
+        assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(endDevice);
 
         endDevice = amrSystem.createEndDevice("180", "ANOTHER METER");
         endDevice.update();
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.setDevice(endDevice);
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
     }
 
@@ -309,31 +309,31 @@ public class IssueDataValidationServiceTest {
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
 
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.addStatus(issueService.findStatus(IssueStatus.RESOLVED).get());
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
-        IssueDataValidation issue = issues.get(0);
+        UsagePointIssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
-        assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
+        assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.RESOLVED).get());
         filter.addStatus(issueService.findStatus(IssueStatus.WONT_FIX).get());
-        issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
     }
 
@@ -364,9 +364,9 @@ public class IssueDataValidationServiceTest {
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
+        UsagePointOpenIssueDataValidation dataValidationIssue = usagePointIssueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
 
         dataValidationIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now);//(now-1min, now]
         dataValidationIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now);//(now-3min, now]
@@ -376,24 +376,24 @@ public class IssueDataValidationServiceTest {
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(10, ChronoUnit.MINUTES));//(now, now+10min]
         dataValidationIssue.update();
 
-        dataValidationIssue = issueDataValidationService.findOpenIssue(dataValidationIssue.getId()).get();
+        dataValidationIssue = usagePointIssueDataValidationService.findOpenIssue(dataValidationIssue.getId()).get();
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(3);
-        Map<Channel, List<NotEstimatedBlock>> blocks = dataValidationIssue.getNotEstimatedBlocks().stream()
-                .collect(Collectors.groupingBy(NotEstimatedBlock::getChannel));
+        Map<Channel, List<UsagePointNotEstimatedBlock>> blocks = dataValidationIssue.getNotEstimatedBlocks().stream()
+                .collect(Collectors.groupingBy(UsagePointNotEstimatedBlock::getChannel));
 
-        NotEstimatedBlock block1 = blocks.get(registerChannel).get(0);
+        UsagePointNotEstimatedBlock block1 = blocks.get(registerChannel).get(0);
         assertThat(block1.getChannel()).isEqualTo(registerChannel);
         assertThat(block1.getReadingType()).isEqualTo(registerReadingType);
         assertThat(block1.getStartTime()).isEqualTo(Instant.EPOCH);
         assertThat(block1.getEndTime()).isEqualTo(now.plus(30, ChronoUnit.MINUTES));
 
-        NotEstimatedBlock block2 = blocks.get(channelRT1).get(0);
+        UsagePointNotEstimatedBlock block2 = blocks.get(channelRT1).get(0);
         assertThat(block2.getChannel()).isEqualTo(channelRT1);
         assertThat(block2.getReadingType()).isEqualTo(readingType1Min);
         assertThat(block2.getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
         assertThat(block2.getEndTime()).isEqualTo(now);
 
-        NotEstimatedBlock block3 = blocks.get(channelRT2).get(0);
+        UsagePointNotEstimatedBlock block3 = blocks.get(channelRT2).get(0);
         assertThat(block3.getChannel()).isEqualTo(channelRT2);
         assertThat(block3.getReadingType()).isEqualTo(readingType3Min);
         assertThat(block3.getStartTime()).isEqualTo(now.minus(3, ChronoUnit.MINUTES));
@@ -416,9 +416,9 @@ public class IssueDataValidationServiceTest {
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
-        OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
+        UsagePointOpenIssueDataValidation dataValidationIssue = usagePointIssueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
 
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.minus(1, ChronoUnit.MINUTES));//(now-2min, now-1min]
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.plus(1, ChronoUnit.MINUTES));//(now, now+1min]
@@ -488,10 +488,10 @@ public class IssueDataValidationServiceTest {
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
 
-        OpenIssueDataValidation dataValidationIssue = issueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
+        UsagePointOpenIssueDataValidation dataValidationIssue = usagePointIssueDataValidationService.findOpenIssue(issues.get(0).getId()).get();
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(0);
 
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now);//(EPOCH, now]
@@ -545,7 +545,7 @@ public class IssueDataValidationServiceTest {
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        IssueProvider issueProvider = (IssueDataValidationServiceImpl) issueDataValidationService;
+        IssueProvider issueProvider = (UsagePointIssueDataValidationServiceImpl) usagePointIssueDataValidationService;
 
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
         assertThat(baseIssues).hasSize(1);
@@ -554,7 +554,7 @@ public class IssueDataValidationServiceTest {
 
         Optional<? extends OpenIssue> openIssueDV = issueProvider.getOpenIssue(openBaseIssue);
         assertThat(openIssueDV).isPresent();
-        assertThat(openIssueDV.get() instanceof OpenIssueDataValidation).isTrue();
+        assertThat(openIssueDV.get() instanceof UsagePointOpenIssueDataValidation).isTrue();
         assertThat(openIssueDV.get().getId()).isEqualTo(openBaseIssue.getId());
 
         assertThat(issueProvider.getOpenIssue(openIssueDV.get()).get()).isEqualTo(openIssueDV.get());
@@ -565,7 +565,7 @@ public class IssueDataValidationServiceTest {
 
         Optional<? extends HistoricalIssue> historicalIssueDV = issueProvider.getHistoricalIssue(historicalBaseIssue);
         assertThat(historicalIssueDV).isPresent();
-        assertThat(historicalIssueDV.get() instanceof HistoricalIssueDataValidation).isTrue();
+        assertThat(historicalIssueDV.get() instanceof UsagePointHistoricalIssueDataValidation).isTrue();
         assertThat(historicalIssueDV.get().getId()).isEqualTo(historicalBaseIssue.getId());
 
         assertThat(issueProvider.getHistoricalIssue(historicalIssueDV.get()).get()).isEqualTo(historicalIssueDV.get());
@@ -588,41 +588,41 @@ public class IssueDataValidationServiceTest {
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        List<? extends IssueDataValidation> openIssues = issueDataValidationService.findAllDataValidationIssues(filter).find();
+        List<? extends UsagePointIssueDataValidation> openIssues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(openIssues).hasSize(1);
-        OpenIssueDataValidation openIssue = (OpenIssueDataValidation) openIssues.get(0);
+        UsagePointOpenIssueDataValidation openIssue = (UsagePointOpenIssueDataValidation) openIssues.get(0);
 
         Instant now = Instant.now();
         openIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now);//(now-1min, now]
         openIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now.plus(300, ChronoUnit.MINUTES));//(now+297min, now+300min]
         openIssue.update();
 
-        openIssue = issueDataValidationService.findOpenIssue(openIssue.getId()).get();
+        openIssue = usagePointIssueDataValidationService.findOpenIssue(openIssue.getId()).get();
         openIssue.close(issueService.findStatus(IssueStatus.WONT_FIX).get());
 
-        filter = new DataValidationIssueFilter();
+        filter = new UsagePointDataValidationIssueFilter();
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        assertThat(issueDataValidationService.findAllDataValidationIssues(filter).find()).isEmpty();
-        assertThat(issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find()).hasSize(1);
+        assertThat(usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find()).isEmpty();
+        assertThat(usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find()).hasSize(1);
 
-        Optional<HistoricalIssueDataValidation> historicalIssue = issueDataValidationService.findHistoricalIssue(openIssue.getId());
+        Optional<UsagePointHistoricalIssueDataValidation> historicalIssue = usagePointIssueDataValidationService.findHistoricalIssue(openIssue.getId());
         assertThat(historicalIssue).isPresent();
         assertThat(historicalIssue.get().getId()).isEqualTo(openIssue.getId());
         assertThat(historicalIssue.get().getRule().getId()).isEqualTo(issueCreationRule.getId());
-        assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
+        assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(historicalIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
-        List<NotEstimatedBlock> notEstimatedBlocks = historicalIssue.get().getNotEstimatedBlocks();
-        assertThat(notEstimatedBlocks).hasSize(2);
+        List<UsagePointNotEstimatedBlock> usagePointNotEstimatedBlocks = historicalIssue.get().getNotEstimatedBlocks();
+        assertThat(usagePointNotEstimatedBlocks).hasSize(2);
 
-        NotEstimatedBlock block1 = notEstimatedBlocks.get(0);
+        UsagePointNotEstimatedBlock block1 = usagePointNotEstimatedBlocks.get(0);
         assertThat(block1.getChannel()).isEqualTo(channelRT1);
         assertThat(block1.getReadingType()).isEqualTo(readingType1Min);
         assertThat(block1.getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
         assertThat(block1.getEndTime()).isEqualTo(now);
 
-        NotEstimatedBlock block2 = notEstimatedBlocks.get(1);
+        UsagePointNotEstimatedBlock block2 = usagePointNotEstimatedBlocks.get(1);
         assertThat(block2.getChannel()).isEqualTo(channelRT2);
         assertThat(block2.getReadingType()).isEqualTo(readingType3Min);
         assertThat(block2.getStartTime()).isEqualTo(now.plus(297, ChronoUnit.MINUTES));
@@ -632,14 +632,14 @@ public class IssueDataValidationServiceTest {
     @Test
     @Transactional
     public void testCloseBaseIssue() {
-        ((IssueServiceImpl) issueService).addIssueProvider((IssueProvider) issueDataValidationService);
+        ((IssueServiceImpl) issueService).addIssueProvider((IssueProvider) usagePointIssueDataValidationService);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
-        List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
+        List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         Optional<? extends Issue> baseIssue = issueService.findIssue(issues.get(0).getId());
         assertThat(baseIssue.get() instanceof OpenIssueImpl).isTrue();
@@ -647,6 +647,6 @@ public class IssueDataValidationServiceTest {
         baseIssue = issueService.findIssue(issues.get(0).getId());
         assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
-        assertThat(issueDataValidationService.findHistoricalIssue(baseIssue.get().getId())).isPresent();
+        assertThat(usagePointIssueDataValidationService.findHistoricalIssue(baseIssue.get().getId())).isPresent();
     }
 }

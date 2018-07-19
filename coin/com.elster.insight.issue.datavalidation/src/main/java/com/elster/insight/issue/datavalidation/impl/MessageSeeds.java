@@ -5,7 +5,7 @@
 package com.elster.insight.issue.datavalidation.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import java.util.logging.Level;
 
@@ -49,7 +49,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return IssueDataValidationService.COMPONENT_NAME;
+        return UsagePointIssueDataValidationService.COMPONENT_NAME;
     }
 
 }

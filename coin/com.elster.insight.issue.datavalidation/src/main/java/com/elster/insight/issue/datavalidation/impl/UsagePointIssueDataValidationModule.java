@@ -12,13 +12,13 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
-public class IssueDataValidationModule extends AbstractModule {
+public class UsagePointIssueDataValidationModule extends AbstractModule {
 
     @Override
     protected void configure() {
@@ -31,7 +31,7 @@ public class IssueDataValidationModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(PropertySpecService.class);
 
-        bind(IssueDataValidationService.class).to(IssueDataValidationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(UsagePointIssueDataValidationService.class).to(UsagePointIssueDataValidationServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataValidationEventHandlerFactory.class).in(Scopes.SINGLETON);
     }
 

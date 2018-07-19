@@ -16,9 +16,9 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasId;
-import com.elster.insight.issue.datavalidation.DataValidationIssueFilter;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.inject.Inject;
 
@@ -26,23 +26,23 @@ import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class DataValidationEvent implements IssueEvent {
+public abstract class UsagePointDataValidationEvent implements IssueEvent {
 
     protected Long channelId;
     protected String readingType;
-    protected Long metrologyConfigId;
+    protected Long metrologyConfigurationId;
 
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
-    private final IssueDataValidationService issueDataValidationService;
+    private final UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private final IssueService issueService;
     private final Clock clock;
 
     @Inject
-    public DataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService, Clock clock) {
+    public UsagePointDataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
-        this.issueDataValidationService = issueDataValidationService;
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
         this.issueService = issueService;
         this.clock = clock;
     }
@@ -59,20 +59,23 @@ public abstract class DataValidationEvent implements IssueEvent {
         return findMeter().map(EndDevice.class::cast);
     }
 
-    public long getMetrologyConfigId() {
-        if (metrologyConfigId == null) {
-            metrologyConfigId = getUsagePoint().getEffectiveMetrologyConfiguration(clock.instant()).map(HasId::getId).orElse(-1L);
+
+    public long getMetrologyConfigurationId() {
+        if (metrologyConfigurationId == null) {
+            metrologyConfigurationId = getUsagePoint().get()
+                    .getCurrentEffectiveMetrologyConfiguration()
+                    .get().getMetrologyConfiguration().getId();
         }
-        return metrologyConfigId;
+        return metrologyConfigurationId;
     }
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
+        UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
         getEndDevice().ifPresent(filter::setDevice);
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        Optional<? extends IssueDataValidation> foundIssue = issueDataValidationService.findAllDataValidationIssues(filter)
+        Optional<? extends UsagePointIssueDataValidation> foundIssue = usagePointIssueDataValidationService.findAllDataValidationIssues(filter)
                 .find()
                 .stream()
                 .findFirst();//It is going to be only zero or one open issue per device
@@ -96,8 +99,17 @@ public abstract class DataValidationEvent implements IssueEvent {
         return findChannel().flatMap(channel -> channel.getChannelsContainer().getMeter());
     }
 
-    private UsagePoint getUsagePoint() {
-        return findMeter().get().getUsagePoint(clock.instant()).orElse(null);
+    public Optional<UsagePoint> getUsagePoint() {
+       /* Optional<EndDevice> endDevice = getEndDevice();
+        if (endDevice != null && Meter.class.isInstance(endDevice)) {
+            Meter meter = Meter.class.cast(endDevice);
+            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+            if (meterActivation.isPresent()) {
+                return meterActivation.get().getUsagePoint();
+            }
+        }
+        return Optional.empty();*/
+        return findChannel().flatMap(channel -> channel.getChannelsContainer().getUsagePoint());
     }
 
     protected Thesaurus getThesaurus() {

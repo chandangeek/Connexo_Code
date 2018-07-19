@@ -15,12 +15,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @LiteralSql
-public class CreateIssueViewOperation {
-    protected static final Logger LOG = Logger.getLogger(CreateIssueViewOperation.class.getName());
+public class CreateUsagePointIssueViewOperation {
+    protected static final Logger LOG = Logger.getLogger(CreateUsagePointIssueViewOperation.class.getName());
 
     private final DataModel dataModel;
 
-    public CreateIssueViewOperation(DataModel dataModel) {
+    public CreateUsagePointIssueViewOperation(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 

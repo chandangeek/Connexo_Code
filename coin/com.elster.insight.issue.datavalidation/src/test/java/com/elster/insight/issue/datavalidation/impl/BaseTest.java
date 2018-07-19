@@ -58,7 +58,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -150,7 +150,7 @@ public abstract class BaseTest {
                 new EstimationModule(),
                 new TimeModule(),
                 new FiniteStateMachineModule(),
-                new IssueDataValidationModule(),
+                new UsagePointIssueDataValidationModule(),
                 new CalendarModule(),
                 new ServiceCallModule(),
                 new WebServicesModule(),
@@ -162,7 +162,7 @@ public abstract class BaseTest {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
-            injector.getInstance(IssueDataValidationService.class);
+            injector.getInstance(UsagePointIssueDataValidationService.class);
             ctx.commit();
         }
     }
@@ -196,8 +196,8 @@ public abstract class BaseTest {
         return injector.getInstance(Thesaurus.class);
     }
 
-    protected IssueDataValidationService getIssueDataValidationService() {
-        return injector.getInstance(IssueDataValidationService.class);
+    protected UsagePointIssueDataValidationService getIssueDataValidationService() {
+        return injector.getInstance(UsagePointIssueDataValidationService.class);
     }
 
     protected UserService getUserService() {
@@ -233,15 +233,15 @@ public abstract class BaseTest {
     }
 
     protected DataModel getDataModel() {
-        return ((IssueDataValidationServiceImpl) getIssueDataValidationService()).getDataModel();
+        return ((UsagePointIssueDataValidationServiceImpl) getIssueDataValidationService()).getDataModel();
     }
 
     protected DataModel getIssueDataModel() {
         return ((IssueServiceImpl) getIssueService()).getDataModel();
     }
 
-    protected DataValidationActionsFactory getDefaultActionsFactory() {
-        return injector.getInstance(DataValidationActionsFactory.class);
+    protected UsagePtDataValidationActionFactory getDefaultActionsFactory() {
+        return injector.getInstance(UsagePtDataValidationActionFactory.class);
     }
 
     protected static class DispatchCreationEventException extends RuntimeException {

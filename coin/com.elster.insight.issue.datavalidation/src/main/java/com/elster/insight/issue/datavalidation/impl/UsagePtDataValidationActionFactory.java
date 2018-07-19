@@ -16,8 +16,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.insight.issue.datavalidation.impl.actions.CloseIssueAction;
-import com.elster.insight.issue.datavalidation.impl.actions.RetryEstimationAction;
+import com.elster.insight.issue.datavalidation.impl.actions.CloseUsagePointIssueAction;
+import com.elster.insight.issue.datavalidation.impl.actions.UsagePointRetryEstimationAction;
+
 import com.google.inject.*;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,9 +32,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.insight.issue.datavalidation.actions.factory", service = IssueActionFactory.class, immediate = true)
-public class DataValidationActionsFactory implements IssueActionFactory {
-    private static final Logger LOG = Logger.getLogger(DataValidationActionsFactory.class.getName());
-    public static final String ID = DataValidationActionsFactory.class.getName();
+public class UsagePtDataValidationActionFactory implements IssueActionFactory {
+    private static final Logger LOG = Logger.getLogger(UsagePtDataValidationActionFactory.class.getName());
+    public static final String ID = UsagePtDataValidationActionFactory.class.getName();
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -47,18 +48,18 @@ public class DataValidationActionsFactory implements IssueActionFactory {
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
 
     // For OSGi purposes
-    public DataValidationActionsFactory() {
+    public UsagePtDataValidationActionFactory() {
         super();
     }
 
     // For unit testing purposes
     @Inject
-    public DataValidationActionsFactory(OrmService ormService,
-                                        NlsService nlsService,
-                                        IssueService issueService,
-                                        PropertySpecService propertySpecService,
-                                        ThreadPrincipalService threadPrincipalService,
-                                        EstimationService estimationService) {
+    public UsagePtDataValidationActionFactory(OrmService ormService,
+                                              NlsService nlsService,
+                                              IssueService issueService,
+                                              PropertySpecService propertySpecService,
+                                              ThreadPrincipalService threadPrincipalService,
+                                              EstimationService estimationService) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
@@ -134,8 +135,8 @@ public class DataValidationActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
-            actionProviders.put(RetryEstimationAction.class.getName(), injector.getProvider(RetryEstimationAction.class));
+            actionProviders.put(CloseUsagePointIssueAction.class.getName(), injector.getProvider(CloseUsagePointIssueAction.class));
+            actionProviders.put(UsagePointRetryEstimationAction.class.getName(), injector.getProvider(UsagePointRetryEstimationAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

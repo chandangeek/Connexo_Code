@@ -9,6 +9,6 @@ import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface HistoricalIssueDataValidation extends HistoricalIssue, IssueDataValidation {
+public interface UsagePointHistoricalIssueDataValidation extends HistoricalIssue, UsagePointIssueDataValidation {
 
 }

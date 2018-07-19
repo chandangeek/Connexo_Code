@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CloseIssueAction extends AbstractIssueAction {
+public class CloseUsagePointIssueAction extends AbstractIssueAction {
 
-    private static final String NAME = "CloseIssueAction";
+    private static final String NAME = "CloseUsagePointIssueAction";
     public static final String CLOSE_STATUS = NAME + ".status";
     public static final String COMMENT = NAME + ".comment";
 
@@ -48,7 +48,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    protected CloseIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
+    protected CloseUsagePointIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
         this.threadPrincipalService = threadPrincipalService;

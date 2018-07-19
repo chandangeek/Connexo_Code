@@ -23,8 +23,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -48,7 +48,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
 
     public static final String METROLOGY_CONFIGS = NAME + ".metrologyConfigurations";
 
-    private volatile IssueDataValidationService issueDataValidationService;
+    private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -59,10 +59,10 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
     }
 
     @Inject
-    public UsagePointDataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
+    public UsagePointDataValidationIssueCreationRuleTemplate(UsagePointIssueDataValidationService issueDataValidationIssueService, IssueService issueService,
                                                              NlsService nlsService, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService) {
         this();
-        setIssueDataValidationService(issueDataValidationIssueService);
+        setUsagePointIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
@@ -87,14 +87,14 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
     @Override
     public String getContent() {
         return "package com.elster.insight.issue.datavalidation\n" +
-                "import com.elster.insight.issue.datavalidation.impl.event.CannotEstimateDataEvent;\n" +
-                "import com.elster.insight.issue.datavalidation.impl.event.SuspectDeletedEvent;\n" +
+                "import com.elster.insight.issue.datavalidation.impl.event.CannotEstimateUsagePointDataEvent;\n" +
+                "import com.elster.insight.issue.datavalidation.impl.event.UsagePointSuspectDeletedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Data validation rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : CannotEstimateDataEvent(metrologyConfigId in (@{" + METROLOGY_CONFIGS + "}))\n" +
+                "\tevent : CannotEstimateUsagePointDataEvent(metrologyConfigurationId in (@{" + METROLOGY_CONFIGS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by usage point datavalidation rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
@@ -102,7 +102,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
                 "\n" +
                 "rule \"Autoresolution section @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent: SuspectDeletedEvent(metrologyConfigId in (@{" + METROLOGY_CONFIGS + "}))\n" +
+                "\tevent: UsagePointSuspectDeletedEvent(metrologyConfigurationId in (@{" + METROLOGY_CONFIGS + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by usage point datavalidation rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
@@ -111,7 +111,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -120,8 +120,8 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
     }
 
     @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
+    public void setUsagePointIssueDataValidationService(UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
     }
 
     @Reference
@@ -160,19 +160,19 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
 
     @Override
     public IssueType getIssueType() {
-        return issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get();
+        return issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get();
     }
 
     @Override
-    public OpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
-        return issueDataValidationService.createIssue(baseIssue, issueEvent);
+    public UsagePointOpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+        return usagePointIssueDataValidationService.createIssue(baseIssue, issueEvent);
     }
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
-            OpenIssueDataValidation issueDataValidation = (OpenIssueDataValidation) issue.get();
+            UsagePointOpenIssueDataValidation issueDataValidation = (UsagePointOpenIssueDataValidation) issue.get();
             event.apply(issueDataValidation);
             if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
                 return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).get()));

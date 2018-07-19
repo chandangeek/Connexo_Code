@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public class DataValidationIssueFilter {
+public class UsagePointDataValidationIssueFilter {
 
     private List<IssueStatus> statuses = new ArrayList<>();
 

@@ -18,9 +18,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class IssueDataValidationImpl implements IssueDataValidation {
+public class UsagePointIssueDataValidationImpl implements UsagePointIssueDataValidation {
 
     public enum Fields {
         BASEISSUE("baseIssue"),
@@ -55,12 +55,12 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     private String userName;
 
     private final DataModel dataModel;
-    private final IssueDataValidationService issueDataValidationService;
+    private final UsagePointIssueDataValidationService usagePointIssueDataValidationService;
 
     @Inject
-    public IssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
+    public UsagePointIssueDataValidationImpl(DataModel dataModel, UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
         this.dataModel = dataModel;
-        this.issueDataValidationService = issueDataValidationService;
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
     }
 
     Issue getBaseIssue() {
@@ -221,14 +221,14 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        Optional<? extends IssueDataValidation> issue;
+    public List<UsagePointNotEstimatedBlock> getNotEstimatedBlocks() {
+        Optional<? extends UsagePointIssueDataValidation> issue;
         if (getStatus().isHistorical()) {
-            issue = issueDataValidationService.findHistoricalIssue(getId());
+            issue = usagePointIssueDataValidationService.findHistoricalIssue(getId());
         } else {
-            issue = issueDataValidationService.findIssue(getId());
+            issue = usagePointIssueDataValidationService.findIssue(getId());
         }
-        return issue.map(IssueDataValidation::getNotEstimatedBlocks).orElse(Collections.emptyList());
+        return issue.map(UsagePointIssueDataValidation::getNotEstimatedBlocks).orElse(Collections.emptyList());
     }
 
     protected DataModel getDataModel() {
@@ -276,11 +276,11 @@ public class IssueDataValidationImpl implements IssueDataValidation {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof IssueDataValidationImpl)) {
+        if (o == null || !(o instanceof UsagePointIssueDataValidationImpl)) {
             return false;
         }
 
-        IssueDataValidationImpl that = (IssueDataValidationImpl) o;
+        UsagePointIssueDataValidationImpl that = (UsagePointIssueDataValidationImpl) o;
 
         return Objects.equals(this.getBaseIssue(), that.getBaseIssue());
     }

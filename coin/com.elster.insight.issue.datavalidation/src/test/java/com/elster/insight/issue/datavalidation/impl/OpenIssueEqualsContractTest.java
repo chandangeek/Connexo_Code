@@ -9,8 +9,8 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
 
 import java.time.Clock;
 import java.util.Collections;
@@ -30,19 +30,19 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
     @Mock
     IssueService issueService;
     @Mock
-    IssueDataValidationService issueDataValidationService;
+    UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     @Mock
     Thesaurus thesaurus;
 
     OpenIssueImpl baseIssue;
-    OpenIssueDataValidationImpl issueDataValidation;
+    UsagePointOpenIssueDataValidationImpl issueDataValidation;
 
     @Override
     protected Object getInstanceA() {
         if (issueDataValidation == null) {
             baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
-            issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
+            issueDataValidation = new UsagePointOpenIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
             issueDataValidation.setIssue(baseIssue);
         }
         return issueDataValidation;
@@ -52,7 +52,7 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
     protected Object getInstanceEqualToA() {
         OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
-        OpenIssueDataValidationImpl issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
+        UsagePointOpenIssueDataValidationImpl issueDataValidation = new UsagePointOpenIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
         return issueDataValidation;
     }
@@ -61,7 +61,7 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
     protected Iterable<?> getInstancesNotEqualToA() {
         OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
-        OpenIssueDataValidationImpl issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
+        UsagePointOpenIssueDataValidationImpl issueDataValidation = new UsagePointOpenIssueDataValidationImpl(dataModel, usagePointIssueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
         return Collections.singletonList(issueDataValidation);
     }

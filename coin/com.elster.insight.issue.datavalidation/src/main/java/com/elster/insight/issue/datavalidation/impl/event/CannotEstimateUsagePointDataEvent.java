@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.impl.MessageSeeds;
 
 import com.google.common.collect.Range;
@@ -24,14 +24,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
-public class CannotEstimateDataEvent extends DataValidationEvent {
+public class CannotEstimateUsagePointDataEvent extends UsagePointDataValidationEvent {
 
     private Instant startTime;
     private Instant endTime;
 
     @Inject
-    public CannotEstimateDataEvent(Thesaurus thesaurus, MeteringService meteringService, IssueDataValidationService issueDataValidationService, IssueService issueService, Clock clock) {
-        super(thesaurus, meteringService, issueDataValidationService, issueService, clock);
+    public CannotEstimateUsagePointDataEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
+        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService, clock);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof OpenIssueDataValidation) {
-            OpenIssueDataValidation dataValidationIssue = (OpenIssueDataValidation) issue;
+        if (issue instanceof UsagePointOpenIssueDataValidation) {
+            UsagePointOpenIssueDataValidation dataValidationIssue = (UsagePointOpenIssueDataValidation) issue;
             Channel channel = findChannel().get();
             ReadingType readingType = findReadingType().get();
             channel.getCimChannel(readingType).get()

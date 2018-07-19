@@ -24,7 +24,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
 import com.elster.insight.issue.datavalidation.impl.TranslationKeys;
 
 import com.google.common.collect.Range;
@@ -35,15 +35,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RetryEstimationAction extends AbstractIssueAction {
+public class UsagePointRetryEstimationAction extends AbstractIssueAction {
 
-    private static final String NAME = "RetryEstimationAction";
+    private static final String NAME = "UsagePointRetryEstimationAction";
 
     private IssueService issueService;
     private EstimationService estimationService;
 
     @Inject
-    public RetryEstimationAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, EstimationService estimationService) {
+    public UsagePointRetryEstimationAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, EstimationService estimationService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
         this.estimationService = estimationService;
@@ -66,8 +66,8 @@ public class RetryEstimationAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        if (issue != null && !issue.getStatus().isHistorical() && issue instanceof IssueDataValidation) {
-            IssueDataValidation dvIssue = (IssueDataValidation) issue;
+        if (issue != null && !issue.getStatus().isHistorical() && issue instanceof UsagePointIssueDataValidation) {
+            UsagePointIssueDataValidation dvIssue = (UsagePointIssueDataValidation) issue;
             if (!dvIssue.getStatus().isHistorical()) {
                 return true;
             }
@@ -86,7 +86,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
     }
 
     private boolean retry(Issue issue) {
-        IssueDataValidation dviIssue = (IssueDataValidation) issue;
+        UsagePointIssueDataValidation dviIssue = (UsagePointIssueDataValidation) issue;
 
         List<EstimationBlock> nonEstimatedBlocks = new ArrayList<>();
         dviIssue.getNotEstimatedBlocks().forEach(block -> {
