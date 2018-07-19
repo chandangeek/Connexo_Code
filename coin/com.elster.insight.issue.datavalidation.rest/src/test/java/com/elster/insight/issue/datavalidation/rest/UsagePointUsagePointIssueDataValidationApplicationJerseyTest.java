@@ -23,9 +23,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
 
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.OpenIssueDataValidation;
-import com.elster.insight.issue.datavalidation.rest.impl.IssueDataValidationApplication;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.rest.impl.UsagePointIssueDataValidationApplication;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
@@ -38,13 +38,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public abstract class IssueDataValidationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public abstract class UsagePointUsagePointIssueDataValidationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     UserService userService;
     @Mock
     IssueService issueService;
     @Mock
-    IssueDataValidationService issueDataValidationService;
+    UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     @Mock
     IssueActionService issueActionService;
     @Mock
@@ -52,10 +52,10 @@ public abstract class IssueDataValidationApplicationJerseyTest extends FelixRest
 
     @Override
     protected Application getApplication() {
-        IssueDataValidationApplication application = new IssueDataValidationApplication();
+        UsagePointIssueDataValidationApplication application = new UsagePointIssueDataValidationApplication();
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setIssueService(issueService);
-        application.setIssueDataValidationService(issueDataValidationService);
+        application.setUsagePointIssueDataValidationService(usagePointIssueDataValidationService);
         application.setMeteringService(meteringService);
         application.setUserService(userService);
         application.setTransactionService(transactionService);
@@ -146,12 +146,12 @@ public abstract class IssueDataValidationApplicationJerseyTest extends FelixRest
         return user;
     }
 
-    protected OpenIssueDataValidation getDefaultIssue() {
+    protected UsagePointOpenIssueDataValidation getDefaultIssue() {
         return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
     }
 
-    protected OpenIssueDataValidation mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
-        OpenIssueDataValidation issue = mock(OpenIssueDataValidation.class,RETURNS_DEEP_STUBS);
+    protected UsagePointOpenIssueDataValidation mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+        UsagePointOpenIssueDataValidation issue = mock(UsagePointOpenIssueDataValidation.class,RETURNS_DEEP_STUBS);
         when(issue.getId()).thenReturn(id);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);

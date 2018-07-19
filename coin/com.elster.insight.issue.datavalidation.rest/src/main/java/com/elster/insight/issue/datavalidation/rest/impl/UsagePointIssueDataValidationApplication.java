@@ -19,7 +19,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 
 
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -31,15 +31,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.insight.issue.datavalidation.rest", service = {Application.class}, immediate = true, property = {"alias=/iuv", "app=INS", "name=" + IssueDataValidationApplication.ISSUEDATAVALIDATION_REST_COMPONENT})
-public class IssueDataValidationApplication extends Application {
+@Component(name = "com.elster.insight.issue.datavalidation.rest", service = {Application.class}, immediate = true, property = {"alias=/iuv", "app=INS", "name=" + UsagePointIssueDataValidationApplication.ISSUEDATAVALIDATION_REST_COMPONENT})
+public class UsagePointIssueDataValidationApplication extends Application {
     private static final String APP_KEY = "INS";
     static final String ISSUEDATAVALIDATION_REST_COMPONENT = "IUV";
 
     private volatile TransactionService transactionService;
     private volatile UserService userService;
     private volatile IssueService issueService;
-    private volatile IssueDataValidationService issueDataValidationService;
+    private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private volatile IssueActionService issueActionService;
     private volatile MeteringService meteringService;
     private volatile NlsService nlsService;
@@ -47,7 +47,7 @@ public class IssueDataValidationApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(IssueResource.class);
+        return ImmutableSet.of(UsagePointIssueResource.class);
     }
 
     @Reference
@@ -67,8 +67,8 @@ public class IssueDataValidationApplication extends Application {
     }
 
     @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
+    public void setUsagePointIssueDataValidationService(UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
     }
 
     @Reference
@@ -79,7 +79,7 @@ public class IssueDataValidationApplication extends Application {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
@@ -102,7 +102,7 @@ public class IssueDataValidationApplication extends Application {
         protected void configure() {
             bind(issueService).to(IssueService.class);
             bind(issueActionService).to(IssueActionService.class);
-            bind(issueDataValidationService).to(IssueDataValidationService.class);
+            bind(usagePointIssueDataValidationService).to(UsagePointIssueDataValidationService.class);
             bind(userService).to(UserService.class);
             bind(transactionService).to(TransactionService.class);
             bind(meteringService).to(MeteringService.class);
@@ -110,7 +110,7 @@ public class IssueDataValidationApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
-            bind(DataValidationIssueInfoFactory.class).to(DataValidationIssueInfoFactory.class);
+            bind(UsagePointDataValidationIssueInfoFactory.class).to(UsagePointDataValidationIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }

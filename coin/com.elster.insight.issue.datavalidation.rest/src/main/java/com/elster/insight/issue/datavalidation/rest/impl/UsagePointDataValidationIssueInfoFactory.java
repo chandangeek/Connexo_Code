@@ -17,9 +17,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.IssueDataValidationService;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name = "issue.data.validation.info.factory", service = {InfoFactory.class}, immediate = true)
-public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataValidation> {
+@Component(name = "usagepoint.issue.data.validation.info.factory", service = {InfoFactory.class}, immediate = true)
+public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<UsagePointIssueDataValidation> {
 
     private ReadingTypeInfoFactory readingTypeInfoFactory;
 
@@ -44,52 +44,52 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
         this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
-    public DataValidationIssueInfoFactory() {
+    public UsagePointDataValidationIssueInfoFactory() {
     }
 
     @Inject
-    public DataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public UsagePointDataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
-    public DataValidationIssueInfo asInfo(IssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
-        DataValidationIssueInfo issueInfo = asShortInfo(issue, deviceInfoClass);
+    public UsagePointDataValidationIssueInfo asInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
+        UsagePointDataValidationIssueInfo issueInfo = asShortInfo(issue, deviceInfoClass);
         if (issue.getUsagePoint() == null) {
             return issueInfo;
         }
         Optional<UsagePoint> usagePoint = issue.getUsagePoint();
         if (usagePoint.isPresent()) {
-            Map<ReadingType, List<NotEstimatedBlock>> notEstimatedData = issue.getNotEstimatedBlocks().stream()
-                    .collect(Collectors.groupingBy(NotEstimatedBlock::getReadingType));
-            for (Map.Entry<ReadingType, List<NotEstimatedBlock>> entry : notEstimatedData.entrySet()) {
+            Map<ReadingType, List<UsagePointNotEstimatedBlock>> notEstimatedData = issue.getNotEstimatedBlocks().stream()
+                    .collect(Collectors.groupingBy(UsagePointNotEstimatedBlock::getReadingType));
+            for (Map.Entry<ReadingType, List<UsagePointNotEstimatedBlock>> entry : notEstimatedData.entrySet()) {
                 Optional<Channel> channel = findChannel(usagePoint.get(), entry.getKey());
                 if (channel.isPresent()) {
-                    DataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfChannel(entry.getKey(), entry.getValue(), channel.get());
+                    UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfChannel(entry.getKey(), entry.getValue(), channel.get());
                     issueInfo.notEstimatedData.add(info);
                 } else {
                    /* findRegister(usagePoint.get(), entry.getKey()).ifPresent(register -> {
-                        DataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfRegister(entry.getKey(), entry.getValue(), register);
+                        UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfRegister(entry.getKey(), entry.getValue(), register);
                         issueInfo.notEstimatedData.add(info);
                     });*/
                 }
             }
         }
-        Collections.<DataValidationIssueInfo.NotEstimatedDataInfo>sort(issueInfo.notEstimatedData,
+        Collections.<UsagePointDataValidationIssueInfo.NotEstimatedDataInfo>sort(issueInfo.notEstimatedData,
                 (info1, info2) -> info1.readingType.aliasName.compareTo(info2.readingType.aliasName));
         return issueInfo;
     }
 
-    private DataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfChannel(ReadingType readingType, List<NotEstimatedBlock> blocks, Channel channel) {
-        DataValidationIssueInfo.NotEstimatedDataInfo info = new DataValidationIssueInfo.NotEstimatedDataInfo();
+    private UsagePointDataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfChannel(ReadingType readingType, List<UsagePointNotEstimatedBlock> blocks, Channel channel) {
+        UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = new UsagePointDataValidationIssueInfo.NotEstimatedDataInfo();
         info.channelId = channel.getId();
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
-            DataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new DataValidationIssueInfo.NotEstimatedBlockInfo();
+            UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo();
             blockInfo.startTime = block.getStartTime();
             blockInfo.endTime = block.getEndTime();
             blockInfo.amountOfSuspects = ChronoUnit.MILLIS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength().get().get(ChronoUnit.MILLIS);
@@ -98,13 +98,13 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
         return info;
     }
 
-    private DataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<NotEstimatedBlock> blocks) {
+    private UsagePointDataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<UsagePointNotEstimatedBlock> blocks) {
         //, Register register) {
-        DataValidationIssueInfo.NotEstimatedDataInfo info = new DataValidationIssueInfo.NotEstimatedDataInfo();
+        UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = new UsagePointDataValidationIssueInfo.NotEstimatedDataInfo();
         // info.registerId = register.getRegisterSpecId();
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
-            DataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new DataValidationIssueInfo.NotEstimatedBlockInfo();
+            UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo();
             List<BaseReadingRecord> readings = block.getChannel().getReadings(Range.openClosed(block.getStartTime(), block.getEndTime()));
             if (!readings.isEmpty()) {
                 blockInfo.startTime = readings.get(0).getTimeStamp();
@@ -116,12 +116,12 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
         return info;
     }
 
-    public List<DataValidationIssueInfo> asInfo(List<? extends IssueDataValidation> issues) {
+    public List<UsagePointDataValidationIssueInfo> asInfo(List<? extends UsagePointIssueDataValidation> issues) {
         return issues.stream().map(issue -> this.asShortInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
     }
 
-    private DataValidationIssueInfo asShortInfo(IssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
-        return new DataValidationIssueInfo<>(issue, deviceInfoClass);
+    private UsagePointDataValidationIssueInfo asShortInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
+        return new UsagePointDataValidationIssueInfo<>(issue, deviceInfoClass);
     }
 
     private Optional<Channel> findChannel(UsagePoint usagePoint, ReadingType readingType) {
@@ -134,8 +134,8 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     }*/
 
     @Override
-    public Object from(IssueDataValidation issueDataValidation) {
-        return asInfo(issueDataValidation, DeviceInfo.class);
+    public Object from(UsagePointIssueDataValidation usagePointIssueDataValidation) {
+        return asInfo(usagePointIssueDataValidation, DeviceInfo.class);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     }
 
     @Override
-    public Class<IssueDataValidation> getDomainClass() {
-        return IssueDataValidation.class;
+    public Class<UsagePointIssueDataValidation> getDomainClass() {
+        return UsagePointIssueDataValidation.class;
     }
 }

@@ -17,8 +17,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.insight.issue.datavalidation.IssueDataValidation;
-import com.elster.insight.issue.datavalidation.NotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
+import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -40,12 +40,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest {
+public class UsagePointIssueResourceTest extends UsagePointUsagePointIssueDataValidationApplicationJerseyTest {
 
     @Test
     public void testGetIssueById() {
-        IssueDataValidation issue = getDefaultIssue();
-        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
+        UsagePointIssueDataValidation issue = getDefaultIssue();
+        doReturn(Optional.of(issue)).when(usagePointIssueDataValidationService).findIssue(1);
 
         ReadingType readingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         ReadingType calculatedReadingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -57,8 +57,8 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));*/
         Instant now = Instant.now();
-        NotEstimatedBlock block1 = mockNotEstimatedBlock(now, now.plus(30, ChronoUnit.MINUTES), readingType);
-        NotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(60, ChronoUnit.MINUTES), calculatedReadingType);
+        UsagePointNotEstimatedBlock block1 = mockNotEstimatedBlock(now, now.plus(30, ChronoUnit.MINUTES), readingType);
+        UsagePointNotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(60, ChronoUnit.MINUTES), calculatedReadingType);
         when(issue.getNotEstimatedBlocks()).thenReturn(Arrays.asList(block1, block2));
 
         String response = target("/issues/1").request().get(String.class);
@@ -100,8 +100,8 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     public void testGetIssueByIdWithRegisterNotEstimatedBlocks() {
         Instant now = Instant.now();
 
-        IssueDataValidation issue = getDefaultIssue();
-        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
+        UsagePointIssueDataValidation issue = getDefaultIssue();
+        doReturn(Optional.of(issue)).when(usagePointIssueDataValidationService).findIssue(1);
 
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         Device device = mock(Device.class);
@@ -119,9 +119,9 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         when(channel.getReadings(Range.openClosed(Instant.EPOCH, now.plus(30, ChronoUnit.MINUTES)))).thenReturn(Collections.singletonList(reading1));
         when(channel.getReadings(Range.openClosed(now.plus(45, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES)))).thenReturn(Collections.singletonList(reading2));
 
-        NotEstimatedBlock block1 = mockNotEstimatedBlock(Instant.EPOCH, now.plus(30, ChronoUnit.MINUTES), readingType);
+        UsagePointNotEstimatedBlock block1 = mockNotEstimatedBlock(Instant.EPOCH, now.plus(30, ChronoUnit.MINUTES), readingType);
         when(block1.getChannel()).thenReturn(channel);
-        NotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES), readingType);
+        UsagePointNotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(90, ChronoUnit.MINUTES), readingType);
         when(block2.getChannel()).thenReturn(channel);
         when(issue.getNotEstimatedBlocks()).thenReturn(Arrays.asList(block1, block2));
 
@@ -144,7 +144,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
 
     @Test
     public void testGetNonexistentIssueById() {
-        when(issueDataValidationService.findIssue(1)).thenReturn(Optional.empty());
+        when(usagePointIssueDataValidationService.findIssue(1)).thenReturn(Optional.empty());
 
         Response response = target("/issues/1").request().get();
 
@@ -176,8 +176,8 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         return readingType;
     }
 
-    private NotEstimatedBlock mockNotEstimatedBlock(Instant from, Instant to, ReadingType readingType) {
-        NotEstimatedBlock block = mock(NotEstimatedBlock.class);
+    private UsagePointNotEstimatedBlock mockNotEstimatedBlock(Instant from, Instant to, ReadingType readingType) {
+        UsagePointNotEstimatedBlock block = mock(UsagePointNotEstimatedBlock.class);
         when(block.getStartTime()).thenReturn(from);
         when(block.getEndTime()).thenReturn(to);
         when(block.getReadingType()).thenReturn(readingType);
