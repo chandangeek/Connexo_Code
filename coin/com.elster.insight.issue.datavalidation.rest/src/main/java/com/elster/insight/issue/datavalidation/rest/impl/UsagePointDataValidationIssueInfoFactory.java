@@ -46,7 +46,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
 
     private volatile Thesaurus thesaurus;
 
-    private final ExceptionFactory exceptionFactory;
+    private ExceptionFactory exceptionFactory;
 
 
     @Reference
@@ -55,6 +55,10 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
         this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
+
+    public UsagePointDataValidationIssueInfoFactory() {
+    }
+
 
     @Inject
     public UsagePointDataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory, ExceptionFactory exceptionFactory) {
