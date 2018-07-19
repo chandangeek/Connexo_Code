@@ -124,6 +124,7 @@ class DeviceServiceImpl implements ServerDeviceService {
         ConnectionTypePropertyBased("connectionTypeClass", "propertyName", "propertyValue"),
         mRID("databaseValue"),
         Actual("actual", "mRID"),
+        Name("databaseValue"),
         Null();
 
         private final String[] roles;
@@ -418,6 +419,11 @@ class DeviceServiceImpl implements ServerDeviceService {
                     .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
             return Collections.singletonList((Device) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.Name.name())) {
+            String deviceName = (String) introspector.getValue(IntrospectorTypes.Name.roles[0]);
+            return findDeviceByName(deviceName)
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Null.name())) {
             throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because it is a marker for a missing device");
         } else {
