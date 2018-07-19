@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 
@@ -113,6 +114,7 @@ public class UsagePointIssueDataValidationApplication extends Application {
             bind(UsagePointDataValidationIssueInfoFactory.class).to(UsagePointDataValidationIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 }

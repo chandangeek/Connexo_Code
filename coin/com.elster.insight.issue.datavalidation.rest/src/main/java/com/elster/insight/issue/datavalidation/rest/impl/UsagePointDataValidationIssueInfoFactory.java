@@ -11,10 +11,15 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
@@ -41,6 +46,8 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
 
     private volatile Thesaurus thesaurus;
 
+    private final ExceptionFactory exceptionFactory;
+
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -49,12 +56,10 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
         this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
-    public UsagePointDataValidationIssueInfoFactory() {
-    }
-
     @Inject
-    public UsagePointDataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public UsagePointDataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public UsagePointDataValidationIssueInfo asInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -72,16 +77,54 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
                     UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfChannel(entry.getKey(), entry.getValue(), channel.get());
                     issueInfo.notEstimatedData.add(info);
                 } else {
-                   /* findRegister(usagePoint.get(), entry.getKey()).ifPresent(register -> {
-                        UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = createNotEstimatedDataInfoOfRegister(entry.getKey(), entry.getValue(), register);
-                        issueInfo.notEstimatedData.add(info);
-                    });*/
+                    MetrologyPurpose metrologyPurpose = this.getMetrologyPurpose(usagePoint.get());
+                    usagePoint.get().getEffectiveMetrologyConfigurations()
+                            .stream()
+                            .map(effectiveMC -> getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose))
+                            .forEach(deliverables -> deliverables
+                                    .stream()
+                                    .filter(deliverable -> !deliverable.getReadingType().isRegular())
+                                    .filter(deliverable -> deliverable.getReadingType().equals(entry.getKey()))
+                                    .forEach(deliverable -> issueInfo.notEstimatedData.add(createNotEstimatedDataInfoOfRegister(entry.getKey(), entry.getValue(), deliverable.getId()))));
                 }
             }
         }
         Collections.<UsagePointDataValidationIssueInfo.NotEstimatedDataInfo>sort(issueInfo.notEstimatedData,
                 (info1, info2) -> info1.readingType.aliasName.compareTo(info2.readingType.aliasName));
         return issueInfo;
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
+        return usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
+    }
+
+    private MetrologyPurpose getMetrologyPurpose(UsagePoint usagePoint) {
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = findMetrologyContractOrThrowException(currentEffectiveMC);
+        return metrologyContract.getMetrologyPurpose();
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                //.filter(contract -> contract.getId() == contractId)
+                // .findAny()
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONTRACT_FOR_USAGEPOINT, effectiveMC.getUsagePoint().getName()));
+    }
+
+    private List<ReadingTypeDeliverable> getDeliverablesFromEffectiveMC(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose metrologyPurpose) {
+        return this.findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                .map(MetrologyContract::getDeliverables)
+                .orElse(Collections.emptyList());
+    }
+
+    private Optional<MetrologyContract> findMetrologyContractForPurpose(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose metrologyPurpose) {
+        return effectiveMC.getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(metrologyPurpose))
+                .findAny();
     }
 
     private UsagePointDataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfChannel(ReadingType readingType, List<UsagePointNotEstimatedBlock> blocks, Channel channel) {
@@ -98,10 +141,9 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
         return info;
     }
 
-    private UsagePointDataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<UsagePointNotEstimatedBlock> blocks) {
-        //, Register register) {
+    private UsagePointDataValidationIssueInfo.NotEstimatedDataInfo createNotEstimatedDataInfoOfRegister(ReadingType readingType, List<UsagePointNotEstimatedBlock> blocks, long registerId) {
         UsagePointDataValidationIssueInfo.NotEstimatedDataInfo info = new UsagePointDataValidationIssueInfo.NotEstimatedDataInfo();
-        // info.registerId = register.getRegisterSpecId();
+        info.registerId = registerId;
         info.readingType = readingTypeInfoFactory.from(readingType);
         info.notEstimatedBlocks = blocks.stream().map(block -> {
             UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo();
@@ -128,10 +170,6 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
         return usagePoint.getMeterActivations().stream().map(a -> a.getChannelsContainer().getChannel(readingType)).findFirst().get();
 
     }
-
-   /* private Optional<Register> findRegister(Device device, ReadingType readingType) {
-        return device.getRegisters().stream().filter(register -> register.getReadingType().equals(readingType)).findFirst();
-    }*/
 
     @Override
     public Object from(UsagePointIssueDataValidation usagePointIssueDataValidation) {
