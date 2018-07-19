@@ -51,8 +51,8 @@ public class RequestParserTest {
 
     private static final long DEVICE1_ID = 1;
     private static final long DEVICE2_ID = DEVICE1_ID + 1;
-    private static final String DEVICE1_MRID = "MRID_"+DEVICE1_ID;
-    private static final String DEVICE2_MRID = "MRID_"+DEVICE2_ID;
+    private static final String DEVICE1_NAME = "NAME_"+DEVICE1_ID;
+    private static final String DEVICE2_NAME = "NAME_"+DEVICE2_ID;
     private static final long CONNECTION_TASK1_ID = DEVICE2_ID + 1;
     private static final long CONNECTION_TASK2_ID = CONNECTION_TASK1_ID + 1;
     private static final long COM_TASK_EXECUTION1_ID = CONNECTION_TASK2_ID + 1;
@@ -64,7 +64,7 @@ public class RequestParserTest {
     private static final long COM_PORT_POOL1_ID = COM_PORT2_ID + 1;
     private static final long COM_PORT_POOL2_ID = COM_PORT_POOL1_ID + 1;
     private static final long NON_EXISTING_DEVICE_ID = 999;
-    private static final String NON_EXISTING_DEVICE_MRID = "999";
+    private static final String NON_EXISTING_DEVICE_MAME = "NAME_999";
     private static final long NON_EXISTING_CONNECTION_TASK_ID = NON_EXISTING_DEVICE_ID - 1;
     private static final long NON_EXISTING_COMTASK_TASK_ID = NON_EXISTING_CONNECTION_TASK_ID - 1;
     private static final long NON_EXISTING_COMPORT_ID = NON_EXISTING_COMTASK_TASK_ID - 1;
@@ -287,7 +287,7 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for device: " + DEVICE1_MRID);
+        Request request = parser.parse("Register request for device: " + DEVICE1_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -301,7 +301,7 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for device: " + DEVICE1_MRID);
+        Request request = parser.parse("Register request for device: " + DEVICE1_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -311,7 +311,7 @@ public class RequestParserTest {
 
     @Test(expected = CanNotFindForIdentifier.class)
     public void testOneDeviceWithMRIDAndUnknown() throws RequestParseException {
-        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByMRID(anyString());
+        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByDeviceName(anyString());
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
@@ -329,7 +329,7 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ","+DEVICE2_MRID);
+        Request request = parser.parse("Register request for device: " + DEVICE1_NAME + ","+DEVICE2_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -343,7 +343,7 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ", "+DEVICE2_MRID);
+        Request request = parser.parse("Register request for device: " + DEVICE1_NAME + ", "+DEVICE2_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -355,13 +355,13 @@ public class RequestParserTest {
     public void testMultipleDeviceWithMRIDAndUnknown() throws RequestParseException {
         when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
-        when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
+        when(this.deviceService.findDeviceByName(anyString())).thenReturn(Optional.empty());
         doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), messageSeed)).when(this.identificationService).createDeviceIdentifierByMRID("unknown");
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ", "+DEVICE2_MRID + ", unknown");
+        Request request = parser.parse("Register request for device: " + DEVICE1_NAME + ", "+DEVICE2_NAME + ", unknown");
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -374,13 +374,13 @@ public class RequestParserTest {
     public void testNonExistingDevice() throws RequestParseException {
         when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
-        when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
-        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), messageSeed)).when(this.identificationService).createDeviceIdentifierByMRID(NON_EXISTING_DEVICE_MRID);
+        when(this.deviceService.findDeviceByName(anyString())).thenReturn(Optional.empty());
+        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), messageSeed)).when(this.identificationService).createDeviceIdentifierByDeviceName(NON_EXISTING_DEVICE_MAME);
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        parser.parse("Register request for device: " + NON_EXISTING_DEVICE_MRID);
+        parser.parse("Register request for device: " + NON_EXISTING_DEVICE_MAME);
 
         // Expected BusinessObjectIdParseException because the device request does not exist
     }
@@ -391,7 +391,7 @@ public class RequestParserTest {
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
         //Business method
-        Request request = parser.parse("Register request for Device: " + DEVICE1_MRID);
+        Request request = parser.parse("Register request for Device: " + DEVICE1_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(DeviceRequest.class);
@@ -769,10 +769,11 @@ public class RequestParserTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(deviceId);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByMrid("MRID_" + deviceId)).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByName("NAME_" + deviceId)).thenReturn(Optional.of(device));
+
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         when(this.identificationService.createDeviceIdentifierByDatabaseId(deviceId)).thenReturn(deviceIdentifier);
-        when(this.identificationService.createDeviceIdentifierByMRID("MRID_" + deviceId)).thenReturn(deviceIdentifier);
+        when(this.identificationService.createDeviceIdentifierByDeviceName("NAME_" + deviceId)).thenReturn(deviceIdentifier);
     }
 
     private void mockConnectionTasks() {
