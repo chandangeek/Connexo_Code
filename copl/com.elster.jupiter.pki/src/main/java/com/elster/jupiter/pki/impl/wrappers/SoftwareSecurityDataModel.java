@@ -18,8 +18,10 @@ import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,8 +29,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.Collections;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * OSGi Component that will create the datamodel for the factories in the SSM bundle.
@@ -121,7 +124,11 @@ public class SoftwareSecurityDataModel {
     public void activate() {
         registerDataModel();
         registerInjector();
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(version(10, 4, 2), V10_4_2SimpleUpgrader.class));
     }
 
     private void registerDataModel() {
