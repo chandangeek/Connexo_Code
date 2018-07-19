@@ -7,8 +7,10 @@ import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -32,6 +34,7 @@ import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -66,6 +69,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,9 +79,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -108,6 +116,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
+    private Array neighbourTable = null;
+    private Set<String> topologySegments = new LinkedHashSet<>();
 
     public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -546,7 +556,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
+        DeviceIdentifier dcIdentifier = new DeviceIdentifierById(offlineDevice.getId());
+        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(dcIdentifier);
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
@@ -557,6 +568,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
         final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
+
+        final Optional<String> dcMacAddress = extractDCMacAddress(g3Nodes);
 
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
 
@@ -615,10 +628,134 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 )
                         );
                     }
+
+                    if (dcMacAddress.isPresent()) {
+                        buildTopologySegments(dcMacAddress.get(), g3Node);
+                    } else {
+                        getLogger().warning("Concentrator MAC address could not be determined, skipping G3 network topology graph creation.");
+                    }
+
+                    if (getNeighbourTable().isPresent()) {
+                        Optional<AbstractDataType> neighbourOpt = getNeighbourTable().get().getAllDataTypes().stream().filter(
+                                item -> item.isStructure() &&
+                                        ((Structure) item).getDataType(0).getUnsigned16().getValue() == g3Node.getShortAddress()
+                        ).findFirst();
+
+                        assert neighbourOpt.isPresent();
+                        final Structure neighbourStruct = (Structure) neighbourOpt.get();
+
+                        // build up the topologyNeighbour
+                        int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
+                        long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
+                        int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
+                        int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
+                        int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
+                        int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
+                        int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
+                        int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
+                        int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
+                        int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+
+                        deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                    }
+
                 }
             }
         }
+
+        if (dcMacAddress.isPresent()) {
+            for (final String key : topologySegments) {
+                // 0 = source, 1 = target, 2 = hop
+                List<String> tokens = Arrays.asList(key.split(";"));
+
+                if (tokens.get(0).equals(dcMacAddress.get())) {
+                    deviceTopology.addPathSegmentFor(
+                            dcIdentifier,
+                            new DialHomeIdDeviceIdentifier(tokens.get(1)),
+                            new DialHomeIdDeviceIdentifier(tokens.get(2)),
+                            Duration.ofDays(5), 100
+                    );
+                } else {
+                    deviceTopology.addPathSegmentFor(
+                            new DialHomeIdDeviceIdentifier(tokens.get(0)),
+                            new DialHomeIdDeviceIdentifier(tokens.get(1)),
+                            new DialHomeIdDeviceIdentifier(tokens.get(2)),
+                            Duration.ofDays(5), 100
+                    );
+                }
+            }
+        }
+
         return deviceTopology;
+    }
+
+    private void buildTopologySegments(String dcMacAddress, G3Topology.G3Node g3Node) {
+
+        if (dcMacAddress.equals(g3Node.getParentMacAddressString())) {
+            // 1st level neighbours
+            topologySegments.add(
+                    dcMacAddress.concat(";").concat(g3Node.getMacAddressString()).concat(";").concat(g3Node.getMacAddressString())
+            );
+        } else {
+            try {
+                // date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
+                final String requestPath = getG3NetworkManagement().requestPath(g3Node.getMacAddressString());
+                List<String> pathTokens = Arrays.asList(requestPath.split(":"));
+                List<String> forwardPaths = Arrays.asList(pathTokens.get(2).split(";"));
+                List<String> reversePaths = Arrays.asList(pathTokens.get(3).split(";"));
+
+                List<String> completePath = new ArrayList<>(Lists.reverse(reversePaths));
+                completePath.addAll(forwardPaths.subList(1, forwardPaths.size()));
+
+                for (int i = 0; i < completePath.size(); i++) {
+                    final String source = completePath.get(i);
+
+                    for (int j = i + 1; j < completePath.size(); j++) {
+                        final String target = completePath.get(j);
+
+                        if (j - i == 1) {
+                            // no hop
+                            topologySegments.add(
+                                    source.concat(";").concat(target).concat(";").concat(target)
+                            );
+                        } else {
+                            final String hop = completePath.get(i + 1);
+                            topologySegments.add(
+                                    source.concat(";").concat(target).concat(";").concat(hop)
+                            );
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                getLogger().severe("IOException while requesting G3 topology path: " + e.getMessage());
+            }
+        }
+    }
+
+    private Optional<Array> getNeighbourTable() {
+        try {
+            if (neighbourTable == null) {
+                final PLCOFDMType2MACSetup plcMACSetup = this.getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup();
+                neighbourTable = (Array) plcMACSetup.readNeighbourTable();
+                return Optional.of(neighbourTable);
+            } else {
+                return Optional.of(neighbourTable);
+            }
+        } catch (IOException e) {
+            getLogger().warning("Could not read neighbour table: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> extractDCMacAddress(List<G3Topology.G3Node> g3Nodes) {
+        Optional<String> result = Optional.empty();
+        for (final G3Topology.G3Node g3Node : g3Nodes) {
+            if (g3Nodes.stream().noneMatch(n -> n.getMacAddressString().equals(g3Node.getParentMacAddressString()))) {
+                return Optional.of(g3Node.getParentMacAddressString());
+            }
+        }
+        return result;
     }
 
     private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
