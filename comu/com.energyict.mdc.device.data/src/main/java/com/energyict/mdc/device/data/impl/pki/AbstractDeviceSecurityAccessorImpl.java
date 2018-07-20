@@ -42,7 +42,8 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
             ImmutableMap.of(
                     "C", CertificateAccessorImpl.class,
                     "P", PassphraseAccessorImpl.class,
-                    "S", SymmetricKeyAccessorImpl.class);
+                    "S", PlainTextSymmetricKeyAccessorImpl.class,
+                    "H", HsmSymmetricKeyAccessorImpl.class);
 
     protected AbstractDeviceSecurityAccessorImpl(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;

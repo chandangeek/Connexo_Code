@@ -66,10 +66,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.properties.*;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -144,7 +141,9 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.HsmSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
@@ -3364,7 +3363,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case SymmetricKey:
-                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
+                SymmetricKeyAccessorImpl symmetricKeyAccessor;
+                if (securityAccessorType.keyEncryptionMethodIsHSM()){
+                    symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
+                } else {
+                    symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
+                }
                 symmetricKeyAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;

@@ -13,23 +13,21 @@ import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.device.data.SymmetricKeyAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
-import com.google.inject.Inject;
 
 import java.util.Optional;
 
 /**
  * Created by bvn on 2/28/17.
  */
-public class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
-    private final DataModel dataModel;
-    private final SecurityManagementService securityManagementService;
-    private final Thesaurus thesaurus;
+public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
+    final DataModel dataModel;
+    final SecurityManagementService securityManagementService;
+    final Thesaurus thesaurus;
 
     private RefAny actualSymmetricKeyWrapperReference;
-    private RefAny tempSymmetricKeyWrapperReference;
+    RefAny tempSymmetricKeyWrapperReference;
 
-    @Inject
-    public SymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
+    SymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(securityManagementService);
         this.dataModel = dataModel;
         this.securityManagementService = securityManagementService;
@@ -62,20 +60,6 @@ public class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAccessorImpl
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(newValueWrapper);
     }
 
-    @Override
-    public void renew() {
-        if (tempSymmetricKeyWrapperReference.isPresent()) {
-            clearTempValue();
-        }
-        doRenewValue();
-    }
-
-    private void doRenewValue() {
-        SymmetricKeyWrapper symmetricKeyWrapper = securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
-        symmetricKeyWrapper.generateValue();
-        tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
-        this.save();
-    }
 
     @Override
     public void clearTempValue() {
