@@ -192,6 +192,11 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>hsm</artifactId>
+                <version>1.0.0${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>http.whiteboard</artifactId>
                 <version>2.3.3${revision}</version>
                 <scope>provided</scope>
@@ -259,7 +264,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki</artifactId>
-                <version>2.2.1${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -732,6 +737,7 @@
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.ftpclient</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
+                <module>../com.elster.jupiter.hsm</module>
                 <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
