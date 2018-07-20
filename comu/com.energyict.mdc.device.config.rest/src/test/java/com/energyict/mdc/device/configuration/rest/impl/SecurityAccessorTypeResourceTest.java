@@ -108,6 +108,79 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         when(securityManagementService.getAliasesByFilter(any(SecurityManagementService.AliasSearchFilter.class))).thenReturn(finder);
     }
 
+
+    @Test
+    public void hsmLabelIsPresent() throws IOException {
+        SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 2, "NameX", "Epic description");
+        when(securityAccessorType.getLabel()).thenReturn("hsmLabel");
+        when(securityManagementService.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
+
+        Response response = target("/securityaccessors").request().get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.securityaccessors[0].label")).isEqualTo("hsmLabel");
+    }
+
+    @Test
+    public void whenHsmAndLabelIsMissing_thenError() throws IOException {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 1;
+        info.description = DESCRIPTION_X;
+        info.name = NAME_X;
+        info.storageMethod = "HSM";
+        info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
+
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(keyAccessorType, SecurityAccessorType.Builder.class);
+        when(securityManagementService.addSecurityAccessorType(NAME_X, keyType)).thenReturn(builder);
+
+        info.keyType = new KeyTypeInfo();
+        info.keyType.id = 1;
+        info.keyType.name = KEY_TYPE_NAME;
+        info.keyType.requiresDuration = true;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
+
+        Response response = target("/securityaccessors").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("label");
+    }
+
+    @Test
+    public void whenHsmAndLabel_thenSuccess() throws IOException {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
+        info.id = 1;
+        info.description = DESCRIPTION_X;
+        info.name = NAME_X;
+        info.storageMethod = "HSM";
+        info.label = "hsmLabel";
+        info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
+
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(info.storageMethod);
+        when(keyAccessorType.getLabel()).thenReturn(info.label);
+        SecurityAccessorType.Builder builder = FakeBuilder.initBuilderStub(keyAccessorType, SecurityAccessorType.Builder.class);
+        when(securityManagementService.addSecurityAccessorType(NAME_X, keyType)).thenReturn(builder);
+
+        info.keyType = new KeyTypeInfo();
+        info.keyType.id = 1;
+        info.keyType.name = KEY_TYPE_NAME;
+        info.keyType.requiresDuration = true;
+        info.purpose = new IdWithNameInfo(SecurityAccessorType.Purpose.DEVICE_OPERATIONS.name(), null);
+
+        Response response = target("/securityaccessors").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<String>get("$.storageMethod")).isEqualTo("HSM");
+        assertThat(model.<String>get("$.label")).isEqualTo("hsmLabel");
+    }
+
+
+
     @Test
     public void testGetAllSecurityAccessorTypes() throws Exception {
         when(securityManagementService.getSecurityAccessorTypes()).thenReturn(Arrays.asList(keyAccessorType, certificateAccessorType));

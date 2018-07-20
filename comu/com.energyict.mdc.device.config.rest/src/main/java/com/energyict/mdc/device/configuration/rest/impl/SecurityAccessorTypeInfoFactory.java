@@ -45,6 +45,7 @@ public class SecurityAccessorTypeInfoFactory {
         if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
             info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
         }
+        info.label = securityAccessorType.getLabel();
         return info;
     }
 

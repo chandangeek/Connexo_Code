@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyFactory;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
 import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
@@ -230,6 +231,12 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.defaultValue != null) {
             keyFunctionTypeBuilder.managedCentrally();
         }
+
+        if (securityAccessorTypeInfo.keyEncryptionMethodIsHSM()) {
+            checkHSMLabel(securityAccessorTypeInfo.label);
+            keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
+        }
+
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
         SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(keyFunctionType);
 
@@ -243,6 +250,12 @@ public class SecurityAccessorTypeResource {
             resultInfo.defaultValue = securityAccessorInfoFactory.asCertificate(certificateAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
         }
         return resultInfo;
+    }
+
+    private void checkHSMLabel(String label){
+        if (label == null || label.isEmpty()){
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "label");
+        }
     }
 
     private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
@@ -277,6 +290,10 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorTypeUpdater updater = securityAccessorType.startUpdate();
         updater.name(securityAccessorTypeInfo.name);
         updater.description(securityAccessorTypeInfo.description);
+        if (securityAccessorType.keyEncryptionMethodIsHSM()){
+            checkHSMLabel(securityAccessorTypeInfo.label);
+            updater.label(securityAccessorTypeInfo.label);
+        }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
         } else {
