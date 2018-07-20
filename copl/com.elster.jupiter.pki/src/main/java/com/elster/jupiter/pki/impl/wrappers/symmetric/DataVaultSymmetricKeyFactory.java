@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.DeviceKeyImporterProvider;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component(name="PlaintextSymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
-public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSupport {
+public class DataVaultSymmetricKeyFactory implements DeviceKeyImporterProvider, ExpirationSupport {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
@@ -89,7 +90,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     @Override
     public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> wrappers = new ArrayList<>();
-        wrappers.addAll(dataModel.query(SymmetricKeyWrapper.class).select(expiration.isExpired("expirationTime", when)));
+        wrappers.addAll(dataModel.query(PlaintextSymmetricKeyImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }
 

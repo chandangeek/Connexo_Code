@@ -68,6 +68,14 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     }
 
     @Override
+    public SecurityAccessorType.Builder label(String label) {
+        underConstruction.setLabel(label);
+        return this;
+    }
+
+
+
+    @Override
     public SecurityAccessorType add() {
         if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
             if (underConstruction.isManagedCentrally()) {

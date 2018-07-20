@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -27,6 +28,7 @@ import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.DeviceKeyImporterProvider;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.ExpirationSupport;
@@ -69,6 +71,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -78,7 +81,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -499,12 +502,20 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType) {
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(securityAccessorType);
+                return getDeviceSecretImporterOrThrowException(securityAccessorType);
             case Passphrase:
                 return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(securityAccessorType);
             default:
                 throw new UnsupportedImportOperation(thesaurus, securityAccessorType);
         }
+    }
+
+    private DeviceSecretImporter getDeviceSecretImporterOrThrowException(SecurityAccessorType securityAccessorType) {
+        SymmetricKeyFactory factory = getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod());
+        if (factory instanceof DeviceKeyImporterProvider) {
+            return ((DeviceKeyImporterProvider) factory).getDeviceKeyImporter(securityAccessorType);
+        }
+        throw new UnsupportedImportOperation(thesaurus, securityAccessorType);
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {

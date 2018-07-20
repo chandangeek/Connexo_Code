@@ -88,6 +88,10 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     Purpose getPurpose();
 
+    String getLabel();
+
+    boolean keyEncryptionMethodIsHSM();
+
     @ProviderType
     interface Builder {
         /**
@@ -126,6 +130,11 @@ public interface SecurityAccessorType extends HasId, HasName  {
          */
         SecurityAccessorType.Builder purpose(Purpose purpose);
 
+        /**
+         * Set HSM label
+         */
+        SecurityAccessorType.Builder label(String label);
+
         SecurityAccessorType add();
     }
 
@@ -136,6 +145,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater description(String description);
 
         Updater duration(TimeDuration duration);
+
+        Updater label(String label);
 
         SecurityAccessorType complete();
     }

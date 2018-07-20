@@ -21,7 +21,9 @@ public enum TranslationKeys implements TranslationKey {
     CSR_IMPORTER(CSRImporterFactory.NAME, "CSR importer [STD]"),
     CSR_IMPORTER_MESSAGE_HANDLER(CSRImporterMessageHandlerFactory.SUBSCRIBER_NAME, "Handle CSR import"),
     CSR_IMPORT_SUCCESS("CSRImportSuccess", "Finished successfully."),
-    CSR_IMPORT_FAILED("CSRImportFailed", "Failed to complete, no CSR has been processed.");
+    CSR_IMPORT_FAILED("CSRImportFailed", "Failed to complete, no CSR has been processed."),
+    KEY("Key", "Key"),
+    LABEL("Label", "Label");
 
     private final String key;
     private final String defaultFormat;

@@ -32,6 +32,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
@@ -276,6 +277,11 @@ public enum TableSpecs {
                     .varChar()
                     .map(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
                     .since(Version.version(10, 3))
+                    .add();
+            table.column("LABEL")
+                    .varChar(SHORT_DESCRIPTION_LENGTH)
+                    .map(SecurityAccessorTypeImpl.Fields.LABEL.fieldName())
+                    .since(version(10,4,2))
                     .add();
             Column keytypeid = table.column("KEYTYPEID")
                     .number()

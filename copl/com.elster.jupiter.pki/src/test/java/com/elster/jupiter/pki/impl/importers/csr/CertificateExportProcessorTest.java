@@ -6,18 +6,12 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.impl.SecurityTestUtils;
 
-import certpathvalidator.CertPathValidatorTest;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.Signature;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -31,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,19 +38,11 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateExportProcessorTest {
-    private static CertificateFactory certificateFactory;
-
     private byte [] resultBytes;
     private byte [] resultSignature;
 
     private Clock clock = Clock.fixed(ZonedDateTime.of(2015, 6, 4, 14, 20, 55, 115451452, TimeZoneNeutral.getMcMurdo()).toInstant(), TimeZoneNeutral.getMcMurdo());
     private CertificateExportTagReplacer tagReplacer;
-
-    @BeforeClass
-    public static void initialize() throws Exception {
-        Security.addProvider(new BouncyCastleProvider());
-        certificateFactory = CertificateFactory.getInstance("X.509", "BC");
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -97,7 +82,7 @@ public class CertificateExportProcessorTest {
 
         Map<String,Map<String, X509Certificate>> dcerts = new LinkedHashMap<>();
         Map<String, X509Certificate> certs = new LinkedHashMap<>();
-        certs.put("test", loadCertificate("myRootCA.cert"));
+        certs.put("test", SecurityTestUtils.loadCertificate("myRootCA.cert"));
         dcerts.put("100001", certs);
         Map<String, Object> props = new HashMap<>();
         props.put(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), securityAccessor);
@@ -184,9 +169,5 @@ public class CertificateExportProcessorTest {
         String expected = "aFlurryOfTextInter" + expectedReplacement + "spersedWithTags";
 
         assertThat(tagReplacer.replaceTags(template)).isEqualTo(expected);
-    }
-
-    private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
-        return (X509Certificate) certificateFactory.generateCertificate(CertPathValidatorTest.class.getResourceAsStream(name));
     }
 }

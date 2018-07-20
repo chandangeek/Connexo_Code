@@ -53,7 +53,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     public enum Fields {
         ENCRYPTED_KEY("encryptedKey"),
-        LABEL("label"),
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),;
 
@@ -71,7 +70,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     private long id;
     @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String encryptedKey;
-    private String label;
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
@@ -100,7 +98,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
         if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
-
         byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
         return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
     }
@@ -113,18 +110,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     public void setKey(SecretKey key) {
         this.encryptedKey = dataVaultService.encrypt(key.getEncoded());
         this.save();
-    }
-
-    @Override
-    public void setKey(byte[] key, String label) {
-        this.encryptedKey = dataVaultService.encrypt(key);
-        this.label = label;
-        this.save();
-    }
-
-    @Override
-    public Optional<String> getKeyLabel() {
-        return Optional.of(label);
     }
 
     @Override
@@ -249,5 +234,6 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             return getKeyType().getKeySize();
         }
     }
+
 
 }

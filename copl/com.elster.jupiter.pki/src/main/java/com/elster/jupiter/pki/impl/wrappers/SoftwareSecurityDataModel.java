@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -53,6 +54,7 @@ public class SoftwareSecurityDataModel {
     private volatile UserService userService;
     private volatile MessageService messageService;
     private SecurityManagementService securityManagementService;
+    private volatile HsmEnergyService hsmEnergyService;
 
     // OSGi
     public SoftwareSecurityDataModel() {
@@ -62,7 +64,7 @@ public class SoftwareSecurityDataModel {
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
                                      SecurityManagementService securityManagementService, EventService eventService,
-                                     UserService userService, MessageService messageService) {
+                                     UserService userService, MessageService messageService, HsmEnergyService hsmEnergyService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -72,6 +74,7 @@ public class SoftwareSecurityDataModel {
         this.setEventService(eventService);
         this.setUserService(userService);
         this.setMessageService(messageService);
+        this.setHsmEnergyService(hsmEnergyService);
         activate();
     }
 
@@ -120,6 +123,11 @@ public class SoftwareSecurityDataModel {
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
     @Activate
     public void activate() {
         registerDataModel();
@@ -152,6 +160,7 @@ public class SoftwareSecurityDataModel {
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(HsmEnergyService.class).toInstance(hsmEnergyService);
             }
         };
     }

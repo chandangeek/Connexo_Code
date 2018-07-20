@@ -9,16 +9,17 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.pki.HsmSymmetricKey;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     SSM_PLAINTEXTPK {
@@ -52,10 +53,45 @@ public enum TableSpecs {
                     .add();
         }
     },
+
+    SSM_HSMSK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<HsmSymmetricKey> table = dataModel.addTable(this.name(), HsmSymmetricKey.class).since(Version.version(10, 4,2));
+            table.map(HsmSymmetricKeyImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("KEY")
+                    .varChar()
+                    .notNull()
+                    .map(HsmSymmetricKeyImpl.Fields.ENCRYPTED_KEY.fieldName())
+                    .add();
+            Column keyTypeColumn = table.column("KEYTYPE")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .add();
+            table.column("LABEL")
+                    .varChar(SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .map(HsmSymmetricKeyImpl.Fields.LABEL.fieldName())
+                    .add();
+            table.column("EXPIRATION")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(HsmSymmetricKeyImpl.Fields.EXPIRATION.fieldName())
+                    .add();
+            table.foreignKey("SSM_FK_HSMKEY_KT").on(keyTypeColumn)
+                    .references(KeyType.class)
+                    .map(HsmSymmetricKeyImpl.Fields.KEY_TYPE.fieldName())
+                    .add();
+            table.primaryKey("PK_SSM_HSMSK").on(id).add();
+        }
+    },
+
     SSM_PLAINTEXTSK {
         @Override
         void addTo(DataModel dataModel) {
-            Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class).since(Version.version(10, 3));
+            Table<PlaintextSymmetricKey> table = dataModel.addTable(this.name(), PlaintextSymmetricKey.class).since(Version.version(10, 3));
             table.map(PlaintextSymmetricKeyImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("KEY")
@@ -66,11 +102,6 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .add();
-            table.column("LABEL")
-                    .varChar(SHORT_DESCRIPTION_LENGTH)
-                    .map(PlaintextSymmetricKeyImpl.Fields.LABEL.fieldName())
-                    .since(version(10,4,2))
                     .add();
             table.column("EXPIRATION")
                     .number()

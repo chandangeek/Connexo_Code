@@ -8,6 +8,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Thesaurus;
@@ -143,6 +144,7 @@ public class PkiInMemoryPersistence {
             bind(MessageInterpolator.class).toInstance(mock(Thesaurus.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
 //            bind(Clock.class).toInstance(clock);
         }
     }}

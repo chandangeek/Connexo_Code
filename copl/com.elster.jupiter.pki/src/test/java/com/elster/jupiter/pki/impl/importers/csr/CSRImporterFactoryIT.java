@@ -15,11 +15,11 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityTestUtils;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.PkiInMemoryPersistence;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
+import com.elster.jupiter.pki.impl.SecurityTestUtils;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -30,10 +30,8 @@ import com.elster.jupiter.util.time.Never;
 
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.nio.file.FileSystems;
-import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +64,6 @@ public class CSRImporterFactoryIT {
         securityManagementService = pkiInMemoryPersistence.getSecurityManagementService();
         ((SecurityManagementServiceImpl) securityManagementService).addPrivateKeyFactory(pkiInMemoryPersistence.getDataVaultPrivateKeyFactory());
         ((FileImportServiceImpl) pkiInMemoryPersistence.getFileImportService()).addFileImporter(pkiInMemoryPersistence.getCSRImporterFactory());
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @AfterClass

@@ -19,6 +19,7 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -62,6 +63,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private boolean managedCentrally;
     private Purpose purpose;
+    private String label;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -84,7 +86,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         KEYTYPE("keyType"),
         TRUSTSTORE("trustStore"),
         MANAGED_CENTRALLY("managedCentrally"),
-        PURPOSE("purpose");
+        PURPOSE("purpose"),
+        LABEL("label");
 
         private final String javaFieldName;
         Fields(String javaFieldName) {
@@ -198,6 +201,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         this.purpose = purpose;
     }
 
+    protected void setLabel(String label) {
+        this.label = label;
+    }
+
     @Override
     public Set<SecurityAccessorUserAction> getUserActions() {
         return Collections.unmodifiableSet(userActions);
@@ -295,6 +302,16 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         return new SecurityAccessorTypeUpdaterImpl();
     }
 
+    @Override
+    public String getLabel(){
+        return this.label;
+    }
+
+    @Override
+    public boolean keyEncryptionMethodIsHSM(){
+        return HsmSymmetricKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.getKeyEncryptionMethod());
+    }
+
     protected class SecurityAccessorTypeUpdaterImpl implements SecurityAccessorTypeUpdater {
         private SecurityAccessorTypeUpdaterImpl() {
         }
@@ -318,6 +335,12 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         }
 
         @Override
+        public SecurityAccessorType.Updater label(String label) {
+            SecurityAccessorTypeImpl.this.setLabel(label);
+            return this;
+        }
+
+        @Override
         public SecurityAccessorTypeUpdater addUserAction(SecurityAccessorUserAction userAction) {
             SecurityAccessorTypeImpl.this.addUserAction(userAction);
             return this;
@@ -334,5 +357,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
             SecurityAccessorTypeImpl.this.save();
             return SecurityAccessorTypeImpl.this;
         }
+
+
     }
 }
