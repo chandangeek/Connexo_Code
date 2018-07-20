@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
@@ -101,6 +102,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessor-key-type-combobox': {
                 change: me.keyTypeChanged
+            },
+            '#mdc-security-accessor-storage-method-combobox': {
+                change: me.storageMethodChanged
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: me.saveSecurityAccessor
@@ -543,12 +547,20 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         } else {
                             view.down('#mdc-security-accessor-purpose-device-operations').setValue(true);
                         }
+                        view.down('#mdc-security-accessor-key-type-combobox').editAccessorRecord = record;
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
                         if (record.get('duration')) {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
                             view.down('#cbo-security-accessor-validity-period-delay').select(record.get('duration').timeUnit);
                         }
+
                         view.down('#mdc-security-accessor-storage-method-combobox').setDisabled(true);
+                        if (record.get('label')) {
+                            var labelTextField =  view.down('#mdc-security-accessor-label-textfield');
+                            labelTextField.show();
+                            labelTextField.setValue(record.get('label'));
+                        }
+
                         me.getApplication().fireEvent('changecontentevent', view);
                         if (record.get('defaultValue')) {
                             me.getManageCentrallyCheckbox().setValue(true);
@@ -638,7 +650,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = form.down('#mdc-security-accessor-validity-period'),
             requiresDuration = newValue && newValue.requiresDuration,
-            requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
+            requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod,
+            editAccessorRecord = combobox.editAccessorRecord;
 
         validityPeriod.setVisible(requiresDuration);
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
@@ -658,11 +671,26 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
             keyEncryptionMethodStore.on('load', function (store, records, successful) {
                 storageMethodCombo.bindStore(keyEncryptionMethodStore);
-                if (successful && store.getCount() === 1) {
-                    storageMethodCombo.setValue(store.getAt(0).get('name'));
+                if (successful){
+                    if (store.getCount() === 1) {
+                        storageMethodCombo.setValue(store.getAt(0).get('name'));
+                    } else if (editAccessorRecord){
+                        storageMethodCombo.setValue(editAccessorRecord.get('storageMethod'));
+                    }
                 }
             }, me, {single: true});
             keyEncryptionMethodStore.load();
+        }
+    },
+
+    storageMethodChanged: function(combobox, newValue) {
+        var form = combobox.up('form'),
+            hsmLabel = form.down('#mdc-security-accessor-label-textfield');
+
+        if (newValue === "HSM") {
+            hsmLabel.show();
+        } else {
+            hsmLabel.hide();
         }
     },
 

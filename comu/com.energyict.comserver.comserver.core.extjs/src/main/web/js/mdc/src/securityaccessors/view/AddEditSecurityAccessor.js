@@ -178,6 +178,14 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectStorageMethod','MDC', 'Select a storage method...')
                 },
                 {
+                    xtype: 'textfield',
+                    name: 'label',
+                    itemId: 'mdc-security-accessor-label-textfield',
+                    fieldLabel: Uni.I18n.translate('general.label', 'MDC', 'Label'),
+                    required: true,
+                    hidden: true
+                },
+                {
                     xtype: 'fieldcontainer',
                     itemId: 'mdc-security-accessor-validity-period',
                     fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
