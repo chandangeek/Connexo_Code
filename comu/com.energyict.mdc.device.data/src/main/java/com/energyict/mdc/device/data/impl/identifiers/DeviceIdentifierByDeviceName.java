@@ -65,7 +65,7 @@ public final class DeviceIdentifierByDeviceName implements DeviceIdentifier {
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "name";
+            return "Name";
         }
 
         @Override
