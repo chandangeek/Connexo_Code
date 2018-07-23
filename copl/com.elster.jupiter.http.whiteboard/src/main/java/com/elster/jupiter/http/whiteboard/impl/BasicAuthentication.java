@@ -402,9 +402,20 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
-            postWhiteboardEvent(WhiteboardEvent.LOGIN_FAILED.topic(), new LocalEventUserSource(""));
+            LocalEventUserSource localEventUserSource = createLocalEventUserSource(authentication);
+            postWhiteboardEvent(WhiteboardEvent.LOGIN_FAILED.topic(), localEventUserSource);
             return deny(request, response);
         }
+    }
+
+    private LocalEventUserSource createLocalEventUserSource(String authentication) {
+        BasicAuthenticationCredentials credentials;
+        try {
+            credentials = new BasicAuthenticationCredentials(authentication);
+        } catch (IllegalArgumentException e){
+            return new LocalEventUserSource("");
+        }
+        return new LocalEventUserSource(credentials.getUserName());
     }
 
     private boolean isAuthenticated(Optional<User> user) {
