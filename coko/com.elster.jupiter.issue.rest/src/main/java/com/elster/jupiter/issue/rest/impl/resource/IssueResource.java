@@ -62,6 +62,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -111,12 +112,16 @@ public class IssueResource extends BaseResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
-    public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey ) {
         validateMandatory(params, START, LIMIT);
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
         addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
+        }
+
+        if(appKey!= null && !appKey.isEmpty() && appKey.equalsIgnoreCase("mdm")){
+            System.out.println("appkey =  " + appKey);
         }
         List<? extends Issue> issues = finder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
