@@ -37,18 +37,20 @@ public class LogBookCommandHelper {
     public static List<LogBookReader> createLogBookReaders(CommandRoot.ServiceProvider serviceProvider, LogBooksTask logBooksTask, OfflineDevice device, ComTaskExecution comTaskExecution) {
         List<LogBookReader> logBookReaders = new ArrayList<>(device.getAllOfflineLogBooks().size());
         List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooks();
-        if (logBooksTask.getLogBookTypes().isEmpty()) {
-            for (OfflineLogBook logBook : listOfAllLogBooks) {
-                if (comTaskExecution.getDevice().getId() == logBook.getDeviceId()) {
-                    logBookReaders.add(createLogBookReader(serviceProvider.clock(), logBook));
-                }
-            }
-        } else {
-            for (LogBookType logBookType : logBooksTask.getLogBookTypes()) {
+        if (logBooksTask != null) {
+            if (logBooksTask.getLogBookTypes().isEmpty()) {
                 for (OfflineLogBook logBook : listOfAllLogBooks) {
-                    if (logBookType.getId() == logBook.getOfflineLogBookSpec().getLogBookTypeId()) {
-                        if (comTaskExecution.getDevice().getId() == logBook.getDeviceId()) {
-                            logBookReaders.add(createLogBookReader(serviceProvider.clock(), logBook));
+                    if (comTaskExecution.getDevice().getId() == logBook.getDeviceId()) {
+                        logBookReaders.add(createLogBookReader(serviceProvider.clock(), logBook));
+                    }
+                }
+            } else {
+                for (LogBookType logBookType : logBooksTask.getLogBookTypes()) {
+                    for (OfflineLogBook logBook : listOfAllLogBooks) {
+                        if (logBookType.getId() == logBook.getOfflineLogBookSpec().getLogBookTypeId()) {
+                            if (comTaskExecution.getDevice().getId() == logBook.getDeviceId()) {
+                                logBookReaders.add(createLogBookReader(serviceProvider.clock(), logBook));
+                            }
                         }
                     }
                 }
