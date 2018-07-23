@@ -18,7 +18,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <bouncycastle.version>1.58</bouncycastle.version>
+        <bouncycastle.version>1.56</bouncycastle.version>
         <spring.version>4.3.10.RELEASE</spring.version>
         <jackson.version>2.4.0</jackson.version>
     </properties>
