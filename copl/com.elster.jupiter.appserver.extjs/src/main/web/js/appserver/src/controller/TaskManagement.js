@@ -98,6 +98,10 @@ Ext.define('Apr.controller.TaskManagement', {
                 }
             })
         }
+        else {
+            route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement');
+            route.forward();
+        }
     },
 
     showPreview: function (records, record) {
