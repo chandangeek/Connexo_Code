@@ -69,10 +69,6 @@ public class SecureDeviceShipmentImporterTest {
     SecurityManagementService securityManagementService;
     @Mock
     ImporterExtension importerExtension;
-    @Mock
-    DeviceSecretImporter deviceSecretImporter;
-    @Mock
-    DeviceConfiguration deviceConfig;
 
     private TestHandler testHandler;
 
@@ -94,9 +90,42 @@ public class SecureDeviceShipmentImporterTest {
 
     @Test
     public void importBeaconShipmentFile() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        when(deviceConfig.getName()).thenReturn("Default");
         when(deviceConfig.isActive()).thenReturn(true);
-        when(deviceConfig.isDefault()).thenReturn(true);
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = this.setupSecureShipmentImporter(deviceConfig);
+
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfig));
+        when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.of(deviceType));
+
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.empty());
+        Device newDevice = mock(Device.class);
+        when(newDevice.getDeviceType()).thenReturn(deviceType);
+        when(deviceService.newDevice(eq(deviceConfig), anyString(), any(Instant.class))).thenReturn(newDevice);
+        when(deviceService.newDevice(eq(deviceConfig), anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
+        SecurityAccessor keyAccessor = mock(SecurityAccessor.class);
+        when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
+        DeviceSecretImporter deviceSecretImporter = mock(DeviceSecretImporter.class);
+        List<SecurityAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
+                "WEB_PORTAL_LOGIN_ADMIN", "Priv_DC_SSH_cl", "Pub_DC_SSH_sv", "DLMS_WAN_DMGMT_MC_GUEK", "DLMS_WAN_DBROAD_MC_GUEK",
+                "DLMS_WAN_DMGMT_RW_GUEK", "DLMS_WAN_DBROAD_RW_GUEK", "DLMS_WAN_DMGMT_FU_GUEK", "DLMS_WAN_DBROAD_FU_GUEK",
+                "DLMS_WAN_DMGMT_MC_GAK", "DLMS_WAN_DBROAD_MC_GAK", "DLMS_WAN_DMGMT_RW_GAK", "DLMS_WAN_DBROAD_RW_GAK",
+                "DLMS_WAN_DMGMT_FU_GAK", "DLMS_WAN_DBROAD_FU_GAK", "DLMS_WAN_DMGMT_MC_LLS", "DLMS_WAN_DBROAD_MC_LLS",
+                "DLMS_WAN_DBROAD_MC_LLS", "DLMS_WAN_DMGMT_RW_LLS", "DLMS_WAN_DBROAD_RW_LLS", "DLMS_WAN_DMGMT_FU_LLS",
+                "DLMS_WAN_DBROAD_FU_LLS", "DLMS_WAN_DMGMT_MC_HLS", "DLMS_WAN_DBROAD_MC_HLS", "DLMS_WAN_DMGMT_RW_HLS",
+                "DLMS_WAN_DBROAD_RW_HLS", "DLMS_WAN_DMGMT_FU_HLS", "DLMS_WAN_DBROAD_FU_HLS").map(name -> {
+            SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
+            when(keyAccessorType.getName()).thenReturn(name);
+            when(newDevice.getSecurityAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
+            when(securityManagementService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
+            return keyAccessorType;
+        }).collect(toList());
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(keyAccessorTypes);
+
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
+        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         secureDeviceShipmentImporter.process(fileImportOccurrence);
 
@@ -113,31 +142,6 @@ public class SecureDeviceShipmentImporterTest {
         assertThat(logMessages).contains("Device '00376283' imported successfully");
         assertThat(logMessages).contains("Now importing device '00376284'");
         assertThat(logMessages).contains("Device '00376284' imported successfully");
-    }
-
-    @Test
-    public void whenNoDefaultDeviceConfiguration_thenCannotImport(){
-        when(deviceConfig.isActive()).thenReturn(true);
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = this.setupSecureShipmentImporter(deviceConfig);
-        try {
-            secureDeviceShipmentImporter.process(fileImportOccurrence);
-            fail("Importer should have failed for no default device configuration");
-        } catch (Exception e) {
-            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: no default device configuration could be found for the device type");
-        }
-    }
-
-    @Test
-    public void whenNoActiveDeviceConfiguration_thenCannotImport(){
-        when(deviceConfig.isActive()).thenReturn(false);
-        when(deviceConfig.isDefault()).thenReturn(true);
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = this.setupSecureShipmentImporter(deviceConfig);
-        try {
-            secureDeviceShipmentImporter.process(fileImportOccurrence);
-            fail("Importer should have failed for default device configuration is not active");
-        } catch (Exception e) {
-            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the default device configuration is not active");
-        }
     }
 
     @Test
@@ -194,45 +198,6 @@ public class SecureDeviceShipmentImporterTest {
             // ok
         }
     }
-
-
-    private SecureDeviceShipmentImporter setupSecureShipmentImporter(DeviceConfiguration deviceConfig){
-        DeviceType deviceType = mock(DeviceType.class);
-
-        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfig));
-        when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.of(deviceType));
-
-        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.empty());
-        Device newDevice = mock(Device.class);
-        when(newDevice.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.newDevice(eq(deviceConfig), anyString(), any(Instant.class))).thenReturn(newDevice);
-        when(deviceService.newDevice(eq(deviceConfig), anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
-        SecurityAccessor keyAccessor = mock(SecurityAccessor.class);
-        when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
-        when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
-        deviceSecretImporter = mock(DeviceSecretImporter.class);
-        List<SecurityAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
-                "WEB_PORTAL_LOGIN_ADMIN", "Priv_DC_SSH_cl", "Pub_DC_SSH_sv", "DLMS_WAN_DMGMT_MC_GUEK", "DLMS_WAN_DBROAD_MC_GUEK",
-                "DLMS_WAN_DMGMT_RW_GUEK", "DLMS_WAN_DBROAD_RW_GUEK", "DLMS_WAN_DMGMT_FU_GUEK", "DLMS_WAN_DBROAD_FU_GUEK",
-                "DLMS_WAN_DMGMT_MC_GAK", "DLMS_WAN_DBROAD_MC_GAK", "DLMS_WAN_DMGMT_RW_GAK", "DLMS_WAN_DBROAD_RW_GAK",
-                "DLMS_WAN_DMGMT_FU_GAK", "DLMS_WAN_DBROAD_FU_GAK", "DLMS_WAN_DMGMT_MC_LLS", "DLMS_WAN_DBROAD_MC_LLS",
-                "DLMS_WAN_DBROAD_MC_LLS", "DLMS_WAN_DMGMT_RW_LLS", "DLMS_WAN_DBROAD_RW_LLS", "DLMS_WAN_DMGMT_FU_LLS",
-                "DLMS_WAN_DBROAD_FU_LLS", "DLMS_WAN_DMGMT_MC_HLS", "DLMS_WAN_DBROAD_MC_HLS", "DLMS_WAN_DMGMT_RW_HLS",
-                "DLMS_WAN_DBROAD_RW_HLS", "DLMS_WAN_DMGMT_FU_HLS", "DLMS_WAN_DBROAD_FU_HLS").map(name -> {
-            SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
-            when(keyAccessorType.getName()).thenReturn(name);
-            when(newDevice.getSecurityAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
-            when(securityManagementService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
-            return keyAccessorType;
-        }).collect(toList());
-        when(deviceType.getSecurityAccessorTypes()).thenReturn(keyAccessorTypes);
-
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService,Optional.of(importerExtension));
-        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
-
-        return secureDeviceShipmentImporter;
-    }
-
 
     class SimpleNlsMessageFormat implements NlsMessageFormat {
 
