@@ -171,6 +171,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -600,37 +601,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
 
-    public static final String IP_V6_ADDRESS = "IPv6Address";
-
-    public class LocalEventIPv6Source {
-        DeviceProtocolProperty protocolProperty;
-        Device device;
-
-        LocalEventIPv6Source(Device device, DeviceProtocolProperty protocolProperty) {
-            this.protocolProperty = protocolProperty;
-            this.device = device;
-        }
-
-        public String getIPv6Address() {
-            return protocolProperty.getPropertyValue();
-        }
-
-        public String getMRID() {
-            return device.getmRID();
-        }
-    }
 
     private void notifyUpdated() {
         this.eventService.postEvent(UpdateEventType.DEVICE.topic(), this);
-
-        Optional<DeviceProtocolProperty> ipV6AddressProperty = deviceProperties
-                .stream()
-                .filter(x->x.getName().equals(IP_V6_ADDRESS))
-                .findFirst();
-        if(ipV6AddressProperty.isPresent()){
-            this.eventService.postEvent(UpdateEventType.IPADDRESSV6.topic(),
-                    new LocalEventIPv6Source(this, ipV6AddressProperty.get()));
-        }
     }
 
     private void notifyCreated() {
@@ -1253,22 +1226,49 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void setProtocolProperty(String name, Object value) {
-        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
-        if (optionalPropertySpec.isPresent()) {
-            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
-            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
-            if (notUpdated) {
-                addDeviceProperty(optionalPropertySpec, propertyValue);
-            }
-            if (getId() > 0) {
-                dataModel.touch(this);
-            }
+        PropertySpec propertySpec = getPropertySpecForProperty(name);
+        String propertyValue = propertySpec.getValueFactory().toStringValue(value);
+
+        Optional<DeviceProtocolProperty> optionalProperty = getDeviceProtocolProperty(name);
+        if (optionalProperty.isPresent()) {
+            updateDeviceProperty(optionalProperty.get(), propertyValue);
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
-                    .get()
-                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+            addDeviceProperty(propertySpec, propertyValue);
+        }
+
+        if (getId() > 0) {
+            dataModel.touch(this);
         }
     }
+
+    private void addDeviceProperty(PropertySpec propertySpec, String propertyValue) {
+        if (propertyValue != null) {
+            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
+            Save.CREATE.validate(dataModel, deviceProtocolProperty);
+            this.deviceProperties.add(deviceProtocolProperty);
+        }
+    }
+
+    private void updateDeviceProperty(DeviceProtocolProperty property, String value) {
+        if (propertyChanged(property.getPropertyValue(), value)) {
+            property.setValue(value);
+            property.update();
+        }
+    }
+
+    private boolean propertyChanged(String oldValue, String newValue) {
+        return !oldValue.equals(newValue);
+    }
+
+    private Optional<DeviceProtocolProperty> getDeviceProtocolProperty(String name) {
+        for (DeviceProtocolProperty deviceProperty : deviceProperties) {
+            if (deviceProperty.getName().equals(name)) {
+                return Optional.of(deviceProperty);
+            }
+        }
+        return Optional.empty();
+    }
+
 
     @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
@@ -1288,25 +1288,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
             return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
         }
-    }
-
-    private void addDeviceProperty(Optional<PropertySpec> propertySpec, String propertyValue) {
-        if (propertyValue != null) {
-            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
-            Save.CREATE.validate(dataModel, deviceProtocolProperty);
-            this.deviceProperties.add(deviceProtocolProperty);
-        }
-    }
-
-    private boolean updatePropertyIfExists(String name, String propertyValue) {
-        for (DeviceProtocolProperty deviceProperty : deviceProperties) {
-            if (deviceProperty.getName().equals(name)) {
-                deviceProperty.setValue(propertyValue);
-                deviceProperty.update();
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -1351,13 +1332,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
-                .getDeviceProtocol()
+    private PropertySpec getPropertySpecForProperty(String name) {
+        DeviceProtocol deviceProtocol = this.getDeviceProtocolPluggableClass()
+                .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                .orElseThrow(() -> new UnsupportedOperationException("No DeviceProtocolPluggableClass to communicate with device type" + getDeviceType().getName()));
+
+        return deviceProtocol
                 .getPropertySpecs()
                 .stream()
                 .filter(spec -> spec.getName().equals(name))
-                .findFirst()).orElse(Optional.empty());
+                .findFirst()
+                .orElseThrow(() ->
+                        DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, deviceProtocol,
+                                this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL));
+
     }
 
     private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {

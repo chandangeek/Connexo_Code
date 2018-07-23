@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
@@ -81,6 +82,15 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
             assertThat(introspector.getRoles()).containsOnlyElementsOf(matchingIntrospectorType.get().getRoles()); // If not present, than above assert should already have failed
         }
     }
+
+    @Test
+    @Transactional
+    public void testDeviceDataDeviceIdentifierByName() throws Exception {
+        DeviceService spiedService = spy(deviceService);
+        spiedService.findAllDevicesByIdentifier(new DeviceIdentifierByDeviceName("Device Name"));
+        verify(spiedService).findDeviceByName("Device Name");
+    }
+
 
     @Test
     @Transactional

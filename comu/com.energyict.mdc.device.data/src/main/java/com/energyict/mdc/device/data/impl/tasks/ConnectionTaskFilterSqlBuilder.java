@@ -128,8 +128,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
         actualBuilder.append(sqlBuilder);
         this.appendJoinedTables();
-        // join table due to execution appendLastSessionClause() inside #appendNonStatusWhereClauses()
-        String sqlStartClause = sqlBuilder.getText() + " JOIN DDC_COMSESSION cs ON ct.lastsession = cs.id";
+
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
@@ -139,7 +138,8 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
                 this.appendWhereClause(statusIterator.next());
                 if (statusIterator.hasNext()) {
                     this.unionAll();
-                    this.append(sqlStartClause);
+                    this.append(sqlBuilder.getText());
+                    this.appendJoinedTables();
                 }
             }
         }
