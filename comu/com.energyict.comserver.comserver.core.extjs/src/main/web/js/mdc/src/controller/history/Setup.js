@@ -1316,7 +1316,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: '',
                             route: '{type}/{taskManagementId}',
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            action: 'viewTaskManagement'
+                            action: 'viewTaskManagement',
+                            callback: function (route) {
+                                this.getApplication().on('loadTask', function (record) {
+                                    route.setTitle(record.get ? record.get('name') : record);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
                         },
                         view: {
                             title: '',
