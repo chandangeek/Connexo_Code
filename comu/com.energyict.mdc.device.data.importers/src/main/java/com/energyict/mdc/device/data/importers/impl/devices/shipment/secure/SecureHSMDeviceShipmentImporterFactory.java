@@ -66,8 +66,9 @@ public class SecureHSMDeviceShipmentImporterFactory implements FileImporterFacto
                 .withHsmConfigurationService(hsmConfigurationService)
                 .withTrustStore(trustStore)
                 .withHsmEnergyService(hsmEnergyService)
+                .withHsmConfigurationService(hsmConfigurationService)
                 .build();
-        return new SecureHSMDeviceShipmentImporter(importerProperties);
+        return new  SecureHSMDeviceShipmentImporter(importerProperties);
     }
 
     @Reference

@@ -186,7 +186,7 @@ public abstract class SecureDeviceImporterAbstract {
         return deviceCreator;
     }
 
-    private int importDevices(Shipment shipment, SecureDeviceImporterAbstract.DeviceCreator deviceCreator, Logger logger) throws HsmBaseException {
+    private int importDevices(Shipment shipment, SecureDeviceImporterAbstract.DeviceCreator deviceCreator, Logger logger)  {
         int deviceCount = 0;
         DeviceType deviceType = findDeviceType(shipment);
         Map<String, WrapKey> wrapKeyMap = createWrapKeyMap(shipment);
@@ -217,7 +217,7 @@ public abstract class SecureDeviceImporterAbstract {
                 deviceCount++;
             } catch (Exception e) {
                 log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
-                throw e;
+                throw new RuntimeException(e);
             }
         }
         return deviceCount;

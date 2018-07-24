@@ -115,7 +115,7 @@ public class ImporterProperties {
         }
 
         public ImporterPropertiesBuilder withHsmConfigurationService(HsmConfigurationService hsmConfiguration) {
-            this.hsmConfigurationService = hsmConfigurationService;
+            this.hsmConfigurationService = hsmConfiguration;
             return this;
         }
 
