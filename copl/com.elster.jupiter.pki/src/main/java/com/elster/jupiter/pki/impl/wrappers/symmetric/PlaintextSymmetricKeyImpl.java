@@ -43,11 +43,10 @@ import static java.util.stream.Collectors.toList;
  * in plaintext to the user (hex string).
  * This type is provides security through implementation of a software security model, without use of an HSM
  **/
-public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
+public final class PlaintextSymmetricKeyImpl extends KeyImpl implements PlaintextSymmetricKey {
 
     protected final DataVaultService dataVaultService;
     protected final PropertySpecService propertySpecService;
-    private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
@@ -75,9 +74,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
     @Inject
     PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+        super(dataModel);
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
-        this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
     }
@@ -141,7 +140,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     public void setProperties(Map<String, Object> properties) {
         PropertySetter propertySetter = new PropertySetter(this);
         EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
-        Save.UPDATE.validate(dataModel, propertySetter);
+        Save.UPDATE.validate(super.getDataModel(), propertySetter);
         propertySetter.applyProperties();
     }
 
@@ -159,12 +158,12 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     }
 
     protected void save() {
-        Save.action(id).save(dataModel, this);
+        Save.action(id).save(super.getDataModel(), this);
     }
 
     @Override
     public void delete() {
-        dataModel.remove(this);
+        super.getDataModel().remove(this);
     }
 
     public enum Properties {

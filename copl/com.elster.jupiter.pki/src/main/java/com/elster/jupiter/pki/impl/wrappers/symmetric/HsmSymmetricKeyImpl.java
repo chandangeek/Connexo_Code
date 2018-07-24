@@ -10,8 +10,6 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.HsmSymmetricKey;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -22,67 +20,41 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Size;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
-public class HsmSymmetricKeyImpl implements HsmSymmetricKey{
+public class HsmSymmetricKeyImpl extends KeyImpl implements HsmSymmetricKey{
 
     private final DataVaultService dataVaultService;
     private final PropertySpecService propertySpecService;
-    private final DataModel dataModel;
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
 
-    public enum Fields {
-        ENCRYPTED_KEY("encryptedKey"),
-        LABEL("label"),
-        KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),;
 
-        private final String fieldName;
-
-        Fields(String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        public String fieldName() {
-            return fieldName;
-        }
-    }
-
-    private long id;
-    @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String encryptedKey;
-    private String label;
-    private Reference<KeyType> keyTypeReference = Reference.empty();
-    private Instant expirationTime;
     private HsmPropertySetter propertySetter;
 
     @Inject
     HsmSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
                         DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService) {
+        super(dataModel);
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
-        this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.hsmEnergyService = hsmEnergyService;
     }
 
     HsmSymmetricKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label) {
-        this.keyTypeReference.set(keyType);
+        super.getKeyTypeReference().set(keyType);
         this.setExpirationTime(timeDuration);
-        this.label = label;
+        super.setLabel(label);
         return this;
     }
 
@@ -100,33 +72,29 @@ public class HsmSymmetricKeyImpl implements HsmSymmetricKey{
     }
 
     private void setKey(byte[] key){
-        if (key == null || key.length == 0) {
-            throw new IllegalArgumentException("Key cannot be empty");
-        }
-        this.encryptedKey = dataVaultService.encrypt(key);
+        super.setEncryptedKey(dataVaultService.encrypt(key));
     }
 
-    private void setLabel(String label){
+    @Override
+    public void setLabel(String label){
         if (Checks.is(label).emptyOrOnlyWhiteSpace()){
             throw new IllegalArgumentException("Label cannot be empty");
         }
-        this.label = label;
-    }
-
-
-    @Override
-    public byte[] getKey() {
-        if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
-            return new byte[0];
-        }
-        return dataVaultService.decrypt(this.encryptedKey);
+        super.setLabel(label);
     }
 
     @Override
     public String getKeyLabel() {
-        return label;
+        return super.getLabel();
     }
 
+    @Override
+    public byte[] getKey() {
+        if (Checks.is(super.getEncryptedKey()).emptyOrOnlyWhiteSpace()) {
+            return new byte[0];
+        }
+        return dataVaultService.decrypt(super.getEncryptedKey());
+    }
 
     @Override
     public void generateValue(HsmSymmetricKey actualSymmetricKey) {
@@ -134,19 +102,17 @@ public class HsmSymmetricKeyImpl implements HsmSymmetricKey{
             String actualLabel = actualSymmetricKey.getKeyLabel();
             byte[] actualKey = actualSymmetricKey.getKey();
             byte[] hsmGeneratedKey = hsmEnergyService.renewKey(actualKey, actualLabel, this.getKeyLabel()).getEncryptedKey();
-            this.setKey(hsmGeneratedKey, label);
+            this.setKey(hsmGeneratedKey, super.getLabel());
+            this.save();
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
         }
     }
 
-    @Override
-    public Optional<Instant> getExpirationTime() {
-        return Optional.ofNullable(expirationTime);
-    }
+
 
     private void setExpirationTime(TimeDuration timeDuration) {
-        this.expirationTime = ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant();
+        super.setExpirationTime(ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant());
     }
 
 
@@ -154,7 +120,7 @@ public class HsmSymmetricKeyImpl implements HsmSymmetricKey{
     public void setProperties(Map<String, Object> properties) {
         this.propertySetter = getPropertySetter();
         EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
-        Save.UPDATE.validate(dataModel, propertySetter);
+        Save.UPDATE.validate(super.getDataModel(), propertySetter);
         this.setKey(propertySetter.getKey(), propertySetter.getLabel());
     }
 
@@ -178,12 +144,5 @@ public class HsmSymmetricKeyImpl implements HsmSymmetricKey{
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService, thesaurus)).collect(toList());
     }
 
-    protected void save() {
-        Save.action(id).save(dataModel, this);
-    }
 
-    @Override
-    public void delete() {
-        dataModel.remove(this);
-    }
 }

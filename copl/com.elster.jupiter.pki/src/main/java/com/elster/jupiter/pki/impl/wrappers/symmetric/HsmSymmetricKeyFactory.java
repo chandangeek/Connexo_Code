@@ -61,7 +61,7 @@ public class HsmSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSu
     @Override
     public Comparison isExpiredCondition(Expiration expiration, Instant when) {
         // for this we use  the columnname and not the field name as it will be used in a sqlbuilder and not by orm
-        return (Comparison) expiration.isExpired(TableSpecs.SSM_HSMSK.name()+".EXPIRATION", when);
+        return (Comparison) expiration.isExpired(TableSpecs.SSM_PLAINTEXTSK.name()+".EXPIRATION", when);
     }
 
     @Override
