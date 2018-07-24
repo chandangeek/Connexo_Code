@@ -70,8 +70,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         HsmLabelConfiguration importLabelConfiguration = hsmConfiguration.get(importLabel);
         KeyType importKeyType = importLabelConfiguration.getImportKeyType();
         DeviceKey dkey = new AesDeviceKey(symmetricAlgorithm, importLabelConfiguration.getImportDeviceKeyLength() , deviceKeyBytes, initVector, importKeyType);
-        HsmEncryptedKey hsmEncryptedKey = null;
-        hsmEncryptedKey = hsmEnergyService.importKey(tkey, dkey, importLabelConfiguration.getImportReEncryptHsmLabel(), importKeyType);
+        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(tkey, dkey, importLabelConfiguration.getImportReEncryptHsmLabel(), importKeyType);
 
         String securityAccessorName = deviceKey.getName();
         SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
