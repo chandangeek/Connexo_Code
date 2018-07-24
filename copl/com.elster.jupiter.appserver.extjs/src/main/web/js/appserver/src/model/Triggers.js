@@ -4,9 +4,12 @@
 
 Ext.define('Apr.model.Triggers', {
     extend: 'Ext.data.Model',
-    requires: ['Apr.model.TaskInfo'],
+    requires: [
+        'Apr.model.TaskInfo',
+        'Apr.model.Task'
+    ],
     fields: [
-        'id', 'application', 'name', 'type', 'previousRecurrentTasks', 'nextRecurrentTasks'
+        'id', 'application', 'name', 'type', 'previousRecurrentTasks', 'nextRecurrentTasks', 'recurrentTask'
     ],
     associations: [
         {
@@ -29,6 +32,18 @@ Ext.define('Apr.model.Triggers', {
                 return 'Apr.model.TaskInfo';
             }
         },
+        {
+            name: 'recurrentTask',
+            type: 'hasOne',
+            model: 'Apr.model.Task',
+            associationKey: 'recurrentTask',
+            foreignKey: 'recurrentTask',
+            getTypeDiscriminator: function (node) {
+                return 'Apr.model.Task';
+            }
+        }
+
+
 
     ],
     proxy: {

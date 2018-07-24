@@ -99,8 +99,10 @@ Ext.define('Apr.controller.TaskManagement', {
             })
         }
         else {
-            route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement');
-            route.forward();
+            var generalTask = me.getController('Apr.controller.TaskManagementGeneralTask')
+            generalTask.getTask(this, taskManagementId, function (taskController, taskManagementId, task) {
+                generalTask.viewTaskManagement(taskManagementId, null, task);
+            })
         }
     },
 
