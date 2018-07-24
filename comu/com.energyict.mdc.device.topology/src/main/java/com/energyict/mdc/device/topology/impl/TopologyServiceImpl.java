@@ -994,8 +994,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source) {
-        return new G3CommunicationPathSegmentBuilderImpl(this, this.clock, source);
+    public G3CommunicationPathSegmentBuilder addCommunicationSegments() {
+        return new G3CommunicationPathSegmentBuilderImpl(this, this.clock);
     }
 
     G3CommunicationPathSegment addCommunicationSegment(Instant now, Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {

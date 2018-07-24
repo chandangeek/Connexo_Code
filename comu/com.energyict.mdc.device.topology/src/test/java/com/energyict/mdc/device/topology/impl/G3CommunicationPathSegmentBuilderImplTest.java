@@ -48,8 +48,8 @@ public class G3CommunicationPathSegmentBuilderImplTest {
         G3CommunicationPathSegmentBuilderImpl builder = this.testInstance();
 
         // Business methods
-        builder.add(mock(Device.class), null, Duration.ofMinutes(1), COST);
-        builder.add(mock(Device.class), null, Duration.ofMinutes(1), COST);
+        builder.add(mock(Device.class), mock(Device.class), null, Duration.ofMinutes(1), COST);
+        builder.add(mock(Device.class), mock(Device.class), null, Duration.ofMinutes(1), COST);
 
         // Asserts
         verifyZeroInteractions(this.topologyService);
@@ -58,8 +58,8 @@ public class G3CommunicationPathSegmentBuilderImplTest {
     @Test
     public void completeUseClockOnlyOnce() {
         G3CommunicationPathSegmentBuilderImpl builder = this.testInstance();
-        builder.add(mock(Device.class), null, Duration.ofMinutes(1), COST);
-        builder.add(mock(Device.class), null, Duration.ofMinutes(1), COST);
+        builder.add(mock(Device.class), mock(Device.class), null, Duration.ofMinutes(1), COST);
+        builder.add(mock(Device.class), mock(Device.class), null, Duration.ofMinutes(1), COST);
 
         // Business methods
         builder.complete();
@@ -74,8 +74,8 @@ public class G3CommunicationPathSegmentBuilderImplTest {
         when(this.clock.instant()).thenReturn(now);
         G3CommunicationPathSegmentBuilderImpl builder = this.testInstance();
         Duration timeToLive = Duration.ofMinutes(1);
-        builder.add(mock(Device.class), null, timeToLive, COST);
-        builder.add(mock(Device.class), null, timeToLive, COST);
+        builder.add(this.sourceDevice, mock(Device.class), null, timeToLive, COST);
+        builder.add(this.sourceDevice, mock(Device.class), null, timeToLive, COST);
 
         // Business methods
         builder.complete();
@@ -85,7 +85,7 @@ public class G3CommunicationPathSegmentBuilderImplTest {
     }
 
     private G3CommunicationPathSegmentBuilderImpl testInstance() {
-        return new G3CommunicationPathSegmentBuilderImpl(this.topologyService, this.clock, this.sourceDevice);
+        return new G3CommunicationPathSegmentBuilderImpl(this.topologyService, this.clock);
     }
 
 }

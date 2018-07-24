@@ -128,7 +128,7 @@ public interface TopologyService {
      * @param source The source Device
      * @return The G3CommunicationPathSegmentBuilder
      */
-    G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
+    G3CommunicationPathSegmentBuilder addCommunicationSegments();
 
     /**
      * Return the current stream of communication path segments to all gateway slaves
@@ -449,7 +449,7 @@ public interface TopologyService {
          * @param timeToLive The time to live
          * @param cost The segment's cost
          */
-        G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost);
+        G3CommunicationPathSegmentBuilder add(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
         /**
          * Completes the building process, effectively creating all segments
