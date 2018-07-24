@@ -18,7 +18,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 public class HsmRenewGogo {
 
-    private HsmEnergyService engService;
+    private volatile HsmEnergyService engService;
 
     public HsmEncryptedKey renewKey(String deviceKey, String signKeyLabel, String deviceKeyLabel) throws HsmBaseException {
         return this.engService.renewKey(deviceKey.getBytes(), signKeyLabel, deviceKeyLabel);

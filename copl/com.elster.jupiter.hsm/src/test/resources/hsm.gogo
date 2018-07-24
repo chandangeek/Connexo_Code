@@ -16,8 +16,3 @@ Encrypt
 Following command does not work while label is not allowing this operation (TBF)
 jssencrypt ENXS-KEY-P1 12345678901234567890abcdefabcdef
 
-
-#############################
-Auth encrypt
-#############################
-jssAuthEncrypt ENXS-KEY-P1 12345678901234567890abcdefabcdef

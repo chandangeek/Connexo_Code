@@ -1,5 +1,6 @@
 package com.elster.jupiter.hsm.gogo;
 
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.impl.HsmEncryptionServiceImpl;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.DecryptRequest;
@@ -18,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 public class HsmEncryptionGogo {
 
-    private HsmEncryptionServiceImpl encService;
+    private volatile HsmEncryptionService encService;
 
     public EncryptResponse jssEncrypt(String keyLabel, String stringToEncrypt) throws HsmBaseException {
         return this.encService.encrypt(new EncryptRequest(keyLabel, stringToEncrypt, SymmetricAlgorithm.AES_256_CBC));
@@ -29,7 +30,7 @@ public class HsmEncryptionGogo {
     }
 
     @Reference
-    public void setHsmEncryption(HsmEncryptionServiceImpl encryptionService) {
+    public void setHsmEncryption(HsmEncryptionService encryptionService) {
         this.encService = encryptionService;
     }
 
