@@ -573,7 +573,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
+    public void storePathSegments(List<TopologyPathSegment> topologyPathSegment) {
 
     }
 
