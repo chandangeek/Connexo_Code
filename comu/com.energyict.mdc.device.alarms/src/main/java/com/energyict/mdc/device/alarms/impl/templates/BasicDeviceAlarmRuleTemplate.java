@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.alarms.impl.templates;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -403,13 +402,19 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
             if (values.size() != 3) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, String.valueOf(3), String.valueOf(values.size()));
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                        "properties." + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES,
+                        String.valueOf(3),
+                        String.valueOf(values.size()));
             }
+            long deviceTypeId = Long.parseLong(values.get(0));
             DeviceType deviceType = deviceConfigurationService
-                    .findDeviceType(Long.parseLong(values.get(0)))
-                    .orElse(null);
+                    .findDeviceType(deviceTypeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Devicetype with id " + deviceTypeId + " does not exist"));
             if (!(deviceType.getDeviceLifeCycle().getId() == Long.parseLong(values.get(1)))) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT, values.get(1));
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
+                        "properties." + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES,
+                        values.get(1));
             }
 
             List<Long> stateIds = Arrays.stream(values.get(2)
@@ -641,7 +646,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public HasIdAndName fromStringValue(String stringValue) {
             List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
             if (values.size() != 2) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                        "properties." + THRESHOLD,
+                        String.valueOf(2),
+                        String.valueOf(values.size()));
             }
             int count = Integer.parseInt(values.get(0));
             RelativePeriod relativePeriod = timeService.findRelativePeriod(Long.parseLong(values.get(1))).orElse(null);
