@@ -17,7 +17,10 @@ import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -72,10 +75,10 @@ import java.util.Optional;
 @Singleton
 @Component(
         name = "com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator",
-        service = {MessageSeedProvider.class},
+        service = {MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + InboundSoapEndpointsActivator.COMPONENT_NAME},
         immediate = true)
-public class InboundSoapEndpointsActivator implements MessageSeedProvider {
+public class InboundSoapEndpointsActivator implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "SIM";
 
@@ -348,6 +351,18 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Override
     public Layer getLayer() {
         return Layer.SOAP;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
+        return translationKeys;
     }
 
     @Override
