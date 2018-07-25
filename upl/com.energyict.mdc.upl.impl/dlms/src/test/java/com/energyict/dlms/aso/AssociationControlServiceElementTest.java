@@ -64,7 +64,7 @@ public class AssociationControlServiceElementTest {
     									(byte)0x01}; // context name ID 1
 
     	MockSecurityProvider sp = new MockSecurityProvider();
-    	SecurityContext sc = new SecurityContext(0, 0, 0, sp, CipheringType.GLOBAL.getType());
+    	SecurityContext sc = new SecurityContext(0, 0, 0, sp, CipheringType.GLOBAL.getType(), false);
 
     	AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
 
@@ -94,7 +94,7 @@ public class AssociationControlServiceElementTest {
     		XdlmsAse ase = new XdlmsAse(null, true, -1, 6, conformanceBlock, 1200);
 
         	MockSecurityProvider sp = new MockSecurityProvider();
-        	SecurityContext sc = new SecurityContext(0, 0, 0, sp, CipheringType.GLOBAL.getType());
+        	SecurityContext sc = new SecurityContext(0, 0, 0, sp, CipheringType.GLOBAL.getType(), false);
 
     		AssociationControlServiceElement acse = new AssociationControlServiceElement(ase, 1, sc);
 			acse.setUserInformation(ase.getInitiatRequestByteArray());
@@ -138,7 +138,7 @@ public class AssociationControlServiceElementTest {
 
             AssociationControlServiceElement acse;
 
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false));
             String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
             acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
             assertNotNull(acse.getRespondingAuthenticationValue());
@@ -148,7 +148,7 @@ public class AssociationControlServiceElementTest {
             assertEquals(0x01F4, acse.getXdlmsAse().getMaxRecPDUServerSize());
             assertEquals(0x0000501F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false));
             String responseWithQOS = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f0400007c1f04000007";
             acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithQOS));
             assertNull(acse.getRespondingAuthenticationValue());
@@ -157,7 +157,7 @@ public class AssociationControlServiceElementTest {
             assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
             assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false));
             String responseWithStrangeShortConformanceLength = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f03007c1f04000007";
             acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithStrangeShortConformanceLength));
             assertNull(acse.getRespondingAuthenticationValue());
@@ -166,7 +166,7 @@ public class AssociationControlServiceElementTest {
             assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
             assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false));
             String responseWithStrangeLongConformanceLength = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080112065f1f110000000000000000000000000000007c1f04000007";
             acse.analyzeAARE(DLMSUtils.hexStringToByteArray(responseWithStrangeLongConformanceLength));
             assertNull(acse.getRespondingAuthenticationValue());
@@ -175,7 +175,7 @@ public class AssociationControlServiceElementTest {
             assertEquals(0x0400, acse.getXdlmsAse().getMaxRecPDUServerSize());
             assertEquals(0x00007C1F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType()));
+            acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false));
             acse.analyzeAARE(noOrLowLevelAuthentication);
             assertNull(acse.getRespondingAuthenticationValue());
             assertEquals(0x00, acse.getXdlmsAse().getNegotiatedQOS());
@@ -192,7 +192,7 @@ public class AssociationControlServiceElementTest {
     @Test(expected = IOException.class)
     public void analyzeConfirmedServiceErrosResponseTest1() throws Exception {
         MockSecurityProvider sp = new MockSecurityProvider();
-        SecurityContext sc = new SecurityContext(2, 2, 2, sp, CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, sp, CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         acse.analyzeAARE(DLMSUtils.hexStringToByteArray("6129a109060760857405080101a203020101a305a10302010dbe10040e0800065f1f000c00101904180007"));
     }
@@ -200,7 +200,7 @@ public class AssociationControlServiceElementTest {
     @Test(expected = IOException.class)
     public void analyzeConfirmedServiceErrosResponseTest2() throws Exception {
         MockSecurityProvider sp = new MockSecurityProvider();
-        SecurityContext sc = new SecurityContext(2, 2, 2, sp, CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, sp, CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         acse.analyzeAARE(DLMSUtils.hexStringToByteArray("6133a1090607608574050801010a03020101a305a10302010da4084b414d0000000009be10040e0800065f1f040000101904180007"));
     }
@@ -212,7 +212,7 @@ public class AssociationControlServiceElementTest {
     public void analyzeCorrectRLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
-            SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+            SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
             acse.analyzeRLRE(rlre);
         } catch (Exception e) {
@@ -227,7 +227,7 @@ public class AssociationControlServiceElementTest {
     public void analyzeCorrectNoReasonRLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$00$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
         try {
-            SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+            SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
             AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
             acse.analyzeRLRE(rlre);
         } catch (Exception e) {
@@ -242,7 +242,7 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeOldIskraRLRE() {
         byte[] rlre = DLMSUtils.hexStringToByteArray("000100010001000763058003020100");
-        SecurityContext sc = new SecurityContext(0, 1, 0, new MockSecurityProvider(), 0);
+        SecurityContext sc = new SecurityContext(0, 1, 0, new MockSecurityProvider(), 0, false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
@@ -258,7 +258,7 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeUserDefinedRLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$30$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
-        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
@@ -273,7 +273,7 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeNotFinishedRLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$01$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
-        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
@@ -288,7 +288,7 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeUnknownRLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$22$BE$23$04$21$28$1F$30$00$00$10$24$8E$6B$96$CA$25$EA$66$DC$3C$5A$F0$65$FD$57$5B$19$FC$42$B8$36$68$AA$7F$B7$D1$80");
-        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
@@ -300,7 +300,7 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeAS1440RLRE() {
         byte[] rlre = DLMSUtils.getBytesFromHexString("$00$00$00$63$28$80$01$00$BE$23$04$21$28$1F$30$00$00$00$62$AE$4B$17$8A$8C$55$31$DC$A7$46$1C$F8$B6$4C$BB$9F$7A$0F$7D$9B$3C$1C$E2$A6$4B$80");
-        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType());
+        SecurityContext sc = new SecurityContext(2, 2, 2, new MockSecurityProvider(), CipheringType.GLOBAL.getType(), false);
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);

@@ -1,34 +1,12 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.LLCConnection;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -49,15 +27,8 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
-import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_RETRIES;
-import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.ISKRA_WRAPPER;
-import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * Copyrights EnergyICT
@@ -93,6 +64,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
     private static final int ISKRA_WRAPPER_DEFAULT = 1;
     private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
+    /** Default for the increment fc for reploy-to-hls. */
+    private static final String INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS_DEFAULT = "1";
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -134,6 +107,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int maxRecPduSize;
     private int iskraWrapper = 1;
     private boolean incrementFrameCounterForRetries;
+    /** Indicates whether or not to increment the FC for the reply-to-hls. */
+    private boolean incrementFrameCounterForReplyToHLS;
 
     public AbstractDLMSProtocol(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
@@ -264,7 +239,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         }
 
         NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
-        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getCallingAPTitle(), localSecurityProvider, this.cipheringType);
+        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getCallingAPTitle(), localSecurityProvider, this.cipheringType, this.incrementFrameCounterForReplyToHLS);
 
         updateConformanceBlock();
 
@@ -388,6 +363,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         this.maxRecPduSize = properties.getTypedProperty(MAX_REC_PDU_SIZE, MAX_PDU_SIZE);
         this.iskraWrapper = properties.getTypedProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT);
         this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getTypedProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
+        this.incrementFrameCounterForReplyToHLS = Boolean.parseBoolean(properties.getTypedProperty(INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS_DEFAULT));
     }
 
     @Override

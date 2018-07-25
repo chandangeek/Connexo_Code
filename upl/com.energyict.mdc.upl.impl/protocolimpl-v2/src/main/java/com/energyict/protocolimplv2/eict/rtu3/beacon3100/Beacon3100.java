@@ -121,6 +121,38 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.deviceExtractor = deviceExtractor;
     }
 
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected DeviceMasterDataExtractor getExtractor() {
+        return extractor;
+    }
+
+    protected DeviceGroupExtractor getDeviceGroupExtractor() {
+        return deviceGroupExtractor;
+    }
+
+    protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
+    protected DeviceExtractor getDeviceExtractor() {
+        return deviceExtractor;
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;

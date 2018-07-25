@@ -1,13 +1,7 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.XdlmsApduTags;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
@@ -118,7 +112,6 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
     public byte[] readResponseWithRetries(byte[] byteRequestBuffer, boolean isAlreadyEncrypted) {
         // frame counter was already incremented in sendRequest, so decrement it
         // this way we leave the choice whether or not the frame counter should be incremented for retry requests still open
-        aso.getSecurityContext().decrementFrameCounter();
         return secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
     }
 
@@ -285,9 +278,6 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                 }
 
-            } else {
-                //No encryption, only increase the frame counter
-                aso.getSecurityContext().incFrameCounter();
             }
         }
 

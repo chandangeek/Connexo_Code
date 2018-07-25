@@ -1,18 +1,11 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.upl.MeterProtocol;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DlmsSessionProperties;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.MeterProtocol;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -53,6 +46,8 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
+    /** Property name of the property that indicates whether or not to bump the FC when invoking reply_to_hls. The f(StoC) uses FC, the action request carrying it FC + 1. */
+    public static final String INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = "IncrementFrameCounterForReplyToHLS";
 
     public static final int DEFAULT_CONNECTION = ConnectionMode.TCPIP.getMode();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
@@ -79,6 +74,8 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final int DEFAULT_ISKRA_WRAPPER = 1;
     public static final int DEFAULT_DEVICE_BUFFER_SIZE = -1;
     public static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES = true;
+    /** The default for the {@value #INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS} is false. */
+    private static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = false;
 
     protected SecurityProvider securityProvider;
 
@@ -313,4 +310,11 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
         this.securityProvider = securityProvider;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean incrementFrameCounterForReplyToHLS() {
+        return this.getBooleanProperty(INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS);
+    }
 }

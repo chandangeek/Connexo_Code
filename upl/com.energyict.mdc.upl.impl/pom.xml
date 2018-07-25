@@ -34,6 +34,7 @@
 		<comserver.version>${project.version}</comserver.version>
 		<protocols.version>${project.version}</protocols.version>
 		<universal-protocol.version>2.1.1${revision}</universal-protocol.version>
+		<hsm.version>1.0.0${revision}</hsm.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
@@ -46,16 +47,23 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Protocol api -->
+			<!-- Universal protocol layer -->
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.upl</artifactId>
 				<version>${universal-protocol.version}</version>
 			</dependency>
+			<!-- Protocol api -->
             <dependency>
                 <groupId>com.energyict</groupId>
 				<artifactId>protocol-api</artifactId>
 				<version>${protocols.version}</version>
+			</dependency>
+			<!-- hsm -->
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>hsm</artifactId>
+				<version>${hsm.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>

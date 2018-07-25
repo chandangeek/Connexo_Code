@@ -1,16 +1,7 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.XdlmsApduTags;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
@@ -25,6 +16,8 @@ import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -35,16 +28,13 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The securityContext manages the different securityLevels for establishing
@@ -91,12 +81,18 @@ public class SecurityContext {
      * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
      */
     private int securitySuite;
-    private long frameCounter;
+
+    /** Frame counter to be used. */
+    private final AtomicLong frameCounter = new AtomicLong();
+
     private Long responseFrameCounter = null;
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
     private AuthenticationTypes authenticationAlgorithm;
     private boolean lastResponseWasSigned = false;
+
+    /** Indicates whether or not we need to increment the FC when replying to HLS. */
+    private final boolean incrementFramecounterWhenReplyingToHLS;
 
     /**
      * This state allows us to include the general ciphering key information just once, for the first request.
@@ -108,9 +104,12 @@ public class SecurityContext {
 
     public SecurityContext(int dataTransportSecurityLevel,
                            int associationAuthenticationLevel,
-                           int dataTransportEncryptionType, byte[] systemIdentifier,
-                           SecurityProvider securityProvider, int cipheringType) {
-        this(dataTransportSecurityLevel, associationAuthenticationLevel, dataTransportEncryptionType, systemIdentifier, securityProvider, cipheringType, null);
+                           int dataTransportEncryptionType,
+                           byte[] systemIdentifier,
+                           SecurityProvider securityProvider,
+                           int cipheringType,
+                           final boolean incrementFrameCounterWhenReplyingToHLS) {
+        this(dataTransportSecurityLevel, associationAuthenticationLevel, dataTransportEncryptionType, systemIdentifier, securityProvider, cipheringType, null, incrementFrameCounterWhenReplyingToHLS);
     }
 
     /**
@@ -118,18 +117,23 @@ public class SecurityContext {
      * Note: the frameCounter can't always start from zero for security reasons. The FC is used in the
      * initializationVector and this one should be unique.
      *
-     * @param dataTransportSecurityLevel     - SecurityLevel during data transport
-     * @param associationAuthenticationLevel - SecurityLevel during associationEstablishment
-     * @param dataTransportEncryptionType    - Which type of security to use during data transport
-     * @param systemIdentifier               - the server his logicalDeviceName, used for the construction of the initializationVector (ex. KAMM1436321499)
-     * @param securityProvider               - The securityProvider holding the keys
-     * @param cipheringType                  - the cipheringType to use, see {@link CipheringType}
-     * @param generalCipheringKeyType        - The key type to be used in case of general ciphering, see {@link GeneralCipheringKeyType}. This can be null if no general ciphering is used.
+     * @param dataTransportSecurityLevel     			- SecurityLevel during data transport
+     * @param associationAuthenticationLevel 			- SecurityLevel during associationEstablishment
+     * @param dataTransportEncryptionType    			- Which type of security to use during data transport
+     * @param systemIdentifier               			- the server his logicalDeviceName, used for the construction of the initializationVector (ex. KAMM1436321499)
+     * @param securityProvider               			- The securityProvider holding the keys
+     * @param cipheringType                  			- the cipheringType to use, see {@link CipheringType}
+     * @param generalCipheringKeyType        			- The key type to be used in case of general ciphering, see {@link GeneralCipheringKeyType}. This can be null if no general ciphering is used.
+     * @param incrementFrameCounterWhenReplyingToHLS	- Indicates whether ot not to increment the FC when replying to HLS.
      */
     public SecurityContext(int dataTransportSecurityLevel,
                            int associationAuthenticationLevel,
-                           int dataTransportEncryptionType, byte[] systemIdentifier,
-                           SecurityProvider securityProvider, int cipheringType, GeneralCipheringKeyType generalCipheringKeyType) {
+                           int dataTransportEncryptionType,
+                           byte[] systemIdentifier,
+                           SecurityProvider securityProvider,
+                           int cipheringType,
+                           GeneralCipheringKeyType generalCipheringKeyType,
+                           final boolean incrementFrameCounterWhenReplyingToHLS) {
         this.securityPolicy = new SecurityPolicy(dataTransportEncryptionType, dataTransportSecurityLevel);
         this.authenticationLevel = associationAuthenticationLevel;
         this.securitySuite = dataTransportEncryptionType;
@@ -140,6 +144,7 @@ public class SecurityContext {
         this.systemTitle = systemIdentifier != null ? systemIdentifier.clone() : null;
         this.responseFrameCounter = null;
         this.generalCipheringKeyType = generalCipheringKeyType;
+        this.incrementFramecounterWhenReplyingToHLS = incrementFrameCounterWhenReplyingToHLS;
     }
 
     /**
@@ -147,16 +152,20 @@ public class SecurityContext {
      * Note: the frameCounter can't always start from zero for security reasons. The FC is used in the
      * initializationVector and this one should be unique.
      *
-     * @param dataTransportSecurityLevel     - SecurityLevel during data transport
-     * @param associationAuthenticationLevel - SecurityLevel during associationEstablishment
-     * @param dataTransportEncryptionType    - Which type of security to use during data transport
-     * @param securityProvider               - The securityProvider holding the keys
-     * @param cipheringType                  - the cipheringType to use (global [0] or dedicated [1])
+     * @param dataTransportSecurityLevel     			- SecurityLevel during data transport
+     * @param associationAuthenticationLevel 			- SecurityLevel during associationEstablishment
+     * @param dataTransportEncryptionType    			- Which type of security to use during data transport
+     * @param securityProvider               			- The securityProvider holding the keys
+     * @param cipheringType                  			- the cipheringType to use (global [0] or dedicated [1])
+     * @param incrementFrameCounterWhenReplyingToHLS	- Indicates whether ot not to increment the FC when replying to HLS.
      */
     public SecurityContext(int dataTransportSecurityLevel,
-                           int associationAuthenticationLevel, int dataTransportEncryptionType,
-                           SecurityProvider securityProvider, int cipheringType) {
-        this(dataTransportSecurityLevel, associationAuthenticationLevel, dataTransportEncryptionType, null, securityProvider, cipheringType);
+                           int associationAuthenticationLevel,
+                           int dataTransportEncryptionType,
+                           SecurityProvider securityProvider,
+                           int cipheringType,
+                           final boolean incrementFrameCounterWhenReplyingToHLS) {
+        this(dataTransportSecurityLevel, associationAuthenticationLevel, dataTransportEncryptionType, null, securityProvider, cipheringType, incrementFrameCounterWhenReplyingToHLS);
     }
 
     /**
@@ -208,56 +217,17 @@ public class SecurityContext {
     }
 
     /**
-     * <pre>
-     * Constructs a ciphered xDLMS APDU. The globalCiphering-PDU-Tag is NOT included.
-     * The returned byteArray will contain the:
-     * 	- Length
-     * 	- SecurityHeader
-     * 	- ciphered APDU
-     * 	- (Tag)
-     * </pre>
+     * Convert the given frameCounter into a byteArray
      *
-     * @param plainText - the text to encrypt ...
-     * @return the cipherText (or the plainText when no security has to be
-     * applied)
+     * @param frameCounter the frameCounter to convert
+     * @return the converted frameCounter
      */
-    public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
-        return dataTransportEncryption(plainText, true);
-    }
-
-    /**
-     * <pre>
-     * Constructs a ciphered xDLMS APDU. The globalCiphering-PDU-Tag is NOT included.
-     * The returned byteArray will contain the:
-     * 	- Length
-     * 	- SecurityHeader
-     * 	- ciphered APDU
-     * 	- (Tag)
-     * </pre>
-     *
-     * @param plainText             - the text to encrypt ...
-     * @param incrementFrameCounter - increment frame counter flag
-     * @return the cipherText (or the plainText when no security has to be
-     * applied)
-     */
-    public byte[] dataTransportEncryption(byte[] plainText, boolean incrementFrameCounter) throws UnsupportedException {
-        try {
-            if (securityPolicy.isRequestPlain()) {
-                return plainText;
-            } else if (securityPolicy.isRequestAuthenticatedOnly()) {
-                return getAuthenticatedRequestBytes(plainText);
-            } else if (securityPolicy.isRequestEncryptedOnly()) {
-                return getEncryptedRequestBytes(plainText);
-            } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
-                return getAuthenticatedAndEncryptedRequestBytes(plainText);
-            } else {
-                throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
-            }
-        } finally {
-            if (incrementFrameCounter) {
-                incFrameCounter();
-            }
+    private static final byte[] calculateFrameCounterInBytes(long frameCounter) {
+        byte[] fc = new byte[FRAME_COUNTER_SIZE];
+        for (int i = 0; i < fc.length; i++) {
+            fc[fc.length - 1 - i] = (byte) ((frameCounter >> (i * BITS_PER_BYTE)) & 0xff);
         }
+        return fc;
     }
 
     private byte[] getAuthenticatedAndEncryptedRequestBytes(byte[] plainText) {
@@ -824,40 +794,41 @@ public class SecurityContext {
     }
 
     /**
-     * Construct the encrypted packet to use as part of the HLS authentication 5 (encryption with GMAC).
-     * The authenticationTag is constructed with the associatedData = SecurityControl byte || AuthenticationKey || StoC.
-     * The secured packet is constructed as : SecurityControl byte || FrameCounter || (T)
+     * <pre>
+     * Constructs a ciphered xDLMS APDU. The globalCiphering-PDU-Tag is NOT included.
+     * The returned byteArray will contain the:
+     * 	- Length
+     * 	- SecurityHeader
+     * 	- ciphered APDU
+     * 	- (Tag)
+     * </pre>
      *
-     * @param sToCChallenge to encrypt using GMAC
-     * @return the secured APDU
+     * @param plainText - the text to encrypt ...
+     * @return the cipherText (or the plainText when no security has to be
+     * applied)
      */
-    public byte[] highLevelAuthenticationGMAC(byte[] sToCChallenge) {
-        int offset = 0;
-        List<byte[]> plainArray = new ArrayList<byte[]>();
-        plainArray.add(new byte[]{getHLS5SecurityControlByte()});
-        plainArray.add(getSecurityProvider().getAuthenticationKey());
-        plainArray.add(sToCChallenge);
-        byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
+    public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
+    	byte[] cipherText = null;
 
-        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
-        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
-        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        if (securityPolicy.isRequestPlain()) {
+            cipherText = plainText;
+        } else if (securityPolicy.isRequestAuthenticatedOnly()) {
+        	cipherText = getAuthenticatedRequestBytes(plainText);
 
-        aesGcm.encrypt();
+            this.incFrameCounter();
+        } else if (securityPolicy.isRequestEncryptedOnly()) {
+            cipherText = getEncryptedRequestBytes(plainText);
 
-        /*
-        * 1 for SecurityControlByte, 4 for frameCounter,
-        * 12 for the AuthenticationTag (normally this is
-        * 16byte, but the securitySpec said it had to be 12)
-        * -> this is a total of 17
-        */
-        byte[] securedApdu = new byte[1 + FRAMECOUNTER_BYTE_LENGTH + DLMS_AUTH_TAG_SIZE];
-        securedApdu[offset++] = getHLS5SecurityControlByte();
-        System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
-        offset += FRAMECOUNTER_BYTE_LENGTH;
-        System.arraycopy(ProtocolUtils.getSubArray2(aesGcm.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
-                DLMS_AUTH_TAG_SIZE);
-        return securedApdu;
+            this.incFrameCounter();
+        } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
+            cipherText = getAuthenticatedAndEncryptedRequestBytes(plainText);
+
+            this.incFrameCounter();
+        } else {
+            throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
+        }
+
+        return cipherText;
     }
 
     /**
@@ -1199,10 +1170,52 @@ public class SecurityContext {
     }
 
     /**
+     * Construct the encrypted packet to use as part of the HLS authentication 5 (encryption with GMAC).
+     * The authenticationTag is constructed with the associatedData = SecurityControl byte || AuthenticationKey || StoC.
+     * The secured packet is constructed as : SecurityControl byte || FrameCounter || (T)
+     *
+     * @param sToCChallenge to encrypt using GMAC
+     * @return the secured APDU
+     */
+    public byte[] highLevelAuthenticationGMAC(byte[] sToCChallenge) {
+        int offset = 0;
+        List<byte[]> plainArray = new ArrayList<byte[]>();
+        plainArray.add(new byte[]{getHLS5SecurityControlByte()});
+        plainArray.add(getSecurityProvider().getAuthenticationKey());
+        plainArray.add(sToCChallenge);
+        byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
+
+        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+
+        aesGcm.encrypt();
+
+        /*
+        * 1 for SecurityControlByte, 4 for frameCounter,
+        * 12 for the AuthenticationTag (normally this is
+        * 16byte, but the securitySpec said it had to be 12)
+        * -> this is a total of 17
+        */
+        byte[] securedApdu = new byte[1 + FRAMECOUNTER_BYTE_LENGTH + DLMS_AUTH_TAG_SIZE];
+        securedApdu[offset++] = getHLS5SecurityControlByte();
+        System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
+        offset += FRAMECOUNTER_BYTE_LENGTH;
+        System.arraycopy(ProtocolUtils.getSubArray2(aesGcm.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
+                DLMS_AUTH_TAG_SIZE);
+
+        if (this.incrementFramecounterWhenReplyingToHLS) {
+        	this.incFrameCounter();
+        }
+
+        return securedApdu;
+    }
+
+    /**
      * @return the frameCounter
      */
     public long getFrameCounter() {
-        return this.frameCounter;
+        return this.frameCounter.get();
     }
 
     /**
@@ -1211,21 +1224,7 @@ public class SecurityContext {
      * @param frameCounter
      */
     public void setFrameCounter(long frameCounter) {
-        this.frameCounter = frameCounter;
-    }
-
-    /**
-     * Add 1 to the existing frameCounter
-     */
-    public void incFrameCounter() {
-        setFrameCounter(this.frameCounter + 1);
-    }
-
-    /**
-     * Decrements the existing frameCounter
-     */
-    public void decrementFrameCounter() {
-        setFrameCounter(this.frameCounter - 1);
+        this.frameCounter.set(frameCounter);
     }
 
     /**
@@ -1260,17 +1259,10 @@ public class SecurityContext {
     }
 
     /**
-     * Convert the given frameCounter into a byteArray
-     *
-     * @param frameCounter the frameCounter to convert
-     * @return the converted frameCounter
+     * Add 1 to the existing frameCounter
      */
-    private byte[] calculateFrameCounterInBytes(long frameCounter) {
-        byte[] fc = new byte[FRAME_COUNTER_SIZE];
-        for (int i = 0; i < fc.length; i++) {
-            fc[fc.length - 1 - i] = (byte) ((frameCounter >> (i * BITS_PER_BYTE)) & 0xff);
-        }
-        return fc;
+    public void incFrameCounter() {
+    	this.frameCounter.incrementAndGet();
     }
 
     /**

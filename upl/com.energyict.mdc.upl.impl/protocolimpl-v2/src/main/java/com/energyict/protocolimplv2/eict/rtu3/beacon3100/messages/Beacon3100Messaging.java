@@ -352,6 +352,42 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
+    protected DeviceMasterDataExtractor getDeviceMasterDataExtractor() {
+        return deviceMasterDataExtractor;
+    }
+
+    protected DeviceGroupExtractor getDeviceGroupExtractor() {
+        return deviceGroupExtractor;
+    }
+
+    protected DeviceExtractor getDeviceExtractor() {
+        return deviceExtractor;
+    }
+
+    protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
     @Override
     @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
@@ -1784,7 +1820,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return collectedMessage;
     }
 
-    private MasterDataSync getMasterDataSync() {
+    protected MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
             masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory(), propertySpecService, deviceMasterDataExtractor, nlsService);
         }

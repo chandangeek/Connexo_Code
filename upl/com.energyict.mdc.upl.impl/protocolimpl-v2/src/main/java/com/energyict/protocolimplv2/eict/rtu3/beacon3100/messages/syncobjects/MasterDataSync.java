@@ -59,6 +59,30 @@ public class MasterDataSync {
         this.nlsService = nlsService;
     }
 
+    protected Beacon3100Messaging getBeacon3100Messaging() {
+        return beacon3100Messaging;
+    }
+
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected DeviceMasterDataExtractor getDeviceMasterDataExtractor() {
+        return deviceMasterDataExtractor;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
