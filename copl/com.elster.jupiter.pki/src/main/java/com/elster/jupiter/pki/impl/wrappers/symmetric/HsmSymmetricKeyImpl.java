@@ -8,6 +8,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmSymmetricKey;
@@ -101,7 +102,7 @@ public class HsmSymmetricKeyImpl extends KeyImpl implements HsmSymmetricKey{
         try {
             String actualLabel = actualSymmetricKey.getKeyLabel();
             byte[] actualKey = actualSymmetricKey.getKey();
-            byte[] hsmGeneratedKey = hsmEnergyService.renewKey(actualKey, actualLabel, this.getKeyLabel()).getEncryptedKey();
+            byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, getLabel())).getEncryptedKey();
             this.setKey(hsmGeneratedKey, super.getLabel());
             this.save();
         } catch (HsmBaseException e) {
