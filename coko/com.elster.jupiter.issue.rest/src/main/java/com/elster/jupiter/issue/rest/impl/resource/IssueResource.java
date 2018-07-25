@@ -119,10 +119,6 @@ public class IssueResource extends BaseResource {
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
-
-        if(appKey!= null && !appKey.isEmpty() && appKey.equalsIgnoreCase("mdm")){
-            System.out.println("appkey =  " + appKey);
-        }
         List<? extends Issue> issues = finder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
         for (Issue baseIssue : issues) {

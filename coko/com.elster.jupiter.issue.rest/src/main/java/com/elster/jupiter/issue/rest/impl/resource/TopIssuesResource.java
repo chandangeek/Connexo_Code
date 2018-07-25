@@ -20,6 +20,7 @@ import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -52,15 +53,35 @@ public class TopIssuesResource extends BaseResource {
     @Path("/issues")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
-    public TopIssuesInfo getTopIssues(@Context SecurityContext securityContext) {
+    public TopIssuesInfo getTopIssues(@Context SecurityContext securityContext, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         User currentUser = (User) securityContext.getUserPrincipal();
-        List<IssueType> issueTypes = new ArrayList<>();
-        Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName())
-                .forEach(issueType -> getIssueService().findIssueType(issueType).ifPresent(issueTypes::add));
-        List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).in(issueTypes))
-                .stream()
-                .collect(Collectors.toList());
+        List<IssueReason> issueReasons = new ArrayList<>();
+        long issueTotalUserAssignedCount = 0L;
+        long issueTotalWorkGroupAssignedCount = 0L;
+
+        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
+            issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
+                    .select(where(ISSUE_TYPE).isEqualTo(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get())));
+            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                    entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
+                    .mapToLong(Map.Entry::getValue).sum();
+            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                    entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
+                    .mapToLong(Map.Entry::getValue).sum();
+        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
+            issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
+                    .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
+                        add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
+                    }})));
+            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                    entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                    .mapToLong(Map.Entry::getValue).sum();
+            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
+                    entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                    .mapToLong(Map.Entry::getValue).sum();
+        }
+
         List<IssueStatus> statuses = new ArrayList<>();
         Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN).forEach(status -> getIssueService().findStatus(status).ifPresent(statuses::add));
         Query<OpenIssue> issueQuery =
@@ -78,13 +99,6 @@ public class TopIssuesResource extends BaseResource {
                                         and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL)
                         .ascending(DUEDATE)
                         .ascending(REASON));
-        long issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
-                .mapToLong(Map.Entry::getValue).sum();
-        long issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
-                .mapToLong(Map.Entry::getValue).sum();
-
         return new TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
     }
 
