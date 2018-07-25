@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
@@ -35,6 +36,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -44,6 +46,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +74,19 @@ public class CreationRuleResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
-    public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
-        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
-        List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).isNotEqual(alarmType))
-                .stream()
-                .collect(Collectors.toList());
+    public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+        List<IssueReason> issueReasons = new ArrayList<>();
+
+        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
+            issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
+                    .select(where(ISSUE_TYPE).isEqualTo(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get())));
+        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
+            issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
+                    .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
+                        add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
+                    }})));
+        }
 
         Query<CreationRule> query =
                 getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
