@@ -16,7 +16,7 @@ import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.keys.AesDeviceKey;
 import com.elster.jupiter.hsm.model.keys.DeviceKey;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
-import com.elster.jupiter.hsm.model.keys.KeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.keys.TransportKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -68,9 +68,9 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
         HsmLabelConfiguration importLabelConfiguration = hsmConfiguration.get(importLabel);
-        KeyType importKeyType = importLabelConfiguration.getImportKeyType();
-        DeviceKey dkey = new AesDeviceKey(symmetricAlgorithm, importLabelConfiguration.getImportDeviceKeyLength() , deviceKeyBytes, initVector, importKeyType);
-        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(tkey, dkey, importLabelConfiguration.getImportReEncryptHsmLabel(), importKeyType);
+        SessionKeyCapability importSessionKeyCapability = importLabelConfiguration.getImportSessionKeyCapability();
+        DeviceKey dkey = new AesDeviceKey(symmetricAlgorithm, importLabelConfiguration.getKeyLength() , deviceKeyBytes, initVector, importSessionKeyCapability);
+        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(tkey, dkey, importLabelConfiguration.getImportReEncryptHsmLabel(), importSessionKeyCapability);
 
         String securityAccessorName = deviceKey.getName();
         SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
