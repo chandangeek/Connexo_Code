@@ -8,6 +8,9 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
@@ -40,13 +43,21 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
+    private volatile Thesaurus thesaurus;
+
     @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @Reference
+    @SuppressWarnings("unused") //OSGI
+    @org.osgi.service.component.annotations.Reference
+    public void setNlsService(NlsService nlsService){
+        this.thesaurus = nlsService.getThesaurus(CustomPropertySetsDemoInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -54,6 +65,14 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
     public DeviceTypeTwoCustomPropertySet() {
         super();
     }
+
+    @Inject
+    public DeviceTypeTwoCustomPropertySet(NlsService nlsService)
+    {
+        this();
+        this.setNlsService(nlsService);
+    }
+
 
     @Inject
     public DeviceTypeTwoCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
@@ -79,7 +98,8 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
 
     @Override
     public String getDomainClassDisplayName() {
-        return "Device";
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_DEVICE).format(); //CONM-332
+       // return "Device";
     }
 
     @Override
