@@ -133,6 +133,11 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void setUsagePoint(UsagePoint usagePoint){
+        getBaseIssue().setUsagePoint(usagePoint);
+    }
+
+    @Override
     public void setDueDate(Instant dueDate) {
         getBaseIssue().setDueDate(dueDate);
     }
