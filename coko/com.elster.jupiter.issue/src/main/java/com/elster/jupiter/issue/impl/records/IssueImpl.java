@@ -37,6 +37,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
+//public class IssueImpl<T extends HasId & IdentifiedObject> extends EntityImpl implements Issue {
 public class IssueImpl extends EntityImpl implements Issue {
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
@@ -50,6 +51,8 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Reference<WorkGroup> workGroup = ValueReference.absent();
 
     private Reference<EndDevice> device = ValueReference.absent();
+    private Reference<UsagePoint> usagePoint = ValueReference.absent();
+    //private Reference<T> member = ValueReference.absent(); // TODO - make IssueImpl abstract and implement DeviceIssueImpl and UsagePointIssueImpl and make getDevice and getUsagePoint Deprecated
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
@@ -286,16 +289,38 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public Optional<UsagePoint> getUsagePoint() {
-        EndDevice endDevice = getDevice();
-        if (endDevice != null && Meter.class.isInstance(endDevice)) {
-            Meter meter = Meter.class.cast(endDevice);
-            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()) {
-                return meterActivation.get().getUsagePoint();
+        if (usagePoint.isPresent()) {
+            return Optional.of(usagePoint.get());
+        } else {
+            EndDevice endDevice = getDevice();
+            if (endDevice != null && Meter.class.isInstance(endDevice)) {
+                Meter meter = Meter.class.cast(endDevice);
+                Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+                if (meterActivation.isPresent()) {
+                    return meterActivation.get().getUsagePoint();
+                }
             }
+            return Optional.empty();
         }
-        return Optional.empty();
+
     }
+
+    @Override
+    public void setUsagePoint(UsagePoint usagePoint) {
+        this.usagePoint.set(usagePoint);
+    }
+
+    /*
+    public void setMember(T member) {
+        this.member.set(member);
+    }
+
+
+    public T getMember() {
+      getDevice() != null ? return getDevice() : return getUsagePoint();
+
+    }
+    */
 
     protected IssueService getIssueService() {
         return issueService;

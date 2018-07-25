@@ -31,6 +31,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -74,6 +75,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_URGENCY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USAGEPOINT_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_COMMENT;
@@ -86,6 +88,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_D
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_USAGEPOINT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_USER;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_COLUMN_ID;
@@ -93,6 +96,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_USAGEPOINT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_USER;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_PK_NAME;
@@ -116,6 +120,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_USAGEPOINT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_USER;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_PK_NAME;
@@ -281,6 +286,7 @@ public enum TableSpecs {
                     ISSUE_HIST_FK_TO_REASON,
                     ISSUE_HIST_FK_TO_STATUS,
                     ISSUE_HIST_FK_TO_DEVICE,
+                    ISSUE_HIST_FK_TO_USAGEPOINT,
                     ISSUE_HIST_FK_TO_USER,
                     ISSUE_HIST_FK_TO_WORKGROUP,
                     ISSUE_HIST_FK_TO_RULE);
@@ -300,6 +306,7 @@ public enum TableSpecs {
                     OPEN_ISSUE_FK_TO_REASON,
                     OPEN_ISSUE_FK_TO_STATUS,
                     OPEN_ISSUE_FK_TO_DEVICE,
+                    OPEN_ISSUE_FK_TO_USAGEPOINT,
                     OPEN_ISSUE_FK_TO_USER,
                     OPEN_ISSUE_FK_TO_WORKGROUP,
                     OPEN_ISSUE_FK_TO_RULE);
@@ -319,6 +326,7 @@ public enum TableSpecs {
                     ISSUE_FK_TO_REASON,
                     ISSUE_FK_TO_STATUS,
                     ISSUE_FK_TO_DEVICE,
+                    ISSUE_FK_TO_USAGEPOINT,
                     ISSUE_FK_TO_USER,
                     ISSUE_FK_TO_WORKGROUP,
                     ISSUE_FK_TO_RULE);
@@ -411,6 +419,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
             Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
+            Column usagePointRefIdColumn = table.column(ISSUE_COLUMN_USAGEPOINT_ID).number().conversion(NUMBER2LONG).since(version(10,5)).add();
             table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10, 3)).add();
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
@@ -463,6 +472,7 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(IssueReason.class).add();
             table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
             table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
+            table.foreignKey(fkKeysIter.next()).map("usagePoint").on(usagePointRefIdColumn).references(UsagePoint.class).since(version(10,5)).add();
             table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).onDelete(DeleteRule.SETNULL).add();
             table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).onDelete(DeleteRule.SETNULL).add();
             table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();

@@ -176,8 +176,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
         if (event.getEndDevice().isPresent() && restrictIssueCreation(event)) {
-            LOG.info("Issue creation for device "
-                    + event.getEndDevice().map(EndDevice::getName).orElse("UNKNOWN")
+            LOG.info("Issue creation for "
+                    + event.getEndDevice().map(EndDevice::getName).orElse(event.getUsagePoint().isPresent() ? event.getUsagePoint().get().getName() : "UNKNOWN")
                     + " was restricted");
             return;
         }
@@ -215,7 +215,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
         try {
             batchUser = userService.findUser("batch executor");
-        }catch(FoundUserIsNotActiveException e){
+        } catch (FoundUserIsNotActiveException e) {
             batchUser = Optional.empty();
         }
         OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
@@ -228,6 +228,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
+        event.getUsagePoint().ifPresent(baseIssue::setUsagePoint);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
         OpenIssue newIssue = template.createIssue(baseIssue, event);
@@ -245,12 +246,12 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
 
-    private boolean logOnSameAlarm(String raiseEventProps){
+    private boolean logOnSameAlarm(String raiseEventProps) {
         List<String> values = Arrays.asList(raiseEventProps.split(SEPARATOR));
         if (values.size() != 3) {
             throw new LocalizedFieldValidationException(MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT, "Log on same alarm indicator");
         }
-        return Integer.parseInt(values.get(0))==1;
+        return Integer.parseInt(values.get(0)) == 1;
     }
 
     @Override

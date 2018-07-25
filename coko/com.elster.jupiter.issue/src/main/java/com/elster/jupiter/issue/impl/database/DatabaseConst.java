@@ -23,6 +23,7 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_REASON_ID = "REASON_ID";
     public static final String ISSUE_COLUMN_STATUS_ID = "STATUS";
     public static final String ISSUE_COLUMN_DEVICE_ID = "DEVICE_ID";
+    public static final String ISSUE_COLUMN_USAGEPOINT_ID = "USAGEPOINT_ID";
     public static final String ISSUE_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
     public static final String ISSUE_COLUMN_USER_ID = "ASSIGNEE_USER_ID";
     public static final String ISSUE_COLUMN_WORKGROUP_ID = "ASSIGNEE_WORKGROUP_ID";
@@ -36,6 +37,7 @@ public final class DatabaseConst {
 
     public static final String OPEN_ISSUE_PK_NAME = "ISU_OPEN_PK_ISSUE";
     public static final String OPEN_ISSUE_FK_TO_DEVICE = "ISU_OPEN_FK_TO_DEVICE";
+    public static final String OPEN_ISSUE_FK_TO_USAGEPOINT = "OPEN_ISSUE_FK_TO_USAGEPOINT";
     public static final String OPEN_ISSUE_FK_TO_REASON = "ISU_OPEN_FK_TO_REASON";
     public static final String OPEN_ISSUE_FK_TO_STATUS = "ISU_OPEN_FK_TO_STATUS";
     public static final String OPEN_ISSUE_FK_TO_USER = "ISU_OPEN_FK_TO_USER";
@@ -44,6 +46,7 @@ public final class DatabaseConst {
 
     public static final String ISSUE_PK_NAME = "ISU_PK_ISSUE";
     public static final String ISSUE_FK_TO_DEVICE = "ISU_FK_TO_DEVICE";
+    public static final String ISSUE_FK_TO_USAGEPOINT= "ISSUE_FK_TO_USAGEPOINT";
     public static final String ISSUE_FK_TO_REASON = "ISU_FK_TO_REASON";
     public static final String ISSUE_FK_TO_STATUS = "ISU_FK_TO_STATUS";
     public static final String ISSUE_FK_TO_USER = "ISU_FK_TO_USER";
@@ -80,6 +83,7 @@ public final class DatabaseConst {
     public static final String ISSUE_HIST_PK_NAME = "ISU_PK_HIST_ISSUE";
 
     public static final String ISSUE_HIST_FK_TO_DEVICE = "ISU_HIST_FK_TO_DEVICE";
+    public static final String ISSUE_HIST_FK_TO_USAGEPOINT = "ISSUE_HIST_FK_TO_USAGEPOINT";
     public static final String ISSUE_HIST_FK_TO_REASON = "ISU_HIST_FK_TO_REASON";
     public static final String ISSUE_HIST_FK_TO_STATUS = "ISU_HIST_FK_TO_STATUS";
     public static final String ISSUE_HIST_FK_TO_USER = "ISU_HIST_FK_TO_USER";
@@ -105,6 +109,7 @@ public final class DatabaseConst {
     // Issue View
     public static final String ALL_ISSUES_PK_NAME = "ISU_ALL_PK_ISSUE";
     public static final String ALL_ISSUES_FK_TO_DEVICE = "ISU_ALL_FK_TO_DEVICE";
+    public static final String ALL_ISSUES_FK_TO_USAGEPOINT = "ALL_ISSUES_FK_TO_USAGEPOINT";
     public static final String ALL_ISSUES_FK_TO_REASON = "ISU_ALL_FK_TO_REASON";
     public static final String ALL_ISSUES_FK_TO_STATUS = "ISU_ALL_FK_TO_STATUS";
     public static final String ALL_ISSUES_FK_TO_USER = "ISU_ALL_FK_TO_USER";

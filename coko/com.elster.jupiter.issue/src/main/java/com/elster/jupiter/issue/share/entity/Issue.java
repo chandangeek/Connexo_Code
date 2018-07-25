@@ -35,6 +35,10 @@ public interface Issue extends Entity {
 
     void setDevice(EndDevice device);
 
+    //TODO - as per IssueImpl todo:  abstracting out and splitting the issue into 2: MDM and MDC
+
+    void setUsagePoint(UsagePoint usagePoint);
+
     Optional<UsagePoint> getUsagePoint();
 
     Instant getDueDate();
