@@ -138,6 +138,11 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public void setUsagePoint(UsagePoint usagePoint){
+        getBaseIssue().setUsagePoint(usagePoint);
+    }
+
+    @Override
     public void setDueDate(Instant dueDate) {
         getBaseIssue().setDueDate(dueDate);
     }
