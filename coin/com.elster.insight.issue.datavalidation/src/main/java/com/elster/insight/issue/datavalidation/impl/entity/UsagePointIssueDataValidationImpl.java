@@ -33,7 +33,7 @@ public class UsagePointIssueDataValidationImpl implements UsagePointIssueDataVal
 
     public enum Fields {
         BASEISSUE("baseIssue"),
-        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
+        NOTESTIMATEDBLOCKS("notEstimatedBlocks");
 
         private final String javaFieldName;
 
@@ -130,6 +130,11 @@ public class UsagePointIssueDataValidationImpl implements UsagePointIssueDataVal
     @Override
     public void setDevice(EndDevice device) {
         getBaseIssue().setDevice(device);
+    }
+
+    @Override
+    public void setUsagePoint(UsagePoint usagePoint){
+        getBaseIssue().setUsagePoint(usagePoint);
     }
 
     @Override

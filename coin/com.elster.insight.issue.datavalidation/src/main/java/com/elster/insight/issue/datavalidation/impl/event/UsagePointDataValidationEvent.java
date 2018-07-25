@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.HasId;
 import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
@@ -99,16 +98,8 @@ public abstract class UsagePointDataValidationEvent implements IssueEvent {
         return findChannel().flatMap(channel -> channel.getChannelsContainer().getMeter());
     }
 
+    @Override
     public Optional<UsagePoint> getUsagePoint() {
-       /* Optional<EndDevice> endDevice = getEndDevice();
-        if (endDevice != null && Meter.class.isInstance(endDevice)) {
-            Meter meter = Meter.class.cast(endDevice);
-            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()) {
-                return meterActivation.get().getUsagePoint();
-            }
-        }
-        return Optional.empty();*/
         return findChannel().flatMap(channel -> channel.getChannelsContainer().getUsagePoint());
     }
 

@@ -9,7 +9,6 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.Injector;
@@ -21,7 +20,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class UsagePointDataValidationEventHandler implements MessageHandler {
-    
+
     public static final Logger LOGGER = Logger.getLogger(UsagePointDataValidationEventHandler.class.getName());
 
     private Injector injector;
@@ -38,13 +37,9 @@ public class UsagePointDataValidationEventHandler implements MessageHandler {
     public void process(Message message) {
         createEvent(jsonService.deserialize(message.getPayload(), Map.class))
                 .filter(e -> e instanceof UsagePointDataValidationEvent)
-                .filter(e -> ((UsagePointDataValidationEvent)e).getUsagePoint().isPresent())
+                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().isPresent())
+                //.filter(e -> e.getUsagePoint().get().getState()
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
-               // .filter(e -> e.getEndDevice().isPresent())
-               // .filter(e -> e.getEndDevice().get().getState().isPresent())
-              //  .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-              //  .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
-              //  .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 
     private Optional<IssueEvent> createEvent(Map<?, ?> map) {
