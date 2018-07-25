@@ -16,7 +16,6 @@ import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyFactory;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
 import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
@@ -35,6 +35,6 @@ public class SecurityAccessorTypeInfo {
 
 
     boolean keyEncryptionMethodIsHSM(){
-        return HsmSymmetricKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.storageMethod);
+        return HsmKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.storageMethod);
     }
 }
