@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
+import com.elster.jupiter.issue.rest.response.device.UsagePointInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 
@@ -26,6 +27,8 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
     public DeviceInfo device;
+    //TODO - refactor to to make IssueInfo independent of DeviceInfo
+    public UsagePointInfo usagePointInfo;
     public String title;
     public IssueTypeInfo issueType;
     public long creationDate;
@@ -59,6 +62,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("Coding exception: ", e);
             }
+            this.usagePointInfo = issue.getUsagePoint().isPresent() ? new UsagePointInfo(issue.getUsagePoint().get()) : null;
             this.title = issue.getTitle();
             this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
             this.creationDate = issue.getCreateDateTime().toEpochMilli();
