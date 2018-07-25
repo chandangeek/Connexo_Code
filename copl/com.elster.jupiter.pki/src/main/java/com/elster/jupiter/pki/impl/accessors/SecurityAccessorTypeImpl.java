@@ -19,7 +19,7 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -309,7 +309,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     @Override
     public boolean keyEncryptionMethodIsHSM(){
-        return HsmSymmetricKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.getKeyEncryptionMethod());
+        return HsmKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.getKeyEncryptionMethod());
     }
 
     protected class SecurityAccessorTypeUpdaterImpl implements SecurityAccessorTypeUpdater {

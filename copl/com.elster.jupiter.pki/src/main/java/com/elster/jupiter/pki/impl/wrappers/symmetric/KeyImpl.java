@@ -17,7 +17,6 @@ import java.util.Optional;
 
 public abstract class KeyImpl implements SymmetricKeyWrapper  {
 
-
     private DataModel dataModel;
 
     private long id;
@@ -27,44 +26,50 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
-    public KeyImpl(DataModel dataModel) {
+    KeyImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public String getEncryptedKey() {
+    String getEncryptedKey() {
         return encryptedKey;
     }
 
-    public void setEncryptedKey(String encryptedKey) {
+    void setEncryptedKey(String encryptedKey) {
         this.encryptedKey = encryptedKey;
     }
 
-    public String getLabel() {
+    String getLabel() {
         return label;
     }
 
-    public void setLabel(String label) {
+    void setLabel(String label) {
         this.label = label;
     }
 
-    public Reference<KeyType> getKeyTypeReference() {
+    Reference<KeyType> getKeyTypeReference() {
         return keyTypeReference;
     }
 
-    public void setKeyTypeReference(Reference<KeyType> keyTypeReference) {
-        this.keyTypeReference = keyTypeReference;
-    }
-
+    @Override
     public Optional<Instant> getExpirationTime() {
         return Optional.ofNullable(expirationTime);
     }
 
-    public void setExpirationTime(Instant expirationTime) {
+    void setExpirationTime(Instant expirationTime) {
         this.expirationTime = expirationTime;
     }
 
-    public DataModel getDataModel() {
+    DataModel getDataModel() {
         return dataModel;
+    }
+
+    void save() {
+        Save.action(id).save(dataModel, this);
+    }
+
+    @Override
+    public void delete() {
+        dataModel.remove(this);
     }
 
     public enum Fields {
@@ -84,18 +89,9 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
         }
     }
 
-    protected void save() {
-        Save.action(id).save(dataModel, this);
-    }
-
-    public void delete() {
-        dataModel.remove(this);
-    }
-
-
     public static final Map<String, Class<? extends SymmetricKeyWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
-                    "H", HsmSymmetricKeyImpl.class,
+                    "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 
 }

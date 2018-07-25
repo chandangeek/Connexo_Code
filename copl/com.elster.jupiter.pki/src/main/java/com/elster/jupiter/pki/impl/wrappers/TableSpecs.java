@@ -9,14 +9,11 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.HsmSymmetricKey;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmSymmetricKeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.KeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
@@ -63,7 +60,8 @@ public enum TableSpecs {
             Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class);
             table.map(KeyImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)")
+                    .since(version(10, 4,3));
             table.column("KEY")
                     .varChar()
                     .map(PlaintextSymmetricKeyImpl.Fields.ENCRYPTED_KEY.fieldName())

@@ -23,7 +23,7 @@ public interface HsmSymmetricKey extends SymmetricKeyWrapper{
      *
      * @return HSM label
      */
-    String getKeyLabel();
+    String getLabel();
 
     /**
      * HSM requires previous key values, in order to generate a new key

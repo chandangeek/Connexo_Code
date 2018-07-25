@@ -5,7 +5,6 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
@@ -18,7 +17,6 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -30,7 +28,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-public class HsmSymmetricKeyImpl extends KeyImpl implements HsmSymmetricKey{
+public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
 
     private final DataVaultService dataVaultService;
     private final PropertySpecService propertySpecService;
@@ -38,12 +36,9 @@ public class HsmSymmetricKeyImpl extends KeyImpl implements HsmSymmetricKey{
     private final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
 
-
-    private HsmPropertySetter propertySetter;
-
     @Inject
-    HsmSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                        DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService) {
+    HsmKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
+               DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService) {
         super(dataModel);
         this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
@@ -52,97 +47,84 @@ public class HsmSymmetricKeyImpl extends KeyImpl implements HsmSymmetricKey{
         this.hsmEnergyService = hsmEnergyService;
     }
 
-    HsmSymmetricKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label) {
+    HsmKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label) {
         super.getKeyTypeReference().set(keyType);
-        this.setExpirationTime(timeDuration);
-        super.setLabel(label);
+        this.calculateExpirationTime(timeDuration);
+        this.setLabel(label);
         return this;
     }
 
     @Override
     public String getKeyEncryptionMethod() {
-        return HsmSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
+        return HsmKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
 
     @Override
     public void setKey(byte[] key, String label) {
-        this.setKey(key);
-        this.setLabel(label);
-        this.save();
-    }
-
-    private void setKey(byte[] key){
-        super.setEncryptedKey(dataVaultService.encrypt(key));
-    }
-
-    @Override
-    public void setLabel(String label){
-        if (Checks.is(label).emptyOrOnlyWhiteSpace()){
-            throw new IllegalArgumentException("Label cannot be empty");
+        if (key == null){
+            throw new IllegalArgumentException("Key cannot be null");
         }
+        super.setEncryptedKey(dataVaultService.encrypt(key));
         super.setLabel(label);
-    }
-
-    @Override
-    public String getKeyLabel() {
-        return super.getLabel();
+        this.save();
     }
 
     @Override
     public byte[] getKey() {
-        if (Checks.is(super.getEncryptedKey()).emptyOrOnlyWhiteSpace()) {
+        String key = super.getEncryptedKey();
+        if (key == null){
             return new byte[0];
         }
         return dataVaultService.decrypt(super.getEncryptedKey());
     }
 
     @Override
+    public String getLabel() {
+        return super.getLabel();
+    }
+
+    @Override
     public void generateValue(HsmSymmetricKey actualSymmetricKey) {
         try {
-            String actualLabel = actualSymmetricKey.getKeyLabel();
+            String actualLabel = actualSymmetricKey.getLabel();
             byte[] actualKey = actualSymmetricKey.getKey();
             byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, getLabel())).getEncryptedKey();
-            this.setKey(hsmGeneratedKey, super.getLabel());
+            this.setKey(hsmGeneratedKey, getLabel());
             this.save();
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
         }
     }
 
-
-
-    private void setExpirationTime(TimeDuration timeDuration) {
+    private void calculateExpirationTime(TimeDuration timeDuration) {
         super.setExpirationTime(ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant());
     }
 
 
     @Override
+    // ToDO: Implement method when requirements are clear
     public void setProperties(Map<String, Object> properties) {
-        this.propertySetter = getPropertySetter();
+        /*HsmPropertySetter propertySetter = new HsmPropertySetter(this);
         EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
         Save.UPDATE.validate(super.getDataModel(), propertySetter);
-        this.setKey(propertySetter.getKey(), propertySetter.getLabel());
+        this.setKey(propertySetter.getKey(), propertySetter.getLabel());*/
     }
 
     @Override
     public Map<String, Object> getProperties() {
+        PropertySetter propertySetter = new HsmPropertySetter(this);
         Map<String, Object> properties = new HashMap<>();
-        EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyToMap(properties, getPropertySetter()));
+        EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyToMap(properties, propertySetter));
         return properties;
-    }
-
-    private HsmPropertySetter getPropertySetter(){
-        if (this.propertySetter == null){
-            this.propertySetter = new HsmPropertySetter(this);
-        }
-        return this.propertySetter;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return EnumSet.allOf(HsmProperties.class)
-                .stream().map(properties -> properties.asPropertySpec(propertySpecService, thesaurus)).collect(toList());
+                .stream()
+                .map(properties -> properties.asPropertySpec(propertySpecService, thesaurus))
+                .collect(toList());
     }
 
 

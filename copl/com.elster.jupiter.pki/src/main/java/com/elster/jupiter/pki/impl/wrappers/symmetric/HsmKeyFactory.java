@@ -23,8 +23,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component(name="HsmSymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
-public class HsmSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSupport {
+@Component(name="HsmKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
+public class HsmKeyFactory implements SymmetricKeyFactory, ExpirationSupport {
 
     public static final String KEY_ENCRYPTION_METHOD = "HSM";
 
@@ -32,7 +32,7 @@ public class HsmSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSu
 
     // OSGi
     @SuppressWarnings("unused")
-    public HsmSymmetricKeyFactory() {
+    public HsmKeyFactory() {
     }
 
     @Reference
@@ -47,14 +47,14 @@ public class HsmSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSu
 
     @Override
     public SymmetricKeyWrapper newSymmetricKey(SecurityAccessorType securityAccessorType) {
-        return dataModel.getInstance(HsmSymmetricKeyImpl.class)
+        return dataModel.getInstance(HsmKeyImpl.class)
                 .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get(), securityAccessorType.getLabel());
     }
 
     @Override
     public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> wrappers = new ArrayList<>();
-        wrappers.addAll(dataModel.query(HsmSymmetricKeyImpl.class).select(expiration.isExpired("expirationTime", when)));
+        wrappers.addAll(dataModel.query(HsmKeyImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }
 
@@ -66,6 +66,6 @@ public class HsmSymmetricKeyFactory implements SymmetricKeyFactory, ExpirationSu
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return dataModel.getInstance(HsmSymmetricKeyImpl.class).getPropertySpecs();
+        return dataModel.getInstance(HsmKeyImpl.class).getPropertySpecs();
     }
 }

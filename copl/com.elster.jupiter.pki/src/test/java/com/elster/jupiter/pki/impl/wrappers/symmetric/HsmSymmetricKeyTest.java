@@ -44,7 +44,7 @@ public class HsmSymmetricKeyTest {
     private static final String LABEL = "label";
     private static final byte[] KEY = "1234".getBytes();
 
-    private HsmSymmetricKeyImpl hsmSymmetricKey;
+    private HsmKeyImpl hsmSymmetricKey;
     private Clock clock = Clock.system(ZoneId.systemDefault());
 
     @Mock
@@ -76,30 +76,15 @@ public class HsmSymmetricKeyTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(anyObject(), any(Class.class))).thenReturn(new HashSet<>());
 
-        this.hsmSymmetricKey = new HsmSymmetricKeyImpl(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
+        this.hsmSymmetricKey = new HsmKeyImpl(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmSymmetricKey.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL);
 
     }
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void keyCannotBeNull(){
+    public void setNullKey(){
         this.hsmSymmetricKey.setKey(null, LABEL);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void keyCannotBeEmpty(){
-        this.hsmSymmetricKey.setKey(new byte[0], LABEL);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void labelCannotBeNull(){
-        this.hsmSymmetricKey.setKey(KEY, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void labelCannotBeEmpty(){
-        this.hsmSymmetricKey.setKey(KEY, "");
     }
 
     @Test
@@ -108,7 +93,16 @@ public class HsmSymmetricKeyTest {
     }
 
     @Test
-    public void getKeyResultIsNotEncoded(){
+    public void persistedKeyIsBase64Encoded(){
+        hsmSymmetricKey.setKey(KEY, LABEL);
+        String encryptedKey = hsmSymmetricKey.getEncryptedKey();
+        byte[] decoded = dataVaultService.decrypt(encryptedKey);
+
+        assertTrue(Arrays.equals(KEY, decoded));
+    }
+
+    @Test
+    public void keyIsNoBases64tEncoded(){
         hsmSymmetricKey.setKey(KEY, LABEL);
 
         assertTrue(Arrays.equals(KEY, hsmSymmetricKey.getKey()));
@@ -132,20 +126,12 @@ public class HsmSymmetricKeyTest {
     }
 
     @Test
-    public void setValidKeyAndLabelProperties(){
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("key", DatatypeConverter.printHexBinary(KEY));
-        properties.put("label", LABEL);
+    public void nullKeyProperty(){
+        String expected = DatatypeConverter.printHexBinary(new byte[0]);
+        String value = (String) hsmSymmetricKey.getProperties().get("key");
 
-        hsmSymmetricKey.setProperties(properties);
-        assertTrue(Arrays.equals(KEY, hsmSymmetricKey.getKey()));
-        assertEquals(LABEL, hsmSymmetricKey.getKeyLabel());
+        assertEquals(expected, value);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotSetEmptyProperties(){
-        Map<String, Object> properties = new HashMap<>();
-        hsmSymmetricKey.setProperties(properties);
-    }
 
 }

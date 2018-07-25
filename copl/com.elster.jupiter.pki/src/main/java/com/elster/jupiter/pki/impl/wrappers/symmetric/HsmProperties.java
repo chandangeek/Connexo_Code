@@ -15,7 +15,8 @@ enum HsmProperties implements Properties {
     DECRYPTED_KEY("key") {
         @Override
         public PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService.stringSpec()
+            return propertySpecService
+                    .stringSpec()
                     .named(getPropertyName(), TranslationKeys.KEY).fromThesaurus(thesaurus)
                     .finish();
         }
@@ -55,9 +56,11 @@ enum HsmProperties implements Properties {
     };
 
     private final String propertyName;
+
     HsmProperties(String propertyName) {
         this.propertyName = propertyName;
     }
+
     String getPropertyName() {
         return propertyName;
     }

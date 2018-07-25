@@ -8,8 +8,6 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -23,13 +21,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
-import javax.validation.constraints.Size;
 import javax.xml.bind.DatatypeConverter;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -50,28 +45,6 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
     private final Thesaurus thesaurus;
     private final Clock clock;
 
-    public enum Fields {
-        ENCRYPTED_KEY("encryptedKey"),
-        KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),;
-
-        private final String fieldName;
-
-        Fields(String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        public String fieldName() {
-            return fieldName;
-        }
-    }
-
-    private long id;
-    @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String encryptedKey;
-    private Reference<KeyType> keyTypeReference = Reference.empty();
-    private Instant expirationTime;
-
     @Inject
     PlaintextSymmetricKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         super(dataModel);
@@ -82,8 +55,8 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
     }
 
     PlaintextSymmetricKeyImpl init(KeyType keyType, TimeDuration timeDuration) {
-        this.keyTypeReference.set(keyType);
-        this.setExpirationTime(timeDuration);
+        super.getKeyTypeReference().set(keyType);
+        this.calculateExpirationTime(timeDuration);
         return this;
     }
 
@@ -94,30 +67,25 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
 
     @Override
     public Optional<SecretKey> getKey() {
-        if (Checks.is(this.encryptedKey).emptyOrOnlyWhiteSpace()) {
+        if (Checks.is(this.getEncryptedKey()).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
-        byte[] decrypt = dataVaultService.decrypt(this.encryptedKey);
+        byte[] decrypt = dataVaultService.decrypt(this.getEncryptedKey());
         return Optional.of(new SecretKeySpec(decrypt, getKeyType().getKeyAlgorithm()));
     }
 
     private KeyType getKeyType() {
-        return keyTypeReference.get();
+        return getKeyTypeReference().get();
     }
 
     @Override
     public void setKey(SecretKey key) {
-        this.encryptedKey = dataVaultService.encrypt(key.getEncoded());
+        super.setEncryptedKey(dataVaultService.encrypt(key.getEncoded()));
         this.save();
     }
 
-    @Override
-    public Optional<Instant> getExpirationTime() {
-        return Optional.ofNullable(expirationTime);
-    }
-
-    private void setExpirationTime(TimeDuration timeDuration) {
-        this.expirationTime = ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant();
+    private void calculateExpirationTime(TimeDuration timeDuration) {
+         super.setExpirationTime(ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant());
     }
 
     @Override
@@ -155,15 +123,6 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
     public List<PropertySpec> getPropertySpecs() {
         return EnumSet.allOf(Properties.class)
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
-    }
-
-    protected void save() {
-        Save.action(id).save(super.getDataModel(), this);
-    }
-
-    @Override
-    public void delete() {
-        super.getDataModel().remove(this);
     }
 
     public enum Properties {
@@ -214,14 +173,13 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
         private String key; // field name must match property name
 
         PropertySetter(PlaintextSymmetricKeyImpl source) {
-            byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
+            byte[] decrypt = dataVaultService.decrypt(source.getEncryptedKey());
             this.key = DatatypeConverter.printHexBinary(decrypt);
         }
 
         void applyProperties() {
             byte[] decode = DatatypeConverter.parseHexBinary(key);
-            PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
-
+            PlaintextSymmetricKeyImpl.super.setEncryptedKey(dataVaultService.encrypt(decode));
             PlaintextSymmetricKeyImpl.this.save();
         }
 

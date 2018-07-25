@@ -16,9 +16,10 @@ class HsmPropertySetter implements PropertySetter{
     private String key;
     private String label;
 
-    HsmPropertySetter(HsmSymmetricKeyImpl hsmSymmetricKey) {
-        this.key = DatatypeConverter.printHexBinary(hsmSymmetricKey.getKey());
-        this.label = hsmSymmetricKey.getKeyLabel();
+    HsmPropertySetter(HsmKeyImpl hsmSymmetricKey) {
+        byte[] nullSafeKey = nullToEmptyArray(hsmSymmetricKey.getKey());
+        this.key = DatatypeConverter.printHexBinary(nullSafeKey);
+        this.label = hsmSymmetricKey.getLabel();
     }
 
     @Override
@@ -42,5 +43,9 @@ class HsmPropertySetter implements PropertySetter{
 
     String getLabel(){
         return label;
+    }
+
+    private byte[] nullToEmptyArray(byte[] object){
+        return object == null ? new byte[0] : object;
     }
 }
