@@ -7,7 +7,7 @@
 package com.elster.jupiter.hsm.model.configuration;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.KeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
 import org.hamcrest.core.IsInstanceOf;
 
@@ -50,7 +50,7 @@ public class HsmLabelConfigurationTest {
         expectedException.expect(HsmBaseException.class);
         expectedException.expectMessage("Asking for missing import capability");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        hsmLabelConfiguration.getImportKeyType();
+        hsmLabelConfiguration.getImportSessionKeyCapability();
     }
 
     @Test
@@ -72,9 +72,9 @@ public class HsmLabelConfigurationTest {
         String value = importLabel + ", " + importKeyType + ", " + deviceKeyLegnth + ", " + renewKeyType + ", " + reEncryptLabel;
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
         Assert.assertEquals(importLabel, hsmLabelConfiguration.getFileImportLabel());
-        Assert.assertEquals(KeyType.valueOf(importKeyType), hsmLabelConfiguration.getImportKeyType());
-        Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getImportDeviceKeyLength());
-        Assert.assertEquals(KeyType.valueOf(renewKeyType), hsmLabelConfiguration.getRenewKeyType());
+        Assert.assertEquals(SessionKeyCapability.valueOf(importKeyType), hsmLabelConfiguration.getImportSessionKeyCapability());
+        Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getKeyLength());
+        Assert.assertEquals(SessionKeyCapability.valueOf(renewKeyType), hsmLabelConfiguration.getRenewSessionKeyCapability());
         Assert.assertEquals(reEncryptLabel, hsmLabelConfiguration.getImportReEncryptHsmLabel());
 
 

@@ -7,23 +7,23 @@
 package com.elster.jupiter.hsm.model.configuration;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.KeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
 import javax.annotation.Nonnull;
 
 public class HsmLabelConfiguration {
 
     private final String label;
-    private final KeyType importKeyType;
-    private final Integer importDeviceKeyLength;
-    private final KeyType renewKeyType;
+    private final SessionKeyCapability importSessionKeyCapability;
+    private final Integer keyLength;
+    private final SessionKeyCapability renewSessionKeyCapability;
     private final String importReEncryptHsmLabel;
 
-    public HsmLabelConfiguration(String label, KeyType importKeyType,int importDeviceKeyLength, KeyType renewKeyType, String importReEncryptHsmLabel) {
+    public HsmLabelConfiguration(String label, SessionKeyCapability importSessionKeyCapability, int keyLength, SessionKeyCapability renewSessionKeyCapability, String importReEncryptHsmLabel) {
         this.label = label;
-        this.importKeyType = importKeyType;
-        this.importDeviceKeyLength = importDeviceKeyLength;
-        this.renewKeyType = renewKeyType;
+        this.importSessionKeyCapability = importSessionKeyCapability;
+        this.keyLength = keyLength;
+        this.renewSessionKeyCapability = renewSessionKeyCapability;
         this.importReEncryptHsmLabel = importReEncryptHsmLabel;
     }
 
@@ -33,11 +33,11 @@ public class HsmLabelConfiguration {
         try {
             this.label = initString(split[0].trim());
             String importKeyExtracted = split[1].trim();
-            this.importKeyType = importKeyExtracted.isEmpty()? null:KeyType.valueOf(importKeyExtracted);
+            this.importSessionKeyCapability = importKeyExtracted.isEmpty()? null: SessionKeyCapability.valueOf(importKeyExtracted);
             String importKeyLength = split[2].trim();
-            this.importDeviceKeyLength = importKeyLength.isEmpty()? null: Integer.parseInt(importKeyLength);
+            this.keyLength = importKeyLength.isEmpty()? null: Integer.parseInt(importKeyLength);
             String renewKeyExtracted = split[3].trim();
-            this.renewKeyType = renewKeyExtracted.isEmpty()? null:KeyType.valueOf(renewKeyExtracted);
+            this.renewSessionKeyCapability = renewKeyExtracted.isEmpty()? null: SessionKeyCapability.valueOf(renewKeyExtracted);
             String reEncryptImportLabel = split.length == 5? split[4].trim(): "";
             this.importReEncryptHsmLabel = initString(reEncryptImportLabel);
         } catch (IllegalArgumentException e) {
@@ -59,16 +59,20 @@ public class HsmLabelConfiguration {
         return checkNullAndReturn(label, "Asking for import label but not configured");
     }
 
-    public KeyType getImportKeyType() throws HsmBaseException {
-        return checkNullAndReturn(this.importKeyType, "Asking for missing import capability");
+    public SessionKeyCapability getImportSessionKeyCapability() throws HsmBaseException {
+        return checkNullAndReturn(this.importSessionKeyCapability, "Asking for missing import capability");
     }
 
-    public KeyType getRenewKeyType() throws HsmBaseException {
-        return checkNullAndReturn(renewKeyType, "Asking for missing renew capability");
+    public SessionKeyCapability getRenewSessionKeyCapability() throws HsmBaseException {
+        return checkNullAndReturn(renewSessionKeyCapability, "Asking for missing renew capability");
     }
 
     public String getImportReEncryptHsmLabel() throws HsmBaseException {
         return checkNullAndReturn(importReEncryptHsmLabel, "Asking for re-encrypt label but not configured");
+    }
+
+    public Integer getKeyLength() throws HsmBaseException {
+        return checkNullAndReturn(keyLength, "Asking for key length but not configured");
     }
 
     private <T extends Object> T checkNullAndReturn(T obj, String msg) throws HsmBaseException {
@@ -78,7 +82,5 @@ public class HsmLabelConfiguration {
         return obj;
     }
 
-    public Integer getImportDeviceKeyLength() {
-        return importDeviceKeyLength;
-    }
+
 }

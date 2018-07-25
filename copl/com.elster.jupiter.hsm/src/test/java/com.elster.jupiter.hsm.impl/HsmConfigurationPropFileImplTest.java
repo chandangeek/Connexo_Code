@@ -8,7 +8,7 @@ package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
-import com.elster.jupiter.hsm.model.keys.KeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
 import org.hamcrest.core.IsInstanceOf;
 
@@ -101,7 +101,7 @@ public class HsmConfigurationPropFileImplTest {
         String label = "IMP-SM-KEK";
         HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationPropFile.get(label);
         assertEquals("Pub_KEK_SM", hsmLabelConfiguration.getFileImportLabel());
-        assertEquals(KeyType.SM_KEK_AUTHENTIC, hsmLabelConfiguration.getImportKeyType());
+        assertEquals(SessionKeyCapability.SM_KEK_AUTHENTIC, hsmLabelConfiguration.getImportSessionKeyCapability());
         assertEquals("S_DB", hsmLabelConfiguration.getImportReEncryptHsmLabel());
     }
 }

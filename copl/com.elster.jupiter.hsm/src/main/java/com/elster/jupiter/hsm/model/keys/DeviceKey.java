@@ -10,7 +10,7 @@ import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
  */
 public abstract class DeviceKey {
 
-    private final KeyType keyType;
+    private final SessionKeyCapability sessionKeyCapability;
 
     private final SymmetricAlgorithm alg;
     private final int keyLength;
@@ -18,12 +18,12 @@ public abstract class DeviceKey {
     private final byte[] initVector;
 
 
-    public DeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws HsmBaseException {
+    public DeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, SessionKeyCapability sessionKeyCapability) throws HsmBaseException {
         this.alg = algorithm;
         this.keyLength = keyLength;
         this.encryptedKey = encryptedKey;
         this.initVector = initVector;
-        this.keyType = keyType;
+        this.sessionKeyCapability = sessionKeyCapability;
     }
 
 
@@ -35,8 +35,8 @@ public abstract class DeviceKey {
         return encryptedKey;
     }
 
-    public KeyType getKeyType() {
-        return keyType;
+    public SessionKeyCapability getSessionKeyCapability() {
+        return sessionKeyCapability;
     }
 
     public byte[] getInitVector() {

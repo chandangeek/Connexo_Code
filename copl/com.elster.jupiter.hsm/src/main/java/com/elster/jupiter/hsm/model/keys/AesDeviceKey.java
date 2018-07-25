@@ -6,8 +6,8 @@ import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.atos.worldline.jss.api.custom.energy.AESDeviceKey;
 
 public class AesDeviceKey extends DeviceKey {
-    public AesDeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, KeyType keyType) throws HsmBaseException {
-        super(algorithm, keyLength, encryptedKey, initVector, keyType);
+    public AesDeviceKey(SymmetricAlgorithm algorithm, int keyLength, byte[] encryptedKey, byte[] initVector, SessionKeyCapability sessionKeyCapability) throws HsmBaseException {
+        super(algorithm, keyLength, encryptedKey, initVector, sessionKeyCapability);
         if (!SymmetricAlgorithm.AES_256_CBC.equals(super.getEncryptionAlgorithm())) {
             throw new HsmBaseException("Trying to build a non AES encryption key using AES impl");
         }
