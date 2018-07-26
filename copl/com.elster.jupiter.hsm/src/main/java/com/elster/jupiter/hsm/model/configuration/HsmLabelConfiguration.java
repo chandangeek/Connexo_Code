@@ -48,26 +48,35 @@ public class HsmLabelConfiguration {
 
     }
 
-    private String initString(String s) {
-        if (s != null  && !s.isEmpty()) {
-            return s.trim();
-        }
-        return null;
-    }
-
+    /**
+     * @return label as present in import file
+     * @throws HsmBaseException if not configured
+     */
     public String getFileImportLabel() throws HsmBaseException {
         return checkNullAndReturn(label, "Asking for import label but not configured");
     }
 
+    /**
+     * @return session capability to be used during import phase
+     * @throws HsmBaseException if not configured
+     */
     public SessionKeyCapability getImportSessionKeyCapability() throws HsmBaseException {
         return checkNullAndReturn(this.importSessionKeyCapability, "Asking for missing import capability");
     }
 
+    /**
+     * @return session capability to be used during renew phase
+     * @throws HsmBaseException if not configured
+     */
     public SessionKeyCapability getRenewSessionKeyCapability() throws HsmBaseException {
         return checkNullAndReturn(renewSessionKeyCapability, "Asking for missing renew capability");
     }
 
-    public String getImportReEncryptHsmLabel() throws HsmBaseException {
+    /**
+     * @return label to be used for key storage/encryption
+     * @throws HsmBaseException if not configured
+     */
+    public String getImportLabel() throws HsmBaseException {
         return checkNullAndReturn(importReEncryptHsmLabel, "Asking for re-encrypt label but not configured");
     }
 
@@ -81,6 +90,14 @@ public class HsmLabelConfiguration {
         }
         return obj;
     }
+
+    private String initString(String s) {
+        if (s != null  && !s.isEmpty()) {
+            return s.trim();
+        }
+        return null;
+    }
+
 
 
 }

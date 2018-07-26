@@ -59,7 +59,7 @@ public class HsmLabelConfigurationTest {
         expectedException.expect(HsmBaseException.class);
         expectedException.expectMessage("Asking for re-encrypt label but not configured");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        hsmLabelConfiguration.getImportReEncryptHsmLabel();
+        hsmLabelConfiguration.getImportLabel();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class HsmLabelConfigurationTest {
         Assert.assertEquals(SessionKeyCapability.valueOf(importKeyType), hsmLabelConfiguration.getImportSessionKeyCapability());
         Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getKeyLength());
         Assert.assertEquals(SessionKeyCapability.valueOf(renewKeyType), hsmLabelConfiguration.getRenewSessionKeyCapability());
-        Assert.assertEquals(reEncryptLabel, hsmLabelConfiguration.getImportReEncryptHsmLabel());
+        Assert.assertEquals(reEncryptLabel, hsmLabelConfiguration.getImportLabel());
 
 
     }

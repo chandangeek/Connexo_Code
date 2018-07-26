@@ -3,11 +3,9 @@ package com.elster.jupiter.hsm.impl;
 import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
-import com.elster.jupiter.hsm.model.keys.DeviceKey;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
-import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
-import com.elster.jupiter.hsm.model.keys.TransportKey;
+import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
@@ -23,25 +21,23 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.elster.jupiter.HsmEnergyServiceImpl", service = {HsmEnergyService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService {
 
-    public static final int AES_KEY_LENGTH = 16;
+    private static final int AES_KEY_LENGTH = 16;
     private static final int AES256_KEY_LENGTH = 32;
+
+    static final String COMPONENTNAME = "HsmEnergyServiceImpl";
 
 
     private volatile HsmConfigurationService hsmConfigurationService;
 
-    /**
-     *
-     * @param tKey transport key to be used for import stage. This should be according to keylabel schema defined in HSM
-     * @param dKey device key as extracted from import file
-     * @param deviceKeyLabel key label to be used for re-encryption of the device key. This should be according to keylabel schema configured.
-     * @param keyType this should be configurable and known by the importer above (caller of this method)
-     */
 
-    static final String COMPONENTNAME = "HsmEnergyServiceImpl";
+
     @Override
-    public HsmEncryptedKey importKey(TransportKey tKey, DeviceKey dKey, String deviceKeyLabel, SessionKeyCapability sessionKeyCapability) throws HsmBaseException {
+    public HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
         try {
-            KeyImportResponse keyImportResponse = Energy.keyImport(tKey.toHsmFormat(), tKey.getAsymmetricAlgorithm().getHsmSpecs().getPaddingAlgorithm(), dKey.toHsmFormat(), new KeyLabel(deviceKeyLabel), sessionKeyCapability
+            HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
+            String encryptLabel = importKeyRequest.getImportLabel(hsmConfiguration);
+
+            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getTransportKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(hsmConfiguration), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability(hsmConfiguration)
                     .toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
@@ -62,8 +58,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
             ProtectedSessionKey psk = response.getMdmStorageKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
         } catch (Exception e) {
             throw new HsmBaseException(e);
         }
