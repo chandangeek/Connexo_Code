@@ -9,7 +9,6 @@ package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -48,7 +47,6 @@ public class SecureHSMDeviceShipmentImporterFactory implements FileImporterFacto
     private volatile DeviceService deviceService;
     private volatile Optional<ImporterExtension> importExtension = Optional.empty();
     private volatile HsmEnergyService hsmEnergyService;
-    private volatile HsmConfigurationService hsmConfigurationService;
 
 
     @Override
@@ -63,10 +61,8 @@ public class SecureHSMDeviceShipmentImporterFactory implements FileImporterFacto
                 .withDeviceService(deviceService)
                 .withImporterExtension(importExtension)
                 .withSecurityManagementService(securityManagementService)
-                .withHsmConfigurationService(hsmConfigurationService)
                 .withTrustStore(trustStore)
                 .withHsmEnergyService(hsmEnergyService)
-                .withHsmConfigurationService(hsmConfigurationService)
                 .build();
         return new  SecureHSMDeviceShipmentImporter(importerProperties);
     }
@@ -108,11 +104,6 @@ public class SecureHSMDeviceShipmentImporterFactory implements FileImporterFacto
     @Reference
     public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
-    }
-
-    @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = hsmConfigurationService;
     }
 
     @Override

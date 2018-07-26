@@ -7,7 +7,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -48,7 +47,6 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
     private volatile MessageService messageService;
     private volatile OrmService ormService;
     private volatile HsmEnergyService hsmEnergyService;
-    private volatile HsmConfigurationService hsmConfigurationService;
 
     public SecureHSMDeviceShipmentImporterMessageHandler() {
 
@@ -71,7 +69,6 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
                 bind(MessageService.class).toInstance(messageService);
                 bind(OrmService.class).toInstance(ormService);
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
-                bind(HsmConfigurationService.class).toInstance(hsmConfigurationService);
             }
         });
 
@@ -118,15 +115,6 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
 
     public void unsetHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = hsmConfigurationService;
-    }
-
-    public void unsetHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = null;
     }
 
 }
