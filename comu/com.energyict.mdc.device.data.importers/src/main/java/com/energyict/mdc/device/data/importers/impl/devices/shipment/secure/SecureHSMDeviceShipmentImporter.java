@@ -46,16 +46,16 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         /**
          * We need to keep 2 labels while the one from received file can be mapped to a different one in our HSM config
          */
-        String fileImportLabel = deviceKey.getWrapKeyLabel();
+        String wrapperkeyLabel = deviceKey.getWrapKeyLabel();
 
-        AsymmetricAlgorithm asymmetricAlgorithm = getAvailableAsymmetricAlgorithm(wrapKeyMap, fileImportLabel);
+        AsymmetricAlgorithm wrapperKeyAlgorithm = getAvailableAsymmetricAlgorithm(wrapKeyMap, wrapperkeyLabel);
         SymmetricAlgorithm symmetricAlgorithm = getAvailableSymmetricAlgorithm(deviceKey);
 
         ImportFileDeviceKey importFileDeviceKey = new ImportFileDeviceKey(deviceKey.getCipherData().getCipherValue());
         byte[] initVector = importFileDeviceKey.getInitializationVector();
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
-        ImportKeyRequest ikr = new ImportKeyRequest(fileImportLabel, asymmetricAlgorithm, wrapKeyMap.get(fileImportLabel).getSymmetricKey().getCipherData().getCipherValue(),symmetricAlgorithm.getKeySize(), symmetricAlgorithm, deviceKeyBytes, initVector);
+        ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector);
         HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
 
         String securityAccessorName = deviceKey.getName();
