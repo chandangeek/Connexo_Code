@@ -36,17 +36,10 @@ public class HsmLabelConfigurationTest {
         new HsmLabelConfiguration(value);
     }
 
-    @Test
-    public void testWrongImportKeyTypeConfiguration() throws HsmBaseException {
-        String value = "PUB_KEK, WRONG_KEY_TYPE,32, SM_KEK_AUTHENTIC, S_DB";
-        expectedException.expect(HsmBaseException.class);
-        expectedException.expectCause(IsInstanceOf.instanceOf(IllegalArgumentException.class));
-        new HsmLabelConfiguration(value);
-    }
 
     @Test
     public void testNoImportCapabilityConfiguration() throws HsmBaseException {
-        String value = "PUB_KEK, ,, SM_KEK_AUTHENTIC, S_DB";
+        String value = "PUB_KEK,S_DB,,32,SM_KEK_RENEWAL";
         expectedException.expect(HsmBaseException.class);
         expectedException.expectMessage("Asking for missing import capability");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
@@ -54,28 +47,29 @@ public class HsmLabelConfigurationTest {
     }
 
     @Test
-    public void testReEncryptLabelConfiguration() throws HsmBaseException {
-        String value = "PUB_KEK, SM_KEK_AUTHENTIC, 32, SM_KEK_AUTHENTIC,";
+    public void testWrongImportCapabilityConfiguration() throws HsmBaseException {
+        String value = "PUB_KEK,S_DB, WRONGSC,32,SM_KEK_RENEWAL";
         expectedException.expect(HsmBaseException.class);
-        expectedException.expectMessage("Asking for re-encrypt label but not configured");
+        expectedException.expectMessage("java.lang.IllegalArgumentException: No enum constant com.elster.jupiter.hsm.model.keys.SessionKeyCapability.WRONGSC");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        hsmLabelConfiguration.getImportLabel();
+        hsmLabelConfiguration.getImportSessionKeyCapability();
     }
+
 
     @Test
     public void testAllOkConfiguration() throws HsmBaseException {
-        String importLabel = "PUB_KEK";
-        String importKeyType = "SM_KEK_AUTHENTIC";
+        String fileLabel = "PUB_KEK";
+        String importSessionCapability = "SM_KEK_AUTHENTIC";
         String deviceKeyLegnth = "32";
-        String renewKeyType = "SM_KEK_AUTHENTIC";
-        String reEncryptLabel = "S-DB";
-        String value = importLabel + ", " + importKeyType + ", " + deviceKeyLegnth + ", " + renewKeyType + ", " + reEncryptLabel;
+        String renewSessionCapability = "SM_KEK_AUTHENTIC";
+        String importLabel = "S-DB";
+        String value = fileLabel + ", " + importLabel + ", " + importSessionCapability + ", " + deviceKeyLegnth + ", " + renewSessionCapability;
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        Assert.assertEquals(importLabel, hsmLabelConfiguration.getFileImportLabel());
-        Assert.assertEquals(SessionKeyCapability.valueOf(importKeyType), hsmLabelConfiguration.getImportSessionKeyCapability());
-        Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getKeyLength());
-        Assert.assertEquals(SessionKeyCapability.valueOf(renewKeyType), hsmLabelConfiguration.getRenewSessionKeyCapability());
-        Assert.assertEquals(reEncryptLabel, hsmLabelConfiguration.getImportLabel());
+        Assert.assertEquals(fileLabel, hsmLabelConfiguration.getFileImportLabel());
+        Assert.assertEquals(SessionKeyCapability.valueOf(importSessionCapability), hsmLabelConfiguration.getImportSessionKeyCapability());
+        Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getDeviceKeyLength());
+        Assert.assertEquals(SessionKeyCapability.valueOf(renewSessionCapability), hsmLabelConfiguration.getRenewSessionKeyCapability());
+        Assert.assertEquals(importLabel, hsmLabelConfiguration.getImportLabel());
 
 
     }

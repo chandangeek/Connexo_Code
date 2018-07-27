@@ -4,8 +4,6 @@ import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
-import sun.misc.BASE64Encoder;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -20,6 +18,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -75,8 +74,7 @@ public class EncryptImportSampleTest {
             InvalidKeySpecException {
         RSAEncryptionHelper rsaEncryptionHelper = new RSAEncryptionHelper();
         Message encrypt = rsaEncryptionHelper.encrypt(encryptionPassword, AsymmetricAlgorithm.RSA_15);
-        BASE64Encoder base64Encoder = new BASE64Encoder();
-        return base64Encoder.encode(encrypt.getBytes());
+        return Base64.getEncoder().encodeToString(encrypt.getBytes());
 
     }
 
@@ -111,8 +109,8 @@ public class EncryptImportSampleTest {
         System.arraycopy(iv, 0, allBytes, 0, iv.length);
         System.arraycopy(epb, 0, allBytes, iv.length, epb.length);
 
-        BASE64Encoder base64Encoder = new BASE64Encoder();
-        return base64Encoder.encode(allBytes);
+
+        return Base64.getEncoder().encodeToString(allBytes);
 
     }
 }

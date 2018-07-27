@@ -25,7 +25,6 @@ public class ImportKeyRequestIT {
     private static final String LABEL = "Pub_KEK_SM";
     private static final AsymmetricAlgorithm TRANSPORT_KEY_ALGORITHM = AsymmetricAlgorithm.RSA_15;;
     private static final byte[] TRANSPORT_KEY = new byte[]{1,2,3,4,5};
-    private static final int TRANSPORT_KEY_LENGTH = 32;;
     private static final SymmetricAlgorithm DEVICE_KEY_ENCRYPTION_ALGORHITM = SymmetricAlgorithm.AES_256_CBC;;
     private static final byte[] DEVICE_KEY = new byte[]{9,8,7,6,5};
     private static final byte[] DEVICE_KEY_INIT_VECTOR = new byte[]{5,4,3,2,1};;
@@ -36,7 +35,7 @@ public class ImportKeyRequestIT {
     @BeforeClass
     public static void setUp() throws Exception {
         HSM_CONFIG = new HsmConfigurationPropFileImpl(ImportKeyRequestIT.class.getClassLoader().getResource(CONFIG_FILE).getFile());
-        IKR = new ImportKeyRequest(LABEL, TRANSPORT_KEY_ALGORITHM, TRANSPORT_KEY, TRANSPORT_KEY_LENGTH, DEVICE_KEY_ENCRYPTION_ALGORHITM, DEVICE_KEY, DEVICE_KEY_INIT_VECTOR);
+        IKR = new ImportKeyRequest(LABEL, TRANSPORT_KEY_ALGORITHM, TRANSPORT_KEY,  DEVICE_KEY_ENCRYPTION_ALGORHITM, DEVICE_KEY, DEVICE_KEY_INIT_VECTOR);
     }
 
     @AfterClass

@@ -37,7 +37,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
             HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
             String encryptLabel = importKeyRequest.getImportLabel(hsmConfiguration);
 
-            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getTransportKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(hsmConfiguration), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability(hsmConfiguration)
+            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(hsmConfiguration), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability(hsmConfiguration)
                     .toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
@@ -65,7 +65,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService {
 
     private ProtectedSessionKeyType getSessionKeyType(String renewLabel) throws HsmBaseException {
 
-        Integer keyLength = hsmConfigurationService.getHsmConfiguration().get(renewLabel).getKeyLength();
+        Integer keyLength = hsmConfigurationService.getHsmConfiguration().get(renewLabel).getDeviceKeyLength();
         if (keyLength == AES_KEY_LENGTH) {
             return ProtectedSessionKeyType.AES;
         }

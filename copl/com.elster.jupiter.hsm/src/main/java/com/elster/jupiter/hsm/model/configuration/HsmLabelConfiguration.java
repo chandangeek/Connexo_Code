@@ -15,31 +15,32 @@ public class HsmLabelConfiguration {
 
     private final String label;
     private final SessionKeyCapability importSessionKeyCapability;
-    private final Integer keyLength;
+    private final Integer deviceKeyLength;
     private final SessionKeyCapability renewSessionKeyCapability;
-    private final String importReEncryptHsmLabel;
+    private final String importLabel;
 
-    public HsmLabelConfiguration(String label, SessionKeyCapability importSessionKeyCapability, int keyLength, SessionKeyCapability renewSessionKeyCapability, String importReEncryptHsmLabel) {
+    public HsmLabelConfiguration(String label, SessionKeyCapability importSessionKeyCapability, int deviceKeyLength, SessionKeyCapability renewSessionKeyCapability, String importLabel) {
         this.label = label;
         this.importSessionKeyCapability = importSessionKeyCapability;
-        this.keyLength = keyLength;
+        this.deviceKeyLength = deviceKeyLength;
         this.renewSessionKeyCapability = renewSessionKeyCapability;
-        this.importReEncryptHsmLabel = importReEncryptHsmLabel;
+        this.importLabel = importLabel;
     }
 
     public HsmLabelConfiguration(@Nonnull String value) throws HsmBaseException {
-        String[] split = value.split(",");
+        String[] split = value.split(",", -1);
 
         try {
             this.label = initString(split[0].trim());
-            String importKeyExtracted = split[1].trim();
-            this.importSessionKeyCapability = importKeyExtracted.isEmpty()? null: SessionKeyCapability.valueOf(importKeyExtracted);
-            String importKeyLength = split[2].trim();
-            this.keyLength = importKeyLength.isEmpty()? null: Integer.parseInt(importKeyLength);
-            String renewKeyExtracted = split[3].trim();
-            this.renewSessionKeyCapability = renewKeyExtracted.isEmpty()? null: SessionKeyCapability.valueOf(renewKeyExtracted);
-            String reEncryptImportLabel = split.length == 5? split[4].trim(): "";
-            this.importReEncryptHsmLabel = initString(reEncryptImportLabel);
+            String importLabel = split[1].trim();
+            this.importLabel = initString(importLabel);
+            String importSessionCapability = split[2].trim();
+            this.importSessionKeyCapability = importSessionCapability.isEmpty()? null: SessionKeyCapability.valueOf(importSessionCapability);
+            String deviceKeyLength = split[3].trim();
+            this.deviceKeyLength = deviceKeyLength.isEmpty()? null: Integer.parseInt(deviceKeyLength);
+            String renewSessionCapability = split.length == 5? split[4].trim(): "";
+            this.renewSessionKeyCapability = renewSessionCapability.isEmpty()? null: SessionKeyCapability.valueOf(renewSessionCapability);
+
         } catch (IllegalArgumentException e) {
             throw new HsmBaseException(e);
         } catch (IndexOutOfBoundsException e1) {
@@ -77,11 +78,11 @@ public class HsmLabelConfiguration {
      * @throws HsmBaseException if not configured
      */
     public String getImportLabel() throws HsmBaseException {
-        return checkNullAndReturn(importReEncryptHsmLabel, "Asking for re-encrypt label but not configured");
+        return checkNullAndReturn(importLabel, "Asking for re-encrypt label but not configured");
     }
 
-    public Integer getKeyLength() throws HsmBaseException {
-        return checkNullAndReturn(keyLength, "Asking for key length but not configured");
+    public Integer getDeviceKeyLength() throws HsmBaseException {
+        return checkNullAndReturn(deviceKeyLength, "Asking for key length but not configured");
     }
 
     private <T extends Object> T checkNullAndReturn(T obj, String msg) throws HsmBaseException {

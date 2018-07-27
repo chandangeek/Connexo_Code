@@ -16,35 +16,37 @@ import javax.annotation.Nonnull;
 
 public class ImportKeyRequest {
 
-    private final String fileLabel;
-    private final AsymmetricAlgorithm transportKeyAlgorithm;
-    private final byte[] transportKeyValue;
-    private final int transportKeyLength;
+    private final String wrapperKeyLabel;
+    private final AsymmetricAlgorithm wrapperKeyAlgorithm;
+    private final byte[] encryptedTransportKey;
 
     private final SymmetricAlgorithm deviceKeyAlgorhitm;
     private final byte[] deviceKeyValue;
     private final byte[] deviceKeyInitialVector;
 
-
-    public ImportKeyRequest(@Nonnull String fileLabel, @Nonnull AsymmetricAlgorithm transportKeyAlgorithm, @Nonnull byte[] transportKeyValue, @Nonnull int transportKeyLength, @Nonnull SymmetricAlgorithm deviceKeyAlgorhitm, @Nonnull byte[] deviceKeyValue, @Nonnull byte[] deviceKeyInitialVector) {
-        this.fileLabel = fileLabel;
-        this.transportKeyAlgorithm = transportKeyAlgorithm;
-        this.transportKeyValue = transportKeyValue;
-        this.transportKeyLength = transportKeyLength;
-        this.deviceKeyAlgorhitm = deviceKeyAlgorhitm;
+    /**
+     *
+     * @param wrapperKeyLabel as present in import file. This is extremely important while this class will try to map it to the real HSM label.
+     * @param wrapperKeyAlgorithm algorithm used to encrypt transport key.
+     * @param encryptedTransportKey encrypted transport key (symmetric one).
+     * @param transportKeyAlgorithm algorithm used to encode device key.
+     * @param deviceKeyValue device key encrypted using transportKeyAlgorithm and encryptedTransportKey
+     * @param deviceKeyInitialVector initial vector (first bytes or by convention).In file from the deviceKeyValue + deviceKeyInitialVector will form the cipher value.
+     */
+    public ImportKeyRequest(@Nonnull String wrapperKeyLabel, @Nonnull AsymmetricAlgorithm wrapperKeyAlgorithm, @Nonnull byte[] encryptedTransportKey, @Nonnull SymmetricAlgorithm transportKeyAlgorithm, @Nonnull byte[] deviceKeyValue, @Nonnull byte[] deviceKeyInitialVector) {
+        this.wrapperKeyLabel = wrapperKeyLabel;
+        this.wrapperKeyAlgorithm = wrapperKeyAlgorithm;
+        this.encryptedTransportKey = encryptedTransportKey;
+        this.deviceKeyAlgorhitm = transportKeyAlgorithm;
         this.deviceKeyValue = deviceKeyValue;
         this.deviceKeyInitialVector = deviceKeyInitialVector;
     }
 
 
-
-    public AsymmetricAlgorithm getTransportKeyAlgorithm() {
-        return transportKeyAlgorithm;
+    public AsymmetricAlgorithm getWrapperKeyAlgorithm() {
+        return wrapperKeyAlgorithm;
     }
 
-    public SymmetricAlgorithm getDeviceKeyAlgorhitm() {
-        return deviceKeyAlgorhitm;
-    }
 
     public String getImportLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
         return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportLabel();
@@ -52,7 +54,7 @@ public class ImportKeyRequest {
 
     public TransportKey getTransportKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {
         try {
-            return new TransportKey(new KeyLabel(mapToHsmLabel(hsmConfiguration)), deviceKeyAlgorhitm.getKeySize(), transportKeyValue);
+            return new TransportKey(new KeyLabel(mapToHsmLabel(hsmConfiguration)), deviceKeyAlgorhitm.getKeySize(), encryptedTransportKey);
         } catch (UnsupportedKEKEncryptionMethodException e) {
             throw new HsmBaseException(e);
         }
@@ -62,7 +64,7 @@ public class ImportKeyRequest {
         if (SymmetricAlgorithm.AES_256_CBC.equals(deviceKeyAlgorhitm)){
             String hsmLabel = mapToHsmLabel(hsmConfiguration);
             String importLabel = hsmConfiguration.get(hsmLabel).getImportLabel();
-            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmConfiguration.get(importLabel).getKeyLength(), deviceKeyValue);
+            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmConfiguration.get(importLabel).getDeviceKeyLength(), deviceKeyValue);
         }
         throw new HsmBaseException("Could not construct device key based on symmetric algorithm:" + deviceKeyAlgorhitm);
     }
@@ -72,6 +74,6 @@ public class ImportKeyRequest {
     }
 
     private String mapToHsmLabel(HsmConfiguration HsmConfiguration) {
-        return HsmConfiguration.map(fileLabel);
+        return HsmConfiguration.map(wrapperKeyLabel);
     }
 }
