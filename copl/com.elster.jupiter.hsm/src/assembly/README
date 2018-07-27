@@ -1,0 +1,2 @@
+# Current folder contains all resources needed by HSM bundle
+# Yet this are not shipped due to build system we have in place therefore these resources need to be copied to proper place (assembly)

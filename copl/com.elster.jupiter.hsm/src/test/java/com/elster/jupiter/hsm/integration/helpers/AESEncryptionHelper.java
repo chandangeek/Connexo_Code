@@ -20,14 +20,14 @@ import java.security.NoSuchAlgorithmException;
  */
 public class AESEncryptionHelper {
 
-    public Message encrypt(Message plainMsg, Message password, Message initVector, SymmetricAlgorithm alg) throws
+    public Message encrypt(Message plainMsg, Message encryptionKey, Message initVector, SymmetricAlgorithm alg) throws
             NoSuchPaddingException,
             NoSuchAlgorithmException,
             InvalidKeyException,
             IOException,
             InvalidAlgorithmParameterException {
         Cipher c = Cipher.getInstance(alg.getCipher());
-        SecretKeySpec keySpec = new SecretKeySpec(password.getBytes(), alg.getAlgorithm());
+        SecretKeySpec keySpec = new SecretKeySpec(encryptionKey.getBytes(), alg.getAlgorithm());
 
         IvParameterSpec iv = new IvParameterSpec(initVector.getBytes());
         c.init(Cipher.ENCRYPT_MODE, keySpec, iv);

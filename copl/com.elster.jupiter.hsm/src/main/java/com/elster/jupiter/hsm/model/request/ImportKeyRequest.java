@@ -73,7 +73,7 @@ public class ImportKeyRequest {
         return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportSessionKeyCapability();
     }
 
-    private String mapToHsmLabel(HsmConfiguration HsmConfiguration) {
-        return HsmConfiguration.map(wrapperKeyLabel);
+    private String mapToHsmLabel(HsmConfiguration hsmConfiguration) {
+        return hsmConfiguration.map(wrapperKeyLabel);
     }
 }

@@ -28,7 +28,6 @@ import org.junit.Test;
  * This is not a proper test. This class was created during integration test of HSM importer while nobody could provide a valid import file
  * and therefore we had to encrypt our own keys using this helper.
  */
-@Ignore
 public class EncryptImportSampleTest {
 
     public static final String ENCRYPT_OUT = "encrypt.out";
@@ -53,16 +52,16 @@ public class EncryptImportSampleTest {
             IllegalBlockSizeException,
             InvalidKeySpecException {
 
-        Message encryptionPassword = new Message("PasswordPasswordPasswordPassword");
+        Message deviceKeyEncryptionKey = new Message("PasswordPasswordPasswordPassword");
         Message initVector = new Message("0123456789ABCDEF");
-        Message devicePassword = new Message("DevicePasswor");
+        Message deviceKey = new Message("Password");
 
 
         // including IV and encrypted key
-        String fullDeviceKey = doDeviceKeys(devicePassword, initVector, encryptionPassword);
-        String wrappedKey = doWrapperKey(encryptionPassword);
+        String encryptedDeviceKey = doDeviceKeys(deviceKey, initVector, deviceKeyEncryptionKey);
+        String wrappedKey = doWrapperKey(deviceKeyEncryptionKey);
 
-        writeToFile(wrappedKey, fullDeviceKey);
+        writeToFile(wrappedKey, encryptedDeviceKey);
     }
 
     private String doWrapperKey(Message encryptionPassword) throws
@@ -78,14 +77,14 @@ public class EncryptImportSampleTest {
 
     }
 
-    private String doDeviceKeys(Message devicePassword, Message initVector,Message encryptionPassword ) throws
+    private String doDeviceKeys(Message message, Message initVector,Message encryptionKey ) throws
             IOException,
             InvalidKeyException,
             NoSuchAlgorithmException,
             NoSuchPaddingException,
             InvalidAlgorithmParameterException {
         AESEncryptionHelper aesEncryptionHelper = new AESEncryptionHelper();
-        Message encryptedPassword = aesEncryptionHelper.encrypt(devicePassword, encryptionPassword, initVector, SymmetricAlgorithm.AES_256_CBC);
+        Message encryptedPassword = aesEncryptionHelper.encrypt(message, encryptionKey, initVector, SymmetricAlgorithm.AES_256_CBC);
         String ivAndEncrypted = getFullDeviceKey(initVector, encryptedPassword);
 
         return ivAndEncrypted;

@@ -37,7 +37,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             RawConfiguration cfg = new HsmConfigLoader().load(f);
             JSSRuntimeControl.initialize();
             JSSRuntimeControl.newConfiguration(cfg);
-            waitInit();
             this.initialized = true;
         } catch (Throwable e) {
             System.out.println(e);
@@ -82,7 +81,9 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
                 this.hsmConfiguration = new HsmConfigurationPropFileImpl(configFile);
                 init(hsmConfiguration.getJssInitFile());
             } catch (HsmBaseException e) {
-                throw new RuntimeException(e);
+                // Doing nothing while other bundles might fail because this one was not properly initialized.
+                // As an example: HSM is down but we want other bundles to work even is HSM is not available for the time being, yet we need to activate it later by hand when HSM is back (like using gogo)
+                //throw new RuntimeException(e);
             }
         }
     }
