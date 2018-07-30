@@ -28,6 +28,7 @@ import org.junit.Test;
  * This is not a proper test. This class was created during integration test of HSM importer while nobody could provide a valid import file
  * and therefore we had to encrypt our own keys using this helper.
  */
+@Ignore
 public class EncryptImportSampleTest {
 
     public static final String ENCRYPT_OUT = "encrypt.out";
