@@ -58,7 +58,7 @@ public class ImportKeyRequestIT {
 
     @Test
     public void getDeviceKey() throws HsmBaseException {
-        DeviceKey dk = new AESDeviceKey(DEVICE_KEY_INIT_VECTOR, DEVICE_KEY_ENCRYPTION_ALGORHITM.getHsmSpecs().getKekEncryptionMethod(), 32, DEVICE_KEY);
+        DeviceKey dk = new AESDeviceKey(DEVICE_KEY_INIT_VECTOR, DEVICE_KEY_ENCRYPTION_ALGORHITM.getHsmSpecs().getKekEncryptionMethod(), 16, DEVICE_KEY);
         Assert.assertEquals(dk, IKR.getDeviceKey(HSM_CONFIG));
     }
 

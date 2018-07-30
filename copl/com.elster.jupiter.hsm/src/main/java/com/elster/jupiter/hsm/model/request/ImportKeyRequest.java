@@ -63,8 +63,7 @@ public class ImportKeyRequest {
     public DeviceKey getDeviceKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {
         if (SymmetricAlgorithm.AES_256_CBC.equals(deviceKeyAlgorhitm)){
             String hsmLabel = mapToHsmLabel(hsmConfiguration);
-            String importLabel = hsmConfiguration.get(hsmLabel).getImportLabel();
-            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmConfiguration.get(importLabel).getDeviceKeyLength(), deviceKeyValue);
+            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmConfiguration.get(hsmLabel).getDeviceKeyLength(), deviceKeyValue);
         }
         throw new HsmBaseException("Could not construct device key based on symmetric algorithm:" + deviceKeyAlgorhitm);
     }

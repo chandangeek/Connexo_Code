@@ -103,5 +103,6 @@ public class HsmConfigurationPropFileImplTest {
         assertEquals("Pub_KEK_SM", hsmLabelConfiguration.getFileImportLabel());
         assertEquals(SessionKeyCapability.SM_KEK_NONAUTHENTIC, hsmLabelConfiguration.getImportSessionKeyCapability());
         assertEquals("S-DB", hsmLabelConfiguration.getImportLabel());
+        assertEquals(new Integer(16), hsmLabelConfiguration.getDeviceKeyLength());
     }
 }
