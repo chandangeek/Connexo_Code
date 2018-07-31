@@ -29,7 +29,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + "MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE", "Mandatory communication attributes available"),
     MICRO_CHECK_NAME_AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "At least one active connection available"),
     MICRO_CHECK_NAME_ALL_DATA_VALIDATED(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALIDATED, "All data validated"),
-    MICRO_CHECK_NAME_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "Device still linked to operational usage point"),
+    MICRO_CHECK_NAME_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "This device is linked to an usage point and cannot be moved from its operational life cycle stage. A metrology configuration is active on the usage point at the moment of the life cycle transition."),
     MICRO_CHECK_NAME_NO_LINKED_MULTI_ELEMENT_SLAVES(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "No operational slave devices"),
     MICRO_CHECK_NAME_NO_ACTIVE_SERVICE_CALLS(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.NO_ACTIVE_SERVICE_CALLS, "No active service calls"),
     MICRO_CHECK_DESCRIPTION_DEFAULT_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "Check if a default connection is available on the device."),
@@ -44,7 +44,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "Check if at least one connection is available on the device with the status: \"Active\"."),
     MICRO_CHECK_DESCRIPTION_ALL_DATA_VALIDATED(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALIDATED, "Check if all the collected data is validated."),
     MICRO_CHECK_DESCRIPTION_NO_ACTIVE_SERVICE_CALLS(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.NO_ACTIVE_SERVICE_CALLS, "Check that no service calls are active for the device."),
-    MICRO_CHECK_DESCRIPTION_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "Check if the device is still linked to an operational usage point"),
+    MICRO_CHECK_DESCRIPTION_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "Check if the device is linked to a usage point that has an active metrology configuration"),
     MICRO_CHECK_DESCRIPTION_NO_LINKED_MULTI_ELEMENT_SLAVES(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "Check if there are no multi element slaves in an operational stage")
     ;
 
