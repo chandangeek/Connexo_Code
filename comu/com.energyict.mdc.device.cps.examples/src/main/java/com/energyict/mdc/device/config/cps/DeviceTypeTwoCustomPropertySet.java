@@ -57,7 +57,7 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
         this.thesaurus = nlsService.getThesaurus(CustomPropertySetsDemoInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
