@@ -188,7 +188,7 @@ Ext.define('Wss.view.PreviewForm', {
                     isReadOnly: true,
                     defaults: {
                         labelWidth: 250,
-                        width: 325,
+                        width: 600,
                         resetButtonHidden: true,
                         hasNotValueSameAsDefaultMessage: true
                     }
