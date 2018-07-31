@@ -12,6 +12,9 @@ Ext.define('Cps.customattributesets.store.AttributeTypes', {
 
     proxy: {
         type: 'rest',
+        pageParam: false, //to remove param "page"
+        startParam: false, //to remove param "start"
+        limitParam: false, //to remove param "limit"
         url: '/api/cps/custompropertysets/domains',
         reader: {
             type: 'json',
