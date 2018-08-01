@@ -249,6 +249,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                         dataVaultService.decrypt(keyStore.get().getPrivateKey()),
                         tokenExpTime, tokenRefreshMaxCount, timeout);
                 securityToken.setEventService(eventService);
+                securityToken.preventEventGeneration(whiteboardEventFactory == null);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
