@@ -157,7 +157,16 @@ public class HsmKeyTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Label cannot be null");
         Map<String, Object> props = new HashMap<>();
-        props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), "xxxx");
+        props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), "ABCD");
+        hsmKeyUnderTest.setProperties(props);
+    }
+
+    @Test
+    public void setPropertiesWithNonHexValue(){
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("contains illegal character for hexBinary: XXXX");
+        Map<String, Object> props = new HashMap<>();
+        props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), "XXXX");
         hsmKeyUnderTest.setProperties(props);
     }
 
@@ -167,8 +176,7 @@ public class HsmKeyTest {
         when(dataVaultService.encrypt(KEY)).thenReturn(encKey);
         when(dataVaultService.decrypt(encKey)).thenReturn(KEY);
         Map<String, Object> props = new HashMap<>();
-        String keyAsBytes = new String(KEY);
-        props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), keyAsBytes);
+        props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(KEY));
         String modifiedLabel = "modifiedLabel";
         props.put(HsmProperties.LABEL.getPropertyName(), modifiedLabel);
         hsmKeyUnderTest.setProperties(props);

@@ -26,8 +26,7 @@ class HsmPropertyValidator {
 
     public static HsmPropertyValidator build(Map<String, Object> properties) {
 
-        String propertyName = getPropertyName(properties, HsmProperties.DECRYPTED_KEY.getPropertyName());
-        String lkey = propertyName == null? null: DatatypeConverter.printHexBinary(propertyName.getBytes());
+        String lkey =  getPropertyName(properties, HsmProperties.DECRYPTED_KEY.getPropertyName());
         String llabel = getPropertyName(properties,HsmProperties.LABEL.getPropertyName());
 
         return new HsmPropertyValidator(lkey, llabel);
