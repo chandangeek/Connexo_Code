@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.HsmSymmetricKey;
+import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.SecurityManagementService;
 
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -22,7 +22,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        HsmSymmetricKey actualValue = (HsmSymmetricKey) getActualValue()
+        HsmKey actualValue = (HsmKey) getActualValue()
                 .orElseThrow(() -> new PkiLocalizedException(thesaurus, MessageSeeds.ACTUAL_VALUE_NOT_SET));
 
         if (tempSymmetricKeyWrapperReference.isPresent()) {
@@ -32,8 +32,8 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
         doRenewValue(actualValue);
     }
 
-    private void doRenewValue(HsmSymmetricKey actualValue) {
-        HsmSymmetricKey symmetricKeyWrapper = (HsmSymmetricKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
+    private void doRenewValue(HsmKey actualValue) {
+        HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
         symmetricKeyWrapper.generateValue(actualValue);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();
