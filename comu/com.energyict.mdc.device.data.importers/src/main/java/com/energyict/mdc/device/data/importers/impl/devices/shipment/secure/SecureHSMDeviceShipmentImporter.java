@@ -14,7 +14,7 @@ import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
-import com.elster.jupiter.pki.HsmSymmetricKey;
+import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.data.Device;
@@ -65,9 +65,9 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
             log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
         } else {
             SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-            HsmSymmetricKey hsmSymmetricKey = (HsmSymmetricKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-            hsmSymmetricKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
-            securityAccessor.setActualValue(hsmSymmetricKey);
+            HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+            hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+            securityAccessor.setActualValue(hsmKey);
             securityAccessor.save();
         }
     }
