@@ -1,6 +1,9 @@
 package com.elster.jupiter.hsm.model.request;
 
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class RenewKeyRequest {
 
     private final byte[] actualKey;
@@ -27,4 +30,25 @@ public class RenewKeyRequest {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RenewKeyRequest)) {
+            return false;
+        }
+        RenewKeyRequest that = (RenewKeyRequest) o;
+        return Arrays.equals(actualKey, that.actualKey) &&
+                Objects.equals(actualLabel, that.actualLabel) &&
+                Objects.equals(renewLabel, that.renewLabel);
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(actualLabel, renewLabel);
+        result = 31 * result + Arrays.hashCode(actualKey);
+        return result;
+    }
 }
