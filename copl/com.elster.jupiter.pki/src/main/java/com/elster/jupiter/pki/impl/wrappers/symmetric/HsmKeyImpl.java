@@ -10,7 +10,7 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.HsmSymmetricKey;
+import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
@@ -19,6 +19,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.DatatypeConverter;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
@@ -28,13 +30,14 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
+public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     private final DataVaultService dataVaultService;
     private final PropertySpecService propertySpecService;
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
+
 
     @Inject
     HsmKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
@@ -45,6 +48,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.hsmEnergyService = hsmEnergyService;
+
     }
 
     HsmKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label) {
@@ -62,8 +66,10 @@ public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
 
     @Override
     public void setKey(byte[] key, String label) {
-        if (key == null){
-            throw new IllegalArgumentException("Key cannot be null");
+        checkArgument(key, "Key cannot be null");
+        checkArgument(label, "Label cannot be null");
+        if (label.isEmpty()) {
+            throw new IllegalArgumentException("Empty string label not accepted");
         }
         super.setEncryptedKey(dataVaultService.encrypt(key));
         super.setLabel(label);
@@ -72,10 +78,6 @@ public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
 
     @Override
     public byte[] getKey() {
-        String key = super.getEncryptedKey();
-        if (key == null){
-            return new byte[0];
-        }
         return dataVaultService.decrypt(super.getEncryptedKey());
     }
 
@@ -85,37 +87,31 @@ public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
     }
 
     @Override
-    public void generateValue(HsmSymmetricKey actualSymmetricKey) {
+    public void generateValue(HsmKey currentKey) {
         try {
-            String actualLabel = actualSymmetricKey.getLabel();
-            byte[] actualKey = actualSymmetricKey.getKey();
+            String actualLabel = currentKey.getLabel();
+            byte[] actualKey = currentKey.getKey();
             byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, getLabel())).getEncryptedKey();
             this.setKey(hsmGeneratedKey, getLabel());
-            this.save();
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
         }
     }
 
-    private void calculateExpirationTime(TimeDuration timeDuration) {
-        super.setExpirationTime(ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant());
-    }
-
-
     @Override
-    // ToDO: Implement method when requirements are clear
     public void setProperties(Map<String, Object> properties) {
-        /*HsmPropertySetter propertySetter = new HsmPropertySetter(this);
-        EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyFromMap(properties, propertySetter));
-        Save.UPDATE.validate(super.getDataModel(), propertySetter);
-        this.setKey(propertySetter.getKey(), propertySetter.getLabel());*/
+        HsmPropertyValidator hsmPropertyValidator = HsmPropertyValidator.build(properties);
+        hsmPropertyValidator.validate(getDataModel());
+        this.setKey(hsmPropertyValidator.getKey(), hsmPropertyValidator.getLabel());
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        PropertySetter propertySetter = new HsmPropertySetter(this);
         Map<String, Object> properties = new HashMap<>();
-        EnumSet.allOf(HsmProperties.class).forEach(p -> p.copyToMap(properties, propertySetter));
+        if (getKey() != null){
+            properties.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getKey()));
+        }
+        properties.put(HsmProperties.LABEL.getPropertyName(), getLabel());
         return properties;
     }
 
@@ -127,5 +123,13 @@ public class HsmKeyImpl extends KeyImpl implements HsmSymmetricKey{
                 .collect(toList());
     }
 
+    private void calculateExpirationTime(TimeDuration timeDuration) {
+        super.setExpirationTime(ZonedDateTime.now(clock).plus(timeDuration.asTemporalAmount()).toInstant());
+    }
 
+    private void checkArgument(Object obj, String msg) {
+        if (obj == null) {
+            throw new IllegalArgumentException(msg);
+        }
+    }
 }

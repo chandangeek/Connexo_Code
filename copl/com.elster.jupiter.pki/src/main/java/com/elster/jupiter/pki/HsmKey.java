@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki;
 
-public interface HsmSymmetricKey extends SymmetricKeyWrapper{
+public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
      * Base64 encodes the key and stores it together with the label in the database
@@ -29,5 +29,5 @@ public interface HsmSymmetricKey extends SymmetricKeyWrapper{
      * HSM requires previous key values, in order to generate a new key
      * @param oldKey previous key
      */
-    void generateValue(HsmSymmetricKey oldKey);
+    void generateValue(HsmKey oldKey);
 }
