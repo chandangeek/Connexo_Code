@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -346,10 +347,16 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     @Override
     public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
         final EndPointFactory endPointFactory = webServices.get(webServiceName);
-        if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
-            InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
-            if (provider.get() instanceof EndPointProp) {
-                return ((EndPointProp) provider.get()).getPropertySpecs();
+        if (endPointFactory != null) {
+            EndPointProvider provider = endPointFactory.getEndPointProvider();
+            Object endPoint = null;
+            if (provider instanceof InboundSoapEndPointProvider) {
+                endPoint = ((InboundSoapEndPointProvider) provider).get();
+            } else if (provider instanceof OutboundSoapEndPointProvider) {
+                endPoint = ((OutboundSoapEndPointProvider) provider).get();
+            }
+            if (endPoint instanceof EndPointProp) {
+                return ((EndPointProp) endPoint).getPropertySpecs();
             }
         }
         return new ArrayList<>();
