@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -30,8 +31,8 @@ import java.util.List;
  */
 public class CryptoBeacon3100 extends Beacon3100 {
 
-    public CryptoBeacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor);
+    public CryptoBeacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, HsmProtocolService hsmProtocolService) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor, hsmProtocolService);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class CryptoBeacon3100 extends Beacon3100 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2018-05-08 16:50:42 +0300 (Tue, 08 May 2018) $";
+        return "$Date: 2018-08-02 14:50:00 +0300 (Thu, 02 Aug 2018) $";
     }
 
     @Override
@@ -54,7 +55,7 @@ public class CryptoBeacon3100 extends Beacon3100 {
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new CryptoBeaconMessaging(this, getCollectedDataFactory(), getIssueFactory(), getObjectMapperService(), getPropertySpecService(), getNlsService(), getConverter(), getExtractor(), getDeviceGroupExtractor(), getDeviceExtractor(), getCertificateWrapperExtractor(), getKeyAccessorTypeExtractor());
+            beacon3100Messaging = new CryptoBeaconMessaging(this, getCollectedDataFactory(), getIssueFactory(), getObjectMapperService(), getPropertySpecService(), getNlsService(), getConverter(), getExtractor(), getDeviceGroupExtractor(), getDeviceExtractor(), getCertificateWrapperExtractor(), getKeyAccessorTypeExtractor(), getHsmProtocolService());
         }
         return beacon3100Messaging;
     }

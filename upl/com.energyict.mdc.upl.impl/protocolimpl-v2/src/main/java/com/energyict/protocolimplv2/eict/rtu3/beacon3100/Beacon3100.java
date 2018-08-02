@@ -22,6 +22,7 @@ import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -104,12 +105,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private final DeviceExtractor deviceExtractor;
+    private final HsmProtocolService hsmProtocolService;
     protected Beacon3100Messaging beacon3100Messaging;
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, HsmProtocolService hsmProtocolService) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
@@ -119,6 +121,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.deviceExtractor = deviceExtractor;
+        this.hsmProtocolService = hsmProtocolService;
     }
 
     protected NlsService getNlsService() {
@@ -151,6 +154,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected DeviceExtractor getDeviceExtractor() {
         return deviceExtractor;
+    }
+
+    protected HsmProtocolService getHsmProtocolService() {
+        return hsmProtocolService;
     }
 
     @Override

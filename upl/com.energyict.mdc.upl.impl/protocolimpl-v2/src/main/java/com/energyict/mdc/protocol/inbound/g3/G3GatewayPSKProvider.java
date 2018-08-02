@@ -231,6 +231,10 @@ public class G3GatewayPSKProvider {
         }
     }
 
+    protected ConnectionType createNewTLSConnectionType(InboundDiscoveryContext context) {
+        return new TLSConnectionType(context.getPropertySpecService(), context.getCertificateWrapperExtractor());
+    }
+
     /**
      * Read out attribute 'joining_slaves' of object G3NetworkManagement. It is the list of slaves that are joining and need a PSK.
      * Find their PSK properties in EIServer and provide them to the Rtu+Server.

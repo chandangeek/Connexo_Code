@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.dlms.idis.am540.messaging;
 import com.energyict.common.CommonCryptoMessaging;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
@@ -18,9 +17,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,17 +41,6 @@ public class CryptoAM540Messaging extends AM540Messaging {
             this.messageExecutor = new CryptoAM540MessageExecutor(getProtocol(), getCollectedDataFactory(), getIssueFactory());
         }
         return messageExecutor;
-    }
-
-    @Override
-    protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
-        super.addSupportedDeviceMessages(supportedMessages);
-        supportedMessages.add(SecurityMessage.CHANGE_PSK_USING_SERVICE_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        return supportedMessages;
     }
 
     @Override

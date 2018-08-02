@@ -1,16 +1,20 @@
 package com.energyict.common.framework;
 
+import com.energyict.common.IrreversibleKeyImpl;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.AuthenticationTypes;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -79,23 +83,17 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 case MAN_SPECIFIC_LEVEL:
                     throw DeviceConfigurationException.unsupportedPropertyValueWithReason("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()), "Level 2 (manufacturer specific) is not supported in this protocol.");
                 case HLS3_MD5: {
-                    //TODO: use the available HSMEncryptionKey
-//                    IrreversibleKey hlsSecret = IrreversibleKey.fromByteArray(this.securityContext.getSecurityProvider().getHLSSecret());
-//                    return ProtocolService.INSTANCE.get().generateDigestMD5(challenge, hlsSecret);
-                    return null;
+                    IrreversibleKey hlsSecret = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getHLSSecret());
+                    return Services.hsmService().generateDigestMD5(challenge, hlsSecret);
                 }
                 case HLS4_SHA1: {
-                    //TODO: use the available HSMEncryptionKey
-//                    IrreversibleKey hlsSecret = IrreversibleKey.fromByteArray(this.securityContext.getSecurityProvider().getHLSSecret());
-//                    return ProtocolService.INSTANCE.get().generateDigestSHA1(challenge, hlsSecret);
-                    return null;
+                    IrreversibleKey hlsSecret = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getHLSSecret());
+                    return Services.hsmService().generateDigestSHA1(challenge, hlsSecret);
                 }
                 case HLS5_GMAC: {
-                    //TODO: use the available HSMEncryptionKey
-//                    IrreversibleKey ak = IrreversibleKey.fromByteArray(this.securityContext.getSecurityProvider().getAuthenticationKey());
-//                    IrreversibleKey ek = IrreversibleKey.fromByteArray(this.securityContext.getSecurityProvider().getGlobalKey());
-//                    return ProtocolService.INSTANCE.get().generateDigestGMAC(challenge, initialVector, ak, ek);
-                    return null;
+                    IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getAuthenticationKey());
+                    IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getGlobalKey());
+                    return Services.hsmService().generateDigestGMAC(challenge, initialVector, ak, ek);
                 }
                 case HLS6_SHA256: {
                     throw DeviceConfigurationException.unsupportedPropertyValueWithReason("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()), "Level 6 (SHA256) is not yet supported by the HSM.");
@@ -108,7 +106,7 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                     throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()));
                 }
             }
-        } catch (Exception e) {//TODO: catch HSMExceptions here
+        } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
     }

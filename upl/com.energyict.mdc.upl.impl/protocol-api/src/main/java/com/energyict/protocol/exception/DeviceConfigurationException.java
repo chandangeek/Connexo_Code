@@ -100,4 +100,8 @@ public final class DeviceConfigurationException extends com.energyict.protocol.e
     public static DeviceConfigurationException notAllowedToExecuteCommand(final String command, final IOException cause) {
         return new DeviceConfigurationException(cause, ProtocolExceptionMessageSeeds.NOT_ALLOWED_TO_EXECUTE_COMMAND, command, cause.getMessage());
     }
+
+    public static DeviceConfigurationException unexpectedHsmKeyFormat() {
+        return new DeviceConfigurationException(ProtocolExceptionMessageSeeds.UNEXPECTED_HSM_KEY_FORMAT);
+    }
 }

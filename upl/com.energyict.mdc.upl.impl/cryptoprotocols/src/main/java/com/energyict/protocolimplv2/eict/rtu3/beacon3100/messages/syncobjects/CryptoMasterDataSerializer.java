@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.common.IrreversibleKeyImpl;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -19,11 +22,11 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Pr
  */
 public class CryptoMasterDataSerializer extends MasterDataSerializer {
 
-//    private final SecurityPropertyValueParser securityPropertyValueParser;
+    private final HsmProtocolService hsmProtocolService;
 
-    public CryptoMasterDataSerializer(ObjectMapperService objectMapperService, PropertySpecService propertySpecService, DeviceMasterDataExtractor extractor, Beacon3100Properties beacon3100Properties, NlsService nlsService) {
+    public CryptoMasterDataSerializer(ObjectMapperService objectMapperService, PropertySpecService propertySpecService, DeviceMasterDataExtractor extractor, Beacon3100Properties beacon3100Properties, NlsService nlsService, HsmProtocolService hsmProtocolService) {
         super(objectMapperService, propertySpecService, extractor, beacon3100Properties, nlsService);
-//        securityPropertyValueParser = new SecurityPropertyValueParser();
+        this.hsmProtocolService = hsmProtocolService;
     }
 
     /**
@@ -40,39 +43,13 @@ public class CryptoMasterDataSerializer extends MasterDataSerializer {
     }
 
     /**
-     * Parse the given property value as a key. This value can be a plain key, a reversible key or an irreversible key.
-     * The result is either a plain key (16 bytes), or the bytes of an irreversible key to be used by the HSM.
-     */
-    @Override
-    public byte[] parseKey(Device device, String propertyName, String propertyValue) {
-        if (propertyValue == null) {
-            throw missingProperty(propertyName);
-        }
-//        return securityPropertyValueParser.parseSecurityPropertyValue(propertyName, propertyValue);
-        return null; //TODO: get the key from security accessor?
-    }
-
-    /**
-     * HLS secret is parsed in the exact same way as other keys.
-     * LLS is not used at EVN.
-     */
-    @Override
-    protected byte[] parseASCIIPassword(Device device, String propertyName, String propertyValue) {
-        return parseKey(device, propertyName, propertyValue);
-    }
-
-    /**
      * Use the HSM to wrap the key in the case of irreversible keys.
      * Otherwise, do the wrapping manually.
      */
     @Override
     public byte[] wrap(byte[] dlmsMeterKEK, byte[] keyToEncrypt) {
-//        try {
-//            //If the keys are not reversible, use the HSM to calculate the wrapped keys.
-//            return ProtocolService.INSTANCE.get().wrapMeterKeyForConcentrator(IrreversibleKey.fromByteArray(keyToEncrypt), IrreversibleKey.fromByteArray(dlmsMeterKEK));
-//        } catch (HsmException e) {
-//            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
-//        }
-        return null;
+        IrreversibleKey irreversibleDlmsMeterKEK = IrreversibleKeyImpl.fromByteArray(dlmsMeterKEK);
+        IrreversibleKey irreversibleKeyToEncrypt = IrreversibleKeyImpl.fromByteArray(keyToEncrypt);
+        return hsmProtocolService.wrapMeterKeyForConcentrator(irreversibleKeyToEncrypt, irreversibleDlmsMeterKEK);
     }
 }

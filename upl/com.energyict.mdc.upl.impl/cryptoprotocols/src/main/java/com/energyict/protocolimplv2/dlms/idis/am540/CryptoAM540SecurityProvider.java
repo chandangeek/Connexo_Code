@@ -11,26 +11,8 @@ import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvi
  */
 public class CryptoAM540SecurityProvider extends IDISSecurityProvider {
 
-
-//    private SecurityPropertyValueParser securityPropertyValueParser = new SecurityPropertyValueParser();
-
     public CryptoAM540SecurityProvider(TypedProperties properties, int authenticationLevel, short errorHandling) {
         super(properties, authenticationLevel, errorHandling);
-        initializeKeys();
     }
 
-    private void initializeKeys() {
-        //TODO: get the keys directly from security accsesors?
-//        setAuthenticationKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
-//        setEncryptionKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
-//        setHlsSecret(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.PASSWORD.toString()));
-    }
-
-//    private byte[] parseSecurityPropertyValue(String securityPropertyName) {
-//        return securityPropertyValueParser.parseSecurityPropertyValue(securityPropertyName, properties.getTypedProperty(securityPropertyName, ""));
-//    }
-
-//    public void setUsingServiceKeys(boolean usingServiceKeys) {
-//        this.usingServiceKeys = usingServiceKeys;
-//    }
 }

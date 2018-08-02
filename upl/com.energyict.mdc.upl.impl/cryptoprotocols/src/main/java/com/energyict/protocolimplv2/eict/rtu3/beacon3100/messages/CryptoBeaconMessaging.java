@@ -6,6 +6,7 @@ import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -45,13 +46,15 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
 
     private final CommonCryptoMessageExecutor executor;
     private final CryptoMasterDataSerializer cryptoMasterDataSerializer;
+    private final HsmProtocolService hsmProtocolService;
     private CommonCryptoMessaging commonCryptoMessaging;
     private CryptoMasterDataSync masterDataSync;
 
-    public CryptoBeaconMessaging(CryptoBeacon3100 beacon3100, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public CryptoBeaconMessaging(CryptoBeacon3100 beacon3100, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, HsmProtocolService hsmProtocolService) {
         super(beacon3100, collectedDataFactory, issueFactory, objectMapperService, propertySpecService, nlsService, converter, deviceMasterDataExtractor, deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor);
+        this.hsmProtocolService = hsmProtocolService;
         this.executor = new CommonCryptoMessageExecutor(beacon3100, collectedDataFactory, issueFactory);
-        this.cryptoMasterDataSerializer = new CryptoMasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, beacon3100.getDlmsSessionProperties(), nlsService);
+        this.cryptoMasterDataSerializer = new CryptoMasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, beacon3100.getDlmsSessionProperties(), nlsService, hsmProtocolService);
         commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter);
     }
 
@@ -202,7 +205,7 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
     @Override
     protected MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new CryptoMasterDataSync(this, getObjectMapperService(), getIssueFactory(), getPropertySpecService(), getDeviceMasterDataExtractor(), getNlsService());
+            masterDataSync = new CryptoMasterDataSync(this, getObjectMapperService(), getIssueFactory(), getPropertySpecService(), getDeviceMasterDataExtractor(), getNlsService(), hsmProtocolService);
         }
         return masterDataSync;
     }

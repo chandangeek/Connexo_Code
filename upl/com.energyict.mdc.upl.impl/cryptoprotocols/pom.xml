@@ -24,10 +24,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>protocol-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>hsm</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>

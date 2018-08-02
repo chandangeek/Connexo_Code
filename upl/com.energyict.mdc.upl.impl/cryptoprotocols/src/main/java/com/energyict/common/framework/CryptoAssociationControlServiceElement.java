@@ -1,11 +1,17 @@
 package com.energyict.common.framework;
 
-import com.atos.worldline.jss.api.custom.energy.SecurityControl;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.energyict.common.IrreversibleKeyImpl;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Arrays;
@@ -31,61 +37,45 @@ public class CryptoAssociationControlServiceElement extends AssociationControlSe
 
     @Override
     protected byte[] encryptAndAuthenticateUserInformation(byte[] userInformation) {
-//        IrreversibleKey ek = IrreversibleKey.fromByteArray(getSecurityContext().getSecurityProvider().getGlobalKey());
-//        IrreversibleKey ak = IrreversibleKey.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-//        DataAndAuthenticationTag dataAndAuthenticationTag;
-//        try {
-//            dataAndAuthenticationTag = ProtocolService.INSTANCE.get().authenticateEncryptApdu(userInformation, getInitialVector(), ak, ek);
-//        } catch (HsmException e) {
-//            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
-//        }
-//
-//        byte[] part = ProtocolTools.concatByteArrays(generateSecurityHeader(), dataAndAuthenticationTag.getData(), dataAndAuthenticationTag.getAuthenticationTag());
-//        userInformation = new byte[part.length + 2];
-//        userInformation[0] = DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_REQUEST_TAG;     //Add tag and length
-//        userInformation[1] = (byte) part.length;
-//        System.arraycopy(part, 0, userInformation, 2, part.length);
-//        return userInformation;
-        //TODO: use the available HSMEncryptionKey
-        return null;
+        IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getGlobalKey());
+        IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+        DataAndAuthenticationTag dataAndAuthenticationTag;
+        try {
+            dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApdu(userInformation, getInitialVector(), ak, ek);
+        } catch (HsmException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+
+        byte[] part = ProtocolTools.concatByteArrays(generateSecurityHeader(), dataAndAuthenticationTag.getData(), dataAndAuthenticationTag.getAuthenticationTag());
+        userInformation = new byte[part.length + 2];
+        userInformation[0] = DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_REQUEST_TAG;     //Add tag and length
+        userInformation[1] = (byte) part.length;
+        System.arraycopy(part, 0, userInformation, 2, part.length);
+        return userInformation;
     }
 
     @Override
     protected byte[] decrypt(byte[] authenticationTag, byte[] cipheredText, byte[] frameCounter, byte securityControl) throws ConnectionException {
-        if (getSecurityControl(securityControl) == null) {
+        if (!isSecurityAplied(securityControl)) {
             return cipheredText;  //No encryption, no authentication
         }
 
-        byte[] irreversibleKey = new byte[1];//TODO: retreive it from security accessor
-        String keyLabel = "";//TODO: retreive it from security accessor
-        HsmEncryptedKey hsmEncryptedKey = new HsmEncryptedKey(irreversibleKey, keyLabel);
-//        IrreversibleKey ek = IrreversibleKey.fromByteArray(getSecurityContext().getSecurityProvider().getGlobalKey());
-//        IrreversibleKey ak = IrreversibleKey.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-//        try {
-//            return ProtocolService.INSTANCE.get().verifyAuthenticationDecryptApdu(cipheredText, authenticationTag, getInitialVector(getRespondingAPTtitle(), frameCounter), ak, ek);
-//        } catch (HsmException e) {
-//            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
-//        }
-        //TODO: use the available HSMEncryptionKey
-        return null;
+        IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getGlobalKey());
+        IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+        try {
+            return Services.hsmService().verifyAuthenticationDecryptApdu(cipheredText, authenticationTag, getInitialVector(getRespondingAPTtitle(), frameCounter), ak, ek);
+        } catch (HsmException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
     }
 
     /**
      * Bit 4 indicates authentication, bit 5 indicates encryption is applied
      */
-    private SecurityControl getSecurityControl(byte securityControl) {
+    private boolean isSecurityAplied(byte securityControl) {
         boolean auth = ((securityControl & 0x10) == 0x10);
         boolean encr = ((securityControl & 0x20) == 0x20);
-
-        if (auth && encr) {
-            return SecurityControl.AUTHENTICATE_AND_ENCRYPT;
-        } else if (auth) {
-            return SecurityControl.AUTHENTICATE;
-        } else if (encr) {
-            return SecurityControl.ENCRYPT;
-        } else {
-            return null;
-        }
+        return auth || encr;
     }
 
     private byte[] generateSecurityHeader() {

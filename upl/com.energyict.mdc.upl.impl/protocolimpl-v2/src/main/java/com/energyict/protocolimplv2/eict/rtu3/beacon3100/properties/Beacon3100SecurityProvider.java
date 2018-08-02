@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.CertificateWrapper;
-
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -19,11 +18,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
@@ -149,6 +144,16 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
             clientPrivateSigningKey = parsePrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
         }
         return clientPrivateSigningKey;
+    }
+
+    @Override
+    public String getClientPrivateSigningKeyLabel() {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        if (certificateWrapper == null) {
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        } else {
+            return certificateWrapperExtractor.getAlias(certificateWrapper);
+        }
     }
 
     @Override

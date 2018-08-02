@@ -30,7 +30,7 @@ import java.util.List;
 public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     private final boolean provideProtocolJavaClasName;
-    private InboundDiscoveryContext context;
+    protected InboundDiscoveryContext context;
 
     public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, boolean provideProtocolJavaClasName) {
         super(deviceIdentifier);
@@ -39,7 +39,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
         this.context = context;
-        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getKeyAccessorTypeExtractor(), context.getDeviceExtractor());
+        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getKeyAccessorTypeExtractor(), context.getDeviceExtractor(), context.getHsmProtocolService());
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
@@ -82,7 +82,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
         return this.wrap(com.energyict.mdc.upl.TypedProperties.copyOf(properties), pskBytes);
     }
 
-    private OctetString wrap(com.energyict.mdc.upl.TypedProperties properties, byte[] pskBytes) {
+    protected OctetString wrap(com.energyict.mdc.upl.TypedProperties properties, byte[] pskBytes) {
         final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
 
         if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {
