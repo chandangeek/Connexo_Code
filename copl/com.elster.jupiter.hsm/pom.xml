@@ -107,6 +107,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+            <version>3.0.0${revision}</version>
+        </dependency>
 
         <!-- JSS libs -->
         <dependency>
