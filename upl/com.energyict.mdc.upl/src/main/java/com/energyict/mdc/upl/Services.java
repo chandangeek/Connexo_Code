@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.*;
@@ -48,7 +49,7 @@ public class Services {
     private static AtomicReference<RegisterIdentifier.Finder> REGISTER_FINDER = new AtomicReference<>();
     private static AtomicReference<MessageIdentifier.Finder> DEVICE_MESSAGE_FINDER = new AtomicReference<>();
     private static AtomicReference<KeyAccessorTypeExtractor> KEY_ACCESSOR_TYPE_EXTRACTOR = new AtomicReference<>();
-//    private static AtomicReference<HsmService> HSM_SERVICE = new AtomicReference<>();
+    private static AtomicReference<HsmProtocolService> HSM_SERVICE = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -95,6 +96,8 @@ public class Services {
             return registerExtractor();
         } else if (KeyAccessorTypeExtractor.class.equals(serviceType)) {
             return keyAccessorTypeExtractor();
+        } else if (HsmProtocolService.class.equals(serviceType)) {
+            return hsmService();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -316,9 +319,13 @@ public class Services {
         KEY_ACCESSOR_TYPE_EXTRACTOR.set(extractor);
     }
 
-//    public static void setHsmService(HsmProtocolServiceImpl hsmService) {
-//        HSM_SERVICE.set(hsmService);
-//    }
+    public static HsmProtocolService hsmService() {
+        return HSM_SERVICE.get();
+    }
+
+    public static void setHsmService(HsmProtocolService hsmEnergyService) {
+        HSM_SERVICE.set(hsmEnergyService);
+    }
 
     /**
      * Models the exceptional situation that occurs

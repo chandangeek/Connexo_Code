@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -89,6 +90,8 @@ public interface InboundDiscoveryContext {
     CertificateWrapperExtractor getCertificateWrapperExtractor();
 
     KeyAccessorTypeExtractor getKeyAccessorTypeExtractor();
+
+    HsmProtocolService getHsmProtocolService();
 
     /**
      * Gets the {@link TypedProperties} of the {@link ConnectionType}
