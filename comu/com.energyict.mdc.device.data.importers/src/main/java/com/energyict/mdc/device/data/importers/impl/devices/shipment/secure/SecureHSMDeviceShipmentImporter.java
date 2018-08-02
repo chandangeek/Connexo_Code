@@ -43,9 +43,6 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
 
     @Override
     protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException {
-        /**
-         * We need to keep 2 labels while the one from received file can be mapped to a different one in our HSM config
-         */
         String wrapperkeyLabel = deviceKey.getWrapKeyLabel();
 
         AsymmetricAlgorithm wrapperKeyAlgorithm = getAvailableAsymmetricAlgorithm(wrapKeyMap, wrapperkeyLabel);
