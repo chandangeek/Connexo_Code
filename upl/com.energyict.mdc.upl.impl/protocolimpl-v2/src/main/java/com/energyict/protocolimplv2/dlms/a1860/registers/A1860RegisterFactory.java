@@ -167,14 +167,14 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
             collectedRegister
                     .setFailureInformation(ResultType.InCompatible,
                             issueFactory.createWarning(register.getObisCode(),
-                                    "registerXissue",
+                                    register.getObisCode().toString() + ": " + errorMessage[0].toString(),
                                     register.getObisCode(),
                                     errorMessage[0]));
         } else {
             collectedRegister
                     .setFailureInformation(ResultType.NotSupported,
                             issueFactory.createWarning(register.getObisCode(),
-                                    "registerXnotsupported",
+                                    register.getObisCode().toString() + ": " + errorMessage[0].toString(),
                                     register.getObisCode()));
         }
         return collectedRegister;
