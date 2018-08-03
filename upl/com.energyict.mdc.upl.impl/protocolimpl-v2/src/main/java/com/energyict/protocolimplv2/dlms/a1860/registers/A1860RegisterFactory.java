@@ -174,7 +174,7 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
             collectedRegister
                     .setFailureInformation(ResultType.NotSupported,
                             issueFactory.createWarning(register.getObisCode(),
-                                    register.getObisCode().toString() + ": " + errorMessage[0].toString(),
+                                    register.getObisCode().toString() + ": Not Supported",
                                     register.getObisCode()));
         }
         return collectedRegister;
