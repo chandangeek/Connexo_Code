@@ -52,9 +52,13 @@ Ext.define('Isu.controller.IssueDetail', {
         if (issueType === 'datacollection') {
             widgetXtype = 'data-collection-issue-detail';
             issueModel = 'Idc.model.Issue';
-        } else if (issueType === 'datavalidation') {
+        } else if (issueType === 'datavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC') {
             widgetXtype = 'data-validation-issue-detail';
             issueModel = 'Idv.model.Issue';
+            /* } else if (issueType === 'usagepointdatavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'INS') {
+             widgetXtype = 'data-validation-issue-detail';
+             issueModel = 'Imt.datavalidation.model.Issue';
+             */
         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;

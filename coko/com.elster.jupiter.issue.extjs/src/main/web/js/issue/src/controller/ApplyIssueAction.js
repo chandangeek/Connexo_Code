@@ -228,7 +228,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 }
                 else {
                     var detail = Ext.ComponentQuery.query('issue-detail-top')[0] ||
-                        Ext.ComponentQuery.query('alarm-detail-top')[0];
+                        Ext.ComponentQuery.query('alarm-detail-top')[0] ||
+                        Ext.ComponentQuery.query('usagepoint-issue-detail-top')[0];
                     if (detail) {
                         var router = me.getController('Uni.controller.history.Router'),
                             issueType = router.queryParams.issueType,
@@ -238,6 +239,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                             issueModel = me.getModel('Idc.model.Issue');
                         } else if (issueType == 'datavalidation') {
                             issueModel = me.getModel('Idv.model.Issue');
+                        } else if (issueType == 'usagepointdatavalidation') {
+                            issueModel = me.getModel('Imt.datavalidation.model.Issue');
                         }
                         else {
                             issueModel = me.issueModel;
@@ -251,6 +254,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                                 } else if (issueType == 'datavalidation') {
                                     Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
+                                } else if (issueType == 'usagepointdatavalidation') {
+                                    Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
+                                    Ext.ComponentQuery.query('#usagepoint-issue-detail-action-menu')[0].record = issue;
                                 }
                                 else {
                                     Ext.ComponentQuery.query('#alarm-detail-form')[0].loadRecord(issue);
