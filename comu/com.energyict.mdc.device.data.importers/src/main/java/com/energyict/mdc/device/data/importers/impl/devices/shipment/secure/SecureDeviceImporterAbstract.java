@@ -315,7 +315,7 @@ public abstract class SecureDeviceImporterAbstract {
     private DeviceConfiguration findDefaultDeviceConfig(DeviceType deviceType) {
         DeviceConfiguration defaultDeviceConfiguration = deviceType.getConfigurations()
                 .stream()
-                .filter(dc -> dc.getName().equals("Default"))
+                .filter(dc -> dc.isDefault())
                 .findAny()
                 .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_DEFAULT_DEVICE_CONFIG_FOUND));
         if (!defaultDeviceConfiguration.isActive()) {
