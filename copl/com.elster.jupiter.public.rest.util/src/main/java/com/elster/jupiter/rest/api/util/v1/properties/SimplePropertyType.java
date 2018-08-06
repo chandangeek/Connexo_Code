@@ -30,6 +30,7 @@ public enum SimplePropertyType implements PropertyType {
     SELECTIONGRID(ListValueFactory.class),
     LISTVALUE(ListValueFactory.class),
     DEVICECONFIGURATIONLIST(ListValueFactory.class),
+    METROLOGYCONFIGURATIONLIST(ListValueFactory.class),
     QUANTITY(Quantity.class),
     LISTREADINGQUALITY(ListReadingQualityFactory.class),
     ASSIGN(String.class),
