@@ -22,6 +22,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -46,7 +47,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
-import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.Register;
@@ -82,6 +82,8 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -171,19 +173,19 @@ public class ResourceHelper {
     }
 
     public Device findDeviceByNameOrThrowException(String deviceName) {
-        return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
+        return deviceService.findDeviceByName(decodeInput(deviceName)).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
     }
 
     public Optional<Device> findDeviceByName(String deviceName) {
-        return deviceService.findDeviceByName(deviceName);
+        return deviceService.findDeviceByName(decodeInput(deviceName));
     }
 
     public Long getCurrentDeviceVersion(String deviceName) {
-        return deviceService.findDeviceByName(deviceName).map(Device::getVersion).orElse(null);
+        return deviceService.findDeviceByName(decodeInput(deviceName)).map(Device::getVersion).orElse(null);
     }
 
     public Optional<Device> getLockedDevice(String deviceName, long version) {
-        return deviceService.findAndLockDeviceByNameAndVersion(deviceName, version);
+        return deviceService.findAndLockDeviceByNameAndVersion(decodeInput(deviceName), version);
     }
 
     public Device lockDeviceOrThrowException(DeviceVersionInfo info) {
@@ -1286,5 +1288,14 @@ public class ResourceHelper {
 
     private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(DevicesForConfigChangeSearch devicesForConfigChangeSearch) {
         return searchableProperty -> new SearchablePropertyValue(searchableProperty, devicesForConfigChangeSearch.searchItems.get(searchableProperty.getName()));
+    }
+
+    private String decodeInput(String input) {
+        try {
+            input = URLDecoder.decode(input,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnderlyingIOException(e);
+        }
+        return input;
     }
 }
