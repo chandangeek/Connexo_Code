@@ -323,11 +323,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
 
-/*
-    //Evn crypto protocols
-    EVN_CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
-    EVN_CRYPTO_BEACON3100(284, "com.evn.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
-*/
+    //Evn, Salzburg crypto protocols
+//    CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+    CRYPTO_BEACON3100(284, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
 
     T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
     MK10_V2(286, "com.energyict.protocolimplv2.edmi.mk10.MK10", FamilyRule.EDMI),
