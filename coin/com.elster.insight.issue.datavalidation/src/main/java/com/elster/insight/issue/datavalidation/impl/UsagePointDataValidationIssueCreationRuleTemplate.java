@@ -21,7 +21,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
@@ -109,6 +109,32 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
                 "end\n";
     }
 
+    @Override
+    public IssueType getIssueType() {
+        return issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get();
+    }
+
+    @Override
+    public UsagePointOpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+        return usagePointIssueDataValidationService.createIssue(baseIssue, issueEvent);
+    }
+
+    @Override
+    public Optional<? extends Issue> resolveIssue(IssueEvent event) {
+        Optional<? extends Issue> issue = event.findExistingIssue();
+        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
+            UsagePointOpenIssueDataValidation issueDataValidation = (UsagePointOpenIssueDataValidation) issue.get();
+            event.apply(issueDataValidation);
+            if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
+                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+            } else {
+                issueDataValidation.update();
+                return Optional.of(issueDataValidation);
+            }
+        }
+        return issue;
+    }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
@@ -147,7 +173,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 propertySpecService
-                        .specForValuesOf(new DeviceConfigurationInfoValueFactory())
+                        .specForValuesOf(new MetrologyConfigurationInfoValueFactory())
                         .named(METROLOGY_CONFIGS, TranslationKeys.METROLOGY_CONFIGURATIONS_PROPERTY)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
@@ -158,33 +184,56 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
         return builder.build();
     }
 
-    @Override
-    public IssueType getIssueType() {
-        return issueService.findIssueType(UsagePointIssueDataValidationService.ISSUE_TYPE_NAME).get();
-    }
+    @XmlRootElement
+    static class MetrologyConfigurationInfo extends HasIdAndName {
 
-    @Override
-    public UsagePointOpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
-        return usagePointIssueDataValidationService.createIssue(baseIssue, issueEvent);
-    }
+        private transient MetrologyConfiguration metrologyConfiguration;
 
-    @Override
-    public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        Optional<? extends Issue> issue = event.findExistingIssue();
-        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
-            UsagePointOpenIssueDataValidation issueDataValidation = (UsagePointOpenIssueDataValidation) issue.get();
-            event.apply(issueDataValidation);
-            if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
-                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
-            } else {
-                issueDataValidation.update();
-                return Optional.of(issueDataValidation);
-            }
+        MetrologyConfigurationInfo(MetrologyConfiguration metrologyConfiguration) {
+            this.metrologyConfiguration = metrologyConfiguration;
         }
-        return issue;
+
+        @Override
+        public Long getId() {
+            return metrologyConfiguration.getId();
+        }
+
+        @Override
+        public String getName() {
+            return metrologyConfiguration.getName();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            MetrologyConfigurationInfo that = (MetrologyConfigurationInfo) o;
+
+            return metrologyConfiguration.getId() == that.metrologyConfiguration.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(metrologyConfiguration.getId());
+            return result;
+        }
+
+        public boolean isActive() {
+            return metrologyConfiguration.isActive();
+        }
     }
 
-    private class DeviceConfigurationInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceConfigurationPropertyFactory {
+    private class MetrologyConfigurationInfoValueFactory implements ValueFactory<HasIdAndName>, MetrologyConfigurationPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return metrologyConfigurationService
@@ -231,55 +280,6 @@ public class UsagePointDataValidationIssueCreationRuleTemplate implements Creati
             } else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-    }
-
-    @XmlRootElement
-    static class MetrologyConfigurationInfo extends HasIdAndName {
-
-        private transient MetrologyConfiguration metrologyConfiguration;
-
-        MetrologyConfigurationInfo(MetrologyConfiguration metrologyConfiguration) {
-            this.metrologyConfiguration = metrologyConfiguration;
-        }
-
-        @Override
-        public Long getId() {
-            return metrologyConfiguration.getId();
-        }
-
-        @Override
-        public String getName() {
-            return metrologyConfiguration.getName();
-        }
-
-        public boolean isActive() {
-            return metrologyConfiguration.isActive();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            if (!super.equals(o)) {
-                return false;
-            }
-
-            MetrologyConfigurationInfo that = (MetrologyConfigurationInfo) o;
-
-            return metrologyConfiguration.getId() == that.metrologyConfiguration.getId();
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(metrologyConfiguration.getId());
-            return result;
         }
     }
 }
