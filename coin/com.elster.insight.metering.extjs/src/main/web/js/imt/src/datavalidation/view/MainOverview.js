@@ -12,7 +12,7 @@ Ext.define('Imt.datavalidation.view.MainOverview', {
 
     side: [
         {
-            title: Uni.I18n.translate('general.overview', 'IMT', 'overview'),
+            title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
             xtype: 'menu',
             itemId: 'sideMenu'
         }
