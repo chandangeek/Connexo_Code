@@ -18,7 +18,7 @@ Ext.define('Uni.property.view.property.metrologyconfigurations.AddMetrologyConfi
     allDescription: Uni.I18n.translate('metrologyconfigurations.selectAllMetrologyConfigurations', 'UNI', 'Select all metrology configurations'),
 
     selectedLabel: Uni.I18n.translate('metrologyconfigurations.selectedMetrologyConfigurations', 'UNI', 'Selected metrology configurations'),
-    selectedDescription: Uni.I18n.translate('metrologyconfigurations.selectedMetrologyConfigurations', 'UNI', 'Select metrology configurations in table'),
+    selectedDescription: Uni.I18n.translate('metrologyconfigurations.selectedMetrologyConfigurationsTable', 'UNI', 'Select metrology configurations in table'),
 
     columns: [
         {
