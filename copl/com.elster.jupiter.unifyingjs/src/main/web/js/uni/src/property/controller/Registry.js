@@ -63,7 +63,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.NoneOrBigDecimal',
         'Uni.property.view.property.ReadingType',
         'Uni.property.view.property.NoneOrTimeDuration',
-        'Uni.property.view.property.UsagePoint'
+        'Uni.property.view.property.UsagePoint',
+        'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations'
     ],
 
     /**
@@ -80,6 +81,7 @@ Ext.define('Uni.property.controller.Registry', {
         COMBOBOX: 'Uni.property.view.property.Combobox',
         DATE: 'Uni.property.view.property.Date',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        METROLOGYCONFIGURATIONLIST: 'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         DURATION: 'Uni.property.view.property.Period',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
