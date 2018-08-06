@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
+import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 
@@ -35,6 +36,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceConfigurationPropertyFactory) {
             return SimplePropertyType.DEVICECONFIGURATIONLIST;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof MetrologyConfigurationPropertyFactory) {
+            return SimplePropertyType.METROLOGYCONFIGURATIONLIST;
         }
         if (propertySpec.getValueFactory() instanceof ListReadingQualityFactory) {
             return SimplePropertyType.LISTREADINGQUALITY;

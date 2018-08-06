@@ -72,25 +72,19 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     }
 
     @Override
-    public void addPropertyValueInfoConverter(PropertyValueConverter converter, String propertyName) {
-        dedicatedConverters.put(propertyName, converter);
+    public void addPropertyValueInfoConverter(PropertyValueConverter converter) {
+        this.converters.add(converter);
     }
 
     @Override
-    public void addPropertyValueInfoConverter(PropertyValueConverter converter) {
-        this.converters.add(converter);
+    public void addPropertyValueInfoConverter(PropertyValueConverter converter, String propertyName) {
+        dedicatedConverters.put(propertyName, converter);
     }
 
     @Override
     public void removePropertyValueInfoConverter(PropertyValueConverter converter) {
         this.dedicatedConverters.keySet().forEach(propertyName -> this.cleanupDedicatedConverters(propertyName, converter));
         this.converters.remove(converter);
-    }
-
-    private void cleanupDedicatedConverters(String propertyName, PropertyValueConverter converter) {
-        if (this.dedicatedConverters.get(propertyName).equals(converter)) {
-            this.dedicatedConverters.remove(propertyName);
-        }
     }
 
     @Override
@@ -167,10 +161,15 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         return result;
     }
 
-
     @Override
     public PropertyValueInfoService getEmptyPropertyValueInfoService() {
         return new PropertyValueInfoServiceImpl();
+    }
+
+    private void cleanupDedicatedConverters(String propertyName, PropertyValueConverter converter) {
+        if (this.dedicatedConverters.get(propertyName).equals(converter)) {
+            this.dedicatedConverters.remove(propertyName);
+        }
     }
 
     private PropertyValueInfo getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyProvider) {
@@ -211,6 +210,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         }
         if (possibleValues.getAllValues().size() <= 1
                 && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST
+                && propertyType != SimplePropertyType.METROLOGYCONFIGURATIONLIST
                 && propertyType != SimplePropertyType.QUANTITY
                 && propertyType != SimplePropertyType.SELECTIONGRID
                 && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPE
@@ -228,7 +228,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         PropertyValueConverter converter = getConverter(propertySpec);
         if (converter != null) {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
+                if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST || propertyType == SimplePropertyType.METROLOGYCONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE ||
                         propertyType == SimplePropertyType.RADIO_GROUP) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
