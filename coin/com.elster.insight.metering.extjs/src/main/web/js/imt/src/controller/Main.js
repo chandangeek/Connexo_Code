@@ -95,7 +95,8 @@ Ext.define('Imt.controller.Main', {
         'Isu.controller.StartProcess',
         'Isu.controller.Overview',
         'Isu.controller.BulkChangeIssues',
-        'Isu.controller.SetPriority'
+        'Isu.controller.SetPriority',
+        'Imt.datavalidation.controller.Main'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',

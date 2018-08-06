@@ -888,7 +888,7 @@ Ext.define('Imt.controller.History', {
                         view: {
                             title: Uni.I18n.translate('general.issueDetails', 'IMT', 'Issue details'),
                             route: '{issueId}',
-                            controller: 'Isu.controller.IssueDetail',
+                            controller: 'Imt.datavalidation.controller.Detail',
                             action: 'showOverview',
                             privileges: Isu.privileges.Issue.viewAdminDevice,
                             callback: function (route) {
@@ -902,7 +902,7 @@ Ext.define('Imt.controller.History', {
                                 action: {
                                     title: Uni.I18n.translate('general.action', 'IMT', 'Action'),
                                     route: 'action/{actionId}',
-                                    controller: 'Isu.controller.ApplyIssueAction',
+                                    controller: 'Imt.datavalidation.controller.ApplyAction',
                                     privileges: Isu.privileges.Issue.viewAdminDevice,
                                     callback: function (route) {
                                         this.getApplication().on('issueActionLoad', function (record) {
@@ -915,7 +915,7 @@ Ext.define('Imt.controller.History', {
                                 setpriority: {
                                     title: Uni.I18n.translate('issue.setpriority', 'IMT', 'Set priority'),
                                     route: 'setpriority',
-                                    controller: 'Isu.controller.SetPriority',
+                                    controller: 'Imt.datavalidation.controller.SetPriority',
                                     action: 'setPriority',
                                     privileges: Isu.privileges.Issue.viewAdminDevice
                                 }
