@@ -1,6 +1,8 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.export.impl
-Export-Package: com.elster.jupiter.export, com.elster.jupiter.export.security
+Export-Package: com.elster.jupiter.export,\
+    com.elster.jupiter.export.security,\
+    com.elster.jupiter.export.webservicecall
 Import-Package: javax.mail,\
-	*
+    *

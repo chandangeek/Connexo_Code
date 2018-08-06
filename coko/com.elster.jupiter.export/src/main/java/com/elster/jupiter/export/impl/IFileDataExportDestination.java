@@ -4,12 +4,5 @@
 
 package com.elster.jupiter.export.impl;
 
-public interface Destination {
-    enum Type {
-        FILE,
-        DATA,
-        COMPOSITE
-    }
-
-    Type getType();
+interface IFileDataExportDestination extends IDataExportDestination, FormattedFileDestination {
 }

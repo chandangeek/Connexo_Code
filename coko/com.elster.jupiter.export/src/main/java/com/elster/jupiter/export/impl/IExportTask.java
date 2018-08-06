@@ -28,9 +28,9 @@ interface IExportTask extends ExportTask, HasAuditInfo {
 
     void setStandardDataSelectorConfig(DataSelectorConfig dataSelectorConfig);
 
-    Destination getCompositeDestination();
+    CompositeDataExportDestination getCompositeDestination();
 
-    Destination getCompositeDestination(Instant at);
+    CompositeDataExportDestination getCompositeDestination(Instant at);
 
     boolean hasDefaultSelector();
 

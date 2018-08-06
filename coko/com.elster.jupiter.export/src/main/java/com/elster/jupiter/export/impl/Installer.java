@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -54,13 +55,16 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private final MessageService messageService;
     private final TimeService timeService;
     private final UserService userService;
+    private final DataExportServiceCallTypeImpl dataExportServiceCallType;
 
     @Inject
-    Installer(DataModel dataModel, MessageService messageService, TimeService timeService, UserService userService) {
+    Installer(DataModel dataModel, MessageService messageService, TimeService timeService, UserService userService,
+              DataExportServiceCallTypeImpl dataExportServiceCallType) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
         this.userService = userService;
+        this.dataExportServiceCallType = dataExportServiceCallType;
     }
 
     @Override
@@ -82,7 +86,11 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         userService.addModulePrivileges(this);
-
+        doTry(
+                "Create service call type",
+                dataExportServiceCallType::findOrCreate,
+                logger
+        );
     }
 
     @Override

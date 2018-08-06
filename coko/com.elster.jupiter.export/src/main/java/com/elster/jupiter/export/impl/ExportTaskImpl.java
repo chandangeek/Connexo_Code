@@ -477,7 +477,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
-        FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
+        LocalFileDestinationImpl fileDestination = dataModel.getInstance(LocalFileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
         Save.CREATE.validate(dataModel, fileDestination);
         destinations.add(fileDestination);
         doSave();
@@ -550,17 +550,17 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Destination getCompositeDestination() {
+    public CompositeDataExportDestination getCompositeDestination() {
         return new CompositeDataExportDestination(destinations);
     }
 
     @Override
-    public Destination getCompositeDestination(Instant at) {
+    public CompositeDataExportDestination getCompositeDestination(Instant at) {
         List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
-        List<IDataExportDestination> historyDestination = props.stream()
+        List<IDataExportDestination> destinationsAtTimestamp = props.stream()
                 .map(JournalEntry::get)
                 .collect(Collectors.toList());
-        return new CompositeDataExportDestination(historyDestination);
+        return new CompositeDataExportDestination(destinationsAtTimestamp);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

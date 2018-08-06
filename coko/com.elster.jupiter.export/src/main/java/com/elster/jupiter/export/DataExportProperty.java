@@ -7,6 +7,9 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface DataExportProperty extends HasName {
 
     ExportTask getTask();

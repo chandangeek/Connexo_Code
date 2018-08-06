@@ -52,7 +52,17 @@ public enum MessageSeeds implements MessageSeed {
     DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE),
     SOME_USAGEPOINTS_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1036, "dataexport.usagepoint.mismatch", "Some usage points of usage point group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
     VETO_USAGEPOINTGROUP_DELETION(1037, "usagePointGroupXstillInUseByTask", "Usage point group {0} is still in use by an export task"),
-    USAGE_POINT_MISSING_WINDOW(1038, "dataexport.usagepoint.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for usage point {2}", Level.INFO),;
+    USAGE_POINT_MISSING_WINDOW(1038, "dataexport.usagepoint.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for usage point {2}", Level.INFO),
+
+    NO_WEBSERVICE_FOUND(1039, "webservice.export.not.found", "No data export web service is found for endpoint ''{0}''."),
+    NO_CPS_FOUND(1040, "service.call.cps.not.found", "No active custom attribute set is found with id ''{0}''."),
+    NO_CPS_VALUES_FOUND(1041, "service.call.cps.values.not.found", "No properties are kept for web service call {0}."),
+    WEB_SERVICE_EXPORT_FAILURE(1042, "webservice.export.failure", "Failure while exporting data via web service: {0}"),
+    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed: {0}"),
+    WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
+    WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of web service call {0}: {1}."),
+    WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
+    WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided.");
 
     private final int number;
     private final String key;

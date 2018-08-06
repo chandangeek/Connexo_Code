@@ -7,9 +7,12 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 import java.util.Map;
 
+@ConsumerType
 public interface DataFormatterFactory extends HasDynamicProperties, HasName {
 
     DataFormatter createDataFormatter(Map<String, Object> properties);

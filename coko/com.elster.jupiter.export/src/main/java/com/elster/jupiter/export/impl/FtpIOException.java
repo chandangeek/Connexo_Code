@@ -15,6 +15,6 @@ import java.io.IOException;
 public class FtpIOException extends LocalizedException {
 
     public FtpIOException(Thesaurus thesaurus, String server, int port, IOException cause) {
-        super(thesaurus, MessageSeeds.FILE_IO, cause, server, port);
+        super(thesaurus, MessageSeeds.FTP_IO, cause, server, port);
     }
 }

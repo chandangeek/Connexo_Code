@@ -6,6 +6,8 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -14,13 +16,19 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
 import com.elster.jupiter.export.security.Privileges;
+import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -38,6 +46,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -119,19 +129,29 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile ValidationService validationService;
     private volatile DataVaultService dataVaultService;
     private volatile UpgradeService upgradeService;
-
     private volatile FtpClientService ftpClientService;
+    private volatile QueryService queryService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
-    private QueryService queryService;
+    private Map<String, DataExportWebService<? extends ExportData>> exportWebServices = new ConcurrentHashMap<>();
+    private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
 
     public DataExportServiceImpl() {
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService, FtpClientService ftpClientService, UpgradeService upgradeService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService,
+                                 MeteringGroupsService meteringGroupsService, MessageService messageService,
+                                 NlsService nlsService, MeteringService meteringService, QueryService queryService,
+                                 Clock clock, UserService userService, AppService appService, TransactionService transactionService,
+                                 PropertySpecService propertySpecService, MailService mailService, BundleContext context,
+                                 FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService,
+                                 FtpClientService ftpClientService, UpgradeService upgradeService, ServiceCallService serviceCallService,
+                                 CustomPropertySetService customPropertySetService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -151,6 +171,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
         setDataVaultService(dataVaultService);
         setFtpClientService(ftpClientService);
         setUpgradeService(upgradeService);
+        setServiceCallService(serviceCallService);
+        setCustomPropertySetService(customPropertySetService);
         activate(context);
     }
 
@@ -273,10 +295,27 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
         dataFormatterFactories.put(dataFormatterFactory, dataTypes);
     }
 
+    public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
+        dataFormatterFactories.remove(dataFormatterFactory);
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addSelector(DataSelectorFactory dataSelectorFactory, Map<String, Object> map) {
         String dataType = (String) map.get(DATA_TYPE_PROPERTY);
         dataSelectorFactories.put(dataSelectorFactory, dataType);
+    }
+
+    public void removeSelector(DataSelectorFactory selectorFactory) {
+        dataSelectorFactories.remove(selectorFactory);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addExportWebService(DataExportWebService<? extends ExportData> webService) {
+        exportWebServices.put(webService.getName(), webService);
+    }
+
+    public void removeExportWebService(DataExportWebService<? extends ExportData> webService) {
+        exportWebServices.remove(webService.getName());
     }
 
     @Reference
@@ -304,16 +343,20 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
         this.ftpClientService = ftpClientService;
     }
 
-    public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
-        dataFormatterFactories.remove(dataFormatterFactory);
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
-    public void removeSelector(DataSelectorFactory selectorFactory) {
-        dataSelectorFactories.remove(selectorFactory);
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Activate
     public final void activate(BundleContext context) {
+        serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService);
+        customPropertySetService.addCustomPropertySet(serviceCallCPS);
         try {
             dataModel.register(new AbstractModule() {
                 @Override
@@ -337,6 +380,9 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     bind(FtpClientService.class).toInstance(ftpClientService);
                     bind(TimeService.class).toInstance(timeService);
                     bind(MessageService.class).toInstance(messageService);
+                    bind(ServiceCallService.class).toInstance(serviceCallService);
+                    bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                    bind(DataModel.class).toInstance(dataModel);
                 }
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
@@ -355,7 +401,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 3), UpgraderV10_3.class,
-                            version(10, 4), V10_4SimpleUpgrader.class
+                            V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
+                            UpgraderV10_6.VERSION, UpgraderV10_6.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -365,6 +412,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Deactivate
     public final void deactivate() {
+        customPropertySetService.removeCustomPropertySet(serviceCallCPS);
     }
 
     @Reference
@@ -528,6 +576,26 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
+    public Optional<DataExportWebService<? extends ExportData>> getExportWebService(String name) {
+        return Optional.ofNullable(exportWebServices.get(name));
+    }
+
+    @Override
+    public List<DataExportWebService<? extends ExportData>> getExportWebServices() {
+        return new ArrayList<>(exportWebServices.values());
+    }
+
+    @Override
+    public CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> getServiceCallCPS() {
+        return serviceCallCPS;
+    }
+
+    @Override
+    public DataExportServiceCallType getDataExportServiceCallType() {
+        return dataModel.getInstance(DataExportServiceCallTypeImpl.class);
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENTNAME;
     }
@@ -546,7 +614,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
                 Stream.of(Privileges.values()),
-                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey, aggregatedDataSelectorKey))
+                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey, aggregatedDataSelectorKey),
+                Arrays.stream(com.elster.jupiter.export.impl.webservicecall.TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

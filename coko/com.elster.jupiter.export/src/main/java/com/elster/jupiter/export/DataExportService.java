@@ -5,6 +5,7 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
@@ -74,4 +75,5 @@ public interface DataExportService {
 
     StructureMarker forRoot(String root);
 
+    DataExportServiceCallType getDataExportServiceCallType();
 }

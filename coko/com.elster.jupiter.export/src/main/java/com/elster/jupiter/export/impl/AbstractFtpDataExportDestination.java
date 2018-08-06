@@ -6,7 +6,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDataExportDestination;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.ftpclient.FtpClientService;
@@ -17,7 +16,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +23,7 @@ import java.time.Clock;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination {
+public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination, FormattedFileDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";
 
@@ -114,7 +112,8 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     }
 
     @Inject
-    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
+    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService,
+                                     FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.dataVaultService = dataVaultService;
         this.ftpClientService = ftpClientService;

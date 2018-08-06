@@ -13,8 +13,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class DestinationFailedException extends LocalizedException {
 
-    public DestinationFailedException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause, Object... argse) {
-        super(thesaurus, messageSeed, cause, argse);
+    public DestinationFailedException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause, Object... args) {
+        super(thesaurus, messageSeed, cause, args);
+    }
+
+    public DestinationFailedException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+        super(thesaurus, messageSeed, args);
     }
 
 }

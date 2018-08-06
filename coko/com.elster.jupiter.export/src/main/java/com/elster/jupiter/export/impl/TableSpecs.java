@@ -18,6 +18,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
@@ -250,13 +252,30 @@ enum TableSpecs {
 
             table.addAuditColumns();
 
+            Column createEndPointColumn = table.column("CREATEWSENDPOINT").number().since(Version.version(10, 6)).add();
+            Column changeEndPointColumn = table.column("CHANGEWSENDPOINT").number().since(Version.version(10, 6)).add();
+            table.column("TIMEOUT").varChar(Table.NAME_LENGTH).map("timeout").since(Version.version(10, 6)).add();
+
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
             table.foreignKey("DES_DEST_TASK")
                     .on(taskColumn)
-                    .references(DES_DATAEXPORTTASK.toString())
+                    .references(DES_DATAEXPORTTASK.name())
                     .map("task")
                     .reverseMap("destinations")
                     .composition()
+                    .add();
+            // TODO: handle EndPointConfiguration removal case
+            table.foreignKey("DES_FK_DEST_CREATE_WSEP")
+                    .on(createEndPointColumn)
+                    .references(EndPointConfiguration.class)
+                    .map("createEndPoint")
+                    .since(Version.version(10, 6))
+                    .add();
+            table.foreignKey("DES_FK_DEST_CHANGE_WSEP")
+                    .on(changeEndPointColumn)
+                    .references(EndPointConfiguration.class)
+                    .map("changeEndPoint")
+                    .since(Version.version(10, 6))
                     .add();
         }
     },

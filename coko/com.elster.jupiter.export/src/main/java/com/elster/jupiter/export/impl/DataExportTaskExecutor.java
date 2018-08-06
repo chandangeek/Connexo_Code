@@ -129,8 +129,6 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
-        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
-
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
@@ -138,17 +136,27 @@ class DataExportTaskExecutor implements TaskExecutor {
         ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
 
         catchingUnexpected(() -> {
-            FormattedData formattedData;
-            if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
-                formattedData = doProcessFromDefaultReadingSelector(occurrence, data, itemExporter);
-            } else {
-                formattedData = dataFormatter.processData(data);
-            }
-            Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
-            occurrence.getRetryTime()
+            Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
+            CompositeDataExportDestination destination = occurrence.getRetryTime()
                     .map(task::getCompositeDestination)
-                    .orElse(task.getCompositeDestination())
-                    .send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
+                    .orElseGet(task::getCompositeDestination);
+            List<ExportData> dataList;
+            Map<StructureMarker, Path> files;
+            if (destination.hasDataDestinations()) {
+                dataList = data.collect(Collectors.toList());
+                data = dataList.stream();
+            } else {
+                dataList = Collections.emptyList();
+            }
+            if (destination.hasFileDestinations()) {
+                FormattedData formattedData = task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent() ?
+                        doProcessFromDefaultReadingSelector(occurrence, data, itemExporter) :
+                        dataFormatter.processData(data);
+                files = localFileWriter.writeToTempFiles(formattedData.getData());
+            } else {
+                files = Collections.emptyMap();
+            }
+            destination.send(dataList, files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
         }).run();
 
         itemExporter.done();
