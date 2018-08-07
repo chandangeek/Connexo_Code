@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.TimeService;
 
 import javax.ws.rs.core.Application;
@@ -43,6 +44,8 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected PropertyValueInfoService propertyValueInfoService;
     @Mock
     protected Clock clock;
+    @Mock
+    protected EndPointConfigurationService endPointConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -59,6 +62,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setAppService(appService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setClock(clock);
+        application.setEndPointConfigurationService(endPointConfigurationService);
         return application;
     }
 }

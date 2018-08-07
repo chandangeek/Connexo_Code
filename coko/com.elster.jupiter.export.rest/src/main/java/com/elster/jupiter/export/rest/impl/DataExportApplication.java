@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -53,11 +54,11 @@ public class DataExportApplication extends Application implements MessageSeedPro
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile AppService appService;
     private volatile Clock clock;
-
-    private NlsService nlsService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile TimeService timeService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -127,6 +128,11 @@ public class DataExportApplication extends Application implements MessageSeedPro
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -152,6 +158,10 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(DataExportTaskHistoryInfoFactory.class).to(DataExportTaskHistoryInfoFactory.class);
                 bind(StandardDataSelectorInfoFactory.class).to(StandardDataSelectorInfoFactory.class);
                 bind(clock).to(Clock.class);
+                bind(endPointConfigurationService).to(EndPointConfigurationService.class);
+                Arrays.stream(DestinationType.values())
+                        .map(DestinationType::getFactoryClass)
+                        .forEach(factoryClass -> bind(factoryClass).to(factoryClass));
             }
         });
         return Collections.unmodifiableSet(hashSet);

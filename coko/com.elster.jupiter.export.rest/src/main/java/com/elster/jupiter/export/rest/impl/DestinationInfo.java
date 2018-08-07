@@ -4,8 +4,9 @@
 
 package com.elster.jupiter.export.rest.impl;
 
-public class DestinationInfo {
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+public class DestinationInfo {
     public DestinationType type;
 
     public long id;
@@ -20,10 +21,13 @@ public class DestinationInfo {
     public String recipients;
     public String subject;
 
-    //ftp(s)
+    // (s)ftp(s)
     public String server;
     public String user;
     public String password;
     public int port;
 
+    // web service
+    public IdWithNameInfo createEndPoint;
+    public IdWithNameInfo changeEndPoint;
 }

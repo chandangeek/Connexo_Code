@@ -7,36 +7,43 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.ExportTask;
 
+import org.glassfish.hk2.api.ServiceLocator;
+
 public enum DestinationType implements DestinationInfoFactory {
-    FILE(new FileDestinationInfoFactory()),
-    EMAIL(new EmailDestinationInfoFactory()),
-    FTP(new FtpDestinationInfoFactory()),
-    FTPS(new FtpsDestinationInfoFactory()),
-    SFTP(new SftpDestinationInfoFactory());
+    FILE(FileDestinationInfoFactory.class),
+    EMAIL(EmailDestinationInfoFactory.class),
+    FTP(FtpDestinationInfoFactory.class),
+    FTPS(FtpsDestinationInfoFactory.class),
+    SFTP(SftpDestinationInfoFactory.class),
+    WEBSERVICE(WebServiceDestinationInfoFactory.class);
 
-    private final DestinationInfoFactory factory;
+    private final Class<? extends DestinationInfoFactory> factoryClass;
 
-    DestinationType(DestinationInfoFactory factory) {
-        this.factory = factory;
+    DestinationType(Class<? extends DestinationInfoFactory> factoryClass) {
+        this.factoryClass = factoryClass;
     }
 
     @Override
-    public void create(ExportTask task, DestinationInfo info) {
-        factory.create(task, info);
+    public void create(ServiceLocator serviceLocator, ExportTask task, DestinationInfo info) {
+        serviceLocator.getService(factoryClass).create(serviceLocator, task, info);
     }
 
     @Override
-    public DestinationInfo toInfo(DataExportDestination destination) {
-        return factory.toInfo(destination);
+    public DestinationInfo toInfo(ServiceLocator serviceLocator, DataExportDestination destination) {
+        return serviceLocator.getService(factoryClass).toInfo(serviceLocator, destination);
     }
 
     @Override
-    public Class<? extends DataExportDestination> getDestinationClass() {
-        return factory.getDestinationClass();
+    public Class<? extends DataExportDestination> getDestinationClass(ServiceLocator serviceLocator) {
+        return serviceLocator.getService(factoryClass).getDestinationClass(serviceLocator);
     }
 
     @Override
-    public void update(DataExportDestination destination, DestinationInfo info) {
-        factory.update(destination, info);
+    public void update(ServiceLocator serviceLocator, DataExportDestination destination, DestinationInfo info) {
+        serviceLocator.getService(factoryClass).update(serviceLocator, destination, info);
+    }
+
+    public Class<? extends DestinationInfoFactory> getFactoryClass() {
+        return factoryClass;
     }
 }

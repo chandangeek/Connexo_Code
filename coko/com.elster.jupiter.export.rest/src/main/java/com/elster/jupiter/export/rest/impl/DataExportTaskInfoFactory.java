@@ -20,6 +20,8 @@ import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import org.glassfish.hk2.api.ServiceLocator;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
@@ -32,16 +34,18 @@ public class DataExportTaskInfoFactory {
     private final PropertyValueInfoService propertyValueInfoService;
     private final Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider;
     private final StandardDataSelectorInfoFactory standardDataSelectorInfoFactory;
+    private final ServiceLocator serviceLocator;
 
     @Inject
     public DataExportTaskInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService,
                                      Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider,
-                                      StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
+                                     StandardDataSelectorInfoFactory standardDataSelectorInfoFactory, ServiceLocator serviceLocator) {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.dataExportTaskHistoryInfoFactoryProvider = dataExportTaskHistoryInfoFactoryProvider;
         this.standardDataSelectorInfoFactory = standardDataSelectorInfoFactory;
+        this.serviceLocator = serviceLocator;
     }
 
     public DataExportTaskInfo asInfo(ExportTask exportTask) {
@@ -71,7 +75,7 @@ public class DataExportTaskInfoFactory {
                 info.recurrence = fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        exportTask.getDestinations().forEach(destination -> info.destinations.add(typeOf(destination).toInfo(destination)));
+        exportTask.getDestinations().forEach(destination -> info.destinations.add(typeOf(destination).toInfo(serviceLocator, destination)));
         return info;
     }
 
@@ -190,7 +194,7 @@ public class DataExportTaskInfoFactory {
 
     private DestinationType typeOf(DataExportDestination destination) {
         return Arrays.stream(DestinationType.values())
-                .filter(type -> type.getDestinationClass().isInstance(destination))
+                .filter(type -> type.getDestinationClass(serviceLocator).isInstance(destination))
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
     }

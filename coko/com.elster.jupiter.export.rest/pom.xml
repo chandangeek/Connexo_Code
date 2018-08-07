@@ -119,7 +119,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.rest</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
 
         <!-- TEST -->
         <dependency>
@@ -165,11 +168,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>soap.whiteboard.cxf</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
