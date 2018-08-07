@@ -6,7 +6,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.impl.FtpClientServiceImpl;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -63,7 +62,7 @@ public class RealFtpDestinationTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private DataExportService dataExportService;
+    private IDataExportService dataExportService;
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -135,7 +134,6 @@ public class RealFtpDestinationTest {
         }
     }
 
-
     @Test
     @Ignore // test to run locally with an actual FTP server and the OS file system
     public void testSendMultipleFilesInAMap() {
@@ -161,7 +159,6 @@ public class RealFtpDestinationTest {
         Path file3 = ftpFileSystem.getPath("c:\\Users\\tgr\\work\\ftp\\test", RELATIVE_DIR, "DDDroot2.txt");
         assertThat(Files.exists(file3)).isTrue();
         assertThat(getContent(file3)).isEqualTo(DATA1 + DATA2);
-
     }
 
     private String getContent(Path file) {
@@ -176,6 +173,5 @@ public class RealFtpDestinationTest {
             throw new RuntimeException(e);
         }
     }
-
 
 }

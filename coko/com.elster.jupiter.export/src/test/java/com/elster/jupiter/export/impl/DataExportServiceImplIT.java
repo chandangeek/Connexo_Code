@@ -48,6 +48,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -231,7 +232,8 @@ public class DataExportServiceImplIT {
                     new FtpModule(),
                     new UserModule(),
                     new CustomPropertySetsModule(),
-                    new FileImportModule()
+                    new FileImportModule(),
+                    new ServiceCallModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

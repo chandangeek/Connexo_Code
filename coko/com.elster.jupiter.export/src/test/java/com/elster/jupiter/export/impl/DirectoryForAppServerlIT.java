@@ -38,6 +38,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -173,7 +174,8 @@ public class DirectoryForAppServerlIT {
                     new DataVaultModule(),
                     new FtpModule(),
                     new CustomPropertySetsModule(),
-                    new FileImportModule()
+                    new FileImportModule(),
+                    new ServiceCallModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

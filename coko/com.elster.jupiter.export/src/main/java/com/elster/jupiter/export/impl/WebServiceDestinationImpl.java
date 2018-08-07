@@ -62,7 +62,6 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         return this;
     }
 
-    // TODO: update rest to be able to create it
     // TODO: as well make a method there to retrieve appropriate end point configurations by data selector
     static WebServiceDestinationImpl from(IExportTask task, DataModel dataModel, EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint) {
         return dataModel.getInstance(WebServiceDestinationImpl.class).init(task, createEndPoint, changeEndPoint);

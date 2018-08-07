@@ -6,7 +6,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
@@ -72,7 +71,7 @@ public class EmailDestinationImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private DataExportService dataExportService;
+    private IDataExportService dataExportService;
     @Mock
     private AppService appService;
     @Mock

@@ -21,6 +21,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.SftpDestination;
+import com.elster.jupiter.export.WebServiceDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -28,6 +29,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -516,6 +518,14 @@ final class ExportTaskImpl implements IExportTask {
         destinations.add(sftpDestination);
         doSave();
         return sftpDestination;
+    }
+
+    @Override
+    public WebServiceDestination addWebServiceDestination(EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint) {
+        WebServiceDestinationImpl webServiceDestination = WebServiceDestinationImpl.from(this, dataModel, createEndPoint, changeEndPoint);
+        destinations.add(webServiceDestination);
+        doSave();
+        return webServiceDestination;
     }
 
     @Override
