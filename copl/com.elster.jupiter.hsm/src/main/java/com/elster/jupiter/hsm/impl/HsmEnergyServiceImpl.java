@@ -23,7 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.HsmEnergyServiceImpl", service = {HsmEnergyService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.HsmEnergyServiceImpl", service = {HsmEnergyService.class, HsmProtocolService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
 
     private static final int SECURITY_SUITE0 = 0;
