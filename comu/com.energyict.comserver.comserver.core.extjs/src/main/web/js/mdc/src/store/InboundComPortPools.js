@@ -3,7 +3,7 @@
  */
 
 Ext.define('Mdc.store.InboundComPortPools', {
-    extend: 'Mdc.store.ComPortPools',
+    extend: 'Mdc.store.ComPortPoolsWithoutPaging',
     storeId: 'inboundComPortPools',
     filters: [
         function (item) {
