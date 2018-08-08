@@ -2644,7 +2644,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @param obisCode The OBIS code.
      * @throws IOException If an IO error occurs.
      */
-    private final void resetLogbook(final ObisCode obisCode) throws IOException {
+    private void resetLogbook(final ObisCode obisCode) throws IOException {
         this.getCosemObjectFactory().getProfileGeneric(obisCode).reset();
     }
 
@@ -2653,25 +2653,35 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      *
      * @return The logger instance to be used.
      */
-    private final Logger getLogger() {
+    private Logger getLogger() {
         return this.getProtocol().getLogger();
     }
 
 
     private void resetAlarmDescriptor(OfflineDeviceMessage pendingMessage) throws IOException {
         BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getValue());
-        getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_DESCRIPTOR)).setValueAttr(new BitString(alarmBits.longValue(), 67, 67));
+        Data alarmDescriptor = getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_DESCRIPTOR));
+        BitString beaconAlarmDescriptor = new BitString(alarmDescriptor.getRawValueAttr(), 0);
+        alarmDescriptor.setValueAttr(
+                new BitString(alarmBits.longValue(), beaconAlarmDescriptor.getNrOfBits(), beaconAlarmDescriptor.getNrOfBits())
+        );
     }
 
-    protected void resetAllAlarmBits() throws IOException {
-        Data data = getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_BITS_REGISTER));
-        data.setValueAttr(new BitString(0, 67, 67)); // to reset the alarm bits we have to write zero back to the register
+    private void resetAllAlarmBits() throws IOException {
+        Data alarmBitsRegister = getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_BITS_REGISTER));
+        BitString beaconAlarmBitsRegister = new BitString(alarmBitsRegister.getRawValueAttr(), 0);
+        alarmBitsRegister.setValueAttr(
+                new BitString(0, beaconAlarmBitsRegister.getNrOfBits(), beaconAlarmBitsRegister.getNrOfBits()) // to reset the alarm bits we have to write zero back to the register
+        );
     }
 
-    protected void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
         BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
-        Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
-        data.setValueAttr(new BitString(filter.longValue(), 67, 67));
+        Data alarmFilter = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
+        BitString beaconAlarmFilter = new BitString(alarmFilter.getRawValueAttr(), 0);
+        alarmFilter.setValueAttr(
+                new BitString(filter.longValue(), beaconAlarmFilter.getNrOfBits(), beaconAlarmFilter.getNrOfBits())
+        );
     }
 
     private void configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
