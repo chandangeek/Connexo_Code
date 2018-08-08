@@ -33,7 +33,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                         hidden: true,
                         title: Uni.I18n.translate('registeredDevicesKPIs.empty.title', 'MDC', 'No registered devices KPIs found'),
                         reasons: [
-                            Uni.I18n.translate('registeredDevicesKPIs.empty.list.item1', 'MDC', 'No registered devices KPIs have been defined yet.')
+                            Uni.I18n.translate('registeredDevicesKPIs.empty.list.item', 'MDC', 'No registered devices KPIs have been defined yet.')
                         ],
                         stepItems: [
                             {
