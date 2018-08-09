@@ -32,7 +32,13 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UniqueConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -412,7 +418,7 @@ public enum TableSpecs {
     public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder {
-        private static final int EXPECTED_FK_KEYS_LENGTH = 6;
+        private static final int EXPECTED_FK_KEYS_LENGTH = 7;
 
         static void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
             table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
