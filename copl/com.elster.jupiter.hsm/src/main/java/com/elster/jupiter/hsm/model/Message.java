@@ -2,6 +2,8 @@ package com.elster.jupiter.hsm.model;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Message {
 
@@ -42,5 +44,24 @@ public class Message {
 
     public byte[] getBytes() { return this.bytes; }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Message)) {
+            return false;
+        }
+        Message message = (Message) o;
+        return Arrays.equals(bytes, message.bytes) &&
+                Objects.equals(charSet, message.charSet);
+    }
 
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(charSet);
+        result = 31 * result + Arrays.hashCode(bytes);
+        return result;
+    }
 }
