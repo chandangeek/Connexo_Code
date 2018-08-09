@@ -49,21 +49,20 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
     private ExceptionFactory exceptionFactory;
 
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
-        this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
-    }
-
     public UsagePointDataValidationIssueInfoFactory() {
     }
-
 
     @Inject
     public UsagePointDataValidationIssueInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.exceptionFactory = exceptionFactory;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
     public UsagePointDataValidationIssueInfo asInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -139,7 +138,9 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
             UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo();
             blockInfo.startTime = block.getStartTime();
             blockInfo.endTime = block.getEndTime();
-            blockInfo.amountOfSuspects = ChronoUnit.MILLIS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength().get().get(ChronoUnit.MILLIS);
+            blockInfo.amountOfSuspects = ChronoUnit.SECONDS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
+                    .get()
+                    .get(ChronoUnit.SECONDS);
             return blockInfo;
         }).sorted((block1, block2) -> block1.startTime.compareTo(block2.startTime)).collect(Collectors.toList());
         return info;
