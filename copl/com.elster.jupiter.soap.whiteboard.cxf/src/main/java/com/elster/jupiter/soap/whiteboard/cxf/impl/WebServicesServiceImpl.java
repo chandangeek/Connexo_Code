@@ -60,7 +60,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 4/29/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesService.class}, immediate = true)
+@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesServiceImpl.class}, immediate = true)
 public class WebServicesServiceImpl implements WebServicesService , BundleWaiter.Startable{
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
@@ -291,6 +291,8 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");
+        BundleWaiter.wait(this,bundleContext,"com.elster.jupiter.soap.whiteboard.implementation");
         this.bundleContext = bundleContext;
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
@@ -307,8 +309,6 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                 V10_4SimpleUpgrader.V10_4_UPGRADER);
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
-        BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");
-        BundleWaiter.wait(this,bundleContext,"com.elster.jupiter.soap.whiteboard.implementation");
     }
 
     @Override
