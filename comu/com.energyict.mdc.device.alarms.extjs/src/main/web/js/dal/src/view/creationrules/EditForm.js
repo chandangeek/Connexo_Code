@@ -129,7 +129,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                     {
                         xtype: 'numberfield',
                         itemId: 'priority-urgency',
-                        width: 92,
+                        width: 55,
                         name: 'priority.urgency',
                         value: 25,
                         minValue: 1,
@@ -145,8 +145,8 @@ Ext.define('Dal.view.creationrules.EditForm', {
                     {
                         xtype: 'numberfield',
                         itemId: 'priority-impact',
-                        labelWidth: 50,
-                        width: 157,
+                        labelWidth: 90,
+                        width: 160,
                         name: 'priority.impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'DAL', 'Impact'),
                         value: 5,
@@ -185,6 +185,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         items: [
                             {
                                 itemId: 'noDueDate',
+                                width: 300,
                                 boxLabel: Uni.I18n.translate('alarmCreationRules.noDueDate', 'DAL', 'No due date'),
                                 inputValue: false
                             },

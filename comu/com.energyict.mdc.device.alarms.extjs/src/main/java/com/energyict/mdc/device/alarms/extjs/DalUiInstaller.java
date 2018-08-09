@@ -42,7 +42,7 @@ public class DalUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        //     HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\Connexo\\comu\\com.energyict.mdc.device.alarms.extjs\\src\\main\\web\\js\\dal", new FileResolver());
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\git\\Connexo_nou_10_4_1\\comu\\com.energyict.mdc.device.alarms.extjs\\src\\main\\web\\js\\dal", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
