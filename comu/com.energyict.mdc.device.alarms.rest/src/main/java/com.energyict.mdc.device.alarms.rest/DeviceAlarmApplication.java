@@ -16,6 +16,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -35,6 +36,9 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Component(name = "com.energyict.mdc.device.com.energyict.mdc.device.alarms.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dal", "app=MDC", "name=" + DeviceAlarmApplication.DEVICE_ALARMS_REST_COMPONENT})
@@ -93,7 +97,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(DeviceAlarmTranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(DeviceAlarmTranslationKeys.values()),
+                Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
