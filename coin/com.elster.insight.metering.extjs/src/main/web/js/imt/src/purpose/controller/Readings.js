@@ -1083,10 +1083,11 @@ Ext.define('Imt.purpose.controller.Readings', {
                     });
                 }
             } else {
-                intervalsArray.push({
-                    start: item.get('interval').start,
-                    end: item.get('interval').end
-                });
+                if(item.get('value') != ""){
+                     intervalsArray.push({
+                        start: item.get('interval').start,
+                        end: item.get('interval').end
+                    });}
             }
         });
 
