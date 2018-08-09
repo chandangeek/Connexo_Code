@@ -39,6 +39,8 @@ public enum BigDecimalFunction {
     }
 
     public BigDecimal apply(BigDecimal value, BigDecimal correction) {
-        return function.apply(value, correction);
+        if (value != null)
+            return function.apply(value, correction);
+        return function.apply(new BigDecimal("0"), correction);
     }
 }
