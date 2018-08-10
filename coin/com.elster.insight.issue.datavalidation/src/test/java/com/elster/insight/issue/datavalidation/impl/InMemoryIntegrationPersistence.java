@@ -26,11 +26,13 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -80,8 +82,11 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,6 +96,7 @@ public class InMemoryIntegrationPersistence {
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
+    private LicenseService licenseService;
     private MetrologyConfigurationService metrologyConfigurationService;
     private FiniteStateMachineService finiteStateMachineService;
     private ThreadPrincipalService threadPrincipalService;
@@ -108,6 +114,11 @@ public class InMemoryIntegrationPersistence {
     public void initializeDatabase(String testName, boolean showSqlLogging) throws SQLException {
         this.bootstrapModule = new InMemoryBootstrapModule();
         License license = mock(License.class);
+        this.licenseService = mock(LicenseService.class);
+        when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
+        Properties properties = new Properties();
+        properties.put("protocols", "all");
+        when(license.getLicensedValues()).thenReturn(properties);
         this.injector = Guice.createInjector(this.getModules(showSqlLogging));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -179,7 +190,7 @@ public class InMemoryIntegrationPersistence {
                 new FileImportModule()
         );
         if (this.metrologyConfigurationService == null) {
-            //add service (module)
+            modules.add(new MetrologyConfigurationModule());
         }
         return modules.toArray(new Module[modules.size()]);
     }
@@ -231,9 +242,7 @@ public class InMemoryIntegrationPersistence {
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(HttpAuthenticationService.class).toInstance(mock(HttpAuthenticationService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
-            if (metrologyConfigurationService != null) {
-                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
-            }
+            bind(LicenseService.class).toInstance(licenseService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));

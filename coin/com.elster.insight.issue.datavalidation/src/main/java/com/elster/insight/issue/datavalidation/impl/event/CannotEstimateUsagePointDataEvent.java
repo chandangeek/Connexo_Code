@@ -20,7 +20,6 @@ import com.elster.insight.issue.datavalidation.impl.MessageSeeds;
 import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
@@ -30,8 +29,8 @@ public class CannotEstimateUsagePointDataEvent extends UsagePointDataValidationE
     private Instant endTime;
 
     @Inject
-    public CannotEstimateUsagePointDataEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
-        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService, clock);
+    public CannotEstimateUsagePointDataEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService) {
+        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService);
     }
 
     @Override

@@ -54,7 +54,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +75,6 @@ public class UsagePointIssueDataValidationServiceImpl implements UsagePointIssue
     /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
     private volatile EstimationService estimationService;
-    private volatile Clock clock;
 
     private volatile DataModel dataModel;
 
@@ -108,7 +106,6 @@ public class UsagePointIssueDataValidationServiceImpl implements UsagePointIssue
                 bind(UsagePointIssueDataValidationService.class).toInstance(UsagePointIssueDataValidationServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(Clock.class).toInstance(clock);
             }
         });
         upgradeService.register(
@@ -229,11 +226,6 @@ public class UsagePointIssueDataValidationServiceImpl implements UsagePointIssue
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Override

@@ -114,8 +114,6 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         usagePointIssueDataValidationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UsagePointIssueDataValidationService.class);
-        MetrologyConfigurationService metrologyConfigurationService = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MetrologyConfigurationService.class);
-        Finder deviceTypeFinder = mock(Finder.class);
         MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
         long metrologyConfigurationId = 1L;
 

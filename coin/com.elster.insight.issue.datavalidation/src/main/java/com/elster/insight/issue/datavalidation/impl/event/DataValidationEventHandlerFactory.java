@@ -23,7 +23,6 @@ import com.google.inject.Injector;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.Clock;
 
 @Component(name = "com.elster.insight.issue.datavalidation.DataValidationEventHandlerFactory",
         service = MessageHandlerFactory.class,
@@ -42,7 +41,6 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
-    private volatile Clock clock;
 
     //for OSGI
     public DataValidationEventHandlerFactory() {
@@ -68,7 +66,6 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
-                bind(Clock.class).toInstance(clock);
             }
         });
         return new UsagePointDataValidationEventHandler(injector);
@@ -98,10 +95,5 @@ public class DataValidationEventHandlerFactory implements MessageHandlerFactory 
     @Reference
     public void setUsagePointIssueDataValidationService(UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
         this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 }

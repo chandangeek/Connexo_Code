@@ -21,7 +21,6 @@ import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationServ
 
 import com.google.inject.Inject;
 
-import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,15 +34,13 @@ public abstract class UsagePointDataValidationEvent implements IssueEvent {
     private final MeteringService meteringService;
     private final UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private final IssueService issueService;
-    private final Clock clock;
 
     @Inject
-    public UsagePointDataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
+    public UsagePointDataValidationEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService) {
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
         this.issueService = issueService;
-        this.clock = clock;
     }
 
     abstract void init(Map<?, ?> jsonPayload);

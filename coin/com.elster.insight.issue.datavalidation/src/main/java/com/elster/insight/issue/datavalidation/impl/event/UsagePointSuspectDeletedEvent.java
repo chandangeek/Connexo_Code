@@ -15,7 +15,6 @@ import com.elster.insight.issue.datavalidation.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
@@ -24,8 +23,8 @@ public class UsagePointSuspectDeletedEvent extends UsagePointDataValidationEvent
     private Instant readingTimestamp;
 
     @Inject
-    public UsagePointSuspectDeletedEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService, Clock clock) {
-        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService, clock);
+    public UsagePointSuspectDeletedEvent(Thesaurus thesaurus, MeteringService meteringService, UsagePointIssueDataValidationService usagePointIssueDataValidationService, IssueService issueService) {
+        super(thesaurus, meteringService, usagePointIssueDataValidationService, issueService);
     }
 
     @Override
