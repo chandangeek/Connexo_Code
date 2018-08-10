@@ -415,6 +415,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         IssueEvent event = getMockIssueEvent();
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         impl.dispatchCreationEvent(Collections.singletonList(event));
 
         impl.processIssueCreationEvent(rule.getId(), event);
