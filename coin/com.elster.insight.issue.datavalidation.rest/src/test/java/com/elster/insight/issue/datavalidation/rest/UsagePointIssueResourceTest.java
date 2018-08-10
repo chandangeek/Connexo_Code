@@ -36,6 +36,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class UsagePointIssueResourceTest extends UsagePointUsagePointIssueDataValidationApplicationJerseyTest {
 
     @Test
