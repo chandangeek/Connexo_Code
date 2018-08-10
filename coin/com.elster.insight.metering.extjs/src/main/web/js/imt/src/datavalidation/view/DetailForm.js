@@ -33,7 +33,22 @@ Ext.define('Imt.datavalidation.view.DetailForm', {
                     {
                         itemId: 'data-validation-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IMT', 'Usage point'),
-                        name: 'usage_point'
+                        name: 'usagePointInfo',
+                        renderer: function (value) {
+                            var url = '',
+                                result = '-';
+
+                            if (value.info) {
+                                if (value.info && Imt.privileges.UsagePoint.canView()) {
+                                    url = me.router.getRoute('usagepoints/view').buildUrl({usagePointId: value.info});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.info) + '</a>';
+                                } else {
+                                    result = value.info;
+                                }
+                            }
+
+                            return result;
+                        }
                     },
                     /*{
                      itemId: 'data-validation-issue-detail-device',

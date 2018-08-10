@@ -19,15 +19,18 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
      ],*/
 
     models: [
+
         'Isu.model.IssuesFilter',
         'Isu.model.IssueAssignee',
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
+        'Imt.datavalidation.model.Issue',
         'Uni.component.sort.model.Sort'
     ],
 
     stores: [
+        'Imt.datavalidation.store.Issues',
         'Isu.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.IssueStatuses',
@@ -167,43 +170,14 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
                     fieldxtype: 'filter-display'
                 },
                 grid: {
-                    store: 'Isu.store.Issues',
+                    store: 'Imt.datavalidation.store.Issues',
                     xtype: 'issues-grid',
                     itemId: 'issues-view-grid'
                 },
             });
 
-            // me.setOverviewAlarmComponets(widget);
             me.getApplication().fireEvent('changecontentevent', widget);
         }
     },
-    /*
-     setOverviewAlarmComponets: function (widget) {
-     widget.down('#issue-panel').setTitle(Uni.I18n.translate('device.alarms', 'IMT', 'Alarms'));
-     widget.down('#issues-grouping-toolbar').setVisible(false);
-     widget.down('#issues-group-grid').setVisible(false);
-     widget.down('menuseparator').setVisible(false);
-     widget.down('#issues-grouping-title').setVisible(false);
-     },
 
-     showPreview: function (selectionModel, record) {
-     this.callParent(arguments);
-     var subEl = new Ext.get('alarm-status-field-sub-tpl');
-     subEl.setHTML('<div>' + record.get('statusDetailCleared') + '</div>'
-     + '<div>' + record.get('statusDetailSnoozed') + '</div>');
-     },
-
-     setFilterItem: function (button) {
-     var me = this;
-
-     switch (button.filterBy) {
-     case 'alarmId':
-     button.filterBy = 'id';
-     break;
-     case 'reasonName':
-     button.filterBy = 'reason';
-     break;
-     }
-     me.callParent(arguments);
-     }*/
 });

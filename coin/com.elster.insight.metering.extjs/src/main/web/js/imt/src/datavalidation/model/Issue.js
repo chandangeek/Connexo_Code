@@ -4,6 +4,9 @@
 
 Ext.define('Imt.datavalidation.model.Issue', {
     extend: 'Isu.model.Issue',
+    fields: [
+        {name: 'usagePointInfo', type: 'auto'}
+    ],
 
     proxy: {
         type: 'rest',
