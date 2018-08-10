@@ -15,10 +15,11 @@ import com.elster.insight.issue.datavalidation.impl.entity.UsagePointHistoricalI
 import java.time.Clock;
 import java.util.Collections;
 
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
 

@@ -76,6 +76,7 @@ import java.util.TimeZone;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -85,6 +86,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class UsagePointDataValidationIssueCreationRuleTemplateTest {
 
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
