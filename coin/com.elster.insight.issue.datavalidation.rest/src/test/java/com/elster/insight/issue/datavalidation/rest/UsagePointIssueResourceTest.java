@@ -16,12 +16,15 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import com.sun.org.apache.bcel.internal.generic.RET;
 import org.osgi.service.device.Device;
 
 import javax.ws.rs.core.Response;
@@ -36,6 +39,7 @@ import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,16 +50,15 @@ public class UsagePointIssueResourceTest extends UsagePointUsagePointIssueDataVa
     public void testGetIssueById() {
         UsagePointIssueDataValidation issue = getDefaultIssue();
         doReturn(Optional.of(issue)).when(usagePointIssueDataValidationService).findIssue(1);
-
         ReadingType readingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         ReadingType calculatedReadingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
 
-       /* Channel channel = mock(Channel.class);
-        when(device.getChannels()).thenReturn(Collections.singletonList(channel));
-        when(channel.getId()).thenReturn(5L);
-        when(channel.getReadingType()).thenReturn(readingType);
-        when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));*/
+        Channel channel = mock(Channel.class);
+        //when(device.getChannels()).thenReturn(Collections.singletonList(channel));
+       // when(channel.getId()).thenReturn(5L);
+       // when(channel.getReadingType()).thenReturn(readingType);
+       // when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));*/
         Instant now = Instant.now();
         UsagePointNotEstimatedBlock block1 = mockNotEstimatedBlock(now, now.plus(30, ChronoUnit.MINUTES), readingType);
         UsagePointNotEstimatedBlock block2 = mockNotEstimatedBlock(now.plus(45, ChronoUnit.MINUTES), now.plus(60, ChronoUnit.MINUTES), calculatedReadingType);
@@ -104,10 +107,10 @@ public class UsagePointIssueResourceTest extends UsagePointUsagePointIssueDataVa
         doReturn(Optional.of(issue)).when(usagePointIssueDataValidationService).findIssue(1);
 
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-        Device device = mock(Device.class);
+        UsagePoint usagePoint = mock(UsagePoint.class, RETURNS_DEEP_STUBS);
 
        /* Register register = mock(Register.class);
-        when(device.getChannels()).thenReturn(Collections.emptyList());
+        when(usagePoint()).thenReturn(Collections.emptyList());
         when(device.getRegisters()).thenReturn(Collections.singletonList(register));
         when(register.getRegisterSpecId()).thenReturn(5L);
         when(register.getReadingType()).thenReturn(readingType);*/
