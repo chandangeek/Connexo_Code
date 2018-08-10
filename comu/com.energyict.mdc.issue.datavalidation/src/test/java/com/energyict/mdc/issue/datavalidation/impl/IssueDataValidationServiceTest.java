@@ -152,6 +152,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
@@ -193,6 +194,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
@@ -246,6 +248,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
@@ -276,6 +279,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
@@ -313,6 +317,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<OpenIssue> baseIssues = issueService.query(OpenIssue.class).select(Condition.TRUE);
@@ -371,6 +376,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -423,6 +429,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -495,6 +502,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -552,6 +560,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         IssueProvider issueProvider = (IssueDataValidationServiceImpl) issueDataValidationService;
@@ -595,6 +604,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
@@ -646,6 +656,7 @@ public class IssueDataValidationServiceTest {
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
         when(event.getEndDevice()).thenReturn(Optional.empty());
+        when(event.getUsagePoint()).thenReturn(Optional.empty());
         issueCreationService.processIssueCreationEvent(issueCreationRule.getId(), event);
 
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
