@@ -25,9 +25,20 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -41,6 +52,9 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.devtools.tests.Matcher;
+
+import com.google.common.collect.Range;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -51,6 +65,8 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +79,8 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.longThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -185,7 +203,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected OpenIssue getDefaultIssue() {
-        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
+        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice(), getDefaultUsagePoint());
     }
 
     protected User getDefaultUser() {
@@ -194,6 +212,10 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
     protected Meter getDefaultDevice() {
         return mockMeter(1, "DefaultDevice");
+    }
+
+    protected UsagePoint getDefaultUsagePoint(){
+        return mockUsagePoint("1", 1L, ServiceKind.ELECTRICITY);
     }
 
     protected Meter mockMeter(long id, String name) {
@@ -209,7 +231,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return meter;
     }
 
-    protected OpenIssue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+    protected OpenIssue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter, UsagePoint usagePoint) {
         OpenIssue issue = mock(OpenIssue.class, RETURNS_DEEP_STUBS);
         when(issue.getId()).thenReturn(id);
         when(issue.getReason()).thenReturn(reason);
@@ -217,6 +239,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getAssignee()).thenReturn(assingee);
         when(issue.getDevice()).thenReturn(meter);
+        when(issue.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
@@ -225,6 +248,68 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getPriority()).thenReturn(priority);
         when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         return issue;
+    }
+
+    protected UsagePoint mockUsagePoint(String mRID, long version, ServiceKind serviceKind) {
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
+        UsagePointDetail detail;
+        switch (serviceKind) {
+            case ELECTRICITY:
+                detail = mock(ElectricityDetail.class);
+                break;
+            case GAS:
+                detail = mock(GasDetail.class);
+                break;
+            case WATER:
+                detail = mock(WaterDetail.class);
+                break;
+            case HEAT:
+                detail = mock(HeatDetail.class);
+                break;
+            default:
+                throw new IllegalArgumentException("Service kind is not supported");
+        }
+        when(detail.getRange()).thenReturn(Range.atLeast(clock.instant()));
+        return mockUsagePoint(mRID, version, extension, serviceKind, detail);
+    }
+
+    private UsagePoint mockUsagePoint(String mRID, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind, UsagePointDetail detail) {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getLocation()).thenReturn(Optional.empty());
+        when(usagePoint.getVersion()).thenReturn(version);
+        when(usagePoint.getMRID()).thenReturn(mRID);
+        when(usagePoint.getAliasName()).thenReturn("alias " + mRID);
+        when(usagePoint.getDescription()).thenReturn("usage point desc");
+        when(usagePoint.getOutageRegion()).thenReturn("outage region");
+        when(usagePoint.getReadRoute()).thenReturn("read route");
+        when(usagePoint.getServiceLocationString()).thenReturn("location");
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getKind()).thenReturn(serviceKind);
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
+        doReturn(Collections.singletonList(detail)).when(usagePoint).getDetails();
+        doReturn(Collections.singletonList(detail)).when(usagePoint).getDetail(eq(Range.all()));
+        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0).toInstant(ZoneOffset.UTC));
+        when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
+        when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
+        UsagePointConnectionState usagePointConnectionState = mockUsagePointConnectionState(ConnectionState.CONNECTED);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
+
+        when(usagePoint.forCustomProperties()).thenReturn(extension);
+        when(meteringService.findUsagePointByMRID(mRID)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByMRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(meteringService.findAndLockUsagePointByMRIDAndVersion(mRID, version)).thenReturn(Optional.of(usagePoint));
+        when(detail.getUsagePoint()).thenReturn(usagePoint);
+        return usagePoint;
+    }
+
+    protected UsagePointConnectionState mockUsagePointConnectionState(ConnectionState connectionState) {
+        UsagePointConnectionState usagePointConnectionState = mock(UsagePointConnectionState.class);
+        when(usagePointConnectionState.getConnectionState()).thenReturn(connectionState);
+        return usagePointConnectionState;
     }
 
     protected IssueComment mockComment(long id, String text, User user) {

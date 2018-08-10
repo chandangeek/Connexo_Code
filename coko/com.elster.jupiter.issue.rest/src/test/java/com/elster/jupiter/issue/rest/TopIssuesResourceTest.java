@@ -106,6 +106,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
         when(issue.getCreateDateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        when(issue.getUsagePoint()).thenReturn(Optional.empty());
         when(issueService.query(OpenIssue.class, IssueReason.class, IssueType.class)).thenReturn(issueQuery);
         doReturn(Collections.singletonList(issue)).when(issueQuery)
                 .select(any(Condition.class), anyInt(), anyInt(), any(Order.class));
@@ -130,7 +131,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
         when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         List<? extends Issue> issues = Collections.singletonList(issue);
         doReturn(issues).when(issueFinder).find();
-        Map response = target("/topissues/issues").request().get(Map.class);
+        Map response = target("/topissues/issues").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get(Map.class);
         defaultTopTaskAsserts(response);
     }
 

@@ -7,6 +7,9 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
+
+import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -20,6 +23,8 @@ import static org.mockito.Mockito.when;
 
 public class IssueTypeResourceTest extends IssueRestApplicationJerseyTest {
 
+    public static final String APPLICATION = "TST";
+
     @Test
     public void testgetIssueTypesEmpty(){
         Query<IssueType> query = mock(Query.class);
@@ -27,7 +32,7 @@ public class IssueTypeResourceTest extends IssueRestApplicationJerseyTest {
         when(issueService.query(IssueType.class)).thenReturn(query);
 
 
-        Map<String, Object> map = target("/issuetypes").request().get(Map.class);
+        Map<String, Object> map =target("/issuetypes").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List) map.get("data")).isEmpty();
     }
@@ -38,9 +43,8 @@ public class IssueTypeResourceTest extends IssueRestApplicationJerseyTest {
         Query<IssueType> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.singletonList(type));
         when(issueService.query(IssueType.class)).thenReturn(query);
+        Map<String, Object> map =target("/issuetypes").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(Map.class);
 
-
-        Map<String, Object> map = target("/issuetypes").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
         List data = (List) map.get("data");
         assertThat(data).hasSize(1);
