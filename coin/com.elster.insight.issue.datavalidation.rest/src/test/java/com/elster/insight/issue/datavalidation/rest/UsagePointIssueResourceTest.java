@@ -24,8 +24,6 @@ import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import com.sun.org.apache.bcel.internal.generic.RET;
-import org.osgi.service.device.Device;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -46,7 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore
-public class UsagePointIssueResourceTest extends UsagePointUsagePointIssueDataValidationApplicationJerseyTest {
+public class UsagePointIssueResourceTest extends UsagePointIssueDataValidationApplicationJerseyTest {
 
     @Test
     public void testGetIssueById() {
