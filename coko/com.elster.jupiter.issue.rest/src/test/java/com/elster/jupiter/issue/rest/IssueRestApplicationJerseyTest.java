@@ -66,6 +66,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,6 +89,7 @@ import static org.mockito.Mockito.when;
 
 public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
+    public static final Clock clock = Clock.fixed(LocalDateTime.of(2018, 8, 11, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
     @Mock
     IssueService issueService;
     @Mock
@@ -110,9 +112,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     IssueInfoFactoryService issueInfoFactoryService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
-    @Mock
-    Clock clock;
-
 
     @Provider
     @javax.annotation.Priority(Priorities.AUTHORIZATION)
