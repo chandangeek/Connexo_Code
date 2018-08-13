@@ -31,6 +31,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +68,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
 
     public UsagePointDataValidationIssueInfo asInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
         UsagePointDataValidationIssueInfo issueInfo = asShortInfo(issue, deviceInfoClass);
-        if (issue.getUsagePoint() == null) {
+        if (issue.getUsagePoint() == null || !issue.getUsagePoint().isPresent()) {
             return issueInfo;
         }
         Optional<UsagePoint> usagePoint = issue.getUsagePoint();
@@ -98,7 +99,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
-        return usagePoint.getCurrentEffectiveMetrologyConfiguration()
+        return usagePoint.getEffectiveMetrologyConfiguration(Instant.now())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
     }
 
