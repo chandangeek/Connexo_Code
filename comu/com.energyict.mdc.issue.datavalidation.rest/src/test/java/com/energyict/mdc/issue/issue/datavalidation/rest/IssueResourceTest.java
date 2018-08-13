@@ -49,7 +49,7 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     public void testGetIssueById() {
         IssueDataValidation issue = getDefaultIssue();
         doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
-
+        when(issue.getUsagePoint()).thenReturn(Optional.empty());
         ReadingType readingType = mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         ReadingType calculatedReadingType = mockReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
@@ -106,7 +106,8 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
 
         IssueDataValidation issue = getDefaultIssue();
         doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1);
-
+//TODO: refactor kore so that usage point only dirrectly accessible from MDM issues
+        when(issue.getUsagePoint()).thenReturn(Optional.empty());
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         Device device = mock(Device.class);
         when(deviceService.findDeviceById(1)).thenReturn(Optional.of(device));
