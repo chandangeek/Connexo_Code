@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.Injector;
@@ -38,7 +39,9 @@ public class UsagePointDataValidationEventHandler implements MessageHandler {
         createEvent(jsonService.deserialize(message.getPayload(), Map.class))
                 .filter(e -> e instanceof UsagePointDataValidationEvent)
                 .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().isPresent())
-                //.filter(e -> e.getUsagePoint().get().getState()
+                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState() != null)
+                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState().getStage().isPresent())
+                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState().getName().equals(UsagePointStage.OPERATIONAL.getKey()))
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 
