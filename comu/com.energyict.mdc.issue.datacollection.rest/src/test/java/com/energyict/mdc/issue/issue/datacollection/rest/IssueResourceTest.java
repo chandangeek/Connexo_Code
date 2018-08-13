@@ -30,6 +30,8 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataCollectionService).findIssue(1);
+        //TODO: refactor kore so that usage point only dirrectly accessible from MDM issues
+        when(issue.get().getUsagePoint()).thenReturn(Optional.empty());
 
         Map<?, ?> map = target("/issues/1").request().get(Map.class);
         Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
