@@ -289,7 +289,7 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public Optional<UsagePoint> getUsagePoint() {
-        if (usagePoint.isPresent()) {
+        if (usagePoint != null && usagePoint.isPresent()) {
             return Optional.of(usagePoint.get());
         } else {
             EndDevice endDevice = getDevice();
