@@ -99,7 +99,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
-        return usagePoint.getEffectiveMetrologyConfiguration(Instant.now())
+        return usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
     }
 
