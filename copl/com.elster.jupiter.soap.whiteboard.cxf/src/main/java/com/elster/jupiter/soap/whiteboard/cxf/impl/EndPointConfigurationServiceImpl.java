@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -191,6 +192,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public Finder<EndPointConfiguration> findEndPointConfigurations() {
         return DefaultFinder.of(EndPointConfiguration.class, this.dataModel)
                 .defaultSortColumn(EndPointConfigurationImpl.Fields.NAME.fieldName());
+    }
+
+    @Override
+    public QueryStream<EndPointConfiguration> streamEndPointConfigurations() {
+        return dataModel.stream(EndPointConfiguration.class);
     }
 
     @Override

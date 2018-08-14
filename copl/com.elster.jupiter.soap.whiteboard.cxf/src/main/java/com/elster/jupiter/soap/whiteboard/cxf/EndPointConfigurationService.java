@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.users.Group;
 
 import aQute.bnd.annotation.ProviderType;
@@ -57,6 +58,11 @@ public interface EndPointConfigurationService {
      * Finder for all known end point configurations. This methods supports paging.
      */
     Finder<EndPointConfiguration> findEndPointConfigurations();
+
+    /**
+     * Streams the end point configurations.
+     */
+    QueryStream<EndPointConfiguration> streamEndPointConfigurations();
 
     /**
      * The endPointConfiguration will be changed to 'active' and a system wide event will be sent notifying all appservers
