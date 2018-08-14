@@ -128,7 +128,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group) {
-        this.startedOn = clock.instant();
         setStatus(FirmwareCampaignStatus.ONGOING);
         this.deviceType.set(deviceType);
         this.deviceGroup = group;
