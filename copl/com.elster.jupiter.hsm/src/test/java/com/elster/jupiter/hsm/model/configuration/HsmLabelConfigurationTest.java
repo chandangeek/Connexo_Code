@@ -6,7 +6,6 @@
 
 package com.elster.jupiter.hsm.model.configuration;
 
-import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 

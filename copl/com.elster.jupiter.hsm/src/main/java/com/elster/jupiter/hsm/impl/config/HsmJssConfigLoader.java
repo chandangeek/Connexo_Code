@@ -1,4 +1,4 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.config;
 
 import com.atos.worldline.jss.configuration.DefaultRawConfiguration;
 import com.atos.worldline.jss.configuration.RawConfiguration;

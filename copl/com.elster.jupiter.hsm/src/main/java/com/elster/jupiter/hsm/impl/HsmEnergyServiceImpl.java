@@ -8,7 +8,7 @@ import com.atos.worldline.jss.api.key.KeyLabel;
 import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;

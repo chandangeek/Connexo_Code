@@ -1,10 +1,10 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.resources;
 
 
-import com.elster.jupiter.hsm.impl.HsmRefreshableResourceLoader;
-import com.elster.jupiter.hsm.impl.HsmResourceReloader;
+import com.elster.jupiter.hsm.impl.resources.HsmRefreshableResourceBuilder;
+import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class HsmResourceReloaderTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
-    public HsmRefreshableResourceLoader<HsmConfiguration> mockedLoader;
+    public HsmRefreshableResourceBuilder<HsmConfiguration> mockedLoader;
 
     private HsmResourceReloader<HsmConfiguration> reloader;
 
@@ -39,7 +39,7 @@ public class HsmResourceReloaderTest {
         reloader.load();
         Mockito.when(mockedLoader.timeStamp()).thenReturn(1L);
         reloader.load();
-        Mockito.verify(mockedLoader, Mockito.times(1)).load();
+        Mockito.verify(mockedLoader, Mockito.times(1)).build();
     }
 
     @Test
@@ -49,7 +49,7 @@ public class HsmResourceReloaderTest {
         reloader.load();
         Mockito.when(mockedLoader.timeStamp()).thenReturn(2L);
         reloader.load();
-        Mockito.verify(mockedLoader, Mockito.times(2)).load();
+        Mockito.verify(mockedLoader, Mockito.times(2)).build();
     }
 
 }

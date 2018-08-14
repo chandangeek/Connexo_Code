@@ -6,8 +6,12 @@ package com.elster.jupiter.hsm.impl;
 
 
 import com.elster.jupiter.hsm.HsmConfigurationService;
+import com.elster.jupiter.hsm.impl.config.HsmConfigRefreshableResourceBuilder;
+import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
+import com.elster.jupiter.hsm.impl.context.HsmClassLoaderHelper;
+import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
@@ -61,7 +65,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
         String configFile = context.getProperty(HSM_CONFIGURATION);
         if (Objects.nonNull(configFile)) {
             try {
-                this.hsmConfigurationLoader = new HsmResourceReloader<>(new HsmConfigRefreshableResourceLoader(new File(configFile)));
+                this.hsmConfigurationLoader = new HsmResourceReloader<>(new HsmConfigRefreshableResourceBuilder(new File(configFile)));
                 init(hsmConfigurationLoader.load().getJssInitFile());
             } catch (HsmBaseException e) {
                 // Doing nothing while other bundles might fail because this one was not properly initialized.

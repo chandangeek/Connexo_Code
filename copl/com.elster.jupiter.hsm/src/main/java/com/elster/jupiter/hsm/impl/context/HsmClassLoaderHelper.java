@@ -1,4 +1,4 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.context;
 
 import com.atos.worldline.jss.internal.spring.JssEmbeddedRuntimeConfig;
 

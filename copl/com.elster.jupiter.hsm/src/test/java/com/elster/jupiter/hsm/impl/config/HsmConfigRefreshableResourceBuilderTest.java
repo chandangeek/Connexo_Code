@@ -1,6 +1,6 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.config;
 
-import com.elster.jupiter.hsm.impl.HsmConfigRefreshableResourceLoader;
+import com.elster.jupiter.hsm.impl.config.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 
@@ -16,12 +16,12 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HsmConfigRefreshableResourceLoaderTest {
+public class HsmConfigRefreshableResourceBuilderTest {
 
     @Mock
     public File file;
 
-    private HsmConfigRefreshableResourceLoader hsmConfigLoader;
+    private HsmConfigRefreshableResourceBuilder hsmConfigLoader;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -29,13 +29,13 @@ public class HsmConfigRefreshableResourceLoaderTest {
     @Test
     public void testNullResource() throws HsmBaseException {
         expectedException.expect(HsmBaseException.class);
-        hsmConfigLoader = new HsmConfigRefreshableResourceLoader(null);
+        hsmConfigLoader = new HsmConfigRefreshableResourceBuilder(null);
     }
 
     @Test
     public void testNonExistingFile() throws HsmBaseException {
         expectedException.expect(HsmBaseException.class);
-        hsmConfigLoader = new HsmConfigRefreshableResourceLoader(new File("nonExistingFile"));
+        hsmConfigLoader = new HsmConfigRefreshableResourceBuilder(new File("nonExistingFile"));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class HsmConfigRefreshableResourceLoaderTest {
         Mockito.when(file.exists()).thenReturn(true);
         long timeStamp = 1L;
         Mockito.when(file.lastModified()).thenReturn(timeStamp);
-        hsmConfigLoader = new HsmConfigRefreshableResourceLoader(file);
+        hsmConfigLoader = new HsmConfigRefreshableResourceBuilder(file);
         Assert.assertTrue(timeStamp == hsmConfigLoader.timeStamp());
     }
 

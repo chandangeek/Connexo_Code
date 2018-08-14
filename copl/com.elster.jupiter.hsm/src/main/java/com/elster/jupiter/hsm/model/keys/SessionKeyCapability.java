@@ -9,7 +9,7 @@ public enum SessionKeyCapability {
      * Check {@link ProtectedSessionKeyCapability}
      *
      * These are mandatory parameters for different JSS operation and linked with label configuration provisioned in HSM. Therefore the sole scope of this ENUM (more or less copy with one from JSS) is
-     * to enable HSM bundle configuration to load these from configuration and also do not export any JSS deps to any modules that are using this bundle.
+     * to enable HSM bundle configuration to build these from configuration and also do not export any JSS deps to any modules that are using this bundle.
      *
      *
      */

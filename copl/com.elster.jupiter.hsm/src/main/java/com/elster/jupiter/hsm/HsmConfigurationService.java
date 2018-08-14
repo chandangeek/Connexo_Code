@@ -7,7 +7,7 @@
 package com.elster.jupiter.hsm;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
 

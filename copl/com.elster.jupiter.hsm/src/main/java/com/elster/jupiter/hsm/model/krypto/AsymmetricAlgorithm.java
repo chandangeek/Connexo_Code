@@ -1,8 +1,6 @@
 package com.elster.jupiter.hsm.model.krypto;
 
 
-import com.elster.jupiter.hsm.impl.HsmAlgorithmSpecs;
-
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
 import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.api.key.KEKEncryptionMethod;

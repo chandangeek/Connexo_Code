@@ -1,5 +1,7 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.config;
 
+
+import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
 
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.configuration.RawFunctionTimeout;

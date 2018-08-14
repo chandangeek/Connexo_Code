@@ -1,8 +1,8 @@
-package com.elster.jupiter.hsm.impl;
+package com.elster.jupiter.hsm.impl.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.config.HsmConfiguration;
-import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
 
 
 import org.apache.commons.configuration2.ImmutableConfiguration;

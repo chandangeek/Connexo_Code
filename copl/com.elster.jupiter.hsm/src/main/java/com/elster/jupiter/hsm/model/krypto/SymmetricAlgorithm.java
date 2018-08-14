@@ -1,6 +1,5 @@
 package com.elster.jupiter.hsm.model.krypto;
 
-import com.elster.jupiter.hsm.impl.HsmAlgorithmSpecs;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;

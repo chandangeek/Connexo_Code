@@ -1,7 +1,5 @@
 package com.elster.jupiter.hsm.model.krypto;
 
-import com.elster.jupiter.hsm.impl.HsmAlgorithmSpecs;
-
 public interface Algorithm {
     /**
      *
