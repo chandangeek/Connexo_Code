@@ -41,7 +41,7 @@ public class UsagePointDataValidationEventHandler implements MessageHandler {
                 .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().isPresent())
                 .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState() != null)
                 .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState().getStage().isPresent())
-                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState().getName().equals(UsagePointStage.OPERATIONAL.getKey()))
+                .filter(e -> ((UsagePointDataValidationEvent) e).getUsagePoint().get().getState().getStage().get().getName().equals(UsagePointStage.OPERATIONAL.getKey()))
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 
