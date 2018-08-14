@@ -17,10 +17,10 @@ Ext.define('Imt.issue.model.UsagePoint', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/meters',
+        url: '/api/udr/usagepoints',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'usagePoints'
         }
     }
 });
