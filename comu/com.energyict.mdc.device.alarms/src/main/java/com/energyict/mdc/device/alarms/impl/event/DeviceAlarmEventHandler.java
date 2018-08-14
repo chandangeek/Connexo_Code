@@ -51,18 +51,16 @@ public class DeviceAlarmEventHandler implements MessageHandler {
     @Override
     public void process(Message message) {
         Map<?, ?> map = getJsonService().deserialize(message.getPayload(), Map.class);
-        Optional<IssueEvent> event = createEvent(map);
-        if (event.isPresent()) {
-            getIssueCreationService().dispatchCreationEvent(Collections.singletonList(event.get()));
-        }
+        createEvent(map)
+                .map(Collections::singletonList)
+                .ifPresent(getIssueCreationService()::dispatchCreationEvent);
     }
 
     private Optional<IssueEvent> createEvent(Map<?, ?> map) {
-        return Arrays.asList(DeviceAlarmEventDescription.values()).stream()
+        return Arrays.stream(DeviceAlarmEventDescription.values())
                 .filter(eventDescription -> eventDescription.matches(map))
                 .findFirst()
-                .map(eventDescription -> createEventsBasedOnDescription(map, eventDescription))
-                .orElse(Optional.empty());
+                .flatMap(eventDescription -> createEventsBasedOnDescription(map, eventDescription));
     }
 
     private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, DeviceAlarmEventDescription description) {
@@ -87,10 +85,9 @@ public class DeviceAlarmEventHandler implements MessageHandler {
     }
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
-        Object contents = map.get(key);
-        if (contents != null && contents instanceof Number) {
-            return Optional.of(((Number) contents).longValue());
-        }
-        return Optional.empty();
+        return Optional.ofNullable(map.get(key))
+                .filter(Number.class::isInstance)
+                .map(Number.class::cast)
+                .map(Number::longValue);
     }
 }
