@@ -5,13 +5,12 @@
 package com.elster.jupiter.hsm.impl;
 
 
-import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.impl.config.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
 import com.elster.jupiter.hsm.impl.context.HsmClassLoaderHelper;
 import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;

@@ -1,9 +1,9 @@
 package com.elster.jupiter.hsm.gogo;
 
-import com.elster.jupiter.hsm.HsmConfigurationService;
+import com.elster.jupiter.hsm.impl.HsmConfigurationService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
-import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmLabelConfiguration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

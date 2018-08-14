@@ -4,7 +4,7 @@
  *
  */
 
-package com.elster.jupiter.hsm.model.configuration;
+package com.elster.jupiter.hsm.impl.config;
 
 
 import com.elster.jupiter.hsm.model.HsmBaseException;

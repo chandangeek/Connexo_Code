@@ -2,7 +2,7 @@ package com.elster.jupiter.hsm.model.request;
 
 import com.elster.jupiter.hsm.impl.config.HsmConfigurationPropFileImpl;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;

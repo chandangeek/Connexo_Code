@@ -6,10 +6,7 @@
 
 package com.elster.jupiter.hsm.impl.config;
 
-import com.elster.jupiter.hsm.impl.config.HsmConfigurationAutoReloadFile;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
-import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
 import org.apache.commons.configuration2.Configuration;

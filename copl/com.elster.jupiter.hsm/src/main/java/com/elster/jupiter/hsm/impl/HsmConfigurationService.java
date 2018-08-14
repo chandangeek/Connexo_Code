@@ -4,10 +4,10 @@
  *
  */
 
-package com.elster.jupiter.hsm;
+package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
 

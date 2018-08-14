@@ -1,10 +1,8 @@
 package com.elster.jupiter.hsm.impl.resources;
 
 
-import com.elster.jupiter.hsm.impl.resources.HsmRefreshableResourceBuilder;
-import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import org.junit.Rule;
 import org.junit.Test;
