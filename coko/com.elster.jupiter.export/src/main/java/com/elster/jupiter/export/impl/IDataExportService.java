@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
@@ -35,8 +36,6 @@ public interface IDataExportService extends DataExportService {
     Path getTempDirectory();
 
     LocalFileWriter getLocalFileWriter();
-
-    List<DataExportWebService<? extends ExportData>> getExportWebServices();
 
     Optional<DataExportWebService<? extends ExportData>> getExportWebService(String name);
 

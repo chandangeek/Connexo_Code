@@ -23,6 +23,8 @@ import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
+import com.elster.jupiter.export.MeterEventData;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
@@ -105,12 +107,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
 public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider, RelativePeriodCategoryTranslationProvider {
-
     static final String DESTINATION_NAME = "DataExport";
     static final String SUBSCRIBER_NAME = "DataExport";
     static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
+    private static final Map<String, Class<? extends ExportData>> DATA_TYPE_TO_CLASS_MAP = ImmutableMap.of(
+            STANDARD_EVENT_DATA_TYPE, MeterEventData.class,
+            STANDARD_READING_DATA_TYPE, MeterReadingData.class,
+            STANDARD_USAGE_POINT_DATA_TYPE, MeterReadingData.class
+    );
+
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
     private volatile TaskService taskService;
@@ -581,8 +588,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public List<DataExportWebService<? extends ExportData>> getExportWebServices() {
-        return new ArrayList<>(exportWebServices.values());
+    public List<DataExportWebService<? extends ExportData>> getExportWebServicesMatching(DataSelectorFactory selectorFactory) {
+        String dataType = dataSelectorFactories.get(selectorFactory);
+        Class<? extends ExportData> dataClass = DATA_TYPE_TO_CLASS_MAP.getOrDefault(dataType, ExportData.class);
+        return exportWebServices.values().stream()
+                .filter(service -> service.getDataClass().isAssignableFrom(dataClass))
+                .collect(Collectors.toList());
     }
 
     @Override
