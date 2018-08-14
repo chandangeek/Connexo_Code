@@ -87,7 +87,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
 
     @Override
     protected boolean shouldValidateCert() {
-        return true;
+        return false;
     }
 
     @Override
