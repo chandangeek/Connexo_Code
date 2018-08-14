@@ -7,17 +7,15 @@ package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.model.config.HsmConfiguration;
 
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
-import com.atos.worldline.jss.internal.spring.JssEmbeddedRuntimeConfig;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
-import java.net.URLClassLoader;
 import java.util.Objects;
 
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
@@ -27,14 +25,12 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     private boolean initialized = false;
     private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
 
-    private HsmConfiguration hsmConfiguration;
+    private HsmResourceReloader<HsmConfiguration> hsmConfigurationLoader;
 
     public void init(String file) {
         try {
-            setClassLoader();
-
             File f = new File(file);
-            RawConfiguration cfg = new HsmConfigLoader().load(f);
+            RawConfiguration cfg = new HsmJssConfigLoader().load(f);
             JSSRuntimeControl.initialize();
             JSSRuntimeControl.newConfiguration(cfg);
             this.initialized = true;
@@ -52,21 +48,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
         }
     }
 
-    /**
-     * This method is needed while spring components of JSS requires resolving of some property files.
-     * All this together with OSGi behavior described at  https://stackoverflow.com/questions/2198928/better-handling-of-thread-context-classloader-in-osgi
-     * requires setting of context class loader. This seems to fix init issues for spring context but not necessary fixing later problems that can be induced by same root cause (wrong class loader in context)
-     */
-    private void setClassLoader() {
-        // setting up a custom classloader is needed while we have resources in parent classloader path (AppLauncher), in felix conf folder but also embedded in JSS jar file provided by ATOS.
-        // besides following lines we must assure that JVM will be started having felix conf folder in class path
-        ClassLoader hsmClassLoader = JssEmbeddedRuntimeConfig.class.getClassLoader();
-        URLClassLoader appClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-        ClassLoader loader = new URLClassLoader(appClassLoader.getURLs(), hsmClassLoader);
-        Thread.currentThread().setContextClassLoader(loader);
-    }
-
-
     public void checkInit() {
         if (!initialized) {
             throw new RuntimeException("JSS not initialized!");
@@ -75,11 +56,13 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
     @Activate
     public void activate(BundleContext context) {
+        HsmClassLoaderHelper.setClassLoader();
+
         String configFile = context.getProperty(HSM_CONFIGURATION);
         if (Objects.nonNull(configFile)) {
             try {
-                this.hsmConfiguration = new HsmConfigurationPropFileImpl(configFile);
-                init(hsmConfiguration.getJssInitFile());
+                this.hsmConfigurationLoader = new HsmResourceReloader<>(new HsmConfigRefreshableResourceLoader(new File(configFile)));
+                init(hsmConfigurationLoader.load().getJssInitFile());
             } catch (HsmBaseException e) {
                 // Doing nothing while other bundles might fail because this one was not properly initialized.
                 // As an example: HSM is down but we want other bundles to work even is HSM is not available for the time being, yet we need to activate it later by hand when HSM is back (like using gogo)
@@ -89,7 +72,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     }
 
     @Override
-    public HsmConfiguration getHsmConfiguration() {
-        return hsmConfiguration;
+    public HsmConfiguration getHsmConfiguration() throws HsmBaseException {
+        return hsmConfigurationLoader.load();
     }
 }

@@ -6,10 +6,9 @@
 
 package com.elster.jupiter.hsm.model.configuration;
 
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
-
-import org.hamcrest.core.IsInstanceOf;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -43,7 +42,7 @@ public class HsmLabelConfigurationTest {
         expectedException.expect(HsmBaseException.class);
         expectedException.expectMessage("Asking for missing import capability");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        hsmLabelConfiguration.getImportSessionKeyCapability();
+        hsmLabelConfiguration.getImportSessionCapability();
     }
 
     @Test
@@ -52,7 +51,7 @@ public class HsmLabelConfigurationTest {
         expectedException.expect(HsmBaseException.class);
         expectedException.expectMessage("java.lang.IllegalArgumentException: No enum constant com.elster.jupiter.hsm.model.keys.SessionKeyCapability.WRONGSC");
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        hsmLabelConfiguration.getImportSessionKeyCapability();
+        hsmLabelConfiguration.getImportSessionCapability();
     }
 
 
@@ -65,8 +64,8 @@ public class HsmLabelConfigurationTest {
         String importLabel = "S-DB";
         String value = fileLabel + ", " + importLabel + ", " + importSessionCapability + ", " + deviceKeyLegnth + ", " + renewSessionCapability;
         HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
-        Assert.assertEquals(fileLabel, hsmLabelConfiguration.getFileImportLabel());
-        Assert.assertEquals(SessionKeyCapability.valueOf(importSessionCapability), hsmLabelConfiguration.getImportSessionKeyCapability());
+        Assert.assertEquals(fileLabel, hsmLabelConfiguration.getImportFileLabel());
+        Assert.assertEquals(SessionKeyCapability.valueOf(importSessionCapability), hsmLabelConfiguration.getImportSessionCapability());
         Assert.assertTrue(Integer.parseInt(deviceKeyLegnth) == hsmLabelConfiguration.getDeviceKeyLength());
         Assert.assertEquals(SessionKeyCapability.valueOf(renewSessionCapability), hsmLabelConfiguration.getRenewSessionKeyCapability());
         Assert.assertEquals(importLabel, hsmLabelConfiguration.getImportLabel());

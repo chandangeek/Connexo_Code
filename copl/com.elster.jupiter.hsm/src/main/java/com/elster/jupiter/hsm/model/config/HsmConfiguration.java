@@ -4,12 +4,18 @@
  *
  */
 
-package com.elster.jupiter.hsm.model.configuration;
+package com.elster.jupiter.hsm.model.config;
 
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
+import java.util.Collection;
+
 public interface HsmConfiguration {
+
+    String HSM_CONFIG_JSS_INIT_FILE = "hsm.config.jss.init.file";
+    String HSM_CONFIG_LABEL_PREFIX = "hsm.config.label";
+    String HSM_CONFIG_SEPARATOR = ".";
 
     /**
      *
@@ -19,10 +25,10 @@ public interface HsmConfiguration {
 
     /**
      *
-     * @param label that we search for mapping
-     * @return a matching label if mapped, otherwise same as param
+     * @param label that we search for mapping (this should be label present in file)
+     * @return a matching (HSM) label if mapped, otherwise same as param
      */
-    String map(String label);
+    String map(String label) throws HsmBaseException;
 
 
     /**
@@ -32,4 +38,9 @@ public interface HsmConfiguration {
      */
     HsmLabelConfiguration get(String label) throws HsmBaseException;
 
+    /**
+     *
+     * @return all configured labels
+     */
+    Collection<HsmLabelConfiguration> getLabels() throws HsmBaseException;
 }

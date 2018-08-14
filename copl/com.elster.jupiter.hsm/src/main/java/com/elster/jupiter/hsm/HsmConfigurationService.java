@@ -6,15 +6,15 @@
 
 package com.elster.jupiter.hsm;
 
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.config.HsmConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
-import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
 
 @ProviderType
 public interface HsmConfigurationService {
 
-    HsmConfiguration getHsmConfiguration();
+    HsmConfiguration getHsmConfiguration() throws HsmBaseException;
 
 
 }

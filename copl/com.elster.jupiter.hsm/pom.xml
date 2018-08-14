@@ -32,7 +32,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            artifactId=jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|logback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|mdc.upl
+                            artifactId=commons-configuration2|commons-beanutils|jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|logback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|mdc.upl
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -83,6 +83,25 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+            <version>3.0.0${revision}</version>
+        </dependency>
+        <!-- Please be aware of other deps while we need to use same deps. As an example: commons-configuration2 needs 2.2 version while it will
+        use same libs: for instance commons-lang3 version 3.6 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>4.3.1</version>
@@ -97,6 +116,7 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
+
         <!-- Test scope -->
         <dependency>
             <groupId>junit</groupId>
@@ -106,11 +126,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.upl</artifactId>
-            <version>3.0.0${revision}</version>
         </dependency>
 
         <!-- JSS libs -->

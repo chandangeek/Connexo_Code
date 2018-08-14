@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -21,6 +22,7 @@ import org.junit.Test;
  * The purpose of this test is just to check some JSS/HSM call flows and they are intended to be run only on demand,
  * not integrated in C.I (at least for the moment)
  */
+@Ignore
 public class HsmAuthServiceImpIT {
 
     private static HsmAuthServiceImpl hsmAuthService;

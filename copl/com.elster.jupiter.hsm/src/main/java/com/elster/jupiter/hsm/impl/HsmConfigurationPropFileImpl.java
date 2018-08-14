@@ -7,13 +7,14 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
-import com.elster.jupiter.hsm.model.configuration.HsmLabelConfiguration;
+import com.elster.jupiter.hsm.model.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,16 +23,15 @@ import java.util.Set;
 
 public class HsmConfigurationPropFileImpl implements HsmConfiguration {
 
-    public static final String HSM_CONFIG_JSS_INIT_FILE = "hsm.config.jss.init.file";
-    public static final String HSM_CONFIG_LABEL_PREFIX = "hsm.config.label.";
-
+    private final File file;
     private final Properties properties;
     private final Map<String, String> importToHsmLabelMap = new HashMap<>();
     private final Map<String, HsmLabelConfiguration> labelToConfigMap = new HashMap<>();
 
     public HsmConfigurationPropFileImpl(@Nonnull String configFile) throws HsmBaseException {
         properties = new Properties();
-        try (FileReader fr = new FileReader(new File(configFile))) {
+        this.file = new File(configFile);
+        try (FileReader fr = new FileReader(file)) {
             properties.load(fr);
             loadImportToHsmLabelMap();
         } catch (IOException e) {
@@ -39,9 +39,19 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
         }
     }
 
+    /**
+     * This constructor should be used only for test purposes.
+     * @param properties
+     * @throws HsmBaseException
+     */
     public HsmConfigurationPropFileImpl(Properties properties) throws HsmBaseException {
+        this.file = null;
         this.properties = properties;
         loadImportToHsmLabelMap();
+    }
+
+    public HsmConfigurationPropFileImpl(File file) throws HsmBaseException {
+        this(file.getAbsolutePath());
     }
 
     @Override
@@ -68,6 +78,11 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
         return hsmLabelConfiguration;
     }
 
+    @Override
+    public Collection<HsmLabelConfiguration> getLabels() {
+        return labelToConfigMap.values();
+    }
+
 
     private void loadImportToHsmLabelMap() throws HsmBaseException {
         Set<Map.Entry<Object, Object>> allEntries = properties.entrySet();
@@ -75,7 +90,7 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
             Object key = entry.getKey();
             if (key instanceof String && ((String) key).startsWith(HSM_CONFIG_LABEL_PREFIX)) {
                 HsmLabelConfiguration cfg = new HsmLabelConfiguration((String) entry.getValue());
-                String label = ((String) key).replace(HSM_CONFIG_LABEL_PREFIX, "");
+                String label = ((String) key).replace(HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR, "");
                 importToHsmLabelMap.put(getFileImportLabel(label, cfg), label);
                 labelToConfigMap.put(label, cfg);
             }
@@ -84,9 +99,10 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
 
     private String getFileImportLabel(String fileLabel, HsmLabelConfiguration cfg) {
         try {
-            return cfg.getFileImportLabel();
+            return cfg.getImportFileLabel();
         } catch (HsmBaseException e) {
             return fileLabel;
         }
     }
+
 }

@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class HsmConfigLoader {
+public class HsmJssConfigLoader {
 
     public RawConfiguration load(File f){
         GsonBuilder gsbuilder = new GsonBuilder();

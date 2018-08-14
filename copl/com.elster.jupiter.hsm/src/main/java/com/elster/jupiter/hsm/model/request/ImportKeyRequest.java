@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.model.request;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.configuration.HsmConfiguration;
+import com.elster.jupiter.hsm.model.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -69,10 +69,10 @@ public class ImportKeyRequest {
     }
 
     public SessionKeyCapability getImportSessionCapability(HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportSessionKeyCapability();
+        return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportSessionCapability();
     }
 
-    private String mapToHsmLabel(HsmConfiguration hsmConfiguration) {
+    private String mapToHsmLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
         return hsmConfiguration.map(wrapperKeyLabel);
     }
 }

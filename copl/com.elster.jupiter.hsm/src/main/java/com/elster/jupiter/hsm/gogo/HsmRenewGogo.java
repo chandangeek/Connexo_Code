@@ -12,11 +12,10 @@ import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.hsm.gogo.HsmRenewGogo", service = {HsmRenewGogo.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=renewKey"}, immediate = true)
-
 /**
  * This class is just for test purpose for the time being
  */
+@Component(name = "com.elster.jupiter.hsm.gogo.HsmRenewGogo", service = {HsmRenewGogo.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=renewKey"}, immediate = true)
 public class HsmRenewGogo {
 
     private volatile HsmEnergyService engService;

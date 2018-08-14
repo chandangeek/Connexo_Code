@@ -1,5 +1,6 @@
 package com.elster.jupiter.hsm.impl;
 
+
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.configuration.RawFunctionTimeout;
 import com.atos.worldline.jss.configuration.RawHsm;
@@ -13,13 +14,13 @@ import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
-public class HsmConfigLoaderITest {
+public class HsmJssConfigLoaderITest {
 
-    HsmConfigLoader hl;
+    HsmJssConfigLoader hl;
 
     @org.junit.Before
     public void setUp() {
-        hl = new HsmConfigLoader();
+        hl = new HsmJssConfigLoader();
     }
 
     @org.junit.Test

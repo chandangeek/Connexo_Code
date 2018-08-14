@@ -12,11 +12,10 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.hsm.gogo.HsmEncryptionGogo", service = {HsmEncryptionGogo.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=jssEncrypt", "osgi.command.function=jssDecrypt"}, immediate = true)
-
 /**
  * This class is just for test purpose for the time being
  */
+@Component(name = "com.elster.jupiter.hsm.gogo.HsmEncryptionGogo", service = {HsmEncryptionGogo.class}, property = {"name=" + "HSM" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=jssEncrypt", "osgi.command.function=jssDecrypt"}, immediate = true)
 public class HsmEncryptionGogo {
 
     private volatile HsmEncryptionService encService;
