@@ -6,7 +6,6 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 
-import com.elster.jupiter.hsm.HsmConfigurationService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -26,9 +25,8 @@ public class ImporterProperties {
     private final TrustStore trustStore;
     private final Optional<ImporterExtension> importExtension;
     private final HsmEnergyService hsmEnergyService;
-    private final HsmConfigurationService hsmConfigurationService;
 
-    private ImporterProperties(Thesaurus thesaurus, SecurityManagementService securityManagementService, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, TrustStore trustStore, Optional<ImporterExtension> importExtension, HsmEnergyService hsmEnergyService, HsmConfigurationService hsmConfigurationService) {
+    private ImporterProperties(Thesaurus thesaurus, SecurityManagementService securityManagementService, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, TrustStore trustStore, Optional<ImporterExtension> importExtension, HsmEnergyService hsmEnergyService) {
         this.thesaurus = thesaurus;
         this.securityManagementService = securityManagementService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -36,7 +34,6 @@ public class ImporterProperties {
         this.trustStore = trustStore;
         this.importExtension = importExtension;
         this.hsmEnergyService = hsmEnergyService;
-        this.hsmConfigurationService = hsmConfigurationService;
     }
 
     public Thesaurus getThesaurus() {
@@ -67,10 +64,6 @@ public class ImporterProperties {
         return hsmEnergyService;
     }
 
-    public HsmConfigurationService getHsmConfigurationService() {
-        return hsmConfigurationService;
-    }
-
     public static class ImporterPropertiesBuilder {
         private Thesaurus thesaurus;
         private SecurityManagementService securityManagementService;
@@ -79,7 +72,6 @@ public class ImporterProperties {
         private TrustStore trustStore;
         private Optional<ImporterExtension> importExtension;
         private HsmEnergyService hsmEnergyService;
-        private HsmConfigurationService hsmConfigurationService;
 
         public ImporterPropertiesBuilder withThesaurus(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
@@ -114,13 +106,8 @@ public class ImporterProperties {
             return this;
         }
 
-        public ImporterPropertiesBuilder withHsmConfigurationService(HsmConfigurationService hsmConfiguration) {
-            this.hsmConfigurationService = hsmConfiguration;
-            return this;
-        }
-
         public ImporterProperties build() {
-            return new ImporterProperties(thesaurus, securityManagementService, deviceConfigurationService, deviceService, trustStore, importExtension, hsmEnergyService, hsmConfigurationService);
+            return new ImporterProperties(thesaurus, securityManagementService, deviceConfigurationService, deviceService, trustStore, importExtension, hsmEnergyService);
         }
     }
 }
