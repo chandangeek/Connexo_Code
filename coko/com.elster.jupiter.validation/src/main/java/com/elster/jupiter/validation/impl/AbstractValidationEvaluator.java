@@ -276,7 +276,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
     abstract Multimap<String, IValidationRule> getMapQualityToRule(ChannelValidationContainer channelValidations);
 
     private static boolean wasValidated(Instant lastChecked, Instant readingTimestamp) {
-        return lastChecked != null && readingTimestamp.compareTo(lastChecked) <= 0;
+        return lastChecked != null && readingTimestamp != null && readingTimestamp.compareTo(lastChecked) <= 0;
     }
 
     private static final class TransientReadingQuality implements ReadingQualityRecord {
