@@ -5,7 +5,7 @@
 package com.elster.jupiter.hsm.impl;
 
 
-import com.elster.jupiter.hsm.impl.config.HsmConfigRefreshableResourceBuilder;
+import com.elster.jupiter.hsm.impl.resources.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
 import com.elster.jupiter.hsm.impl.context.HsmClassLoaderHelper;
 import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;

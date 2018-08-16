@@ -1,6 +1,5 @@
-package com.elster.jupiter.hsm.impl.config;
+package com.elster.jupiter.hsm.impl.resources;
 
-import com.elster.jupiter.hsm.impl.config.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 
