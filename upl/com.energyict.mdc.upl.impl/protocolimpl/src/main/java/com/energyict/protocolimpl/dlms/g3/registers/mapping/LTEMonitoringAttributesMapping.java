@@ -7,6 +7,7 @@ import com.energyict.dlms.cosem.LTEMonitoringIC;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ public class LTEMonitoringAttributesMapping extends RegisterMapping {
 
     private static final int MIN_ATTR = 1;
     private static final int MAX_ATTR = 2;
+    private static ObjectMapper mapper = new ObjectMapper();
 
     public LTEMonitoringAttributesMapping(CosemObjectFactory cosemObjectFactory) {
         super(cosemObjectFactory);
@@ -35,10 +37,10 @@ public class LTEMonitoringAttributesMapping extends RegisterMapping {
         return parse(obisCode, readAttribute(obisCode, lteMonitoringIC));
     }
 
-    protected AbstractDataType readAttribute(final ObisCode obisCode, LTEMonitoringIC snmpSetup) throws IOException {
+    protected AbstractDataType readAttribute(final ObisCode obisCode, LTEMonitoringIC lteMonitoringIC) throws IOException {
         switch (obisCode.getE()) {
             case 2:
-                return snmpSetup.readLTEQoS();
+                return lteMonitoringIC.readLTEQoS();
             default:
                 throw new NoSuchRegisterException("LTE Monitoring attribute [" + obisCode.getE() + "] not supported!");
 
@@ -51,15 +53,32 @@ public class LTEMonitoringAttributesMapping extends RegisterMapping {
         switch (obisCode.getE()) {
             case 2:
                 Structure qos = abstractDataType.getStructure();
-                String result = qos.getDataType(0).getUnsigned16().getValue() + ", "
-                        + qos.getDataType(1).getUnsigned16().getValue() + ", "
-                        + qos.getDataType(2).getUnsigned8().getValue() + ", "
-                        + qos.getDataType(3).getUnsigned8().getValue() + ", "
-                        + qos.getDataType(4).getInteger8().getValue();
+                String result = parseLTEQoSStructure(qos);
                 return new RegisterValue(obisCode, result);
             default:
                 throw new NoSuchRegisterException("LTE Monitoring attribute [" + obisCode.getE() + "] not supported!");
 
+        }
+    }
+
+    private String parseLTEQoSStructure(Structure structure) throws IOException {
+        final LTEQoS lteQoS = new LTEQoS(structure);
+        return mapper.writeValueAsString(lteQoS);
+    }
+
+    class LTEQoS {
+        public int t3402;
+        public int t3412;
+        public int rsrq;
+        public int rsrp;
+        public int qRxlevMin;
+
+        public LTEQoS(Structure structure) {
+            t3402 = structure.getDataType(0).getUnsigned16().getValue();
+            t3412 = structure.getDataType(1).getUnsigned16().getValue();
+            rsrq = structure.getDataType(2).getUnsigned8().getValue();
+            rsrp = structure.getDataType(3).getUnsigned8().getValue();
+            qRxlevMin = structure.getDataType(4).getInteger8().getValue();
         }
     }
 

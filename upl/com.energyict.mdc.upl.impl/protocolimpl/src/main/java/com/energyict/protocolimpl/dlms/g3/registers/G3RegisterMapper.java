@@ -370,6 +370,11 @@ public class G3RegisterMapper {
     private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_8 = ObisCode.fromString("0.0.25.6.247.255");
 
     /**
+     * ObisCode mappers for WWAN state transition IC
+     */
+    private static final ObisCode WWAN_STATE_TRANSITION_ATTR2 = ObisCode.fromString("0.162.96.192.2.255");
+
+    /**
      * ObisCode mappers for LTE Monitoring
      */
     public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP = ObisCode.fromString("0.168.96.193.0.255");
@@ -892,6 +897,12 @@ public class G3RegisterMapper {
         final List<G3Mapping> lteMonitoringMappings = new ArrayList<>();
         lteMonitoringMappings.add(new LTEMonitoringMapping(LTE_MONITORING_ATTR2));
         return lteMonitoringMappings;
+    }
+
+    protected final List<G3Mapping> getWWANStateTransitionMappings() {
+        final List<G3Mapping> wwanStateTransitionMappings = new ArrayList<>();
+        wwanStateTransitionMappings.add(new WWANStateTransitionMapping(WWAN_STATE_TRANSITION_ATTR2));
+        return wwanStateTransitionMappings;
     }
 
     protected final List<G3Mapping> getGSMDiagnosticsMappings() {

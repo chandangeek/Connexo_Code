@@ -851,6 +851,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new LTEMonitoringIC(this.protocolLink, this.getObjectReference(obisCode));
     }
 
+    public WWANStateTransitionIC getWWANStateTransitionIC(ObisCode obisCode) throws NotInObjectListException {
+        return new WWANStateTransitionIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
     public GSMDiagnosticsIC getGSMDiagnosticsIC(ObisCode obisCode) throws NotInObjectListException {
         return new GSMDiagnosticsIC(this.protocolLink, this.getObjectReference(obisCode));
     }

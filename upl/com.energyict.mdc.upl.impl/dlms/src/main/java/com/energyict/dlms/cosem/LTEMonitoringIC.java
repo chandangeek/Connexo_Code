@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 public class LTEMonitoringIC extends AbstractCosemObject {
 
-
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.25.11.0.255");
 
     /**
@@ -27,7 +26,7 @@ public class LTEMonitoringIC extends AbstractCosemObject {
         super(protocolLink, objectReference);
     }
 
-    public static final ObisCode getDefaultObisCode() {
+    public static ObisCode getDefaultObisCode() {
         return OBIS_CODE;
     }
 
