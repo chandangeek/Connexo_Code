@@ -94,7 +94,7 @@ class EditedChannelReadingSet {
                 reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, Long.valueOf(channelDataInfo.ruleId).intValue()).getCode(), comment);
                 this.estimatedReadings.add(reading);
             } else {
-                reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED).getCode(), comment);
+                reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC).getCode(), comment);
                 this.editedReadings.add(reading);
             }
         }
