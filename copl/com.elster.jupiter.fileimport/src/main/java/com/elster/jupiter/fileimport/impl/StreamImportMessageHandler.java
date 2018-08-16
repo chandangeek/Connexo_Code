@@ -13,7 +13,6 @@ import com.elster.jupiter.fileimport.NoSuchDataImporter;
 import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.BaseException;
@@ -91,7 +90,10 @@ class StreamImportMessageHandler implements MessageHandler {
                     handleException(fileImportOccurrence, ex);
                 });
             } finally {
-                fileImportOccurrence.save();
+                transactionService.builder().run(() -> {
+                    fileImportOccurrence.save();
+                });
+
                 fileImportOccurrence = null;
             }
         }
