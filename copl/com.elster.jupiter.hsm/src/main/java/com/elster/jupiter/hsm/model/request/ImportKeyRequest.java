@@ -2,6 +2,7 @@ package com.elster.jupiter.hsm.model.request;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -23,6 +24,7 @@ public class ImportKeyRequest {
     private final SymmetricAlgorithm deviceKeyAlgorhitm;
     private final byte[] deviceKeyValue;
     private final byte[] deviceKeyInitialVector;
+    private final HsmKeyType hsmKeyType;
 
     /**
      *
@@ -33,13 +35,14 @@ public class ImportKeyRequest {
      * @param deviceKeyValue device key encrypted using transportKeyAlgorithm and encryptedTransportKey
      * @param deviceKeyInitialVector initial vector (first bytes or by convention).In file from the deviceKeyValue + deviceKeyInitialVector will form the cipher value.
      */
-    public ImportKeyRequest(@Nonnull String wrapperKeyLabel, @Nonnull AsymmetricAlgorithm wrapperKeyAlgorithm, @Nonnull byte[] encryptedTransportKey, @Nonnull SymmetricAlgorithm transportKeyAlgorithm, @Nonnull byte[] deviceKeyValue, @Nonnull byte[] deviceKeyInitialVector) {
+    public ImportKeyRequest(@Nonnull String wrapperKeyLabel, @Nonnull AsymmetricAlgorithm wrapperKeyAlgorithm, @Nonnull byte[] encryptedTransportKey, @Nonnull SymmetricAlgorithm transportKeyAlgorithm, @Nonnull byte[] deviceKeyValue, @Nonnull byte[] deviceKeyInitialVector, HsmKeyType hsmKeyType) {
         this.wrapperKeyLabel = wrapperKeyLabel;
         this.wrapperKeyAlgorithm = wrapperKeyAlgorithm;
         this.encryptedTransportKey = encryptedTransportKey;
         this.deviceKeyAlgorhitm = transportKeyAlgorithm;
         this.deviceKeyValue = deviceKeyValue;
         this.deviceKeyInitialVector = deviceKeyInitialVector;
+        this.hsmKeyType = hsmKeyType;
     }
 
 
@@ -60,16 +63,15 @@ public class ImportKeyRequest {
         }
     }
 
-    public DeviceKey getDeviceKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {
+    public DeviceKey getDeviceKey() throws HsmBaseException {
         if (SymmetricAlgorithm.AES_256_CBC.equals(deviceKeyAlgorhitm)){
-            String hsmLabel = mapToHsmLabel(hsmConfiguration);
-            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmConfiguration.get(hsmLabel).getDeviceKeyLength(), deviceKeyValue);
+            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
         }
         throw new HsmBaseException("Could not construct device key based on symmetric algorithm:" + deviceKeyAlgorhitm);
     }
 
-    public SessionKeyCapability getImportSessionCapability(HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportSessionCapability();
+    public SessionKeyCapability getImportSessionCapability() {
+        return hsmKeyType.getImportCapability();
     }
 
     private String mapToHsmLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {

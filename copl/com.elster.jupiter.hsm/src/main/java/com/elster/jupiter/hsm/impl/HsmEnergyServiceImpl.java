@@ -54,12 +54,12 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
             String encryptLabel = importKeyRequest.getImportLabel(hsmConfiguration);
 
-            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(hsmConfiguration), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability(hsmConfiguration)
+            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability()
                     .toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
-        } catch (HsmBaseException |FunctionFailedException e) {
+        } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
     }
@@ -68,14 +68,14 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         try {
             KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
             ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getActualLabel()),renewKeyRequest.getActualKey());
-            KeyRenewalResponse response = Energy.cosemKeyRenewal(hsmConfigurationService.getHsmConfiguration().get(renewKeyRequest.getActualLabel()).getRenewSessionKeyCapability().toProtectedSessionKeyCapability(),
+            KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
                     protectedSessionKey,
                     newLabel,
                     getSessionKeyType(renewKeyRequest.getRenewLabel()));
             ProtectedSessionKey psk = response.getMdmStorageKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
-        } catch (Exception e) {
+        } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
     }

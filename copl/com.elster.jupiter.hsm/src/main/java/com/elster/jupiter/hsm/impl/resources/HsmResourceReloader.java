@@ -1,6 +1,5 @@
 package com.elster.jupiter.hsm.impl.resources;
 
-import com.elster.jupiter.hsm.impl.resources.HsmRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import java.util.Objects;

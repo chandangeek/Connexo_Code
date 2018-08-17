@@ -1,6 +1,11 @@
 package com.elster.jupiter.hsm.model.request;
 
 
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
+
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -8,13 +13,13 @@ public class RenewKeyRequest {
 
     private final byte[] actualKey;
     private final String actualLabel;
-    private final String renewLabel;
+    private final HsmKeyType hsmKeyType;
 
 
-    public RenewKeyRequest(byte[] actualKey, String actualLabel, String renewLabel) {
+    public RenewKeyRequest(byte[] actualKey, String actualLabel, HsmKeyType hsmKeyType) {
         this.actualKey = actualKey;
         this.actualLabel = actualLabel;
-        this.renewLabel = renewLabel;
+        this.hsmKeyType =hsmKeyType;
     }
 
     public byte[] getActualKey() {
@@ -25,30 +30,14 @@ public class RenewKeyRequest {
         return actualLabel;
     }
 
+
+
+
+    public SessionKeyCapability getRenewCapability() {
+        return hsmKeyType.getRenewCapability();
+    }
+
     public String getRenewLabel() {
-        return renewLabel;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RenewKeyRequest)) {
-            return false;
-        }
-        RenewKeyRequest that = (RenewKeyRequest) o;
-        return Arrays.equals(actualKey, that.actualKey) &&
-                Objects.equals(actualLabel, that.actualLabel) &&
-                Objects.equals(renewLabel, that.renewLabel);
-    }
-
-    @Override
-    public int hashCode() {
-
-        int result = Objects.hash(actualLabel, renewLabel);
-        result = 31 * result + Arrays.hashCode(actualKey);
-        return result;
+        return hsmKeyType.getLabel();
     }
 }
