@@ -73,7 +73,6 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -190,7 +189,6 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
-import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -209,8 +207,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -3363,12 +3359,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case SymmetricKey:
-                SymmetricKeyAccessorImpl symmetricKeyAccessor;
-                if (securityAccessorType.keyEncryptionMethodIsHSM()){
-                    symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
-                } else {
-                    symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
-                }
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
@@ -3379,6 +3370,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return passphraseAccessor;
             case AsymmetricKey:
                 return null; // TODO implement? will this occur?
+            case Hsm:
+                symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
             default:
                 throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }

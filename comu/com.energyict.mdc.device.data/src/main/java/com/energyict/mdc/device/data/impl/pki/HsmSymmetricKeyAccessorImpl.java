@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.pki;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -33,8 +34,9 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
     }
 
     private void doRenewValue(HsmKey actualValue) {
-        HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
-        symmetricKeyWrapper.generateValue(actualValue);
+        SecurityAccessorType keyAccessorType = getKeyAccessorType();
+        HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue(keyAccessorType, actualValue);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();
     }
