@@ -18,7 +18,7 @@ import java.util.EnumSet;
  */
 public class KeyEncryptionMethodValidValidator implements ConstraintValidator<KeyEncryptionMethodValid, SecurityAccessorType> {
     private static final EnumSet<CryptographicType> SECRETS = EnumSet.of(CryptographicType.AsymmetricKey, CryptographicType.Passphrase,
-            CryptographicType.SymmetricKey, CryptographicType.ClientCertificate);
+            CryptographicType.SymmetricKey, CryptographicType.ClientCertificate, CryptographicType.Hsm);
     private String message;
 
     @Override

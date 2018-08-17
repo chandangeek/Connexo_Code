@@ -19,6 +19,7 @@ public enum CryptographicType {
     SymmetricKey(true, MetaType.KEY, true),
     Passphrase(true, MetaType.KEY, true),
     AsymmetricKey(false, MetaType.KEY, true),
+    Hsm(true, MetaType.KEY, true)
     ;
 
 

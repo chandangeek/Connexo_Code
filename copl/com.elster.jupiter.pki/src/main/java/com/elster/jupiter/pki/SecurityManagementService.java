@@ -108,6 +108,8 @@ public interface SecurityManagementService {
      */
     KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize);
 
+    KeyTypeBuilder newHsmKeyType(String name);
+
     /**
      * Creates a KeyType for a certificate that will be used to proof identity towards other party. Allows specifying key
      * usages and extended key usages, so that CSR can be generated for certificate renewal.

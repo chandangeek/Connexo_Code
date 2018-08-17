@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
@@ -70,6 +71,24 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     @Override
     public SecurityAccessorType.Builder label(String label) {
         underConstruction.setLabel(label);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder importCapability(SessionKeyCapability importCapability) {
+        underConstruction.setImportCapability(importCapability);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder renewCapability(SessionKeyCapability renewCapability) {
+        underConstruction.setRenewCapability(renewCapability);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder keySize(short keySize) {
+        underConstruction.setKeySize(keySize);
         return this;
     }
 

@@ -7,6 +7,8 @@ package com.elster.jupiter.pki.impl.accessors;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -19,7 +21,7 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyFactory;
+import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -64,6 +66,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private boolean managedCentrally;
     private Purpose purpose;
     private String label;
+    private SessionKeyCapability importCapability;
+    private SessionKeyCapability renewCapability;
+    private short keySize;
+
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -87,7 +93,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         TRUSTSTORE("trustStore"),
         MANAGED_CENTRALLY("managedCentrally"),
         PURPOSE("purpose"),
-        LABEL("label");
+        LABEL("label"),
+        IMPORT_CAPABILITY("importCapability"),
+        RENEW_CAPABILITY("renewCapability"),
+        KEY_SIZE("keySize");
+
 
         private final String javaFieldName;
         Fields(String javaFieldName) {
@@ -205,6 +215,18 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         this.label = label;
     }
 
+    protected void setImportCapability(SessionKeyCapability importCapability) {
+        this.importCapability = importCapability;
+    }
+
+    protected void setRenewCapability(SessionKeyCapability renewCapability) {
+        this.renewCapability = renewCapability;
+    }
+
+    protected void setKeySize(short keySize) {
+        this.keySize = keySize;
+    }
+
     @Override
     public Set<SecurityAccessorUserAction> getUserActions() {
         return Collections.unmodifiableSet(userActions);
@@ -303,13 +325,13 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
-    public String getLabel(){
-        return this.label;
+    public HsmKeyType getHsmKeyType() {
+        return new HsmKeyType(label, importCapability, renewCapability, keySize);
     }
 
     @Override
-    public boolean keyEncryptionMethodIsHSM(){
-        return HsmKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.getKeyEncryptionMethod());
+    public boolean keyTypeIsHSM(){
+        return ProtocolKeyTypes.HSM.getName().equals(this.getKeyType().getName());
     }
 
     protected class SecurityAccessorTypeUpdaterImpl implements SecurityAccessorTypeUpdater {
@@ -337,6 +359,18 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         @Override
         public SecurityAccessorType.Updater label(String label) {
             SecurityAccessorTypeImpl.this.setLabel(label);
+            return this;
+        }
+
+        @Override
+        public Updater importCapabilty(SessionKeyCapability importCapabilty) {
+            SecurityAccessorTypeImpl.this.setImportCapability(importCapabilty);
+            return this;
+        }
+
+        @Override
+        public Updater renewCapability(SessionKeyCapability renewCapability) {
+            SecurityAccessorTypeImpl.this.setRenewCapability(renewCapability);
             return this;
         }
 

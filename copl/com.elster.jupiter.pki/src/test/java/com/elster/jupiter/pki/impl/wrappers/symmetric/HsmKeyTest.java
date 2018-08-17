@@ -9,11 +9,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 
@@ -71,6 +75,9 @@ public class HsmKeyTest {
     private Validator validator;
     @Mock
     private HsmEnergyService hsmEnergyService;
+    @Mock
+    private HsmKeyType hsmKeyType;
+
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -88,8 +95,9 @@ public class HsmKeyTest {
 
         this.hsmKeyUnderTest = new HsmKeyImpl(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL);
-
     }
+
+
 
 
     @Test(expected = IllegalArgumentException.class)
@@ -135,7 +143,10 @@ public class HsmKeyTest {
         when(dataVaultService.encrypt(hsmEncryptedKey.getEncryptedKey())).thenReturn(ecnryptedResultKey);
         when(dataVaultService.decrypt(ecnryptedResultKey)).thenReturn(ecnryptedResultKey.getBytes());
 
-        hsmKeyUnderTest.generateValue(mockedCurrentKey);
+        SecurityAccessorType mockedAccessorType = mock(SecurityAccessorType.class);
+        when(mockedAccessorType.getHsmKeyType()).thenReturn(hsmKeyType);
+
+        hsmKeyUnderTest.generateValue(mockedAccessorType, mockedCurrentKey);
 
         assertTrue(Arrays.equals(ecnryptedResultKey.getBytes(), hsmKeyUnderTest.getKey()));
         assertEquals(LABEL, hsmKeyUnderTest.getLabel());
@@ -209,7 +220,7 @@ public class HsmKeyTest {
         when(mockedCurrentKey.getKey()).thenReturn(cKeyBytes);
         String cLabel = "cLabel";
         when(mockedCurrentKey.getLabel()).thenReturn(cLabel);
-        RenewKeyRequest renewKeyRequest = new RenewKeyRequest(cKeyBytes, cLabel, LABEL);
+        RenewKeyRequest renewKeyRequest = new RenewKeyRequest(cKeyBytes, cLabel, hsmKeyType);
 
         // mocking call to used services:
         // energy service
@@ -217,6 +228,4 @@ public class HsmKeyTest {
         when(hsmEnergyService.renewKey(renewKeyRequest)).thenReturn(hsmEncryptedKey);
         return hsmEncryptedKey;
     }
-
-
 }

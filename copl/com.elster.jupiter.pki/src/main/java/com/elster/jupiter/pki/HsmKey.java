@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.pki;
 
+
 public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
@@ -29,5 +30,5 @@ public interface HsmKey extends SymmetricKeyWrapper{
      * HSM requires previous key values, in order to generate a new key
      * @param oldKey previous key
      */
-    void generateValue(HsmKey oldKey);
+    void generateValue(SecurityAccessorType securityAccessorType, HsmKey oldKey);
 }

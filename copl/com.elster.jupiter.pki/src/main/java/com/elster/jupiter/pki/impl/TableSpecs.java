@@ -283,6 +283,23 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeImpl.Fields.LABEL.fieldName())
                     .since(version(10,4,2))
                     .add();
+            table.column("IMPORT_CAPABILITY")
+                    .varChar()
+                    .conversion(CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.IMPORT_CAPABILITY.fieldName())
+                    .since(version(10,4,3))
+                    .add();
+            table.column("RENEW_CAPABILITY")
+                    .varChar()
+                    .conversion(CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.RENEW_CAPABILITY.fieldName())
+                    .since(version(10,4,3))
+                    .add();
+            table.column("KEY_SIZE")
+                    .number()
+                    .map(SecurityAccessorTypeImpl.Fields.KEY_SIZE.fieldName())
+                    .since(version(10,4,3))
+                    .add();
             Column keytypeid = table.column("KEYTYPEID")
                     .number()
                     .notNull()

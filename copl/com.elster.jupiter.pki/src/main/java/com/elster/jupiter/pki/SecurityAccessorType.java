@@ -1,5 +1,7 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -20,6 +22,8 @@ import java.util.Set;
  */
 @ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
+
+
     @ProviderType
     enum Purpose {
         DEVICE_OPERATIONS,
@@ -88,9 +92,13 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     Purpose getPurpose();
 
-    String getLabel();
+    /**
+     *
+     * @return import capability (only for HSM key type) or null
+     */
+    HsmKeyType getHsmKeyType();
 
-    boolean keyEncryptionMethodIsHSM();
+    boolean keyTypeIsHSM();
 
     @ProviderType
     interface Builder {
@@ -133,7 +141,13 @@ public interface SecurityAccessorType extends HasId, HasName  {
         /**
          * Set HSM label
          */
-        SecurityAccessorType.Builder label(String label);
+        Builder label(String label);
+
+        Builder importCapability(SessionKeyCapability importCapability);
+
+        Builder renewCapability(SessionKeyCapability renewCapability);
+
+        Builder keySize(short keySize);
 
         SecurityAccessorType add();
     }
@@ -147,6 +161,10 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater duration(TimeDuration duration);
 
         Updater label(String label);
+
+        Updater importCapabilty(SessionKeyCapability importCapabilty);
+
+        Updater renewCapability(SessionKeyCapability renewCapability);
 
         SecurityAccessorType complete();
     }

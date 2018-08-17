@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -19,7 +20,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.DatatypeConverter;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -31,6 +31,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 public class HsmKeyImpl extends KeyImpl implements HsmKey {
+
 
     private final DataVaultService dataVaultService;
     private final PropertySpecService propertySpecService;
@@ -60,7 +61,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     @Override
     public String getKeyEncryptionMethod() {
-        return HsmKeyFactory.KEY_ENCRYPTION_METHOD;
+        return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
     }
 
 
@@ -87,11 +88,11 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     @Override
-    public void generateValue(HsmKey currentKey) {
+    public void generateValue(SecurityAccessorType securityAccessorType, HsmKey currentKey) {
         try {
             String actualLabel = currentKey.getLabel();
             byte[] actualKey = currentKey.getKey();
-            byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, getLabel())).getEncryptedKey();
+            byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, securityAccessorType.getHsmKeyType())).getEncryptedKey();
             this.setKey(hsmGeneratedKey, getLabel());
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
