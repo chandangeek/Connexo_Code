@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.hsm.HsmPublicConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -72,6 +75,7 @@ public class SecurityAccessorTypeResource {
     private final TrustStoreValuesProvider trustStoreValuesProvider;
     private final AliasSearchFilterFactory aliasSearchFilterFactory;
     private final Thesaurus thesaurus;
+    private final HsmPublicConfiguration hsmPublicConfiguration;
 
     @Inject
     public SecurityAccessorTypeResource(ResourceHelper resourceHelper,
@@ -82,7 +86,8 @@ public class SecurityAccessorTypeResource {
                                         SecurityAccessorInfoFactory securityAccessorInfoFactory,
                                         TrustStoreValuesProvider trustStoreValuesProvider,
                                         AliasSearchFilterFactory aliasSearchFilterFactory,
-                                        Thesaurus thesaurus) {
+                                        Thesaurus thesaurus,
+                                        HsmPublicConfiguration hsmPublicConfiguration) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
@@ -92,6 +97,7 @@ public class SecurityAccessorTypeResource {
         this.trustStoreValuesProvider = trustStoreValuesProvider;
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
         this.thesaurus = thesaurus;
+        this.hsmPublicConfiguration = hsmPublicConfiguration;
     }
 
     @GET
@@ -231,9 +237,13 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.managedCentrally();
         }
 
-        if (securityAccessorTypeInfo.keyEncryptionMethodIsHSM()) {
+        if (securityAccessorTypeInfo.keyTypeIsHSM()) {
             checkHSMLabel(securityAccessorTypeInfo.label);
             keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
+            keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
+            keyFunctionTypeBuilder.renewCapability(securityAccessorTypeInfo.renewCapability);
+            keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
+
         }
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
@@ -289,9 +299,11 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorTypeUpdater updater = securityAccessorType.startUpdate();
         updater.name(securityAccessorTypeInfo.name);
         updater.description(securityAccessorTypeInfo.description);
-        if (securityAccessorType.keyEncryptionMethodIsHSM()){
+        if (securityAccessorType.keyTypeIsHSM()){
             checkHSMLabel(securityAccessorTypeInfo.label);
             updater.label(securityAccessorTypeInfo.label);
+            updater.importCapabilty(securityAccessorTypeInfo.importCapability);
+            updater.renewCapability(securityAccessorTypeInfo.renewCapability);
         }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
@@ -378,5 +390,32 @@ public class SecurityAccessorTypeResource {
         }
         keyFunctionType.delete();
         return Response.noContent().build();
+    }
+
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmLabels(@BeanParam JsonQueryParameters queryParameters) {
+        try {
+            return Response.ok(hsmPublicConfiguration.labels().stream().map(s -> {
+                try {
+                    return s.getImportLabel();
+                } catch (HsmBaseException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toArray()).build();
+        } catch (HsmBaseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmCapabilities(@BeanParam JsonQueryParameters queryParameters) {
+        return Response.ok(SessionKeyCapability.values()).build();
     }
 }

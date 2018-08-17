@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
+import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
@@ -45,7 +46,13 @@ public class SecurityAccessorTypeInfoFactory {
         if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
             info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
         }
-        info.label = securityAccessorType.getLabel();
+
+        if (ProtocolKeyTypes.HSM.getName().equals(securityAccessorType.getKeyType().getName())) {
+            info.label = securityAccessorType.getHsmKeyType().getLabel();
+            info.importCapability =  securityAccessorType.getHsmKeyType().getImportCapability();
+            info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
+            info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
+        }
         return info;
     }
 

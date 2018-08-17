@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyFactory;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
+import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
@@ -32,9 +33,13 @@ public class SecurityAccessorTypeInfo {
     public SecurityAccessorInfo defaultValue;
     public IdWithNameInfo purpose;
     public String label;
+    public SessionKeyCapability importCapability;
+    public SessionKeyCapability renewCapability;
+    public short keySize;
 
 
-    boolean keyEncryptionMethodIsHSM(){
-        return HsmKeyFactory.KEY_ENCRYPTION_METHOD.equals(this.storageMethod);
+
+    boolean keyTypeIsHSM(){
+        return ProtocolKeyTypes.HSM.getName().equals(keyType.name);
     }
 }
