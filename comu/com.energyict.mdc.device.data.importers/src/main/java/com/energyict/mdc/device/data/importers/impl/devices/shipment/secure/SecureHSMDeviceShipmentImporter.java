@@ -52,11 +52,12 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         byte[] initVector = importFileDeviceKey.getInitializationVector();
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
-        ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector);
-        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
-
         String securityAccessorName = deviceKey.getName();
         SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+
+        ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
+        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
+
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
         if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
             log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());

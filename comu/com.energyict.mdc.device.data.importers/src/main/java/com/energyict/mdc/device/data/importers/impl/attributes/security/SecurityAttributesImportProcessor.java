@@ -108,6 +108,7 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         SecurityValueWrapper newValue;
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
+            case Hsm:
                 newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
                 break;
             case Passphrase:
