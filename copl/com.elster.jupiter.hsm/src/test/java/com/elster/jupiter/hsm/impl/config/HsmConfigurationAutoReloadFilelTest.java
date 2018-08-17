@@ -110,19 +110,15 @@ public class HsmConfigurationAutoReloadFilelTest {
         assertEquals(label, hsmConfigurationPropFile.map(importFileLabel));
         HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationPropFile.get(label);
         assertEquals(importFileLabel, hsmLabelConfiguration.getImportFileLabel());
-        assertEquals(SessionKeyCapability.SM_KEK_NONAUTHENTIC, hsmLabelConfiguration.getImportSessionCapability());
-        assertEquals("S-DB", hsmLabelConfiguration.getImportLabel());
-        assertEquals(new Integer(16), hsmLabelConfiguration.getDeviceKeyLength());
     }
 
     @Test
     public void testGetAll() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
         Collection<HsmLabelConfiguration> labels = hsmConfigurationPropFile.getLabels();
-        assertEquals(2, labels.size());
-        HsmLabelConfiguration label1 = new HsmLabelConfiguration("Pub_KEK_SM", SessionKeyCapability.SM_KEK_NONAUTHENTIC,16, null,"S-DB");
-        HsmLabelConfiguration label2 = new HsmLabelConfiguration(null, null,16, SessionKeyCapability.SM_KEK_RENEWAL,null);
+        assertEquals(1, labels.size());
+        HsmLabelConfiguration label1 = new HsmLabelConfiguration("Pub_KEK_SM");
+
         Assertions.assertThat(labels).contains(label1);
-        Assertions.assertThat(labels).contains(label2);
     }
 }

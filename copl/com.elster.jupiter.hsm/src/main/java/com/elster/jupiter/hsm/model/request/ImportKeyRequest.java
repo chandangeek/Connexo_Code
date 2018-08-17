@@ -51,8 +51,8 @@ public class ImportKeyRequest {
     }
 
 
-    public String getImportLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        return hsmConfiguration.get(mapToHsmLabel(hsmConfiguration)).getImportLabel();
+    public String getImportLabel() throws HsmBaseException {
+        return hsmKeyType.getLabel();
     }
 
     public TransportKey getTransportKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {

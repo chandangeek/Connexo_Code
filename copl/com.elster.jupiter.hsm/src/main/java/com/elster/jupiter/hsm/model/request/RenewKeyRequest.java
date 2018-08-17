@@ -40,4 +40,8 @@ public class RenewKeyRequest {
     public String getRenewLabel() {
         return hsmKeyType.getLabel();
     }
+
+    public HsmKeyType getHsmKeyType() {
+        return hsmKeyType;
+    }
 }

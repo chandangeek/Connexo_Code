@@ -50,7 +50,7 @@ public class ImportKeyRequestIT {
 
     @Test
     public void testGetImportLabel() throws HsmBaseException {
-        Assert.assertEquals("S-DB", IKR.getImportLabel(HSM_CONFIG));
+        Assert.assertEquals(HSM_KEY_TYPE.getLabel(), IKR.getImportLabel());
     }
 
     @Test

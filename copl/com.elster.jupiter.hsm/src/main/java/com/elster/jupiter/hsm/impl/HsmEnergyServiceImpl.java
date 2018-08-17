@@ -10,6 +10,7 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTagImpl;
@@ -52,7 +53,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     public HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
         try {
             HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
-            String encryptLabel = importKeyRequest.getImportLabel(hsmConfiguration);
+            String encryptLabel = importKeyRequest.getImportLabel();
 
             KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability()
                     .toProtectedSessionKeyCapability());
@@ -71,7 +72,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
                     protectedSessionKey,
                     newLabel,
-                    getSessionKeyType(renewKeyRequest.getRenewLabel()));
+                    getSessionKeyType(renewKeyRequest.getHsmKeyType()));
             ProtectedSessionKey psk = response.getMdmStorageKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmEncryptedKey(psk.getValue(), kekLabel);
@@ -80,9 +81,9 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
-    private ProtectedSessionKeyType getSessionKeyType(String renewLabel) throws HsmBaseException {
+    private ProtectedSessionKeyType getSessionKeyType(HsmKeyType keyType) throws HsmBaseException {
 
-        Integer keyLength = hsmConfigurationService.getHsmConfiguration().get(renewLabel).getDeviceKeyLength();
+        short keyLength = keyType.getKeySize();
         if (keyLength == AES_KEY_LENGTH) {
             return ProtectedSessionKeyType.AES;
         }
@@ -90,7 +91,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         if (keyLength == AES256_KEY_LENGTH) {
             return ProtectedSessionKeyType.AES_256;
         }
-        throw new HsmBaseException("Could not determine session key type for key length:" + keyLength +" configured on label:" + renewLabel);
+        throw new HsmBaseException("Could not determine session key type for key length:" + keyLength);
     }
 
 
