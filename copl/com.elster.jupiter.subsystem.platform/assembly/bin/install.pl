@@ -727,6 +727,7 @@ sub activate_sso {
                 print $FH "\n";
                 print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
                 print $FH "   RewriteRule ^/soap(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/soap\$1 [P]\n";
+                print $FH "   RewriteRule ^/rest(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/rest\$1 [P]\n";
                 print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
                 print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
                 print $FH "</VirtualHost>\n";
@@ -801,38 +802,45 @@ sub start_connexo {
 	}
 }
 
-sub start_tomcat {
-	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
-		print "\n\nStarting Apache Tomcat ...\n";
-		print "==========================================================================\n";
+sub start_tomcat_service {
+    if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+        print "\n\nStarting Apache Tomcat ...\n";
+        print "==========================================================================\n";
         if (("$INSTALL_FACTS" eq "yes") && ("$INSTALL_FLOW" ne "yes")) {
-            copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
+            copy("$CONNEXO_DIR/partners/flow/resources.properties", "$CATALINA_HOME/conf/resources.properties");
         }
-		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
-			system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
-			system("sc start ConnexoTomcat$SERVICE_VERSION");
-			sleep 10;
-			while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
-				sleep 3;
-			}
-		} else {
-			if (! -e "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc") {
-				chdir "$CATALINA_HOME/bin";
-				system("tar xfz commons-daemon-native.tar.gz");
-				chdir "$CATALINA_HOME/bin/commons-daemon-1.1.0-native-src/unix";
-				system("./configure");
-				system("make");
-				copy("jsvc","../..");
-				chdir "$CATALINA_HOME/bin";
-			}
-			chmod 0755,"$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc";
-			chmod 0755,"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh";
-			#system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
-			system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
+        if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
+            system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
+            system("sc start ConnexoTomcat$SERVICE_VERSION");
+            sleep 10;
+            while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+                sleep 3;
+            }
+        }
+        else {
+            if (!-e "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc") {
+                chdir "$CATALINA_HOME/bin";
+                system("tar xfz commons-daemon-native.tar.gz");
+                chdir "$CATALINA_HOME/bin/commons-daemon-1.1.0-native-src/unix";
+                system("./configure");
+                system("make");
+                copy("jsvc", "../..");
+                chdir "$CATALINA_HOME/bin";
+            }
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc";
+            chmod 0755, "$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh";
+            #system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
+            system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
             system("/sbin/chkconfig --add ConnexoTomcat$SERVICE_VERSION");
             system("/sbin/chkconfig ConnexoTomcat$SERVICE_VERSION on");
-		}
+        }
+    }
+}
+
+sub start_tomcat {
+    if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+        start_tomcat_service();
 
 		if ("$INSTALL_FACTS" eq "yes") {
 			print "\nInstalling Connexo Facts content...\n";
@@ -1274,12 +1282,12 @@ sub perform_upgrade {
         }
 
         #uninstall old tomcat service version
-        uninstall_tomcat_for_upgrade();
+        #    uninstall_tomcat_for_upgrade();
 
         #rename partners folder
-        print "Copying partners to partners_obsolete\n";
-        rename("$CONNEXO_DIR/partners","$CONNEXO_DIR/partners_obsolete");
-        make_path("$CONNEXO_DIR/partners");
+        #    print "Copying partners to partners_obsolete\n";
+        #    rename("$CONNEXO_DIR/partners","$CONNEXO_DIR/partners_obsolete");
+        #    make_path("$CONNEXO_DIR/partners");
 
         #recreate config.properties
         if (! -d "$UPGRADE_PATH/temp/conf") {
@@ -1344,49 +1352,49 @@ sub perform_upgrade {
         }
 
         #copy content of partners folder
-        if (! -d "$UPGRADE_PATH/temp/partners") {
-            print "No partners folder found in $UPGRADE_PATH/temp.\n";
-        } else {
-            print "Copying upgrade partners\n";
-            dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
+        #    if (! -d "$UPGRADE_PATH/temp/partners") {
+        #    print "No partners folder found in $UPGRADE_PATH/temp.\n";
+        #} else {
+        #    print "Copying upgrade partners\n";
+        #    dircopy("$UPGRADE_PATH/temp/partners","$CONNEXO_DIR/partners");
 
-            print "Starting upgrade of partners\n";
-            my $upgrade_params = "\"$JAVA_HOME\" $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
-            my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
-            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-                $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
-            } else {
-                chmod 0755,"$UPGRADE_PATH/temp/partners/upgrade.pl";
-            }
-            if (-e "$upgrade_exe") {
-                system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
-            } else {
-                print "No upgrade of facts/flow found.\n";
-            }
-        }
+        #    print "Starting upgrade of partners\n";
+        #    my $upgrade_params = "\"$JAVA_HOME\" $UPGRADE_OLD_SERVICE_VERSION $SERVICE_VERSION $FLOW_JDBC_URL $FLOW_DB_USER $FLOW_DB_PASSWORD";
+        #    my $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.pl";
+        #    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        #        $upgrade_exe = "$UPGRADE_PATH/temp/partners/upgrade.exe";
+        #    } else {
+        #        chmod 0755,"$UPGRADE_PATH/temp/partners/upgrade.pl";
+        #    }
+        #    if (-e "$upgrade_exe") {
+        #        system("$upgrade_exe $upgrade_params") == 0 or die "Could not execute partners upgrade script!";
+        #    } else {
+        #        print "No upgrade of facts/flow found.\n";
+        #    }
+        #}
 
         print "Install new Connexo service version";
         install_connexo();
 
-        print "Install new versions for tomcat and partner apps";
-        install_tomcat();
+        #print "Install new versions for tomcat and partner apps";
+        #install_tomcat();
 
-        dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/webapps/facts", "$CONNEXO_DIR/partners/tomcat/webapps/facts");
-        make_path("$UPGRADE_PATH/temp/partners/facts/unpacked");
-        chdir "$UPGRADE_PATH/temp/partners/facts/unpacked";
-        system("\"$JAVA_HOME/bin/jar\" -xf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\"") == 0 or die "$JAVA_HOME/bin/jar -xvf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\" failed: $?";
-        dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customcss", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customcss");
-        dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customimages", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customimages");
-        copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/header.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/header.jsp");
-        copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/index_jupiter.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/index_jupiter.jsp");
-        chdir "$CONNEXO_DIR/bin";
+        #dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/webapps/facts", "$CONNEXO_DIR/partners/tomcat/webapps/facts");
+        #make_path("$UPGRADE_PATH/temp/partners/facts/unpacked");
+        #chdir "$UPGRADE_PATH/temp/partners/facts/unpacked";
+        #system("\"$JAVA_HOME/bin/jar\" -xf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\"") == 0 or die "$JAVA_HOME/bin/jar -xvf \"$UPGRADE_PATH/temp/partners/facts/facts.jar\" failed: $?";
+        #dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customcss", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customcss");
+        #dircopy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/customimages", "$CONNEXO_DIR/partners/tomcat/webapps/facts/customimages");
+        #copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/header.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/header.jsp");
+        #copy("$UPGRADE_PATH/temp/partners/facts/unpacked/resources/index_jupiter.jsp", "$CONNEXO_DIR/partners/tomcat/webapps/facts/index_jupiter.jsp");
+        #chdir "$CONNEXO_DIR/bin";
 
-        install_flow();
+        #install_flow();
 
         #copy existing flow repository
-        print "Copying Flow repository\n";
-        dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/.niogit","$CONNEXO_DIR/partners/tomcat/.niogit");
-        dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories/kie", "$CONNEXO_DIR/partners/tomcat/repositories/kie");
+        #print "Copying Flow repository\n";
+        #dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/.niogit","$CONNEXO_DIR/partners/tomcat/.niogit");
+        #dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories/kie", "$CONNEXO_DIR/partners/tomcat/repositories/kie");
 
         activate_sso();
         change_owner();
@@ -1396,7 +1404,7 @@ sub perform_upgrade {
 
         print "Starting Connexo...";
         start_connexo();
-        start_tomcat(); #will also upgrade Flow processes & Facts reports
+        start_tomcat_service(); #no upgrade Flow processes & Facts reports
 
         rmtree("$UPGRADE_PATH/temp");
 
