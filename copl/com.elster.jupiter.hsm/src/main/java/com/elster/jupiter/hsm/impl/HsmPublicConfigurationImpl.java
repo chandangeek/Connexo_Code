@@ -5,10 +5,12 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.impl.config.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Collection;
 
+@Component(name = "com.elster.jupiter.hsm.impl.HsmPublicConfigurationImpl", service = {HsmPublicConfiguration.class}, immediate = true, property = "name=" + HsmPublicConfiguration.COMPONENTNAME)
 public class HsmPublicConfigurationImpl implements HsmPublicConfiguration {
 
     private volatile HsmConfiguration hsmConfiguration;

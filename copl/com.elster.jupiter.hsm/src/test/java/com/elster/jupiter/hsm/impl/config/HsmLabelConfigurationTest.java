@@ -31,12 +31,7 @@ public class HsmLabelConfigurationTest {
     @Test
     public void testAllOkConfiguration() throws HsmBaseException {
         String fileLabel = "PUB_KEK";
-        String importSessionCapability = "SM_KEK_AUTHENTIC";
-        String deviceKeyLegnth = "32";
-        String renewSessionCapability = "SM_KEK_AUTHENTIC";
-        String importLabel = "S-DB";
-        String value = fileLabel + ", " + importLabel + ", " + importSessionCapability + ", " + deviceKeyLegnth + ", " + renewSessionCapability;
-        HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(value);
+        HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(fileLabel);
         Assert.assertEquals(fileLabel, hsmLabelConfiguration.getImportFileLabel());
     }
 
