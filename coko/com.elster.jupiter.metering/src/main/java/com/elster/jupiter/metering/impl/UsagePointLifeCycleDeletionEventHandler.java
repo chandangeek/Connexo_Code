@@ -18,6 +18,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -45,11 +47,12 @@ public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         UsagePointLifeCycle source = (UsagePointLifeCycle) localEvent.getSource();
-        if (!this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
-                .select(ListOperator.IN.contains("state", source.getStates()).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2)
-                .isEmpty()) {
-            throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
-        }
+
+        List<UsagePointStateTemporalImpl> usagePoints = this.meteringService.getDataModel().query(UsagePointStateTemporalImpl.class)
+                .select(ListOperator.IN.contains("state", source.getStates()).and(where("interval").isEffective(this.clock.instant())), Order.NOORDER, false, new String[0], 1, 2);
+        Optional<UsagePointStateTemporalImpl> lifeCycleIsLinkedToUsagePoint = usagePoints.stream().findAny().filter(usagePoint1->usagePoint1.getUsagePoint().getLifeCycle().getId() == source.getId());
+
+        if(lifeCycleIsLinkedToUsagePoint.isPresent()) throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
     }
 
     @Override

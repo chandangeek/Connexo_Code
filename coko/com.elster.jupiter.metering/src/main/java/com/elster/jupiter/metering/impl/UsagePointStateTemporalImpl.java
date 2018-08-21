@@ -53,6 +53,10 @@ public class UsagePointStateTemporalImpl implements Effectivity {
         return this.state.get();
     }
 
+    public UsagePoint getUsagePoint() {
+        return this.usagePoint.get();
+    }
+
     @Override
     public Interval getInterval() {
         return this.interval;

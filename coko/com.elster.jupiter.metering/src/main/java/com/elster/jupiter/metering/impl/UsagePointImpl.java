@@ -1444,6 +1444,7 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .orElseThrow(() -> new IllegalStateException("Default usage point life cycle has no initial state"));
     }
 
+    @Override
     public void setState(State state, Instant startTime) {
         Objects.requireNonNull(state);
         Objects.requireNonNull(startTime);
