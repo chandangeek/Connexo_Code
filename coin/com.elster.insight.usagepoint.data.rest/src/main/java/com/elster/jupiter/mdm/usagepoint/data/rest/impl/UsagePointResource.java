@@ -18,6 +18,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
@@ -434,6 +435,14 @@ public class UsagePointResource {
 
         usagePoint.setLifeCycle(newLifeCycle);
         usagePoint.update();
+
+        State initialState = usagePoint.getLifeCycle().getStates()
+                .stream()
+                .filter(State::isInitial)
+                .findFirst()
+                .get();
+        usagePoint.setState(initialState, Instant.now());
+
         return Response.ok(usagePointInfoFactory.from(usagePoint)).build();
     }
 
