@@ -155,11 +155,11 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         return this.name;
     }
 
-    FiniteStateMachine getStateMachine() {
+    public FiniteStateMachine getStateMachine() {
         return this.stateMachine.get();
     }
 
-    void setStateMachine(FiniteStateMachine stateMachine) {
+    public void setStateMachine(FiniteStateMachine stateMachine) {
         this.stateMachine.set(stateMachine);
     }
 
@@ -188,6 +188,8 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
             }
             this.eventService.postEvent(EventType.LIFE_CYCLE_BEFORE_DELETE.topic(), this);
             new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove); // can't just clear due to event type
+            //update fsm
+            this.stateMachine.get().startUpdate().complete();
             this.obsoleteTime = this.clock.instant();
             this.save();
             this.stateMachine.get().makeObsolete();

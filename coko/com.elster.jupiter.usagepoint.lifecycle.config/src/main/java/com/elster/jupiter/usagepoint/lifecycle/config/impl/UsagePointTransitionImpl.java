@@ -207,7 +207,7 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         StateTransitionEventType eventType = stateTransition.getEventType();
         FiniteStateMachineUpdater stateMachineUpdater = fsmFromState.getFiniteStateMachine().startUpdate();
         stateMachineUpdater.state(fsmFromState.getId()).prohibit(eventType).complete();
-        stateMachineUpdater.complete();
+        //stateMachineUpdater.complete(); call this update only once at the end of transitions removal
         if (eventType instanceof CustomStateTransitionEventType) {
             eventType.delete();
         }
