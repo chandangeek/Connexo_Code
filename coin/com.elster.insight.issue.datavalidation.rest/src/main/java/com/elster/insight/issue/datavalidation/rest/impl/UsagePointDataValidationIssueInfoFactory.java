@@ -31,7 +31,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +63,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
         this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
         this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
+        this.exceptionFactory = new ExceptionFactory(nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     public UsagePointDataValidationIssueInfo asInfo(UsagePointIssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {
