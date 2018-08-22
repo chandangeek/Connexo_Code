@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -34,6 +35,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+
+import aQute.libg.cryptography.Crypto;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -237,7 +240,7 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.managedCentrally();
         }
 
-        if (securityAccessorTypeInfo.keyTypeIsHSM()) {
+        if (CryptographicType.Hsm.equals(keyType.getCryptographicType())) {
             checkHSMLabel(securityAccessorTypeInfo.label);
             keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
             keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
@@ -395,9 +398,10 @@ public class SecurityAccessorTypeResource {
 
     @GET
     @Transactional
+    @Path("/hsm/labels")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    public Response getHsmLabels(@BeanParam JsonQueryParameters queryParameters) {
+    public Response getHsmLabels() {
         try {
             return Response.ok(hsmPublicConfiguration.labels().stream().map(s -> {
                 try {
@@ -413,9 +417,10 @@ public class SecurityAccessorTypeResource {
 
     @GET
     @Transactional
+    @Path("/hsm/capabilities")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    public Response getHsmCapabilities(@BeanParam JsonQueryParameters queryParameters) {
+    public Response getHsmCapabilities() {
         return Response.ok(SessionKeyCapability.values()).build();
     }
 }

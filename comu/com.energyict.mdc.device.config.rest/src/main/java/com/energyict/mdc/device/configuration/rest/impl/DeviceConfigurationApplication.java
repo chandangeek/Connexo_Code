@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.hsm.HsmPublicConfiguration;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -106,6 +107,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private volatile TrustStoreValuesProvider trustStoreValuesProvider;
     private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
+    private volatile HsmPublicConfiguration hsmPublicConfiguration;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -135,7 +137,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 ProtocolPropertiesResource.class,
                 DeviceConfigurationEstimationRuleSetResource.class,
                 MultiPartFeature.class,
-                TrustStoreResource.class
+                TrustStoreResource.class,
+                HsmPublicConfiguration.class
         );
     }
 
@@ -329,6 +332,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
     }
 
+    @Reference
+    public void setHsmPublicConfiguration(HsmPublicConfiguration hsmPublicConfiguration){ this.hsmPublicConfiguration = hsmPublicConfiguration;}
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -380,6 +386,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(securityAccessorInfoFactory).to(SecurityAccessorInfoFactory.class);
             bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
             bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
+            bind(hsmPublicConfiguration).to(HsmPublicConfiguration.class);
         }
     }
 }

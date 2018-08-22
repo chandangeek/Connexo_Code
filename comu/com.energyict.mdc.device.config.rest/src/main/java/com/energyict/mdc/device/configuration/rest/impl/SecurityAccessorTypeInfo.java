@@ -37,9 +37,4 @@ public class SecurityAccessorTypeInfo {
     public SessionKeyCapability renewCapability;
     public short keySize;
 
-
-
-    boolean keyTypeIsHSM(){
-        return ProtocolKeyTypes.HSM.getName().equals(keyType.name);
-    }
 }

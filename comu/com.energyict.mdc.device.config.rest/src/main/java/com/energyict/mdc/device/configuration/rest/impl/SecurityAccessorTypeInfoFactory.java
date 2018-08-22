@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
-import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
@@ -47,7 +47,7 @@ public class SecurityAccessorTypeInfoFactory {
             info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
         }
 
-        if (ProtocolKeyTypes.HSM.getName().equals(securityAccessorType.getKeyType().getName())) {
+        if (securityAccessorType.keyTypeIsHSM()) {
             info.label = securityAccessorType.getHsmKeyType().getLabel();
             info.importCapability =  securityAccessorType.getHsmKeyType().getImportCapability();
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
