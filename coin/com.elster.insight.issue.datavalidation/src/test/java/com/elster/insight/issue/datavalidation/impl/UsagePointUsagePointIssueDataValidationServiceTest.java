@@ -7,7 +7,6 @@ package com.elster.insight.issue.datavalidation.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
@@ -27,7 +26,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -47,10 +45,10 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
 import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.elster.insight.issue.datavalidation.UsagePointNotEstimatedBlock;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -273,14 +271,15 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(baseIssues).hasSize(1);
 
         AmrSystem amrSystem = UsagePointDataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        EndDevice endDevice = amrSystem.createEndDevice("360", "METER");
-        endDevice.update();
+        //EndDevice endDevice = amrSystem.createEndDevice("360", "METER");
+        // endDevice.update();
+        UsagePoint usagePoint = mock(UsagePoint.class);
         UsagePointIssueDataValidation issue = usagePointIssueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
-        issue.setDevice(endDevice);
+        issue.setUsagePoint(usagePoint);
         issue.update();
 
         UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
-        filter.setDevice(endDevice);
+        // filter.setUsagePoint(endDevice);
         List<? extends UsagePointIssueDataValidation> issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
@@ -288,12 +287,12 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
-        assertThat(issue.getDevice()).isEqualTo(endDevice);
+        assertThat(issue.getDevice()).isEqualTo(usagePoint);
 
-        endDevice = amrSystem.createEndDevice("180", "ANOTHER METER");
-        endDevice.update();
+        //endDevice = amrSystem.createEndDevice("180", "ANOTHER METER");
+        //endDevice.update();
         filter = new UsagePointDataValidationIssueFilter();
-        filter.setDevice(endDevice);
+        filter.setUsagePoint(usagePoint);
         issues = usagePointIssueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
     }

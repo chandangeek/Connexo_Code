@@ -6,7 +6,7 @@ package com.elster.insight.issue.datavalidation;
 
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
 
 import aQute.bnd.annotation.ProviderType;
@@ -27,7 +27,7 @@ public class UsagePointDataValidationIssueFilter {
 
     private Optional<IssueReason> issueReason = Optional.empty();
 
-    private Optional<EndDevice> device = Optional.empty();
+    private Optional<UsagePoint> usagePoint = Optional.empty();
 
     public void setUnassignedOnly() {
         this.unassignedOnly = true;
@@ -37,8 +37,8 @@ public class UsagePointDataValidationIssueFilter {
         this.assignee = Optional.of(assignee);
     }
 
-    public void setDevice(EndDevice device) {
-        this.device = Optional.of(device);
+    public void setUsagePoint(UsagePoint usagePoint) {
+        this.usagePoint = Optional.of(usagePoint);
     }
 
     public void setIssueReason(IssueReason issueReason) {
@@ -56,9 +56,9 @@ public class UsagePointDataValidationIssueFilter {
     public boolean isUnassignedOnly() {
         return unassignedOnly;
     }
-    
-    public Optional<EndDevice> getDevice() {
-        return device;
+
+    public Optional<UsagePoint> getUsagePoint() {
+        return usagePoint;
     }
 
     public Optional<IssueReason> getIssueReason() {

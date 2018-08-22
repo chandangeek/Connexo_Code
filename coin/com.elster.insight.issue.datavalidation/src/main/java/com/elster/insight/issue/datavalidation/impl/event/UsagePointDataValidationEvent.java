@@ -68,7 +68,7 @@ public abstract class UsagePointDataValidationEvent implements IssueEvent {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         UsagePointDataValidationIssueFilter filter = new UsagePointDataValidationIssueFilter();
-        getEndDevice().ifPresent(filter::setDevice);
+        getUsagePoint().ifPresent(filter::setUsagePoint);
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
         Optional<? extends UsagePointIssueDataValidation> foundIssue = usagePointIssueDataValidationService.findAllDataValidationIssues(filter)

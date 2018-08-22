@@ -40,11 +40,11 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.insight.issue.datavalidation.UsagePointDataValidationIssueFilter;
 import com.elster.insight.issue.datavalidation.UsagePointHistoricalIssueDataValidation;
-import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
-import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.impl.entity.UsagePointIssueDataValidationImpl;
+import com.elster.insight.issue.datavalidation.impl.entity.UsagePointOpenIssueDataValidationImpl;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -274,8 +274,8 @@ public class UsagePointIssueDataValidationServiceImpl implements UsagePointIssue
             condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".reason").isEqualTo(filter.getIssueReason().get()));
         }
         //filter by device
-        if (filter.getDevice().isPresent()) {
-            condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".device").isEqualTo(filter.getDevice().get()));
+        if (filter.getUsagePoint().isPresent()) {
+            condition = condition.and(where(UsagePointIssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".usagePoint").isEqualTo(filter.getUsagePoint().get()));
         }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
