@@ -4,10 +4,10 @@
  *
  */
 
-package com.elster.jupiter.hsm.impl.config;
+package com.elster.jupiter.hsm.model.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 import org.junit.Assert;
 import org.junit.Rule;

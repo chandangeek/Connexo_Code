@@ -4,10 +4,9 @@
  *
  */
 
-package com.elster.jupiter.hsm.impl.config;
+package com.elster.jupiter.hsm.model.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.Objects;
 
 public class HsmLabelConfiguration {
 
-    public static final int IMPORT_FILE_LABEL = 0;
+    public static final int IMPORT_FILE_LABEL_POSITION = 0;
 
 
     private final String importFileLabel;
@@ -27,7 +26,7 @@ public class HsmLabelConfiguration {
         String[] split = value.split(",", -1);
 
         try {
-            this.importFileLabel = initString(split[IMPORT_FILE_LABEL].trim());
+            this.importFileLabel = initString(split[IMPORT_FILE_LABEL_POSITION].trim());
         } catch (IllegalArgumentException e) {
             throw new HsmBaseException(e);
         } catch (IndexOutOfBoundsException e1) {
@@ -37,7 +36,7 @@ public class HsmLabelConfiguration {
     }
 
     public HsmLabelConfiguration(List<String> values) {
-        this.importFileLabel = values.get(IMPORT_FILE_LABEL);
+        this.importFileLabel = values.get(IMPORT_FILE_LABEL_POSITION);
     }
 
 

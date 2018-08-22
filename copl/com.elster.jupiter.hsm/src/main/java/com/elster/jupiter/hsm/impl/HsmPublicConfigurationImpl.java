@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmPublicConfiguration;
-import com.elster.jupiter.hsm.impl.config.HsmLabelConfiguration;
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import org.osgi.service.component.annotations.Component;

@@ -7,7 +7,7 @@
 package com.elster.jupiter.hsm.impl.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 import org.hamcrest.core.IsInstanceOf;
 
@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
