@@ -10,11 +10,13 @@ import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -42,15 +44,22 @@ public class ReasonResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
-    public Response getReasons(@BeanParam StandardParametersBean params) {
+    public Response getReasons(@BeanParam StandardParametersBean params, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Condition condition = Condition.TRUE;
+        IssueType issueType = null;
         if (params.getFirst(ISSUE_TYPE) != null) {
-            IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
+            issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
             condition = where("issueType").isEqualTo(issueType);
-        }else {
-            IssueType issueType = getIssueService().findIssueType("devicealarm").orElse(null);
+        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
+            issueType = getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null);
+            condition = where("issueType").isEqualTo(issueType);
+        } else {
+            issueType = getIssueService().findIssueType("devicealarm").orElse(null);
             condition = where("issueType").isNotEqual(issueType);
+            issueType = getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null);
+            condition = condition.and(where("issueType").isNotEqual(issueType));
         }
+
 
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
         List<IssueReason> reasons = query.select(condition);

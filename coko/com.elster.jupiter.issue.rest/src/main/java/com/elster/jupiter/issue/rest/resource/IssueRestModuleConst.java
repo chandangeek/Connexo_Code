@@ -25,4 +25,5 @@ public class IssueRestModuleConst {
     public static final String FIELD = "field";
     public static final String START_INTERVAL = "startIntervalFrom";
     public static final String END_INTERVAL = "startIntervalTo";
+    public static final String APPLICATION = "application";
 }

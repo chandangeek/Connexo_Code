@@ -22,6 +22,7 @@ import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -202,9 +203,21 @@ public class IssueResourceHelper {
             }
         }
 
-        jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).stream()
-                .flatMap(it -> issueService.findIssueType(it).map(Stream::of).orElse(Stream.empty()))
-                .forEach(filter::addIssueType);
+        if (jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).size() == 0) {
+            if (jsonFilter.getString(IssueRestModuleConst.APPLICATION) != null) {
+                if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("MultiSense") == 0) {
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_COLLECTION.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_VALIDATION.getName()).orElse(null));
+                } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));
+                }
+            }
+
+        } else {
+            jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).stream()
+                    .flatMap(it -> issueService.findIssueType(it).map(Stream::of).orElse(Stream.empty()))
+                    .forEach(filter::addIssueType);
+        }
         getDueDates(jsonFilter).stream().forEach(dd -> filter.addDueDate(dd.startTime, dd.endTime));
 
         if (jsonFilter.getLong(IssueRestModuleConst.START_INTERVAL) != null) {
