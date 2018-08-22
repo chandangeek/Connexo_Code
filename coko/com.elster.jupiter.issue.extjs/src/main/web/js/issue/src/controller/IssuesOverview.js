@@ -38,31 +38,31 @@ Ext.define('Isu.controller.IssuesOverview', {
     refs: [
         {
             ref: 'preview',
-            selector: 'issues-overview #issues-preview'
+            selector: '#issues-overview #issues-preview'
         },
         {
             ref: 'filterToolbar',
-            selector: 'issues-overview isu-view-issues-issuefilter'
+            selector: '#issues-overview isu-view-issues-issuefilter'
         },
         {
             ref: 'groupingToolbar',
-            selector: 'issues-overview #issues-grouping-toolbar'
+            selector: '#issues-overview #issues-grouping-toolbar'
         },
         {
             ref: 'groupGrid',
-            selector: 'issues-overview #issues-group-grid'
+            selector: '#issues-overview #issues-group-grid'
         },
         {
             ref: 'previewContainer',
-            selector: 'issues-overview #issues-preview-container'
+            selector: '#issues-overview #issues-preview-container'
         },
         {
             ref: 'groupingTitle',
-            selector: 'issues-overview issues-grouping-title'
+            selector: '#issues-overview issues-grouping-title'
         },
         {
             ref: 'issuesGrid',
-            selector: 'issues-overview #issues-grid'
+            selector: '#issues-overview #issues-grid'
         },
         {
             ref: 'previewActionMenu',
@@ -73,25 +73,25 @@ Ext.define('Isu.controller.IssuesOverview', {
     init: function () {
         var me = this;
         this.control({
-            'issues-overview #issues-overview-action-menu': {
+            '#issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction
             },
-            'issues-overview #issues-grid uni-actioncolumn': {
+            '#issues-overview #issues-grid uni-actioncolumn': {
                 menuclick: this.chooseAction
             },
-            'issues-overview #issues-grid': {
+            '#issues-overview #issues-grid': {
                 select: this.showPreview
             },
-            'issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
+            '#issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
                 change: this.setGroupingType
             },
-            'issues-overview issues-group-grid': {
+            '#issues-overview issues-group-grid': {
                 select: this.setGroupingValue
             },
-            'issues-overview isu-view-issues-issuefilter': {
+            '#issues-overview isu-view-issues-issuefilter': {
                 change: this.setGrouping
             },
-            'issues-overview #issues-preview #filter-display-button': {
+            '#issues-overview #issues-preview #filter-display-button': {
                 click: this.setFilterItem
             }
         });
@@ -138,6 +138,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
             me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview', {
+                itemId: 'issues-overview',
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType
             }));

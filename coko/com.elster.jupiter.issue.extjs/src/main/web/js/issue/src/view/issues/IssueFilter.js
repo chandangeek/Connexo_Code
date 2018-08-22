@@ -153,6 +153,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         // Memory proxy.
         if (me.hasActiveFilter()) {
             var tempParams = me.checkGrouping(me.getFilterParams(false, !me.filterObjectEnabled));
+            tempParams.application = Uni.util.Application.getAppName();
 
             if (me.filterObjectEnabled) {
                 params[me.filterObjectParam] = me.createFiltersObject(tempParams);
