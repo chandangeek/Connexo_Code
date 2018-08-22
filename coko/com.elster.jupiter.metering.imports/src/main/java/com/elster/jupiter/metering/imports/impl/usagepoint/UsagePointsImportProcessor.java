@@ -36,6 +36,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.sun.org.apache.xerces.internal.impl.dv.dtd.NOTATIONDatatypeValidator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -158,10 +159,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
-            if (getContext().getMeteringService()
-                    .findUsagePointLifeCycle(data.getLifeCycle()) == null) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_LIFE_CYCLE, data.getLineNumber(), data.getLifeCycle());
-            }
             UsagePoint usagePoint = usagePointImportHelper.createUsagePointForInsight(serviceCategory.get()
                     .newUsagePoint(identifier, data.getInstallationTime()
                             .orElse(getContext().getClock().instant())), data);
