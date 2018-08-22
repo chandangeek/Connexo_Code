@@ -49,31 +49,31 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
             [
                 {
                     ref: 'preview',
-                    selector: 'issues-overview #issue-view-preview'
+                    selector: '#validation-issues-overview #issue-view-preview'
                 },
                 {
                     ref: 'filterToolbar',
-                    selector: 'issues-overview isu-view-issues-issuefilter'
+                    selector: '#validation-issues-overview issue-view-filter'
                 },
                 {
                     ref: 'groupingToolbar',
-                    selector: 'issues-overview #issues-grouping-toolbar'
+                    selector: '#validation-issues-overview #issues-grouping-toolbar'
                 },
                 {
                     ref: 'groupGrid',
-                    selector: 'issues-overview #issues-group-grid'
+                    selector: '#validation-issues-overview #issues-group-grid'
                 },
                 {
                     ref: 'previewContainer',
-                    selector: 'issues-overview #issues-preview-container'
+                    selector: '#validation-issues-overview #issues-preview-container'
                 },
                 {
                     ref: 'groupingTitle',
-                    selector: 'issues-overview issues-grouping-title'
+                    selector: '#validation-issues-overview issues-grouping-title'
                 },
                 {
                     ref: 'issuesGrid',
-                    selector: 'issues-overview #issues-view-grid'
+                    selector: '#validation-issues-overview #issues-view-grid'
                 },
                 {
                     ref: 'previewActionMenu',
@@ -86,25 +86,25 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
     init: function () {
         var me = this;
         this.control({
-            'issues-overview #issues-overview-action-menu': {
+            '#validation-issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction
             },
-            'issues-overview #issues-view-grid uni-actioncolumn': {
+            '#validation-issues-overview #issues-view-grid uni-actioncolumn': {
                 menuclick: this.chooseAction
             },
-            'issues-overview #issues-view-grid': {
+            '#validation-issues-overview #issues-view-grid': {
                 select: this.showPreview
             },
-            'issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
+            '#validation-issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
                 change: this.setGroupingType
             },
-            'issues-overview issues-group-grid': {
+            '#validation-issues-overview issues-group-grid': {
                 select: this.setGroupingValue
             },
-            'issues-overview isu-view-issues-issuefilter': {
+            '#validation-issues-overview isu-view-issues-issuefilter': {
                 change: this.setGrouping
             },
-            'issues-overview #issue-view-preview #filter-display-button': {
+            '#validation-issues-overview #issue-view-preview #filter-display-button': {
                 click: this.setFilterItem
             }
         });
@@ -158,6 +158,7 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
             var widget = Ext.widget('issues-overview', {
+                itemId: 'validation-issues-overview',
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType,
                 filter: {

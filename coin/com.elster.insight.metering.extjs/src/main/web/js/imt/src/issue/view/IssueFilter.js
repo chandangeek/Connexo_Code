@@ -19,7 +19,10 @@ Ext.define('Imt.issue.view.IssueFilter', {
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            usagePointsStore = Ext.getStore('Imt.issue.store.UsagePoints') || Ext.create('Imt.issue.store.UsagePoints');
+
+        usagePointsStore.getProxy().setExtraParam('nameOnly', true);
 
         me.filters = [
             {
@@ -122,9 +125,9 @@ Ext.define('Imt.issue.view.IssueFilter', {
                 emptyText: Uni.I18n.translate('general.title.usagepoint', 'IMT', 'Usage point'),
                 displayField: 'name',
                 valueField: 'name',
-                store: 'Imt.issue.store.UsagePoints',
+                store: usagePointsStore,
                 queryMode: 'remote',
-                queryParam: 'like',
+                queryParam: 'name',
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
@@ -153,6 +156,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
         // Memory proxy.
         if (me.hasActiveFilter()) {
             var tempParams = me.checkGrouping(me.getFilterParams(false, !me.filterObjectEnabled));
+            tempParams.application = 'INS';
 
             if (me.filterObjectEnabled) {
                 params[me.filterObjectParam] = me.createFiltersObject(tempParams);
