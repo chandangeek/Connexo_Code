@@ -284,13 +284,13 @@ public enum TableSpecs {
                     .since(version(10,4,2))
                     .add();
             table.column("IMPORT_CAPABILITY")
-                    .varChar()
+                    .varChar(30)
                     .conversion(CHAR2ENUM)
                     .map(SecurityAccessorTypeImpl.Fields.IMPORT_CAPABILITY.fieldName())
                     .since(version(10,4,3))
                     .add();
             table.column("RENEW_CAPABILITY")
-                    .varChar()
+                    .varChar(30)
                     .conversion(CHAR2ENUM)
                     .map(SecurityAccessorTypeImpl.Fields.RENEW_CAPABILITY.fieldName())
                     .since(version(10,4,3))
