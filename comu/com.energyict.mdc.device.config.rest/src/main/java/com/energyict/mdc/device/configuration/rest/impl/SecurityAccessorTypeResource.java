@@ -405,7 +405,7 @@ public class SecurityAccessorTypeResource {
         try {
             return Response.ok(hsmPublicConfiguration.labels().stream().map(s -> {
                 try {
-                    return s.getImportFileLabel();
+                    return s.getName();
                 } catch (HsmBaseException e) {
                     throw new RuntimeException(e);
                 }
