@@ -6,8 +6,6 @@ package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 
-import java.time.Instant;
-
 /**
  * Created by Lucian on 6/2/2015.
  */
@@ -25,6 +23,7 @@ public class FileImportOccurrenceInfo {
     public String status;
     public String summary;
     public boolean deleted;
+    public Long now;
 
     public FileImportOccurrenceInfo(){
     }
@@ -37,9 +36,10 @@ public class FileImportOccurrenceInfo {
         this.importServiceName = fileImportOccurrence.getImportSchedule().getName();
         this.deleted = fileImportOccurrence.getImportSchedule().getObsoleteTime()!=null;
         triggeredOn = fileImportOccurrence.getTriggerDate().toEpochMilli();
+        this.now = fileImportOccurrence.getClock().instant().toEpochMilli();
         fileImportOccurrence.getStartDate().ifPresent(sd->this.startedOn = sd.toEpochMilli());
         fileImportOccurrence.getEndDate().ifPresent(sd->this.finishedOn = sd.toEpochMilli());
-        this.duration = calculateDuration(startedOn, finishedOn);
+        this.duration = calculateDuration(startedOn, finishedOn, now);
         this.status = fileImportOccurrence.getStatusName();
         this.summary = fileImportOccurrence.getMessage();
     }
@@ -48,11 +48,11 @@ public class FileImportOccurrenceInfo {
         return new FileImportOccurrenceInfo(fileImportOccurrence);
     }
 
-    private static Long calculateDuration(Long startedOn, Long finishedOn) {
+    private static Long calculateDuration(Long startedOn, Long finishedOn, Long now) {
         if (startedOn == null) {
             return null;
         } else if (finishedOn == null) {
-            return Instant.now().minusMillis(startedOn).toEpochMilli();
+            return now - startedOn;
         }
         return finishedOn - startedOn;
     }
