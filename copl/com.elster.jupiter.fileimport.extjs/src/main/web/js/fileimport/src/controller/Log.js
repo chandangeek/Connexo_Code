@@ -75,12 +75,14 @@ Ext.define('Fim.controller.Log', {
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
 
-                Ext.suspendLayouts();
+
 
                 view.down('#import-history-log-grid-empty-message').setText(
                     Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',
-                        [occurrenceTask.get('importServiceName'), occurrenceTask.get('startedOnDisplay')])
+                        [occurrenceTask.get('importServiceName'), occurrenceTask.get('startedOnDisplay')], false)
                 );
+
+                Ext.suspendLayouts();
 
                 if (!fromWorkSpace) {
                     view.down('#mnu-histoty-log').setHeader(occurrenceTask.get('importServiceName'));
