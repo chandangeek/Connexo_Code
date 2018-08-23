@@ -403,13 +403,7 @@ public class SecurityAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     public Response getHsmLabels() {
         try {
-            return Response.ok(hsmPublicConfiguration.labels().stream().map(s -> {
-                try {
-                    return s.getName();
-                } catch (HsmBaseException e) {
-                    throw new RuntimeException(e);
-                }
-            }).toArray()).build();
+            return Response.ok(hsmPublicConfiguration.labels().stream().map(s ->  s.getName()).toArray()).build();
         } catch (HsmBaseException e) {
             throw new RuntimeException(e);
         }
