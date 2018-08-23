@@ -133,7 +133,8 @@ public class UsagePointLifeCycleTransitionsResource {
         UsagePointTransition transition = this.resourceHelper.lockTransition(transitionInfo);
         transition.remove();
         //update fsm
-        transition.getLifeCycle().getUpdater().complete();
+        if(transition.getLifeCycle() != null && transition.getLifeCycle().getUpdater() != null)
+            transition.getLifeCycle().getUpdater().complete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
