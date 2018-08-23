@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
 
+    public static final String LABEL_PREFIX = HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR;
     private final  ReloadingFileBasedConfigurationBuilder cfgBuilder;
 
     public HsmConfigurationAutoReloadFile(String fileName) throws HsmBaseException {
@@ -60,7 +61,7 @@ public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
         Iterator keys = getUnderlyingConfiguration().getKeys(HSM_CONFIG_LABEL_PREFIX);
         while (keys.hasNext()) {
             String currentKey = (String) keys.next();
-            HsmLabelConfiguration labelConfigured = new HsmLabelConfiguration(this.getUnderlyingConfiguration().getString(currentKey));
+            HsmLabelConfiguration labelConfigured = new HsmLabelConfiguration(currentKey.replace(LABEL_PREFIX, ""), this.getUnderlyingConfiguration().getString(currentKey));
             if (label.equals(getImportFileLabelIfExists(labelConfigured))) {
                 return currentKey.replace(HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR,"");
             }
@@ -71,11 +72,11 @@ public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
 
     @Override
     public HsmLabelConfiguration get(String label) throws HsmBaseException {
-        String value = getUnderlyingConfiguration().getString(HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR + label);
+        String value = getUnderlyingConfiguration().getString(LABEL_PREFIX + label);
         if (Objects.isNull(value) || value.isEmpty()) {
             throw new HsmBaseException("Asking configuration for a label that is missing, label:" + label);
         }
-        return new HsmLabelConfiguration(value);
+        return new HsmLabelConfiguration(label,value);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
         Iterator keys = getUnderlyingConfiguration().getKeys(HSM_CONFIG_LABEL_PREFIX);
         while (keys.hasNext()) {
             String currentKey = (String) keys.next();
-            allLabels.add(new HsmLabelConfiguration(getUnderlyingConfiguration().getString(currentKey)));
+            allLabels.add(new HsmLabelConfiguration(currentKey.replace(LABEL_PREFIX, ""), getUnderlyingConfiguration().getString(currentKey)));
         }
         return allLabels;
     }

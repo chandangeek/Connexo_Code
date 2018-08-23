@@ -88,8 +88,8 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
         for (Map.Entry<Object, Object> entry : allEntries) {
             Object key = entry.getKey();
             if (key instanceof String && ((String) key).startsWith(HSM_CONFIG_LABEL_PREFIX)) {
-                HsmLabelConfiguration cfg = new HsmLabelConfiguration((String) entry.getValue());
                 String label = ((String) key).replace(HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR, "");
+                HsmLabelConfiguration cfg = new HsmLabelConfiguration(label, (String) entry.getValue());
                 importToHsmLabelMap.put(getFileImportLabel(label, cfg), label);
                 labelToConfigMap.put(label, cfg);
             }

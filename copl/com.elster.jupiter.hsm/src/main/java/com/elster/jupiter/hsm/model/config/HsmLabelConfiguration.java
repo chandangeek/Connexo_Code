@@ -16,29 +16,24 @@ public class HsmLabelConfiguration {
 
     public static final int IMPORT_FILE_LABEL_POSITION = 0;
 
-
+    private final String label;
     private final String importFileLabel;
 
-    public HsmLabelConfiguration(@Nonnull String value) throws HsmBaseException {
-        if (Objects.isNull(value) || value.trim().isEmpty()) {
-            throw new HsmBaseException("Wrong label configuration format, label configuration value:" + value);
+    public HsmLabelConfiguration(@Nonnull String label, @Nonnull String configuredStringValue) throws HsmBaseException {
+        this.label = label;
+        if (Objects.isNull(label) || label.trim().isEmpty() || Objects.isNull(configuredStringValue) || configuredStringValue.trim().isEmpty()) {
+            throw new HsmBaseException("Wrong label configuration format, label configuration value:" + configuredStringValue);
         }
-        String[] split = value.split(",", -1);
-
+        String[] split = configuredStringValue.split(",", -1);
         try {
             this.importFileLabel = initString(split[IMPORT_FILE_LABEL_POSITION].trim());
         } catch (IllegalArgumentException e) {
             throw new HsmBaseException(e);
         } catch (IndexOutOfBoundsException e1) {
-            throw new HsmBaseException("Wrong label configuration format, label configuration value:" + value);
+            throw new HsmBaseException("Wrong label configuration format, label configuration configuredStringValue:" + configuredStringValue);
         }
 
     }
-
-    public HsmLabelConfiguration(List<String> values) {
-        this.importFileLabel = values.get(IMPORT_FILE_LABEL_POSITION);
-    }
-
 
     /**
      * @return importFileLabel as present in import file
@@ -47,6 +42,8 @@ public class HsmLabelConfiguration {
     public String getImportFileLabel() throws HsmBaseException {
         return checkNullAndReturn(importFileLabel, "Asking for import importFileLabel but not configured");
     }
+
+    public String getName() { return label;  }
 
 
     private <T extends Object> T checkNullAndReturn(T obj, String msg) throws HsmBaseException {
@@ -72,19 +69,20 @@ public class HsmLabelConfiguration {
             return false;
         }
         HsmLabelConfiguration that = (HsmLabelConfiguration) o;
-        return Objects.equals(importFileLabel, that.importFileLabel);
+        return Objects.equals(label, that.label) &&
+                Objects.equals(importFileLabel, that.importFileLabel);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(importFileLabel);
+        return Objects.hash(label, importFileLabel);
     }
 
     @Override
     public String toString() {
         return "HsmLabelConfiguration{" +
-                "importFileLabel='" + importFileLabel + '\'' +
+                "label='" + label + '\'' +
+                ", importFileLabel='" + importFileLabel + '\'' +
                 '}';
     }
 }
