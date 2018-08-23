@@ -43,7 +43,7 @@ public enum TableSpecs {
             table.column("ACTIVE").bool().map("active").add();
             table.column("BUFFERED").bool().map("buffered").add();
             table.column("ISDEFAULT").bool().map("isDefault").installValue("'Y'").since(version(10, 5)).add();
-            table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").since(version(10, 5)).add();
+            table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").since(version(10, 5)).installValue("'QUEUE_TYPE_NAME'").add();
             table.column("IS_EXTRA_QUEUE_ENABLED").bool().map("isExtraQueueCreationEnabled").installValue("'N'").since(version(10, 5)).add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
