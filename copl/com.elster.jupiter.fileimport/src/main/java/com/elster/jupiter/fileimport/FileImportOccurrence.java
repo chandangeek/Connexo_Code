@@ -10,6 +10,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.io.File;
 import java.io.InputStream;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -99,4 +100,6 @@ public interface FileImportOccurrence {
     Finder<ImportLogEntry> getLogsFinder();
 
     String getMessage();
+
+    Clock getClock();
 }

@@ -224,6 +224,11 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         return this.message;
     }
 
+    @Override
+    public Clock getClock(){
+        return this.clock;
+    }
+
     //used just for tests
     void setLogger(Logger logger) {
         this.logger = logger;
