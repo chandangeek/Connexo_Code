@@ -12,6 +12,7 @@ import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.io.InputStream;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,6 +129,11 @@ class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence 
     @Override
     public String getMessage() {
         return fileImportOccurrence.getMessage();
+    }
+
+    @Override
+    public Clock getClock(){
+        return fileImportOccurrence.getClock();
     }
 
     private class BufferedLogHandler extends Handler {
