@@ -54,9 +54,7 @@ Ext.define('Cfg.view.log.Setup', {
                         xtype: 'uni-form-empty-message',
                         text: Ext.String.format(
                             Uni.I18n.translate('validationTasks.log.empty.list', 'CFG', "Validation task '{0}' started on {1} did not create any logs."),
-                            me.task.get('name'),
-                            me.runStartedOn
-                        )
+                            [me.task.get('name'), me.runStartedOn], false)
                     }
                 }
             ]
