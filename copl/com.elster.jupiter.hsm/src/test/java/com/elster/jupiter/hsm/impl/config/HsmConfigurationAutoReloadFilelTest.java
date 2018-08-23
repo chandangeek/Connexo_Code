@@ -117,7 +117,7 @@ public class HsmConfigurationAutoReloadFilelTest {
         hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
         Collection<HsmLabelConfiguration> labels = hsmConfigurationPropFile.getLabels();
         assertEquals(1, labels.size());
-        HsmLabelConfiguration label1 = new HsmLabelConfiguration("Pub_KEK_SM");
+        HsmLabelConfiguration label1 = new HsmLabelConfiguration("IMP-SM-KEK","Pub_KEK_SM");
 
         Assertions.assertThat(labels).contains(label1);
     }
