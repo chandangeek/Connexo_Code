@@ -11,6 +11,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
         'Imt.purpose.view.summary.PurposeDataView',
         'Imt.purpose.view.summary.PurposeRegisterDataView',
         'Imt.purpose.view.summary.validation.RulesSetMainView',
+        'Imt.purpose.view.summary.validation.RulesSetMain',
         'Imt.purpose.view.summary.estimation.EstimationRulesSetMainView',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputReadings'
@@ -164,7 +165,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
             title: Uni.I18n.translate('purpose.summary.validationConfigurationView', 'IMT', 'Validation configuration'),
             itemId: 'validation-configuration-component',
             items: {
-                xtype: 'validationConfigurationRulesSetMainView',
+                xtype: 'validationConfigurationRulesSetMain',
                 purpose: me.purpose,
                 usagePoint: me.usagePoint,
                 router: me.router,

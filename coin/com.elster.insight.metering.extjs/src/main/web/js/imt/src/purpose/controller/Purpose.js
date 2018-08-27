@@ -62,6 +62,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Ext.ProgressBar',
         'Cfg.configuration.view.RuleWithAttributesEdit',
         'Imt.purpose.view.summary.validation.RulesSetMainView',
+        'Imt.purpose.view.summary.validation.RulesSetMain',
         'Imt.purpose.view.summary.validation.RulePreview',
         'Imt.purpose.view.summary.validation.RulesSetActionMenu',
         'Imt.purpose.view.summary.estimation.EstimationRulesSetMainView',
@@ -129,7 +130,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         },
         {
             ref: 'page',
-            selector: '#validationConfigurationRulesSetMainView'
+            selector: '#validationConfigurationRulesSetMain'
         },
         {
             ref: 'estimationPage',

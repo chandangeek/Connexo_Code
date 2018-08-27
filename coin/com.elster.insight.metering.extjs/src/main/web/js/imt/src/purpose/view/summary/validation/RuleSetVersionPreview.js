@@ -3,7 +3,7 @@
  */
 
 Ext.define('Imt.purpose.view.summary.validation.RuleSetVersionPreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.container.Container',
     alias: 'widget.validationConfigurationRulesSetVersionPreview',
     itemId: 'validationConfigurationRulesSetVersionPreview',
     title: '',
@@ -16,10 +16,6 @@ Ext.define('Imt.purpose.view.summary.validation.RuleSetVersionPreview', {
         'Imt.purpose.view.summary.validation.RulePreview',
         'Uni.util.FormEmptyMessage'
     ],
-    // layout: {
-    //     type: 'vbox'
-    //     //align: 'stretch'
-    // },
     initComponent: function () {
         var me = this;
 

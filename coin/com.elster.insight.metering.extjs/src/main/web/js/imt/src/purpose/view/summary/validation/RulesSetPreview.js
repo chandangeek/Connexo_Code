@@ -3,7 +3,7 @@
  */
 
 Ext.define('Imt.purpose.view.summary.validation.RulesSetPreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.container.Container',
     alias: 'widget.validationConfigurationRulesSetPreview',
     itemId: 'validationConfigurationRulesSetPreview',
     title: '',
