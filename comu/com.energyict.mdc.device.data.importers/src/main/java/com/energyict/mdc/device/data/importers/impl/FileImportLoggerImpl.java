@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
@@ -45,9 +46,16 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
 
     @Override
     public void importLineFailed(T data, Exception exception) {
-        String message;
+        String message = "";
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
+        } else if (exception instanceof VerboseConstraintViolationException) {
+            VerboseConstraintViolationException constraintViolationException = (VerboseConstraintViolationException) exception;
+            for (ConstraintViolation<?> constraintViolation : constraintViolationException.getConstraintViolations()) {
+                message = this.context.getThesaurus()
+                        .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
+                        .format(data.getLineNumber(), data.getDeviceIdentifier(), constraintViolation.getMessage());
+            }
         } else {
             // Always specify line number and device identifier
             message = this.context.getThesaurus()
