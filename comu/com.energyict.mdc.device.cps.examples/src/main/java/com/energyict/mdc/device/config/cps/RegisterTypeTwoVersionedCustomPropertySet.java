@@ -8,6 +8,9 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
@@ -39,6 +42,7 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
+    private volatile Thesaurus thesaurus;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
@@ -50,6 +54,12 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
         this.propertySpecService = propertySpecService;
     }
 
+    @SuppressWarnings("unused") // OSGI
+    @org.osgi.service.component.annotations.Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(CustomPropertySetsDemoInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
     public RegisterTypeTwoVersionedCustomPropertySet() {
         super();
     }
@@ -57,6 +67,14 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
     @Inject
     public RegisterTypeTwoVersionedCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
         this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
+    }
+
+    @Inject
+    public RegisterTypeTwoVersionedCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService, NlsService nlsService) {
+        this();
+        this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setDeviceService(deviceService);
     }
@@ -78,7 +96,8 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
 
     @Override
     public String getDomainClassDisplayName() {
-        return "Register";
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_REGISTER).format(); //CONM-332
+        //return "Register";
     }
 
     @Override

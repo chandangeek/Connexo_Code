@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
     DOMAIN_NAME_DEVICE("domain.name.device", "Device"),
     DOMAIN_NAME_CHANNEL("domain.name.channel", "Channel"),
+    DOMAIN_NAME_REGISTER("domain.name.register", "Register"),
+    DOMAIN_NAME_USAGEPOINT("domain.name.usagePoint", "Usage point"),
     EMI_NAME(DeviceEMeterInfoCustomPropertySet.PREFIX + ".name", "End device E-meter info"),
     EMI_PROPERTY_MANUFACTURER(DeviceEMeterInfoCustomPropertySet.PREFIX + ".manufacturer", "Manufacturer"),
     EMI_PROPERTY_MODEL_NUMBER(DeviceEMeterInfoCustomPropertySet.PREFIX + ".modelNumber", "Model number"),
