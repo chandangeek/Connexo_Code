@@ -219,6 +219,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
 
     @Override
     public void delete(EndPointConfiguration endPointConfiguration) {
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_VALIDATE_DELETE.topic(), endPointConfiguration);
         ((EndPointConfigurationImpl) endPointConfiguration).delete();
         eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
