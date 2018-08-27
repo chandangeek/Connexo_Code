@@ -13,21 +13,21 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @ConsumerType
-public interface DataExportWebService<T extends ExportData> {
+public interface DataExportWebService {
     // TODO: move to implementers
 //    String CREATE_NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_COut";
 //    String CHANGE_NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_COut";
     String TIMEOUT_PROPERTY_KEY = "webService.timeout";
 
-    ServiceCall call(EndPointConfiguration endPointConfiguration, Stream<T> data);
-
-    Class<T> getDataClass();
+    ServiceCall call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data);
 
     /**
      * Returns the <b>unique</b> name of the web service.
      * @return The <b>unique</b> name of the web service.
      */
     String getName();
+
+    Set<String> getSupportedDataTypes();
 
     Set<Operation> getSupportedOperations();
 

@@ -55,8 +55,9 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@FormatterCompliesWithDestinations(groups = {Save.Create.class, Save.Update.class})
+@ChangeEndPointIsSetForExportOfUpdatedData(groups = {Save.Create.class, Save.Update.class})
 final class ExportTaskImpl implements IExportTask {
-
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -535,7 +536,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public List<DataExportDestination> getDestinations() {
+    public List<IDataExportDestination> getDestinations() {
         return Collections.unmodifiableList(destinations);
     }
 

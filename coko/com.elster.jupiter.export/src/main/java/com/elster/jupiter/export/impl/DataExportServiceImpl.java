@@ -20,11 +20,8 @@ import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
-import com.elster.jupiter.export.MeterEventData;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
@@ -50,6 +47,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -112,11 +110,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
-    private static final Map<String, Class<? extends ExportData>> DATA_TYPE_TO_CLASS_MAP = ImmutableMap.of(
-            STANDARD_EVENT_DATA_TYPE, MeterEventData.class,
-            STANDARD_READING_DATA_TYPE, MeterReadingData.class,
-            STANDARD_USAGE_POINT_DATA_TYPE, MeterReadingData.class
-    );
+    private static final Map<String, String[]> ALL_DATA_TYPES_MAP = ImmutableMap.of(DATA_TYPE_PROPERTY,
+            new String[]{STANDARD_EVENT_DATA_TYPE, STANDARD_READING_DATA_TYPE, STANDARD_USAGE_POINT_DATA_TYPE});
 
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
@@ -144,7 +139,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
-    private Map<String, DataExportWebService<? extends ExportData>> exportWebServices = new ConcurrentHashMap<>();
+    private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
 
     public DataExportServiceImpl() {
@@ -287,7 +282,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addFormatter(DataFormatterFactory dataFormatterFactory, Map<String, Object> map) {
+    public void addFormatter(DataFormatterFactory dataFormatterFactory, Map<String, ?> map) {
         Object value = map.get(DATA_TYPE_PROPERTY);
         List<String> dataTypes;
         if (value instanceof String) {
@@ -307,7 +302,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addSelector(DataSelectorFactory dataSelectorFactory, Map<String, Object> map) {
+    public void addSelector(DataSelectorFactory dataSelectorFactory, Map<String, ?> map) {
         String dataType = (String) map.get(DATA_TYPE_PROPERTY);
         dataSelectorFactories.put(dataSelectorFactory, dataType);
     }
@@ -317,11 +312,11 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addExportWebService(DataExportWebService<? extends ExportData> webService) {
+    public void addExportWebService(DataExportWebService webService) {
         exportWebServices.put(webService.getName(), webService);
     }
 
-    public void removeExportWebService(DataExportWebService<? extends ExportData> webService) {
+    public void removeExportWebService(DataExportWebService webService) {
         exportWebServices.remove(webService.getName());
     }
 
@@ -395,6 +390,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
             addSelector(new StandardEventDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_EVENT_DATA_TYPE));
             addSelector(new UsagePointReadingSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_USAGE_POINT_DATA_TYPE));
+            addFormatter(new NullDataFormatterFactory(thesaurus), ALL_DATA_TYPES_MAP);
             String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();
@@ -583,16 +579,15 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public Optional<DataExportWebService<? extends ExportData>> getExportWebService(String name) {
+    public Optional<DataExportWebService> getExportWebService(String name) {
         return Optional.ofNullable(exportWebServices.get(name));
     }
 
     @Override
-    public List<DataExportWebService<? extends ExportData>> getExportWebServicesMatching(DataSelectorFactory selectorFactory) {
+    public List<DataExportWebService> getExportWebServicesMatching(DataSelectorFactory selectorFactory) {
         String dataType = dataSelectorFactories.get(selectorFactory);
-        Class<? extends ExportData> dataClass = DATA_TYPE_TO_CLASS_MAP.getOrDefault(dataType, ExportData.class);
         return exportWebServices.values().stream()
-                .filter(service -> service.getDataClass().isAssignableFrom(dataClass))
+                .filter(service -> service.getSupportedDataTypes().contains(dataType))
                 .collect(Collectors.toList());
     }
 
@@ -626,7 +621,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                 Stream.of(DataExportStatus.values()),
                 Stream.of(Privileges.values()),
                 Stream.of(standardDataSelectorKey, standardEventDataSelectorKey, aggregatedDataSelectorKey),
-                Arrays.stream(com.elster.jupiter.export.impl.webservicecall.TranslationKeys.values()))
+                Arrays.stream(com.elster.jupiter.export.impl.webservicecall.TranslationKeys.values()),
+                Stream.of(NullDataFormatterFactory.getNameTranslationKey()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -634,5 +630,14 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public boolean isUsedAsADestination(EndPointConfiguration endPointConfiguration) {
+        return dataModel.stream(WebServiceDestinationImpl.class)
+                .filter(Where.where(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)
+                .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
+                .findAny()
+                .isPresent();
     }
 }

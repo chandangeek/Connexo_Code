@@ -7,13 +7,12 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
-import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 
@@ -37,7 +36,9 @@ public interface IDataExportService extends DataExportService {
 
     LocalFileWriter getLocalFileWriter();
 
-    Optional<DataExportWebService<? extends ExportData>> getExportWebService(String name);
+    Optional<DataExportWebService> getExportWebService(String name);
 
     CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> getServiceCallCPS();
+
+    boolean isUsedAsADestination(EndPointConfiguration endPointConfiguration);
 }

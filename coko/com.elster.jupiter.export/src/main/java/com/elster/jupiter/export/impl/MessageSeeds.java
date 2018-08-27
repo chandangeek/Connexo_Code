@@ -63,7 +63,12 @@ public enum MessageSeeds implements MessageSeed {
     WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
     WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of web service call {0}: {1}."),
     WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
-    WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided.");
+    WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided."),
+
+    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Null formatter is supported only by web service destination."),
+    NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA(1049, Keys.NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA,
+            "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
+    ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task.");
 
     private final int number;
     private final String key;
@@ -130,6 +135,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
         public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
         public static final String FTP_FAILURE = "ftp.io.writing.failure";
+        public static final String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
+        public static final String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
     }
 }
 

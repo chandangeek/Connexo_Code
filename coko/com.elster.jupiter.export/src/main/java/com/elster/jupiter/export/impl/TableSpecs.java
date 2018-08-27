@@ -252,9 +252,8 @@ enum TableSpecs {
 
             table.addAuditColumns();
 
-            Column createEndPointColumn = table.column("CREATEWSENDPOINT").number().since(Version.version(10, 6)).add();
-            Column changeEndPointColumn = table.column("CHANGEWSENDPOINT").number().since(Version.version(10, 6)).add();
-            table.column("TIMEOUT").varChar(Table.NAME_LENGTH).map("timeout").since(Version.version(10, 6)).add();
+            Column createEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.name()).number().since(Version.version(10, 6)).add();
+            Column changeEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.name()).number().since(Version.version(10, 6)).add();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
             table.foreignKey("DES_DEST_TASK")
@@ -264,17 +263,16 @@ enum TableSpecs {
                     .reverseMap("destinations")
                     .composition()
                     .add();
-            // TODO: handle EndPointConfiguration removal case
             table.foreignKey("DES_FK_DEST_CREATE_WSEP")
                     .on(createEndPointColumn)
                     .references(EndPointConfiguration.class)
-                    .map("createEndPoint")
+                    .map(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.javaFieldName())
                     .since(Version.version(10, 6))
                     .add();
             table.foreignKey("DES_FK_DEST_CHANGE_WSEP")
                     .on(changeEndPointColumn)
                     .references(EndPointConfiguration.class)
-                    .map("changeEndPoint")
+                    .map(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName())
                     .since(Version.version(10, 6))
                     .add();
         }

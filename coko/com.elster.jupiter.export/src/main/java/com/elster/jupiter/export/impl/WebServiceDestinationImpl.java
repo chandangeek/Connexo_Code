@@ -39,6 +39,21 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 class WebServiceDestinationImpl extends AbstractDataExportDestination implements WebServiceDestination, DataDestination {
+    enum Fields {
+        CREATE_ENDPOINT("createEndPoint"),
+        CHANGE_ENDPOINT("changeEndPoint");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String javaFieldName() {
+            return javaFieldName;
+        }
+    }
+
     private final DataExportServiceCallType dataExportServiceCallType;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
@@ -69,13 +84,13 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     @Override
     public void send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
         EndPointConfiguration createEndPoint = getCreateWebServiceEndpoint();
-        DataExportWebService<?> createService = getExportWebService(createEndPoint);
+        DataExportWebService createService = getExportWebService(createEndPoint);
         TimeDuration timeout = getTimeout(createEndPoint);
         List<ServiceCallStatus> serviceCallStates = new ArrayList<>(2);
         List<CompletableFuture<Void>> serviceCalls = new ArrayList<>(2);
         if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
             EndPointConfiguration changeEndPoint = getChangeWebServiceEndpoint().get();
-            DataExportWebService<? extends ExportData> changeService = getExportWebService(changeEndPoint);
+            DataExportWebService changeService = getExportWebService(changeEndPoint);
             TimeDuration changeTimeout = getTimeout(changeEndPoint);
             List<ExportData> createList = new ArrayList<>();
             List<ExportData> changeList = new ArrayList<>();
@@ -118,7 +133,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         return changeEndPoint.getOptional();
     }
 
-    private DataExportWebService<? extends ExportData> getExportWebService(EndPointConfiguration endPoint) {
+    private DataExportWebService getExportWebService(EndPointConfiguration endPoint) {
         return getDataExportService().getExportWebService(endPoint.getWebServiceName())
                 .orElseThrow(() -> new DestinationFailedException(getThesaurus(), MessageSeeds.NO_WEBSERVICE_FOUND, endPoint.getName()));
     }
@@ -165,14 +180,14 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
-    private CompletableFuture<Void> callServiceAsync(DataExportWebService<? extends ExportData> service, EndPointConfiguration endPoint,
+    private CompletableFuture<Void> callServiceAsync(DataExportWebService service, EndPointConfiguration endPoint,
                                                      List<ExportData> data, List<ServiceCallStatus> results, boolean waitForServiceCall) {
         return CompletableFuture.supplyAsync(() -> callService(service, endPoint, data, waitForServiceCall), Executors.newSingleThreadExecutor())
                 .thenAccept(results::add);
     }
 
-    private <T extends ExportData> ServiceCallStatus callService(DataExportWebService<T> service, EndPointConfiguration endPoint, List<ExportData> data, boolean waitForServiceCall) {
-        ServiceCall serviceCall = service.call(endPoint, data.stream().map(service.getDataClass()::cast));
+    private <T extends ExportData> ServiceCallStatus callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data, boolean waitForServiceCall) {
+        ServiceCall serviceCall = service.call(endPoint, data.stream());
         if (waitForServiceCall) {
             ServiceCallStatus status;
             do {

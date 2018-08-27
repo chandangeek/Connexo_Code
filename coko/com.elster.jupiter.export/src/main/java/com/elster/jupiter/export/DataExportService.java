@@ -53,7 +53,7 @@ public interface DataExportService {
 
     List<DataFormatterFactory> formatterFactoriesMatching(DataSelectorFactory selectorFactory);
 
-    List<DataExportWebService<? extends ExportData>> getExportWebServicesMatching(DataSelectorFactory selectorFactory);
+    List<DataExportWebService> getExportWebServicesMatching(DataSelectorFactory selectorFactory);
 
     Optional<DataSelectorFactory> getDataSelectorFactory(String dataSelector);
 
