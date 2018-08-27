@@ -98,6 +98,12 @@ Ext.define('Apr.controller.TaskManagement', {
                 }
             })
         }
+        else {
+            var generalTask = me.getController('Apr.controller.TaskManagementGeneralTask')
+            generalTask.getTask(this, taskManagementId, function (taskController, taskManagementId, task) {
+                generalTask.viewTaskManagement(taskManagementId, null, task);
+            })
+        }
     },
 
     showPreview: function (records, record) {
