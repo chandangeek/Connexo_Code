@@ -55,6 +55,7 @@ public class SecurityTokenImpl {
     private Logger tokenRenewal = Logger.getLogger("tokenRenewal");
 
     private EventService eventService;
+    private boolean preventEventGeneration = true;
 
 
     public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut) throws
@@ -206,7 +207,7 @@ public class SecurityTokenImpl {
     }
 
     private void logMessage2EventService(WhiteboardEvent eventType, String userName) {
-        if (eventService != null) {
+        if ((eventService != null) && (preventEventGeneration == false)) {
             eventService.postEvent(eventType.topic(), new LocalEventUserSource(userName));
         }
     }
@@ -235,6 +236,10 @@ public class SecurityTokenImpl {
         }
         logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         return false;
+    }
+
+    public void preventEventGeneration(boolean preventEventGeneration) {
+        this.preventEventGeneration = preventEventGeneration;
     }
 
     private Optional<SignedJWT> checkTokenIntegrity(String token, String ipAddr) {
