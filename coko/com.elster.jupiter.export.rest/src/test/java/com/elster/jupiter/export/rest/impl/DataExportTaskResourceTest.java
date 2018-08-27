@@ -347,7 +347,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     public void updateTaskDestination() {
         EmailDestination obsolete = mock(EmailDestination.class);
         EmailDestination toUpdate = mock(EmailDestination.class);
-        when(exportTask.getDestinations()).thenReturn(Arrays.asList(obsolete, toUpdate));
+        doReturn(Arrays.asList(obsolete, toUpdate)).when(exportTask).getDestinations();
         when(obsolete.getId()).thenReturn(7772L);
         when(toUpdate.getId()).thenReturn(7773L);
         when(exportTask.addFileDestination("", "file", "txt")).thenReturn(newDestination);
