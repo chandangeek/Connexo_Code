@@ -114,7 +114,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
-                return authenticateSimple(name, password, urls.subList(1, urls.size() - 1));
+                return authenticateSimple(name, password, urls.subList(1, urls.size()));
             } else {
                 return Optional.empty();
             }
@@ -132,7 +132,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
-                return authenticateSSL(name, password, urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return authenticateSSL(name, password, urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 return Optional.empty();
             }
@@ -155,7 +155,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
-                return authenticateTLS(name, password, urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return authenticateTLS(name, password, urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 return Optional.empty();
             }
@@ -214,7 +214,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getLdapUsersFromContext(new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUsersSimple(urls.subList(1, urls.size() - 1));
+                return getLdapUsersSimple(urls.subList(1, urls.size()));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -227,7 +227,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getLdapUsersFromContext(new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt(), "ssl", sslSecurityProperties)));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUsersSSL(urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return getLdapUsersSSL(urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -245,7 +245,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getLdapUsersFromContext(ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUsersTLS(urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return getLdapUsersTLS(urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -290,7 +290,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getUserStatusFromContext(user, new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUserStatusSimple(user, urls.subList(1, urls.size() - 1));
+                return getLdapUserStatusSimple(user, urls.subList(1, urls.size()));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -302,7 +302,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getUserStatusFromContext(user, new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt(), "ssl", sslSecurityProperties)));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUserStatusSSL(user, urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return getLdapUserStatusSSL(user, urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -320,7 +320,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return getUserStatusFromContext(user, ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
-                return getLdapUserStatusTLS(user, urls.subList(1, urls.size() - 1), sslSecurityProperties);
+                return getLdapUserStatusTLS(user, urls.subList(1, urls.size()), sslSecurityProperties);
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
