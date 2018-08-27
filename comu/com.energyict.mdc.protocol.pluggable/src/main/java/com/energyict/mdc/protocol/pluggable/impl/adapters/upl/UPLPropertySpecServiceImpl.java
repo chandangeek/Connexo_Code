@@ -13,6 +13,7 @@ import com.energyict.mdc.dynamic.LocalTimeFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -98,7 +99,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
     private Thesaurus getProtocolThesaurus() {
         if (protocolThesaurus == null) {
-            protocolThesaurus = this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN);
+            protocolThesaurus = this.nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
         }
         return protocolThesaurus;
     }
