@@ -18,13 +18,13 @@ public class MirrorTcpDeviceProtocolDialectProperties extends CommonDeviceProtoc
 
     private BigDecimal retries;
     private TimeDuration timeoutMillis;
-    private TimeDuration roundTripCorrection;
+    private BigDecimal roundTripCorrection;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
         this.timeoutMillis = (TimeDuration) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
-        this.roundTripCorrection = (TimeDuration) propertyValues.getProperty(ActualFields.ROUND_TRIP_CORRECTION.propertySpecName());
+        this.roundTripCorrection = (BigDecimal) propertyValues.getProperty(ActualFields.ROUND_TRIP_CORRECTION.propertySpecName());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class MirrorTcpDeviceProtocolDialectProperties extends CommonDeviceProtoc
         ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
             @Override
             public void addTo(Table table) {
-                this.addAsTimeDurationColumnTo(table);
+                this.addAsBigDecimalColumnTo(table);
             }
         };
 
