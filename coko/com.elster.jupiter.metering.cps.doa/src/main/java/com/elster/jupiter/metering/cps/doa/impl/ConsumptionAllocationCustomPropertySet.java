@@ -12,6 +12,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,6 +24,7 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -39,6 +43,7 @@ public class ConsumptionAllocationCustomPropertySet implements CustomPropertySet
     private static final String TABLE_NAME = "DOA_UP_CONSO_ALLOCATION";
     private static final String FK_CPS_USAGEPOINT = "FK_DOA_UP_CONSO_ALLOCATION";
     private static final String COMPONENT_NAME = "DOA";
+    private volatile Thesaurus thesaurus;  //lori
 
     private PropertySpecService propertySpecService;
     private MeteringService meteringService;
@@ -62,12 +67,35 @@ public class ConsumptionAllocationCustomPropertySet implements CustomPropertySet
 
     @Override
     public String getName() {
-        return "Consumption allocation";
+        return this.getThesaurus().getFormat(TranslationKeys.DOA_CPS_COMSUMPTION_ALLOCATION_NAME).format();
+    }
+
+    public ConsumptionAllocationCustomPropertySet(){}
+
+    @Inject
+    public ConsumptionAllocationCustomPropertySet(Thesaurus thesaurus, NlsService nlsService ){
+        this.thesaurus = thesaurus;
+        this.setNlsService(nlsService);
+    }
+
+    public Thesaurus getThesaurus(){
+        return this.thesaurus;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
     public Class<UsagePoint> getDomainClass() {
         return UsagePoint.class;
+    }
+
+
+    @Override
+    public String getDomainClassDisplayName(){
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_USAGEPOINT).format();
     }
 
     @Override

@@ -10,6 +10,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -20,6 +25,7 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,11 +34,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.metering.cps.doa.UsagePointGeneral",
-        service = CustomPropertySet.class,
+        service = {CustomPropertySet.class},
         property = "name=UsagePointGeneral",
         immediate = true)
 @SuppressWarnings("unused")
-public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
+public class UsagePointGeneralCustomPropertySet implements
+        CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
 
     private static final String TABLE_NAME = "DOA_USAGEPOINT_GENERAL";
     private static final String FK_CPS_DEVICE_GENERAL = "FK_DOA_USAGEPOINT_GENERAL";
@@ -40,6 +47,15 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     private PropertySpecService propertySpecService;
     private MeteringService meteringService;
+    private volatile Thesaurus thesaurus;
+
+    public UsagePointGeneralCustomPropertySet() {}
+
+    @Inject
+    public UsagePointGeneralCustomPropertySet(Thesaurus thesaurus) {
+        this();
+        this.thesaurus = thesaurus;
+    }
 
     @Reference
     @SuppressWarnings("unused") // Called by OSGi framework
@@ -53,6 +69,11 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
     @Override
     public String getId() {
         return "com.elster.jupiter.metering.cps.doa.UsagePointGeneral";
@@ -60,12 +81,17 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public String getName() {
-        return "General";
+        return this.thesaurus.getFormat(TranslationKeys.DOA_CPS_GENERAL_NAME).format();
     }
 
     @Override
     public Class<UsagePoint> getDomainClass() {
         return UsagePoint.class;
+    }
+
+    @Override
+    public String getDomainClassDisplayName(){
+        return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_USAGEPOINT).format();
     }
 
     @Override
