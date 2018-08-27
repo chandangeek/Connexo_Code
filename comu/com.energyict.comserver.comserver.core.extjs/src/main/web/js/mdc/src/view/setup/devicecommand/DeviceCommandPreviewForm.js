@@ -62,14 +62,14 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created by'),
+                    fieldLabel: Uni.I18n.translate('general.createdBy', 'MDC', 'Created by'),
                     name: 'user',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : '-'
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreationDate', 'MDC', 'Creation date'),
+                    fieldLabel: Uni.I18n.translate('general.creationDate', 'MDC', 'Creation date'),
                     name: 'creationDate',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.sentDate', 'MDC', 'Sent date'),
+                    fieldLabel: Uni.I18n.translate('general.sentDate', 'MDC', 'Sent date'),
                     name: 'sentDate',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
