@@ -308,8 +308,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 4, 2), V10_4_2SimpleUpgrader.class));
+                        version(10, 4, 1), UpgraderV10_4_1.class));
     }
 
     private AbstractModule getModule() {
