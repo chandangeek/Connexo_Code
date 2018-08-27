@@ -774,6 +774,57 @@ Ext.define('Imt.controller.History', {
                             }
                         }
                     }
+                },
+                assignmentrules: {
+                    title: Uni.I18n.translate('issue.administration.assignment', 'IMT', 'Issue assignment rules'),
+                    route: 'assignmentrules',
+                    controller: 'Isu.controller.AssignmentRules',
+                    privileges: Isu.privileges.Issue.viewRule
+                },
+                creationrules: {
+                    title: Uni.I18n.translate('general.issueCreationRules', 'IMT', 'Issue creation rules'),
+                    route: 'creationrules',
+                    controller: 'Isu.controller.CreationRules',
+                    privileges: Isu.privileges.Issue.adminCreateRule,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.issueCreationRules.add', 'IMT', 'Add issue creation rule'),
+                            route: 'add',
+                            controller: 'Isu.controller.CreationRuleEdit',
+                            privileges: Isu.privileges.Issue.createRule,
+                            action: 'showEdit',
+                            items: {
+                                addaction: {
+                                    title: Uni.I18n.translate('general.addAction', 'IMT', 'Add action'),
+                                    route: 'addaction',
+                                    controller: 'Isu.controller.CreationRuleActionEdit',
+                                    action: 'showEdit'
+                                }
+                            }
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                            route: '{id}/edit',
+                            controller: 'Isu.controller.CreationRuleEdit',
+                            action: 'showEdit',
+                            privileges: Isu.privileges.Issue.createRule,
+                            callback: function (route) {
+                                this.getApplication().on('issueCreationRuleEdit', function (record) {
+                                    route.setTitle(Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'IMT', "Edit '{0}'", record.get('name'), false));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                addaction: {
+                                    title: Uni.I18n.translate('general.addAction', 'IMT', 'Add action'),
+                                    route: 'addaction',
+                                    controller: 'Isu.controller.CreationRuleActionEdit',
+                                    action: 'showEdit'
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -815,6 +866,71 @@ Ext.define('Imt.controller.History', {
             controller: 'Imt.dataquality.controller.DataQuality',
             action: 'showDataQuality',
             privileges: Cfg.privileges.Validation.viewResultsOrAdministerDataQuality
-        }
+        },
+        workspace: {
+            title: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
+            route: 'workspace',
+            disabled: true,
+            items: {
+                issues: {
+                    title: Uni.I18n.translate('workspace.issues.title', 'IMT', 'Issues'),
+                    route: 'issues',
+                    controller: 'Imt.issue.controller.IssuesOverview',
+                    action: 'showOverview',
+                    privileges: Isu.privileges.Issue.viewAdminDevice,
+                    items: {
+                        bulkaction: {
+                            title: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                            route: 'bulkaction',
+                            privileges: Isu.privileges.Issue.closeOrAssing,
+                            controller: 'Isu.controller.BulkChangeIssues'
+                        },
+                        view: {
+                            title: Uni.I18n.translate('general.issueDetails', 'IMT', 'Issue details'),
+                            route: '{issueId}',
+                            controller: 'Imt.datavalidation.controller.Detail',
+                            action: 'showOverview',
+                            privileges: Isu.privileges.Issue.viewAdminDevice,
+                            callback: function (route) {
+                                this.getApplication().on('issueLoad', function (record) {
+                                    route.setTitle(record.get('title'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                action: {
+                                    title: Uni.I18n.translate('general.action', 'IMT', 'Action'),
+                                    route: 'action/{actionId}',
+                                    controller: 'Imt.datavalidation.controller.ApplyAction',
+                                    privileges: Isu.privileges.Issue.viewAdminDevice,
+                                    callback: function (route) {
+                                        this.getApplication().on('issueActionLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                setpriority: {
+                                    title: Uni.I18n.translate('issue.setpriority', 'IMT', 'Set priority'),
+                                    route: 'setpriority',
+                                    controller: 'Imt.datavalidation.controller.SetPriority',
+                                    action: 'setPriority',
+                                    privileges: Isu.privileges.Issue.viewAdminDevice
+                                }
+                            }
+                        }
+                    }
+                },
+                issuesoverview: {
+                    title: Uni.I18n.translate('workspace.issuesOverview', 'IMT', 'Issues overview'),
+                    route: 'issuesoverview',
+                    controller: 'Isu.controller.Overview',
+                    action: 'showIssuesOverview',
+                    privileges: Isu.privileges.Issue.viewAdminDevice
+                }
+            }
+        },
     }
 });

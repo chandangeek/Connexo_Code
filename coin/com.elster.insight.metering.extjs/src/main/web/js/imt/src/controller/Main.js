@@ -15,7 +15,9 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.devicemanagement.model.Device',              
+        'Imt.devicemanagement.model.Device',
+        'Isu.controller.Main',
+        //'Imt.issue.controller.Main',
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
         'Imt.processes.controller.MonitorProcesses',
@@ -30,7 +32,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.processes.view.PurposesOnMetrologyConfigarations',
         'Imt.processes.view.AvailableTransitions',
         'Imt.processes.view.InstallationDate',
-        'Imt.processes.view.MeterRoles'
+        'Imt.processes.view.MeterRoles',
+        'Isu.privileges.Issue'
     ],
 
     privileges: [],
@@ -43,6 +46,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.controller.Dashboard',
         'Imt.controller.TaskManagement',
         'Apr.controller.CustomTask',
+        'Imt.issue.controller.IssuesOverview',
+        //'Isu.controller.Main',
         'Imt.dashboard.controller.OperatorDashboard',
         'Imt.dashboard.controller.FavoriteUsagePointGroups',
         'Imt.usagepointmanagement.controller.View',
@@ -79,7 +84,19 @@ Ext.define('Imt.controller.Main', {
         'Imt.rulesets.controller.AddPurposesToValidationRuleSet',
         'Imt.rulesets.controller.EstimationRuleSetPurposes',
         'Imt.rulesets.controller.AddPurposesToEstimationRuleSet',
-        'Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle'
+        'Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle',
+        'Isu.controller.AssignmentRules',
+        'Isu.controller.CreationRules',
+        'Isu.controller.CreationRuleEdit',
+        'Isu.controller.CreationRuleActionEdit',
+        'Isu.controller.IssuesOverview',
+        'Isu.controller.IssueDetail',
+        'Isu.controller.ApplyIssueAction',
+        'Isu.controller.StartProcess',
+        'Isu.controller.Overview',
+        'Isu.controller.BulkChangeIssues',
+        'Isu.controller.SetPriority',
+        'Imt.datavalidation.controller.Main'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -107,6 +124,7 @@ Ext.define('Imt.controller.Main', {
         var me = this;
 
         me.getController('Apr.controller.CustomTask');
+        //me.getController('Imt.issue.controller.Main');
         me.getController('Imt.controller.History');
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
@@ -163,7 +181,9 @@ Ext.define('Imt.controller.Main', {
 
     initMenu: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            issuemanagement = null,
+            issuemanagementItems = [];
 
     	if (Imt.privileges.UsagePoint.canAdministrate()) {
 	        var menuItem = Ext.create('Uni.model.MenuItem', {
@@ -286,5 +306,100 @@ Ext.define('Imt.controller.Main', {
             });
             Uni.store.PortalItems.add(taskManagement);
         }
+
+        me.initIssues();
+
+    },
+
+    initIssues: function () {
+        var me = this,
+            issuemanagement = null,
+            issuemanagementItems = [],
+            issuesPortalItem,
+            router = me.getController('Uni.controller.history.Router');
+        //historian = me.getController('Isu.controller.history.Administration'); // Forces route registration.
+
+        if (Isu.privileges.Issue.canAdminRule()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'IMT', 'Administration'),
+                glyph: 'settings',
+                portal: 'administration',
+                index: 10
+            }));
+        }
+
+        if (Isu.privileges.Issue.canAdminRule()) {
+            if (Isu.privileges.Issue.canViewRule()) {
+                issuemanagementItems.push(
+                    {
+                        text: Uni.I18n.translate('issue.administration.assignment', 'IMT', 'Issue assignment rules'),
+                        href: router.getRoute('administration/assignmentrules').buildUrl()
+                    }
+                );
+            }
+            if (Isu.privileges.Issue.canAdminCreateRule()) {
+                issuemanagementItems.push(
+                    {
+                        text: Uni.I18n.translate('general.issueCreationRules', 'IMT', 'Issue creation rules'),
+                        href: router.getRoute('administration/creationrules').buildUrl()
+                    }
+                );
+            }
+            issuemanagement = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.issueManagement', 'IMT', 'Issue management'),
+                portal: 'administration',
+                route: 'issuemanagement',
+                items: issuemanagementItems
+            });
+        }
+
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
+            issuesPortalItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('workspace.issues.title', 'IMT', 'Issues'),
+                portal: 'workspace',
+                route: 'issues',
+                items: [
+                    {
+                        text: Uni.I18n.translate('workspace.issues.title', 'IMT', 'Issues'),
+                        itemId: 'issues-item',
+                        href: router.getRoute('workspace/issues').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('workspace.issues.myOpenIssues', 'IMT', 'My open issues'),
+                        itemId: 'my-open-issues-item',
+                        href: router.getRoute('workspace/issues').buildUrl({}, {myopenissues: true})
+                    },
+                    {
+                        text: Uni.I18n.translate('workspace.issues.issuesOverview', 'IMT', 'Issues overview'),
+                        itemId: 'issues-overview-item',
+                        href: router.getRoute('workspace/issuesoverview').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('workspace.issues.myWorkgroupsIssues', 'IMT', 'My workgroups issues'),
+                        itemId: 'my-workgroup-issues-item',
+                        href: router.getRoute('workspace/issues').buildUrl({}, {
+                            myworkgroupissues: true,
+                            status: ['status.open', 'status.in.progress']
+                        })
+                    }
+                ]
+            });
+        }
+
+        if (issuesPortalItem) {
+            Uni.store.PortalItems.add(issuesPortalItem);
+        }
+
+        if (issuemanagement) {
+            Uni.store.PortalItems.add(issuemanagement);
+        }
+
+        me.getApplication().on('initIssueType', function (type) {
+            if (type == 'datacollection') {
+                me.getController('Isu.controller.BulkChangeIssues').dataCollectionActivated = true;
+            } else if (type == 'datavalidation') {
+                me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
+            }
+        });
     }
 });
