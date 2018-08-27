@@ -20,8 +20,8 @@ import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.properties.HasIdAndName;
-
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+
 import com.github.oxo42.stateless4j.StateConfiguration;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
@@ -56,12 +56,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
+    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new ArrayList<>();
     private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
     private volatile EventService eventService;
     private volatile BpmService bpmService;
     private volatile StateTransitionPropertiesProvider usagePointProvider;
-
-    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new ArrayList<>();
 
     // For OSGi purposes
     public StateTransitionTriggerEventTopicHandler() {
@@ -106,13 +105,13 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     @Override
-    public String getTopicMatcher() {
-        return EventType.TRIGGER_EVENT.topic();
+    public void handle(LocalEvent localEvent) {
+        this.handle((StateTransitionTriggerEvent) localEvent.getSource());
     }
 
     @Override
-    public void handle(LocalEvent localEvent) {
-        this.handle((StateTransitionTriggerEvent) localEvent.getSource());
+    public String getTopicMatcher() {
+        return EventType.TRIGGER_EVENT.topic();
     }
 
     private void handle(StateTransitionTriggerEvent triggerEvent) {
@@ -162,11 +161,11 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private void executeWebServiceCall(String id, String source, ActualState currentState, ActualState newState, Instant effectiveDate) {
         if (source.equals("com.energyict.mdc.device.data.Device")) {
-            List<Long> endPointConfigurationIds = newState.getOnExitEndPointConfigurations().stream()
+            List<Long> endPointConfigurationIds = currentState.getOnExitEndPointConfigurations().stream()
                     .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
                     .map(EndPointConfiguration::getId)
                     .collect(Collectors.toList());
-            endPointConfigurationIds.addAll(currentState.getOnEntryEndPointConfigurations().stream()
+            endPointConfigurationIds.addAll(newState.getOnEntryEndPointConfigurations().stream()
                     .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
                     .map(EndPointConfiguration::getId)
                     .collect(Collectors.toList()));
@@ -186,19 +185,19 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private abstract static class StartExternalProcesses {
-        private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
-        private final List<ProcessReference> processReferences;
-        private final String sourceId;
-        private final String sourceType;
-        private final State state;
-        private volatile BpmService bpmService;
-        private volatile StateTransitionPropertiesProvider usagePointProvider;
         private static final String DEVICE = "com.energyict.mdc.device.data.Device";
         private static final String DEVICE_ASSOCIATION = "device";
         private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
         private static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
         private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
         private static final String AUTH_TYPE = "Bearer ";
+        private final List<ProcessReference> processReferences;
+        private final String sourceId;
+        private final String sourceType;
+        private final State state;
+        private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
+        private volatile BpmService bpmService;
+        private volatile StateTransitionPropertiesProvider usagePointProvider;
 
         StartExternalProcesses(BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider, List<ProcessReference> processReferences, String sourceId, State state, String sourceType) {
             super();
@@ -272,13 +271,13 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private abstract static class CallWebServiceClient {
 
-        private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
+        private static final String DEVICE = "com.energyict.mdc.device.data.Device";
         private final List<EndPointConfigurationReference> endPointConfigurationReferences;
         private final String sourceId;
         private final String sourceType;
         private final State state;
         private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients;
-        private static final String DEVICE = "com.energyict.mdc.device.data.Device";
+        private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
 
         CallWebServiceClient(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
                              List<EndPointConfigurationReference> endPointConfigurationReferences,
@@ -384,8 +383,17 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
 
         @Override
+        public int hashCode() {
+            return Long.hashCode(state.getId());
+        }
+
+        @Override
         public String toString() {
             return "ActualState(" + this.getName() + ")";
+        }
+
+        private List<ProcessReference> getOnEntryProcesses() {
+            return this.state.getOnEntryProcesses();
         }
 
         @Override
@@ -398,15 +406,6 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             }
             ActualState that = (ActualState) other;
             return state.getId() == that.state.getId();
-        }
-
-        @Override
-        public int hashCode() {
-            return Long.hashCode(state.getId());
-        }
-
-        private List<ProcessReference> getOnEntryProcesses() {
-            return this.state.getOnEntryProcesses();
         }
 
         private List<ProcessReference> getOnExitProcesses() {
@@ -424,6 +423,8 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         private List<StateTransition> getOutgoingStateTransitions() {
             return this.state.getOutgoingStateTransitions();
         }
+
+
     }
 
     private static class Trigger {
