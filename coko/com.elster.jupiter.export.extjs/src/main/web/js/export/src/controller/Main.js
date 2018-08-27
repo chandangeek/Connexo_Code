@@ -33,6 +33,7 @@ Ext.define('Dxp.controller.Main', {
      */
     initHistorians: function () {
         var historian = this.getController('Dxp.controller.history.Export');
+        this.getController('Dxp.controller.TaskManagement');
     },
 
     initMenu: function () {
