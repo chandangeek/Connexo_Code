@@ -36,7 +36,7 @@ public class WebServiceDestinationInfoFactory implements DestinationInfoFactory 
         }
         WebServiceDestination webServiceDestination = (WebServiceDestination) destination;
         DestinationInfo destinationInfo = new DestinationInfo();
-        destinationInfo.type = DestinationType.EMAIL;
+        destinationInfo.type = DestinationType.WEBSERVICE;
         destinationInfo.id = destination.getId();
         destinationInfo.createEndPoint = new IdWithNameInfo(webServiceDestination.getCreateWebServiceEndpoint());
         webServiceDestination.getChangeWebServiceEndpoint().map(IdWithNameInfo::new).ifPresent(changeEndPoint -> destinationInfo.changeEndPoint = changeEndPoint);

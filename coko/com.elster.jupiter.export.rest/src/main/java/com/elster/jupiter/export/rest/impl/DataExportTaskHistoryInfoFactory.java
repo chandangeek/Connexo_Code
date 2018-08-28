@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 import static com.elster.jupiter.export.rest.impl.TranslationKeys.NONRECURRING;
@@ -126,12 +127,12 @@ public class DataExportTaskHistoryInfoFactory {
         );
         // set destination from history
         version.getDestinations(versionAt).stream()
-                .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
+                .sorted(Comparator.comparing(DataExportDestination::getCreateTime))
                 .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(serviceLocator, destination)));
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(versionAt);
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             info.task.schedule = null;
-        } else if (foundSchedule.isPresent()) {
+        } else {
             ScheduleExpression scheduleExpression = foundSchedule.get();
             if (scheduleExpression instanceof TemporalExpression) {
                 info.task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
