@@ -175,5 +175,9 @@ public class FileImportCommand {
         public String getMessage() {
             throw new UnsupportedOperationException("Virtual file occurrence doesn't provide summary.");
         }
+
+        public Clock getClock() {
+            return clock;
+        }
     }
 }
