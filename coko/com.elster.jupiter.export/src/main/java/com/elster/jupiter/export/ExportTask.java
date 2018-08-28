@@ -105,7 +105,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     List<? extends DataExportDestination> getDestinations();
 
-    List<DataExportDestination> getDestinations(Instant at);
+    List<? extends DataExportDestination> getDestinations(Instant at);
 
     String getApplication();
 

@@ -541,7 +541,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public List<DataExportDestination> getDestinations(Instant at) {
+    public List<IDataExportDestination> getDestinations(Instant at) {
         List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
         return props.stream()
                 .map(JournalEntry::get)
