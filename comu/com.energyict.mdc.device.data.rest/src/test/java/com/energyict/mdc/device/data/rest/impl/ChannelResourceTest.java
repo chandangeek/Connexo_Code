@@ -1150,7 +1150,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType calculatedReadingType = ReadingTypeMockBuilder.from("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
         Channel channelWithCalculatedReadingType = mockChannelWithCalculatedReadingType(CHANNEL_ID1, collectedReadingType, calculatedReadingType, Optional.empty());
         ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
-        info.referenceDevice = device.getName();
+        info.referenceDevice = "METER";
         info.readingType = calculatedReadingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
         Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
@@ -1173,7 +1173,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(editedProfileReading.getRange()).thenReturn(referenceRange);
         when(editedProfileReading.getReadingTime()).thenReturn(Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
         when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
-        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("METER")).thenReturn(Optional.of(device));
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
@@ -1195,7 +1195,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelDataUpdater.estimateChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channelWithCalculatedReadingType.startEditingData()).thenReturn(channelDataUpdater);
         ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
-        info.referenceDevice = device.getName();
+        info.referenceDevice = "METER";
         info.readingType = calculatedReadingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
         Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
@@ -1225,7 +1225,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(editedProfileReading.getRange()).thenReturn(referenceRange);
         when(editedProfileReading.getReadingTime()).thenReturn(Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
         when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
-        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("METER")).thenReturn(Optional.of(device));
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
         verify(transactionContext, never()).commit();
         assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
@@ -1240,7 +1240,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingType calculatedReadingType = ReadingTypeMockBuilder.from("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
         Channel channelWithCalculatedReadingType = mockChannelWithCalculatedReadingType(CHANNEL_ID1, collectedReadingType, calculatedReadingType, Optional.empty());
         ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
-        info.referenceDevice = device.getName();
+        info.referenceDevice = "METER";
         info.readingType = calculatedReadingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
         Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
@@ -1262,7 +1262,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         Map<Channel, List<ReadingQualityRecord>> readingQualityRecordMap = new HashMap<>();
         readingQualityRecordMap.put(channelWithCalculatedReadingType, Collections.singletonList(readingQualityRecord));
         doReturn(readingQualityRecordMap).when(loadProfileReading).getReadingQualities();
-        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("METER")).thenReturn(Optional.of(device));
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
 
         assertThat(json.<List>get("$")).hasSize(0);
