@@ -25,6 +25,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoTranslationKeyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLPropertySpecServiceImpl;
 import com.energyict.mdc.upl.nls.NlsMessageFormat;
@@ -130,6 +131,7 @@ public class UPLPropertySpecServiceImplTest {
     @Before
     public void initializePropertySpecService() throws Exception {
         when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(this.nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
         DataVaultService dataVaultService = injector.getInstance(DataVaultService.class);
         this.propertySpecService =
                 new UPLPropertySpecServiceImpl(
