@@ -397,7 +397,7 @@ Ext.define('Imt.controller.Main', {
         me.getApplication().on('initIssueType', function (type) {
             if (type == 'datacollection') {
                 me.getController('Isu.controller.BulkChangeIssues').dataCollectionActivated = true;
-            } else if (type == 'datavalidation') {
+            } else if ((type == 'datavalidation') || (type == 'usagepointdatavalidation')) {
                 me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
             }
         });

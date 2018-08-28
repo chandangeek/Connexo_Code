@@ -42,7 +42,7 @@ Ext.define('Imt.datavalidation.controller.Main', {
 
     init: function () {
         this.initMenu();
-        this.getApplication().fireEvent('initIssueType', 'datavalidation');
+        this.getApplication().fireEvent('initIssueType', 'usagepointdatavalidation');
     },
 
     initMenu: function () {
@@ -65,13 +65,13 @@ Ext.define('Imt.datavalidation.controller.Main', {
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({
                     text: Uni.I18n.translate('general.issues', 'IMT', 'Issues'),
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation']})
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['usagepointdatavalidation']})
                 });
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myOpenIssues', 'IMT', 'My open issues'),
                     itemId: 'datavalidation-my-open-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {
-                        issueType: ['datavalidation'],
+                        issueType: ['usagepointdatavalidation'],
                         myopenissues: true,
                         status: ['status.open', 'status.in.progress']
                     })
@@ -80,7 +80,7 @@ Ext.define('Imt.datavalidation.controller.Main', {
                     text: Uni.I18n.translate('datavalidation.myWorkgroupsIssues', 'IMT', 'My workgroups issues'),
                     itemId: 'datavalidation-my-workgroup-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {
-                        issueType: ['datavalidation'],
+                        issueType: ['usagepointdatavalidation'],
                         myworkgroupissues: true,
                         status: ['status.open', 'status.in.progress']
                     })
@@ -90,7 +90,7 @@ Ext.define('Imt.datavalidation.controller.Main', {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataValidation', 'IMT', 'Data validation'),
                 portal: 'workspace',
-                route: 'datavalidation',
+                route: 'usagepointdatavalidation',
                 items: items
             });
         }

@@ -114,31 +114,24 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-        if (_.values(queryString).length == 0) {
-            var latestQueryString = this.getStore('Isu.store.Clipboard').get('latest-issues-filter');
-            if (latestQueryString) {
-                queryString = latestQueryString;
-                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-            }
-        }
-        if (queryString.myopenalarms) {
+        if (queryString.myopenissues) {
             me.getStore('Dal.store.AlarmAssignees').load({
                 params: {me: true},
                 callback: function (records) {
-                    queryString.myopenalarms = undefined;
+                    queryString.myopenissues = undefined;
                     queryString.userAssignee = records[0].getId();
                     queryString.sort = ['-priorityTotal'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
             });
-        } else if (queryString.myworkgroupalarms) {
+        } else if (queryString.myworkgroupissues) {
             Ext.Ajax.request({
                 url: '/api/dal/workgroups?myworkgroups=true',
                 method: 'GET',
                 success: function (response) {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                     if (decoded && decoded.workgroups) {
-                        queryString.myworkgroupalarms = undefined;
+                        queryString.myworkgroupissues = undefined;
                         queryString.userAssignee = [-1];
                         queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                                 return wg.id;
@@ -148,7 +141,7 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
                     }
                 }
             });
-        } else if (!queryString.userAssignee && !queryString.myworkgroupalarms && !queryString.status) {
+        } else if (!queryString.userAssignee && !queryString.myworkgroupissues && !queryString.status) {
             queryString.status = ['status.open', 'status.in.progress'];
             queryString.sort = ['-priorityTotal'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
