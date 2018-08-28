@@ -32,6 +32,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,9 +140,25 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
             UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo blockInfo = new UsagePointDataValidationIssueInfo.NotEstimatedBlockInfo();
             blockInfo.startTime = block.getStartTime();
             blockInfo.endTime = block.getEndTime();
-            blockInfo.amountOfSuspects = ChronoUnit.SECONDS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
-                    .get()
-                    .get(ChronoUnit.SECONDS);
+            List<TemporalUnit> units = channel.getIntervalLength().get().getUnits();
+            if (units.contains(ChronoUnit.SECONDS)) {
+                blockInfo.amountOfSuspects = ChronoUnit.SECONDS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
+                        .get()
+                        .get(ChronoUnit.SECONDS);
+            } else if (units.contains(ChronoUnit.DAYS)) {
+                blockInfo.amountOfSuspects = ChronoUnit.DAYS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
+                        .get()
+                        .get(ChronoUnit.DAYS);
+            } else if (units.contains(ChronoUnit.MONTHS)) {
+                blockInfo.amountOfSuspects = ChronoUnit.MONTHS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
+                        .get()
+                        .get(ChronoUnit.MONTHS);
+            } else if (units.contains(ChronoUnit.YEARS)) {
+                blockInfo.amountOfSuspects = ChronoUnit.YEARS.between(block.getStartTime(), block.getEndTime()) / channel.getIntervalLength()
+                        .get()
+                        .get(ChronoUnit.YEARS);
+            }
+
             return blockInfo;
         }).sorted((block1, block2) -> block1.startTime.compareTo(block2.startTime)).collect(Collectors.toList());
         return info;
