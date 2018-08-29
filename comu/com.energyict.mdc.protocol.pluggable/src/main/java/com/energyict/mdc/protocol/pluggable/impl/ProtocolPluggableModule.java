@@ -47,8 +47,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         bind(PropertySpecService.class).to(UPLPropertySpecServiceImpl.class).in(Scopes.SINGLETON);
         bind(Converter.class).to(ConverterImpl.class).in(Scopes.SINGLETON);
         bind(NlsService.class).to(UPLNlsServiceImpl.class).in(Scopes.SINGLETON);
-        //TODO: do hsm service binding
-//        bind(HsmService.class).to(HsmProtocolServiceImpl.class).in(Scopes.SINGLETON);
+//        bind(HsmProtocolService.class).to(UPLHsmProtocolServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

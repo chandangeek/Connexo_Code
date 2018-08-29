@@ -11,12 +11,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -45,99 +40,34 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
-import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
-import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.api.security.*;
+import com.energyict.mdc.protocol.api.services.*;
+import com.energyict.mdc.protocol.pluggable.*;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.*;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionFunctionTranslationKeys;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.DeviceAccessLevelTranslationKeys;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.*;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -185,6 +115,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private volatile MeteringService meteringService;
     private volatile DataVaultService dataVaultService;
     private volatile UpgradeService upgradeService;
+    private volatile HsmProtocolService hsmProtocolService;
 
     private volatile boolean installed = false;
     private volatile List<ProtocolDeploymentListenerRegistrationImpl> registrations = new CopyOnWriteArrayList<>();
@@ -674,6 +605,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setHsmProtocolService(HsmProtocolService hsmProtocolService) {
+        this.hsmProtocolService = hsmProtocolService;
+    }
+
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
@@ -948,6 +884,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 bind(UserService.class).toInstance(userService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(HsmProtocolService.class).toInstance(hsmProtocolService);
                 bind(CollectedDataFactory.class).toInstance(new CompositeCollectedDataFactory());
                 bind(MessageAdapterMappingFactory.class).to(MessageAdapterMappingFactoryImpl.class).in(Singleton.class);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Singleton.class);
