@@ -187,8 +187,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     private <T extends ExportData> ServiceCallStatus callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data, boolean waitForServiceCall) {
-        ServiceCall serviceCall = service.call(endPoint, data.stream());
-        if (waitForServiceCall) {
+        Optional<ServiceCall> serviceCall = service.call(endPoint, data.stream());
+        if (waitForServiceCall && serviceCall.isPresent()) {
             ServiceCallStatus status;
             do {
                 try {
@@ -196,7 +196,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                status = dataExportServiceCallType.getStatus(serviceCall);
+                status = dataExportServiceCallType.getStatus(serviceCall.get());
             } while (status.isOpen());
             return status;
         }
