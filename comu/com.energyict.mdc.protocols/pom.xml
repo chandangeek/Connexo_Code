@@ -260,6 +260,11 @@
             <artifactId>connectiontypes</artifactId>
             <version>${protocols.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>cryptoprotocols</artifactId>
+            <version>${protocols.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>com.energyict</groupId>
