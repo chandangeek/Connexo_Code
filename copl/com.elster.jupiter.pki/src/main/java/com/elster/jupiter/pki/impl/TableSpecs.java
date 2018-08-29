@@ -1,37 +1,16 @@
 package com.elster.jupiter.pki.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Encrypter;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.PrimaryKeyConstraint;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.CertificateWrapperStatus;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.orm.*;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.users.UserDirectory;
-
 import com.google.common.collect.Range;
 
-import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -297,6 +276,7 @@ public enum TableSpecs {
                     .add();
             table.column("KEY_SIZE")
                     .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
                     .map(SecurityAccessorTypeImpl.Fields.KEY_SIZE.fieldName())
                     .since(version(10,4,3))
                     .add();

@@ -1,12 +1,11 @@
 package com.elster.jupiter.pki;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
 import java.util.Set;
@@ -147,7 +146,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
         Builder renewCapability(SessionKeyCapability renewCapability);
 
-        Builder keySize(short keySize);
+        Builder keySize(int keySize);
 
         SecurityAccessorType add();
     }

@@ -14,11 +14,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
-import com.elster.jupiter.pki.SecurityAccessorUserAction;
-import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
@@ -27,19 +23,12 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.ShouldHaveUniqueName;
 import com.elster.jupiter.util.UniqueName;
-
 import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -68,7 +57,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private String label;
     private SessionKeyCapability importCapability;
     private SessionKeyCapability renewCapability;
-    private short keySize;
+    private int keySize;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -223,7 +212,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         this.renewCapability = renewCapability;
     }
 
-    protected void setKeySize(short keySize) {
+    protected void setKeySize(int keySize) {
         this.keySize = keySize;
     }
 

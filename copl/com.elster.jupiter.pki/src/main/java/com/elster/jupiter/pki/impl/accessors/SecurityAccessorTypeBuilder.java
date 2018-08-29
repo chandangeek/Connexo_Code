@@ -7,11 +7,7 @@ package com.elster.jupiter.pki.impl.accessors;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityAccessorUserAction;
-import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.EnumSet;
@@ -87,7 +83,7 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     }
 
     @Override
-    public SecurityAccessorType.Builder keySize(short keySize) {
+    public SecurityAccessorType.Builder keySize(int keySize) {
         underConstruction.setKeySize(keySize);
         return this;
     }

@@ -5,53 +5,16 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.*;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.pki.AliasParameterFilter;
-import com.elster.jupiter.pki.CertificateUsagesFinder;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.DeviceSecretImporter;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
-import com.elster.jupiter.pki.ExpirationSupport;
-import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.IssuerParameterFilter;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.KeyUsage;
-import com.elster.jupiter.pki.KeyUsagesParameterFilter;
-import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PassphraseFactory;
-import com.elster.jupiter.pki.PassphraseWrapper;
-import com.elster.jupiter.pki.PrivateKeyFactory;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.RequestableCertificateWrapper;
-import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.SubjectParameterFilter;
-import com.elster.jupiter.pki.SymmetricAlgorithm;
-import com.elster.jupiter.pki.SymmetricKeyFactory;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
@@ -80,15 +43,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -100,13 +58,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -138,6 +90,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile QueryService queryService;
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
+    private volatile HsmEnergyService hsmEnergyService;
 
     @Inject
     public SecurityManagementServiceImpl(OrmService ormService,
@@ -149,7 +102,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                                          UserService userService,
                                          QueryService queryService,
                                          MessageService messageService,
-                                         FileImportService fileImportService) {
+                                         FileImportService fileImportService,
+                                         HsmEnergyService hsmEnergyService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -160,6 +114,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setQueryService(queryService);
         this.setMessageService(messageService);
         this.setFileImportService(fileImportService);
+        this.setHSMEnergyService(hsmEnergyService);
         this.activate();
     }
 
@@ -251,6 +206,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Reference
+    public void setHSMEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -330,6 +290,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(QueryService.class).toInstance(queryService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(FileImportService.class).toInstance(fileImportService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(HsmEnergyService.class).toInstance(hsmEnergyService);
             }
         };
     }
