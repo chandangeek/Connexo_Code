@@ -4,5 +4,7 @@ public interface IrreversibleKey {
 
     byte[] getEncryptedKey();
 
-    String getHsmKekLabel();
+    String getKeyLabel();
+
+    byte[] toBase64ByteArray();
 }
