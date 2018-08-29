@@ -1,6 +1,6 @@
 package com.elster.jupiter.hsm.model.keys;
 
-public class HsmEncryptedKey {
+public class HsmEncryptedKey implements IrreversibleKey {
 
     private final byte[] encryptedKey;
     private final String keyLabel;

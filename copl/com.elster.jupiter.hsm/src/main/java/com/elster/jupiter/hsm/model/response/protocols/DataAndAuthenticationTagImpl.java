@@ -1,7 +1,5 @@
 package com.elster.jupiter.hsm.model.response.protocols;
 
-import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
-
 public class DataAndAuthenticationTagImpl implements DataAndAuthenticationTag {
 
     private byte[] data;

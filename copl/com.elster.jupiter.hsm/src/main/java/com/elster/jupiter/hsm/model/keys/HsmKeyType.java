@@ -5,10 +5,10 @@ public class HsmKeyType {
     private final String label;
     private final SessionKeyCapability importCapability;
     private final SessionKeyCapability renewCapability;
-    private final short keySize;
+    private final int keySize;
 
 
-    public HsmKeyType(String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, short keySize) {
+    public HsmKeyType(String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, int keySize) {
         this.label = label;
         this.importCapability = importCapability;
         this.renewCapability = renewCapability;
@@ -27,7 +27,7 @@ public class HsmKeyType {
         return renewCapability;
     }
 
-    public short getKeySize() {
+    public int getKeySize() {
         return keySize;
     }
 }
