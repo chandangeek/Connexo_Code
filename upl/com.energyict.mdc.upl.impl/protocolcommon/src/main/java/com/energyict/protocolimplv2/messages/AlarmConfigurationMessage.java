@@ -155,7 +155,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
+                    this.stringSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
             );
         }
     },

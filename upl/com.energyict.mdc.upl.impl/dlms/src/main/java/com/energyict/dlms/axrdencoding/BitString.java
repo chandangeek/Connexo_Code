@@ -16,6 +16,7 @@ import com.energyict.dlms.DLMSUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -91,6 +92,16 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
         this.bitSet = new BitSet(this.nrOfBits);
         for (int i = 0; i < size; i++) {
             final long bitValue = (value >> i) & 0x01;
+            this.bitSet.set(this.nrOfBits - (i + 1), bitValue != 0);
+        }
+    }
+
+    public BitString(final BigDecimal value, final int size, final int nrOfBits) {
+        final BigInteger bigIntegerValue = value.toBigInteger();
+        this.nrOfBits = size;
+        this.bitSet = new BitSet(this.nrOfBits);
+        for (int i = 0; i < size; i++) {
+            final long bitValue = bigIntegerValue.shiftRight(i).testBit(0) ? 1 : 0;
             this.bitSet.set(this.nrOfBits - (i + 1), bitValue != 0);
         }
     }
