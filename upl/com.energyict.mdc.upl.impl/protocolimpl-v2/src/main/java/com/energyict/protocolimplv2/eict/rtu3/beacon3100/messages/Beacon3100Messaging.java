@@ -73,6 +73,7 @@ import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.validators.BeaconMessageValidator;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -514,6 +515,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY.id()
                     || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
                 new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.MASTER_KEY);
+            } else if (deviceMessage.getMessageId() == AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER.id()) {
+                BeaconMessageValidator.validateAlarmFilter(deviceMessage, DeviceMessageConstants.alarmFilterAttributeName);
             }
         } catch (DeviceConfigurationException e) {
             return Optional.of("DeviceConfigurationException " + e.getMessage());
@@ -841,6 +844,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }   //Else: throw communication exception
             } catch (IndexOutOfBoundsException | NullPointerException | IllegalArgumentException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setDeviceProtocolInformation(e.toString());
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             } finally {
@@ -2676,12 +2680,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
-        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
-        Data alarmFilter = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
-        BitString beaconAlarmFilter = new BitString(alarmFilter.getRawValueAttr(), 0);
-        alarmFilter.setValueAttr(
-                new BitString(filter.longValue(), beaconAlarmFilter.getNrOfBits(), beaconAlarmFilter.getNrOfBits())
-        );
+        try {
+            BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
+            Data alarmFilter = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
+            BitString beaconAlarmFilter = new BitString(alarmFilter.getRawValueAttr(), 0);
+            alarmFilter.setValueAttr(
+                    new BitString(filter, beaconAlarmFilter.getNrOfBits(), beaconAlarmFilter.getNrOfBits())
+            );
+        } catch (NumberFormatException ex) {
+            throw ex;
+        }
     }
 
     private void configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
