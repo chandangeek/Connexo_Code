@@ -4,11 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
@@ -157,6 +153,11 @@ public class TypedPropertiesValueAdapter {
             }
 
             return new CertificateWrapperAdapter((CertificateWrapper) actualValue, optionalKeyStore);
+        } else if(actualValue instanceof HsmKey) {
+            HsmKey hsmKey = (HsmKey) actualValue;
+            if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
+                return hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey());
+            }
         }
         return null;
     }
