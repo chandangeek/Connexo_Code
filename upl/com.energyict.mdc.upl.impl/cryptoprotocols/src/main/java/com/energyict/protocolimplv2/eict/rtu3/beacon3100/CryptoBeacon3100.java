@@ -31,8 +31,11 @@ import java.util.List;
  */
 public class CryptoBeacon3100 extends Beacon3100 {
 
+    private final HsmProtocolService hsmProtocolService;
+
     public CryptoBeacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, HsmProtocolService hsmProtocolService) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor, hsmProtocolService);
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor);
+        this.hsmProtocolService = hsmProtocolService;
     }
 
     @Override
@@ -81,5 +84,9 @@ public class CryptoBeacon3100 extends Beacon3100 {
         //Uses the HSM to encrypt requests and decrypt responses, we don't have the plain keys
         return new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
 
+    }
+
+    protected HsmProtocolService getHsmProtocolService() {
+        return hsmProtocolService;
     }
 }

@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
@@ -78,6 +77,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(frameCounterRecoveryRetries());
         propertySpecs.add(frameCounterRecoveryStep());
         propertySpecs.add(initialFrameCounter());
+        propertySpecs.add(increaseFrameCounterOnHLSReply());
         propertySpecs.add(readOldObisCodes());
 
         propertySpecs.add(defaultBacklogLoadProfile());
@@ -136,6 +136,15 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec initialFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, PropertyTranslationKeys.V2_INITIAL_FRAME_COUNTER, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
+    }
+
+    /**
+     * Property spec indicating whether or not to increment the FC for the reply to HLS.
+     *
+     * @return	The corresponding PropertySpec.
+     */
+    private final PropertySpec increaseFrameCounterOnHLSReply() {
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, true, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {

@@ -118,8 +118,8 @@ public class AssociationControlServiceElement {
         byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
         if (!getSecurityContext().getSecurityPolicy().isRequestPlain()) {
-            getSecurityContext().incFrameCounter();
             userInformation = encryptAndAuthenticateUserInformation(userInformation);
+            getSecurityContext().incFrameCounter();
         }
 
         setUserInformation(userInformation);

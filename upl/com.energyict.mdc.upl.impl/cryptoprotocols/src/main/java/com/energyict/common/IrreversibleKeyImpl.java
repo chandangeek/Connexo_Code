@@ -36,7 +36,7 @@ public class IrreversibleKeyImpl implements IrreversibleKey {
     /**
      * Get HSM KEK label
      */
-    public String getHsmKekLabel() {
+    public String getKeyLabel() {
         lazyInit();
         return hsmKekLabel;
     }
@@ -47,6 +47,10 @@ public class IrreversibleKeyImpl implements IrreversibleKey {
     public byte[] getEncryptedKey() {
         lazyInit();
         return encryptedKey;
+    }
+
+    public byte[] toBase64ByteArray() {
+        return ProtocolTools.bytesToBase64(labelAndKeyValue.getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -64,7 +68,7 @@ public class IrreversibleKeyImpl implements IrreversibleKey {
         if (this.hsmKekLabel == null) {
             String[] values = this.labelAndKeyValue.split(SEPARATOR);
             validateCountOfValues(values, 2);
-            hsmKekLabel = new String(ProtocolTools.hexToBytes(values[0]));
+            hsmKekLabel = values[0];
             encryptedKey = ProtocolTools.hexToBytes(values[1]);
         }
     }

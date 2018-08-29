@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
@@ -182,7 +181,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class), mock(HsmProtocolService.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -237,7 +236,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class), mock(HsmProtocolService.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -303,7 +302,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class), mock(HsmProtocolService.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -387,7 +386,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class), mock(HsmProtocolService.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -500,7 +499,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class), mock(HsmProtocolService.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);

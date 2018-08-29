@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
+import com.energyict.common.IrreversibleKeyImpl;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Copyrights EnergyICT
@@ -22,13 +25,14 @@ public class CryptoBeacon3100SecurityProvider extends Beacon3100SecurityProvider
 
     private void initializeKeys() {
         //TODO: get the keys directly from security accsesors?
-//        setAuthenticationKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
-//        setEncryptionKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
-//        setHlsSecret(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.PASSWORD.toString()));
+        setAuthenticationKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
+        setEncryptionKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
+        setHlsSecret(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.PASSWORD.toString()));
     }
 
-//    private byte[] parseSecurityPropertyValue(String securityPropertyName) {
-//        return securityPropertyValueParser.parseSecurityPropertyValue(securityPropertyName, properties.getTypedProperty(securityPropertyName, ""));
-//    }
+    private byte[] parseSecurityPropertyValue(String securityPropertyName) {
+        IrreversibleKey irreversibleKey = new IrreversibleKeyImpl(properties.getTypedProperty(securityPropertyName, ""));
+        return irreversibleKey.toBase64ByteArray();
+    }
 
 }

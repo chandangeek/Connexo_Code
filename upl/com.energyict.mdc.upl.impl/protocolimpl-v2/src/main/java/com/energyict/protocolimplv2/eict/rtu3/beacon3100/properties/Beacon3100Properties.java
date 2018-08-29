@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -203,5 +204,10 @@ public class Beacon3100Properties extends DlmsProperties {
 
     public String getIPv6AddressAndPrefixLength() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.IPV6_ADDRESS_AND_PREFIX_LENGTH);
+    }
+
+    @Override
+    public boolean incrementFrameCounterForReplyToHLS() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false);
     }
 }
