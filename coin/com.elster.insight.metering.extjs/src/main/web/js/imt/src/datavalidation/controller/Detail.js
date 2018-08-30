@@ -8,7 +8,8 @@ Ext.define('Imt.datavalidation.controller.Detail', {
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
-        'Imt.store.Estimators'
+        'Imt.store.Estimators',
+        'Imt.datavalidation.store.NonEstimatedDataStore'
     ],
 
     models: [
@@ -18,6 +19,7 @@ Ext.define('Imt.datavalidation.controller.Detail', {
     widgetXtype: 'data-validation-issue-detail',
     issueModel: 'Imt.datavalidation.model.Issue',
     itemUrl: '/api/isu/issues/',
+    nonEstimatedDataStore: 'Imt.datavalidation.store.NonEstimatedDataStore',
 
     views: [
 
@@ -25,7 +27,8 @@ Ext.define('Imt.datavalidation.controller.Detail', {
         'Imt.purpose.view.ReadingEstimationWindow',
         'Imt.datavalidation.view.Detail',
         'Imt.datavalidation.view.IssueDetailTop',
-        'Imt.datavalidation.view.UsagePointIssueActionMenu'
+        'Imt.datavalidation.view.UsagePointIssueActionMenu',
+        'Imt.datavalidation.view.NonEstimatedDataGrid'
 
     ],
 
