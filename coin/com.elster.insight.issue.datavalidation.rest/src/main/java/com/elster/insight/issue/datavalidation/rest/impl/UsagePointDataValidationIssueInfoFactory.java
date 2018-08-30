@@ -88,7 +88,7 @@ public class UsagePointDataValidationIssueInfoFactory implements InfoFactory<Usa
                             .map(effectiveMC -> getDeliverablesFromEffectiveMC(effectiveMC, metrologyPurpose))
                             .forEach(deliverables -> deliverables
                                     .stream()
-                                    .filter(deliverable -> !deliverable.getReadingType().isRegular())
+                                    // .filter(deliverable -> !deliverable.getReadingType().isRegular())
                                     .filter(deliverable -> deliverable.getReadingType().equals(entry.getKey()))
                                     .forEach(deliverable -> issueInfo.notEstimatedData.add(createNotEstimatedDataInfoOfRegister(entry.getKey(), entry.getValue(), deliverable.getId()))));
                 }
