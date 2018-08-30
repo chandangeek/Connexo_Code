@@ -115,7 +115,7 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         if (queryString.myopenissues) {
-            me.getStore('Dal.store.AlarmAssignees').load({
+            me.getStore('Isu.store.IssueAssignees').load({
                 params: {me: true},
                 callback: function (records) {
                     queryString.myopenissues = undefined;
