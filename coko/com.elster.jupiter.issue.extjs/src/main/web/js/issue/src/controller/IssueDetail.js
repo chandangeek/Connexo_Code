@@ -106,7 +106,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 router.getRoute(router.currentRoute.replace('/view', '')).forward();
             }
         });
-        if (issueType === 'datavalidation') {
+        if ((issueType === 'datavalidation') || (issueType == 'usagepointdatavalidation')) {
             me.addValidationBlocksWidget(widget);
         }
     },
@@ -470,7 +470,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 });
 
                 if (data.length) {
-                    store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
+                    store = Ext.create(me.nonEstimatedDataStore, {data: data});
                     validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
                         itemId: 'validation-no-estimated-data-grid',
                         store: store,
@@ -535,7 +535,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
 
-        if (issueType === 'datavalidation') {
+        if ((issueType === 'datavalidation') || (issueType == 'usagepointdatavalidation')) {
             me.addValidationBlocksWidget(widget);
         }
     },
