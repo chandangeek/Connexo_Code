@@ -24,6 +24,8 @@ Ext.define('Idv.controller.Detail', {
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
     ],
 
+    nonEstimatedDataStore: 'Idv.store.NonEstimatedDataStore',
+
     constructor: function () {
         var me = this;
 
