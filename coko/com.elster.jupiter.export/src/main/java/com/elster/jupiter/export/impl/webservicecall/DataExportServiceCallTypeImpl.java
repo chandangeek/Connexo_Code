@@ -12,6 +12,7 @@ import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.NoTransitionException;
@@ -35,8 +36,9 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final Object serviceCallLock = new Object();
 
     @Inject
-    public DataExportServiceCallTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
-        this.dataModel = dataModel;
+    public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+        this.dataModel = ormService.getDataModel(WebServiceDataExportPersistenceSupport.COMPONENT_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for web service data export CPS isn't found."));
         this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;

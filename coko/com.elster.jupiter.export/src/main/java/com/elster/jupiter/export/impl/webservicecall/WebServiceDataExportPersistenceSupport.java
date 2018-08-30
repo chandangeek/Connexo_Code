@@ -5,7 +5,6 @@
 package com.elster.jupiter.export.impl.webservicecall;
 
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
@@ -18,14 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class WebServiceDataExportPersistenceSupport implements PersistenceSupport<ServiceCall, WebServiceDataExportDomainExtension> {
+    public static final String COMPONENT_NAME = "DEW";
     static final String APPLICATION_NAME = "Pulse";
 
-    private static final String FK_NAME = DataExportService.COMPONENTNAME + "_FK_WEB_SERVICE_CALL_CPS";
-    private static final String TABLE_NAME = DataExportService.COMPONENTNAME + "_WEB_SERVICE_CALL_CPS";
+    private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SERVICE_CALL_CPS";
+    private static final String TABLE_NAME = COMPONENT_NAME + "_WEB_SERVICE_CALL_CPS";
 
     @Override
     public String componentName() {
-        return DataExportService.COMPONENTNAME;
+        return COMPONENT_NAME;
     }
 
     @Override

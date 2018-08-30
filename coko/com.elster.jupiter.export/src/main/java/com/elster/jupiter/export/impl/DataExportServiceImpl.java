@@ -135,6 +135,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile QueryService queryService;
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile OrmService ormService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
@@ -275,6 +276,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
         dataModel = ormService.newDataModel(COMPONENTNAME, MODULE_DESCRIPTION);
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -385,6 +387,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     bind(ServiceCallService.class).toInstance(serviceCallService);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(DataModel.class).toInstance(dataModel);
+                    bind(OrmService.class).toInstance(ormService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
