@@ -24,7 +24,6 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
-import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
@@ -138,8 +137,16 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IssueInfo getIssueById(@PathParam("id") long id) {
         Optional<? extends Issue> issue = getIssueService().findIssue(id);
-        return issue.map(isu -> issueInfoFactory.asInfo(isu,DeviceInfo.class))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return issue.map(isu -> {
+            for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
+                Optional<? extends Issue> issueRef = issueProvider.findIssue(isu.getId());
+                if (issueRef.isPresent()) {
+                    return IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issueRef.get())
+                            .from(issueRef.get()));
+                }
+            }
+            return null;
+        }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
