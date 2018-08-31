@@ -126,7 +126,7 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
             });
         } else if (queryString.myworkgroupissues) {
             Ext.Ajax.request({
-                url: '/api/dal/workgroups?myworkgroups=true',
+                url: '/api/isu/workgroups?myworkgroups=true',
                 method: 'GET',
                 success: function (response) {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;

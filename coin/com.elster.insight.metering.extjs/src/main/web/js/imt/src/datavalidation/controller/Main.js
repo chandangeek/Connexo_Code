@@ -52,15 +52,6 @@ Ext.define('Imt.datavalidation.controller.Main', {
             items = [];
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
-                glyph: 'workspace',
-                portal: 'workspace',
-                index: 30
-            }));
-        }
-
-        if (Isu.privileges.Issue.canViewAdminDevice()) {
 
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({

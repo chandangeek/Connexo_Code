@@ -317,16 +317,6 @@ Ext.define('Imt.controller.Main', {
             issuemanagementItems = [],
             issuesPortalItem,
             router = me.getController('Uni.controller.history.Router');
-        //historian = me.getController('Isu.controller.history.Administration'); // Forces route registration.
-
-        if (Isu.privileges.Issue.canAdminRule()) {
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'IMT', 'Administration'),
-                glyph: 'settings',
-                portal: 'administration',
-                index: 10
-            }));
-        }
 
         if (Isu.privileges.Issue.canAdminRule()) {
             if (Isu.privileges.Issue.canViewRule()) {
