@@ -175,7 +175,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                     .getName();
             logger.info(msg);
             endPointConfiguration.log(LogLevel.FINE, msg);
-            managedEndpoint.stop();
+            stopEndpoint(managedEndpoint);
         });
         endpoints.clear();
     }
@@ -363,5 +363,13 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
             }
         }
         return new ArrayList<>();
+    }
+
+    private void stopEndpoint(ManagedEndpoint endpoint) {
+        try {
+            endpoint.stop();
+        } catch (Exception ex) {
+
+        }
     }
 }
