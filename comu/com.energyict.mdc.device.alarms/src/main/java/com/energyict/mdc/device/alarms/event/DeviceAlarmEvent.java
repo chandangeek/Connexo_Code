@@ -130,7 +130,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         setCreationRule(ruleId);
         List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
         if (relativePeriodWithCountValues.size() != 2) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Relative period with occurrence count for device alarms");
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                    "Relative period with occurrence count for device alarms",
+                    String.valueOf(2),
+                    String.valueOf(relativePeriodWithCountValues.size()));
         }
 
         int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
@@ -151,7 +154,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     public boolean logOnSameAlarm(String raiseEventProps) {
         List<String> values = parseRawInputToList(raiseEventProps, COLON_SEPARATOR);
         if (values.size() != 3) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS, "Device Life Cycle in Device Type");
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                    "Device Life Cycle in Device Type",
+                    String.valueOf(3),
+                    String.valueOf(values.size()));
         }
         return Integer.parseInt(values.get(0)) == 1;
     }

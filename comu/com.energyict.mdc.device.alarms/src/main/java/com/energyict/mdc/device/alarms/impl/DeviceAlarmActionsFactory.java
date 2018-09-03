@@ -127,7 +127,8 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     @Reference
     public final void setThesaurus(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        //this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN);  // CONM-294 - close alarm
     }
 
     @Reference
