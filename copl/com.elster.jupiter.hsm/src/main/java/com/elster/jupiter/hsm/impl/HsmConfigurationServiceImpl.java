@@ -19,7 +19,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
 public class HsmConfigurationServiceImpl implements HsmConfigurationService {
@@ -29,13 +31,14 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
 
     private HsmResourceReloader<HsmConfiguration> hsmConfigurationLoader;
+    private RawConfiguration rawConfiguration;
 
     public void init(String file) {
         try {
             File f = new File(file);
-            RawConfiguration cfg = new HsmJssConfigLoader().load(f);
+            rawConfiguration = new HsmJssConfigLoader().load(f);
             JSSRuntimeControl.initialize();
-            JSSRuntimeControl.newConfiguration(cfg);
+            JSSRuntimeControl.newConfiguration(rawConfiguration);
             this.initialized = true;
         } catch (Throwable e) {
             System.out.println(e);
@@ -51,9 +54,9 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
         }
     }
 
-    public void checkInit() {
+    public void checkInit() throws HsmBaseException {
         if (!initialized) {
-            throw new RuntimeException("JSS not initialized!");
+            throw new HsmBaseException("JSS not initialized!");
         }
     }
 
@@ -78,4 +81,9 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     public HsmConfiguration getHsmConfiguration() throws HsmBaseException {
         return hsmConfigurationLoader.load();
     }
+
+    @Override
+    public Collection<String> getLabels() throws HsmBaseException {
+        checkInit();
+        return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());    }
 }

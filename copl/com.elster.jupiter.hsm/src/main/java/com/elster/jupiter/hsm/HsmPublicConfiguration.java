@@ -14,8 +14,8 @@ public interface HsmPublicConfiguration {
 
     /**
      *
-     * @return list of labels configured in HSM bundle and hopefully HSM as well.
+     * @return list of getLabels configured in HSM (response is based on JSON file used to init JSS).
      */
-    Collection<HsmLabelConfiguration> labels() throws HsmBaseException;
+    Collection<String> labels() throws HsmBaseException;
 
 }
