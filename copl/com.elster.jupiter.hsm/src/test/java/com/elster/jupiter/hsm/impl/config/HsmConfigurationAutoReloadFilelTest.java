@@ -93,13 +93,19 @@ public class HsmConfigurationAutoReloadFilelTest {
     }
 
     @Test
-    public void testNotMappedLabel() throws HsmBaseException {
+    public void testGetHsmLabelNotConfiguredLabel() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
         expectedException.expect(HsmBaseException.class);
         String label = "NOT_CONFIGURED_LABEL";
         expectedException.expectMessage("Asking configuration for a label that is missing, label:" + label);
         hsmConfigurationPropFile.get(label);
+    }
 
+    @Test
+    public void testMapLabelNotConfiguredLabel() throws HsmBaseException {
+        String label = "NOT_CONFIGURED_LABEL";
+        hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
+        assertEquals(label, hsmConfigurationPropFile.map(label));
     }
 
     @Test
