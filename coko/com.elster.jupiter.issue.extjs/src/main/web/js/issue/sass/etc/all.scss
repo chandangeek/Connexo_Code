@@ -550,3 +550,15 @@ span[class^=isu-assignee-] {
     color: #0e44f4;
     text-decoration: underline;
 }
+
+.x-bar.bar-success .x-bar-container .x-bar-track {
+  background-color: #70BB52;
+}
+
+.x-bar.bar-ongoing .x-bar-container .x-bar-track {
+  background-color: #71ADC6;
+}
+
+.x-bar.bar-failed .x-bar-container .x-bar-track {
+  background-color: #EB5642;
+}
