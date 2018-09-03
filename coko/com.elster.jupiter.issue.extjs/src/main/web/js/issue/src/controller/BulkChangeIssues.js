@@ -131,7 +131,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 value: value
             });
         });
-
+        filter.push({
+            property: 'application',
+            value: Uni.util.Application.getAppName() == 'MdmApp' ? 'INS' :
+                Uni.util.Application.getAppName() == 'MultiSense' ? 'MultiSense' : ''
+        });
         widget = Ext.widget('bulk-browse');
         widget.down('#Close').setVisible(me.dataCollectionActivated);
         widget.down('#retry-comtask-radio').setVisible(me.dataCollectionActivated);
