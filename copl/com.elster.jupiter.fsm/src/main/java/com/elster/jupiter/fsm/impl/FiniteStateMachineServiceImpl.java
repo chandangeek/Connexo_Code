@@ -166,7 +166,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Publisher.class).toInstance(publisher);
-
+                bind(BpmService.class).toInstance(bpmService);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(FiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
                 bind(ServerFiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
             }
