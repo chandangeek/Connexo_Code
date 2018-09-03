@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,7 @@ public class HistoryResource extends BaseResource {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
         groupFilter.using(Issue.class)
                 .withReasons(filter.getStringList(IssueRestModuleConst.REASON))
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName())
-                        .collect(Collectors.toList()) : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE))
+                .withIssueTypes(getIssueTypes(filter))
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD))
                 .to(endCreateTime);
 
@@ -94,5 +94,15 @@ public class HistoryResource extends BaseResource {
         return response;
     }
 
-
+    private Collection<String> getIssueTypes(JsonQueryFilter filter) {
+        return !filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ?
+                filter.getStringList(IssueRestModuleConst.ISSUE_TYPE) :
+                filter.getStringList(IssueRestModuleConst.APPLICATION).isEmpty() ?
+                        Collections.emptyList() :
+                        filter.getString(IssueRestModuleConst.APPLICATION).equalsIgnoreCase("INS") ?
+                                Stream.of(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).collect(Collectors.toList()) :
+                                filter.getString(IssueRestModuleConst.APPLICATION).equalsIgnoreCase("MultiSense") ?
+                                        Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName()).collect(Collectors.toList()) :
+                                        Collections.emptyList();
+    }
 }
