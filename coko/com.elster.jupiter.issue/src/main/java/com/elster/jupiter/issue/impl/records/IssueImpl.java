@@ -88,8 +88,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     public String getTitle() {
         String title = getReason().getName();
         EndDevice endDevice = getDevice();
+        Optional<UsagePoint> usagePoint = getUsagePoint();
         if (endDevice != null) {
             title = ((IssueReasonImpl) getReason()).getDescriptionFor(endDevice.getName());
+        } else if (usagePoint != null && usagePoint.isPresent()) {
+            title = ((IssueReasonImpl) getReason()).getDescriptionFor(usagePoint.get().getName());
         }
         return title;
     }
