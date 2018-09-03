@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 
 @ConsumerType
 public interface DataExportWebService {
-    // TODO: move to implementers
-//    String CHANGE_NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_COut";
     String TIMEOUT_PROPERTY_KEY = "webService.timeout";
 
     /**

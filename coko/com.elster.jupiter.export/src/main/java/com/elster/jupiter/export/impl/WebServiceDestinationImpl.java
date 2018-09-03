@@ -24,7 +24,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Predicates;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -59,9 +58,6 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<EndPointConfiguration> createEndPoint;
     private Reference<EndPointConfiguration> changeEndPoint;
-    // TODO: to move to endpoints
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
-    private String timeout;
 
     @Inject
     WebServiceDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService,
@@ -208,6 +204,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .filter(property -> DataExportWebService.TIMEOUT_PROPERTY_KEY.equals(property.getName()))
                 .findAny()
                 .map(EndPointProperty::getValue)
+                .filter(TimeDuration.class::isInstance)
                 .map(TimeDuration.class::cast)
                 .orElse(TimeDuration.NONE);
     }
