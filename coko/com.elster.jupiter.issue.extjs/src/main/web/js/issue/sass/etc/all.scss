@@ -562,3 +562,32 @@ span[class^=isu-assignee-] {
 .x-bar.bar-failed .x-bar-container .x-bar-track {
   background-color: #EB5642;
 }
+
+.x-bar {
+  position: relative;
+  display: block;
+}
+
+.x-bar .threshold {
+  position: absolute;
+  border-style: solid;
+  border-width: 6px 6px 0 6px;
+  margin-left: -3px;
+  top: -6px;
+  border-color: #007bff transparent transparent transparent
+}
+
+.x-bar .x-bar-label {
+  position: absolute;
+  right: 100%;
+  text-align: right;
+  line-height: 15px;
+  margin-right: 8px;
+  width: 100%;
+}
+
+.x-bar .x-bar-container, .x-bar .x-bar-fill, .x-bar .x-bar-track {
+  height: 15px;
+  display: block;
+  position: relative
+}
