@@ -56,7 +56,6 @@ public class HsmConfigurationPropFileImplTest {
     @Test
     public void testJssInitFileIsReturned() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-
         assertEquals("hsm-runtime-configuration.json", hsmConfigurationPropFile.getJssInitFile());
     }
 
@@ -79,24 +78,14 @@ public class HsmConfigurationPropFileImplTest {
     }
 
     @Test
-    public void testMapReturnsSameLabeLIfNoMappingExists() throws HsmBaseException {
+    public void testMapLabelReturnsSameLabeLIfNoMappingExists() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
         String label = "Label";
         assertEquals(label, hsmConfigurationPropFile.map(label));
     }
 
     @Test
-    public void testNotMappedLabel() throws HsmBaseException {
-        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-        expectedException.expect(HsmBaseException.class);
-        String label = "NOT_CONFIGURED_LABEL";
-        expectedException.expectMessage("Asking configuration for a label that is missing, label:" + label);
-        hsmConfigurationPropFile.get(label);
-
-    }
-
-    @Test
-    public void testConfiguredLabel() throws HsmBaseException {
+    public void testMapConfiguredLabel() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
         String label = "IMP-SM-KEK";
         HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationPropFile.get(label);
@@ -104,11 +93,23 @@ public class HsmConfigurationPropFileImplTest {
     }
 
     @Test
+    public void testNotConfiguredLabel() throws HsmBaseException {
+        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
+        expectedException.expect(HsmBaseException.class);
+        String label = "NOT_CONFIGURED_LABEL";
+        expectedException.expectMessage("Asking configuration for a label that is missing, label:" + label);
+        hsmConfigurationPropFile.get(label);
+    }
+
+
+
+    @Test
     public void testGetAll() throws HsmBaseException {
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
         Collection<HsmLabelConfiguration> labels = hsmConfigurationPropFile.getLabels();
         assertEquals(1, labels.size());
         HsmLabelConfiguration label1 = new HsmLabelConfiguration("IMP-SM-KEK","Pub_KEK_SM");
+        assertEquals(label1, labels.iterator().next());
 
     }
 }

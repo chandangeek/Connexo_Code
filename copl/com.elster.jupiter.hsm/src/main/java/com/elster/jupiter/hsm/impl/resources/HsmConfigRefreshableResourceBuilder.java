@@ -2,7 +2,6 @@ package com.elster.jupiter.hsm.impl.resources;
 
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.impl.config.HsmConfigurationPropFileImpl;
-import com.elster.jupiter.hsm.impl.resources.HsmRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import java.io.File;
