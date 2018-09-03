@@ -230,6 +230,11 @@ Ext.define('Isu.controller.Overview', {
                     {
                         property: 'field',
                         value: historySection.field
+                    },
+                    {
+                        property: 'application',
+                        value: Uni.util.Application.getAppName() == 'MdmApp' ? 'INS' :
+                            Uni.util.Application.getAppName() == 'MultiSense' ? 'MultiSense' : ''
                     }
                 ]
             };
