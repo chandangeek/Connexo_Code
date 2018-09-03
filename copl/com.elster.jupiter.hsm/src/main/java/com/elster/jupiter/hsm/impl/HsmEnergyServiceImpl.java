@@ -122,11 +122,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -135,11 +135,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public byte[] encryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public byte[] encryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -148,11 +148,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public DataAndAuthenticationTag authenticateEncryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public DataAndAuthenticationTag authenticateEncryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -161,11 +161,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector, authenticationTag);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -177,11 +177,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public byte[] decryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public byte[] decryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector, null);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -190,11 +190,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public byte[] verifyAuthenticationDecryptApdu(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
+    public byte[] verifyAuthenticationDecryptApdu(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, SecuritySuite.SUITE0), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector, authenticationTag);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
