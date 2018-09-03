@@ -427,7 +427,8 @@ public class UsagePointImplIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("testCanNotDeleteUsagePointLifeCycleWhichIsInUse", AUG_1ST_2016).create();
         ((UsagePointImpl) usagePoint).setState(lifeCycle.getStates().stream().filter(State::isInitial).findFirst().get(), AUG_15TH_2016);
-
+        ((UsagePointImpl) usagePoint).setLifeCycle(lifeCycle.getName());
+        ((UsagePointImpl) usagePoint).update();
         lifeCycle.remove();
     }
 

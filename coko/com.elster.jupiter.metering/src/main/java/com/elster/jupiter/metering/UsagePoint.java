@@ -108,6 +108,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     List<? extends UsagePointDetail> getDetail(Range<Instant> range);
 
+    void setState(State state, Instant startTime);
+
     /**
      * Get all existing details for this usage point
      */
