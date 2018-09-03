@@ -36,8 +36,6 @@ import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 
-import aQute.libg.cryptography.Crypto;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
@@ -403,7 +401,7 @@ public class SecurityAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     public Response getHsmLabels() {
         try {
-            return Response.ok(hsmPublicConfiguration.labels().stream().map(s ->  s.getName()).toArray()).build();
+            return Response.ok(hsmPublicConfiguration.labels()).build();
         } catch (HsmBaseException e) {
             throw new RuntimeException(e);
         }
