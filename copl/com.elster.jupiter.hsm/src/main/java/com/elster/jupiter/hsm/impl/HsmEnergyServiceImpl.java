@@ -1,10 +1,10 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
-import com.atos.worldline.jss.api.basecrypto.RandomMode;
-import com.atos.worldline.jss.api.basecrypto.Symmetric;
+import com.atos.worldline.jss.api.basecrypto.*;
 import com.atos.worldline.jss.api.custom.energy.*;
-import com.atos.worldline.jss.api.key.KeyLabel;
+import com.atos.worldline.jss.api.key.*;
+import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
@@ -27,6 +27,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     private static final int SECURITY_SUITE2 = 2;
     private static final int AES_KEY_LENGTH = 16;
     private static final int AES256_KEY_LENGTH = 32;
+    /** Size of the frame counter when encoded. */
+    private static final int FRAMECOUNTER_SIZE = 4;
 
     static final String COMPONENTNAME = "HsmEnergyServiceImpl";
 
@@ -242,7 +244,35 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public boolean verifyFramecounterHMAC(byte[] serverSysT, byte[] clientSysT, byte[] challenge, long framecounter, IrreversibleKey gak, byte[] challengeResponse) throws HsmBaseException {
-        return false;
+        final byte[] framecounterBytes = new byte[FRAMECOUNTER_SIZE];
+
+        framecounterBytes[0] = (byte)((framecounter >> 24) & 0xff);
+        framecounterBytes[1] = (byte)((framecounter >> 16) & 0xff);
+        framecounterBytes[2] = (byte)((framecounter >> 8) & 0xff);
+        framecounterBytes[3] = (byte)(framecounter & 0xff);
+
+        final byte[] macInputData = new byte[serverSysT.length + clientSysT.length + challenge.length + FRAMECOUNTER_SIZE];
+
+        /* Data is defined as : serverSysT || clientSysT || challenge || frameCounter */
+        System.arraycopy(serverSysT, 0, macInputData, 0, serverSysT.length);
+        System.arraycopy(clientSysT, 0, macInputData, serverSysT.length, clientSysT.length);
+        System.arraycopy(challenge, 0, macInputData, serverSysT.length + clientSysT.length, challenge.length);
+        System.arraycopy(framecounterBytes, 0, macInputData, serverSysT.length + clientSysT.length + challenge.length, FRAMECOUNTER_SIZE);
+
+        final MAC mac = new MAC(challengeResponse);
+
+        try {
+            final SecretKey ak = new AESKeyToken(AES_KEY_LENGTH, gak.getEncryptedKey(), null, KEKEncryptionMethod.PROTECTED_SESSION_KEY, new KeyLabel(gak.getKeyLabel()), KeyDerivation.FIXED_KEY_ARRAY);
+            final SymmetricMACVerifyResponse response = Symmetric.verifyHMAC(ak, KeyDerivation.FIXED_KEY_ARRAY, macInputData, null, HashAlgorithm.SHA_256, BlockMode.SINGLE, mac);
+
+            if (response != null) {
+                return response.getResult();
+            }
+
+            return false;
+        } catch (final FunctionFailedException | UnsupportedKEKEncryptionMethodException e) {
+            throw new HsmBaseException(e);
+        }
     }
 
     private ProtectedSessionKey toProtectedSessionKey(IrreversibleKey hlsSecret) {
