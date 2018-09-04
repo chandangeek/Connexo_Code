@@ -42,6 +42,7 @@ public class KoreChecklist implements UpgradeCheckList {
                     identifier(application(), "KPI"),
                     identifier(application(), "BPM"),
                     identifier(application(), "CAL"),
+                        identifier(application(), "WSS"),
                     identifier(application(), "FSM"),
                     identifier(application(), "CPS"),
                     identifier(application(), "SCS"),
