@@ -11,6 +11,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         'Mdc.securityaccessors.store.TrustStores',
         'Mdc.securityaccessors.store.KeyTypes',
         'Mdc.securityaccessors.store.KeyEncryptionMethods'
+
+
     ],
     isEdit: false,
     title: null,
@@ -178,14 +180,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectStorageMethod','MDC', 'Select a storage method...')
                 },
                 {
-                    xtype: 'textfield',
-                    name: 'label',
-                    itemId: 'mdc-security-accessor-label-textfield',
-                    fieldLabel: Uni.I18n.translate('general.label', 'MDC', 'Label'),
-                    required: true,
-                    hidden: true
-                },
-                {
                     xtype: 'fieldcontainer',
                     itemId: 'mdc-security-accessor-validity-period',
                     fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
@@ -225,6 +219,48 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                             ]
                         }
                     ]
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.importCapability', 'MDC', 'Import capability'),
+                    itemId: 'mdc-security-accessor-import-capability-combobox',
+                    name: 'importCapability',
+                    store: 'Mdc.securityaccessors.store.HsmCapabilities',
+                    hidden: true,
+                    required: true,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectImportCapability', 'MDC', 'Select an import capability...')
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.renewCapability', 'MDC', 'Renew capability'),
+                    itemId: 'mdc-security-accessor-renew-capability-combobox',
+                    name: 'renewCapability',
+                    store: 'Mdc.securityaccessors.store.HsmCapabilities',
+                    hidden: true,
+                    required: true,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectRenewCapability', 'MDC', 'Select a renew capability...')
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.labelEndPoint', 'MDC', 'Storage label'),
+                    itemId: 'mdc-security-accessor-label-end-point-combobox',
+                    name: 'label',
+                    store: 'Mdc.securityaccessors.store.HSMLabelEndPoint',
+                    hidden: true,
+                    required: true,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.selectLabelEndPoint', 'MDC', 'Select a storage label ...')
                 },
                 {
                     xtype: 'checkboxfield',

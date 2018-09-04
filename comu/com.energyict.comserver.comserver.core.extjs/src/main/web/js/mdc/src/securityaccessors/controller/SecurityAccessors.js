@@ -19,7 +19,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.store.TimeUnitsYearsSeconds',
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
         'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+        'Mdc.securityaccessors.store.HSMLabelEndPoint',
+        'Mdc.securityaccessors.store.HsmCapabilities'
     ],
 
     models: [
@@ -102,9 +104,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessor-key-type-combobox': {
                 change: me.keyTypeChanged
-            },
-            '#mdc-security-accessor-storage-method-combobox': {
-                change: me.storageMethodChanged
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: me.saveSecurityAccessor
@@ -336,6 +335,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         me.isManageCentrallyChecked = false;
         keyTypesStore.load();
         trustStoresStore.load();
+
         view = Ext.widget('security-accessor-add-form');
         view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
         unitStore.load({
@@ -553,14 +553,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
                             view.down('#cbo-security-accessor-validity-period-delay').select(record.get('duration').timeUnit);
                         }
-
                         view.down('#mdc-security-accessor-storage-method-combobox').setDisabled(true);
-                        if (record.get('label')) {
-                            var labelTextField =  view.down('#mdc-security-accessor-label-textfield');
-                            labelTextField.show();
-                            labelTextField.setValue(record.get('label'));
-                        }
-
                         me.getApplication().fireEvent('changecontentevent', view);
                         if (record.get('defaultValue')) {
                             me.getManageCentrallyCheckbox().setValue(true);
@@ -649,11 +642,24 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = form.down('#mdc-security-accessor-validity-period'),
+            importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
+            renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
+            labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod,
-            editAccessorRecord = combobox.editAccessorRecord;
+            newValueName = newValue.name;
 
         validityPeriod.setVisible(requiresDuration);
+        if (newValueName && newValueName == 'HSM Key') {
+            importCapabiltyCombo.setVisible(true);
+            renewCapabiltyCombo.setVisible(true);
+            labelEndPointCombo.setVisible(true);
+        }
+        else {
+            importCapabiltyCombo.setVisible(false);
+            renewCapabiltyCombo.setVisible(false);
+            labelEndPointCombo.setVisible(false);
+        }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
 
@@ -674,26 +680,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 if (successful){
                     if (store.getCount() === 1) {
                         storageMethodCombo.setValue(store.getAt(0).get('name'));
-                    } else if (editAccessorRecord){
-                        storageMethodCombo.setValue(editAccessorRecord.get('storageMethod'));
                     }
                 }
             }, me, {single: true});
             keyEncryptionMethodStore.load();
         }
     },
-
-    storageMethodChanged: function(combobox, newValue) {
-        var form = combobox.up('form'),
-            hsmLabel = form.down('#mdc-security-accessor-label-textfield');
-
-        if (newValue === "HSM") {
-            hsmLabel.show();
-        } else {
-            hsmLabel.hide();
-        }
-    },
-
     saveSecurityAccessor: function () {
         var me = this,
             editWindow = me.getSecurityAccessorPrivilegesEditWindow(),
