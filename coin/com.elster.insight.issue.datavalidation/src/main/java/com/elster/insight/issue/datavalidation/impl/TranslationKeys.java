@@ -12,7 +12,7 @@ import com.elster.insight.issue.datavalidation.impl.event.DataValidationEventHan
 
 public enum TranslationKeys implements TranslationKey {
 
-    DATA_VALIDATION_ISSUE_TYPE("UsagePointDataValidationIssueType", "Usage point data validation"),
+    DATA_VALIDATION_ISSUE_TYPE("UsagePointDataValidationIssueType", "Data validation"),
     DATA_VALIDATION_ISSUE_REASON("UsagePointDataValidationIssueReason", "Cannot estimate usage point data"),
     DATA_VALIDATION_ISSUE_REASON_DESCRIPTION("UsagePointDataValidationIssueReasonDescription", "Cannot estimate usage point data on {0}"),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME("UsagePointDataValidationIssueRuleTemplateName", "Create usage point issue when suspects cannot be estimated"),
