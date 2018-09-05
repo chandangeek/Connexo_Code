@@ -31,6 +31,11 @@ Ext.define('Imt.datavalidation.view.DetailForm', {
                         name: 'issueId'
                     },
                     {
+                        itemId: 'data-validation-issue-type',
+                        fieldLabel: Uni.I18n.translate('general.title.type', 'IMT', 'Type'),
+                        name: 'issueType_name'
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IMT', 'Usage point'),
                         name: 'usagePointInfo',
