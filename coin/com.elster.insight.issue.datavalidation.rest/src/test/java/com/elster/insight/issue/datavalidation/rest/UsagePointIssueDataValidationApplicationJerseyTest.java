@@ -17,6 +17,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -47,12 +48,9 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
-import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.util.time.Interval;
-
-
-import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointOpenIssueDataValidation;
 import com.elster.insight.issue.datavalidation.rest.impl.UsagePointIssueDataValidationApplication;
 
 import com.google.common.collect.Range;
@@ -64,7 +62,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
@@ -78,7 +75,6 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -132,7 +128,7 @@ public abstract class UsagePointIssueDataValidationApplicationJerseyTest extends
     }
 
     protected IssueType getDefaultIssueType() {
-        return mockIssueType("usagepointdatavalidation", "Usage Point Data Validation");
+        return mockIssueType("usagepointdatavalidation", "Data validation");
     }
 
     protected IssueReason mockReason(String key, String name, IssueType issueType) {
