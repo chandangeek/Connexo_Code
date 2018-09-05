@@ -474,7 +474,7 @@ Ext.define('Bpm.controller.Task', {
         var me = this,
             userTask, loggedUser,
             record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
-
+        menu.setLoading();
         menu.down('#menu-claim-task').hide();
         menu.down('#menu-unassigned-task').hide();
         Ext.Ajax.request({
@@ -500,6 +500,7 @@ Ext.define('Bpm.controller.Task', {
                             menu.down('#menu-claim-task').show();
                             menu.down('#menu-claim-task').record = record;
                         }
+                        menu.setLoading(false);
                     }
                 });
             }
