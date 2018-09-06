@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@WebServiceDestinationsComplyWithDataSelector(groups = {Save.Create.class}) // not possible to update data selector
 @FormatterCompliesWithDestinations(groups = {Save.Create.class, Save.Update.class})
 @ChangeEndPointIsSetForExportOfUpdatedData(groups = {Save.Create.class, Save.Update.class})
 final class ExportTaskImpl implements IExportTask {

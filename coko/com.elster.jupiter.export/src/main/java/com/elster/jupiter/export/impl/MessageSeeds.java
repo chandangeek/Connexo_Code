@@ -68,7 +68,8 @@ public enum MessageSeeds implements MessageSeed {
     NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Null formatter is supported only by web service destination."),
     NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA(1049, Keys.NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA,
             "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
-    ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task.");
+    ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
+    BAD_ENDPOINTS_FOR_DATA_SELECTOR(1051, Keys.BAD_ENDPOINTS_FOR_DATA_SELECTOR, "Endpoints specified on web service destinations mismatch the data selector.");
 
     private final int number;
     private final String key;
@@ -137,6 +138,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FTP_FAILURE = "ftp.io.writing.failure";
         public static final String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
         public static final String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
+        public static final String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
     }
 }
 
