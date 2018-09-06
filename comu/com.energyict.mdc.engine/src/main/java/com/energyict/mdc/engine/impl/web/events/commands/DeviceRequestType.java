@@ -38,15 +38,15 @@ class DeviceRequestType extends IdBusinessObjectRequestType {
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of MRID's
             StringTokenizer tokenizer = new StringTokenizer(parameterString, ",", false);
-            String[] mrids = new String[tokenizer.countTokens()];
+            String[] deviceNames = new String[tokenizer.countTokens()];
             int i= 0;
             while (tokenizer.hasMoreTokens()) {
-                mrids[i++] = tokenizer.nextToken();
+                deviceNames[i++] = tokenizer.nextToken();
             }
-            if (mrids.length == 0) {
+            if (deviceNames.length == 0) {
                 return this.newRequestForAll();
             }
-            return new DeviceRequest(deviceService, mrids);
+            return new DeviceRequest(deviceService, deviceNames);
         } catch (CanNotFindForIdentifier e) {
             DeviceIdentifier identifier = (DeviceIdentifier) e.getMessageArguments()[0];
             throw new BusinessObjectParseException(identifier.toString() + " could not be found", e);
