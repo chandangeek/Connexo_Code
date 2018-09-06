@@ -128,12 +128,18 @@ public interface TopologyService {
      * @param source The source Device
      * @return The G3CommunicationPathSegmentBuilder
      */
+    @Deprecated
+    default G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source) {
+        throw new UnsupportedOperationException("Unsupported operation");
+    }
+
     G3CommunicationPathSegmentBuilder addCommunicationSegments();
 
     /**
      * Return the current stream of communication path segments to all gateway slaves
+     *
      * @param gateway to get the segments to its slaves
-     * @return  a Stream of segments
+     * @return a Stream of segments
      */
     Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(Device gateway);
 
@@ -305,6 +311,7 @@ public interface TopologyService {
 
     /**
      * Returns the data logger device the slave is linked with at given time
+     *
      * @param slave for which to retrieve its data logger
      * @param when time at which the link is effective
      * @return the data logger device
@@ -426,6 +433,7 @@ public interface TopologyService {
 
     /**
      * Returns the x last physical gateways of a certain device
+     *
      * @param slave the device to find the gateways for
      * @param numberOfDevices number of gateways that we need
      * @return a Stream of physical gateway references
@@ -449,6 +457,11 @@ public interface TopologyService {
          * @param timeToLive The time to live
          * @param cost The segment's cost
          */
+        @Deprecated
+        default G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost) {
+            throw new UnsupportedOperationException("Unsupported operation");
+        }
+
         G3CommunicationPathSegmentBuilder add(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
         /**
