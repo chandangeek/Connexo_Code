@@ -475,4 +475,28 @@ public class RangesTest {
         assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.CLOSED)).isEqualTo(Range.closedOpen(-1, 1));
         assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.OPEN)).isEqualTo(Range.open(-1, 1));
     }
+
+    @Test
+    public void testCenter() {
+        assertThat(Ranges.center(Range.atLeast(1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.greaterThan(1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.atMost(1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.lessThan(1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.<Long, Long>center(Range.all(), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.openClosed(1L, 3L), Function.identity(), Double::longValue)).contains(2L);
+        assertThat(Ranges.center(Range.closedOpen(1L, 3L), Function.identity(), Double::longValue)).contains(2L);
+        assertThat(Ranges.center(Range.closed(1L, 3L), Function.identity(), Double::longValue)).contains(2L);
+        assertThat(Ranges.center(Range.open(1L, 3L), Function.identity(), Double::longValue)).contains(2L);
+        assertThat(Ranges.center(Range.openClosed(1L, 1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.closedOpen(1L, 1L), Function.identity(), Double::longValue)).isEmpty();
+        assertThat(Ranges.center(Range.singleton(1L), Function.identity(), Double::longValue)).contains(1L);
+        assertThat(Ranges.center(Range.openClosed(1L, 2L), Function.identity(), Double::longValue)).contains(1L);
+        assertThat(Ranges.center(Range.closedOpen(1L, 2L), Function.identity(), Double::longValue)).contains(1L);
+        assertThat(Ranges.center(Range.closed(1L, 2L), Function.identity(), Double::longValue)).contains(1L);
+        assertThat(Ranges.center(Range.open(1L, 2L), Function.identity(), Double::longValue)).contains(1L);
+        assertThat(Ranges.center(Range.openClosed(1L, 2L), Function.identity(), Function.identity())).contains(1.5);
+        assertThat(Ranges.center(Range.closedOpen(1L, 2L), Function.identity(), Function.identity())).contains(1.5);
+        assertThat(Ranges.center(Range.closed(1L, 2L), Function.identity(), Function.identity())).contains(1.5);
+        assertThat(Ranges.center(Range.open(1L, 2L), Function.identity(), Function.identity())).contains(1.5);
+    }
 }
