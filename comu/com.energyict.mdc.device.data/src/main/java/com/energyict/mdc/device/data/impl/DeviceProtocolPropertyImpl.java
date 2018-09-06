@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -27,32 +28,31 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final EventService eventService;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyValue;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyName;
-    private transient Optional<PropertySpec> propertySpec = Optional.empty();
+    private PropertySpec propertySpec;
     private Reference<Device> device = ValueReference.absent();
     private String userName;
     private long version;
     private Instant createTime;
     private Instant modTime;
 
+
     @Inject
-    public DeviceProtocolPropertyImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public DeviceProtocolPropertyImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
-    DeviceProtocolPropertyImpl initialize(Device device, Optional<PropertySpec> propertySpec, String stringValue) {
+    DeviceProtocolPropertyImpl initialize(Device device, PropertySpec propertySpec, String stringValue) {
         this.device.set(device);
-        if (propertySpec.isPresent()) {
-            this.propertySpec = propertySpec;
-            this.propertyName = propertySpec.get().getName();
-        } else {
-            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(stringValue, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC);
-        }
+        this.propertySpec = propertySpec;
+        this.propertyName = propertySpec.getName();
         this.propertyValue = stringValue;
         return this;
     }
@@ -64,15 +64,14 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
 
     @Override
     public PropertySpec getPropertySpec() {
-        if (!propertySpec.isPresent()) {
-            propertySpec = getPropertySpecForProperty(propertyName);
-        }
-        return propertySpec.orElseThrow(() -> DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(propertyName, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC));
+        // PropertySpec is not persisted
+        return (propertySpec != null) ? propertySpec : getPropertySpecForProperty(propertyName);
     }
 
-    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
+    private PropertySpec getPropertySpecForProperty(String name) {
+        Optional<PropertySpec> propertySpec = Optional.empty();
         if (device.isPresent() && device.get().getDeviceProtocolPluggableClass().isPresent()) {
-            return this.device.get()
+            propertySpec =  this.device.get()
                     .getDeviceProtocolPluggableClass()
                     .get()
                     .getDeviceProtocol()
@@ -81,7 +80,8 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
                     .filter(spec -> spec.getName().equals(name))
                     .findFirst();
         }
-        return Optional.empty();
+        return propertySpec
+                .orElseThrow(() -> DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(propertyName, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC));
     }
 
     @Override
@@ -97,5 +97,20 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
     @Override
     public void update() {
         Save.UPDATE.save(dataModel, this);
+        this.notifyUpdate();
+    }
+
+    private void notifyUpdate() {
+        DevicePropertyUpdateEventEnum
+                .stream()
+                .filter(enumValue -> enumValue.getName().equals(propertyName))
+                .findFirst()
+                .ifPresent(enumValue -> {
+                    if (device.isPresent()) {
+                        eventService.postEvent(enumValue.getTopic(),
+                                new DeviceProtocolPropertyEventSource(device.get().getmRID()));
+                    }
+                });
     }
 }
+

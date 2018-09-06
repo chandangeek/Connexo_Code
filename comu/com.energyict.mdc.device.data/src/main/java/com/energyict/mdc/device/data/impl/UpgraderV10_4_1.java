@@ -24,7 +24,6 @@ public class UpgraderV10_4_1 implements Upgrader {
 
     private final DataModel dataModel;
     private final UserService userService;
-    private final EventService eventService;
     private final PrivilegesProviderV10_4_1 privilegesProviderV10_4_1;
     private final MessageService messageService;
 
@@ -36,7 +35,6 @@ public class UpgraderV10_4_1 implements Upgrader {
         this.userService = userService;
         this.privilegesProviderV10_4_1 = privilegesProviderV10_4_1;
         this.messageService = messageService;
-        this.eventService = eventService;
     }
 
     @Override
@@ -44,8 +42,6 @@ public class UpgraderV10_4_1 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10,4,1));
         userService.addModulePrivileges(privilegesProviderV10_4_1);
         installNewMessageHandlers();
-        installNewEventTypeAndPublish();
-        createSubscriberForMessageQueue();
     }
 
     private void installNewMessageHandlers() {
@@ -71,41 +67,4 @@ public class UpgraderV10_4_1 implements Upgrader {
         }
     }
 
-    private void installNewEventTypeAndPublish() {
-        if (!this.eventService.getEventType(EventType.DEVICE_UPDATED_IPADDRESSV6.topic()).isPresent()) {
-            EventTypeBuilder builder = eventService.buildEventTypeWithTopic(EventType.DEVICE_UPDATED_IPADDRESSV6.topic())
-                    .name(EventType.DEVICE_UPDATED_IPADDRESSV6.name())
-                    .component(DeviceDataServices.COMPONENT_NAME)
-                    .category("Crud")
-                    .scope("System");
-            this.addCustomProperties(builder).create();
-        }
-    }
-
-    protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-        eventTypeBuilder
-                .withProperty("MRID", ValueType.STRING, "MRID")
-                .withProperty("IPv6Address", ValueType.STRING, "IPv6Address")
-                .shouldPublish();
-        return eventTypeBuilder;
-    }
-    public static final TranslationKey IPV6ADDRESS_SUBSCRIBER_DISPLAYNAME =
-            new SimpleTranslationKey("IPv6AddressSubscriber",
-                    "Handle events to propagate ipv6 change address into MSG_RAWTOPICTABLE");
-
-    private void createSubscriberForMessageQueue() {
-        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if (destinationSpec.isPresent()) {
-            DestinationSpec jupiterEvents = destinationSpec.get();
-            if (!jupiterEvents.getSubscribers().stream()
-                    .anyMatch(s -> s.getName().equals(IPV6ADDRESS_SUBSCRIBER_DISPLAYNAME.getKey()))) {
-                jupiterEvents
-                        .subscribe(IPV6ADDRESS_SUBSCRIBER_DISPLAYNAME,
-                                DeviceDataServices.COMPONENT_NAME,
-                                Layer.DOMAIN,
-                                DestinationSpec.whereCorrelationId()
-                                        .isEqualTo(EventType.DEVICE_UPDATED_IPADDRESSV6.topic()));
-            }
-        }
-    }
 }
