@@ -2685,7 +2685,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             Data alarmFilter = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(Beacon3100RegisterFactory.ALARM_FILTER));
             BitString beaconAlarmFilter = new BitString(alarmFilter.getRawValueAttr(), 0);
             alarmFilter.setValueAttr(
-                    new BitString(filter, beaconAlarmFilter.getNrOfBits(), beaconAlarmFilter.getNrOfBits())
+                    new BitString(filter, beaconAlarmFilter.getNrOfBits())
             );
         } catch (NumberFormatException ex) {
             throw ex;
