@@ -375,7 +375,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     DSMR40_MBUS_DUMMY(20011, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.MBusDevice", FamilyRule.DSMR_NTA),
     WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
     KAIFA_SMETS(20013, "com.energyict.smartmeterprotocolimpl.kaifa.Kaifa"),
-    US_SEL(20013, "com.elster.us.protocolimplv2.sel.SEL");
+    US_SEL(20014, "com.elster.us.protocolimplv2.sel.SEL");
 
     private int code;
     private String className;

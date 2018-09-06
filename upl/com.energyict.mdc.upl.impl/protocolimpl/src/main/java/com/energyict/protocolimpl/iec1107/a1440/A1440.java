@@ -1,24 +1,5 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -27,23 +8,18 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -65,25 +41,11 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author jme
@@ -100,6 +62,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
     private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
+    private static final String READ_LOGBOOK_AND_LP_COMBINED = "ReadLogbookAndLoadProfilesCombined";
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -154,6 +117,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private int limitMaxNrOfDays = 0;
     private boolean invertBillingOrder;
     private boolean useEquipmentIdentifierAsSerial;
+    private boolean readLogbookAndLoadProfilesCombined;
 
     public A1440(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
@@ -275,7 +239,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.stringSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
                 this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL),
                 this.integerSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
-                this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX));
+                this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
+                this.stringSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -326,6 +291,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
         this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
         this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
+        this.readLogbookAndLoadProfilesCombined = getBooleanProperty(properties, READ_LOGBOOK_AND_LP_COMBINED);
     }
 
     protected boolean isDataReadout() {
@@ -1062,4 +1028,19 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     	return Optional.of(cc.getContactorState());
     }
 
+    @Override
+    public boolean hasSupportForSeparateEventsReading() {
+        return !readLogbookAndLoadProfilesCombined;
+    }
+
+    @Override
+    public List<MeterEvent> getMeterEvents(Date lastReading) throws IOException {
+        Calendar from = ProtocolUtils.getCleanCalendar(getTimeZone());
+        from.setTime(lastReading);
+
+        Calendar to = ProtocolUtils.getCleanCalendar(getTimeZone());
+        to.setTime(new Date());
+
+        return getA1440Profile().getMeterEvents(from, to);
+    }
 }
