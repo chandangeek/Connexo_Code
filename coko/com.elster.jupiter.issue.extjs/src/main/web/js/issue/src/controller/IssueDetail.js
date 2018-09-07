@@ -55,6 +55,7 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC') {
             widgetXtype = 'data-validation-issue-detail';
             issueModel = 'Idv.model.Issue';
+            me.nonEstimatedDataStore = 'Idv.store.NonEstimatedDataStore';
             /* } else if (issueType === 'usagepointdatavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'INS') {
              widgetXtype = 'data-validation-issue-detail';
              issueModel = 'Imt.datavalidation.model.Issue';
