@@ -168,6 +168,11 @@ public class IssueResourceHelper {
                     .ifPresent(filter::addDevice);
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
+            meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
+                    .ifPresent(filter::addUsagePoint);
+        }
+
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(id -> userService.getUser(Long.valueOf(id)).orElse(null))
                     .filter(user -> user != null)
