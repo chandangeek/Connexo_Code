@@ -56,8 +56,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     private final DataExportServiceCallType dataExportServiceCallType;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
-    private Reference<EndPointConfiguration> createEndPoint;
-    private Reference<EndPointConfiguration> changeEndPoint;
+    private Reference<EndPointConfiguration> createEndPoint = Reference.empty();
+    private Reference<EndPointConfiguration> changeEndPoint = Reference.empty();
 
     @Inject
     WebServiceDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService,
