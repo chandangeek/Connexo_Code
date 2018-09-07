@@ -773,6 +773,12 @@ Ext.define('Apr.controller.CustomTask', {
         var me = this,
             customTaskTypes = me.getStore('Apr.store.CustomTaskTypes');
 
+        if (Uni.Auth.hasNoPrivilege('privilege.view.ViewTaskOverview')) {
+            var route = me.getController('Uni.controller.history.Router');
+            route.fireEvent('dependenciesLoaded', route);
+            return;
+        }
+
         Apr.TaskManagementApp.increaseDependency();
         customTaskTypes.load({
             callback: function (records, operation, success) {
