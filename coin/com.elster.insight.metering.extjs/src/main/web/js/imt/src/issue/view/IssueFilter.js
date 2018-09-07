@@ -121,7 +121,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
             {
                 type: 'combobox',
                 itemId: 'issue-meter-filter',
-                dataIndex: 'meter',
+                dataIndex: 'usagePoint',
                 emptyText: Uni.I18n.translate('general.title.usagepoint', 'IMT', 'Usage point'),
                 displayField: 'name',
                 valueField: 'name',
