@@ -265,6 +265,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         var me = this,
             grid = this.getAvailableSecurityAccessorsGrid(),
             securityAccessors = _.map(grid.getSelectionModel().getSelection(), function (accessorToAdd) {
+                if (accessorToAdd.get('keyType').name != 'HSM Key') {
+                    delete accessorToAdd.data.importCapability;
+                    delete accessorToAdd.data.renewCapability;
+                    delete accessorToAdd.data.label;
+                }
                 return accessorToAdd.getData();
             }),
             jsonData = {
