@@ -23,7 +23,7 @@ class CompositeDataExportDestination implements FormattedFileDestination, DataDe
         fileDestinations = new ArrayList<>(components.size());
         dataDestinations = new ArrayList<>(components.size());
         components.forEach(component -> {
-            switch (getType()) {
+            switch (component.getType()) {
                 case DATA:
                     dataDestinations.add((DataDestination) component);
                     break;
