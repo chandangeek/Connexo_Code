@@ -68,6 +68,7 @@ public enum DefaultState implements TranslationKey {
     public boolean matches(State state) {
         return getKey().equals(state.getName());
     }
+
     public static Optional<DefaultState> from(String key) {
         return Stream
                 .of(DefaultState.values())
