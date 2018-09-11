@@ -20,7 +20,8 @@ public class WebServiceDataExportPersistenceSupport implements PersistenceSuppor
     public static final String COMPONENT_NAME = "DEW";
     static final String APPLICATION_NAME = "Pulse";
 
-    private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SERVICE_CALL_CPS";
+    private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SC_CPS_SC";
+    private static final String UK_NAME = COMPONENT_NAME + "_UK_WEB_SC_CPS_UUID";
     private static final String TABLE_NAME = COMPONENT_NAME + "_WEB_SERVICE_CALL_CPS";
 
     @Override
@@ -60,11 +61,12 @@ public class WebServiceDataExportPersistenceSupport implements PersistenceSuppor
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(WebServiceDataExportDomainExtension.FieldNames.UUID.databaseName())
+        Column uuidColumn = table.column(WebServiceDataExportDomainExtension.FieldNames.UUID.databaseName())
                 .varChar()
                 .map(WebServiceDataExportDomainExtension.FieldNames.UUID.javaName())
                 .notNull()
                 .add();
+        table.unique(UK_NAME).on(uuidColumn).add();
         table.column(WebServiceDataExportDomainExtension.FieldNames.TIMEOUT.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
