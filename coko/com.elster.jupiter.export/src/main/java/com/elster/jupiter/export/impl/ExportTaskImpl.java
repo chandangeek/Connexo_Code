@@ -55,9 +55,9 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@WebServiceDestinationsComplyWithDataSelector(groups = {Save.Create.class, Save.Update.class})
-@FormatterCompliesWithDestinations(groups = {Save.Create.class, Save.Update.class})
-@ChangeEndPointIsSetForExportOfUpdatedData(groups = {Save.Create.class, Save.Update.class})
+@WebServiceDestinationsComplyWithDataSelector(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
+@FormatterCompliesWithDestinations(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
+@ChangeEndPointIsSetForExportOfUpdatedData(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
 final class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
