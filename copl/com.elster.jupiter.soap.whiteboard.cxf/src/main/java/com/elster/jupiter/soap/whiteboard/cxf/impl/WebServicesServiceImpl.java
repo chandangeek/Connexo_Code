@@ -292,8 +292,6 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");
-        BundleWaiter.wait(this,bundleContext,"com.elster.jupiter.soap.whiteboard.implementation");
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
@@ -302,6 +300,8 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
             logDirectory=logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
+        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
