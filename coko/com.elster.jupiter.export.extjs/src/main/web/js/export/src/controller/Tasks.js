@@ -747,6 +747,12 @@ Ext.define('Dxp.controller.Tasks', {
                     me.showWebServiceDestinationAttributes(true);
                     view.down('#destination-methods-combo').setValue('WEBSERVICE');
                     view.down('#destination-methods-combo').setDisabled(true);
+
+                    view.down('#web-service-endpoint-created-data-combo').setValue(me.destinationToEdit.get('createEndPoint').name);
+                    if(me.destinationToEdit.get('updateEndPoint'))
+                    {
+                        view.down('#web-service-endpoint-updated-data-combo').setValue(me.destinationToEdit.get('updateEndPoint').name);
+                    }
                     break;
             }
             Ext.resumeLayouts(true);
@@ -2033,7 +2039,7 @@ Ext.define('Dxp.controller.Tasks', {
                 case 'WEBSERVICE':
                     var destinationTmp; //This valie will be shown in column 'destination' in destination grid.
                     var createdEndpointName = formValues['webServiceEndPointCreatedDataCombo'];
-                    destinationTmp = 'Created endpoint:'+createdEndpointName;
+                    destinationTmp = createdEndpointName;
 
                     createdStore = me.getStore('Dxp.store.WebServiceCreatedEndPoint');
                     /* Find created endpoint by its name*/
@@ -2045,7 +2051,7 @@ Ext.define('Dxp.controller.Tasks', {
                         changedStore = me.getStore('Dxp.store.WebServiceUpdatedEndPoint');
                         changedEndPointObj  = changedStore.findRecord('name', changedEndPointName);
 
-                        destinationTmp = destinationTmp+',Updated endpoint:'+changedEndPointName;
+                        destinationTmp = destinationTmp+', '+changedEndPointName;
                         destinationModel = Ext.create('Dxp.model.Destination', {
                             id: id ? id : undefined,
                             type: 'WEBSERVICE',
@@ -2059,9 +2065,9 @@ Ext.define('Dxp.controller.Tasks', {
                                 id: changedEndPointObj.get('id'),
                                 name: changedEndPointObj.get('name')
                             },
-                            tooltiptext: Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service')
-                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created endpoint') + ': ' + createdEndpointName + '<br>'
-                            + Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated endpoint') + ': ' + changedEndPointName
+                            tooltiptext: Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service')+ '<br>'
+                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created data') + ': ' + createdEndpointName + '<br>'
+                            + Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated data') + ': ' + changedEndPointName
 
                         });
                     }else{
@@ -2075,8 +2081,8 @@ Ext.define('Dxp.controller.Tasks', {
                                 name: createdEndPointObj.get('name')
                             },
                             changeEndPoint: null,
-                            tooltiptext: Uni.I18n.translate('destination.webservice', 'DES', 'Web service')
-                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created endpoint') + ': ' + createdEndpointName
+                            tooltiptext: Uni.I18n.translate('destination.webservice', 'DES', 'Web service')+ '<br>'
+                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created data') + ': ' + createdEndpointName
                         });
                     }
 

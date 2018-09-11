@@ -54,8 +54,8 @@ Ext.define('Dxp.model.Destination', {
                     case 'SFTP':
                         return data.server;
                     case 'WEBSERVICE':
-                        return (data.createEndPoint ? 'Created endpoint:'+data.createEndPoint.name : '')
-                             + (data.changeEndPoint ? ',Updated endpoint:'+data.changeEndPoint.name : '');
+                        return (data.createEndPoint ? data.createEndPoint.name : '')
+                             + (data.changeEndPoint ? ' ,'+data.changeEndPoint.name : '');
                     default:
                         return 'unknown';
                 }
@@ -122,9 +122,9 @@ Ext.define('Dxp.model.Destination', {
                             + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
                     case 'WEBSERVICE':
-                        return Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service')
-                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created endpoint') + ': ' + data.createEndPoint + '<br>'
-                            + Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated endpoint') + ': ' + data.changeEndPoint;
+                        return Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service') + '<br>'
+                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created data') + ': ' + data.createEndPoint.name + '<br>'
+                            + (data.changeEndPoint ? Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated data') + ': ' + data.changeEndPoint : "");
                     default:
                         return 'unknown';
                 }

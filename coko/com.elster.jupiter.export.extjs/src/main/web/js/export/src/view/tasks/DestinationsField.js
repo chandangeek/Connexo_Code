@@ -53,6 +53,13 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             + '.' + destination.fileExtension +
                             ')<br>';
                         break;
+                    case 'WEBSERVICE':
+                        toolTip += Uni.I18n.translate('destination.webservice','DES','Web service') +
+                            ' (' +
+                            'Created data:' + destination.createEndPoint.name +
+                            (destination.changeEndPoint ? ',Updated data:'+destination.changeEndPoint.name : '') +
+                            ')<br>';
+                        break;
                 }
             });
         }
