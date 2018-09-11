@@ -16,6 +16,7 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -71,7 +72,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_5SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -234,7 +234,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 3), UpgraderV10_3.class,
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 5), V10_5SimpleUpgrader.class
+                        version(10, 5), UpgraderV10_5.class
                 ));
     }
 
