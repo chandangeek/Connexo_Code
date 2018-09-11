@@ -547,6 +547,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         } else {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
+                        if (record.get('keyType').name == 'HSM Key') {
+                            view.down('#mdc-security-accessor-import-capability-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-import-capability-combobox').setRawValue(record.get('importCapability'));
+                            view.down('#mdc-security-accessor-renew-capability-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-renew-capability-combobox').setRawValue(record.get('renewCapability'));
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
+                        }
                         if (record.get('purpose').id === 'FILE_OPERATIONS') {
                             view.down('#mdc-security-accessor-purpose-file-operations').setValue(true);
                         } else {
@@ -651,11 +659,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
             requiresDuration = newValue && newValue.requiresDuration,
-            requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod,
-            newValueName = newValue.name;
+            requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
         validityPeriod.setVisible(requiresDuration);
-        if (newValueName && newValueName == 'HSM Key') {
+        if (newValue && newValue.name == 'HSM Key') {
             importCapabiltyCombo.setVisible(true);
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
