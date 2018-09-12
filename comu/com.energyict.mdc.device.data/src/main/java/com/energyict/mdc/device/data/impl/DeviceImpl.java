@@ -66,17 +66,13 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.properties.*;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -191,7 +187,6 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
-import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -210,8 +205,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -818,12 +811,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public String getSerialNumber() {
-        return serialNumber;
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            return currentKoreUpdater.get().getSerialNumber();
+        } else if (meter.isPresent()) {
+            return meter.get().getSerialNumber();
+        }
+        return null;
     }
 
     @Override
     public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+        findOrCreateKoreUpdater().setSerialNumber(serialNumber);
     }
 
     //  All 'EndDevice' fields

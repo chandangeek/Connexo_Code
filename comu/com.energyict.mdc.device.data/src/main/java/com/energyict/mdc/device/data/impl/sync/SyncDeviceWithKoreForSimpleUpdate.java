@@ -31,6 +31,8 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
     private String modelNbr;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String modelVersion;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String serialNumber;
     private Optional<Location> location = Optional.empty();
     private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
 
@@ -70,12 +72,21 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
         this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
     }
 
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
     @Override
     public void syncWithKore(DeviceImpl device) {
         Meter meter = device.getMeter(). get();
         meter.setManufacturer(manufacturer);
         meter.setModelNumber(modelNbr);
         meter.setModelVersion(modelVersion);
+        meter.setSerialNumber(serialNumber);
         device.getMeter().get().setLocation(this.location.isPresent() ? location.get() : null);
         device.getMeter().get().setSpatialCoordinates(this.spatialCoordinates.isPresent() ? spatialCoordinates.get() : null);
         meter.update();
