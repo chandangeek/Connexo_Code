@@ -76,12 +76,8 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
         meter.setManufacturer(manufacturer);
         meter.setModelNumber(modelNbr);
         meter.setModelVersion(modelVersion);
-        if (this.location.isPresent()) {
-            device.getMeter().get().setLocation(location.get());
-        }
-        if (this.spatialCoordinates.isPresent()) {
-            device.getMeter().get().setSpatialCoordinates(spatialCoordinates.get());
-        }
+        device.getMeter().get().setLocation(this.location.isPresent() ? location.get() : null);
+        device.getMeter().get().setSpatialCoordinates(this.spatialCoordinates.isPresent() ? spatialCoordinates.get() : null);
         meter.update();
     }
 
