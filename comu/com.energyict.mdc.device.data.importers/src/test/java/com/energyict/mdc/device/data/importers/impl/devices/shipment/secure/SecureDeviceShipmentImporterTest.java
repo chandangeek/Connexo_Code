@@ -153,12 +153,12 @@ public class SecureDeviceShipmentImporterTest {
             secureDeviceShipmentImporter.process(fileImportOccurrence);
             fail("Importer should have failed for unknown device type");
         } catch (Exception e) {
-            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
         }
 
         List<String> logMessages = testHandler.getLogMessages();
         assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
-        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
     @Test
@@ -174,12 +174,12 @@ public class SecureDeviceShipmentImporterTest {
             secureDeviceShipmentImporter.process(fileImportOccurrence);
             fail("Importer should have failed for unknown device type");
         } catch (Exception e) {
-            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
         }
 
         List<String> logMessages = testHandler.getLogMessages();
         assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
-        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
     @Test
