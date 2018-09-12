@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -125,6 +126,48 @@ public class EndPointConfigurationResource {
         return Response.ok(endPointConfigurationInfo).build();
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/activate")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
+    public Response activateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info, @Context UriInfo uriInfo) {
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
+                .orElseThrow(() -> {
+                    Optional<EndPointConfiguration> byId = endPointConfigurationService.getEndPointConfiguration(id);
+                    return concurrentModificationExceptionFactory.contextDependentConflictOn(byId.map(EndPointConfiguration::getName).orElse(null))
+                            .withActualVersion(() -> byId.map(EndPointConfiguration::getVersion).orElse(null))
+                            .build();
+                });
+        if (!endPointConfiguration.isActive()) {
+            endPointConfigurationService.activate(endPointConfiguration);
+        }
+        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration, uriInfo);
+        return Response.ok(endPointConfigurationInfo).build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/deactivate")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
+    public Response deactivateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info, @Context UriInfo uriInfo) {
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
+                .orElseThrow(() -> {
+                    Optional<EndPointConfiguration> byId = endPointConfigurationService.getEndPointConfiguration(id);
+                    return concurrentModificationExceptionFactory.contextDependentConflictOn(byId.map(EndPointConfiguration::getName).orElse(null))
+                            .withActualVersion(() -> byId.map(EndPointConfiguration::getVersion).orElse(null))
+                            .build();
+                });
+        if (endPointConfiguration.isActive()) {
+            endPointConfigurationService.deactivate(endPointConfiguration);
+        }
+        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration, uriInfo);
+        return Response.ok(endPointConfigurationInfo).build();
+    }
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -181,6 +224,7 @@ public class EndPointConfigurationResource {
         }
         if (info.properties != null) {
             info.properties.stream()
+                    .filter(propertyInfo -> propertyInfo.required)
                     .filter(propertyInfo -> checkPropertyOnNullAndEmpty(propertyInfo.getPropertyValueInfo().getValue()))
                     .findAny()
                     .ifPresent(propertyInfo -> {
