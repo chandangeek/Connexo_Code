@@ -4,6 +4,10 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImportLogger;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesParser;
+
+import java.util.logging.Logger;
+import java.util.zip.ZipFile;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,10 +15,16 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.logging.Logger;
-import java.util.zip.ZipFile;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceDataZipImporterTest {
@@ -96,7 +106,7 @@ public class DeviceDataZipImporterTest {
         verify(importOccurrence).getPath();
         verify(importOccurrence).markFailure(anyString());
         verify(spyParser).init(Matchers.any(ZipFile.class));
-        verify(logger).severe(Matchers.startsWith("The device serial number could not be extracted"));
+        verify(logger).severe(Matchers.startsWith("The device serial number couldn't be extracted"));
     }
 
     @Test
