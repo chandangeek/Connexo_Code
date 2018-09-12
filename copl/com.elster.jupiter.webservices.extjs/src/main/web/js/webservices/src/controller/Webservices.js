@@ -269,15 +269,31 @@ Ext.define('Wss.controller.Webservices', {
     activateOrDeactivate: function (record) {
         var me = this,
             toState = !record.get('active');
+
+        var actionToPerform = toState ? "activate" : "deactivate";
+
         record.beginEdit();
-        record.set('active', toState);
         if(record.get('group')===''){
             record.setGroup(null);
             record.set('group', null);
         }
+
         record.endEdit();
-        record.save({
-                success: function (record) {
+
+        Ext.Ajax.request({
+                    method: 'PUT',
+                    url: '/api/ws/endpointconfigurations/'+record.getId()+'/'+actionToPerform,
+
+                    jsonData: {
+                        version: record.get('version')
+                    },
+
+
+                    success: function () {
+                    record.set('active', toState);
+                    tmpVersion = record.get('version');
+                    tmpVersion++;
+                    record.set('version',tmpVersion);
                     me.getApplication().fireEvent('acknowledge', record.get('active') ?
                         Uni.I18n.translate('webservices.endpoint.activated', 'WSS', 'Web service endpoint activated') :
                         Uni.I18n.translate('webservices.endpoint.deactivated', 'WSS', 'Web service endpoint deactivated')
@@ -286,8 +302,7 @@ Ext.define('Wss.controller.Webservices', {
                         me.getLandingPageForm().loadRecord(record);
                     }
                 }
-            }
-        );
+        });
     },
     showEndpointOverview: function (endpointId) {
         var me = this,
