@@ -25,6 +25,8 @@ import org.junit.Test;
 public class DecryptImportSampleTest {
 
 
+    public static final int IV_LENGTH = 16;
+
     @Test
     public void decrypt() throws
             NoSuchPaddingException,
@@ -66,8 +68,8 @@ public class DecryptImportSampleTest {
         AsymetricKey key = new AsymetricKey(base64PublicWrapperKey, base64PrivateWrapperKey, Encoder.BASE64);
 
         RSAEncryptionHelper rsaEncryptionHelper = new RSAEncryptionHelper();
-        Message encMsg = new Message(org.bouncycastle.util.encoders.Base64.decode("Sul0KBRGrXMjpdDKPHm2s+SVAIqOl62EoOV/xZ0r2k8x5bulmyTXCaE8KGk8oU852tfWZKo7pA0ryFaLA6DyMhx+ams4/cdOqDwMl7zFJfsGv5in/3XVBKgpO2GwgGl4UqEICspRPbibiz3mey9l9oZ9KJRcH5I8NxxeQehYvg4toGE0iRiboA0SdAstE6tMjfPEdqBGhQ5R60GQ+pteqeXfWUtE5a+xCZvvvFh5sZqELAaYL7EKkG5T3cv3hQg5EIO+j3JaNBVdWaGIHdZXhCyaTdQwv2vop460R5vVL8Zbpz07H5eUtIWPWUUgg3oxypoxmxZQWq7yzccoAg8cYw=="));
-        Message decryptedWrapperKey = rsaEncryptionHelper.decrypt(encMsg, AsymmetricAlgorithm.RSA_15, key);
+        Message encryptedWrapperKey = new Message(org.bouncycastle.util.encoders.Base64.decode("Sul0KBRGrXMjpdDKPHm2s+SVAIqOl62EoOV/xZ0r2k8x5bulmyTXCaE8KGk8oU852tfWZKo7pA0ryFaLA6DyMhx+ams4/cdOqDwMl7zFJfsGv5in/3XVBKgpO2GwgGl4UqEICspRPbibiz3mey9l9oZ9KJRcH5I8NxxeQehYvg4toGE0iRiboA0SdAstE6tMjfPEdqBGhQ5R60GQ+pteqeXfWUtE5a+xCZvvvFh5sZqELAaYL7EKkG5T3cv3hQg5EIO+j3JaNBVdWaGIHdZXhCyaTdQwv2vop460R5vVL8Zbpz07H5eUtIWPWUUgg3oxypoxmxZQWq7yzccoAg8cYw=="));
+        Message decryptedWrapperKey = rsaEncryptionHelper.decrypt(encryptedWrapperKey, AsymmetricAlgorithm.RSA_15, key);
 
 
         String base64DevicePassword = "CFjDANg5oGte1L7JAATXGg2gdqySBiD0nd6pA4/9n6ljKfjX4N4tgys3hRRB8frJ";
@@ -75,7 +77,7 @@ public class DecryptImportSampleTest {
 
 
         AESEncryptionHelper aesEncryptionHelper = new AESEncryptionHelper();
-        Message deviceKeyDecrypted = aesEncryptionHelper.decrypt(encDevicePassword, decryptedWrapperKey, new Message(getInitializationVector(encDevicePassword)), SymmetricAlgorithm.AES_256_CBC);
+        Message deviceKeyDecrypted = aesEncryptionHelper.decrypt(getCipher(encDevicePassword), decryptedWrapperKey, getInitializationVector(encDevicePassword), SymmetricAlgorithm.AES_256_CBC);
 
         System.out.println("Device key:" + deviceKeyDecrypted);
         System.out.println("Device key (HEX):" + deviceKeyDecrypted.toHex());
@@ -83,10 +85,17 @@ public class DecryptImportSampleTest {
 
     }
 
-    public byte[] getInitializationVector(Message encryptedKey){
-        byte[] initializationVector = new byte[16];
-        System.arraycopy(encryptedKey.getBytes(), 0, initializationVector, 0, 16);
-        return initializationVector;
+    public Message getCipher(Message encryptedMessage) {
+        byte[] encryptedKey = encryptedMessage.getBytes();
+        byte[] cipher = new byte[encryptedKey.length - IV_LENGTH];
+        System.arraycopy(encryptedKey, IV_LENGTH, cipher, 0, encryptedKey.length - IV_LENGTH);
+        return new Message(cipher);
+    }
+
+    public Message getInitializationVector(Message encryptedKey){
+        byte[] initializationVector = new byte[IV_LENGTH];
+        System.arraycopy(encryptedKey.getBytes(), 0, initializationVector, 0, IV_LENGTH);
+        return new Message(initializationVector);
     }
 
 }

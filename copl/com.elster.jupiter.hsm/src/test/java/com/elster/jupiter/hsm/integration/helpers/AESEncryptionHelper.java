@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,8 +33,7 @@ public class AESEncryptionHelper {
         Cipher c = Cipher.getInstance(alg.getCipher());
         SecretKeySpec keySpec = new SecretKeySpec(encryptionKey.getBytes(), alg.getAlgorithm());
 
-        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes());
-        c.init(Cipher.ENCRYPT_MODE, keySpec, iv);
+        initCipher(initVector, c, keySpec, Cipher.ENCRYPT_MODE);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, c);
@@ -54,8 +54,7 @@ public class AESEncryptionHelper {
         Cipher c = Cipher.getInstance(alg.getCipher());
         SecretKeySpec keySpec = new SecretKeySpec(encryptionKey.getBytes(), alg.getAlgorithm());
 
-        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes());
-        c.init(Cipher.DECRYPT_MODE, keySpec, iv);
+        initCipher(initVector, c, keySpec, Cipher.DECRYPT_MODE);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, c);
@@ -65,6 +64,15 @@ public class AESEncryptionHelper {
 
         return new Message(outputStream.toByteArray());
 
+    }
+
+    private void initCipher(Message initVector, Cipher c, SecretKeySpec keySpec, int mode) throws InvalidKeyException, InvalidAlgorithmParameterException {
+        if (Objects.isNull(initVector)) {
+            c.init(mode, keySpec);
+            return;
+        }
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes());
+        c.init(mode, keySpec, iv);
     }
 
     @Test
