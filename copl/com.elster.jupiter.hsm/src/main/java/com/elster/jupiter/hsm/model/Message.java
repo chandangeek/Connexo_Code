@@ -1,5 +1,8 @@
 package com.elster.jupiter.hsm.model;
 
+import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
+
 import javax.annotation.Nonnull;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -36,6 +39,14 @@ public class Message {
     @Override
     public String toString() {
         return new String(bytes, charSet);
+    }
+
+    public String toHex() {
+        return Hex.toHexString(getBytes());
+    }
+
+    public String toBase64() {
+        return Base64.toBase64String(getBytes());
     }
 
     public Charset getCharSet() {

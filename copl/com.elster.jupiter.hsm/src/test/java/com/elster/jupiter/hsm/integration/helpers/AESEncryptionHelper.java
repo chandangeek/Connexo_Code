@@ -14,6 +14,9 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * This is not a proper test. This class was created during integration test of HSM importer while nobody could provide a valid import file
  * and therefore we had to encrypt our own keys using this helper.
@@ -39,6 +42,42 @@ public class AESEncryptionHelper {
         cipherOutputStream.close();
 
         return new Message(outputStream.toByteArray());
+
+    }
+
+    public Message decrypt(Message encryptedMsg, Message encryptionKey, Message initVector, SymmetricAlgorithm alg) throws
+            NoSuchPaddingException,
+            NoSuchAlgorithmException,
+            InvalidKeyException,
+            IOException,
+            InvalidAlgorithmParameterException {
+        Cipher c = Cipher.getInstance(alg.getCipher());
+        SecretKeySpec keySpec = new SecretKeySpec(encryptionKey.getBytes(), alg.getAlgorithm());
+
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes());
+        c.init(Cipher.DECRYPT_MODE, keySpec, iv);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, c);
+        cipherOutputStream.write(encryptedMsg.getBytes());
+        cipherOutputStream.flush();
+        cipherOutputStream.close();
+
+        return new Message(outputStream.toByteArray());
+
+    }
+
+    @Test
+    public void test() throws InvalidKeyException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchPaddingException, IOException {
+
+        Message initVector = new Message("0123456789ABCDEF");
+        Message key = new Message("PasswordPassword");
+        Message plainMsg = new Message("plainMsg");
+
+        Message encrypt = encrypt(plainMsg, key, initVector, SymmetricAlgorithm.AES_256_CBC);
+        Message decrypt = decrypt(encrypt, key, initVector, SymmetricAlgorithm.AES_256_CBC);
+
+        Assert.assertEquals(plainMsg, decrypt);
 
     }
 
