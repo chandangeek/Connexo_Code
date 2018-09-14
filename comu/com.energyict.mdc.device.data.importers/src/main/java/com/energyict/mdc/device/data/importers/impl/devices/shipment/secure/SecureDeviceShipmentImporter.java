@@ -240,7 +240,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
                 SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-                SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
+                SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(cipher, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
                 securityAccessor.setActualValue(newWrapperValue);
                 securityAccessor.save();
             }

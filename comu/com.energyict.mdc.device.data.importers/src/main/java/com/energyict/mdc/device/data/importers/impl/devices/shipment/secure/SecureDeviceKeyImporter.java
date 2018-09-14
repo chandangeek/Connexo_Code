@@ -251,7 +251,7 @@ public class SecureDeviceKeyImporter implements FileImporter {
                 log(logger, MessageSeeds.BOTH_VALUES_ALREADY_EXIST, securityAccessorName, device.getName());
             } else {
                 SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-                SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
+                SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(cipher, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
                 if (hasActiveValue) {
                     securityAccessor.setTempValue(newWrapperValue);
                 } else {
