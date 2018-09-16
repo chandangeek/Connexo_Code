@@ -66,17 +66,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.properties.*;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -191,9 +188,7 @@ import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
-import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -210,8 +205,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -224,6 +217,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -2460,15 +2454,29 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<Device> getHistory(Instant when) {
-        if (when.isAfter(this.modTime)) {
-            return Optional.of(this);
+        if (when.isAfter(modTime)) {
+            return Optional.of(this); // current device, for sure
         }
-        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+        if (when.isBefore(createTime)) {
+            return Optional.empty(); // there was no device
+        }
+//        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+//                .at(when)
+//                .find(ImmutableMap.of("id", this.getId()));
+//        return journalEntries.stream()
+//                .findFirst()
+//                .map(JournalEntry::get);
+        return Optional.of(getFirstJournalEntryAfter(when)); // crutch for the case of gaps in journal table
+    }
+
+    private Device getFirstJournalEntryAfter(Instant when) {
+        return dataModel.mapper(Device.class)
                 .at(when)
-                .find(ImmutableMap.of("id", this.getId()));
-        return journalEntries.stream()
-                .map(JournalEntry::get)
-                .findFirst();
+                .find(Arrays.asList(Operator.EQUAL.compare("ID", getId()), Operator.GREATERTHAN.compare("JOURNALTIME", when.toEpochMilli())))
+                .stream()
+                .min(Comparator.comparing(JournalEntry::getJournalTime))
+                .map(JournalEntry::get) // closest journal entry after "when"
+                .orElse(this); // journal entries not found => current device
     }
 
     @Override
