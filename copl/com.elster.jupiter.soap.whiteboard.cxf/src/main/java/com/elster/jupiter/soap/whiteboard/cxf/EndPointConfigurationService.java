@@ -137,5 +137,7 @@ public interface EndPointConfigurationService {
         EndPointConfiguration create();
 
         OutboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication id);
+
+        OutboundEndPointConfigBuilder withProperties(Map<String, Object> properties);
     }
 }
