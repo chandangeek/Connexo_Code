@@ -347,5 +347,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
             instance.setAuthenticationMethod(id);
             return this;
         }
+
+        @Override
+        public OutboundEndPointConfigBuilder withProperties(Map<String, Object> properties) {
+            instance.setProperties(properties);
+            return this;
+        }
     }
 }
