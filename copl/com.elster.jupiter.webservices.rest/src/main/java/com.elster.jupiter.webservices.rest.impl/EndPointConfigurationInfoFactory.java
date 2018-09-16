@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 6/8/16.
@@ -68,9 +67,7 @@ public class EndPointConfigurationInfoFactory {
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
-        if(webService.isPresent()){
-            info.type = webService.get().getProtocol().name();
-        }
+        webService.ifPresent(ws -> info.type = ws.getProtocol().name());
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(endPointConfiguration
                 .getAuthenticationMethod(),
                 endPointConfiguration.getAuthenticationMethod()
@@ -123,7 +120,7 @@ public class EndPointConfigurationInfoFactory {
         }
         builder.traceFile(info.traceFile);
         if (info.properties != null) {
-            builder.withProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.propertyValueInfo.getValue())));
+            builder.withProperties(propertyValueInfoService.findPropertyValues(webServicesService.getWebServicePropertySpecs(info.webServiceName), info.properties));
         }
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
@@ -151,6 +148,9 @@ public class EndPointConfigurationInfoFactory {
         builder.password(info.password);
         builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
+        if (info.properties != null) {
+            builder.withProperties(propertyValueInfoService.findPropertyValues(webServicesService.getWebServicePropertySpecs(info.webServiceName), info.properties));
+        }
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
             endPointConfigurationService.activate(endPointConfiguration);
@@ -177,9 +177,6 @@ public class EndPointConfigurationInfoFactory {
                 endPointConfiguration.setGroup(group);
             }
         }
-        if (info.properties != null) {
-            endPointConfiguration.setProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.propertyValueInfo.getValue())));
-        }
         return endPointConfiguration;
     }
 
@@ -193,5 +190,8 @@ public class EndPointConfigurationInfoFactory {
         endPointConfiguration.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         endPointConfiguration.setTracing(info.tracing);
         endPointConfiguration.setTraceFile(info.traceFile);
+        if (info.properties != null) {
+            endPointConfiguration.setProperties(propertyValueInfoService.findPropertyValues(endPointConfiguration.getPropertySpecs(), info.properties));
+        }
     }
 }
