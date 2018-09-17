@@ -63,7 +63,8 @@ public enum MessageSeeds implements MessageSeed {
             "you can activate a multi-element device configuration"),
     NO_SUCH_KEY_ACCESSOR_TYPE(228, "NoSuchKeyAccessorType", "No such security accessor"),
     INVALID_VALUE(229, "InvalidValue", "Invalid value"),
-    INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years.")
+    INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years."),
+    DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule",  "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''")
     ;
 
     private final int number;

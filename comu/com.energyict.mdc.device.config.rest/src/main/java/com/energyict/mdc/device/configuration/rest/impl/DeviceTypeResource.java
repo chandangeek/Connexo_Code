@@ -12,6 +12,9 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -117,6 +120,9 @@ public class DeviceTypeResource {
     private final Thesaurus thesaurus;
     private final RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory;
     private final RegisterTypeInfoFactory registerTypeInfoFactory;
+    private final IssueService issueService;
+
+    private static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
     @Inject
     public DeviceTypeResource(
@@ -134,7 +140,7 @@ public class DeviceTypeResource {
             Thesaurus thesaurus,
             RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory,
             RegisterTypeInfoFactory registerTypeInfoFactory,
-            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider) {
+            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider, IssueService issueService) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -151,6 +157,7 @@ public class DeviceTypeResource {
         this.registerTypeOnDeviceTypeInfoFactory = registerTypeOnDeviceTypeInfoFactory;
         this.registerTypeInfoFactory = registerTypeInfoFactory;
         this.keyFunctionTypeResourceProvider = keyFunctionTypeResourceProvider;
+        this.issueService = issueService;
     }
 
     @GET
@@ -256,7 +263,12 @@ public class DeviceTypeResource {
                 deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
             } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
                 DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
-                ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
+                List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
+                        .stream()
+                        .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                        .collect(Collectors.toList());
+                ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
+                        .format(targetDeviceLifeCycle.getName()),deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
@@ -276,17 +288,13 @@ public class DeviceTypeResource {
                 .orElse(null);
     }
 
-    private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
+    private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(String errorMessage, List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
-        info.errorMessage = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
-                .format(targetDeviceLifeCycle.getName());
+        info.errorMessage = errorMessage;
         info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(currentDeviceLifeCycle);
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
-        info.notMappableStates = lifeCycleChangeError.getMissingStates()
-                .stream()
-                .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
-                .collect(Collectors.toList());
+        info.notMappableStates = deviceLifeCycleStateInfoList;
         return info;
     }
 
@@ -314,16 +322,40 @@ public class DeviceTypeResource {
         if (info.targetDeviceLifeCycle.id == 0) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "deviceLifeCycleId");
         }
-        new RestValidationBuilder()
-                .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
-                .validate();
+
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
         DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
         DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(info.targetDeviceLifeCycle.id);
+
+        Optional<CreationRuleTemplate> ruleTemplate = issueService.getCreationRuleTemplates().values()
+                .stream()
+                .filter(template->template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
+                .findFirst();
+
+        if(ruleTemplate.isPresent()) {
+            Optional<CreationRule> deviceAlarmCreationRule = ruleTemplate.get().getCreationRuleWhichUsesDeviceType(id);
+            if (deviceAlarmCreationRule.isPresent()) {
+                info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_CREATION_RULE)
+                        .format(deviceType.getName(),deviceType.getDeviceLifeCycle().getName(), deviceAlarmCreationRule.get().getName())
+                        , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
+                return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
+            }
+        }
+
+        new RestValidationBuilder()
+                .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
+                .validate();
+
+
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
-            info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
+            List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
+                    .stream()
+                    .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                    .collect(Collectors.toList());
+            info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
+                    .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();
