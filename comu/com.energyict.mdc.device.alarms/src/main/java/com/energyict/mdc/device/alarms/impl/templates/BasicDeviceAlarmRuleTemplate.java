@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -31,6 +32,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
 import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmUtil;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -70,7 +72,7 @@ import java.util.stream.Collectors;
         immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
-    static final String NAME = "BasicDeviceAlarmRuleTemplate";
+    public static final String NAME = "BasicDeviceAlarmRuleTemplate";
     public static final String RAISE_EVENT_PROPS = NAME + ".raiseEventProps";
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
@@ -151,6 +153,21 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @Override
     public String getDescription() {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION).format();
+    }
+
+    @Override
+    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
+    {
+        List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
+
+        for (CreationRule alarmCreationRule:alarmCreationRules) {
+            if(((List)(alarmCreationRule.getProperties().get(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
+                        .stream()
+                        .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceType().getId() == deviceTypeId)
+                        .findFirst().isPresent())
+                return Optional.of(alarmCreationRule);
+        }
+        return Optional.empty();
     }
 
     //END_DEVICE_EVENT_CREATED
