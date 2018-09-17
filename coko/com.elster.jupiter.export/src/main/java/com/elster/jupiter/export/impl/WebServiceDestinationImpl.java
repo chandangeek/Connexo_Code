@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
@@ -25,6 +26,7 @@ import com.elster.jupiter.util.streams.Predicates;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
     }
 
+    private final ThreadPrincipalService threadPrincipalService;
     private final DataExportServiceCallType dataExportServiceCallType;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
@@ -61,9 +64,10 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
 
     @Inject
     WebServiceDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService,
-                              FileSystem fileSystem, TransactionService transactionService) {
+                              FileSystem fileSystem, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         dataExportServiceCallType = dataExportService.getDataExportServiceCallType();
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     WebServiceDestinationImpl init(IExportTask task, EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint) {
@@ -178,7 +182,11 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
 
     private CompletableFuture<Void> callServiceAsync(DataExportWebService service, EndPointConfiguration endPoint,
                                                      List<ExportData> data, List<ServiceCallStatus> results, boolean waitForServiceCall) {
-        return CompletableFuture.supplyAsync(() -> callService(service, endPoint, data, waitForServiceCall), Executors.newSingleThreadExecutor())
+        Principal principal = threadPrincipalService.getPrincipal();
+        return CompletableFuture.supplyAsync(() -> {
+            threadPrincipalService.set(principal);
+            return callService(service, endPoint, data, waitForServiceCall);
+        }, Executors.newSingleThreadExecutor())
                 .thenAccept(results::add);
     }
 

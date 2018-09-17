@@ -45,6 +45,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -136,6 +137,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile OrmService ormService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
@@ -154,7 +156,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                                  PropertySpecService propertySpecService, MailService mailService, BundleContext context,
                                  FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService,
                                  FtpClientService ftpClientService, UpgradeService upgradeService, ServiceCallService serviceCallService,
-                                 CustomPropertySetService customPropertySetService) {
+                                 CustomPropertySetService customPropertySetService, ThreadPrincipalService threadPrincipalService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -176,6 +178,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
         setUpgradeService(upgradeService);
         setServiceCallService(serviceCallService);
         setCustomPropertySetService(customPropertySetService);
+        setThreadPrincipalService(threadPrincipalService);
         activate(context);
     }
 
@@ -388,6 +391,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(DataModel.class).toInstance(dataModel);
                     bind(OrmService.class).toInstance(ormService);
+                    bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
@@ -484,6 +488,11 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override

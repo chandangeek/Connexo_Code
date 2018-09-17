@@ -19,6 +19,7 @@ import com.elster.jupiter.servicecall.NoTransitionException;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -33,15 +34,18 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
+    private final TransactionService transactionService;
     private final Object serviceCallLock = new Object();
 
     @Inject
-    public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService,
+                                         CustomPropertySetService customPropertySetService, TransactionService transactionService) {
         this.dataModel = ormService.getDataModel(WebServiceDataExportPersistenceSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export CPS isn't found."));
         this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
+        this.transactionService = transactionService;
     }
 
     public ServiceCallType findOrCreate() {
@@ -59,6 +63,14 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     @Override
     public ServiceCall startServiceCall(String uuid, long timeout) {
+        if (transactionService.isInTransaction()) {
+            return doStartServiceCall(uuid, timeout);
+        } else {
+            return transactionService.execute(() -> doStartServiceCall(uuid, timeout));
+        }
+    }
+
+    private ServiceCall doStartServiceCall(String uuid, long timeout) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension();
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
@@ -74,13 +86,21 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     public Optional<ServiceCall> findServiceCall(String uuid) {
         return dataModel.stream(WebServiceDataExportDomainExtension.class)
                 .join(ServiceCall.class)
-                .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid))
+                .filter(Where.where(WebServiceDataExportDomainExtension.FieldNames.UUID.javaName()).isEqualToIgnoreCase(uuid))
                 .findAny()
                 .map(WebServiceDataExportDomainExtension::getServiceCall);
     }
 
     @Override
     public void tryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
+        if (transactionService.isInTransaction()) {
+            doTryFailingServiceCall(serviceCall, errorMessage);
+        } else {
+            transactionService.run(() -> doTryFailingServiceCall(serviceCall, errorMessage));
+        }
+    }
+
+    private void doTryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
         try {
             synchronized (serviceCallLock) {
                 serviceCall.requestTransition(DefaultState.FAILED);
@@ -97,6 +117,14 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     @Override
     public void tryPassingServiceCall(ServiceCall serviceCall) {
+        if (transactionService.isInTransaction()) {
+            doTryPassingServiceCall(serviceCall);
+        } else {
+            transactionService.run(() -> doTryPassingServiceCall(serviceCall));
+        }
+    }
+
+    public void doTryPassingServiceCall(ServiceCall serviceCall) {
         try {
             synchronized (serviceCallLock) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -112,5 +140,4 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             return new ServiceCallStatusImpl(serviceCallService, serviceCall);
         }
     }
-
 }
