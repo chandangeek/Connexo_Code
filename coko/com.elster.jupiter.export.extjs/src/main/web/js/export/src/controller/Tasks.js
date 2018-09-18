@@ -749,9 +749,9 @@ Ext.define('Dxp.controller.Tasks', {
                     view.down('#destination-methods-combo').setDisabled(true);
 
                     view.down('#web-service-endpoint-created-data-combo').setValue(me.destinationToEdit.get('createEndPoint').name);
-                    if(me.destinationToEdit.get('updateEndPoint'))
+                    if(me.destinationToEdit.get('changeEndPoint'))
                     {
-                        view.down('#web-service-endpoint-updated-data-combo').setValue(me.destinationToEdit.get('updateEndPoint').name);
+                        view.down('#web-service-endpoint-updated-data-combo').setValue(me.destinationToEdit.get('changeEndPoint').name);
                     }
                     break;
             }
@@ -1900,7 +1900,6 @@ Ext.define('Dxp.controller.Tasks', {
 
     doAddDestinationToGrid: function (button, id) {
         var me = this;
-
         if (me.destinationToEdit) { //edit destination was cancelled, add the old one again
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
@@ -2525,10 +2524,6 @@ Ext.define('Dxp.controller.Tasks', {
             arrReadingTypes = [],
             eventTypes = [];
 
-
-
-
-        /*TO-DO: This variant just for testing purpose. Make saving using store. */
         dataSelectorCombo = form.down('#data-selector-combo'),
         me.dataSelectorValue = dataSelectorCombo.getValue();
 
