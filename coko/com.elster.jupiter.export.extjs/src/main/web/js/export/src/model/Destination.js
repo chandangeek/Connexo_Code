@@ -124,7 +124,7 @@ Ext.define('Dxp.model.Destination', {
                     case 'WEBSERVICE':
                         return Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service') + '<br>'
                             + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created data') + ': ' + data.createEndPoint.name + '<br>'
-                            + (data.changeEndPoint ? Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated data') + ': ' + data.changeEndPoint : "");
+                            + (data.changeEndPoint ? Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated data') + ': ' + data.changeEndPoint.name : "");
                     default:
                         return 'unknown';
                 }
