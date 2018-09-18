@@ -28,6 +28,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Optional;
 
 public class CertificateRequestForCSRHandler implements MessageHandler {
 
@@ -92,7 +93,7 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             if(serviceCall.canTransitionTo(DefaultState.ONGOING)) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
             }
-            X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest);
+            X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest, Optional.empty());
             certificateWrapper.setCertificate(certificate);
             certificateWrapper.save();
 
