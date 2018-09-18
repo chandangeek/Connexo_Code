@@ -35,6 +35,7 @@ import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
@@ -307,7 +308,10 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                V10_4SimpleUpgrader.V10_4_UPGRADER);
+                ImmutableMap.of(
+                        V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
+                        UpgraderV10_6.VERSION, UpgraderV10_6.class
+                ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
     }
