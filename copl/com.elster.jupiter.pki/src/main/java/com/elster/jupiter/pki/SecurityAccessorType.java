@@ -1,11 +1,12 @@
 package com.elster.jupiter.pki;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,12 +23,6 @@ import java.util.Set;
 @ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
 
-
-    @ProviderType
-    enum Purpose {
-        DEVICE_OPERATIONS,
-        FILE_OPERATIONS
-    }
 
     /**
      * The KeyAccessorType system assigned id
@@ -100,6 +95,12 @@ public interface SecurityAccessorType extends HasId, HasName  {
     boolean keyTypeIsHSM();
 
     @ProviderType
+    enum Purpose {
+        DEVICE_OPERATIONS,
+        FILE_OPERATIONS
+    }
+
+    @ProviderType
     interface Builder {
         /**
          * Provide a user understandable description of this key's function
@@ -164,6 +165,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater importCapabilty(SessionKeyCapability importCapabilty);
 
         Updater renewCapability(SessionKeyCapability renewCapability);
+
+        Updater keySize(int keySize);
 
         SecurityAccessorType complete();
     }
