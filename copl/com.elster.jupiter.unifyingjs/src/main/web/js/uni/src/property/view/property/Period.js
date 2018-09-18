@@ -119,7 +119,7 @@ Ext.define('Uni.property.view.property.Period', {
             countValue,
             timeUnitValue,
             rawValue = me.getProperty().raw['propertyValueInfo'],
-            initialValue = rawValue.value,
+            initialValue = rawValue.defaultValue,
             isChangedValue;
 
         if (me.isEdit) {
@@ -131,9 +131,13 @@ Ext.define('Uni.property.view.property.Period', {
                 timeUnitValue = me.getComboField().getValue();
             }
 
-            if (countValue && timeUnitValue) {
-                if (initialValue && rawValue.inheritedValue) {
-                    isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
+            if ((countValue || countValue == 0 ) && timeUnitValue ) {
+                if (initialValue) {
+                    if (rawValue.inheritedValue){
+                        isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
+                    } else {
+                        isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue);
+                    }
                 } else if (rawValue.inheritedValue) {
                     isChangedValue = (rawValue.inheritedValue.count !== countValue) || (rawValue.inheritedValue.timeUnit !== timeUnitValue);
                 }
