@@ -7,6 +7,7 @@ var securityAccessorWritter = Ext.create('Ext.data.writer.Json', {
             delete record.data.importCapability;
             delete record.data.renewCapability;
             delete record.data.label;
+            delete record.data.keySize;
         }
         return record.data;
     }
@@ -34,6 +35,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'label', type: 'auto'},
         {name: 'importCapability', type: 'auto'},
         {name: 'renewCapability', type: 'auto'},
+        {name: 'keySize', type: 'auto'},
         {
             name: 'viewLevelsInfo',
             persist: false,

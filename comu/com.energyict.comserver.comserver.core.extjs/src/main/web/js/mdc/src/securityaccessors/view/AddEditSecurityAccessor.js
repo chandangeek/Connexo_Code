@@ -11,8 +11,6 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         'Mdc.securityaccessors.store.TrustStores',
         'Mdc.securityaccessors.store.KeyTypes',
         'Mdc.securityaccessors.store.KeyEncryptionMethods'
-
-
     ],
     isEdit: false,
     title: null,
@@ -261,6 +259,20 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     forceSelection: true,
                     disabled: me.isEdit,
                     emptyText: Uni.I18n.translate('securityaccessors.selectLabelEndPoint', 'MDC', 'Select a storage label ...')
+                },
+                {
+                    xtype: 'combo',
+                    fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Key size'),
+                    itemId: 'mdc-security-key-size-combobox',
+                    name: 'keySize',
+                    store: 'Mdc.securityaccessors.store.KeySizes',
+                    hidden: true,
+                    required: true,
+                    displayField: 'name',
+                    valueField: 'name',
+                    forceSelection: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Select key size ...')
                 },
                 {
                     xtype: 'checkboxfield',

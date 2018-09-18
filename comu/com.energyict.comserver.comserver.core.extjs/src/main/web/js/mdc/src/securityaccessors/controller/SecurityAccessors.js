@@ -21,7 +21,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
         'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
-        'Mdc.securityaccessors.store.HsmCapabilities'
+        'Mdc.securityaccessors.store.HsmCapabilities',
+        'Mdc.securityaccessors.store.KeySizes'
     ],
 
     models: [
@@ -269,6 +270,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     delete accessorToAdd.data.importCapability;
                     delete accessorToAdd.data.renewCapability;
                     delete accessorToAdd.data.label;
+                    delete accessorToAdd.data.keySize;
                 }
                 return accessorToAdd.getData();
             }),
@@ -554,6 +556,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-renew-capability-combobox').setRawValue(record.get('renewCapability'));
                             view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
+                            view.down('#mdc-security-key-size-combobox').setDisabled(false);
+                            view.down('#mdc-security-key-size-combobox').setRawValue(record.get('keySize'));
                         }
                         if (record.get('purpose').id === 'FILE_OPERATIONS') {
                             view.down('#mdc-security-accessor-purpose-file-operations').setValue(true);
@@ -658,6 +662,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
+            keySizeCombo = form.down('#mdc-security-key-size-combobox'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
@@ -666,11 +671,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo.setVisible(true);
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
+            keySizeCombo.setVisible(true);
         }
         else {
             importCapabiltyCombo.setVisible(false);
             renewCapabiltyCombo.setVisible(false);
             labelEndPointCombo.setVisible(false);
+            keySizeCombo.setVisible(false);
         }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
