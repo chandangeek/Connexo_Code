@@ -2,13 +2,15 @@ package com.energyict.mdc.upl.crypto;
 
 import com.energyict.protocol.exceptions.HsmException;
 
+import java.security.cert.Certificate;
+
 public interface HsmProtocolService {
 
     byte[] generateDigestMD5(byte[] challenge, IrreversibleKey hlsSecret) throws HsmException;
 
     byte[] generateDigestSHA1(byte[] challenge, IrreversibleKey hlsSecret) throws HsmException;
 
-    byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmException;
+    byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
     byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
@@ -45,4 +47,8 @@ public interface HsmProtocolService {
      * @return    <code>true</code> if the challenge response is valid, <code>false</code> if the challenge response was not the expected value.
      */
     boolean verifyFramecounterHMAC(final byte[] serverSysT, final byte[] clientSysT, final byte[] challenge, final long framecounter, final IrreversibleKey gak, final byte[] challengeResponse) throws HsmException;
+
+    EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException;
+
+    IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException;
 }
