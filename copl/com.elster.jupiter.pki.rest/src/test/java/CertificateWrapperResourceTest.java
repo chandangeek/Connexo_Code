@@ -629,7 +629,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
         X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
         when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
-        when(caService.signCsr(csr)).thenReturn(x509Certificate);
+        when(caService.signCsr(csr,Optional.empty())).thenReturn(x509Certificate);
         Response response = target("/certificates/" + certId + "/requestCertificate").request().post(null);
 
         //Verify

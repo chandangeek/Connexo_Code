@@ -290,7 +290,7 @@ public class CertificateWrapperResource {
     }
 
     private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
-        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest, Optional.empty()), Executors.newSingleThreadExecutor());
     }
 
     @POST
