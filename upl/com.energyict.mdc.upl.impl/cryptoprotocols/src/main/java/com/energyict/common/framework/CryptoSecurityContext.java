@@ -9,6 +9,7 @@ import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.encryption.asymetric.ECCCurve;
+import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -19,6 +20,11 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Objects;
 
 /**
  * Extension of the 'normal' {@link SecurityContext}, replacing every manual security operation (encryption, authentication) with an HSM call.
@@ -154,6 +160,80 @@ public class CryptoSecurityContext extends SecurityContext {
     @Override
     public byte[] unwrapGeneralSigning(byte[] generalSigningAPDU) {
         throw DeviceConfigurationException.unsupportedPropertyValueWithReason("EncryptionAccessLevel", String.valueOf(getSecurityPolicy().getDataTransportSecurityLevel()), "Checking the signature of responses (ECDSA) is not yet supported");
+    }
+
+    protected byte[] dataTransportGeneralEncryptionWithKeyAgreement(byte[] plainText) throws UnsupportedException {
+
+        Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
+        if (serverKeyAgreementCertificate == null) {
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+        }
+
+        String clientPrivateSigningKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
+        Certificate[] serverKeyAgreementCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+        String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
+        final byte[] kdfOtherInfo = getKdfOtherInfo();
+
+        String storageKey = "S-DB"; //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+
+        //call hsm eekAgreeSender1e1s method.
+        Services.hsmService().eekAgreeSender1e1s(getSecuritySuite(), clientPrivateSigningKeyLabel, serverKeyAgreementCertificateChain, caCertificate, kdfOtherInfo, storageKey);
+
+        byte[] sessionKey = null;//will be retrieved from hsm
+        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+        byte[] ephemeralPublicKeyBytes = null;//will be retrieved from hsm
+        byte[] signature = null;//will be retrieved from hsm
+
+        return createKeyAgreementRequest(plainText, ephemeralPublicKeyBytes, signature);
+    }
+
+    protected int dataTransportGeneralDecryptionForAgreedKey(byte[] generalCipheringAPDU, int ptr) throws UnsupportedException {
+        int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
+        int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
+
+        if (GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId() != keyParameters) {
+            throw new UnsupportedException("Unsupported key agreement type: '" + keyParameters + "'. Only type 1 (1e, 1s, ECC CDH) is currently supported");
+        }
+
+        int keyCipheredDataLength = DLMSUtils.getAXDRLength(generalCipheringAPDU, ptr);
+        ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);
+
+        byte[] keyCipheredData = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + keyCipheredDataLength);
+        ptr += keyCipheredDataLength;
+
+        int keySize = KeyUtils.getKeySize(getECCCurve());
+        byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(keyCipheredData, 0, keySize);
+        byte[] signature = ProtocolTools.getSubArray(keyCipheredData, keySize, keyCipheredDataLength);
+
+        X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
+        if (serverSignatureCertificate == null) {
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
+        }
+        Certificate[] serverSignatureKeyCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
+        String clientPrivateKeyAgreementKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKeyLabel();
+        String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
+        byte[] kdfOtherInfo = getKdfOtherInfo();
+        String storageKey = "S-DB"; //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+
+        //call hsm eekAgreeReceiver1e1s method.
+        IrreversibleKey agreedSesionKey = Services.hsmService().eekAgreeReceiver1e1s(getSecuritySuite(), serverSignatureKeyCertificateChain, serverEphemeralPublicKeyBytes, signature, clientPrivateKeyAgreementKeyLabel, caCertificate, kdfOtherInfo, storageKey);
+
+        handleServerSessionKey(agreedSesionKey.toBase64ByteArray());
+
+        return ptr;
+    }
+
+    private byte[] getKdfOtherInfo() {
+        final byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
+        final byte[] partyVInfo = getResponseSystemTitle();
+        final byte[] encodedKeyDerivingEncryptionAlgorithm = getKeyDerivingEncryptionAlgorithm().getEncoded();
+        final byte[] kdfOtherInfo = new byte[Objects.requireNonNull(getKeyDerivingEncryptionAlgorithm()).getEncoded().length + Objects.requireNonNull(partyUInfo).length + Objects.requireNonNull(partyVInfo).length];
+
+        // Create otherInfo, algo_id || partyUInfo || partyVInfo
+        System.arraycopy(encodedKeyDerivingEncryptionAlgorithm, 0, kdfOtherInfo, 0, encodedKeyDerivingEncryptionAlgorithm.length);
+        System.arraycopy(partyUInfo, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length, partyUInfo.length);
+        System.arraycopy(partyVInfo, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length + partyUInfo.length, partyVInfo.length);
+        return kdfOtherInfo;
     }
 
 }

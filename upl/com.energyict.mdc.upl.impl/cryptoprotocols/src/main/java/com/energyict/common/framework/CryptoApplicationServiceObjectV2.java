@@ -93,7 +93,9 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 case HLS5_GMAC: {
                     IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getAuthenticationKey());
                     IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getGlobalKey());
-                    return Services.hsmService().generateDigestGMAC(challenge, initialVector, ak, ek);
+                    //TODO: use generateDigestGMAC when HSM will have the posibility to specify the security suite
+                    //                    return Services.hsmService().generateDigestGMAC(challenge, initialVector, ak, ek, getSecurityContext().getSecuritySuite());
+                    return Services.hsmService().authenticateApdu(challenge, initialVector, ak, ek, getSecurityContext().getSecuritySuite());
                 }
                 case HLS6_SHA256: {
                     throw DeviceConfigurationException.unsupportedPropertyValueWithReason("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()), "Level 6 (SHA256) is not yet supported by the HSM.");

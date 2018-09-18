@@ -72,7 +72,7 @@ public class SecurityContext {
      * Indicating whether global[0] or dedicated[1] ciphering is used
      */
     private final int cipheringType;
-    private final GeneralCipheringKeyType generalCipheringKeyType;
+    protected final GeneralCipheringKeyType generalCipheringKeyType;
     /**
      * Points to the encryption Method that has to be used for dataTransport.
      * Currently 3 suites defined in the DLMS blue book:
@@ -440,10 +440,9 @@ public class SecurityContext {
 
                     byte[] wrappedKey = getWrappedKey(true);
 
-                        //Only include the wrapped key information the first request
-                        includeGeneralCipheringKeyInformation = false;
+                    keyInformationExchanged();
 
-                        return ProtocolTools.concatByteArrays(
+                    return ProtocolTools.concatByteArrays(
                                 createGeneralCipheringHeader(),
                                 new byte[]{(byte) 0x01},    //Yes, key info is present
                                 new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
@@ -464,63 +463,75 @@ public class SecurityContext {
 
                 case AGREED_KEY: {
                     if (includeGeneralCipheringKeyInformation) {
-
-                        //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
-                        //We are party U (sender), the meter is party V (receiver).
-                        //This means we generate an ephemeral keypair and use its private key combined with
-                        //the public static key agreement key of the server to derive a shared secret.
-                        //The server side will do the same, using its static key agreement private key and our ephemeral public key.
-
-                        KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
-                        Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
-                        if (serverKeyAgreementCertificate == null) {
-                            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
-                        }
-
-                        byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
-                        byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
-                        byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
-                        byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
-                        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-
-                        PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
-                        byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
-
-                        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
-                        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-
-                        byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
-
-                        //This is a newly generated session key, so reset our frame counter
-                        setFrameCounter(1);
-
-                        //Only include the key information the first request
-                        includeGeneralCipheringKeyInformation = false;
-
-                        return ProtocolTools.concatByteArrays(
-                                createGeneralCipheringHeader(),
-                                new byte[]{(byte) 0x01},    //Yes, key info is present
-                                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                                new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
-                                new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
-                                DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
-                                ephemeralPublicKeyBytes,
-                                signature,
-                                dataTransportEncryption(plainText)
-                        );
+                        return dataTransportGeneralEncryptionWithKeyAgreement(plainText);
                     } else {
                         //Do not include the key information any more for the next requests
                         return ProtocolTools.concatByteArrays(
-                                createGeneralCipheringHeader(),
-                                new byte[]{(byte) 0x00},    //Key info is not present
-                                dataTransportEncryption(plainText)
-                        );
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x00},    //Key info is not present
+                            dataTransportEncryption(plainText)
+                    );
                     }
                 }
 
                 default:
                     throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
             }
+    }
+
+    protected byte[] dataTransportGeneralEncryptionWithKeyAgreement(byte[] plainText) throws UnsupportedException {
+
+        //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
+        //We are party U (sender), the meter is party V (receiver).
+        //This means we generate an ephemeral keypair and use its private key combined with
+        //the public static key agreement key of the server to derive a shared secret.
+        //The server side will do the same, using its static key agreement private key and our ephemeral public key.
+
+        KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
+        Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
+        if (serverKeyAgreementCertificate == null) {
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+        }
+
+        byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
+        byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
+        byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
+        byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
+        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+
+        PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
+        byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
+
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+
+        byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
+
+        return createKeyAgreementRequest(plainText, ephemeralPublicKeyBytes, signature);
+    }
+
+    protected byte[] createKeyAgreementRequest(byte[] plainText, byte[] ephemeralPublicKeyBytes, byte[] signature) throws UnsupportedException {
+        //This is a newly generated session key, so reset our frame counter (for agreed key)
+        //As we don't have support yet for different FC for global, agreed and dedicated, we use the global one. Support for different FC's should be added.
+        //setFrameCounter(1); //right now this call would reset the FC for the GUEK which is not ok, the FC for Agreed Key should be reset
+        keyInformationExchanged();
+
+        return ProtocolTools.concatByteArrays(
+                createGeneralCipheringHeader(),
+                new byte[]{(byte) 0x01},    //Yes, key info is present
+                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
+                new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
+                DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
+                ephemeralPublicKeyBytes,
+                signature,
+                dataTransportEncryption(plainText)
+        );
+    }
+
+    protected void keyInformationExchanged() {
+        //Only include the key information the first request
+        includeGeneralCipheringKeyInformation = false;
     }
 
     public byte[] getWrappedKey(boolean resetFC) {
@@ -562,7 +573,7 @@ public class SecurityContext {
     /**
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
      */
-    private byte[] createGeneralCipheringHeader() {
+    protected byte[] createGeneralCipheringHeader() {
         return createGeneralCipheringHeader(new byte[]{(byte) 0x00}, new byte[]{(byte) 0x00});
     }
 
@@ -627,44 +638,7 @@ public class SecurityContext {
                 break;
 
                 case AGREED_KEY: {
-                    int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
-                    int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
-
-                    if (GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId() != keyParameters) {
-                        throw new UnsupportedException("Unsupported key agreement type: '" + keyParameters + "'. Only type 1 (1e, 1s, ECC CDH) is currently supported");
-                    }
-
-                    int keyCipheredDataLength = DLMSUtils.getAXDRLength(generalCipheringAPDU, ptr);
-                    ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);
-
-                    byte[] keyCipheredData = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + keyCipheredDataLength);
-                    ptr += keyCipheredDataLength;
-
-                    int keySize = KeyUtils.getKeySize(getECCCurve());
-                    byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(keyCipheredData, 0, keySize);
-                    PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(getECCCurve(), serverEphemeralPublicKeyBytes);
-                    byte[] signature = ProtocolTools.getSubArray(keyCipheredData, keySize, keyCipheredDataLength);
-
-                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
-                    X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
-                    if (serverSignatureCertificate == null) {
-                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
-                    }
-
-                    if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
-                        throw ConnectionCommunicationException.signatureVerificationError();
-                    }
-
-                    PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
-                    KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
-                    KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
-
-                    byte[] secretZ = keyAgreement.generateSecret(serverEphemeralPublicKey);
-                    byte[] partyUInfo = getResponseSystemTitle();   //Party U is the sender, the server, the meter
-                    byte[] partyVInfo = getSystemTitle();           //Party V is the receiver, us, the client
-                    byte[] serverSessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), secretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
-
-                    handleServerSessionKey(serverSessionKey);
+                    ptr = dataTransportGeneralDecryptionForAgreedKey(generalCipheringAPDU, ptr);
                 }
                 break;
 
@@ -679,6 +653,48 @@ public class SecurityContext {
 
         //Decrypt the frame using the key type that we received from the meter, it can be different from the configured key type in EIServer
         return dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader);
+    }
+
+    protected int dataTransportGeneralDecryptionForAgreedKey(byte[] generalCipheringAPDU, int ptr) throws UnsupportedException {
+        int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
+        int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
+
+        if (GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId() != keyParameters) {
+            throw new UnsupportedException("Unsupported key agreement type: '" + keyParameters + "'. Only type 1 (1e, 1s, ECC CDH) is currently supported");
+        }
+
+        int keyCipheredDataLength = DLMSUtils.getAXDRLength(generalCipheringAPDU, ptr);
+        ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);
+
+        byte[] keyCipheredData = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + keyCipheredDataLength);
+        ptr += keyCipheredDataLength;
+
+        int keySize = KeyUtils.getKeySize(getECCCurve());
+        byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(keyCipheredData, 0, keySize);
+        PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(getECCCurve(), serverEphemeralPublicKeyBytes);
+        byte[] signature = ProtocolTools.getSubArray(keyCipheredData, keySize, keyCipheredDataLength);
+
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+        X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
+        if (serverSignatureCertificate == null) {
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
+        }
+
+        if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
+            throw ConnectionCommunicationException.signatureVerificationError();
+        }
+
+        PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
+        KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
+        KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
+
+        byte[] secretZ = keyAgreement.generateSecret(serverEphemeralPublicKey);
+        byte[] partyUInfo = getResponseSystemTitle();   //Party U is the sender, the server, the meter
+        byte[] partyVInfo = getSystemTitle();           //Party V is the receiver, us, the client
+        byte[] serverSessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), secretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
+
+        handleServerSessionKey(serverSessionKey);
+        return ptr;
     }
 
     public AlgorithmID getKeyDerivingEncryptionAlgorithm() {
@@ -714,7 +730,7 @@ public class SecurityContext {
         }
     }
 
-    private void handleServerSessionKey(byte[] serverSessionKey) {
+    protected void handleServerSessionKey(byte[] serverSessionKey) {
         if (getGeneralCipheringSecurityProvider().getServerSessionKey() == null
                 || !Arrays.equals(getGeneralCipheringSecurityProvider().getServerSessionKey(), serverSessionKey)) {
 

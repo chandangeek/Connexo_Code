@@ -1,6 +1,7 @@
 package com.energyict.dlms.protocolimplv2;
 
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
 /**
@@ -76,4 +77,11 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
      * The client's (our) private key used key agreement (ECDH)
      */
     PrivateKey getClientPrivateKeyAgreementKey();
+
+    /**
+     * The client's (our) private key label used key agreement (ECDH)
+     */
+    String getClientPrivateKeyAgreementKeyLabel();
+
+    Certificate[] getCertificateChain(String propertyName);
 }

@@ -370,10 +370,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
+        //TODO: uncoment this once we have sepparate FC for agreed, dedicated and global key. for now global FC is always used
+        /*
         if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
         }
+*/
 
         if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
             byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();

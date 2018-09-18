@@ -146,6 +146,18 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
         return clientPrivateKeyAgreementKey;
     }
 
+    @Override
+    public String getClientPrivateKeyAgreementKeyLabel() {
+        //not used
+        return null;
+    }
+
+    @Override
+    public Certificate[] getCertificateChain(String propertyName) {
+        //not used
+        return new Certificate[0];
+    }
+
     /**
      * Returns a valid X509 v3 certificate, or null if the property has no value
      */

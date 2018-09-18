@@ -9,15 +9,16 @@ import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
-import java.security.InvalidKeyException;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -162,6 +163,48 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
             clientPrivateKeyAgreementKey = parsePrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
         }
         return clientPrivateKeyAgreementKey;
+    }
+
+    @Override
+    public String getClientPrivateKeyAgreementKeyLabel() {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
+        if (certificateWrapper == null) {
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
+        } else {
+            return certificateWrapperExtractor.getAlias(certificateWrapper);
+        }
+    }
+
+    @Override
+    public Certificate[] getCertificateChain(String propertyName) {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(propertyName);
+        if (certificateWrapper != null) {
+            String alias = certificateWrapperExtractor.getAlias(certificateWrapper);
+            Optional<KeyStore> trustStore = null;
+            try {
+                trustStore = certificateWrapperExtractor.getTrustStore(certificateWrapper);
+                if(trustStore.isPresent()) {
+                    Certificate[] certificateChain = trustStore.get().getCertificateChain(alias);
+                    if(certificateChain == null) {//mock a certificate chain for testing. Needs to be investigated why the chain is null...
+                        //TODO: Needs to be investigated why the chain is null...right now, mock a certificate chain for testing.
+                        X509Certificate endCertificate = (X509Certificate) trustStore.get().getCertificate(alias);
+                        String subCaAlias = endCertificate.getIssuerX500Principal().getName()
+                                .equalsIgnoreCase("CN=Beacon 3100 DEV DLMS key agreement Sub-CA,OU=ACS,O=Honeywell International Inc.,L=Kortrijk,ST=West-Vlaanderen,C=BE")
+                                ? "Beacon 3100 DEV DLMS key agreement Sub-CA" : "Beacon 3100 DEV DLMS signature Sub-CA";
+                        Certificate firstSubCA = trustStore.get().getCertificate(subCaAlias);
+                        Certificate secondSubCA = trustStore.get().getCertificate("Beacon 3100 DEV Device Sub-CA");
+                        Certificate rootCA = trustStore.get().getCertificate("beacon 3100 dev root ca");
+                        certificateChain = new Certificate[]{endCertificate, firstSubCA, secondSubCA, rootCA};
+                    }
+                    return certificateChain;
+                }
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+                //TODO: throw specific exceptions for better error handling?
+                throw DataParseException.generalParseException(e);
+            }
+            //TODO: if we reached this point....throw proper exception
+        }
+        throw DeviceConfigurationException.missingProperty(propertyName);
     }
 
     /**
