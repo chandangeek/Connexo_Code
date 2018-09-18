@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
+import com.elster.jupiter.pki.CertificateUserData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -180,15 +181,15 @@ public class CaServiceImpl implements CaService {
     }
 
     @Override
-    public X509Certificate signCsr(PKCS10CertificationRequest pkcs10) {
+    public X509Certificate signCsr(PKCS10CertificationRequest pkcs10, Optional<CertificateUserData> certificateUserData) {
         checkConfiguration();
         lazyInit();
         X509Certificate x509Cert;
         CertificateResponse certificateResponse;
         UserDataVOWS userData = new UserDataVOWS();
-        userData.setCaName(pkiCaName);
-        userData.setEndEntityProfileName(pkiEndEntityProfileName);
-        userData.setCertificateProfileName(pkiCertificateProfileName);
+        userData.setCaName((certificateUserData.isPresent())? certificateUserData.get().getCaName(): pkiCaName);
+        userData.setEndEntityProfileName((certificateUserData.isPresent())? certificateUserData.get().getEndEntityProfileName(): pkiEndEntityProfileName);
+        userData.setCertificateProfileName((certificateUserData.isPresent())? certificateUserData.get().getCertificateProfileName(): pkiCertificateProfileName);
         userData.setSubjectDN(pkcs10.getSubject().toString());
         userData.setUsername(getUsernameFromCn(pkcs10.getSubject()));
         try {

@@ -41,6 +41,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -213,7 +214,7 @@ public class CaServiceImplTest {
             NoSuchAlgorithmException {
         caService.init(ejbcaWS);
         PKCS10CertificationRequest csr = generateCsr();
-        caService.signCsr(csr);
+        caService.signCsr(csr, Optional.empty());
         verify(ejbcaWS, times(1))
                 .certificateRequest(any(UserDataVOWS.class), any(String.class), any(Integer.class), any(String.class), any(String.class));
     }

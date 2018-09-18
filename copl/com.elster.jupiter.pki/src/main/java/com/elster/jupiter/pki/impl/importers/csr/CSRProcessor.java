@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateUserData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -104,7 +105,10 @@ class CSRProcessor {
         TimeDuration timeout = (TimeDuration) properties.get(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey());
         // TODO: move to RequestableCertificateWrapper?
         try {
-            return CompletableFuture.supplyAsync(() -> caService.signCsr(csr), Executors.newSingleThreadExecutor())
+            return CompletableFuture.supplyAsync(() -> {
+                Optional<CertificateUserData> certificateUserData = Optional.of(new CertificateUserData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME)));
+                return caService.signCsr(csr, certificateUserData);
+            }, Executors.newSingleThreadExecutor())
                     .get(timeout.getMilliSeconds(), TimeUnit.MILLISECONDS);
         } catch (CompletionException | InterruptedException | TimeoutException e) {
             throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.SIGN_CSR_BY_CA_TIMED_OUT, alias);

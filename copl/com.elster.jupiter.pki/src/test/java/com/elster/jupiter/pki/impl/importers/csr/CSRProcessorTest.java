@@ -86,8 +86,8 @@ public class CSRProcessorTest {
             when(securityManagementService.findCertificateWrapper(newAlias)).thenReturn(Optional.of(newWrapper));
             return newWrapper;
         });
-        when(caService.signCsr(csr1)).thenReturn(cert1);
-        when(caService.signCsr(csr2)).thenReturn(cert2);
+        when(caService.signCsr(csr1, Optional.empty())).thenReturn(cert1);
+        when(caService.signCsr(csr2, Optional.empty())).thenReturn(cert2);
         processor = new CSRProcessor(securityManagementService, caService, properties, logger);
     }
 
@@ -129,7 +129,7 @@ public class CSRProcessorTest {
     @Test
     public void testSigningFailed() {
         addCSRToMap(PRESENT_SERIAL, PRESENT_NAME + "-123", csr2);
-        when(caService.signCsr(csr2)).thenThrow(new IllegalArgumentException("Can't sign CSR2."));
+        when(caService.signCsr(csr2, Optional.empty())).thenThrow(new IllegalArgumentException("Can't sign CSR2."));
 
         exceptionRule.expect(CSRImporterException.class);
         exceptionRule.expectMessage("Certificate signing request to CA has failed for alias " + PRESENT_ALIAS + ": Can't sign CSR2.");
@@ -139,7 +139,7 @@ public class CSRProcessorTest {
     @Test
     public void testSigningTimedOut() {
         addCSRToMap(PRESENT_SERIAL, PRESENT_NAME + "-123", csr2);
-        when(caService.signCsr(csr2)).thenAnswer(invocationOnMock -> {
+        when(caService.signCsr(csr2, Optional.empty())).thenAnswer(invocationOnMock -> {
             Thread.sleep(TIMEOUT.getMilliSeconds());
             return cert2;
         });

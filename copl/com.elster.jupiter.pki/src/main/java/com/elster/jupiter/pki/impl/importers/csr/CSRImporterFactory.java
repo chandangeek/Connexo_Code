@@ -212,6 +212,21 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .named(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION_DESCRIPTION)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey(), CSRImporterTranslatedProperty.CA_NAME)
+                        .describedAs(CSRImporterTranslatedProperty.CA_NAME_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey(), CSRImporterTranslatedProperty.CA_END_ENTITY_NAME)
+                        .describedAs(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey(), CSRImporterTranslatedProperty.CA_PROFILE_NAME)
+                        .describedAs(CSRImporterTranslatedProperty.CA_PROFILE_NAME_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
