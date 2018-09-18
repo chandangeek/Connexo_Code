@@ -5,7 +5,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface DataAndAuthenticationTag {
 
-    public byte[] getData();
+    byte[] getData();
 
-    public byte[] getAuthenticationTag();
+    byte[] getAuthenticationTag();
 }

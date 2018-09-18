@@ -5,6 +5,8 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
 import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
 
+import java.security.cert.Certificate;
+
 @ProviderType
 public interface HsmProtocolService {
 
@@ -12,7 +14,7 @@ public interface HsmProtocolService {
 
     byte[] generateDigestSHA1(byte[] challenge, IrreversibleKey hlsSecret) throws HsmBaseException;
 
-    byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException;
+    byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException;
 
     byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException;
 
@@ -49,4 +51,8 @@ public interface HsmProtocolService {
      * @return    <code>true</code> if the challenge response is valid, <code>false</code> if the challenge response was not the expected value.
      */
     boolean verifyFramecounterHMAC(final byte[] serverSysT, final byte[] clientSysT, final byte[] challenge, final long framecounter, final IrreversibleKey gak, final byte[] challengeResponse) throws HsmBaseException;
+
+    com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException;
+
+    IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException;
 }

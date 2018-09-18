@@ -4,6 +4,7 @@ import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.*;
 import com.atos.worldline.jss.api.custom.energy.*;
 import com.atos.worldline.jss.api.key.*;
+import com.atos.worldline.jss.api.key.derivation.CertificateChainX509KeyDerivation;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.HsmProtocolService;
@@ -16,8 +17,13 @@ import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
 import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTagImpl;
+import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
+import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 
 @Component(name = "com.elster.jupiter.impl.HsmEnergyServiceImpl", service = {HsmEnergyService.class, HsmProtocolService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
@@ -86,17 +92,16 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         this.hsmConfigurationService = hsmConfigurationService;
     }
 
-    @Override
-    public byte[] generateDigestMD5(byte[] challenge, IrreversibleKey hlsSecret) throws HsmBaseException {
-        CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM3,
-                    challenge);
-        } catch (FunctionFailedException ffe) {
-            //TODO: add also the HSM related messageSeed to the exception. This should be applied to all "HsmException" exceptions thrown in this class
-            throw new HsmBaseException(ffe);
+    private static KeyDerivation[] createKeyDerivationArray(Certificate[] sigKeyCertChain) {
+        KeyDerivation[] keyDerivations = new KeyDerivation[sigKeyCertChain.length];
+        for (int i=0; i< sigKeyCertChain.length; i++) {
+            try {
+                keyDerivations[i] = new CertificateChainX509KeyDerivation(sigKeyCertChain[i].getEncoded());
+            } catch (CertificateEncodingException e) {
+                throw new RuntimeException("Failed to create KeyDerivation array from provided certificate chain. "+e);
+            }
         }
-        return response.getAuthenticationTag();
+        return keyDerivations;
     }
 
     @Override
@@ -105,18 +110,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         try {
             response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM4,
                     challenge);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
-        }
-        return response.getAuthenticationTag();
-    }
-
-    @Override
-    public byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmBaseException {
-        CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), challenge,
-                    initializationVector);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
@@ -275,8 +268,77 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
-    private ProtectedSessionKey toProtectedSessionKey(IrreversibleKey hlsSecret) {
-        return new ProtectedSessionKey(new KeyLabel(hlsSecret.getKeyLabel()),hlsSecret.getEncryptedKey());
+    @Override
+    public byte[] generateDigestMD5(byte[] challenge, IrreversibleKey hlsSecret) throws HsmBaseException {
+        CosemHLSAuthenticationResponse response;
+        try {
+            response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM3,
+                    challenge);
+        } catch (FunctionFailedException ffe) {
+            //TODO: add also the HSM related messageSeed to the exception?. This should be applied to all "HsmBaseException" exceptions thrown in this class
+            throw new HsmBaseException(ffe);
+        }
+        return response.getAuthenticationTag();
+    }
+
+    @Override
+    public byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
+        CosemHLSAuthenticationResponse response;
+        try {
+            response = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), challenge,
+                    initializationVector);
+        } catch (FunctionFailedException ffe) {
+            throw new HsmBaseException(ffe);
+        }
+        return response.getAuthenticationTag();
+    }
+
+    @Override
+    public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
+
+        KeyDerivation[] certChainFromReceiver = createKeyDerivationArray(deviceKeyAgreementKeyCertChain);
+        //TODO: remove this test hardcoded values and use the ones comming from the protocol
+        String clientPrivateSigningKeyLabel = "vm-cosem-sign-s1-1";
+        String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
+        String storageKeyTest = "S-DB";
+
+        com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse =
+                null;
+        try {
+            eekAgreeResponse = Energy.eekAgreeSender1e1s(getAtosSecuritySuite(securitySuite),
+                    new KeyLabel(clientPrivateSigningKeyLabel),
+                    certChainFromReceiver,
+                    new KeyLabel(caCertificateTest),
+                    kdfOtherInfo,
+                    new KeyLabel(storageKeyTest));
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException(e);
+        }
+        return new EEKAgreeResponseImpl(eekAgreeResponse);
+    }
+
+    @Override
+    public IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
+        KeyDerivation[] signatureKeyCertChain = createKeyDerivationArray(deviceSignatureKeyCertChain);
+        //TODO: remove this test hardcoded values and use the ones comming from the protocol
+        String clientPrivateKeyAgreementKeyLabel = "vm-cosem-ka-s1-1";
+        String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
+        String storageKeyTest = "S-DB";
+        ProtectedSessionKey protectedSessionKey =
+                null;
+        try {
+            protectedSessionKey = Energy.eekAgreeReceiver1e1s(getAtosSecuritySuite(securitySuite),
+                    signatureKeyCertChain,
+                    ephemeralKaKey,
+                    signature,
+                    new KeyLabel(clientPrivateKeyAgreementKeyLabel),
+                    new KeyLabel(caCertificateTest),
+                    kdfOtherInfo,
+                    new KeyLabel(storageKeyTest));
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException(e);
+        }
+        return new HsmEncryptedKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
     }
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {
@@ -288,6 +350,10 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             return SecuritySuite.SUITE2;
         }
         throw new HsmBaseException("Security suite "+securitySuite+" NOT SUPPORTED!");
+    }
+
+    private ProtectedSessionKey toProtectedSessionKey(IrreversibleKey irreversibleKey) {
+        return new ProtectedSessionKey(new KeyLabel(irreversibleKey.getKeyLabel()), irreversibleKey.getEncryptedKey());
     }
 
 }
