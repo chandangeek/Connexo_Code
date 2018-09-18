@@ -101,6 +101,14 @@ public class SecurityAccessorTypeResource {
         this.hsmPublicConfiguration = hsmPublicConfiguration;
     }
 
+    private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
+        try {
+            return securityAccessorInfo.duration.asTimeDuration();
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
+        }
+    }
+
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -268,14 +276,6 @@ public class SecurityAccessorTypeResource {
         }
     }
 
-    private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
-        try {
-            return securityAccessorInfo.duration.asTimeDuration();
-        } catch (Exception e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
-        }
-    }
-
     private <T> T wrapValidationExceptions(String pathPrefix, Supplier<T> action) {
         try {
             return action.get();
@@ -305,6 +305,7 @@ public class SecurityAccessorTypeResource {
             updater.label(securityAccessorTypeInfo.label);
             updater.importCapabilty(securityAccessorTypeInfo.importCapability);
             updater.renewCapability(securityAccessorTypeInfo.renewCapability);
+            updater.keySize(securityAccessorTypeInfo.keySize);
         }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
