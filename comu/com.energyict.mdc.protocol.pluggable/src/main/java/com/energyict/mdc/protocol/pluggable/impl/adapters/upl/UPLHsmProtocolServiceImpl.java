@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
+import com.energyict.mdc.upl.crypto.EEKAgreeResponse;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.protocol.exceptions.HsmException;
@@ -10,6 +11,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+
+import java.security.cert.Certificate;
 
 @Component(name = "com.energyict.mdc.protocol.pluggable.upl.hsmservice", service = {HsmProtocolService.class}, immediate = true)
 public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
@@ -50,9 +53,9 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
-    public byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek) throws HsmException {
+    public byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
         try {
-            return actual.generateDigestGMAC(challenge, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek));
+            return actual.generateDigestGMAC(challenge, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
@@ -81,17 +84,7 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
         com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag hsmDataAndAuthenticationTag;
         try {
             hsmDataAndAuthenticationTag = actual.authenticateEncryptApdu(apdu, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
-            return new DataAndAuthenticationTag() {
-                @Override
-                public byte[] getData() {
-                    return hsmDataAndAuthenticationTag.getData();
-                }
-
-                @Override
-                public byte[] getAuthenticationTag() {
-                    return hsmDataAndAuthenticationTag.getAuthenticationTag();
-                }
-            };
+            return adaptHsmDataAndAuthenticationTagToUplValue(hsmDataAndAuthenticationTag);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
@@ -160,6 +153,26 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
         }
     }
 
+    @Override
+    public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException {
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse eekAgreeResponse = actual.eekAgreeSender1e1s(securitySuite, hesSignatureKeyLabel, deviceKeyAgreementKeyCertChain, deviceCaCertificateLabel, kdfOtherInfo, storageKeyLabel);
+            return adaptHsmEEKAgreeResponseToUplValue(eekAgreeResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
+    public IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException{
+        try {
+            com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey = actual.eekAgreeReceiver1e1s(securitySuite, deviceSignatureKeyCertChain, ephemeralKaKey, signature, hesKaKeyLabel, deviceCaCertificateLabel, kdfOtherInfo, storageKeyLabel);
+            return adaptHsmKeyToUplKey(irreversibleKey);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
     private com.elster.jupiter.hsm.model.keys.IrreversibleKey adaptUplKeyToHsmKey(IrreversibleKey irreversibleKey) {
         return new com.elster.jupiter.hsm.model.keys.IrreversibleKey() {
             @Override
@@ -170,6 +183,58 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
             @Override
             public String getKeyLabel() {
                 return irreversibleKey.getKeyLabel();
+            }
+        };
+    }
+
+    private IrreversibleKey adaptHsmKeyToUplKey(com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey) {
+        return new IrreversibleKey() {
+            @Override
+            public byte[] getEncryptedKey() {
+                return irreversibleKey.getEncryptedKey();
+            }
+
+            @Override
+            public String getKeyLabel() {
+                return irreversibleKey.getKeyLabel();
+            }
+
+            @Override
+            public byte[] toBase64ByteArray() {
+                return new byte[0];
+            }
+        };
+    }
+
+    private EEKAgreeResponse adaptHsmEEKAgreeResponseToUplValue(com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse eekAgreeResponse) {
+        return new EEKAgreeResponse() {
+            @Override
+            public byte[] getEphemeralPublicKey() {
+                return eekAgreeResponse.getEphemeralPublicKey();
+            }
+
+            @Override
+            public byte[] getSignature() {
+                return eekAgreeResponse.getSignature();
+            }
+
+            @Override
+            public IrreversibleKey getEek() {
+                return adaptHsmKeyToUplKey(eekAgreeResponse.getEek());
+            }
+        };
+    }
+
+    private DataAndAuthenticationTag adaptHsmDataAndAuthenticationTagToUplValue(com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag hsmDataAndAuthenticationTag) {
+        return new DataAndAuthenticationTag() {
+            @Override
+            public byte[] getData() {
+                return hsmDataAndAuthenticationTag.getData();
+            }
+
+            @Override
+            public byte[] getAuthenticationTag() {
+                return hsmDataAndAuthenticationTag.getAuthenticationTag();
             }
         };
     }
