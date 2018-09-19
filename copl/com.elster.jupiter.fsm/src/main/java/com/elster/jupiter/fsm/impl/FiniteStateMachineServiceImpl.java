@@ -41,10 +41,13 @@ import com.elster.jupiter.util.concurrent.RegistrationHandler;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.osgi.BundleWaiter;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -77,7 +80,7 @@ import static java.util.stream.Collectors.toMap;
  */
 @Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, MessageSeedProvider, TranslationKeyProvider {
+public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -90,6 +93,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile UpgradeService upgradeService;
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile ServiceRegistration<FiniteStateMachineService> registration;
+    private volatile BundleContext bundleContext;
 
     private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
@@ -102,7 +107,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService,
                                          EventService eventService, TransactionService transactionService,
                                          Publisher publisher, UpgradeService upgradeService, BpmService bpmService,
-                                         EndPointConfigurationService endPointConfigurationService) {
+                                         EndPointConfigurationService endPointConfigurationService, BundleContext bundleContext) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -113,7 +118,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
-        this.activate();
+        this.activate(bundleContext);
     }
 
     @Override
@@ -140,7 +145,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.webservices.installer");
         dataModel.register(this.getModule());
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
@@ -166,7 +173,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Publisher.class).toInstance(publisher);
-
                 bind(FiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
                 bind(ServerFiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
             }
@@ -528,4 +534,10 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
             return Optional.of(stageSets.get(0));
         }
     }
+
+    @Override
+    public void start(BundleContext context) {
+        registration = bundleContext.registerService(FiniteStateMachineService.class, this, null);
+    }
+
 }
