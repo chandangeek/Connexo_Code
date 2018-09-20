@@ -30,3 +30,35 @@ Ext.define('Uni.override.Date', {
         Uni.I18n.translate('general.month.december', 'UNI', 'December')
     ]
 });
+
+Ext.onReady(function () {
+    var monthNumbers = [];
+
+    monthNumbers[Uni.I18n.translate('general.month.january', 'UNI', 'January')] = 0;
+    monthNumbers[Uni.I18n.translate('general.month.february', 'UNI', 'February')] = 1;
+    monthNumbers[Uni.I18n.translate('general.month.march', 'UNI', 'March')] = 2;
+    monthNumbers[Uni.I18n.translate('general.month.april', 'UNI', 'April')] = 3;
+    monthNumbers[Uni.I18n.translate('general.month.may', 'UNI', 'May')] = 4;
+    monthNumbers[Uni.I18n.translate('general.month.june', 'UNI', 'June')] = 5;
+    monthNumbers[Uni.I18n.translate('general.month.july', 'UNI', 'July')] = 6;
+    monthNumbers[Uni.I18n.translate('general.month.august', 'UNI', 'August')] = 7;
+    monthNumbers[Uni.I18n.translate('general.month.september', 'UNI', 'September')] = 8;
+    monthNumbers[Uni.I18n.translate('general.month.october', 'UNI', 'October')] = 9;
+    monthNumbers[Uni.I18n.translate('general.month.november', 'UNI', 'November')] = 10;
+    monthNumbers[Uni.I18n.translate('general.month.december', 'UNI', 'December')] = 11;
+
+    monthNumbers[Uni.I18n.translate('general.month.short.january', 'UNI', 'Jan')] = 0;
+    monthNumbers[Uni.I18n.translate('general.month.short.february', 'UNI', 'Feb')] = 1;
+    monthNumbers[Uni.I18n.translate('general.month.short.march', 'UNI', 'Mar')] = 2;
+    monthNumbers[Uni.I18n.translate('general.month.short.april', 'UNI', 'Apr')] = 3;
+    monthNumbers[Uni.I18n.translate('general.month.short.may', 'UNI', 'May')] = 4;
+    monthNumbers[Uni.I18n.translate('general.month.short.june', 'UNI', 'Jun')] = 5;
+    monthNumbers[Uni.I18n.translate('general.month.short.july', 'UNI', 'Jul')] = 6;
+    monthNumbers[Uni.I18n.translate('general.month.short.august', 'UNI', 'Aug')] = 7;
+    monthNumbers[Uni.I18n.translate('general.month.short.september', 'UNI', 'Sep')] = 8;
+    monthNumbers[Uni.I18n.translate('general.month.short.october', 'UNI', 'Oct')] = 9;
+    monthNumbers[Uni.I18n.translate('general.month.short.november', 'UNI', 'Nov')] = 10;
+    monthNumbers[Uni.I18n.translate('general.month.short.december', 'UNI', 'Dec')] = 11;
+
+    Ext.Date.monthNumbers = monthNumbers;
+});
