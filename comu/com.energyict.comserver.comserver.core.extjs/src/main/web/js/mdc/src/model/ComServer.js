@@ -37,6 +37,7 @@ Ext.define('Mdc.model.ComServer', {
             }
         },
         {name: 'serverName', type: 'string', useNull: true},
+        {name: 'serverMonitorUrl', type: 'string', useNull: true},
         {name: 'statusPort', type: 'int', useNull: true},
         {name: 'eventRegistrationPort', type: 'int', useNull: true}
     ],

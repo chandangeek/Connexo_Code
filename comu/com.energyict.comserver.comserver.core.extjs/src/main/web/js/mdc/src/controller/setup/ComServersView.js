@@ -231,8 +231,15 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     },
 
     openComserverMonitor: function (record) {
-        var monitorUri = 'http://' + record.get('serverName') + ':' + record.get('statusPort') + '/apps/comservermonitor/index.html';
-        window.open(monitorUri);
+        if(record.get('serverMonitorUrl') != '') {
+            var monitorUri = record.get('serverMonitorUrl');
+            window.open(monitorUri);
+        } else {
+            var title = Uni.I18n.translate('comserver.comserverMonitorUrl.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                message = Uni.I18n.translate('comserver.comserverMonitorUrl.error', 'MDC', 'Communication Server Monitor URL not defined!');
+
+            this.getApplication().getController('Uni.controller.Error').showError(title, message);
+        }
     },
 
     deleteComserver: function (record) {

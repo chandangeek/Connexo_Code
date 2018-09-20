@@ -111,6 +111,11 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                             htmlEncode: false
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.serverUrl', 'MDC', 'Server Monitor URL'),
+                            name: 'serverMonitorUrl',
+                            htmlEncode: false
+                        },
+                        {
                             fieldLabel: Uni.I18n.translate('comserver.preview.eventUriLabel', 'MDC', 'Event registration port'),
                             name: 'eventRegistrationPort',
                             htmlEncode: false
