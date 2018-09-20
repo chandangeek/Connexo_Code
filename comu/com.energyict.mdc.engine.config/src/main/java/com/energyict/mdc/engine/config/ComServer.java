@@ -9,6 +9,8 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -42,6 +44,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:42)
  */
+@ProviderType
 public interface ComServer extends HasId, HasName {
     String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
     String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
@@ -231,6 +234,15 @@ public interface ComServer extends HasId, HasName {
     void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay);
 
     /**
+     * Gets url of the com server
+     *
+     * @return url of the com server
+     */
+    String getServerMonitorUrl();
+
+    void setServerMonitorUrl(String serverUrl);
+
+    /**
      * Gets the list of {@link ComPort}s that are owned by this ComServer.
      *
      * @return The list of ComPorts
@@ -292,12 +304,14 @@ public interface ComServer extends HasId, HasName {
      */
     String getQueryApiPostUriIfSupported();
 
+    @ProviderType
     interface ComServerBuilder<CS extends ComServer, CSB extends ComServerBuilder> {
         CSB name(String comServerName);
         CSB changesInterPollDelay(TimeDuration changesInterPollDelay);
         CSB schedulingInterPollDelay(TimeDuration schedulingInterPollDelay);
         CSB communicationLogLevel(LogLevel logLevel);
         CSB serverLogLevel(LogLevel logLevel);
+        CSB serverMonitorUrl(String comServerUrl);
         CSB active(boolean active);
         CS create();
     }

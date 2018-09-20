@@ -142,6 +142,12 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
         }
 
         @Override
+        public RemoteComServerBuilder serverMonitorUrl(String serverUrl) {
+            getComServerInstance().setServerMonitorUrl(serverUrl);
+            return this;
+        }
+
+        @Override
         public RemoteComServerBuilder eventRegistrationPort(int eventRegistrationPort) {
             getComServerInstance().setEventRegistrationPort(eventRegistrationPort);
             return this;

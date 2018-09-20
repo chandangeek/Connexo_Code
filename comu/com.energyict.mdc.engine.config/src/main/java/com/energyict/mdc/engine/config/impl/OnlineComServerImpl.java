@@ -249,6 +249,12 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
         }
 
         @Override
+        public OnlineComServerBuilder serverMonitorUrl(String serverUrl) {
+            getComServerInstance().setServerMonitorUrl(serverUrl);
+            return this;
+        }
+
+        @Override
         public OnlineComServerBuilder eventRegistrationPort(int eventRegistrationPort) {
             getComServerInstance().setEventRegistrationPort(eventRegistrationPort);
             return this;

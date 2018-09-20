@@ -42,6 +42,11 @@ public final class OfflineComServerImpl extends ComServerImpl implements Offline
             super(dataModel.getInstance(OfflineComServerImpl.class), OfflineComServerBuilderImpl.class);
         }
 
+        @Override
+        public OfflineComServerBuilderImpl serverMonitorUrl(String serverUrl) {
+            getComServerInstance().setServerMonitorUrl(serverUrl);
+            return this;
+        }
     }
 
 }
