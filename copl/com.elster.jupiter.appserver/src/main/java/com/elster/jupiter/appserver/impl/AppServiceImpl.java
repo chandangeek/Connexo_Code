@@ -48,12 +48,14 @@ import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.osgi.BundleWaiter;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -90,7 +92,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver", service = {AppService.class, IAppService.class, Subscriber.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
+public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler, BundleWaiter.Startable {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -114,6 +116,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private volatile WebServicesService webServicesService;
     private volatile UpgradeService upgradeService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile ServiceRegistration<AppService> registration;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -137,6 +140,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                    WebServicesService webServicesService, UpgradeService upgradeService,
                    EndPointConfigurationService endPointConfigurationService, EventService eventService) {
         this();
+        this.context = bundleContext;
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -160,6 +164,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         LOGGER.info(() -> "Activating " + this.toString() + " from thread " + Thread.currentThread().getName());
         try {
             this.context = context;
+            BundleWaiter.wait(this, context, "com.elster.jupiter.soap.webservices.installer");
 
             dataModel.register(new AbstractModule() {
                 @Override
@@ -709,5 +714,10 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Override
     public String getTopicMatcher() {
         return "com/elster/jupiter/fileimport/importschedule/UPDATED";
+    }
+
+    @Override
+    public void start(BundleContext context) {
+        registration = context.registerService(AppService.class, this, null);
     }
 }
