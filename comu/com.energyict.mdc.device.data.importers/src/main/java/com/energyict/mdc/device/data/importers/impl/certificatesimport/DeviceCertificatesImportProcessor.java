@@ -15,6 +15,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
@@ -106,7 +107,7 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
         } else {
             wrapper = securityManagementService.newClientCertificateWrapper(securityAccessorType.getKeyType(), securityAccessorType.getKeyEncryptionMethod()).alias(certificateAlias).add();
         }
-        wrapper.setCertificate(certificate);
+        wrapper.setCertificate(certificate, Optional.empty());
         return wrapper;
     }
 
