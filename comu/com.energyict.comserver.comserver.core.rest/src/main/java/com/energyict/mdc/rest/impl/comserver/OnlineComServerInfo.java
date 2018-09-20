@@ -49,6 +49,7 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
     public OnlineComServer.OnlineComServerBuilder writeTo(OnlineComServer.OnlineComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
         super.writeTo(comServerBuilder, engineConfigurationService);
         comServerBuilder.serverName(this.serverName);
+        comServerBuilder.serverMonitorUrl(this.serverMonitorUrl);
         comServerBuilder.queryApiPort(this.queryAPIPort != null ? this.queryAPIPort : 0);
         comServerBuilder.eventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         comServerBuilder.storeTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
@@ -59,6 +60,7 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
 
     public OnlineComServer updateTo(OnlineComServer onlineComServer, EngineConfigurationService engineConfigurationService) {
         onlineComServer.setServerName(this.serverName);
+        onlineComServer.setServerMonitorUrl(this.serverMonitorUrl);
         onlineComServer.setQueryApiPort(this.queryAPIPort != null ? this.queryAPIPort : 0);
         onlineComServer.setEventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         onlineComServer.setStatusPort(this.statusPort != null ? this.statusPort : 0);
