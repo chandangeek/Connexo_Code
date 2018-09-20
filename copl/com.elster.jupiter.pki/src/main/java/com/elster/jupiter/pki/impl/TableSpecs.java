@@ -110,6 +110,21 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .since(Version.version(10, 4))
                     .add();
+            table.column("CA_NAME")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.CA_NAME.fieldName())
+                    .since(Version.version(10, 4, 3))
+                    .add();
+            table.column("CA_PROFILE_NAME")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.CA_PROFILE_NAME.fieldName())
+                    .since(Version.version(10, 4, 3))
+                    .add();
+            table.column("CA_END_ENTITY_NAME")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.CA_END_ENTITY_NAME.fieldName())
+                    .since(Version.version(10, 4, 3))
+                    .add();
             table.column("STATUS")
                     .varChar(Table.NAME_LENGTH)
                     .conversion(CHAR2ENUM)

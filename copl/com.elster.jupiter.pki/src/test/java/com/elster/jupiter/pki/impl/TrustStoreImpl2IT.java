@@ -29,6 +29,7 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -167,7 +168,7 @@ public class TrustStoreImpl2IT {
         KeyType certificateType = inMemoryPersistence.getSecurityManagementService().newCertificateType("Cert")
                 .add();
         CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("RSA-2048");
-        certificateWrapper.setCertificate(rootCertificate.getFirst());
+        certificateWrapper.setCertificate(rootCertificate.getFirst(), Optional.empty());
         SecurityAccessorType securityAccessorType = inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("SA", certificateType)
                 .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .managedCentrally()

@@ -88,7 +88,7 @@ public class CSRProcessorTest {
         });
         when(caService.signCsr(csr1, Optional.empty())).thenReturn(cert1);
         when(caService.signCsr(csr2, Optional.empty())).thenReturn(cert2);
-        processor = new CSRProcessor(securityManagementService, caService, properties, logger);
+        processor = new CSRProcessor(securityManagementService, caService, properties, logger, Optional.empty());
     }
 
     @After
@@ -111,14 +111,14 @@ public class CSRProcessorTest {
                 PRESENT_NAME + "-123", cert2
         )));
         verify(newWrapper).setCSR(eq(csr1), any(), any());
-        verify(newWrapper).setCertificate(cert1);
+        verify(newWrapper).setCertificate(cert1, Optional.empty());
         verify(newWrapper).setWrapperStatus(CertificateWrapperStatus.NATIVE);
         verify(newWrapper, atLeast(1)).save();
         verify(logger).log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, ABSENT_ALIAS);
         verify(logger).log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, ABSENT_ALIAS);
         verify(logger).log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, ABSENT_ALIAS);
         verify(wrapper).setCSR(eq(csr2), any(), any());
-        verify(wrapper).setCertificate(cert2);
+        verify(wrapper).setCertificate(cert2, Optional.empty());
         verify(wrapper).setWrapperStatus(CertificateWrapperStatus.NATIVE);
         verify(wrapper, atLeast(1)).save();
         verify(logger).log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, PRESENT_ALIAS);
@@ -227,7 +227,7 @@ public class CSRProcessorTest {
                 "123-123-123-123", cert1
         )));
         verify(newWrapper).setCSR(eq(csr1), any(), any());
-        verify(newWrapper).setCertificate(cert1);
+        verify(newWrapper).setCertificate(cert1, Optional.empty());
         verify(newWrapper).setWrapperStatus(CertificateWrapperStatus.NATIVE);
         verify(newWrapper, atLeast(1)).save();
         verify(logger).log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, "CDE-123-123-123");

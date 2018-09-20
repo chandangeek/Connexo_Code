@@ -447,7 +447,7 @@ public class PkiGogoCommand {
                     .orElseGet(() -> securityManagementService.newClientCertificateType("TLS-RSA-2048", "SHA256withRSA").RSA().keySize(2048).add());
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService
                     .newClientCertificateWrapper(certificateType, "DataVault").alias(alias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate, Optional.empty());
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();

@@ -34,7 +34,7 @@ public interface CaService {
      * @return A signed X509 certificate
      * @throws Exception if signing was refused
      */
-    X509Certificate signCsr(PKCS10CertificationRequest pkcs10, Optional<CertificateUserData> certificateUserData);
+    X509Certificate signCsr(PKCS10CertificationRequest pkcs10, Optional<CertificateRequestData> certificateUserData);
 
     /**
      * revokes a certificate as defined by issuer and serial number with the provided reason.

@@ -5,7 +5,7 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateUserData;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -40,13 +40,15 @@ class CSRProcessor {
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
     private final Map<String, Object> properties;
+    private  final Optional<CertificateRequestData> certificateRequestData;
 
     @Inject
-    CSRProcessor(SecurityManagementService securityManagementService, CaService caService, Map<String, Object> properties, CSRImporterLogger logger) {
+    CSRProcessor(SecurityManagementService securityManagementService, CaService caService, Map<String, Object> properties, CSRImporterLogger logger, Optional<CertificateRequestData> certificateRequestData) {
         this.securityManagementService = securityManagementService;
         this.caService = caService;
         this.properties = properties;
         this.logger = logger;
+        this.certificateRequestData = certificateRequestData;
     }
 
     public Map<String, Map<String, X509Certificate>> process(Map<String, Map<String, PKCS10CertificationRequest>> csrMap) {
@@ -87,7 +89,7 @@ class CSRProcessor {
         X509Certificate certificate = signCsr(csr, alias);
         logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
 
-        csrWrapper.setCertificate(certificate);
+        csrWrapper.setCertificate(certificate, certificateRequestData);
         csrWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
         csrWrapper.save();
         logger.log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, alias);
@@ -106,8 +108,7 @@ class CSRProcessor {
         // TODO: move to RequestableCertificateWrapper?
         try {
             return CompletableFuture.supplyAsync(() -> {
-                Optional<CertificateUserData> certificateUserData = Optional.of(new CertificateUserData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME)));
-                return caService.signCsr(csr, certificateUserData);
+                return caService.signCsr(csr, certificateRequestData);
             }, Executors.newSingleThreadExecutor())
                     .get(timeout.getMilliSeconds(), TimeUnit.MILLISECONDS);
         } catch (CompletionException | InterruptedException | TimeoutException e) {

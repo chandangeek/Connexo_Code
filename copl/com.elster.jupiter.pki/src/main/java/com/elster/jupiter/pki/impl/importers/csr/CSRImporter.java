@@ -10,6 +10,7 @@ import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -29,6 +30,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 class CSRImporter implements FileImporter {
     public static final int SIGNATURE_LENGTH = 256;
@@ -65,7 +67,8 @@ class CSRImporter implements FileImporter {
             Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
                     .parseInputStream(reusableInputStream.stream());
 
-            Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger)
+            Optional<CertificateRequestData> certificateUserData = Optional.of(new CertificateRequestData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME)));;
+            Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger, certificateUserData)
                     .process(csrMap);
 
             boolean shouldExport = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey());

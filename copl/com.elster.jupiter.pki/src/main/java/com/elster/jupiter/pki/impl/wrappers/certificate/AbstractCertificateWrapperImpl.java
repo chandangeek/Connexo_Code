@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateStatus;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -47,6 +48,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -72,6 +74,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
                     TRUSTED_CERTIFICATE_DISCRIMINATOR, TrustedCertificateImpl.class,
                     CERTIFICATE_DISCRIMINATOR, RequestableCertificateWrapperImpl.class);
 
+
     public enum Fields {
         CERTIFICATE("certificate"),
         CSR("csr"),
@@ -86,7 +89,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         SUBJECT("subject"),
         ISSUER("issuer"),
         KEY_USAGES("keyUsagesCsv"),
-        WRAPPER_STATUS("wrapperStatus");
+        WRAPPER_STATUS("wrapperStatus"),
+        CA_NAME("caName"),
+        CA_END_ENTITY_NAME("caEndEntityName"),
+        CA_PROFILE_NAME("caProfileName");
 
         private final String fieldName;
 
@@ -122,6 +128,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
     private CertificateWrapperStatus wrapperStatus;
+    private String caName;
+    private String caEndEntityName;
+    private String caProfileName;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -173,7 +182,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public void setCertificate(X509Certificate certificate) {
+    public void setCertificate(X509Certificate certificate, Optional<CertificateRequestData> certificateRequestUserData) {
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
@@ -182,6 +191,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
             }
+
+            if (certificateRequestUserData.isPresent()) {
+                this.caName = certificateRequestUserData.get().getCaName();
+                this.caEndEntityName = certificateRequestUserData.get().getEndEntityName();
+                this.caProfileName = certificateRequestUserData.get().getCertificateProfileName();
+            }
+
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
@@ -435,5 +451,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public CertificateWrapperStatus getWrapperStatus() {
         return wrapperStatus;
+    }
+
+
+    public Optional<CertificateRequestData> getCertificateRequestData(){
+        // testing only caName present while others should be in same status
+        if (!Objects.isNull(this.caName) &&  !this.caName.isEmpty()) {
+            return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName));
+        }
+        return Optional.empty();
     }
 }

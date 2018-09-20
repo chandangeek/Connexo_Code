@@ -195,7 +195,7 @@ public class CSRImporterFactoryIT {
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR); // no values
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
 
-        certificate.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=Some").getFirst());
+        certificate.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=Some").getFirst(), Optional.empty());
 
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR, sa);
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
@@ -230,7 +230,7 @@ public class CSRImporterFactoryIT {
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR); // no values
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
 
-        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()));
+        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()), Optional.empty());
 
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR, sa);
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR, sa);
@@ -263,7 +263,7 @@ public class CSRImporterFactoryIT {
 
         certificate.getPrivateKeyWrapper().generateValue();
         certificate.generateCSR(new X500NameBuilder().addRDN(BCStyle.CN, "Client").build());
-        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()));
+        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()), Optional.empty());
 
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR); // no values
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
@@ -291,7 +291,7 @@ public class CSRImporterFactoryIT {
 
         certificate.getPrivateKeyWrapper().generateValue();
         certificate.generateCSR(new X500NameBuilder().addRDN(BCStyle.CN, "Client").build());
-        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()));
+        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()), Optional.empty());
 
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR); // no values
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
@@ -319,7 +319,7 @@ public class CSRImporterFactoryIT {
 
         certificate.getPrivateKeyWrapper().generateValue();
         certificate.generateCSR(new X500NameBuilder().addRDN(BCStyle.CN, "Client").build());
-        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()));
+        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()), Optional.empty());
 
         assertAllValuesById(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR); // no values
         assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR); // no values
@@ -339,7 +339,7 @@ public class CSRImporterFactoryIT {
                 .trustStore(ts)
                 .add();
         SecurityAccessor<CertificateWrapper> sa = securityManagementService.setDefaultValues(securityAccessor, certificate, null);
-        certificate.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=Some").getFirst());
+        certificate.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=Some").getFirst(), Optional.empty());
 
         pkiInMemoryPersistence.getFileImportService().newBuilder()
                 .setName("Importer")
@@ -379,7 +379,7 @@ public class CSRImporterFactoryIT {
 
         certificate.getPrivateKeyWrapper().generateValue();
         certificate.generateCSR(new X500NameBuilder().addRDN(BCStyle.CN, "Client").build());
-        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()));
+        certificate.setCertificate(SecurityTestUtils.signCSR(certificate.getCSR().get(), "CN=Issuer", SecurityTestUtils.generateKeyPair().getPrivate()), Optional.empty());
 
         pkiInMemoryPersistence.getFileImportService().newBuilder()
                 .setName("Importer")

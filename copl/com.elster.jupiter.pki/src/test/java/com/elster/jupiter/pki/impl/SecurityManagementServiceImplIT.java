@@ -509,7 +509,7 @@ public class SecurityManagementServiceImplIT {
     public void testImportCertificate() throws Exception {
         X509Certificate certificate = loadCertificate("bvn.cert");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("bvn");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         Optional<CertificateWrapper> reloaded = securityManagementService.findCertificateWrapper("bvn");
         assertThat(reloaded).isPresent();
@@ -542,7 +542,7 @@ public class SecurityManagementServiceImplIT {
     public void testImportCertificate_CXO_6608() throws Exception {
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("cxo-6608");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         Optional<CertificateWrapper> reloaded = securityManagementService.findCertificateWrapper("cxo-6608");
         assertThat(reloaded).isPresent();
@@ -739,7 +739,7 @@ public class SecurityManagementServiceImplIT {
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
-        clientCertificateWrapper.setCertificate(certificate);
+        clientCertificateWrapper.setCertificate(certificate, Optional.empty());
         // Assertions
         Optional<ClientCertificateWrapper> reloaded = securityManagementService
                 .findClientCertificateWrapper("comserver-import");
@@ -778,7 +778,7 @@ public class SecurityManagementServiceImplIT {
 
         expectedRule.expect(PkiLocalizedException.class);
         expectedRule.expectMessage("The certificate's subject distinguished name doesn't match the CSR.");
-        clientCertificateWrapper.setCertificate(certificate);
+        clientCertificateWrapper.setCertificate(certificate, Optional.empty());
     }
 
     @Test
@@ -806,7 +806,7 @@ public class SecurityManagementServiceImplIT {
 
         expectedRule.expect(PkiLocalizedException.class);
         expectedRule.expectMessage("The certificate's key usage extension doesn't match the CSR.");
-        clientCertificateWrapper.setCertificate(certificate);
+        clientCertificateWrapper.setCertificate(certificate, Optional.empty());
     }
 
     @Test
@@ -834,7 +834,7 @@ public class SecurityManagementServiceImplIT {
 
         expectedRule.expect(PkiLocalizedException.class);
         expectedRule.expectMessage("The certificate's extended key usage extension doesn't match the CSR.");
-        clientCertificateWrapper.setCertificate(certificate);
+        clientCertificateWrapper.setCertificate(certificate, Optional.empty());
     }
 
     @Test
@@ -864,7 +864,7 @@ public class SecurityManagementServiceImplIT {
 
         expectedRule.expect(PkiLocalizedException.class);
         expectedRule.expectMessage("The certificate's public key doesn't match the CSR.");
-        clientCertificateWrapper.setCertificate(certificate); // Sets Certificate for original CSR, not most recent
+        clientCertificateWrapper.setCertificate(certificate, Optional.empty()); // Sets Certificate for original CSR, not most recent
     }
 
     @Test
@@ -1245,7 +1245,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert1");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"}]");
 
@@ -1263,7 +1263,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert2");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=test, OU=unit, O=org, C=BE\"}]");
 
@@ -1281,7 +1281,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert4");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"issuer\",\"value\":\"CN=RA, OU=Smart energy, O=Honeywell, ST=West vlaanderen, C=BE\"}]");
 
@@ -1299,7 +1299,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert5");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"keyUsages\",\"value\":[\"" + digitalSignature + "\"]}]");
 
@@ -1318,7 +1318,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("alias");
-        certificateWrapper.setCertificate(certificate);
+        certificateWrapper.setCertificate(certificate, Optional.empty());
 
         Finder<CertificateWrapper> reloaded = securityManagementService.findCertificatesByFilter(createFilter("alias", Optional.empty()));
 
@@ -1357,7 +1357,7 @@ public class SecurityManagementServiceImplIT {
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
         CertificateWrapper wrapper = securityManagementService.newCertificateWrapper(alias);
-        wrapper.setCertificate(certificate);
+        wrapper.setCertificate(certificate, Optional.empty());
 
         assertThat(securityManagementService.findCertificateWrapper(alias).get().getStatus()).isEqualTo(TranslationKeys.AVAILABLE.getKey());
 
