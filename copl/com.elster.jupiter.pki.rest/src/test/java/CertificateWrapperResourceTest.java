@@ -108,7 +108,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<X509Certificate> certificateArgumentCaptor = ArgumentCaptor.forClass(X509Certificate.class);
         verify(securityManagementService, times(1)).newCertificateWrapper(stringArgumentCaptor.capture());
-        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture());
+        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture(), Optional.empty());
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
     }
@@ -636,7 +636,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(securityManagementService, times(1)).findCertificateWrapper(certId);
         verifyNoMoreInteractions(securityManagementService);
-        verify(certificateWrapper, times(1)).setCertificate(x509Certificate);
+        verify(certificateWrapper, times(1)).setCertificate(x509Certificate, Optional.empty());
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
@@ -276,7 +277,7 @@ public class CertificateWrapperResource {
         try {
             X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
             try {
-                certificateWrapper.setCertificate(certificate);
+                certificateWrapper.setCertificate(certificate, Optional.empty());
                 certificateWrapper.save();
             } catch (Exception e) {
                 throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA, e.getLocalizedMessage());
@@ -553,7 +554,7 @@ public class CertificateWrapperResource {
             if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
-            certificateWrapper.setCertificate(certificate);
+            certificateWrapper.setCertificate(certificate, Optional.empty());
             certificateWrapper.save();
         } catch (CertificateException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, e);
