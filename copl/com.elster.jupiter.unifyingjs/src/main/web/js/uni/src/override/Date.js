@@ -47,6 +47,19 @@ Ext.onReady(function () {
     monthNumbers[Uni.I18n.translate('general.month.november', 'UNI', 'November')] = 10;
     monthNumbers[Uni.I18n.translate('general.month.december', 'UNI', 'December')] = 11;
 
+    monthNumbers[Uni.I18n.translate('general.month.january', 'UNI', 'January').substr(0, 3)] = 0;
+    monthNumbers[Uni.I18n.translate('general.month.february', 'UNI', 'February').substr(0, 3)] = 1;
+    monthNumbers[Uni.I18n.translate('general.month.march', 'UNI', 'March').substr(0, 3)] = 2;
+    monthNumbers[Uni.I18n.translate('general.month.april', 'UNI', 'April').substr(0, 3)] = 3;
+    monthNumbers[Uni.I18n.translate('general.month.may', 'UNI', 'May').substr(0, 3)] = 4;
+    monthNumbers[Uni.I18n.translate('general.month.june', 'UNI', 'June').substr(0, 3)] = 5;
+    monthNumbers[Uni.I18n.translate('general.month.july', 'UNI', 'July').substr(0, 3)] = 6;
+    monthNumbers[Uni.I18n.translate('general.month.august', 'UNI', 'August').substr(0, 3)] = 7;
+    monthNumbers[Uni.I18n.translate('general.month.september', 'UNI', 'September').substr(0, 3)] = 8;
+    monthNumbers[Uni.I18n.translate('general.month.october', 'UNI', 'October').substr(0, 3)] = 9;
+    monthNumbers[Uni.I18n.translate('general.month.november', 'UNI', 'November').substr(0, 3)] = 10;
+    monthNumbers[Uni.I18n.translate('general.month.december', 'UNI', 'December').substr(0, 3)] = 11;
+    /*
     monthNumbers[Uni.I18n.translate('general.month.short.january', 'UNI', 'Jan')] = 0;
     monthNumbers[Uni.I18n.translate('general.month.short.february', 'UNI', 'Feb')] = 1;
     monthNumbers[Uni.I18n.translate('general.month.short.march', 'UNI', 'Mar')] = 2;
@@ -59,6 +72,6 @@ Ext.onReady(function () {
     monthNumbers[Uni.I18n.translate('general.month.short.october', 'UNI', 'Oct')] = 9;
     monthNumbers[Uni.I18n.translate('general.month.short.november', 'UNI', 'Nov')] = 10;
     monthNumbers[Uni.I18n.translate('general.month.short.december', 'UNI', 'Dec')] = 11;
-
+*/
     Ext.Date.monthNumbers = monthNumbers;
 });
