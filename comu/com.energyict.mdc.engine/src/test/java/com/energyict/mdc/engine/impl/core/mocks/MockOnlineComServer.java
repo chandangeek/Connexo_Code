@@ -53,6 +53,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private int queryApiPort;
     private int statusPort;
     private long version;
+    private String monitorServerUrl;
 
     public MockOnlineComServer(String name) {
         super();
@@ -258,6 +259,12 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         allComPorts.addAll(this.getOutboundComPorts());
         return allComPorts;
     }
+
+    @Override
+    public String getServerMonitorUrl() { return this.monitorServerUrl; }
+
+    @Override
+    public void setServerMonitorUrl(String monitorServerUrl) { this.monitorServerUrl = monitorServerUrl; }
 
     @Override
     public List<InboundComPort> getInboundComPorts() {
