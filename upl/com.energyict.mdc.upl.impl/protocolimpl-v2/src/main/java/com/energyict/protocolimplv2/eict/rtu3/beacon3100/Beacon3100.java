@@ -593,7 +593,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                         persistedMirrorLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
                         persistedGatewayLogicalDeviceId = getGeneralProperty(macAddress, AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
                         persistedLastSeenDate = getGeneralProperty(macAddress, G3Properties.PROP_LASTSEENDATE);
-
                     } catch (Exception ignored) {
                     }
 
@@ -601,7 +600,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     CollectedTopology.ObservationTimestampProperty observationTimestampProperty = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
-                    if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
+                    if (!gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
@@ -610,7 +609,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 )
                         );
                     }
-                    if (persistedMirrorLogicalDeviceId == null || !mirrorLogicalDeviceId.equals(persistedMirrorLogicalDeviceId)) {
+                    if (!mirrorLogicalDeviceId.equals(persistedMirrorLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
@@ -619,7 +618,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 )
                         );
                     }
-                    if (persistedLastSeenDate == null || !lastSeenDate.equals(persistedLastSeenDate)) {
+                    if (!lastSeenDate.equals(persistedLastSeenDate)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
                                 this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
@@ -629,34 +628,38 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                         );
                     }
 
-                    if (dcMacAddress.isPresent()) {
-                        buildTopologySegments(dcMacAddress.get(), g3Node);
-                    } else {
-                        getLogger().warning("Concentrator MAC address could not be determined, skipping G3 network topology graph creation.");
-                    }
+                    if (!getDlmsSessionProperties().hasPre20Firmware()) {
 
-                    if (getNeighbourTable().isPresent()) {
-                        Optional<AbstractDataType> neighbourOpt = getNeighbourTable().get().getAllDataTypes().stream().filter(
-                                item -> item.isStructure() &&
-                                        ((Structure) item).getDataType(0).getUnsigned16().getValue() == g3Node.getShortAddress()
-                        ).findFirst();
+                        if (dcMacAddress.isPresent()) {
+                            buildTopologySegments(dcMacAddress.get(), g3Node);
+                        } else {
+                            getLogger().warning("Concentrator MAC address could not be determined, skipping G3 network topology graph creation.");
+                        }
 
-                        assert neighbourOpt.isPresent();
-                        final Structure neighbourStruct = (Structure) neighbourOpt.get();
+                        if (getNeighbourTable().isPresent()) {
+                            Optional<AbstractDataType> neighbourOpt = getNeighbourTable().get().getAllDataTypes().stream().filter(
+                                    item -> item.isStructure() &&
+                                            ((Structure) item).getDataType(0).getUnsigned16().getValue() == g3Node.getShortAddress()
+                            ).findFirst();
 
-                        // build up the topologyNeighbour
-                        int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
-                        long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
-                        int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
-                        int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
-                        int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
-                        int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
-                        int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
-                        int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
-                        int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
-                        int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+                            assert neighbourOpt.isPresent();
+                            final Structure neighbourStruct = (Structure) neighbourOpt.get();
 
-                        deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                            // build up the topologyNeighbour
+                            int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
+                            long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
+                            int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
+                            int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
+                            int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
+                            int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
+                            int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
+                            int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
+                            int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
+                            int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+
+                            deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                        }
+
                     }
 
                 }

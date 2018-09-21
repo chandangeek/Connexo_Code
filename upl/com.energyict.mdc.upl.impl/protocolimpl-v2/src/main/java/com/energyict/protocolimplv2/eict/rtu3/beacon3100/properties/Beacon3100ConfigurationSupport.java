@@ -44,6 +44,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
     public static final String READ_OLD_OBIS_CODES = "ReadOldObisCodes";
+    public static final String PRE_2_0_FIRMWARE = "Pre20Firmware";
     public static final String BROADCAST_AUTHENTICATION_KEY = "BroadcastAuthenticationKey";
     public static final String BROADCAST_ENCRYPTION_KEY = "BroadcastEncryptionKey";
 
@@ -79,6 +80,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(frameCounterRecoveryStep());
         propertySpecs.add(initialFrameCounter());
         propertySpecs.add(readOldObisCodes());
+        propertySpecs.add(hasPre20Firmware());
 
         propertySpecs.add(defaultBacklogLoadProfile());
         propertySpecs.add(defaultBacklogEventLog());
@@ -116,6 +118,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec readOldObisCodes() {
         return UPLPropertySpecFactory.specBuilder(READ_OLD_OBIS_CODES, false, PropertyTranslationKeys.V2_READ_OLD_OBIS_CODES, this.getPropertySpecService()::booleanSpec).finish();
+    }
+
+    private PropertySpec hasPre20Firmware() {
+        return UPLPropertySpecFactory.specBuilder(PRE_2_0_FIRMWARE, false, PropertyTranslationKeys.V2_PRE_2_0_FIRMWARE, this.getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec frameCounterRecoveryRetries() {

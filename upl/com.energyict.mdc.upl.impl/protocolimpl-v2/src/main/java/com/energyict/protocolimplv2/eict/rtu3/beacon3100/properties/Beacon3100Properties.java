@@ -178,6 +178,10 @@ public class Beacon3100Properties extends DlmsProperties {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.READ_OLD_OBIS_CODES, false);
     }
 
+    public boolean hasPre20Firmware() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.PRE_2_0_FIRMWARE, false);
+    }
+
     public String getBroadcastEncryptionKey() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.BROADCAST_AUTHENTICATION_KEY);
     }
