@@ -1856,6 +1856,12 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = page.down('grouped-property-form'),
             tooltip = page.down('#file-formatter-info');
 
+        /*Fix for CXO-9025. Each time when we select value of data formatter selector
+        property form is recreated. Before form is recreated we have to remove all old fields.
+        Otherwise they will be checked when isValid method is invoked for add-data-export-task-form.
+        As result validation of form will fail */
+        propertyForm.removeAll();
+
         if (record !== null) {
             me.changeFormatterTooltip(tooltip, record.get('name'));
         }
@@ -2184,6 +2190,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
         form.down('#dxp-data-selector-container').doComponentLayout();
         Ext.resumeLayouts(true);
+
         if (form.isValid()
             && !emptyReadingTypes
             && !emptyEventTypes
