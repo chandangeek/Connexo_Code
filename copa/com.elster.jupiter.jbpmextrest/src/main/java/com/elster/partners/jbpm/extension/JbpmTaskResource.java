@@ -485,7 +485,7 @@ public class JbpmTaskResource {
         }
         if(variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
-            String queryString = "select p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
+            String queryString = "select DISTINCT p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
                     "p.USER_IDENTITY, p.START_DATE, p.PROCESSINSTANCEID as processLogid " +
                     "from processinstancelog p " +
                     "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
