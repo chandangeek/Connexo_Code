@@ -20,7 +20,7 @@ public class ReplyUsagePointEndpointProvider implements OutboundSoapEndPointProv
 
     @Override
     public Service get() {
-        return new ReplyUsagePointConfig();
+        return new ReplyUsagePointConfig(ReplyUsagePointConfig.class.getResource("/usagepointconfig/ReplyUsagePointConfig.wsdl"));
     }
 
     @Override

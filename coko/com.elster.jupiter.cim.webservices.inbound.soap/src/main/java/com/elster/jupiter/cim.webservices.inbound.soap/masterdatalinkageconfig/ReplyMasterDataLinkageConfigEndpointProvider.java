@@ -19,7 +19,7 @@ public class ReplyMasterDataLinkageConfigEndpointProvider implements OutboundSoa
 
     @Override
     public Service get() {
-        return new ReplyMasterDataLinkageConfig();
+        return new ReplyMasterDataLinkageConfig(ReplyMasterDataLinkageConfig.class.getResource("/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl"));
     }
 
     @Override
