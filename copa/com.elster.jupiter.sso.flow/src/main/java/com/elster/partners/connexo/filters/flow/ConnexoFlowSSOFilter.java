@@ -97,7 +97,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isForbidden(HttpServletRequest request, ConnexoPrincipal principal) {
-        return !request.getRequestURI().startsWith("/flow/rest/") && !principal.getRoles().contains("Business process designer");
+        return !request.getRequestURI().startsWith("/flow/rest/") && !principal.getPrivileges().contains("privilege.design.bpm");
     }
 
     private String getConnexoToken(HttpServletRequest request) {
