@@ -22,6 +22,11 @@ import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.net.ssl.X509KeyManager;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 
@@ -92,11 +97,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         this.hsmConfigurationService = hsmConfigurationService;
     }
 
-    private static KeyDerivation[] createKeyDerivationArray(Certificate[] sigKeyCertChain) {
-        KeyDerivation[] keyDerivations = new KeyDerivation[sigKeyCertChain.length];
-        for (int i=0; i< sigKeyCertChain.length; i++) {
+    private static KeyDerivation[] createKeyDerivationArray(Certificate[] certChain) {
+        KeyDerivation[] keyDerivations = new KeyDerivation[certChain.length];
+        for (int i = 0; i < certChain.length; i++) {
             try {
-                keyDerivations[i] = new CertificateChainX509KeyDerivation(sigKeyCertChain[i].getEncoded());
+                keyDerivations[i] = new CertificateChainX509KeyDerivation(certChain[i].getEncoded());
             } catch (CertificateEncodingException e) {
                 throw new RuntimeException("Failed to create KeyDerivation array from provided certificate chain. "+e);
             }
@@ -339,6 +344,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             throw new HsmBaseException(e);
         }
         return new HsmEncryptedKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+    }
+
+    @Override
+    public X509KeyManager getKeyManager(KeyStore keyStore, char[] password) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
+        return new HsmKeyManagerImpl(keyStore, password);
     }
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {
