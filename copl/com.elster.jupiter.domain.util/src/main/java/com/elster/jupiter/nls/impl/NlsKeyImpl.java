@@ -108,7 +108,7 @@ final class NlsKeyImpl implements NlsKey {
 
     Optional<String> translate(Locale requested) {
         NlsEntry max = this.bestScore(requested);
-        return max == null ? fallBack(requested) : Optional.of(max.getTranslation());
+        return max == null ? fallBack(requested) : Optional.ofNullable(max.getTranslation());
     }
 
     private NlsEntry bestScore(Locale locale) {
