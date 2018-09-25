@@ -6,12 +6,14 @@ package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -58,12 +60,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class CreationRuleResource extends BaseResource {
 
     private final CreationRuleInfoFactory ruleInfoFactory;
+    private final CreationRuleActionInfoFactory actionFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.ruleInfoFactory = ruleInfoFactory;
+        this.actionFactory = actionFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
     }
@@ -208,8 +212,9 @@ public class CreationRuleResource extends BaseResource {
     public Response validateAction(@QueryParam("reason_name") String reasonName, CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
         setAction(info, actionBuilder, reasonName);
-        actionBuilder.complete().validate();
-        return Response.ok().build();
+        CreationRuleAction ruleAction = actionBuilder.complete();
+        ruleAction.validate();
+        return Response.ok(actionFactory.asInfo(ruleAction)).build();
     }
 
 
