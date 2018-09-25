@@ -27,6 +27,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -118,6 +119,15 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public long getActionType() {
         return ActionType.REMOVE.getValue();
+    }
+
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(CLOSE_STATUS);
+        if (value != null) {
+            return ((CloseIssueAction.Status) value).getName();
+        }
+        return "";
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
