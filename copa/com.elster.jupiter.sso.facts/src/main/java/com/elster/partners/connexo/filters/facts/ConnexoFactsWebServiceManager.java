@@ -85,7 +85,7 @@ public class ConnexoFactsWebServiceManager {
         return Optional.empty();
     }
 
-    Optional<String> createUser(String username, List<String> roles) {
+    Optional<String> createUser(String username, List<String> privileges) {
         System.out.println("YFN: Create user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -103,7 +103,7 @@ public class ConnexoFactsWebServiceManager {
         person.setPassword("test");
         person.setFirstName("Connexo");
         person.setLastName(username);
-        if (roles.contains("Report administrator")) {
+        if (privileges.contains("privilege.administrate.reports")) {
             person.setRoleCode("YFADMIN");
         }
         else {
@@ -137,7 +137,7 @@ public class ConnexoFactsWebServiceManager {
         return Optional.empty();
     }
 
-    Optional<String> updateUser(String username, List<String> roles) {
+    Optional<String> updateUser(String username, List<String> privileges) {
         System.out.println("YFN: Update user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -152,7 +152,7 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
-        if (roles.contains("Report administrator")) {
+        if (privileges.contains("privilege.administrate.reports")) {
             person.setRoleCode("YFADMIN");
         } else {
             person.setRoleCode("YFCORPWRITER");

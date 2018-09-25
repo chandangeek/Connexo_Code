@@ -57,8 +57,8 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
     private boolean isForbidden(HttpServletRequest request, ConnexoPrincipal principal) {
         return !request.getRequestURI().startsWith("/facts/services/") && !request.getRequestURI()
-                .equals("/facts/JsAPI") && !(principal.getRoles()
-                .contains("Report administrator") || principal.getRoles().contains("Report designer"));
+                .equals("/facts/JsAPI") && !(principal.getPrivileges()
+                .contains("privilege.design.reports") || principal.getPrivileges().contains("privilege.administrate.reports"));
     }
 
     private void redirectToEntry(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -102,7 +102,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
         Optional<String> result = manager.getUser(principal.getName(), principal.getRoles());
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {
-            result = manager.createUser(principal.getName(), principal.getRoles());
+            result = manager.createUser(principal.getName(), principal.getPrivileges());
         }
 
         if (result.isPresent() && result.get().equals("SUCCESS")) {
