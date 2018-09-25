@@ -11,6 +11,9 @@ Ext.define('Isu.view.creationrules.ActionsList', {
         'Isu.store.CreationRuleActions',
         'Uni.grid.column.RemoveAction'
     ],
+    viewConfig: {
+        markDirty: false
+    },
     alias: 'widget.issues-creation-rules-actions-list',
     store: 'ext-empty-store',
     enableColumnHide: false,
@@ -33,6 +36,11 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                 renderer: function (value) {
                     return value ? value.title : '';
                 }
+            },
+            {
+                dataIndex: 'description',
+                header: Uni.I18n.translate('general.description', 'ISU', 'Description'),
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn-remove',
