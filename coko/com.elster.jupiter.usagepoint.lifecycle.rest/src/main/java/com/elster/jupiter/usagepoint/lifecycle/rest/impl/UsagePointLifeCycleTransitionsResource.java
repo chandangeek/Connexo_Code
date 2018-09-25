@@ -132,6 +132,9 @@ public class UsagePointLifeCycleTransitionsResource {
     public Response deleteTransition(UsagePointLifeCycleTransitionInfo transitionInfo) {
         UsagePointTransition transition = this.resourceHelper.lockTransition(transitionInfo);
         transition.remove();
+        //update fsm
+        if(transition.getLifeCycle() != null && transition.getLifeCycle().getUpdater() != null)
+            transition.getLifeCycle().getUpdater().complete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
