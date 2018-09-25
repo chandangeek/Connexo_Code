@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl.i18n;
 
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
@@ -37,8 +38,8 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION_CALLED("alarm.action.webServiceNotificationCalled", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("alarm.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM("alarm.action.webServiceNotificationAlarm.closeAlarm", "Close alarm"),
-    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.close.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''.");
-
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.close.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''."),
+    UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned");
 
     private final String key;
     private final String defaultFormat;

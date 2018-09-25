@@ -5,6 +5,7 @@
 
 package com.energyict.mdc.device.alarms.impl.actions;
 
+
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -139,6 +140,17 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
     @Override
     public boolean isApplicableForUser(User user) {
         return user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ALARM.equals(p.getName())).findAny().isPresent();
+    }
+
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(ASSIGNEE);
+        if (value != null) {
+            return String.format("%s/%s",
+                    (((Assignee) value).workgroup).map(WorkGroup::getName).orElse(getThesaurus().getFormat(TranslationKeys.UNASSIGNED).format()),
+                    (((Assignee) value).user).map(User::getName).orElse(getThesaurus().getFormat(TranslationKeys.UNASSIGNED).format()));
+        }
+        return "";
     }
 
     private class AssigneeValueFactory implements ValueFactory<Assignee>, AssignPropertyFactory {
