@@ -43,6 +43,8 @@ public interface CertificateWrapperExtractor {
      */
     Optional<X509KeyManager> getKeyManager(CertificateWrapper clientCertificateWrapper) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException;
 
+    Optional<X509KeyManager> getHsmKeyManager(CertificateWrapper clientCertificateWrapper) throws Exception;
+
     PrivateKey getPrivateKey(CertificateWrapper clientCertificateWrapper) throws InvalidKeyException;
 
     Optional<CRL> getCRL(CertificateWrapper trustedCertificateWrapper);
