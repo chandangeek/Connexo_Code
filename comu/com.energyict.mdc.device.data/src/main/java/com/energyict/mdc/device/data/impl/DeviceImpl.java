@@ -393,7 +393,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.koreHelper.setInitialMeterActivationStartDate(startDate);
         createLoadProfiles();
         createLogBooks();
+        inheritDeviceConnTaskFromDeviceConfig(deviceConfiguration);
         return this;
+    }
+
+    private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        if (Objects.nonNull(deviceConfiguration)) {
+            deviceConfiguration.getPartialConnectionTasks().stream().forEach(partialConnectionTask -> {
+                if (partialConnectionTask instanceof PartialInboundConnectionTask) {
+                    this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask).add();
+                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask){
+                    this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask).add();
+                }
+            });
+        }
     }
 
     private String generateMRID() {
