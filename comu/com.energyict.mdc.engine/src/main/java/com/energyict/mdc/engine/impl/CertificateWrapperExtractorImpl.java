@@ -13,18 +13,15 @@ import com.energyict.mdc.upl.security.CertificateWrapper;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CRL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -44,6 +41,24 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     static final char[] PARAMETERS = new char[]{'i', '#', '?', 'r', 'P', '1', '_', 'L', 'v', '/', 'T', '@', '>', 'k', 'h', '*'};
 
     private static final String KEY_STORE = "PKCS12";
+
+    private volatile com.elster.jupiter.hsm.HsmProtocolService hsmProtocolService;
+
+    // For OSGi purposes
+    public CertificateWrapperExtractorImpl() {
+        super();
+    }
+
+    // For testing purposes
+    @Inject
+    public CertificateWrapperExtractorImpl(com.elster.jupiter.hsm.HsmProtocolService hsmProtocolService) {
+        this.hsmProtocolService = hsmProtocolService;
+    }
+
+    @Reference
+    public void setHsmProtocolService(com.elster.jupiter.hsm.HsmProtocolService hsmProtocolService) {
+        this.hsmProtocolService = hsmProtocolService;
+    }
 
     @Activate
     public void activate() {
@@ -124,6 +139,12 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
                 .filter(keyManager -> keyManager instanceof X509KeyManager)
                 .map(X509KeyManager.class::cast)
                 .findAny();
+    }
+
+    @Override
+    public Optional<X509KeyManager> getHsmKeyManager(CertificateWrapper clientCertificateWrapper) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException {
+        KeyStore keyStore = null; //TODO: use following method when CXO will be ready to have clientCertificate associated with HSM private key... getKeyStore(clientCertificateWrapper);
+        return Optional.of(hsmProtocolService.getKeyManager(keyStore, PARAMETERS));
     }
 
     @Override
