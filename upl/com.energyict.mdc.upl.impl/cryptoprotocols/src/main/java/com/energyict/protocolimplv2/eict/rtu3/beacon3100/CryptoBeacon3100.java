@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.common.tls.TLSHSMConnectionType;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
@@ -66,7 +67,7 @@ public class CryptoBeacon3100 extends Beacon3100 {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> supportedConnectionTypes = new ArrayList<>(super.getSupportedConnectionTypes());
-//        supportedConnectionTypes.add(new TLSHSMConnectionType());
+        supportedConnectionTypes.add(new TLSHSMConnectionType(getPropertySpecService(), getCertificateWrapperExtractor()));
         return supportedConnectionTypes;
     }
 

@@ -193,8 +193,8 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                                 ? "Beacon 3100 DEV DLMS key agreement Sub-CA" : "Beacon 3100 DEV DLMS signature Sub-CA";
                         Certificate firstSubCA = trustStore.get().getCertificate(subCaAlias);
                         Certificate secondSubCA = trustStore.get().getCertificate("Beacon 3100 DEV Device Sub-CA");
-                        Certificate rootCA = trustStore.get().getCertificate("beacon 3100 dev root ca");
-                        certificateChain = new Certificate[]{endCertificate, firstSubCA, secondSubCA, rootCA};
+                        Certificate rootCA = trustStore.get().getCertificate("Beacon 3100 DEV Root CA");
+                        certificateChain = new Certificate[]{secondSubCA, firstSubCA, endCertificate};
                     }
                     return certificateChain;
                 }

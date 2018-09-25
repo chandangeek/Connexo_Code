@@ -11,26 +11,14 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.security.InvalidKeyException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +75,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         return UPLPropertySpecFactory.specBuilder(CLIENT_TLS_PRIVATE_KEY, false, PropertyTranslationKeys.CLIENT_TLS_PRIVATE_KEY, () -> getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())).finish();
     }
 
-    private CertificateWrapper getTlsClientPrivateKey() {
+    protected CertificateWrapper getTlsClientPrivateKey() {
         return (CertificateWrapper) this.getProperty(CLIENT_TLS_PRIVATE_KEY);
     }
 
@@ -135,7 +123,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
             //TODO: As now the truststore and keystore comes from core and not created here, we need to see who will do the specific work we had on EIServer to validate certificates, CRL and so on
             X509TrustManager trustManager = certificateWrapperExtractor.getTrustManager(getTlsServerCertificate()).get();           //This contains sub-CA and root-CA certificates.
-            X509KeyManager keyManager = certificateWrapperExtractor.getKeyManager(getTlsClientPrivateKey()).get();                  //This contains the private key for TLS and its matching certificate.
+            X509KeyManager keyManager = getKeyManager();                  //This contains the private key for TLS and its matching certificate.
 
             sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, new SecureRandom());
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
@@ -148,6 +136,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         } catch (NoSuchAlgorithmException | KeyManagementException | IOException | UnrecoverableKeyException | KeyStoreException | InvalidKeyException | CertificateException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTLSConnection, e);
         }
+    }
+
+    protected X509KeyManager getKeyManager() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException, ConnectionException {
+        return certificateWrapperExtractor.getKeyManager(getTlsClientPrivateKey()).get();
     }
 
     private void handlePreferredCipherSuites(SSLSocket socket) throws ConnectionException {
