@@ -11,6 +11,9 @@ Ext.define('Dal.view.creationrules.ActionsList', {
         'Dal.store.CreationRuleActions',
         'Uni.grid.column.RemoveAction'
     ],
+    viewConfig: {
+        markDirty: false
+    },
     alias: 'widget.alarms-creation-rules-actions-list',
     store: 'ext-empty-store',
     enableColumnHide: false,
@@ -33,6 +36,11 @@ Ext.define('Dal.view.creationrules.ActionsList', {
                 renderer: function (value) {
                     return value ? value.title : '';
                 }
+            },
+            {
+                dataIndex: 'description',
+                header: Uni.I18n.translate('general.description', 'DAL', 'Description'),
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn-remove',

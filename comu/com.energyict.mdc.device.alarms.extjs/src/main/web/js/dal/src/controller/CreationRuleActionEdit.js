@@ -120,6 +120,11 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
 
                 form.setLoading(false);
                 if (success) {
+                    // set description value
+                    var json = Ext.decode(operation.response.responseText, true);
+                    record.beginEdit();
+                    record.set('description', json.description);
+                    record.endEdit();
                     me.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState').actions().add(record);
                     window.location.href = form.returnLink;
                 } else {
