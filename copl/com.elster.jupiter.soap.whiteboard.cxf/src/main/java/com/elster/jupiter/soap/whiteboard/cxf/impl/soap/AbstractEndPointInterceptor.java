@@ -32,4 +32,8 @@ public abstract class AbstractEndPointInterceptor extends AbstractPhaseIntercept
     void logInTransaction(String message, Exception exception) {
         endPointConfiguration.log(message, exception);
     }
+
+    boolean isForInboundService() {
+        return endPointConfiguration.isInbound();
+    }
 }

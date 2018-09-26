@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
@@ -19,14 +19,13 @@ import org.apache.cxf.phase.Phase;
 public class EndPointAccessFaultInterceptor extends AbstractEndPointInterceptor {
 
     public EndPointAccessFaultInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
-        super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.RECEIVE : Phase.PRE_STREAM, transactionService);
+        super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.PRE_STREAM : Phase.RECEIVE, transactionService);
     }
 
     @Override
     public void handleMessage(Message message) throws Fault {
         Fault fault = (Fault) message.getContent(Exception.class);
         Throwable stackTrace = fault.getCause();
-        logInTransaction("Request failed", new Exception(stackTrace));
+        logInTransaction("Request failed.", new Exception(stackTrace));
     }
-
 }

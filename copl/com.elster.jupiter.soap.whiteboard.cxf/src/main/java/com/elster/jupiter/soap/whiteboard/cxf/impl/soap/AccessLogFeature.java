@@ -43,10 +43,10 @@ public class AccessLogFeature extends AbstractFeature {
             provider.getOutInterceptors().add(endPointAccessResponseInterceptor);
             provider.getOutFaultInterceptors().add(endPointAccessFaultInterceptor);
         } else {
-            provider.getInInterceptors().add(endPointAccessResponseInterceptor);
-            provider.getInFaultInterceptors().add(endPointAccessFaultInterceptor);
             provider.getOutInterceptors().add(endPointAccessRequestInterceptor);
             provider.getOutFaultInterceptors().add(endPointAccessRequestInterceptor);
+            provider.getInInterceptors().add(endPointAccessResponseInterceptor);
+            provider.getInFaultInterceptors().add(endPointAccessFaultInterceptor);
         }
     }
 }
