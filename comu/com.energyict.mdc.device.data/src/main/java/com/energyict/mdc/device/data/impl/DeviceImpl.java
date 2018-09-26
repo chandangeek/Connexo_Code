@@ -835,6 +835,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
         findOrCreateKoreUpdater().setSerialNumber(serialNumber);
     }
 
