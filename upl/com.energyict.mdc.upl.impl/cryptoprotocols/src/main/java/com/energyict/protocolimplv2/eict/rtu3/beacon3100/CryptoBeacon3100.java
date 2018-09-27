@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.CryptoBeaconMessaging;
@@ -55,6 +56,14 @@ public class CryptoBeacon3100 extends Beacon3100 {
             dlmsProperties = new CryptoBeacon3100Properties(getCertificateWrapperExtractor());
         }
         return (CryptoBeacon3100Properties) dlmsProperties;
+    }
+
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new CryptoBeacon3100ConfigurationSupport(this.getPropertySpecService());
+        }
+        return dlmsConfigurationSupport;
     }
 
     protected Beacon3100Messaging getBeacon3100Messaging() {

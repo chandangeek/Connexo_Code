@@ -14,12 +14,14 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
+import com.energyict.mdc.upl.crypto.EEKAgreeResponse;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100SecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.security.cert.Certificate;
@@ -59,7 +61,7 @@ public class CryptoSecurityContext extends SecurityContext {
             byte[] encryptedRequest = null;
             byte[] tag = null;
             IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityProvider().getAuthenticationKey());
-            IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getSecurityProvider().getGlobalKey());
+            IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getEncryptionKey(false));
             if (getSecurityPolicy().isRequestAuthenticatedOnly()) {
                 tag = Services.hsmService().authenticateApdu(plainText, getInitializationVector(), ak, ek, getSecuritySuite());
             } else if (getSecurityPolicy().isRequestEncryptedOnly()) {
@@ -99,7 +101,7 @@ public class CryptoSecurityContext extends SecurityContext {
         }
 
         IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityProvider().getAuthenticationKey());
-        IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getSecurityProvider().getGlobalKey());
+        IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getEncryptionKey(true));
         try {
             if (!authenticatedResponse && !encryptedResponse) {
                 if (XdlmsApduTags.isGlobalCipheringTag(cipherFrame[0]) || XdlmsApduTags.isDedicatedCipheringTag(cipherFrame[0])) {
@@ -174,15 +176,16 @@ public class CryptoSecurityContext extends SecurityContext {
         String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
         final byte[] kdfOtherInfo = getKdfOtherInfo();
 
-        String storageKey = "S-DB"; //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
 
         //call hsm eekAgreeSender1e1s method.
-        Services.hsmService().eekAgreeSender1e1s(getSecuritySuite(), clientPrivateSigningKeyLabel, serverKeyAgreementCertificateChain, caCertificate, kdfOtherInfo, storageKey);
+        EEKAgreeResponse eekAgreeResponse = Services.hsmService().eekAgreeSender1e1s(getSecuritySuite(), clientPrivateSigningKeyLabel, serverKeyAgreementCertificateChain, caCertificate, kdfOtherInfo, storageKey);
 
-        byte[] sessionKey = null;//will be retrieved from hsm
+        byte[] sessionKey = eekAgreeResponse.getEek().toBase64ByteArray();//will be retrieved from hsm
+
         getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-        byte[] ephemeralPublicKeyBytes = null;//will be retrieved from hsm
-        byte[] signature = null;//will be retrieved from hsm
+        byte[] ephemeralPublicKeyBytes = eekAgreeResponse.getEphemeralPublicKey();//will be retrieved from hsm
+        byte[] signature = eekAgreeResponse.getSignature();//will be retrieved from hsm
 
         return createKeyAgreementRequest(plainText, ephemeralPublicKeyBytes, signature);
     }
@@ -213,7 +216,7 @@ public class CryptoSecurityContext extends SecurityContext {
         String clientPrivateKeyAgreementKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKeyLabel();
         String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
         byte[] kdfOtherInfo = getKdfOtherInfo();
-        String storageKey = "S-DB"; //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
 
         //call hsm eekAgreeReceiver1e1s method.
         IrreversibleKey agreedSesionKey = Services.hsmService().eekAgreeReceiver1e1s(getSecuritySuite(), serverSignatureKeyCertificateChain, serverEphemeralPublicKeyBytes, signature, clientPrivateKeyAgreementKeyLabel, caCertificate, kdfOtherInfo, storageKey);

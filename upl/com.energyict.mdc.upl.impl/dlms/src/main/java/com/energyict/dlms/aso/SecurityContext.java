@@ -231,7 +231,7 @@ public class SecurityContext {
     }
 
     private byte[] getAuthenticatedAndEncryptedRequestBytes(byte[] plainText) {
-        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(false), DLMS_AUTH_TAG_SIZE);
 
                 /*
                  * The additional associatedData (AAD) is a concatenation of:
@@ -253,7 +253,7 @@ public class SecurityContext {
     }
 
     private byte[] getEncryptedRequestBytes(byte[] plainText) {
-        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(false), DLMS_AUTH_TAG_SIZE);
 
         aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
         aesGcm.setPlainText(new BitVector(plainText));
@@ -262,7 +262,7 @@ public class SecurityContext {
     }
 
     private byte[] getAuthenticatedRequestBytes(byte[] plainText) {
-        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(false), DLMS_AUTH_TAG_SIZE);
 
                 /*
                  * The additional associatedData (AAD) is a concatenation of:
@@ -284,8 +284,8 @@ public class SecurityContext {
         return createSecuredApdu(plainText, aesGcm.getTag().getValue());
     }
 
-    private byte[] getEncryptionKey() {
-        return getEncryptionKey(this.generalCipheringKeyType, false);
+    public byte[] getEncryptionKey(boolean serverSessionKey) {
+        return getEncryptionKey(this.generalCipheringKeyType, serverSessionKey);
     }
 
     /**
@@ -297,7 +297,7 @@ public class SecurityContext {
      * @param serverSessionKey        true: return the server session key (used to decrypt frames received from the server)
      *                                false: return our (client) session key (used to encrypt frames to send to the server)
      */
-    private byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType, boolean serverSessionKey) {
+    protected byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType, boolean serverSessionKey) {
         if (this.cipheringType == CipheringType.GENERAL_CIPHERING.getType()) {
             switch (generalCipheringKeyType) {
                 case IDENTIFIED_KEY:

@@ -35,4 +35,8 @@ public class CryptoBeacon3100SecurityProvider extends Beacon3100SecurityProvider
         return irreversibleKey.toBase64ByteArray();
     }
 
+    public String getEekStorageLabel() {
+        return properties.getTypedProperty(CryptoBeacon3100ConfigurationSupport.EEK_STORAGE_LABEL);
+    }
+
 }
