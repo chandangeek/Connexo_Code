@@ -7,11 +7,14 @@ import com.energyict.mdc.upl.crypto.EEKAgreeResponse;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.protocol.exceptions.HsmException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 
 @Component(name = "com.energyict.mdc.protocol.pluggable.upl.hsmservice", service = {HsmProtocolService.class}, immediate = true)
@@ -201,7 +204,13 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
 
             @Override
             public byte[] toBase64ByteArray() {
-                return new byte[0];
+                String labelAndKeyValue = new StringBuilder()
+                        .append(irreversibleKey.getKeyLabel())
+                        .append(":")
+                        .append(Hex.encodeHexString(irreversibleKey.getEncryptedKey()))
+                        .toString();
+
+                return Base64.encodeBase64String(labelAndKeyValue.getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
             }
         };
     }
