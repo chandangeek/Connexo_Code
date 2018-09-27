@@ -186,7 +186,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof BeaconCache)) {
+        if (deviceProtocolCache instanceof BeaconCache) {
             beaconCache = (BeaconCache) deviceProtocolCache;
         }
     }
@@ -642,22 +642,35 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                             ((Structure) item).getDataType(0).getUnsigned16().getValue() == g3Node.getShortAddress()
                             ).findFirst();
 
-                            assert neighbourOpt.isPresent();
-                            final Structure neighbourStruct = (Structure) neighbourOpt.get();
+                            /*
+                              Neighbour information for g3Node might not be available in a particular case:
 
-                            // build up the topologyNeighbour
-                            int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
-                            long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
-                            int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
-                            int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
-                            int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
-                            int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
-                            int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
-                            int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
-                            int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
-                            int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+                              Meter1 <-> Concentrator <-> Meter2   Meter3
 
-                            deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                              The concentrator is linked to Meter1 and Meter2 but Meter3 is hanging outside.
+                              This is also shown on the G3 interface > Topology tab graph on the Beacon web portal.
+                              It might be that Meter3 is attenuated, as in my case and it will get mapped by the Beacon
+                              eventually to the corresponding meter or because other interference (weak PLC signal).
+                             */
+                            if (neighbourOpt.isPresent()) {
+                                final Structure neighbourStruct = (Structure) neighbourOpt.get();
+
+                                // build up the topologyNeighbour
+                                int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
+                                long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
+                                int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
+                                int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
+                                int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
+                                int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
+                                int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
+                                int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
+                                int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
+                                int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+
+                                deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                            } else {
+                                getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
+                            }
                         }
 
                     }
