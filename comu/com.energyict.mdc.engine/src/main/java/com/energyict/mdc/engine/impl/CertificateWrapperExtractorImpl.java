@@ -143,8 +143,9 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
 
     @Override
     public Optional<X509KeyManager> getHsmKeyManager(CertificateWrapper clientCertificateWrapper) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException {
+        com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = toConnexoCertificateWrapper(clientCertificateWrapper);
         KeyStore keyStore = null; //TODO: use following method when CXO will be ready to have clientCertificate associated with HSM private key... getKeyStore(clientCertificateWrapper);
-        return Optional.of(hsmProtocolService.getKeyManager(keyStore, PARAMETERS));
+        return Optional.of(hsmProtocolService.getKeyManager(keyStore, PARAMETERS, connexoCertificateWrapper.getAlias()));
     }
 
     @Override
