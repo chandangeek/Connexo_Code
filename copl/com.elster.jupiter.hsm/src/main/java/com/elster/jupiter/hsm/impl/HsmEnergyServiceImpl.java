@@ -305,7 +305,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         //TODO: remove this test hardcoded values and use the ones comming from the protocol
         String clientPrivateSigningKeyLabel = "vm-cosem-sign-s1-1";
         String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
-        String storageKeyTest = "S-DB";
 
         com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse =
                 null;
@@ -315,7 +314,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                     certChainFromReceiver,
                     new KeyLabel(caCertificateTest),
                     kdfOtherInfo,
-                    new KeyLabel(storageKeyTest));
+                    new KeyLabel(storageKeyLabel));
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
@@ -328,7 +327,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         //TODO: remove this test hardcoded values and use the ones comming from the protocol
         String clientPrivateKeyAgreementKeyLabel = "vm-cosem-ka-s1-1";
         String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
-        String storageKeyTest = "S-DB";
         ProtectedSessionKey protectedSessionKey =
                 null;
         try {
@@ -339,7 +337,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                     new KeyLabel(clientPrivateKeyAgreementKeyLabel),
                     new KeyLabel(caCertificateTest),
                     kdfOtherInfo,
-                    new KeyLabel(storageKeyTest));
+                    new KeyLabel(storageKeyLabel));
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
@@ -347,8 +345,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public X509KeyManager getKeyManager(KeyStore keyStore, char[] password) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
-        return new HsmKeyManagerImpl(keyStore, password);
+    public X509KeyManager getKeyManager(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
+        return new HsmKeyManagerImpl(keyStore, password, clientTlsPrivateKeyAlias);
     }
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {

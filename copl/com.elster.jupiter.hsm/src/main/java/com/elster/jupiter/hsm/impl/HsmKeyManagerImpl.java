@@ -17,12 +17,16 @@ import java.util.Optional;
 
 public class HsmKeyManagerImpl implements X509KeyManager {
 
+    private final String clientTlsPrivateKeyAlias;
     private X509KeyManager x509KeyManager;
+    private Optional<KeyStore> mockKeyStore = null;
 
-    public HsmKeyManagerImpl(KeyStore keyStore, char[] password) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+    public HsmKeyManagerImpl(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+        this.clientTlsPrivateKeyAlias = clientTlsPrivateKeyAlias;
+        Security.addProvider(new JSSJCAProvider());
 
         final char[] PARAMETERS = new char[]{'p', 'a', 's', 's', 'w', 'o', 'r', 'd'};
-        Optional<KeyStore> mockKeyStore = Optional.of(KeyStore.getInstance("JKS"));
+        mockKeyStore = Optional.of(KeyStore.getInstance("JKS"));
         try {
             mockKeyStore.get().load(new FileInputStream("C:\\protocols to implement\\Salzburg\\certificates\\keystore.jks"), PARAMETERS);
         } catch (IOException e) {
@@ -54,7 +58,7 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public String[] getClientAliases(String keyType, Principal[] issuers) {
-        return x509KeyManager.getClientAliases(keyType, issuers);
+        throw new UnsupportedOperationException("Method not supported on client side");
     }
 
     /**
@@ -62,11 +66,7 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
-//        String tlsAlias = getClientTLSAliasPropertyValue();
-//        return tlsAlias != null ? tlsAlias :
-        //TODO: check if we still need to take into account the property
-        String clientAlias = x509KeyManager.chooseClientAlias(keyType, issuers, socket);
-        return clientAlias;
+        return clientTlsPrivateKeyAlias != null ? clientTlsPrivateKeyAlias : x509KeyManager.chooseClientAlias(keyType, issuers, socket);
     }
 
     /**
@@ -90,6 +90,21 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
+        System.out.println("getCertificateChain for alias: " + alias);
+        try {
+            KeyStore keyStore = mockKeyStore.get();
+            X509Certificate[] certificateChain = (X509Certificate[]) keyStore.getCertificateChain(alias);
+            if (certificateChain == null) {//mock a certificate chain for testing. Needs to be investigated why the chain is null...
+                //TODO: Needs to be investigated why the chain is null...right now, mock a certificate chain for testing.
+                X509Certificate endCertificate = (X509Certificate) keyStore.getCertificate(alias);
+                X509Certificate rootCA = (X509Certificate) keyStore.getCertificate("cxotlsCA");
+                certificateChain = new X509Certificate[]{endCertificate, rootCA};
+                return certificateChain;
+            }
+
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
         return x509KeyManager.getCertificateChain(alias);
     }
 
@@ -108,7 +123,7 @@ public class HsmKeyManagerImpl implements X509KeyManager {
             KeyFactory keyFactory = KeyFactory.getInstance(JSSJCAProvider.ALGORITHM_NAME_EC, JSSJCAProvider.NAME);
             privateKey = keyFactory.generatePrivate(privateKeySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
-            throw new RuntimeException("A matching alias for private key stored in HSM could not be found. " + e);
+            throw new RuntimeException("A matching private key stored in HSM for provided alias: " + alias + ", could not be found. " + e);
         }
         return privateKey;
     }

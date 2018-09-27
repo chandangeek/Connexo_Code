@@ -61,5 +61,5 @@ public interface HsmProtocolService {
 
     IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException;
 
-    X509KeyManager getKeyManager(KeyStore keyStore, char[] password) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException;
+    X509KeyManager getKeyManager(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException;
 }
