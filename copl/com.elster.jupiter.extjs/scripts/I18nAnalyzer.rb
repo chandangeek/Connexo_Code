@@ -215,11 +215,17 @@ if "#{just_checking}" == '' then
     FileUtils.rm('src/main/resources/i18n.properties.tmp.bak')
     if difference.to_s != '' then
         FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
-        print "\ni18n.properties changed, push to git\n"
-        remote=ARGV[0]
-
-        value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
-        value=`git push origin #{branch}`
+        if Socket.gethostname == "neitvs002.eict.local" && branch == "master" then
+            print "\ni18n.properties changed, push to git\n"
+            remote=ARGV[0]
+            value=`git remote add origin #{remote}`
+            value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
+            value=`git push origin master`
+        else
+            print "\ni18n.properties changed, push to git\n"
+            value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
+            value=`git push origin #{branch}`
+        end
     else
         FileUtils.rm('src/main/resources/i18n.properties.tmp')
     end
