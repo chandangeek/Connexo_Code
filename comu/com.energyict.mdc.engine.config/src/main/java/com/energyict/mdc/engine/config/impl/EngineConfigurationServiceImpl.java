@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -183,7 +184,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         dataModel.register(getModule());
         upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
-                version(10, 3), V10_3SimpleUpgrader.class));
+                version(10, 3), V10_3SimpleUpgrader.class,
+                version(10, 4,3), V10_4_3SimpleUpgrader.class));
     }
 
     public DataModel getDataModel() {

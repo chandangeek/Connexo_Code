@@ -108,6 +108,7 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
+    private String serverMonitorUrl;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -451,6 +452,9 @@ public abstract class ComServerImpl implements ComServer {
         return id;
     }
 
+    @Override
+    public String getServerMonitorUrl() { return serverMonitorUrl; }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -477,6 +481,11 @@ public abstract class ComServerImpl implements ComServer {
         if (schedulingInterPollDelay!=null) {
             this.schedulingInterPollDelay = new TimeDuration(schedulingInterPollDelay.getCount(), schedulingInterPollDelay.getTimeUnitCode());
         }
+    }
+
+    @Override
+    public void setServerMonitorUrl (String serverMonitorUrl) {
+        this.serverMonitorUrl = serverMonitorUrl;
     }
 
     @Override
