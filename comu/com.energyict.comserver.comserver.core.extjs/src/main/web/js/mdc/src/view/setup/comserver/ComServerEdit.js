@@ -216,6 +216,42 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                 },
                 {
+                    xtype: 'fieldcontainer',
+                    itemId: 'fld-communication-server-monitor-url',
+                    columnWidth: 0.5,
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.serverMonitorUrl', 'MDC',  'Server Monitor URL'),
+                    required: false,
+                    width: 600,
+                    items: [
+
+                        {
+                            xtype: 'container',
+                            layout: 'hbox',
+                            defaults: {
+                                validateOnChange: false,
+                                validateOnBlur: false,
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    itemId: 'txt-communication-server-server-url',
+                                    name: 'serverMonitorUrl',
+                                    width: 335,
+                                    required: false,
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldContainerHelpMessage',
+                            itemId: 'msg-communication-server-server-url',
+                            text: Ext.String.htmlEncode(Uni.I18n.translate('comServer.formFieldNote.serverMonitorUrl', 'MDC', 'Full path to comserver monitor, e.g.: <comserver_path>/apps/comservermonitor/index.html'))
+                        }
+
+
+
+                    ]
+                },
+                {
                     xtype: 'numberfield',
                     itemId: 'num-event-uri-port',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),

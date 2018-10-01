@@ -42,10 +42,13 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
                     states += '<li style="margin-left: 20px">' + state.name + '</li>';
                 });
                 states += '</ul>';
-            }
 
-            me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg', 'MDC', '{0} has states that cannot be mapped to states of {1} and there are devices in that states: {2}', ['<h3>' + result.errorMessage + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>', '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>', states], false));
-            me.down('#change-device-life-cycle-failed').show();
+                me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg', 'MDC', '{0} has states that cannot be mapped to states of {1} and there are devices in that states: {2}', ['<h3>' + result.errorMessage + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>', '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>', states], false));
+                me.down('#change-device-life-cycle-failed').show();
+            } else {
+                me.down('#change-device-life-cycle-failed').setText('<h3>' + result.errorMessage + '</h3>');
+                me.down('#change-device-life-cycle-failed').show();
+            }
         }
     }
 });
