@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 
 import com.google.common.io.ByteStreams;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -31,9 +32,12 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -82,14 +86,13 @@ public class KeypairWrapperResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         PublicKey publicKey = keypairWrapper.getPublicKey()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_PUBLIC_KEY_PRESENT));
-        byte[] encoded = publicKey.getEncoded();
         StreamingOutput streamingOutput = output -> {
-            output.write(encoded);
+            output.write(serializePublicKey(publicKey));
             output.flush();
         };
         return Response
                 .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+keypairWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".pub")
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+keypairWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".pem")
                 .build();
     }
 
@@ -240,5 +243,14 @@ public class KeypairWrapperResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    private byte[] serializePublicKey(final PublicKey publicKey) throws IOException {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final JcaPEMWriter jcaPEMWriter = new JcaPEMWriter(new OutputStreamWriter(outStream,
+                StandardCharsets.UTF_8));
+        jcaPEMWriter.writeObject(publicKey);
+        jcaPEMWriter.flush();
+        jcaPEMWriter.close();
+        return outStream.toByteArray();
+    }
 
 }
