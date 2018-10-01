@@ -7,6 +7,7 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 
 import aQute.bnd.annotation.ConsumerType;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @ConsumerType
-public interface DataExportWebService {
+public interface DataExportWebService extends EndPointProp {
     String TIMEOUT_PROPERTY_KEY = "webService.timeout";
 
     /**
