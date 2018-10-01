@@ -25,20 +25,18 @@ import java.util.stream.Collectors;
 public final class G3CommunicationPathSegmentBuilderImpl implements TopologyService.G3CommunicationPathSegmentBuilder {
 
     private final TopologyServiceImpl topologyService;
-    private final Device source;
     private final Clock clock;
     private final List<G3PathSegmentSpecification> segmentSpecifications = new ArrayList<>();
 
-    public G3CommunicationPathSegmentBuilderImpl(TopologyServiceImpl topologyService, Clock clock, Device source) {
+    public G3CommunicationPathSegmentBuilderImpl(TopologyServiceImpl topologyService, Clock clock) {
         super();
         this.topologyService = topologyService;
-        this.source = source;
         this.clock = clock;
     }
 
     @Override
-    public TopologyService.G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost) {
-        this.segmentSpecifications.add(new G3PathSegmentSpecification(target, intermediateHop, timeToLive, cost));
+    public TopologyService.G3CommunicationPathSegmentBuilder add(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
+        this.segmentSpecifications.add(new G3PathSegmentSpecification(source, target, intermediateHop, timeToLive, cost));
         return this;
     }
 
@@ -52,18 +50,20 @@ public final class G3CommunicationPathSegmentBuilderImpl implements TopologyServ
     }
 
     private G3CommunicationPathSegment createFromSpecification(Instant now, G3PathSegmentSpecification specification) {
-        return this.topologyService.addCommunicationSegment(now, this.source, specification.target, specification.intermediateHop, specification.timeToLive, specification.cost);
+        return this.topologyService.addCommunicationSegment(now, specification.source, specification.target, specification.intermediateHop, specification.timeToLive, specification.cost);
     }
 
     private class G3PathSegmentSpecification {
         final Device target;
+        final Device source;
         final Device intermediateHop;
         final Duration timeToLive;
         final int cost;
 
-        private G3PathSegmentSpecification(Device target, Device intermediateHop, Duration timeToLive, int cost) {
+        private G3PathSegmentSpecification(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
             super();
             this.target = target;
+            this.source = source;
             this.intermediateHop = intermediateHop;
             this.timeToLive = timeToLive;
             this.cost = cost;
