@@ -34,6 +34,7 @@ import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
+import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
@@ -53,8 +54,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -85,7 +88,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
                                   UserService userService, NlsService nlsService, TransactionService transactionService,
-                                  HttpService httpService) {
+                                  HttpService httpService) throws Exception {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -290,8 +293,13 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     }
 
     @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate(BundleContext bundleContext) throws Exception {
         this.bundleContext = bundleContext;
+        new SimpleTimeLimiter(newCachedThreadPool()).callWithTimeout(
+                this::waitForWhiteBoardProvider,
+                //todo: provide value from config as opposed to hardcoding it
+                10000L,
+                TimeUnit.MILLISECONDS, true);
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
@@ -300,8 +308,6 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
             logDirectory=logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
-        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
-        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
@@ -309,6 +315,13 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                 V10_4SimpleUpgrader.V10_4_UPGRADER);
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
+        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
+    }
+
+    private BundleContext waitForWhiteBoardProvider() {
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
+        return this.bundleContext;
     }
 
     @Override
