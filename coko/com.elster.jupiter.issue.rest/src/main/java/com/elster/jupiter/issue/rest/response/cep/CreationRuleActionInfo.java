@@ -15,5 +15,6 @@ public class CreationRuleActionInfo {
     public CreationRuleActionPhaseInfo phase;
     public IssueActionTypeInfo type;
     public List<PropertyInfo> properties;
+    public String description;
 
 }

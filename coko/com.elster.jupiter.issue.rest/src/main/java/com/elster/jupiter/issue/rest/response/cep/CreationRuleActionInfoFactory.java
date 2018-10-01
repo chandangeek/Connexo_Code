@@ -29,6 +29,7 @@ public class CreationRuleActionInfoFactory {
         info.phase = new CreationRuleActionPhaseInfo(action.getPhase(), thesaurus);
         info.type = issueActionInfoFactory.asInfo(action.getAction());
         info.properties = propertyValueInfoService.getPropertyInfos(action.getPropertySpecs(), action.getProperties());
+        info.description = action.getFormattedProperties();
         return info;
     }
 }
