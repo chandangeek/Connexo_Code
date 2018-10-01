@@ -121,6 +121,15 @@ public class CloseIssueAction extends AbstractIssueAction {
         return ActionType.REMOVE.getValue();
     }
 
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(CLOSE_STATUS);
+        if (value != null) {
+            return ((CloseIssueAction.Status) value).getName();
+        }
+        return "";
+    }
+
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
         Object value = properties.get(CLOSE_STATUS);
         if (value != null) {
