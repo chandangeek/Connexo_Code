@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.issue.share.entity;
 
-import java.util.List;
-
 import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
 
 import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
 
 @ProviderType
 public interface CreationRuleAction extends HasDynamicPropertiesWithValues {
@@ -22,5 +22,7 @@ public interface CreationRuleAction extends HasDynamicPropertiesWithValues {
     List<CreationRuleActionProperty> getCreationRuleActionProperties();
     
     void validate();
+
+    String getFormattedProperties();
     
 }
