@@ -89,7 +89,14 @@ public class SecurityTokenImpl {
 
             List<Group> userGroups = user.getGroups();
             List<RoleClaimInfo> roles = new ArrayList<>();
+            List<String> privileges = new ArrayList<>();
             for (Group group : userGroups) {
+
+                group.getPrivileges().entrySet().forEach(s->{
+                    if (s.getKey().equals("BPM") || s.getKey().equals("YFN"))
+                        s.getValue().stream().forEach(p->privileges.add(p.getName()));
+                });
+
                 roles.add(new RoleClaimInfo(group.getId(), group.getName()));
             }
 
@@ -97,6 +104,7 @@ public class SecurityTokenImpl {
             claimsSet.setCustomClaim("username", user.getName());
             claimsSet.setSubject(Long.toString(user.getId()));
             claimsSet.setCustomClaim("roles", roles);
+            claimsSet.setCustomClaim("privileges", privileges);
             claimsSet.setIssuer("Elster Connexo");
             claimsSet.setCustomClaim("cnt", count);
             claimsSet.setJWTID(base64Encode(String.valueOf(new SecureRandom().nextLong())));
