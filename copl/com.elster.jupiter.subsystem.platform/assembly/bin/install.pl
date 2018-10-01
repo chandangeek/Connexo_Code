@@ -11,7 +11,7 @@ use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use File::Spec::Functions qw(splitpath);
 use Socket;
 use Sys::Hostname;
-
+use Path::Tiny;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
@@ -40,6 +40,7 @@ my $HTTPS="no";
 my $UPGRADE="no";
 my $UPGRADE_PATH;
 my $UPGRADE_OLD_SERVICE_VERSION="";
+my $ENCRYPTION_KEYFILE;
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
@@ -189,6 +190,7 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "ENCRYPTION_KEYFILE" )            {$ENCRYPTION_KEYFILE=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
@@ -402,7 +404,7 @@ sub install_connexo {
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
-            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            updatePropertiesFileWithEncryptedPassword();
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
             } else {
@@ -434,6 +436,35 @@ sub install_connexo {
 		}
 	}
 }
+
+sub updatePropertiesFileWithEncryptedPassword {
+    open my $file, '<', $ENCRYPTION_KEYFILE  or die "Could not open file as specified path $!";
+    my $count=0;
+    $count++ while <$file>;
+    close $file;
+    if($count !=2)
+        {die "Incorrect number of lines in the key file $!";}
+    (my $rawKey) = path($ENCRYPTION_KEYFILE)->lines( { count => 1 } ) or die "Bad key $!";
+    (my $rawInitVector) = path($ENCRYPTION_KEYFILE)->lines( { count => -1 } ) or die "Bad initialization vector $!";
+    my $key = substr($rawKey, 0, 16);
+    my $initVector = substr(md5_hex($initVector), 0, 16);
+
+    my $cipher = Crypt::CBC->new(
+                    -key         => $key,
+                    -iv          => $initVector,
+                    -cipher      => 'OpenSSL::AES',
+                    -literal_key => 1,
+                    -header      => "none",
+                    -padding     => "standard",
+                    -keysize     => 16
+        );
+
+
+    my $encryptedPassword = $cipher->encrypt($dbPassword);
+    my $base64EncodedPassword = encode_base64($encryptedPassword);
+    add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
+}
+
 
 sub install_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
@@ -950,6 +981,23 @@ sub final_steps {
         print "3. Start Apache HTTP 2.4 service:\n";
         print "   -> sc start Apache2.4\n";
     }
+
+    replace_row_in_file($config_cmd, "ENCRYPTION_KEYFILE=", "ENCRYPTION_KEYFILE=");
+
+}
+
+sub replace_row_in_file {
+	my ($filename,$src,$dst)=@_;
+	open (IN,"$filename") or die "Cannot open file ".$filename." for read";
+	my @lines=<IN>;
+	close IN;
+
+	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
+	foreach my $line (@lines) {
+	if ($line =~ m/$src/) { print OUT $dst; print OUT "\n"; next;}
+	print OUT $line;
+	}
+	close OUT;
 }
 
 sub uninstall_tomcat_for_upgrade() {
@@ -1299,7 +1347,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
-            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            updatePropertiesFileWithEncryptedPassword();
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
