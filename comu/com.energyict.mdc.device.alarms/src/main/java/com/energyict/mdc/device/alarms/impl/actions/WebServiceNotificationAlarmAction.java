@@ -166,6 +166,15 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
         return issue == null;
     }
 
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(WEBSERVICE);
+        if (value != null) {
+            return Optional.ofNullable(((WebServiceNotificationAlarmAction.EndPoint) value).endPointConfiguration).get().getName();
+        }
+        return "";
+    }
+
     public static class EndPoint extends HasIdAndName {
 
         private EndPointConfiguration endPointConfiguration;

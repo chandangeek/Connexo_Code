@@ -142,6 +142,15 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         return builder.build();
     }
 
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(START_PROCESS);
+        if (value != null) {
+            return ((Process) value).getName();
+        }
+        return "";
+    }
+
     private Process[] getPossibleStatuses() {
         if(reasonName != null) {
             //noinspection unchecked
