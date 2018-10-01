@@ -447,7 +447,7 @@ sub updatePropertiesFileWithEncryptedPassword {
     (my $rawKey) = path($ENCRYPTION_KEYFILE)->lines( { count => 1 } ) or die "Bad key $!";
     (my $rawInitVector) = path($ENCRYPTION_KEYFILE)->lines( { count => -1 } ) or die "Bad initialization vector $!";
     my $key = substr($rawKey, 0, 16);
-    my $initVector = substr(md5_hex($initVector), 0, 16);
+    my $initVector = substr(md5_hex($rawInitVector), 0, 16);
 
     my $cipher = Crypt::CBC->new(
                     -key         => $key,
