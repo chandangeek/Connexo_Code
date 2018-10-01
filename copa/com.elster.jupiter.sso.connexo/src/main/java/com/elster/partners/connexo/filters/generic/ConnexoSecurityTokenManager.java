@@ -125,8 +125,18 @@ public class ConnexoSecurityTokenManager {
                         }
                     }
                 }
+                List<String> privileges =  new ArrayList<>();
+                JSONArray privilegesObj = (JSONArray)signedJWT.getJWTClaimsSet().getClaim("privileges");
+                if (privilegesObj != null) {
+                    for (int i = 0; i < privilegesObj.size(); i++) {
+                        String privilege =  privilegesObj.get(i).toString();
+                        if (privilege != null) {
+                            privileges.add(privilege);
+                        }
+                    }
+                }
 
-                principal = new ConnexoPrincipal(userId, user, groups, token);
+                principal = new ConnexoPrincipal(userId, user, groups, token, privileges);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
