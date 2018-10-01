@@ -245,16 +245,20 @@ public class CreateNetworkManagementCommand extends CommandWithTransaction {
             intermediateHops.addAll(topologyService.getCommunicationPath(masterDevice, deviceOnPreviousLevel.get()).getIntermediateDevices());
             intermediateHops.add(deviceOnPreviousLevel.get());
         }
-        TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments(masterDevice);
-        for (int i = 0; i < intermediateHops.size(); i++) {
-            Device hop = intermediateHops.get(i);
-            System.out.println(String.format("hop with id %d", hop.getId()));
-            builder.add(device, hop, Duration.ofDays(14), new Random().nextInt(100));
-            builder.complete().forEach(this::addNeighbors);
-            builder = topologyService.addCommunicationSegments(hop);
+        TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments();
+        if(intermediateHops.size() > 0) {
+            for (int i = 0; i < intermediateHops.size(); i++) {
+                Device hop = intermediateHops.get(i);
+                System.out.println(String.format("hop with id %d", hop.getId()));
+                builder.add(masterDevice, device, hop, Duration.ofDays(14), new Random().nextInt(100));
+                builder.add(hop, device, null, Duration.ofDays(14), new Random().nextInt(100));
+                builder.complete().forEach(this::addNeighbors);
+                builder = topologyService.addCommunicationSegments();
+            }
+        }else {
+            builder.add(masterDevice, device, null, Duration.ofDays(14), new Random().nextInt(100));
+            builder.complete();
         }
-        builder.add(device, null, Duration.ofDays(14), new Random().nextInt(100));
-        builder.complete();
     }
 
     private List<G3Neighbor> addNeighbors(G3CommunicationPathSegment segment) {
