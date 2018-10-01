@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
@@ -47,6 +48,11 @@ public class DeviceComTaskInfoFactory {
         List<ComTaskExecution> compatibleComTaskExecutions = comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
                 .collect(Collectors.toList());
+        compatibleComTaskExecutions.forEach(comTaskExecution -> {
+            ComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
+            updater.ignoreNextExecutionSpecForInbound(comTaskEnablement.isIgnoreNextExecutionSpecsForInbound());
+            updater.update();
+        });
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
         } else {

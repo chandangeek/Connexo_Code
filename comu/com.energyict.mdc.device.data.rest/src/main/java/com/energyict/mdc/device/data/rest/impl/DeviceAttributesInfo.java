@@ -214,8 +214,11 @@ public class DeviceAttributesInfo {
         public boolean isAvailableForState(State state) {
             if (this.attributeIsAllowedForStates() != null) {
                 Optional<DefaultState> correspondingDefaultState = DefaultState.from(state);
-                return correspondingDefaultState.isPresent()
-                        && this.attributeIsAllowedForStates().contains(correspondingDefaultState.get());
+                if (correspondingDefaultState.isPresent()) {
+                    return correspondingDefaultState.isPresent()
+                            && this.attributeIsAllowedForStates().contains(correspondingDefaultState.get());
+                }
+                return true;
             }
             return true;
         }
@@ -223,8 +226,11 @@ public class DeviceAttributesInfo {
         public boolean isEditableForState(State state) {
             if (this.attributeIsEditableForStates() != null) {
                 Optional<DefaultState> correspondingDefaultState = DefaultState.from(state);
-                return correspondingDefaultState.isPresent()
-                        && this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
+                if (correspondingDefaultState.isPresent()) {
+                    return correspondingDefaultState.isPresent()
+                            && this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
+                }
+                return true;
             }
             return false;
         }
