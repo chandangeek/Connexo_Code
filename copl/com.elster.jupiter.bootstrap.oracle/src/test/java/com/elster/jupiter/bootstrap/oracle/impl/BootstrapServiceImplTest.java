@@ -28,8 +28,10 @@ public class BootstrapServiceImplTest {
         when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("http://url.com");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("user");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("password");
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.keyfile")).thenReturn(".");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.pool.maxlimit")).thenReturn("47");
         when(bundleContext.getProperty("com.elster.jupiter.datasource.pool.maxstatements")).thenReturn("53");
+
         bootstrapService = new BootstrapServiceImpl();
     }
 
@@ -60,9 +62,15 @@ public class BootstrapServiceImplTest {
         bootstrapService.activate(bundleContext);
     }
 
+    @Test(expected = PropertyNotFoundException.class)
+    public void testActivateChecksRequiredEncryptionKeyFile() throws Exception {
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.keyfile")).thenReturn(null);
+        bootstrapService.activate(bundleContext);
+    }
+
     @Test
     public void testActivateNoExceptionsIfMaxLimitNotSpecified() throws Exception {
-        when(bundleContext.getProperty("com.elster.jupiter.datasource..pool.maxlimit")).thenReturn(null);
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.pool.maxlimit")).thenReturn(null);
         bootstrapService.activate(bundleContext);
     }
 
