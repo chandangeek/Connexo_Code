@@ -25,6 +25,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -144,6 +145,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     MeteringGroupsService meteringGroupsService;
     @Mock
     SecurityManagementService securityManagementService;
+    @Mock
+    IssueService issueService;
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
@@ -247,6 +250,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         trustStoreValuesProvider = new TrustStoreValuesProviderImpl(securityManagementService);
         application.setTrustStoreValuesProvider(trustStoreValuesProvider);
         aliasSearchFilterFactory = new AliasSearchFilterFactoryImpl(securityManagementService);
+        application.setIssueService(issueService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         return application;
     }
