@@ -332,8 +332,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
-        this.actual.storePathSegments(sourceDeviceIdentifier, topologyPathSegment);
+    public void storePathSegments(List<TopologyPathSegment> topologyPathSegment) {
+        this.actual.storePathSegments(topologyPathSegment);
     }
 
     @Override
@@ -568,7 +568,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegment) {
+        public void storePathSegments( List<TopologyPathSegment> topologyPathSegment) {
 
         }
 
