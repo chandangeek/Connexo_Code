@@ -22,9 +22,18 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Clock;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+
+import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
+import static java.nio.file.attribute.PosixFilePermission.OTHERS_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 @Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
 class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
@@ -80,6 +89,7 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
             try {
                 Files.copy(source, temporaryPath);
                 Files.move(temporaryPath, finalPath);
+                setFileRights(finalPath);
             } catch (Exception e) {
                 throw new DestinationFailedException(
                         thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, finalPath.toAbsolutePath().toString(), e.toString() + " " + e.getMessage());
@@ -99,6 +109,13 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
             return getDataExportService().getExportDirectory(appServer).orElseGet(() -> getFileSystem().getPath("").toAbsolutePath());
         }
 
+        private void setFileRights(Path finalPath) throws IOException {
+            Set<PosixFilePermission> perms = EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, OTHERS_READ);
+            try {
+                Files.setPosixFilePermissions(finalPath, perms);
+            } catch (UnsupportedOperationException e) {
+            }
+        }
     }
 
     private final AppService appService;

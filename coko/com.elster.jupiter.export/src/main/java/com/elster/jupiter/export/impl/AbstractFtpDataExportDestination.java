@@ -21,9 +21,18 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Clock;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+
+import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
+import static java.nio.file.attribute.PosixFilePermission.OTHERS_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
@@ -68,6 +77,7 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
         private void doCopy(Path source, Path target) {
             try {
                 Files.copy(source, target);
+                setFileRights(target);
                 try (TransactionContext context = getTransactionService().getContext()) {
                     MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString());
                     context.commit();
@@ -82,8 +92,13 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
             return remoteFileSystem.getPath("/").resolve(fileLocation);
         }
 
-
-
+        private void setFileRights(Path finalPath) throws IOException {
+            Set<PosixFilePermission> perms = EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, OTHERS_READ);
+            try {
+                Files.setPosixFilePermissions(finalPath, perms);
+            } catch (UnsupportedOperationException e) {
+            }
+        }
     }
 
     private String server;
