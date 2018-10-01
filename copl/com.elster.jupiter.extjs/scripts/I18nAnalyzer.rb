@@ -222,7 +222,9 @@ if "#{just_checking}" == '' then
             value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
             value=`git push origin master`
         else
-            print "\ni18n.properties changed\n"
+            print "\ni18n.properties changed, push to git\n"
+            value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
+            value=`git push origin #{branch}`
         end
     else
         FileUtils.rm('src/main/resources/i18n.properties.tmp')
