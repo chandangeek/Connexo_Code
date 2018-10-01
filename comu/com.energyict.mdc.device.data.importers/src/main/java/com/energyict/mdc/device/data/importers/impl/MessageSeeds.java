@@ -87,7 +87,7 @@ public enum MessageSeeds implements MessageSeed {
     FAILED_TO_VERIFY_CERTIFICATE(517, "FailedToValidateCertificate", "Failed to validate certificate", Level.SEVERE),
     FAILED_TO_CREATE_PUBLIC_KEY(518, "FailedToExtractPublicKeyFromShipment", "Can''t process file: failed to extract the public key from the shipment file", Level.SEVERE),
     INVALID_SIGNATURE(519, "InvalidSignatureOnShipment", "Can''t process file: the signature on the shipment file isn''t valid", Level.SEVERE),
-    SIGNATURE_VALIDATION_FAILED(520, "FailedToValidateSignatureOnShipment", "Can''t process file: the signature on the shipment file couldn''t be validated: {0}", Level.SEVERE),
+    SIGNATURE_VALIDATION_FAILED(520, "FailedToValidateSignatureOnShipment", "Can''t process file: the signature on the shipment file couldn''t be validated", Level.SEVERE),
     SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY(521, "ShipmentSignatureValid", "Signature of the shipment file verified successfully", Level.INFO),
     NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION(522, "NoKeyInShipment", "Can''t process file: the signature on the shipment file couldn''t be validated: public key couldn''t be found in the shipment file", Level.SEVERE),
     NO_SUCH_DEVICE_TYPE(523, "DeviceTypeNotFound", "Can''t process file: the device type ''{0}'' required by the importer couldn''t be found", Level.SEVERE),
