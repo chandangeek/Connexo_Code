@@ -17,6 +17,10 @@ Ext.define('Isu.model.CreationRuleAction', {
         {
             name: 'phase',
             type: 'auto'
+        },
+        {
+            name: 'description',
+            type: 'auto'
         }
     ],
     associations: [
