@@ -11,7 +11,10 @@ use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use File::Spec::Functions qw(splitpath);
 use Socket;
 use Sys::Hostname;
-use Path::Tiny;
+use Crypt::CBC;
+use MIME::Base64;
+use Digest::MD5 qw(md5_hex);
+use Crypt::OpenSSL::AES;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
@@ -434,6 +437,7 @@ sub install_connexo {
 				chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 			}
 		}
+		replace_row_in_file($config_cmd, "dbUserName=", "set dbUserName=");
 	}
 }
 
@@ -444,14 +448,19 @@ sub updatePropertiesFileWithEncryptedPassword {
     close $file;
     if($count !=2)
         {die "Incorrect number of lines in the key file $!";}
-    (my $rawKey) = path($ENCRYPTION_KEYFILE)->lines( { count => 1 } ) or die "Bad key $!";
-    (my $rawInitVector) = path($ENCRYPTION_KEYFILE)->lines( { count => -1 } ) or die "Bad initialization vector $!";
-    my $key = substr($rawKey, 0, 16);
-    my $initVector = substr(md5_hex($rawInitVector), 0, 16);
+    open (FILE, $ENCRYPTION_KEYFILE) ||
+        die "ERROR Unable to open key file: $!\n";
 
+    my $rawKey = <FILE>;
+    my $initVector = $rawKey;
+    while (<FILE>) {$initVector = $_}
+    close FILE;
+
+    my $iv = substr(md5_hex($initVector), 0, 16);
+    my $key = substr($rawKey, 0, 16);
     my $cipher = Crypt::CBC->new(
                     -key         => $key,
-                    -iv          => $initVector,
+                    -iv          => $iv,
                     -cipher      => 'OpenSSL::AES',
                     -literal_key => 1,
                     -header      => "none",
@@ -463,6 +472,7 @@ sub updatePropertiesFileWithEncryptedPassword {
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
+    add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$ENCRYPTION_KEYFILE");
 }
 
 
@@ -982,7 +992,7 @@ sub final_steps {
         print "   -> sc start Apache2.4\n";
     }
 
-    replace_row_in_file($config_cmd, "ENCRYPTION_KEYFILE=", "ENCRYPTION_KEYFILE=");
+    replace_row_in_file($config_cmd, "dbUserName=", "set dbUserName=");
 
 }
 
@@ -1347,6 +1357,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$ENCRYPTION_KEYFILE");
             updatePropertiesFileWithEncryptedPassword();
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
