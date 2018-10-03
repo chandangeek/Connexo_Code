@@ -4,5 +4,5 @@
 
 Ext.define("Uni.override.AbstractViewOverride", {
     override: "Ext.view.AbstractView",
-    loadingText: "Daten werden geladen..."
+    loadingText: Uni.I18n.translate('general.loading', 'UNI', 'Loading...')
 });
