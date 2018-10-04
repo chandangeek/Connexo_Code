@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.pki.CertificateChainBuilder;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
@@ -23,9 +24,9 @@ import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CRL;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -114,12 +115,9 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
             if (clientCertificateWrapper.getCertificate().isPresent()) {
                 KeyStore keyStore = KeyStore.getInstance(KEY_STORE);
                 keyStore.load(null); // This initializes the empty key store
-                keyStore.setKeyEntry(
-                        clientCertificateWrapper.getAlias(),
-                        clientCertificateWrapper.getPrivateKeyWrapper().getPrivateKey().get(),
-                        PARAMETERS,
-                        new Certificate[]{clientCertificateWrapper.getCertificate().get()}  //The chain for the client PrivateKey is just 1 certificate
-                );
+                LinkedList<com.elster.jupiter.pki.CertificateWrapper> certificateChain = CertificateChainBuilder.getCertificateChain(clientCertificateWrapper);
+                //well this cast is horrible but this is the model we have ...
+                CertificateChainBuilder.populateKeyStore((LinkedList<ClientCertificateWrapper>)(LinkedList<?>) certificateChain, keyStore, PARAMETERS);
                 return keyStore;
             } else {
                 throw new IllegalArgumentException("The given client CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must contain a private key and a client certificate");
