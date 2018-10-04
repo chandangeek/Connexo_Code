@@ -17,6 +17,8 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
@@ -442,5 +444,34 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public CertificateWrapper getParent(){
+
+        if (!this.subject.isEmpty() && this.subject.equals(this.issuer)) {
+            // this is root certificate
+            return null;
+        }
+
+        Condition matchingParentCondition = Operator.EQUAL.compare(Fields.SUBJECT.fieldName, this.issuer);
+        List<CertificateWrapper> parentCertificates = dataModel.query(CertificateWrapper.class).select(matchingParentCondition);
+        List<CertificateWrapper> validCertificates = new ArrayList<>();
+        for (CertificateWrapper cert: parentCertificates) {
+            if (cert.getCertificate().isPresent()) {
+                try {
+                    cert.getCertificate().get().checkValidity();
+                    validCertificates.add(cert);
+                } catch (CertificateExpiredException|CertificateNotYetValidException e) {
+                    // nothing to do, will just ignore invalid certificates
+                }
+            }
+        }
+        if (validCertificates.isEmpty() || validCertificates.size() > 1) {
+            // more than 1 should not happen except when issued by different authorities, otherwise one authority will refuse to issue a certificate with same subject
+            throw new RuntimeException("Could not determine parent certificate: found none or too many with subject:" + this.issuer + " result list contains no of elements:" + parentCertificates.size());
+        }
+
+        return validCertificates.get(0);
     }
 }

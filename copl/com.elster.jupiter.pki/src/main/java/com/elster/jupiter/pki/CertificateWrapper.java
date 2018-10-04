@@ -152,4 +152,12 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     CertificateWrapperStatus getWrapperStatus();
 
     Optional<CertificateRequestData> getCertificateRequestData();
+
+    /**
+     *
+     * @return parent certificate wrapper. if issuer is different than subject it means we should find a matching parent certificate
+     * that has the subject value equals with current object issuer.
+     * null is returned if this is a root CA
+     */
+    CertificateWrapper getParent();
 }
