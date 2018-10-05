@@ -2,10 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
-import com.energyict.mdc.upl.crypto.EEKAgreeResponse;
-import com.energyict.mdc.upl.crypto.HsmProtocolService;
-import com.energyict.mdc.upl.crypto.IrreversibleKey;
+import com.energyict.mdc.upl.crypto.*;
 import com.energyict.protocol.exceptions.HsmException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -176,6 +173,26 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
         }
     }
 
+    @Override
+    public KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerate(int securitySuite, int keyIDForAgreement, String privateEccSigningKeyLabel, String mdmStorageKeyLabel) throws HsmException {
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerateResponse = actual.keyRenewalAgree2EGenerate(securitySuite, keyIDForAgreement, privateEccSigningKeyLabel, mdmStorageKeyLabel);
+            return adaptKeyRenewalAgree2EGenerateResponseToUplValue(keyRenewalAgree2EGenerateResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
+    public IrreversibleKey keyRenewalAgree2EFinalise(int securitySuite, int keyIDForAgree, byte[] serializedPrivateEccKey, byte[] ephemeralEccPubKeyForSmAgreementData, byte[] signature, String caCertificateLabel, Certificate[] certificateChain, byte[] otherInfo, String storageKeyLabel) throws HsmException {
+        try {
+            com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey = actual.keyRenewalAgree2EFinalise(securitySuite, keyIDForAgree, serializedPrivateEccKey, ephemeralEccPubKeyForSmAgreementData, signature, caCertificateLabel, certificateChain, otherInfo, storageKeyLabel);
+            return adaptHsmKeyToUplKey(irreversibleKey);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
     private com.elster.jupiter.hsm.model.keys.IrreversibleKey adaptUplKeyToHsmKey(IrreversibleKey irreversibleKey) {
         return new com.elster.jupiter.hsm.model.keys.IrreversibleKey() {
             @Override
@@ -244,6 +261,26 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
             @Override
             public byte[] getAuthenticationTag() {
                 return hsmDataAndAuthenticationTag.getAuthenticationTag();
+            }
+        };
+    }
+
+    private KeyRenewalAgree2EGenerateResponse adaptKeyRenewalAgree2EGenerateResponseToUplValue(com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerateResponse) {
+        return new KeyRenewalAgree2EGenerateResponse() {
+
+            @Override
+            public byte[] getAgreementData() {
+                return keyRenewalAgree2EGenerateResponse.getAgreementData();
+            }
+
+            @Override
+            public byte[] getSignature() {
+                return keyRenewalAgree2EGenerateResponse.getSignature();
+            }
+
+            @Override
+            public byte[] getPrivateEccKey() {
+                return keyRenewalAgree2EGenerateResponse.getPrivateEccKey();
             }
         };
     }
