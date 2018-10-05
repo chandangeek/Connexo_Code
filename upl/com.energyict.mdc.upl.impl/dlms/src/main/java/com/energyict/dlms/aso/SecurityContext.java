@@ -516,6 +516,7 @@ public class SecurityContext {
         //setFrameCounter(1); //right now this call would reset the FC for the GUEK which is not ok, the FC for Agreed Key should be reset
         keyInformationExchanged();
 
+        System.out.println("createKeyAgreementRequest in plain-> "+ plainText);
         return ProtocolTools.concatByteArrays(
                 createGeneralCipheringHeader(),
                 new byte[]{(byte) 0x01},    //Yes, key info is present
@@ -860,11 +861,11 @@ public class SecurityContext {
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
-        plainArray.add(getSecurityProvider().getAuthenticationKey());
+        plainArray.add(ProtocolTools.getBytesFromHexString("B367C21590CC4B8B07CE7AB0AC8AA92C", ""));
         plainArray.add(clientChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(ProtocolTools.getBytesFromHexString("628F3D8CF9A3E1FDEBEC1008267AA762", ""), DLMS_AUTH_TAG_SIZE);
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
         aesGcm.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
 
@@ -1197,11 +1198,13 @@ public class SecurityContext {
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
-        plainArray.add(getSecurityProvider().getAuthenticationKey());
+//        plainArray.add(getSecurityProvider().getAuthenticationKey());
+        plainArray.add(ProtocolTools.getBytesFromHexString("B367C21590CC4B8B07CE7AB0AC8AA92C", ""));
         plainArray.add(sToCChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+//        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(ProtocolTools.getBytesFromHexString("628F3D8CF9A3E1FDEBEC1008267AA762", ""), DLMS_AUTH_TAG_SIZE);
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
         aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
 
@@ -1231,7 +1234,9 @@ public class SecurityContext {
      * @return the frameCounter
      */
     public long getFrameCounter() {
-        return this.frameCounter.get();
+        long fc = this.frameCounter.get();
+        System.out.println("FrameCounter = "+fc);
+        return fc;
     }
 
     /**

@@ -1215,7 +1215,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getProtocol().getDlmsSessionProperties().setSecuritySuite(securitySuite);
     }
 
-    private CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {
+    protected CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {
         if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0) {
             throw new ProtocolException("Key agreement is not supported in DLMS suite 0.");
         }

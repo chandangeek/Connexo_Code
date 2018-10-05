@@ -56,7 +56,7 @@ public class CryptoSecurityContext extends SecurityContext {
      */
     @Override
     public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
-
+        System.out.println("-----------dataTransportEncryption------------");
         try {
             byte[] encryptedRequest = null;
             byte[] tag = null;
@@ -83,7 +83,7 @@ public class CryptoSecurityContext extends SecurityContext {
 
     @Override
     public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType, byte[] generalCipheringHeader) throws ProtocolException, ConnectionException, DLMSConnectionException {
-
+        System.out.println("-----------dataTransportDecryption------------");
         int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
         int responseSecurityControlByte = (cipherFrame[LENGTH_INDEX + lengthOffset]) & 0xFF;
 
@@ -139,6 +139,7 @@ public class CryptoSecurityContext extends SecurityContext {
 
     @Override
     public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) throws UnsupportedException {
+        System.out.println("-----------applyGeneralSigning------------");
         byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
         byte[] requestData = includeRequestLength ? ProtocolTools.concatByteArrays(DLMSUtils.getAXDRLengthEncoding(securedRequest.length), securedRequest) : securedRequest;
         byte[] dataToSign = ProtocolTools.concatByteArrays(generalCipheringHeader, requestData);
@@ -165,7 +166,7 @@ public class CryptoSecurityContext extends SecurityContext {
     }
 
     protected byte[] dataTransportGeneralEncryptionWithKeyAgreement(byte[] plainText) throws UnsupportedException {
-
+        System.out.println("-----------dataTransportGeneralEncryptionWithKeyAgreement------------");
         Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
         if (serverKeyAgreementCertificate == null) {
             throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
@@ -174,7 +175,7 @@ public class CryptoSecurityContext extends SecurityContext {
         String clientPrivateSigningKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
         Certificate[] serverKeyAgreementCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
         String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
-        final byte[] kdfOtherInfo = getKdfOtherInfo();
+        final byte[] kdfOtherInfo = getKdfOtherInfo(getSystemTitle(), getResponseSystemTitle());
 
         String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
 
@@ -191,6 +192,7 @@ public class CryptoSecurityContext extends SecurityContext {
     }
 
     protected int dataTransportGeneralDecryptionForAgreedKey(byte[] generalCipheringAPDU, int ptr) throws UnsupportedException {
+        System.out.println("-----------dataTransportGeneralDecryptionForAgreedKey------------");
         int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
         int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
 
@@ -215,7 +217,7 @@ public class CryptoSecurityContext extends SecurityContext {
         Certificate[] serverSignatureKeyCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         String clientPrivateKeyAgreementKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKeyLabel();
         String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
-        byte[] kdfOtherInfo = getKdfOtherInfo();
+        byte[] kdfOtherInfo = getKdfOtherInfo(getResponseSystemTitle(), getSystemTitle());
         String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
 
         //call hsm eekAgreeReceiver1e1s method.
@@ -226,16 +228,14 @@ public class CryptoSecurityContext extends SecurityContext {
         return ptr;
     }
 
-    private byte[] getKdfOtherInfo() {
-        final byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
-        final byte[] partyVInfo = getResponseSystemTitle();
+    public byte[] getKdfOtherInfo(byte[] senderSystemTitle, byte[] receiverSystemTitle) {
         final byte[] encodedKeyDerivingEncryptionAlgorithm = getKeyDerivingEncryptionAlgorithm().getEncoded();
-        final byte[] kdfOtherInfo = new byte[Objects.requireNonNull(getKeyDerivingEncryptionAlgorithm()).getEncoded().length + Objects.requireNonNull(partyUInfo).length + Objects.requireNonNull(partyVInfo).length];
+        final byte[] kdfOtherInfo = new byte[Objects.requireNonNull(getKeyDerivingEncryptionAlgorithm()).getEncoded().length + Objects.requireNonNull(senderSystemTitle).length + Objects.requireNonNull(receiverSystemTitle).length];
 
         // Create otherInfo, algo_id || partyUInfo || partyVInfo
         System.arraycopy(encodedKeyDerivingEncryptionAlgorithm, 0, kdfOtherInfo, 0, encodedKeyDerivingEncryptionAlgorithm.length);
-        System.arraycopy(partyUInfo, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length, partyUInfo.length);
-        System.arraycopy(partyVInfo, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length + partyUInfo.length, partyVInfo.length);
+        System.arraycopy(senderSystemTitle, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length, senderSystemTitle.length);
+        System.arraycopy(receiverSystemTitle, 0, kdfOtherInfo, encodedKeyDerivingEncryptionAlgorithm.length + senderSystemTitle.length, receiverSystemTitle.length);
         return kdfOtherInfo;
     }
 
