@@ -394,7 +394,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.koreHelper.setInitialMeterActivationStartDate(startDate);
         createLoadProfiles();
         createLogBooks();
+        inheritDeviceConnTaskFromDeviceConfig(deviceConfiguration);
         return this;
+    }
+
+    private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        if (Objects.nonNull(deviceConfiguration)) {
+            deviceConfiguration.getPartialConnectionTasks().stream().forEach(partialConnectionTask -> {
+                if (partialConnectionTask instanceof PartialInboundConnectionTask) {
+                    this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask).add();
+                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask){
+                    this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask).add();
+                }
+            });
+        }
     }
 
     private String generateMRID() {
@@ -812,12 +825,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public String getSerialNumber() {
-        return serialNumber;
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            return currentKoreUpdater.get().getSerialNumber();
+        } else if (meter.isPresent()) {
+            return meter.get().getSerialNumber();
+        }
+        return null;
     }
 
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+        findOrCreateKoreUpdater().setSerialNumber(serialNumber);
     }
 
     //  All 'EndDevice' fields
