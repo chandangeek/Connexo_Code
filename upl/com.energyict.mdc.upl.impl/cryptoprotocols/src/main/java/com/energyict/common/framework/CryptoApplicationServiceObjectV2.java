@@ -23,7 +23,6 @@ import java.util.Arrays;
 
 import static com.energyict.dlms.aso.SecurityContext.FRAMECOUNTER_BYTE_LENGTH;
 import static com.energyict.dlms.aso.SecurityContext.FRAME_COUNTER_SIZE;
-import static test.com.energyict.protocolimplv2.ClauMain.getHLS5SecurityControlByte;
 
 /**
  * Extension of the 'normal' {@link ApplicationServiceObjectV2}, replacing every manual security operation with an HSM call.
@@ -153,5 +152,12 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
         } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
+    }
+
+    public byte getHLS5SecurityControlByte() {
+        /**
+         * TODO: this is just to pass compilation nees to be fixed
+         */
+        return 1;
     }
 }
