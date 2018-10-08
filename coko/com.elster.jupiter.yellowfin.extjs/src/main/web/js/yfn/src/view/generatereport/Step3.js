@@ -23,7 +23,11 @@ Ext.define('Yfn.view.generatereport.Step3', {
     items: [
         {
             xtype: 'container',
-            itemId: 'wizard-summary'
+            itemId: 'wizard-summary',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            }
         },
         {
             xtype: 'component',
