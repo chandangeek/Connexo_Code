@@ -12,9 +12,9 @@ use File::Spec::Functions qw(splitpath);
 use Socket;
 use Sys::Hostname;
 use Crypt::CBC;
+use Crypt::Cipher::AES;
 use MIME::Base64;
 use Digest::MD5 qw(md5_hex);
-use Crypt::OpenSSL::AES;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
@@ -474,7 +474,7 @@ sub update_properties_file_with_encrypted_password {
     my $cipher = Crypt::CBC->new(
                     -key         => $key,
                     -iv          => $iv,
-                    -cipher      => 'OpenSSL::AES',
+                    -cipher      => "Cipher::AES",
                     -literal_key => 1,
                     -header      => "none",
                     -padding     => "standard",
