@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -35,6 +34,7 @@ import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
+import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -55,15 +55,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/29/16.
  */
 @Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesServiceImpl.class}, immediate = true)
-public class WebServicesServiceImpl implements WebServicesService , BundleWaiter.Startable{
+public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.Startable {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
     private volatile ServiceRegistration<WebServicesService> registration;
@@ -87,7 +89,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
                                   UserService userService, NlsService nlsService, TransactionService transactionService,
-                                  HttpService httpService) {
+                                  HttpService httpService) throws Exception {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -169,9 +171,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Override
     public void removeAllEndPoints() {
-        endpoints.entrySet().stream().forEach(entry -> {
-            EndPointConfiguration endPointConfiguration = entry.getKey();
-            ManagedEndpoint managedEndpoint = entry.getValue();
+        endpoints.forEach((endPointConfiguration, managedEndpoint) -> {
             String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                     .getName();
             logger.info(msg);
@@ -292,18 +292,21 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     }
 
     @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate(BundleContext bundleContext) throws Exception {
         this.bundleContext = bundleContext;
+        new SimpleTimeLimiter(newCachedThreadPool()).callWithTimeout(
+                this::waitForWhiteBoardProvider,
+                //todo: provide value from config as opposed to hardcoding it
+                10000L,
+                TimeUnit.MILLISECONDS, true);
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
         }
-        if(!logDirectory.endsWith(File.separator)){
-            logDirectory=logDirectory + File.separator;
+        if (!logDirectory.endsWith(File.separator)) {
+            logDirectory = logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
-        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
-        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
@@ -314,6 +317,13 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
+        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
+    }
+
+    private BundleContext waitForWhiteBoardProvider() {
+        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
+        return this.bundleContext;
     }
 
     @Override
