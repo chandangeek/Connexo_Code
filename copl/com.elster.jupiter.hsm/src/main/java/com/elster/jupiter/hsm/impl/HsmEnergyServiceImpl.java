@@ -128,7 +128,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public byte[] generateDigestSHA1(byte[] challenge, IrreversibleKey hlsSecret) throws HsmBaseException {
-        System.out.println("generateDigestSHA1 HES -> HSM" + ProtocolTools.getHexStringFromBytes(challenge, ""));
+        //System.out.println("generateDigestSHA1 HES -> HSM" + ProtocolTools.getHexStringFromBytes(challenge, ""));
         CosemHLSAuthenticationResponse response;
         try {
             response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM4,
