@@ -1860,9 +1860,11 @@ Ext.define('Dxp.controller.Tasks', {
             me.changeFormatterTooltip(tooltip, record.get('name'));
         }
 
-        /*Fix for CXO-9025. We should updated property form even if record do not have properties.*/
-        propertyForm.addEditPage = true;
-        propertyForm.loadRecord(record);
+        if (record){
+            /*Fix for CXO-9025. We should updated property form even if record do not have properties.*/
+            propertyForm.addEditPage = true;
+            propertyForm.loadRecord(record);
+        }
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.show();
