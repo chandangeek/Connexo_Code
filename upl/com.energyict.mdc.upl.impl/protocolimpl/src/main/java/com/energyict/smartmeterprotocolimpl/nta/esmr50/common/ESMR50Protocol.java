@@ -1,28 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.common;
 
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.SlaveMeterProtocolEventSupport;
-import com.energyict.protocolimpl.base.RTUCache;
-import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
@@ -35,6 +26,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.ESMR50Ca
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -43,8 +35,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol
-                                    implements SlaveMeterProtocolEventSupport{
+public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol{
 
     public static final ObisCode EMETER_LP1_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     public static final ObisCode EMETER_LP2_OBISCODE_SAME_AS_MBUS_LP2 = ObisCode.fromString("1.0.99.2.0.255");
@@ -56,9 +47,14 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
 
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
     private static final long FRAME_COUNTER_NEXT_INCREMENT = 1;
-    private Link link;
+
+    //TODO Removed: private Link link;
     private long cachedFrameCounter;
     private String connectionAddress;
+
+    protected ESMR50Protocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
+    }
 
     public String getVersion() {
         return "$Date: 2017-04-25 16:00:00$";
@@ -88,7 +84,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         if (dlmsCache != null && dlmsCache instanceof ESMR50Cache) {
             long lastFrameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter() + FRAME_COUNTER_NEXT_INCREMENT;
             ((ESMR50Cache) this.dlmsCache).setFrameCounter(lastFrameCounter);     //Save this for the next session
@@ -98,7 +94,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
         }
     }
 
-    @Override
+
     public void setCache(Object cache) {
         if ((cache != null) && (cache instanceof ESMR50Cache)) {
             this.dlmsCache = (ESMR50Cache) cache;
@@ -107,37 +103,8 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
         }
     }
 
-    @Override
-    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            RTUCache rtuCache = new RTUCache(rtuid);
-            try {
-                return rtuCache.getCacheObject();
-            } catch (NotFoundException e) {
-                return new ESMR50Cache();
-            } catch (IOException e) {
-                return new ESMR50Cache();
-            }
-        } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
-        if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    ESMR50Cache dc = (ESMR50Cache) cacheObject;
-                    new RTUCache(rtuid).setBlob(dc);
-                    return null;
-                }
-            };
-            MeteringWarehouse.getCurrent().execute(tr);
-        } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
-        }
-    }
+    //TODO Removed fetchCache()
+    //TODO Removed updateCache
 
     @Override
     protected void checkCacheObjects() throws IOException {
@@ -146,8 +113,8 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
         }
 
         try {
-            if ((((DLMSCache) getCache()).getObjectList() == null) || ((ESMR50Properties) getProperties()).getForcedToReadCache()) {
-                getLogger().info(((ESMR50Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            if ((((DLMSCache) getCache()).getObjectList() == null) || ((ESMR50Properties) getProperties()).isForcedToReadCache()) {
+                getLogger().info(((ESMR50Properties) getProperties()).isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
                 requestConfiguration();
                 ((DLMSCache) getCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
@@ -181,7 +148,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new ESMR50Properties();
+            this.properties = new ESMR50Properties(getPropertySpecService());
         }
         return this.properties;
     }
@@ -261,49 +228,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
         getLogger().finest(sb.toString());
         return null;
     }
-
-    /**
-     * Implementation according to https://jira.eict.vpdc/browse/COMMUNICATION-1718
-     */
-    @Override
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        logger.info("ESMR 5.0 Protocol " + getVersion());
-        this.link = link;
-        try {
-            if (link.getClass().equals(OpticalDialer.class)){
-                logger.info("No wakeup for optical connections.");
-               return true;
-            }
-
-                if (communicationSchedulerId == 0){
-                logger.info("Mocked launch, no wake-up, return true");
-                return  true;
-            }
-            CommunicationScheduler cs = ProtocolTools.mw().getCommunicationSchedulerFactory().find(communicationSchedulerId);
-            String dialerClass = cs.getDialerFactory().getDialerClassName();
-
-            if (!dialerClass.equals(com.energyict.dialer.coreimpl.NullDialer.class.getName())){
-                logger.finest(" - dialer configured, will let it handle the connection (" + cs.getDialerFactory().getName() + ")");
-                return true;
-            } else {
-                logger.info("Connecting using IP stored in EIWeb (from a previous wake-up)");
-            }
-
-            String ipAddress = ProtocolTools.checkIPAddressForPortNumber(cs.getRtu().getIpAddress(), String.valueOf(getProperties().getIpPortNumber()));
-            this.connectionAddress = ipAddress;
-            logger.info("Connecting EIWeb IP address: " + ipAddress);
-            link.setStreamConnection(new SocketStreamConnection(ipAddress));
-            link.getStreamConnection().open();
-            logger.info("Connected to " + ipAddress);
-
-
-            return true;
-        } catch (Exception ex){
-            logger.log(Level.SEVERE, ex.getMessage(), ex);
-        }
-
-        return false;
-    }
+    //TODO Removed executeWakeUp()
 
     private void initFrameCounter() throws IOException {
         if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
@@ -329,7 +254,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
                 logException(Level.WARNING, "Could not disconnect the dlms session!", ex);
             }
 
-            reconnect();
+//            reconnect();
             sleep();
 
             long initialFrameCounter = 0;
@@ -337,15 +262,15 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
             try {
                 getLogger().info("Requesting the frame counter from the meter ...");
 
-                Properties properties = (Properties) getProperties().getProtocolProperties().clone();
+                TypedProperties properties = getProperties().getProtocolProperties();
                 properties.setProperty(Dsmr23Properties.CLIENT_MAC_ADDRESS, "16");
                 properties.setProperty(Dsmr23Properties.SECURITY_LEVEL, "0:0");
-                ESMR50Properties publicClientProperties = new ESMR50Properties(properties);
+                ESMR50Properties publicClientProperties = new ESMR50Properties(properties, getPropertySpecService());
 
 
                 DlmsSession publicDlmsSession = new DlmsSession(getInputStream(), getOutputStream(), getLogger(), publicClientProperties, getTimeZone());
-                publicDlmsSession.getAso().getAssociationControlServiceElement().clearCalledApplicationProcessTitle();
-                publicDlmsSession.getAso().getAssociationControlServiceElement().clearCallingApplicationProcessTitle();
+                //publicDlmsSession.getAso().getAssociationControlServiceElement().clearCalledApplicationProcessTitle();
+                //publicDlmsSession.getAso().getAssociationControlServiceElement().clearCallingApplicationProcessTitle();
                 //publicDlmsSession.getAso().getAssociationControlServiceElement().setCallingApplicationProcessTitle(ProtocolTools.getBytesFromHexString("04504c053000000000000000"));
                 publicDlmsSession.init();
 
@@ -359,7 +284,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
 
                 publicDlmsSession.disconnect();
 
-                reconnect();
+//                reconnect();
                // getDlmsSession().assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
 
 
@@ -383,34 +308,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
         }
     }
 
-
-    private void reconnect(){
-        try {
-            if (getProperties().isNtaSimulationTool()) {
-                if (link instanceof IPDialer) {
-                    String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                    String fullIpAddress = ProtocolTools.checkIPAddressForPortNumber(ipAddress, String.valueOf(getProperties().getIpPortNumber()));
-                    getLogger().info("Reconnecting to " + fullIpAddress);
-                    link.getStreamConnection().serverClose();
-                    link.setStreamConnection(new SocketStreamConnection(fullIpAddress));
-                    link.getStreamConnection().serverOpen();
-                    init(link.getInputStream(), link.getOutputStream(), getTimeZone(), getLogger());
-                } else if (link instanceof OpticalDialer) {
-                    // no connection
-                } else {
-                    getLogger().info("Re-connecting EIWeb IP address: " + connectionAddress);
-                    link.getStreamConnection().serverClose();
-                    link.setStreamConnection(new SocketStreamConnection(connectionAddress));
-                    link.getStreamConnection().open();
-                    init(link.getInputStream(), link.getOutputStream(), getTimeZone(), getLogger());
-                }
-            }
-        }catch (Exception ex){
-            logException(Level.SEVERE, "Exception while reconecting: " + ex.getMessage(), ex);
-        }
-
-    }
-
+    //TODO Removed reconnect()
     private void logException(Level level, String message, Exception ex){
         /*
         StringWriter sw = new StringWriter();
@@ -425,9 +323,9 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
     public void resetFrameCounter(long newFrameCounter) {
         getProperties().getSecurityProvider().setInitialFrameCounter(newFrameCounter);
         getDlmsSession().getAso().getSecurityContext().setFrameCounter(newFrameCounter);
-        getDlmsSession().getAso().getSecurityContext().setFrameCounterInitialized(true);
-        if (getDlmsSession().getDLMSConnection()!=null) {
-            getDlmsSession().getDLMSConnection().getApplicationServiceObject().getSecurityContext().setFrameCounter(newFrameCounter);
+//        getDlmsSession().getAso().getSecurityContext().setFrameCounterInitialized(true);
+        if (getDlmsSession().getDLMSConnection()!=null) { // TODO change check
+            getDlmsSession().getAso().getSecurityContext().setFrameCounter(newFrameCounter);
         }
         ((ESMR50Cache)getCache()).setFrameCounter(newFrameCounter);
     }

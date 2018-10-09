@@ -245,7 +245,7 @@ public class ImageFileHeaderFactory {
 
     public void setImageVersion(byte[] imageVersion) {
         getLogger().finest(" - setting imageVersion [bytes]:"+ProtocolTools.getHexStringFromBytes(imageVersion));
-        this.imageVersion = ProtocolTools.getLongFromBytes(imageVersion);
+        this.imageVersion = ProtocolTools.getIntFromBytes(imageVersion);//todo check if int is sufficient, long was used before
         getLogger().finest("  > new imageVersion [long]:"+this.imageVersion);
         rebuildWorkingHeader();
     }

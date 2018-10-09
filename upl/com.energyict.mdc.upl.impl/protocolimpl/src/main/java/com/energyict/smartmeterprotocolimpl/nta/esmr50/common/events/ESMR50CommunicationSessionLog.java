@@ -5,6 +5,7 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.AbstractEvent;
 
@@ -38,7 +39,7 @@ public class ESMR50CommunicationSessionLog extends AbstractEvent {
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() throws ProtocolException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
 

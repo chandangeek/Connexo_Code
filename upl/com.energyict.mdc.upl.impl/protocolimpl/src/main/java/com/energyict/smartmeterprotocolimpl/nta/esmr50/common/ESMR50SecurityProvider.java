@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.common;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 
 import java.util.Properties;
@@ -13,7 +14,7 @@ public class ESMR50SecurityProvider extends Dsmr40SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public ESMR50SecurityProvider(Properties properties) {
+    public ESMR50SecurityProvider(TypedProperties properties) {
         super(properties);
         initializeRespondingFrameCounterHandler();
     }
@@ -29,15 +30,13 @@ public class ESMR50SecurityProvider extends Dsmr40SecurityProvider {
      */
     @Override
     public byte[] getHLSSecret() {
-        String hexPassword = getProperties().getProperty(ESMR50Properties.ESMR_50_HEX_PASSWORD);
+        String hexPassword = String.valueOf(getProperties().getProperty(ESMR50Properties.ESMR_50_HEX_PASSWORD));
         if (hexPassword != null) {
             return com.energyict.dlms.DLMSUtils.hexStringToByteArray(hexPassword);
         } else {
             return super.getHLSSecret();
         }
     }
-
-    @Override
     public void setInitialFrameCounter(Long frameCounter){
         if (frameCounter!=null) {
             initialFrameCounter = frameCounter;

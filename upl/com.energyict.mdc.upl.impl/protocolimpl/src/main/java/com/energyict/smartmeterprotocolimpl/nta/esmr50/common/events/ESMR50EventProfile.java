@@ -5,7 +5,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
@@ -51,7 +51,7 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
 
         Calendar fromCal = convertDate(fromDate);
 
-        logger.log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + " from " + fromDate.toString());
+        logger.log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getMeterSerialNumber() + " from " + fromDate.toString());
 
         readStandardEventLog(eventList, logger, fromCal);
 
@@ -62,7 +62,7 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
         readCommunicationSessionEventLog(eventList, logger, fromCal);
 
         //inherited from DSMR4.0
-        readVoltageQualityEventLog(eventList, fromCal);
+//        readVoltageQualityEventLog(eventList, fromCal); todo add function back?
 
         checkFrameCounterEvents(eventList, logger);
 
@@ -70,11 +70,11 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
     }
 
     private void checkFrameCounterEvents(List<MeterEvent> eventList, Logger logger) {
-        SecurityContext securityContext = protocol.getDlmsSession().getDLMSConnection().getApplicationServiceObject().getSecurityContext();
+        SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
 
         generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, eventList, logger);
-
-        if (securityContext.isResponseFrameCounterInitialized()) {
+        //todo Create isResponseFrameCounterInitialized method?
+        if (securityContext.getResponseFrameCounter() != 0) {
             generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, eventList, logger);
         } else {
             logger.info("Response frame counter not initialized.");
@@ -127,7 +127,7 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
 
 
         for (MeterEvent event : eventList){
-            event.overrideRtuSerialNumber(slaveSerialNumber);
+//            event.overrideRtuSerialNumber(slaveSerialNumber); todo Create method? or replace
         }
 
         return eventList;
@@ -138,7 +138,7 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
     private void readCommunicationSessionEventLog(List<MeterEvent> eventList, Logger logger, Calendar fromCal) {
         ObisCode readCommunicationSessionEventLogObis;
         try {
-            readCommunicationSessionEventLogObis = getMeterConfig().getCommunicationSessionLogObject().getObisCode();
+            readCommunicationSessionEventLogObis = getMeterConfig().getControlLogObject().getObisCode();// todo is Control log the same as Communication log?
             logger.info(" - reading communication session event log: "+readCommunicationSessionEventLogObis.toString());
             DataContainer dcCommunicationSessionEventLog = getCosemObjectFactory().getProfileGeneric(readCommunicationSessionEventLogObis, true).getBuffer(fromCal, getToCalendar());
             ESMR50CommunicationSessionLog mbusCommunicationSession = new ESMR50CommunicationSessionLog(dcCommunicationSessionEventLog, this.protocol.getDateTimeDeviationType());
@@ -177,7 +177,7 @@ public class ESMR50EventProfile extends DSMR40EventProfile {
     private void readStandardEventLog(List<MeterEvent> eventList, Logger logger, Calendar fromCal) {
         ObisCode standardEventLogObis;
         try{
-            standardEventLogObis = getMeterConfig().getStandardEventLogObject().getObisCode();
+            standardEventLogObis = getMeterConfig().getEventLogObject().getObisCode(); // todo is Standard log the same as Eventlog?
             logger.info(" - reading standard event log: "+ standardEventLogObis.toString());
             DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(standardEventLogObis, true).getBuffer(fromCal, getToCalendar());
             StandardEventLog standardEvents = new ESMR50StandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());

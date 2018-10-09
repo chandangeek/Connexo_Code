@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers;
 
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.protocolimpl.dlms.DLMSCache;
+
 
 
 public class ESMR50Cache extends DLMSCache {

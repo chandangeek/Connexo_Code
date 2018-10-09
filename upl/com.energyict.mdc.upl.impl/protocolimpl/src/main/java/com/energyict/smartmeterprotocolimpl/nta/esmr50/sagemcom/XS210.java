@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom;
 
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -10,6 +12,11 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.events.SagemcomE
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.registers.XS210RegisterFactory;
 
 public class XS210 extends ESMR50Protocol {
+
+    protected XS210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
+    }
+
     @Override
     public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
@@ -38,5 +45,10 @@ public class XS210 extends ESMR50Protocol {
     @Override
     public String getVersion() {
         return super.getVersion();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "XS210"; //todo add proper description
     }
 }

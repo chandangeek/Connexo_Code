@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages;
 
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
@@ -21,8 +21,8 @@ public class ESMR50Messaging extends Dsmr40Messaging {
     public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> messageCategories = super.getMessageCategories();
         messageCategories.add(getLTEModemSetupCategory());
-        messageCategories.add(getDefinableLoadProfileCategory());
-        addMessageSpecToCategory(messageCategories, RtuMessageCategoryConstants.MBUSSETUP, createMbusChangeConfigurationObjectMessageSpec());
+//        messageCategories.add(getDefinableLoadProfileCategory()); todo Add definableLoadProfileCategory
+//        addMessageSpecToCategory(messageCategories, RtuMessageCategoryConstants.MBUSSETUP, createMbusChangeConfigurationObjectMessageSpec());
         return messageCategories;
     }
 
@@ -34,19 +34,15 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         }
     }
 
-
-    private MessageSpec createMbusChangeConfigurationObjectMessageSpec() {
-        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.EMSR5_MBUS_CHANGE_CONFIGURATION_OBJECT, false);
-        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.MBUS_CHANGE_CONFIGURATION_OBJECT);
-
-
-        MessageAttributeSpec bit11attr = new MessageAttributeSpec(RtuMessageConstant.MBUS_CHANGE_CONFIGURATION_OBJECT_BIT11, true);
-        tagSpec.add(bit11attr);
-
-        msgSpec.add(tagSpec);
-
-        return msgSpec;
-    }
+        //todo create MbusChangeConfiguration method?
+//    private MessageSpec createMbusChangeConfigurationObjectMessageSpec() {
+//        MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.EMSR5_MBUS_CHANGE_CONFIGURATION_OBJECT, false);
+//        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.MBUS_CHANGE_CONFIGURATION_OBJECT);
+//        MessageAttributeSpec bit11attr = new MessageAttributeSpec(RtuMessageConstant.MBUS_CHANGE_CONFIGURATION_OBJECT_BIT11, true);
+//        tagSpec.add(bit11attr);
+//        msgSpec.add(tagSpec);
+//        return msgSpec;
+//    }
 
 
     /**
@@ -60,20 +56,22 @@ public class ESMR50Messaging extends Dsmr40Messaging {
      * @return a category with one MessageSpec for LTE setup functionality
      */
     public MessageCategorySpec getLTEModemSetupCategory() {
-        MessageCategorySpec catLTEModemSetup = new MessageCategorySpec(
-                RtuMessageCategoryConstants.LTEMODEMSETUP);
-        MessageSpec msgSpec = addChangeLTESetup(
-                RtuMessageKeyIdConstants.LTEMODEMSETUP,
-                RtuMessageConstant.LTE_MODEM_SETUP, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-
-        msgSpec = addChangeLTESetupAPN(RtuMessageKeyIdConstants.SET_LTE_APN,
-                RtuMessageConstant.SET_LTE_APN, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-
-        msgSpec = addSetLTEPingAddress(RtuMessageKeyIdConstants.SET_LTE_PING_ADDRESS,
-                RtuMessageConstant.SET_LTE_PING_ADDRESS, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
+        MessageCategorySpec catLTEModemSetup = new MessageCategorySpec("test");
+        //todo Fix getLTEModemSetupCategory
+//        (
+//                RtuMessageCategoryConstants.LTEMODEMSETUP);
+//        MessageSpec msgSpec = addChangeLTESetup(
+//                RtuMessageKeyIdConstants.LTEMODEMSETUP,
+//                RtuMessageConstant.LTE_MODEM_SETUP, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//
+//        msgSpec = addChangeLTESetupAPN(RtuMessageKeyIdConstants.SET_LTE_APN,
+//                RtuMessageConstant.SET_LTE_APN, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//
+//        msgSpec = addSetLTEPingAddress(RtuMessageKeyIdConstants.SET_LTE_PING_ADDRESS,
+//                RtuMessageConstant.SET_LTE_PING_ADDRESS, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
 
         return catLTEModemSetup;
     }
@@ -92,16 +90,16 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_APN, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_USERNAME, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_PASSWORD, false);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("test", false);
+//                RtuMessageConstant.LTE_APN, false);
+//        tagSpec.add(msgAttrSpec);
+//        msgAttrSpec = new MessageAttributeSpec(
+//                RtuMessageConstant.LTE_USERNAME, false);
+//        tagSpec.add(msgAttrSpec);
+//        msgAttrSpec = new MessageAttributeSpec(
+//                RtuMessageConstant.LTE_PASSWORD, false);
+//        tagSpec.add(msgAttrSpec);
+//        msgSpec.add(tagSpec);
         return msgSpec;
     }
 
@@ -110,7 +108,7 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.SET_LTE_PING_ADDRESS, false);
+                "test", false); // TODO add correct property
         tagSpec.add(msgAttrSpec);
 
         msgSpec.add(tagSpec);
@@ -123,7 +121,7 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_APN, false);
+                "test", false); // todo add correct property name
         tagSpec.add(msgAttrSpec);
 
         msgSpec.add(tagSpec);
@@ -134,27 +132,28 @@ public class ESMR50Messaging extends Dsmr40Messaging {
     protected MessageCategorySpec getConnectivityCategory() {
         MessageCategorySpec catLTEModemSetup = new MessageCategorySpec(
                 RtuMessageCategoryConstants.CHANGECONNECTIVITY);
-        MessageSpec msgSpec = addChangeLTESetup(
-                RtuMessageKeyIdConstants.LTEMODEMSETUP,
-                RtuMessageConstant.LTE_MODEM_SETUP, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addGPRSModemCredantials(RtuMessageKeyIdConstants.LTECREDENTIALS,
-                RtuMessageConstant.LTE_MODEM_CREDENTIALS, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addPhoneListMsg(RtuMessageKeyIdConstants.SETWHITELIST,
-                RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.ACTIVATESMSWAKEUP,
-                RtuMessageConstant.WAKEUP_ACTIVATE, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.DEACTIVATESMSWAKEUP,
-                RtuMessageConstant.WAKEUP_DEACTIVATE, false);
-        catLTEModemSetup.addMessageSpec(msgSpec);
+        //todo Add correct message spec
+//        MessageSpec msgSpec = addChangeLTESetup(
+//                RtuMessageKeyIdConstants.LTEMODEMSETUP,
+//                RtuMessageConstant.LTE_MODEM_SETUP, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//        msgSpec = addGPRSModemCredantials(RtuMessageKeyIdConstants.LTECREDENTIALS,
+//                RtuMessageConstant.LTE_MODEM_CREDENTIALS, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//        msgSpec = addPhoneListMsg(RtuMessageKeyIdConstants.SETWHITELIST,
+//                RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.ACTIVATESMSWAKEUP,
+//                RtuMessageConstant.WAKEUP_ACTIVATE, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
+//        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.DEACTIVATESMSWAKEUP,
+//                RtuMessageConstant.WAKEUP_DEACTIVATE, false);
+//        catLTEModemSetup.addMessageSpec(msgSpec);
         return catLTEModemSetup;
     }
 
     @Override
-    protected MessageCategorySpec getAuthEncryptCategory() {
+    public MessageCategorySpec getAuthEncryptCategory() {
         MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(RtuMessageCategoryConstants.AUTHENTICATEENCRYPT);
         MessageSpec msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEHLSSECRET, RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
         catAuthEncrypt.addMessageSpec(msgSpec);
@@ -164,9 +163,9 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         catAuthEncrypt.addMessageSpec(msgSpec);
         msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY, RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
         catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.ENABLE_AUTHENTICATION_LEVEL_P0P3, RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL, true);
-        catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.DISABLE_AUTHENTICATION_LEVEL_P0P3, RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL, true);
+//        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.ENABLE_AUTHENTICATION_LEVEL_P0P3, RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL, true);
+        catAuthEncrypt.addMessageSpec(msgSpec); // todo add correct properties
+//        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.DISABLE_AUTHENTICATION_LEVEL_P0P3, RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL, true);
         catAuthEncrypt.addMessageSpec(msgSpec);
         return catAuthEncrypt;
     }
@@ -178,6 +177,7 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
         MessageSpec msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.FIRMWARE, RtuMessageConstant.FIRMWARE_UPGRADE, false, true);
         catFirmware.addMessageSpec(msgSpec);
+        //todo
 //        msgSpec = addSetLTEModemFWLocationMsg(RtuMessageKeyIdConstants.SET_LTE_MODEM_FW_LOCATION, RtuMessageConstant.SET_LTE_FW_LOCATION, false);
 //        catFirmware.addMessageSpec(msgSpec);
 //        msgSpec = addSetLTEModemFWDownloadTimeMsg(RtuMessageKeyIdConstants.SET_LTE_MODEM_FW_DOWNLOAD_TIME, RtuMessageConstant.SET_LTE_FW_DOWNLOAD_TIME, false);
@@ -185,7 +185,7 @@ public class ESMR50Messaging extends Dsmr40Messaging {
 //        msgSpec = initiateLTEImageTransferMsg(RtuMessageKeyIdConstants.INITIATE_LTE_IMAGE_TRANSFER, false);
 //        catFirmware.addMessageSpec(msgSpec);
 //        msgSpec = activateLTEImageTransferMsg(RtuMessageKeyIdConstants.ACTIVATE_LTE_IMAGE, false);
-        msgSpec = addLTEFirmwareUpgradeMsg(RtuMessageKeyIdConstants.LTE_MODEM_FIRMWARE_UPGRADE, RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE, false);
+//        msgSpec = addLTEFirmwareUpgradeMsg(RtuMessageKeyIdConstants.LTE_MODEM_FIRMWARE_UPGRADE, RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE, false);
         catFirmware.addMessageSpec(msgSpec);
         return catFirmware;
     }
@@ -208,11 +208,11 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+//        msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.SET_LTE_FW_DOWNLOAD_TIME, true);
-        tagSpec.add(msgAttrSpec);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("", false);
+//                RtuMessageConstant.SET_LTE_FW_DOWNLOAD_TIME, true); todo add correct property
+//        tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -221,11 +221,11 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+//        msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.SET_LTE_FW_LOCATION, true);
-        tagSpec.add(msgAttrSpec);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("", false);
+//                RtuMessageConstant.SET_LTE_FW_LOCATION, true); // todo add correct property
+//        tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -236,15 +236,15 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+//        msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE_USERFILE_ID, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE_DOWNLOAD_TIMEOUT, true);
-        tagSpec.add(msgAttrSpec);
-        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("", false);
+//                RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE_USERFILE_ID, true); todo add correct property
+//        tagSpec.add(msgAttrSpec);
+//        msgAttrSpec = new MessageAttributeSpec(
+//                RtuMessageConstant.LTE_MODEM_FIRMWARE_UPGRADE_DOWNLOAD_TIMEOUT, true);
+//        tagSpec.add(msgAttrSpec);
+//        msgVal.setValue(" ");
         msgSpec.add(tagSpec);
         return msgSpec;
     }

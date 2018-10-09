@@ -55,4 +55,8 @@ public class ESMR50MbusClient extends DSMR4_MbusClient {
         setVersion(new Unsigned8(version));
     }
 
+    private int getUsedVersion(){
+        return 0; // todo Replaced getUsedVersion, access type modified in Connexo
+    }
+
 }

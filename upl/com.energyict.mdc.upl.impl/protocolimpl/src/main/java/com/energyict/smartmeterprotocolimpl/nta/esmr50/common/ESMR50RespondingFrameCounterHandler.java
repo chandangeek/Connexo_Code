@@ -13,16 +13,16 @@ public class ESMR50RespondingFrameCounterHandler extends DSMR40RespondingFrameCo
      */
     private boolean frameCounterInitialized = false;
 
-    @Override
+
     public Integer checkRespondingFrameCounter(final int receivedFrameCounter) throws DLMSConnectionException {
         if (isFrameCounterInitialized()) {
             if (this.responseFrameCounter == -1 && receivedFrameCounter == 0) { // rollover
                 this.responseFrameCounter = receivedFrameCounter;
             } else if (this.responseFrameCounter == -1 && receivedFrameCounter != 0) {
-                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_SECURITY);
+                throw new DLMSConnectionException("Received incorrect overFlow FrameCounter.", DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER); //todo check exception type change
             //} else if (receivedFrameCounter != this.responseFrameCounter + 1) {
             } else if (!(receivedFrameCounter > this.responseFrameCounter)) {  //Greater than previous FC, gaps are allowed. No more +1 restriction!
-                throw new DLMSConnectionException("Received incorrect frame-counter [ESMR5]: "+receivedFrameCounter+" instead of "+this.responseFrameCounter, DLMSConnectionException.REASON_SECURITY);
+                throw new DLMSConnectionException("Received incorrect frame-counter [ESMR5]: "+receivedFrameCounter+" instead of "+this.responseFrameCounter, DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER);
             } else {
                 this.responseFrameCounter = receivedFrameCounter;
             }

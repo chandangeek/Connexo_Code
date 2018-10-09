@@ -4,6 +4,8 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSConnection;
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -16,6 +18,11 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.registers.T210Re
 import java.io.IOException;
 
 public class T210 extends ESMR50Protocol {
+
+    protected T210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
+    }
+
     @Override
     public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
@@ -56,5 +63,10 @@ public class T210 extends ESMR50Protocol {
         DLMSConnection connection = getDlmsSession().getDLMSConnection();
         getLogger().info("Not necessary to do HHU SignOn initialization, just create the DLMS Connection "+connection.toString());
         return;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "T210 protocol"; //todo Add proper description for T210
     }
 }

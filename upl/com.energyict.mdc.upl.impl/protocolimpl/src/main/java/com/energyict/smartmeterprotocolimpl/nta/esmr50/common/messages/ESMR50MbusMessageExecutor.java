@@ -8,19 +8,15 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.encryption.AesGcm128;
-import com.energyict.encryption.BitVector;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -61,81 +57,84 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     @Override
     protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
-        try {
-            log(Level.INFO, "ESMR 5.0 Handling message Read LoadProfile Registers.");
-            LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+        //todo doReadLoadProfileRegisters
+//        try {
+//            log(Level.INFO, "ESMR 5.0 Handling message Read LoadProfile Registers.");
+//            LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
+//            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+//
+//            String slaveSerialNumber = msgEntry.getSerialNumber();
+//            ObisCode rawLoadProfileObisCode = ObisCode.fromString(builder.getProfileObisCode().getValue());
+//            ObisCode loadProfileObisCode = getProtocol().getPhysicalAddressCorrectedObisCode(rawLoadProfileObisCode, slaveSerialNumber);
+//            try {
+//                builder.getLoadProfileReader().getProfileObisCode().setValue(loadProfileObisCode.getValue());
+//                log(Level.INFO, "Converting obisCode ["+rawLoadProfileObisCode.toString()+"] for the slave meter ["+slaveSerialNumber+"] => "+loadProfileObisCode.toString());
+//            } catch (ParseException e) {
+//                log(Level.WARNING, "Cannot set translated obis code: "+e.getMessage());
+//            }
+//            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
+//                return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode()+ "!");
+//            }
+//
+//            LoadProfileBuilder loadProfileBuilder = this.protocol.getLoadProfileBuilder();
+//            if (loadProfileBuilder instanceof LGLoadProfileBuilder) {
+//                ((LGLoadProfileBuilder) loadProfileBuilder).setFixMBusToDate(false);    //Don't subtract 15 minutes from the to date
+//            }
+//
+//            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
+//            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
+//            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+//
+//            if (profileDatas.size() != 1) {
+//                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
+//            }
+//
+//            ProfileData pd = profileDatas.get(0);
+//            IntervalData id = null;
+//            for (IntervalData intervalData : pd.getIntervalDatas()) {
+//                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
+//                    id = intervalData;
+//                }
+//            }
+//
+//            if (id == null) {
+//                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
+//            }
+//
+//            com.energyict.protocol.Register previousRegister = null;
+//            MeterReadingData mrd = new MeterReadingData();
+//            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+//                if (register.equals(previousRegister)) {
+//                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
+//                }
+//                for (int i = 0; i < pd.getChannelInfos().size(); i++) {
+//                    final ChannelInfo channel = pd.getChannel(i);
+//                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
+//                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+//                        mrd.add(registerValue);
+//                    }
+//                }
+//                previousRegister = register;
+//            }
+//
+//            MeterData md = new MeterData();
+//            md.setMeterReadingData(mrd);
+//
+//            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
+//            MeterDataMessageResult messageResult = MeterDataMessageResult.createSuccess(msgEntry, "", md);
+//            return new LoadProfileToRegisterParser(ObisCode.fromString("0.x.24.2.3.255")).parse(messageResult);
+//        } catch (SAXException e) {
+//            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
+//        } catch (IOException e) {
+//            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
+//        }
 
-            String slaveSerialNumber = msgEntry.getSerialNumber();
-            ObisCode rawLoadProfileObisCode = ObisCode.fromString(builder.getProfileObisCode().getValue());
-            ObisCode loadProfileObisCode = getProtocol().getPhysicalAddressCorrectedObisCode(rawLoadProfileObisCode, slaveSerialNumber);
-            try {
-                builder.getLoadProfileReader().getProfileObisCode().setValue(loadProfileObisCode.getValue());
-                log(Level.INFO, "Converting obisCode ["+rawLoadProfileObisCode.toString()+"] for the slave meter ["+slaveSerialNumber+"] => "+loadProfileObisCode.toString());
-            } catch (ParseException e) {
-                log(Level.WARNING, "Cannot set translated obis code: "+e.getMessage());
-            }
-            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
-                return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode()+ "!");
-            }
-
-            LoadProfileBuilder loadProfileBuilder = this.protocol.getLoadProfileBuilder();
-            if (loadProfileBuilder instanceof LGLoadProfileBuilder) {
-                ((LGLoadProfileBuilder) loadProfileBuilder).setFixMBusToDate(false);    //Don't subtract 15 minutes from the to date
-            }
-
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
-            final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
-
-            if (profileDatas.size() != 1) {
-                return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
-            }
-
-            ProfileData pd = profileDatas.get(0);
-            IntervalData id = null;
-            for (IntervalData intervalData : pd.getIntervalDatas()) {
-                if (intervalData.getEndTime().equals(builder.getStartReadingTime())) {
-                    id = intervalData;
-                }
-            }
-
-            if (id == null) {
-                return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
-            }
-
-            com.energyict.protocol.Register previousRegister = null;
-            MeterReadingData mrd = new MeterReadingData();
-            for (com.energyict.protocol.Register register : builder.getRegisters()) {
-                if (register.equals(previousRegister)) {
-                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
-                }
-                for (int i = 0; i < pd.getChannelInfos().size(); i++) {
-                    final ChannelInfo channel = pd.getChannel(i);
-                    if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
-                        mrd.add(registerValue);
-                    }
-                }
-                previousRegister = register;
-            }
-
-            MeterData md = new MeterData();
-            md.setMeterReadingData(mrd);
-
-            log(Level.INFO, "Message Read LoadProfile Registers Finished.");
-            MeterDataMessageResult messageResult = MeterDataMessageResult.createSuccess(msgEntry, "", md);
-            return new LoadProfileToRegisterParser(ObisCode.fromString("0.x.24.2.3.255")).parse(messageResult);
-        } catch (SAXException e) {
-            return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
-        } catch (IOException e) {
-            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
-        }
+        return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
     }
 
-    protected MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
+//    protected MeteringWarehouse mw() {
+//        return ProtocolTools.mw(); todo See replacement for metering warehouse
+//    }
 
     protected boolean isResume(MessageEntry messageEntry) {
         return false;
@@ -175,122 +174,123 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) {
-        String content = msgEntry.getContent();
-        MessageHandler messageHandler = getMessageHandler();
+        //todo rewrite executeMessage
+//        String content = msgEntry.getContent();
+//        MessageHandler messageHandler = getMessageHandler();
         MessageResult msgResult = null;
-        try {
-
-            boolean firmwareUpgrade = content.contains(RtuMessageConstant.MBUS_ESMR5_FIRMWARE_UPGRADE);
-            boolean mbusEncryption = content.contains(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
-            boolean mbusCryptoEncryption = content.contains(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS);
-            boolean mbusTransferFUAK = content.contains(RtuMessageConstant.MBUS_TRANSFER_FUAK);
-            boolean mbusTransferP2Key = content.contains(RtuMessageConstant.MBUS_TRANSFER_P2KEY);
-
-            if (firmwareUpgrade) {
-                String fuakKey = getProtocol().getProperties().getProtocolProperties().getProperty(ESMR50Properties.FIRMWARE_UPGRADE_AUTHENTICATION_KEY);
-                if (fuakKey == null || fuakKey.length()==0){
-                    throw new ConfigurationException("FUAK is empty! Please fill in the FUAK property on the slave MBus meter properties.");
-                }
-                msgResult = doFirmwareUpgrade(messageHandler, msgEntry, fuakKey);
-            }else if (mbusEncryption) {
-                String serialNumber = msgEntry.getSerialNumber();
-                super.setMbusEncryptionKeys(messageHandler, serialNumber);
-            }else if (mbusCryptoEncryption) {
-                String serialNumber = msgEntry.getSerialNumber();
-                setCryptoserverMbusEncryptionKeys(msgEntry, messageHandler, serialNumber);
-            }else if (mbusTransferFUAK) {
-                msgResult = doTransferFUAK(messageHandler, msgEntry);
-            }else if (mbusTransferP2Key) {
-                msgResult = doTransferP2Key(messageHandler, msgEntry);
-            }  else{
-                msgResult = super.executeMessageEntry(msgEntry);
-            }
-
-            // Some message create their own messageResult
-            if (msgResult == null) {
-                msgResult = MessageResult.createSuccess(msgEntry);
-                log(Level.INFO, "Message has finished.");
-            } else if (msgResult.isFailed()) {
-                log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
-            }
-        } catch (IOException e) {
-            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-        } catch (ConfigurationException e) {
-            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-        }
+//        try {
+//
+//            boolean firmwareUpgrade = content.contains(RtuMessageConstant.MBUS_ESMR5_FIRMWARE_UPGRADE);
+//            boolean mbusEncryption = content.contains(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+//            boolean mbusCryptoEncryption = content.contains(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS);
+//            boolean mbusTransferFUAK = content.contains(RtuMessageConstant.MBUS_TRANSFER_FUAK);
+//            boolean mbusTransferP2Key = content.contains(RtuMessageConstant.MBUS_TRANSFER_P2KEY);
+//
+//            if (firmwareUpgrade) {
+//                String fuakKey = getProtocol().getProperties().getProtocolProperties().getProperty(ESMR50Properties.FIRMWARE_UPGRADE_AUTHENTICATION_KEY);
+//                if (fuakKey == null || fuakKey.length()==0){
+//                    throw new ConfigurationException("FUAK is empty! Please fill in the FUAK property on the slave MBus meter properties.");
+//                }
+//                msgResult = doFirmwareUpgrade(messageHandler, msgEntry, fuakKey);
+//            }else if (mbusEncryption) {
+//                String serialNumber = msgEntry.getSerialNumber();
+//                super.setMbusEncryptionKeys(messageHandler, serialNumber);
+//            }else if (mbusCryptoEncryption) {
+//                String serialNumber = msgEntry.getSerialNumber();
+//                setCryptoserverMbusEncryptionKeys(msgEntry, messageHandler, serialNumber);
+//            }else if (mbusTransferFUAK) {
+//                msgResult = doTransferFUAK(messageHandler, msgEntry);
+//            }else if (mbusTransferP2Key) {
+//                msgResult = doTransferP2Key(messageHandler, msgEntry);
+//            }  else{
+//                msgResult = super.executeMessageEntry(msgEntry);
+//            }
+//
+//            // Some message create their own messageResult
+//            if (msgResult == null) {
+//                msgResult = MessageResult.createSuccess(msgEntry);
+//                log(Level.INFO, "Message has finished.");
+//            } else if (msgResult.isFailed()) {
+//                log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
+//            }
+//        } catch (IOException e) {
+//            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+//            log(Level.SEVERE, "Message failed : " + e.getMessage());
+//        } catch (ConfigurationException e) {
+//            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+//            log(Level.SEVERE, "Message failed : " + e.getMessage());
+//        }
         return msgResult;
     }
 
     protected MessageResult doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry, String fuakKey) throws IOException, ConfigurationException {
         log(Level.INFO, "Handling message Firmware upgrade");
-
-        String serialNumber = messageEntry.getSerialNumber();
-        ObisCode imageTransferObisCode = getImageTransferObisCode(messageEntry.getSerialNumber());
-        log(Level.INFO, "Firmware Update: image transfer obis code:" + imageTransferObisCode);
-        ImageTransfer it = getCosemObjectFactory().getImageTransfer(imageTransferObisCode);
-
-        // activationDate will be NULL if immediate activation was requested
-        Calendar activationDate = getActivationDateFromMessage(messageHandler);
-
-        if (activationDate == null){
-            log(Level.FINE, "Empty activation date received, going to ask for immediate activation.");
-        }
-
-        byte[] imageData = loadUserFile(messageHandler.getUserFileId());
-
-        byte[] fuak = ProtocolTools.getBytesFromHexString(fuakKey,2);
-
-        log(Level.FINE, "Initial Data:");
-        if (activationDate==null){
-            log(Level.FINE, "-activationDate: immediate");
-        } else {
-            log(Level.FINE, "-activationDate: " + activationDate.getTime().toString());
-        }
-        log(Level.FINE, "-imageData length:"+imageData.length);
-        log(Level.FINE, "-FUAK key:"+fuakKey);
-
-        ArrayList<byte[]> preparedImageInfo = prepareFirmwareUpgradeImage(imageData, serialNumber, activationDate);
-        byte[] updatedData = preparedImageInfo.get(0);
-        byte[] iv = preparedImageInfo.get(1);
-        byte[] shortId = preparedImageInfo.get(2);
-
-
-        log(Level.FINE, "Calculate FW GCM:");
-        log(Level.FINE, "- parameter 2 = data to authenticate (header+data) length= " + updatedData.length);
-        log(Level.FINE, "- parameter 3 = FUAK: " + ProtocolTools.getHexStringFromBytes(fuak)); // parameter 3 = fuak
-        log(Level.FINE, "- parameter 4 = IV: " + ProtocolTools.getHexStringFromBytes(iv)); // parameter 4 = initializationVector
-
-        AesGcm128 aesGcm128 = new AesGcm128(new BitVector(fuak));
-        aesGcm128.setAdditionalAuthenticationData(new BitVector(updatedData)); //data to authenticate (parameter 2)
-        aesGcm128.setInitializationVector(new BitVector(iv));
-
-        log(Level.FINE, "Calling AesGcm128");
-        aesGcm128.encrypt();
-
-        log(Level.FINE, "Output:");
-
-        byte[] MAC = aesGcm128.getTag().getValue();
-
-        log(Level.FINE, " - MAC: "+ProtocolTools.getHexStringFromBytes(MAC));
-
-        byte[] encryptedData = ProtocolTools.concatByteArrays(updatedData, MAC);
-        log(Level.FINE, " - encryptedData length (image+MAC) "+encryptedData.length);
-
-        int crcVal = CRCGenerator.calcCRCDirect(encryptedData);
-        byte[] crc = ProtocolTools.getBytesFromInt(crcVal, 2);
-
-        log(Level.FINE, " - CRC = "+crcVal+": "+ProtocolTools.getHexStringFromBytes(crc));
-
-        String imageIdentifier = getFirmareImageIdentified(crc);
-
-        log(Level.FINE, " - imageIdentifier = "+imageIdentifier);
-
-        byte[] finalImageData = ProtocolTools.concatByteArrays(encryptedData);
-        log(Level.FINE,"Final image data length (data+mac): " + finalImageData.length);
-
-        handleFWUpgradePhase0(messageHandler.getActivationDate(), it, finalImageData, imageIdentifier);
+            //todo rewrite doFirmwareUpgrade
+//        String serialNumber = messageEntry.getSerialNumber();
+//        ObisCode imageTransferObisCode = getImageTransferObisCode(messageEntry.getSerialNumber());
+//        log(Level.INFO, "Firmware Update: image transfer obis code:" + imageTransferObisCode);
+//        ImageTransfer it = getCosemObjectFactory().getImageTransfer(imageTransferObisCode);
+//
+//        // activationDate will be NULL if immediate activation was requested
+//        Calendar activationDate = getActivationDateFromMessage(messageHandler);
+//
+//        if (activationDate == null){
+//            log(Level.FINE, "Empty activation date received, going to ask for immediate activation.");
+//        }
+//
+//        byte[] imageData = loadUserFile(messageHandler.getUserFileId());
+//
+//        byte[] fuak = ProtocolTools.getBytesFromHexString(fuakKey,2);
+//
+//        log(Level.FINE, "Initial Data:");
+//        if (activationDate==null){
+//            log(Level.FINE, "-activationDate: immediate");
+//        } else {
+//            log(Level.FINE, "-activationDate: " + activationDate.getTime().toString());
+//        }
+//        log(Level.FINE, "-imageData length:"+imageData.length);
+//        log(Level.FINE, "-FUAK key:"+fuakKey);
+//
+//        ArrayList<byte[]> preparedImageInfo = prepareFirmwareUpgradeImage(imageData, serialNumber, activationDate);
+//        byte[] updatedData = preparedImageInfo.get(0);
+//        byte[] iv = preparedImageInfo.get(1);
+//        byte[] shortId = preparedImageInfo.get(2);
+//
+//
+//        log(Level.FINE, "Calculate FW GCM:");
+//        log(Level.FINE, "- parameter 2 = data to authenticate (header+data) length= " + updatedData.length);
+//        log(Level.FINE, "- parameter 3 = FUAK: " + ProtocolTools.getHexStringFromBytes(fuak)); // parameter 3 = fuak
+//        log(Level.FINE, "- parameter 4 = IV: " + ProtocolTools.getHexStringFromBytes(iv)); // parameter 4 = initializationVector
+//
+//        AesGcm128 aesGcm128 = new AesGcm128(new BitVector(fuak));
+//        aesGcm128.setAdditionalAuthenticationData(new BitVector(updatedData)); //data to authenticate (parameter 2)
+//        aesGcm128.setInitializationVector(new BitVector(iv));
+//
+//        log(Level.FINE, "Calling AesGcm128");
+//        aesGcm128.encrypt();
+//
+//        log(Level.FINE, "Output:");
+//
+//        byte[] MAC = aesGcm128.getTag().getValue();
+//
+//        log(Level.FINE, " - MAC: "+ProtocolTools.getHexStringFromBytes(MAC));
+//
+//        byte[] encryptedData = ProtocolTools.concatByteArrays(updatedData, MAC);
+//        log(Level.FINE, " - encryptedData length (image+MAC) "+encryptedData.length);
+//
+//        int crcVal = CRCGenerator.calcCRCDirect(encryptedData);
+//        byte[] crc = ProtocolTools.getBytesFromInt(crcVal, 2);
+//
+//        log(Level.FINE, " - CRC = "+crcVal+": "+ProtocolTools.getHexStringFromBytes(crc));
+//
+//        String imageIdentifier = getFirmareImageIdentified(crc);
+//
+//        log(Level.FINE, " - imageIdentifier = "+imageIdentifier);
+//
+//        byte[] finalImageData = ProtocolTools.concatByteArrays(encryptedData);
+//        log(Level.FINE,"Final image data length (data+mac): " + finalImageData.length);
+//
+//        handleFWUpgradePhase0(messageHandler.getActivationDate(), it, finalImageData, imageIdentifier);
         return MessageResult.createSuccess(messageEntry, "Firmware upgrade successful.");
     }
 
@@ -353,19 +353,20 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         ret.add(shortId);
         return ret;
     }
+//todo are use files used in Connexo
+//    private byte[] loadUserFile(String userFileID) throws IOException {
+//        if (!ParseUtils.isInteger(userFileID)) {
+//            String str = "Not a valid entry for the userFile.";
+//            throw new IOException(str);
+//        }
+//        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+//        if (uf == null) {
+//            String str = "Not a valid entry for the userfileID " + userFileID;
+//            throw new IOException(str);
+//        }
+//        return uf.loadFileInByteArray();
 
-    private byte[] loadUserFile(String userFileID) throws IOException {
-        if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
-        }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (uf == null) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
-        return uf.loadFileInByteArray();
-    }
+//    }
 
     private void handleFWUpgradePhase0(String activationDate, ImageTransfer it, byte[] imageData, String imageIdentifier) throws IOException {
         it.setBooleanValue(getBooleanValue());
@@ -421,7 +422,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
         try{
             MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
-            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), mbusClient.getUsedVersion());
+            ESMR50MbusClient mBusClient5 = new ESMR50MbusClient(mbusClient.getProtocolLink(), mbusClient.getObjectReference(), 0); // todo
 
             if (MBusKeyID.FUAK.equals(keyID)) {
                 log(Level.INFO, "Invoking FUAK method");
@@ -462,42 +463,46 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
     }
 
     protected String getMBusDefaultKey(String serialNumber) throws ConfigurationException{
-        List<Rtu> mbusDevices = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serialNumber);
-        if (mbusDevices==null){
-            log(Level.SEVERE, "MBus device with serial "+serialNumber+" not found");
-            return null;
-        }
-
-        if (mbusDevices.size()>1){
-            log(Level.SEVERE, "Multiple MBus device with serial "+serialNumber+" found: "+mbusDevices.toString());
-        }
-
-        Rtu mbus = mbusDevices.get(0);
-        String defaultKey = mbus.getProperties().getProperty(ESMR50Properties.DEFAULT_KEY);
-        if (defaultKey == null || defaultKey.length()==0){
-            throw new ConfigurationException("DefaultKey is empty! Please fill in the DefaultKey property on the slave MBus meter properties.");
-        }
-        return defaultKey;
+//        List<Rtu> mbusDevices = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serialNumber);
+//        if (mbusDevices==null){
+//            log(Level.SEVERE, "MBus device with serial "+serialNumber+" not found");
+//            return null;
+//        }
+//
+//        if (mbusDevices.size()>1){
+//            log(Level.SEVERE, "Multiple MBus device with serial "+serialNumber+" found: "+mbusDevices.toString());
+//        }
+//
+//        Rtu mbus = mbusDevices.get(0);
+//        String defaultKey = mbus.getProperties().getProperty(ESMR50Properties.DEFAULT_KEY);
+//        if (defaultKey == null || defaultKey.length()==0){
+//            throw new ConfigurationException("DefaultKey is empty! Please fill in the DefaultKey property on the slave MBus meter properties.");
+//        }
+//        return defaultKey;
+        //todo rewrite getMBusDefaultKey
+        return "";
     }
 
 
     protected String getMBusFUAK(String serialNumber) throws ConfigurationException{
-        List<Rtu> mbusDevices = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serialNumber);
-        if (mbusDevices==null){
-            log(Level.SEVERE, "MBus device with serial "+serialNumber+" not found");
-            return null;
-        }
-
-        if (mbusDevices.size()>1){
-            log(Level.SEVERE, "Multiple MBus device with serial "+serialNumber+" found: "+mbusDevices.toString());
-        }
-
-        Rtu mbus = mbusDevices.get(0);
-        String fuak = mbus.getProperties().getProperty(ESMR50Properties.FIRMWARE_UPGRADE_AUTHENTICATION_KEY);
-        if (fuak == null || fuak.length()==0){
-            throw new ConfigurationException("FirmwareUpgradeAuthenticationKey is empty! Please fill in the FirmwareUpgradeAuthenticationKey property on the slave MBus meter properties.");
-        }
-        return fuak;
+//        List<Rtu> mbusDevices = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serialNumber);
+//        if (mbusDevices==null){
+//            log(Level.SEVERE, "MBus device with serial "+serialNumber+" not found");
+//            return null;
+//        }
+//
+//        if (mbusDevices.size()>1){
+//            log(Level.SEVERE, "Multiple MBus device with serial "+serialNumber+" found: "+mbusDevices.toString());
+//        }
+//
+//        Rtu mbus = mbusDevices.get(0);
+//        String fuak = mbus.getProperties().getProperty(ESMR50Properties.FIRMWARE_UPGRADE_AUTHENTICATION_KEY);
+//        if (fuak == null || fuak.length()==0){
+//            throw new ConfigurationException("FirmwareUpgradeAuthenticationKey is empty! Please fill in the FirmwareUpgradeAuthenticationKey property on the slave MBus meter properties.");
+//        }
+//        return fuak;
+        //todo rewrite getMBusFuak
+        return "";
     }
 
     protected String getMBusNewRandomKey(){
@@ -508,31 +513,33 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
     }
 
     protected byte[] getKeyDataPhase0(MBusKeyID keyID, String encryptionKey, String newKey, String serialNumber) {
-        byte[] kcc = getKCC();
-        byte[] iv = getInitializationVector(kcc, serialNumber);
-
-        BitVector keyPlain = new BitVector(newKey);
-        BitVector keyPlainTexWithId = new BitVector(getKeyPlainText(keyID.getId(), keyPlain.getValue()));
-
-        AesGcm128 aesGcm128 = new AesGcm128(new BitVector(encryptionKey));
-        aesGcm128.setPlainText(keyPlainTexWithId);
-        aesGcm128.setInitializationVector(new BitVector(iv));
-
-        aesGcm128.encrypt();
-
-        BitVector keyEncrypted = aesGcm128.getCipherText();
-        BitVector keyTag = aesGcm128.getTag();
-        BitVector strippedTag = keyTag.Msb2(8); //only the 8 MSB are to be sent
-
-        log(Level.FINEST, "KEY content:");
-        log(Level.FINEST, " - iv ["+iv.length+"]: "+ProtocolTools.getHexStringFromBytes(iv));
-        log(Level.FINEST, " - kcc ["+kcc.length+"]: "+ProtocolTools.getHexStringFromBytes(kcc));
-        log(Level.FINEST, " - keyWithId ["+keyPlainTexWithId.length()+"]: "+ProtocolTools.getHexStringFromBytes(keyPlainTexWithId.getValue()));
-        log(Level.FINEST, " - keyEncrypted ["+keyEncrypted.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(keyEncrypted.getValue()));
-        log(Level.FINEST, " - gcmTag full ["+keyTag.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(keyTag.getValue()));
-        log(Level.FINEST, " - gcmTag stripped ["+strippedTag.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(strippedTag.getValue()));
-
-        return ProtocolTools.concatByteArrays(kcc, keyEncrypted.getValue(), strippedTag.getValue());
+//        byte[] kcc = getKCC();
+//        byte[] iv = getInitializationVector(kcc, serialNumber);
+//
+//        BitVector keyPlain = new BitVector(newKey);
+//        BitVector keyPlainTexWithId = new BitVector(getKeyPlainText(keyID.getId(), keyPlain.getValue()));
+//
+//        AesGcm128 aesGcm128 = new AesGcm128(new BitVector(encryptionKey));
+//        aesGcm128.setPlainText(keyPlainTexWithId);
+//        aesGcm128.setInitializationVector(new BitVector(iv));
+//
+//        aesGcm128.encrypt();
+//
+//        BitVector keyEncrypted = aesGcm128.getCipherText();
+//        BitVector keyTag = aesGcm128.getTag();
+//        BitVector strippedTag = keyTag.Msb2(8); //only the 8 MSB are to be sent
+//
+//        log(Level.FINEST, "KEY content:");
+//        log(Level.FINEST, " - iv ["+iv.length+"]: "+ProtocolTools.getHexStringFromBytes(iv));
+//        log(Level.FINEST, " - kcc ["+kcc.length+"]: "+ProtocolTools.getHexStringFromBytes(kcc));
+//        log(Level.FINEST, " - keyWithId ["+keyPlainTexWithId.length()+"]: "+ProtocolTools.getHexStringFromBytes(keyPlainTexWithId.getValue()));
+//        log(Level.FINEST, " - keyEncrypted ["+keyEncrypted.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(keyEncrypted.getValue()));
+//        log(Level.FINEST, " - gcmTag full ["+keyTag.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(keyTag.getValue()));
+//        log(Level.FINEST, " - gcmTag stripped ["+strippedTag.getValue().length+"]: "+ProtocolTools.getHexStringFromBytes(strippedTag.getValue()));
+//
+//        return ProtocolTools.concatByteArrays(kcc, keyEncrypted.getValue(), strippedTag.getValue());
+          //todo write again keyDtaPhase0
+          return new byte[0];
     }
 
 

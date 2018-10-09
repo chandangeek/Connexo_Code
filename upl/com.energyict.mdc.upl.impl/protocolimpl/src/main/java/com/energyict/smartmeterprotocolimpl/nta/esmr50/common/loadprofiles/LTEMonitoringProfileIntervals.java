@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.loadprofiles;
 
-import com.energyict.dlms.DLMSProfileIntervals;
-import com.energyict.dlms.ProfileIntervalStatusBits;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
+import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * Created by Iulian on 5/18/2017.
  */
-public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals{
+public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
 
     private Logger logger = Logger.getAnonymousLogger();
 
@@ -54,10 +54,10 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals{
                 Array       adjantCells       = element.getDataType(3).getArray();
                 Structure   rejection         = element.getDataType(4).getStructure();
 
-                currentInterval.addValues(decodeGSMDiagnosticOperator(gsmDiagOperator));
-                currentInterval.addValues(decodeGSMDiagnosticCellInfo(gsmDiagCellInfo));
-                currentInterval.addValues(decodeGSMDiagnosticAdjacentCells(adjantCells, cal));
-                currentInterval.addValues(decodeLTEConectionRejection(rejection, timeZone));
+//                currentInterval.addValues(decodeGSMDiagnosticOperator(gsmDiagOperator)); todo check if decode methods need to to implemented
+//                currentInterval.addValues(decodeGSMDiagnosticCellInfo(gsmDiagCellInfo));
+//                currentInterval.addValues(decodeGSMDiagnosticAdjacentCells(adjantCells, cal));
+//                currentInterval.addValues(decodeLTEConectionRejection(rejection, timeZone));
 
                 intervalList.add(currentInterval);
             }

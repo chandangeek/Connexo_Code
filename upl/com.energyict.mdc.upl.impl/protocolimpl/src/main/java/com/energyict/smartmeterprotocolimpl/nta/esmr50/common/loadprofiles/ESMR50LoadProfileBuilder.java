@@ -3,15 +3,15 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.loadprofiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSProfileIntervals;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
@@ -76,28 +76,28 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         boolean isStatusObisCode = super.isStatusObisCode(obisCode, serialNumber);
         ObisCode testObisCode;
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_15_MIN, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_15_MIN, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_HOURLY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_HOURLY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_DAILY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_DAILY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_DAILY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_DAILY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
@@ -105,35 +105,35 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         }
 
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_MONTLY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_MONTLY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTLY, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_MBUS_MONTLY, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_QUALITY_STATUS_1, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_QUALITY_STATUS_1, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_QUALITY_STATUS_2, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(AMR_PROFILE_STATUS_CODE_E_METER_QUALITY_STATUS_2, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
             return false;
         }
 
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(DEFINABLE_LOAD_PROFILE_STATUS, serialNumber);
+        testObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(DEFINABLE_LOAD_PROFILE_STATUS, serialNumber);
         if (testObisCode != null) {
             isStatusObisCode |= testObisCode.equals(obisCode);
         } else {
@@ -149,7 +149,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
-            ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile ["+lpObisCode +"] data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -188,22 +188,22 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     //          So take them as it is.
                     // But:
                     //      - timestamps already contain an unwanted deviation, so will use MBus RMR timeZone to adjust
-                    try {
-                        timeZone = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(lpr.getMeterSerialNumber()).get(0).getTimeZone();
-                        meterProtocol.getLogger().info(" > parsing load profile time stamps using RMR time zone: " + timeZone.getDisplayName());
-                    } catch (Exception ex){
-                        meterProtocol.getLogger().warning(ex.getMessage());
-                    }
+//                    try {
+//                        timeZone = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(lpr.getMeterSerialNumber()).get(0).getTimeZone();
+//                        meterProtocol.getLogger().info(" > parsing load profile time stamps using RMR time zone: " + timeZone.getDisplayName());
+//                    } catch (Exception ex){
+//                        meterProtocol.getLogger().warning(ex.getMessage());
+//                    } todo Find replacement service for MeteringWarehouse
                 }
                 List<IntervalData> parsedIntervals = intervals.parseIntervals(lpc.getProfileInterval(), timeZone);
-                meterProtocol.getLogger().info(" > load profile intervals parsed: " + parsedIntervals.size());
+                getMeterProtocol().getLogger().info(" > load profile intervals parsed: " + parsedIntervals.size());
                 if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
                     profileData.setChannelInfos(lpr.getChannelInfos());
                 }
                 profileData.setIntervalDatas(parsedIntervals);
                 profileDataList.add(profileData);
             } else {
-                this.meterProtocol.getLogger().log(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
+                this.getMeterProtocol().getLogger().log(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
             }
         }
 
@@ -251,40 +251,40 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      *
      * @param lpc
      */
-    private List<ChannelInfo> getLTEMonitoringChannelInfos(LoadProfileConfiguration lpc) {
+    private List<ChannelInfo> getLTEMonitoringChannelInfos(LoadProfileConfiguration lpc) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 
-        int ch = 0;
-        channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), true));
+        int ch = 0;//todo Check of meter serial number should be part of lpc
+        channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), true));
 
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
 
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_CELL_ID.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_LOCATION_ID.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_SIGNAL_QUALITY.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_BER.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_MCC.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_MNC.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_CHANNEL_NUMBER.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_CELL_ID.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_LOCATION_ID.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_SIGNAL_QUALITY.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_BER.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_MCC.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_MNC.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_CELL_INFO_CHANNEL_NUMBER.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
 
         //1
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
         //2
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID_2.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY_2.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID_2.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY_2.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
         //3
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID_3.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY_3.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID_3.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY_3.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
 
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_CAUSE.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_MCC.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_MNC.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
-        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_TIMESTAMP_LAST_REJECTION.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_CAUSE.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_MCC.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_LAST_REJECTED_MNC.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
+        channelInfos.add(new ChannelInfo(ch++, ESMR50RegisterFactory.LTE_CONNECTION_REJECTION_TIMESTAMP_LAST_REJECTION.toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), false));
 
         return channelInfos;
     }
@@ -331,8 +331,8 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             ObisCode obisCode = capturedRegisterObject.getObisCode();
             getMeterProtocol().getLogger().info(" - "+obisCode.toString());
             //ObisCode processedObisCode = new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), 0, obisCode.getF());
-            ObisCode processedObisCode = obisCode;
-            capturedRegisterObject = new CapturedRegisterObject(processedObisCode, meterProtocol.getSerialNumber(), obisCode.getE(), capturedRegisterObject.getDlmsAttribute().getSnAttribute(), DLMSClassId.findById(capturedRegisterObject.getClassId()));
+            ObisCode processedObisCode = obisCode; // todo Check CapturedRegisterObject constructor
+//            capturedRegisterObject = new CapturedRegisterObject(processedObisCode, "", obisCode.getE(), capturedRegisterObject.getDlmsAttribute().getSnAttribute(), DLMSClassId.findById(capturedRegisterObject.getClassId()));
             processedCapturedRegisterObjects.add(capturedRegisterObject);
         }
         return processedCapturedRegisterObjects;
@@ -344,7 +344,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         for (CapturedRegisterObject registerObject : registers) {
             if (registerObject.equals(DEFINABLE_LOAD_PROFILE_STATUS) ||
                     isLTEMonitoringRegister(registerObject)) {
-                ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), getMeterProtocol().getSerialNumber(), true);
+                ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), getMeterProtocol().getMeterSerialNumber(), true);
                 channelInfos.add(ci);
                 continue;
             }
@@ -357,8 +357,8 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                         channelInfos.add(ci);
                     } else {
 //                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true);
-//                        channelInfos.add(ci);
-                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
+//                        channelInfos.add(ci); todo Verify exception change
+                        throw new ProtocolException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
                     }
                 }
             }
