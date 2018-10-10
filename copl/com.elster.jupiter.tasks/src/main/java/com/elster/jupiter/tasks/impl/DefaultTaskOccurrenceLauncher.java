@@ -11,6 +11,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -47,6 +48,8 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
                     launchOccurrencesForDueTasks();
                 }
             });
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
         } finally {
             threadPrincipalService.clear();
         }

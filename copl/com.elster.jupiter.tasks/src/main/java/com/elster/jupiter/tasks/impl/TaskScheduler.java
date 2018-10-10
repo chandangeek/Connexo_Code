@@ -9,9 +9,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class TaskScheduler implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(TaskScheduler.class.getName());
     private final Semaphore scheduleNowRequests = new Semaphore(0);
     private final TaskOccurrenceLauncher taskOccurrenceLauncher;
     private final int period;
@@ -41,6 +44,8 @@ final class TaskScheduler implements Runnable {
                 scheduledExecutorService.schedule(taskOccurrenceLauncher, 0, TimeUnit.NANOSECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage());
             }
         }
         scheduledExecutorService.shutdown();
