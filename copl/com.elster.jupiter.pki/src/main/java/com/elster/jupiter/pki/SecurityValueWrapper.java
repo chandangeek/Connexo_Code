@@ -23,4 +23,12 @@ public interface SecurityValueWrapper extends HasDynamicPropertiesWithUpdatableV
      */
     void delete();
 
+    /**
+     * @return if this security wrapper is valid (properties defined are set). Actually this method was extracted from AbstractDeviceSecurityAccessorImpl where it was looking inside each impl
+     * and check if props are not set on null. I have my doubts about this method but at least with this approach (having it here) we can talk about encapsulation.
+     */
+    default boolean isValid() {
+        return (getProperties().containsValue(null) || getProperties().size()!=getPropertySpecs().size());
+    }
+
 }

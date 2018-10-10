@@ -22,6 +22,12 @@ public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
      *
+     * @return smart meter key used in renew process, if exists. otherwise null is returned (if this key does not exist)
+     */
+    byte[] getSmartMeterKey();
+
+    /**
+     *
      * @return HSM label
      */
     String getLabel();

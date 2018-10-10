@@ -22,7 +22,7 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
     private long id;
     @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String encryptedKey;
-    private String label;
+
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
@@ -36,14 +36,6 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
 
     void setEncryptedKey(String encryptedKey) {
         this.encryptedKey = encryptedKey;
-    }
-
-    String getLabel() {
-        return label;
-    }
-
-    void setLabel(String label) {
-        this.label = label;
     }
 
     Reference<KeyType> getKeyTypeReference() {
@@ -75,6 +67,7 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
     public enum Fields {
         ENCRYPTED_KEY("encryptedKey"),
         LABEL("label"),
+        SMARTMETER_KEY("smartMeterKey"),
         KEY_TYPE("keyTypeReference"),
         EXPIRATION("expirationTime"),;
 
@@ -94,4 +87,8 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
                     "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 
+    @Override
+    public boolean isValid() {
+        return (getProperties().containsValue(null) || getProperties().size()!=getPropertySpecs().size());
+    }
 }

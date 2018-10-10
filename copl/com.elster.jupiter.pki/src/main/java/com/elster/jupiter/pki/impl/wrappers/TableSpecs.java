@@ -79,7 +79,12 @@ public enum TableSpecs {
             table.column("LABEL")
                     .varChar(SHORT_DESCRIPTION_LENGTH)
                     .map(KeyImpl.Fields.LABEL.fieldName())
-                    .since(version(10,4,2))
+                    .since(version(10,4,3))
+                    .add();
+            table.column("SM_KEY")
+                    .varChar(SHORT_DESCRIPTION_LENGTH)
+                    .map(KeyImpl.Fields.SMARTMETER_KEY.fieldName())
+                    .since(version(10,4,3))
                     .add();
             table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn)
                     .references(KeyType.class)

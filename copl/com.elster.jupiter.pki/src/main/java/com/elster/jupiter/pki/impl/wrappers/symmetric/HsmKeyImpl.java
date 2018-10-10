@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -39,6 +40,10 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     private final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
 
+    private String label;
+    private String smartMeterKey;
+
+
 
     @Inject
     HsmKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
@@ -60,6 +65,15 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     @Override
+    public String getLabel() {
+        return label;
+    }
+
+    private void setLabel(String label) {
+        this.label = label;
+    }
+
+    @Override
     public String getKeyEncryptionMethod() {
         return DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD;
     }
@@ -73,7 +87,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
             throw new IllegalArgumentException("Empty string label not accepted");
         }
         super.setEncryptedKey(dataVaultService.encrypt(key));
-        super.setLabel(label);
+        this.setLabel(label);
         this.save();
     }
 
@@ -83,17 +97,11 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     @Override
-    public String getLabel() {
-        return super.getLabel();
-    }
-
-    @Override
     public void generateValue(SecurityAccessorType securityAccessorType, HsmKey currentKey) {
         try {
-            String actualLabel = currentKey.getLabel();
-            byte[] actualKey = currentKey.getKey();
-            byte[] hsmGeneratedKey = hsmEnergyService.renewKey(new RenewKeyRequest(actualKey, actualLabel, securityAccessorType.getHsmKeyType())).getEncryptedKey();
-            this.setKey(hsmGeneratedKey, getLabel());
+            HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(currentKey.getKey(), currentKey.getLabel(), securityAccessorType.getHsmKeyType()));
+            this.setKey(hsmRenewKey.getEncryptedKey(), hsmRenewKey.getKeyLabel());
+            this.setSmartMeterKey(hsmRenewKey.getSmartMeterKey());
         } catch (HsmBaseException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ENCRYPTED_KEY_INVALID, e);
         }
@@ -104,6 +112,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         HsmPropertyValidator hsmPropertyValidator = HsmPropertyValidator.build(properties);
         hsmPropertyValidator.validate(getDataModel());
         this.setKey(hsmPropertyValidator.getKey(), hsmPropertyValidator.getLabel());
+        this.setSmartMeterKey(hsmPropertyValidator.getSmartMeterKey());
     }
 
     @Override
@@ -111,6 +120,9 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         Map<String, Object> properties = new HashMap<>();
         if (getKey() != null){
             properties.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getKey()));
+        }
+        if (getSmartMeterKey() != null) {
+            properties.put(HsmProperties.SM_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getSmartMeterKey()));
         }
         properties.put(HsmProperties.LABEL.getPropertyName(), getLabel());
         return properties;
@@ -132,5 +144,18 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         if (obj == null) {
             throw new IllegalArgumentException(msg);
         }
+    }
+
+    @Override
+    public byte[] getSmartMeterKey() {
+        if (smartMeterKey == null || smartMeterKey.isEmpty()) {
+            return null;
+        }
+        return dataVaultService.decrypt(smartMeterKey);
+    }
+
+    public void setSmartMeterKey(byte[] smartMeterKey) {
+        this.smartMeterKey = dataVaultService.encrypt(smartMeterKey);
+        this.save();
     }
 }

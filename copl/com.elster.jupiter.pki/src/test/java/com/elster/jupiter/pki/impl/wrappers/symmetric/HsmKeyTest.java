@@ -10,13 +10,13 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -135,23 +137,31 @@ public class HsmKeyTest {
 
     @Test
     public void generateValue() throws HsmBaseException {
-        // mocking request
-        HsmKey mockedCurrentKey = mock(HsmKey.class);
-        HsmEncryptedKey hsmEncryptedKey = mockHsmEnergyService(mockedCurrentKey);
+        // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
+        SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
+        HsmKeyType keyType = new HsmKeyType("label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16);
+        when(securityAccesorType.getHsmKeyType()).thenReturn(keyType);
 
-        String ecnryptedResultKey = "abcdef";
-        when(dataVaultService.encrypt(hsmEncryptedKey.getEncryptedKey())).thenReturn(ecnryptedResultKey);
-        when(dataVaultService.decrypt(ecnryptedResultKey)).thenReturn(ecnryptedResultKey.getBytes());
 
-        SecurityAccessorType mockedAccessorType = mock(SecurityAccessorType.class);
-        when(mockedAccessorType.getHsmKeyType()).thenReturn(hsmKeyType);
+        HsmKey currentKey = mock(HsmKey.class);
+        String clabel = "clabel";
+        when(currentKey.getLabel()).thenReturn(clabel);
+        byte[] cKey = "ckey".getBytes();
+        when(currentKey.getKey()).thenReturn(cKey);
 
-        hsmKeyUnderTest.generateValue(mockedAccessorType, mockedCurrentKey);
+        HsmRenewKey hsmRenewKey = new HsmRenewKey("smKey".getBytes(), "rKey".getBytes(), "rlabel");
+        when(hsmEnergyService.renewKey(new RenewKeyRequest(cKey, clabel, keyType))).thenReturn(hsmRenewKey);
+        when(dataVaultService.encrypt(hsmRenewKey.getEncryptedKey())).thenReturn("rKeyEnc");
+        when(dataVaultService.decrypt("rKeyEnc")).thenReturn(hsmRenewKey.getEncryptedKey());
 
-        assertTrue(Arrays.equals(ecnryptedResultKey.getBytes(), hsmKeyUnderTest.getKey()));
-        assertEquals(LABEL, hsmKeyUnderTest.getLabel());
+        when(dataVaultService.encrypt(hsmRenewKey.getSmartMeterKey())).thenReturn("smKeyEnc");
+        when(dataVaultService.decrypt("smKeyEnc")).thenReturn(hsmRenewKey.getSmartMeterKey());
 
-        verify(dataModel).persist(this.hsmKeyUnderTest);
+        hsmKeyUnderTest.generateValue(securityAccesorType, currentKey);
+        // new label comes from hsm key type
+        Assert.assertEquals(hsmRenewKey.getKeyLabel(), hsmKeyUnderTest.getLabel());
+        Assert.assertEquals(hsmRenewKey.getEncryptedKey(), hsmKeyUnderTest.getKey());
+        Assert.assertEquals(hsmRenewKey.getSmartMeterKey(), hsmKeyUnderTest.getSmartMeterKey());
     }
 
 
@@ -215,17 +225,5 @@ public class HsmKeyTest {
         assertEquals(LABEL, properties.get(HsmProperties.LABEL.getPropertyName()));
     }
 
-    private HsmEncryptedKey mockHsmEnergyService(HsmKey mockedCurrentKey) throws HsmBaseException {
-        byte[] cKeyBytes = "cKey".getBytes();
-        when(mockedCurrentKey.getKey()).thenReturn(cKeyBytes);
-        String cLabel = "cLabel";
-        when(mockedCurrentKey.getLabel()).thenReturn(cLabel);
-        RenewKeyRequest renewKeyRequest = new RenewKeyRequest(cKeyBytes, cLabel, hsmKeyType);
 
-        // mocking call to used services:
-        // energy service
-        HsmEncryptedKey hsmEncryptedKey = new HsmEncryptedKey("hsmKey".getBytes(), LABEL);
-        when(hsmEnergyService.renewKey(renewKeyRequest)).thenReturn(hsmEncryptedKey);
-        return hsmEncryptedKey;
-    }
 }

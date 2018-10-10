@@ -25,6 +25,13 @@ enum HsmProperties  {
                     .named(getPropertyName(), TranslationKeys.LABEL).fromThesaurus(thesaurus)
                     .finish();
         }
+    },
+    SM_KEY("smart meter key") {
+        public PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService.stringSpec()
+                    .named(getPropertyName(), TranslationKeys.SM_KEY).fromThesaurus(thesaurus)
+                    .finish();
+        }
     };
 
     private final String propertyName;
