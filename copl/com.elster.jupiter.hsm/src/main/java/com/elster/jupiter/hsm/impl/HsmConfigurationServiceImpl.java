@@ -13,10 +13,14 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import com.atos.worldline.jss.api.JSSRuntimeControl;
+import com.atos.worldline.jss.commondev.log.Slf4JLogFactory;
 import com.atos.worldline.jss.configuration.RawConfiguration;
+import groovy.util.logging.Slf4j;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -25,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
 public class HsmConfigurationServiceImpl implements HsmConfigurationService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HsmConfigurationServiceImpl.class);
 
     static final String COMPONENTNAME = "HsmConfigurationServiceImpl";
     private boolean initialized = false;
@@ -44,11 +50,11 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             System.out.println(e);
             throw (e);
         }
-        System.out.println("JSS initialized");
+
     }
 
     private void waitInit() {
-        System.out.println("Waiting for HSM initialization, please be patient...");
+        LOG.debug("Waiting for HSM initialization, please be patient...");
         if (!JSSRuntimeControl.waitSecondsForAvailableHsms(10)) {
             throw new RuntimeException("No HSM available! Initialization failed");
         }

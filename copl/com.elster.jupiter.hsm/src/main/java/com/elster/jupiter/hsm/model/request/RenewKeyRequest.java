@@ -44,4 +44,25 @@ public class RenewKeyRequest {
     public HsmKeyType getHsmKeyType() {
         return hsmKeyType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RenewKeyRequest)) {
+            return false;
+        }
+        RenewKeyRequest that = (RenewKeyRequest) o;
+        return Arrays.equals(actualKey, that.actualKey) &&
+                Objects.equals(actualLabel, that.actualLabel) &&
+                Objects.equals(hsmKeyType, that.hsmKeyType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(actualLabel, hsmKeyType);
+        result = 31 * result + Arrays.hashCode(actualKey);
+        return result;
+    }
 }

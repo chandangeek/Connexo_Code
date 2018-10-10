@@ -12,6 +12,7 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
@@ -75,7 +76,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
-    public HsmEncryptedKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException {
+    public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException {
         try {
             KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
             ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getActualLabel()),renewKeyRequest.getActualKey());
@@ -85,7 +86,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                     getSessionKeyType(renewKeyRequest.getHsmKeyType()));
             ProtectedSessionKey psk = response.getMdmStorageKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-            return new HsmEncryptedKey(psk.getValue(), kekLabel);
+            return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }

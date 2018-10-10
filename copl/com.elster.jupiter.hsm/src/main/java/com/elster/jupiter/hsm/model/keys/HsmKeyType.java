@@ -1,5 +1,7 @@
 package com.elster.jupiter.hsm.model.keys;
 
+import java.util.Objects;
+
 public class HsmKeyType {
 
     private final String label;
@@ -29,5 +31,25 @@ public class HsmKeyType {
 
     public int getKeySize() {
         return keySize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof HsmKeyType)) {
+            return false;
+        }
+        HsmKeyType that = (HsmKeyType) o;
+        return keySize == that.keySize &&
+                Objects.equals(label, that.label) &&
+                importCapability == that.importCapability &&
+                renewCapability == that.renewCapability;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(label, importCapability, renewCapability, keySize);
     }
 }
