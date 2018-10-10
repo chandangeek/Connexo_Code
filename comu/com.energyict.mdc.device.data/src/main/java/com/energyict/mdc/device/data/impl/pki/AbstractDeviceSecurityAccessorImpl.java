@@ -121,7 +121,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
 
     @Override
     public KeyAccessorStatus getStatus() {
-        if (!getActualValue().isPresent() || getActualValue().get().getProperties().containsValue(null) || getActualValue().get().getProperties().size()!=getPropertySpecs().size()) {
+        if (!getActualValue().isPresent() || !getActualValue().get().isValid()) {
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;
