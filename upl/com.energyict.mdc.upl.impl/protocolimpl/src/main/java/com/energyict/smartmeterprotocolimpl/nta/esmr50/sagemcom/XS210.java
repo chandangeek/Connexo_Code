@@ -39,7 +39,7 @@ public class XS210 extends ESMR50Protocol {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new ESMR50Messaging(new ESMR50MessageExecutor(this));
+        return new ESMR50Messaging(new ESMR50MessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), this.getNumberLookupExtractor(), this.getNumberLookupFinder()));
     }
 
     @Override

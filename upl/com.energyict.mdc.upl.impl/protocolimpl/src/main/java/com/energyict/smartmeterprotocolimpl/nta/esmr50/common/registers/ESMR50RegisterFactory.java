@@ -17,7 +17,6 @@ import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -246,8 +245,8 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
-                String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
+//                String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
+//                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
@@ -295,7 +294,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     if (abstractDataType.isStructure()){
                         return new RegisterValue(register, abstractDataType.getStructure().getDataType(0).getOctetString().stringValue());
                     } else {
-                        unableToParseRegisterValueException(abstractDataType);
+//                        unableToParseRegisterValueException(abstractDataType);
                     }
                 }
             } else if (rObisCode.equals(PPP_SETUP_AUTH_PASSWORD)) {
@@ -303,7 +302,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     if (abstractDataType.isStructure()){
                         return new RegisterValue(register, abstractDataType.getStructure().getDataType(1).getOctetString().stringValue());
                     } else {
-                        unableToParseRegisterValueException(abstractDataType);
+//                        unableToParseRegisterValueException(abstractDataType);
                     }
                 }
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_STATUS)) {
@@ -578,11 +577,11 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
             } else if (rObisCode.equalsIgnoreBChannel(BILLING_PERIODS)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("BILLING_PERIODS value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(ERROR_OBJECT)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_OBJECT value: " + abstractDataType.getUnsigned64()));
+//                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_OBJECT value: " + abstractDataType.getUnsigned64()));
             } else if (rObisCode.equalsIgnoreBChannel(ALARM_OBJECT)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_OBJECT value: " + abstractDataType.getUnsigned64()));
+//                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_OBJECT value: " + abstractDataType.getUnsigned64()));
             } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) {
-                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getUnsigned64()));
+//                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getUnsigned64()));
             } else if (rObisCode.equals(MODEM_FIRMWARE_SIGNATURE_OBISCODE)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equals(AUXILIARY_FIRMWARE_VERSION)) {
@@ -594,7 +593,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
             } else if(rObisCode.equalsIgnoreBChannel(P1_PORT_DSMR_VERSION)){
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equals(MBUS_EVENT_LOG)) {
-                return new RegisterValue(adjustToMbusOC(rObisCode), new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
+//                return new RegisterValue(adjustToMbusOC(rObisCode), new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
                 if (configurationObject.isDecoded()){
@@ -670,9 +669,9 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
 
-    private void unableToParseRegisterValueException(AbstractDataType abstractDataType) throws ProtocolException {
-        throw new ProtocolException("Unable to parse received register data: "+ ProtocolTools.getHexStringFromBytes(abstractDataType.getBEREncodedByteArray(), ""));
-    }
+//    private void unableToParseRegisterValueException(AbstractDataType abstractDataType) throws ProtocolException {
+//        throw new ProtocolException("Unable to parse received register data: "+ ProtocolTools.getHexStringFromBytes(abstractDataType.getBEREncodedByteArray(), ""));
+//    }
 
     /**
      * Construct a ComposedCosemObject from a list of <CODE>Registers</CODE>.
@@ -696,14 +695,14 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
                 if (rObisCode.equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
                     ObisCode adjustedObisCode = rObisCode;
-                    DLMSAttribute valueAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.RSSI.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC.getClassId());
-                    DLMSAttribute captureTimeAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC);
-                    ComposedRegister composedRegister = new ComposedRegister(valueAttribute, null, captureTimeAttribute);
+//                    DLMSAttribute valueAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.RSSI.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC.getClassId());
+//                    DLMSAttribute captureTimeAttribute = new DLMSAttribute(adjustedObisCode, MBusDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.MBUS_DIAGNOSTIC);
+//                    ComposedRegister composedRegister = new ComposedRegister(valueAttribute, null, captureTimeAttribute);
 
-                    dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
-                    dlmsAttributes.add(composedRegister.getRegisterCaptureTime());
-                    protocol.getLogger().finest(" - register will be handled as composed: " + register.getObisCode());
-                    this.composedRegisterMap.put(register, composedRegister);
+//                    dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
+//                    dlmsAttributes.add(composedRegister.getRegisterCaptureTime());
+//                    protocol.getLogger().finest(" - register will be handled as composed: " + register.getObisCode());
+//                    this.composedRegisterMap.put(register, composedRegister);
                 }else if (rObisCode.equals(EMETER_CONFIGURATION_OBJECT)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
@@ -742,7 +741,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), -1 , DLMSClassId.IMAGE_TRANSFER));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }  else if (rObisCode.equalsIgnoreBChannel(MBUS_CONFIGURATION)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.CONFIGURATION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+//                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.CONFIGURATION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_CAPTURE_PERIOD)) {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
@@ -772,7 +771,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ALARM.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_ENCRYPTION_KEY_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+//                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_FUAK_STATUS)) {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), ESMR50MbusClientAttributes.FUAK_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
@@ -788,24 +787,24 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_APN)) {
                     ObisCode base = getLTESetupBase(rObisCode);
-                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.APN.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
+//                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.APN.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_PIN)) {
                     ObisCode base = getLTESetupBase(rObisCode);
-                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.PIN_Code.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
+//                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.PIN_Code.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(LTE_SETUP_QOS)) {
                     ObisCode base = getLTESetupBase(rObisCode);
-                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.QoS.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
+//                    this.registerMap.put(register, new DLMSAttribute(base, LTESetupAttributes.QoS.getAttributeNumber(), DLMSClassId.GPRS_SETUP));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(PPP_SETUP_AUTH_USERNAME) || rObisCode.equals(PPP_SETUP_AUTH_PASSWORD)) {
-                    this.registerMap.put(register, new DLMSAttribute(PPP_SETUP_base, PPPSetup.ATTRB_PPP_AUTHENTICATION, DLMSClassId.PPP_SETUP.getClassId()));
+//                    this.registerMap.put(register, new DLMSAttribute(PPP_SETUP_base, PPPSetup.ATTRB_PPP_AUTHENTICATION, DLMSClassId.PPP_SETUP.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(BILLING_PERIOD)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.SINGLE_ACTION_SCHEDULE.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_ENCRYPTION_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+//                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(POWER_LONG_FAILURE_STATUS)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
@@ -829,67 +828,67 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     this.registerMap.put(register, new DLMSAttribute(AUXILIARY_FIRMWARE_VERSION, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_OPERATOR)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.OPERATOR.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.OPERATOR.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.STATUS.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.STATUS.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CS_ATTACHMENT)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CS_ATTACHMENT.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CS_ATTACHMENT.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_PS_STATUS)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.PS_STATUS.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.PS_STATUS.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_BASE)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_BASE.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_BASE.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_CELL_ID)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_CELL_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_CELL_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_LOCATION_ID)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_LOCATION_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_LOCATION_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_SIGNAL_QUALITY)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_SIGNAL_QUALITY.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_SIGNAL_QUALITY.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_BER)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_BER.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_BER.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_MCC)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_MCC.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_MCC.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_MNC)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_MNC.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_MNC.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_CELL_INFO_CHANNEL_NUMBER)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_CHANNEL_NUMBER.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CELL_INFO_CHANNEL_NUMBER.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_ADJACENT_CELLS_BASE)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_BASE.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_BASE.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_ADJACENT_CELLS_CELLID)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_CELL_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_CELL_ID.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(GSM_DIAGNOSTIC_ADJACENT_CELLS_SIGNAL_QUALITY)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_SIGNAL_QUALITY.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.ADJACENT_CELLS_SIGNAL_QUALITY.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(GSM_DIAGNOSTIC_CAPTURE_TIME)) {
-                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
+//                    this.registerMap.put(register, new DLMSAttribute(GSM_DIAGNOSTIC_BASE, GSMDiagnosticAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.GSM_DIAGNOSTIC));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(LTE_CONNECTION_REJECTION_BASE)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_CAUSE)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECT_CAUSE.getAttributeNumber(), DLMSClassId.DATA));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECT_CAUSE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_MCC)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECTED_MCC.getAttributeNumber(), DLMSClassId.DATA));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECTED_MCC.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_LAST_REJECTED_MNC)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECTED_MNC.getAttributeNumber(), DLMSClassId.DATA));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.LAST_REJECTED_MNC.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_CONNECTION_REJECTION_TIMESTAMP_LAST_REJECTION)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.TIMESTAMP_LAST_REJECTION.getAttributeNumber(), DLMSClassId.DATA));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_CONNECTION_REJECTION_BASE, LTEConnectionRejectionAttributes.TIMESTAMP_LAST_REJECTION.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
@@ -904,29 +903,29 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                     this.registerMap.put(register, new DLMSAttribute(this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, register.getSerialNumber()), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_BASE)) {
-                    this.registerMap.put(register, new DLMSAttribute(rObisCode, LTEMonitoringAttributes.VALUE.getAttributeNumber(), DLMSClassId.LTE_MONITORING.getClassId()));
+//                    this.registerMap.put(register, new DLMSAttribute(rObisCode, LTEMonitoringAttributes.VALUE.getAttributeNumber(), DLMSClassId.LTE_MONITORING.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.T3402.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.T3402.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.T3412.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.T3412.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.RSRQ.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.RSRQ.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.RSRP.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.RSRP.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN)) {
-                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.QRXLEVMIN.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
+//                    this.registerMap.put(register, new DLMSAttribute(LTE_MONITORING_BASE, LTEMonitoringAttributes.QRXLEVMIN.getAttributeNumber(), DLMSClassId.LTE_MONITORING));
                     dlmsAttributes.add(this.registerMap.get(register));
-                }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_OBJECTS)) {
-                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_OBJECTS.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
-                    dlmsAttributes.add(this.registerMap.get(register));
-                }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
-                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
-                    dlmsAttributes.add(this.registerMap.get(register));
+//                }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_OBJECTS)) {
+//                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_OBJECTS.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
+//                    dlmsAttributes.add(this.registerMap.get(register));
+//                }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
+//                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
+//                    dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(LTE_PING_ADDRESS)){
                     this.registerMap.put(register, new DLMSAttribute(LTE_PING_ADDRESS, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
@@ -941,7 +940,7 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                 dlmsAttributes.addAll(Arrays.asList(sRegisterList.getDlmsAttributesList()));
             }
 
-            protocol.getLogger().finest("Composed registers: "+this.composedRegisterMap.toString());
+//            protocol.getLogger().finest("Composed registers: "+this.composedRegisterMap.toString());
             return new ComposedCosemObject(protocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;
@@ -958,52 +957,56 @@ public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
                 LTE_SETUP_base.getF());
     }
 
-    @Override
-    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, Register register) throws IOException {
-        if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
-            ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
-            try {
-                protocol.getLogger().finest("Handling MBUS Diagnostic: "+register.getObisCode().toString());
-                DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
-                protocol.getLogger().finest("  > fetching capture_time :"+registerCaptureTime.toString());
-                AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
-                if (attribute.isStructure()) {
-                    Structure structure = attribute.getStructure();
-                    AbstractDataType attr1 = structure.getNextDataType();
-                    AbstractDataType captureStructure = structure.getNextDataType();
-                    if(captureStructure instanceof DateTime){
-                        DateTime dateTime = (DateTime) captureStructure;
-                        Date capturedTime = dateTime.getValue().getTime();
-                        String format = "yyyy/MM/dd HH:mm:ss";
-                        SimpleDateFormat sdf = new SimpleDateFormat(format);
-                        sdf.setTimeZone(protocol.getDlmsSession().getTimeZone());
-                        Date deviceTime = new Date(sdf.format(capturedTime));
-                        protocol.getLogger().finest("  > decoded captured time = " + capturedTime.toString());
-                        return new RegisterValue(
-                                register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()), deviceTime);
-                    } else {
-                        protocol.getLogger().finest("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
-                        protocol.getLogger().finest("Creating register without timestamp.");
-                        return new RegisterValue(
-                                register,
-                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()));
-                    }
-                } else {
-                    protocol.getLogger().warning("Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
-                }
+//    @Override
+//    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, Register register) throws IOException {
+//        if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
+//            ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
+//            try {
+//                protocol.getLogger().finest("Handling MBUS Diagnostic: "+register.getObisCode().toString());
+//                DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
+//                protocol.getLogger().finest("  > fetching capture_time :"+registerCaptureTime.toString());
+//                AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
+//                if (attribute.isStructure()) {
+//                    Structure structure = attribute.getStructure();
+//                    AbstractDataType attr1 = structure.getNextDataType();
+//                    AbstractDataType captureStructure = structure.getNextDataType();
+//                    if(captureStructure instanceof DateTime){
+//                        DateTime dateTime = (DateTime) captureStructure;
+//                        Date capturedTime = dateTime.getValue().getTime();
+//                        String format = "yyyy/MM/dd HH:mm:ss";
+//                        SimpleDateFormat sdf = new SimpleDateFormat(format);
+//                        sdf.setTimeZone(protocol.getDlmsSession().getTimeZone());
+//                        Date deviceTime = new Date(sdf.format(capturedTime));
+//                        protocol.getLogger().finest("  > decoded captured time = " + capturedTime.toString());
+//                        return new RegisterValue(
+//                                register,
+//                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+//                                        su.getEisUnit()), deviceTime);
+//                    } else {
+//                        protocol.getLogger().finest("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
+//                        protocol.getLogger().finest("Creating register without timestamp.");
+//                        return new RegisterValue(
+//                                register,
+//                                new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+//                                        su.getEisUnit()));
+//                    }
+//                } else {
+//                    protocol.getLogger().warning("Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
+//                }
+//
+//
+//            } catch (Exception ex){
+//                protocol.getLogger().warning("Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
+//            }
+//
+//        } else {
+//            return super.handleComposedRegister(registerComposedCosemObject, register);
+//        }
+//
+//        return new RegisterValue(register);
+//    }
 
-
-            } catch (Exception ex){
-                protocol.getLogger().warning("Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
-            }
-
-        } else {
-            return super.handleComposedRegister(registerComposedCosemObject, register);
-        }
-
-        return new RegisterValue(register);
+    private ObisCode adjustToMbusOC(ObisCode oc) {
+        return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
     }
 }

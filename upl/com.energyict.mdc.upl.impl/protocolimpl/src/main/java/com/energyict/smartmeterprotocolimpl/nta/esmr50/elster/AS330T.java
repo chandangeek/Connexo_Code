@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.esmr50.elster;
 
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -10,6 +12,11 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.events.ElsterEsmr5
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.registers.AS330TRegisterFactory;
 
 public class AS330T extends ESMR50Protocol {
+
+    protected AS330T(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
+    }
+
     @Override
     public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
@@ -32,7 +39,9 @@ public class AS330T extends ESMR50Protocol {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new ESMR50Messaging(new ESMR50MessageExecutor(this));
+        return new ESMR50Messaging(
+                new ESMR50MessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), this.getNumberLookupExtractor(), this.getNumberLookupFinder())
+        );
     }
 
     @Override
@@ -40,4 +49,8 @@ public class AS330T extends ESMR50Protocol {
         return "$Date: 2016-04-07 12:11:18 +0300 (Thu, 07 Apr 2016) $";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return null;
+    }
 }

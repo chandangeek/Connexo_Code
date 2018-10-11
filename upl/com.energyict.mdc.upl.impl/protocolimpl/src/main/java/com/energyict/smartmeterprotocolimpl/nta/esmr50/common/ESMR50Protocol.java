@@ -80,7 +80,7 @@ public abstract class ESMR50Protocol extends com.energyict.smartmeterprotocolimp
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new ESMR50Messaging(new ESMR50MessageExecutor(this));
+        return new ESMR50Messaging(new ESMR50MessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(),  this.getNumberLookupExtractor(), this.getNumberLookupFinder()));
     }
 
     @Override
