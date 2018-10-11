@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,6 +69,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     // For testing purposes
+    @Inject
     public StateTransitionTriggerEventTopicHandler(EventService eventService, BpmService bpmService,
                                                    StateTransitionPropertiesProvider usagePointProvider) {
         this();
