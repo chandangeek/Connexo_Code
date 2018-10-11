@@ -87,8 +87,4 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
                     "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 
-    @Override
-    public boolean isValid() {
-        return (getProperties().containsValue(null) || getProperties().size()!=getPropertySpecs().size());
-    }
 }

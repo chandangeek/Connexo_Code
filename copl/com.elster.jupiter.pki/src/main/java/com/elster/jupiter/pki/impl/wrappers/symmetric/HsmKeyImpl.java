@@ -112,7 +112,6 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         HsmPropertyValidator hsmPropertyValidator = HsmPropertyValidator.build(properties);
         hsmPropertyValidator.validate(getDataModel());
         this.setKey(hsmPropertyValidator.getKey(), hsmPropertyValidator.getLabel());
-        this.setSmartMeterKey(hsmPropertyValidator.getSmartMeterKey());
     }
 
     @Override
@@ -120,9 +119,6 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         Map<String, Object> properties = new HashMap<>();
         if (getKey() != null){
             properties.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getKey()));
-        }
-        if (getSmartMeterKey() != null) {
-            properties.put(HsmProperties.SM_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getSmartMeterKey()));
         }
         properties.put(HsmProperties.LABEL.getPropertyName(), getLabel());
         return properties;
@@ -158,4 +154,5 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         this.smartMeterKey = dataVaultService.encrypt(smartMeterKey);
         this.save();
     }
+
 }

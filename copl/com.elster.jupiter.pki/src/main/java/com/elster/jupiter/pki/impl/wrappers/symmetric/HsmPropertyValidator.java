@@ -16,14 +16,10 @@ class HsmPropertyValidator {
     @HexBinary(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.HEXBINARY_EVEN_LENGTH + "}")
     @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}")
     private  final String key;
-    @HexBinary(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.HEXBINARY_EVEN_LENGTH + "}")
-    @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}")
-    private  final String smartMeterKey;
     private  final String label;
 
-    private HsmPropertyValidator(String key, String smartMeterKey, String label) {
+    private HsmPropertyValidator(String key, String label) {
         this.key = key;
-        this.smartMeterKey = smartMeterKey;
         this.label = label;
     }
 
@@ -32,9 +28,9 @@ class HsmPropertyValidator {
 
         String lkey =  getPropertyName(properties, HsmProperties.DECRYPTED_KEY.getPropertyName());
         String llabel = getPropertyName(properties,HsmProperties.LABEL.getPropertyName());
-        String lsmartMeterKey = getPropertyName(properties, HsmProperties.SM_KEY.getPropertyName());
 
-        return new HsmPropertyValidator(lkey,lsmartMeterKey, llabel);
+
+        return new HsmPropertyValidator(lkey, llabel);
 
     }
 
@@ -60,10 +56,4 @@ class HsmPropertyValidator {
         return DatatypeConverter.parseHexBinary(key);
     }
 
-    public byte[] getSmartMeterKey() {
-        if (smartMeterKey == null) {
-            return null;
-        }
-        return DatatypeConverter.parseHexBinary(smartMeterKey);
-    }
 }

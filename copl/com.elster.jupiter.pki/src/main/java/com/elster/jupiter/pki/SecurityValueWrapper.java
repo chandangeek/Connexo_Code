@@ -28,7 +28,7 @@ public interface SecurityValueWrapper extends HasDynamicPropertiesWithUpdatableV
      * and check if props are not set on null. I have my doubts about this method but at least with this approach (having it here) we can talk about encapsulation.
      */
     default boolean isValid() {
-        return (getProperties().containsValue(null) || getProperties().size()!=getPropertySpecs().size());
+        return (!getProperties().containsValue(null) && getProperties().size()==getPropertySpecs().size());
     }
 
 }
