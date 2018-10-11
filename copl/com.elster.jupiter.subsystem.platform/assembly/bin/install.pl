@@ -484,6 +484,7 @@ sub update_properties_file_with_encrypted_password {
 
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
+    replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
 }
 
