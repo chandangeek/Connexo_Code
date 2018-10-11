@@ -13,6 +13,7 @@ import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.NoTransitionException;
@@ -23,7 +24,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
+import java.security.Principal;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
@@ -35,17 +39,19 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
     private final TransactionService transactionService;
-    private final Object serviceCallLock = new Object();
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
     public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService,
-                                         CustomPropertySetService customPropertySetService, TransactionService transactionService) {
+                                         CustomPropertySetService customPropertySetService, TransactionService transactionService,
+                                         ThreadPrincipalService threadPrincipalService) {
         this.dataModel = ormService.getDataModel(WebServiceDataExportPersistenceSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export CPS isn't found."));
         this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     public ServiceCallType findOrCreate() {
@@ -66,19 +72,40 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout);
         } else {
-            return transactionService.execute(() -> doStartServiceCall(uuid, timeout));
+            return startServiceCallInTransaction(uuid, timeout);
         }
+    }
+
+    @Override
+    public ServiceCall startServiceCallAsync(String uuid, long timeout) {
+        Principal principal = threadPrincipalService.getPrincipal();
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                threadPrincipalService.set(principal);
+                return startServiceCallInTransaction(uuid, timeout);
+            }).get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout) {
+        return transactionService.execute(() -> doStartServiceCall(uuid, timeout));
     }
 
     private ServiceCall doStartServiceCall(String uuid, long timeout) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension();
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
-        ServiceCall serviceCall = findOrCreate().newServiceCall()
+        ServiceCallType serviceCallType = findOrCreate();
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(WebServiceDataExportPersistenceSupport.APPLICATION_NAME)
                 .extendedWith(serviceCallProperties)
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
+        serviceCall.requestTransition(DefaultState.ONGOING);
         return serviceCall;
     }
 
@@ -92,52 +119,57 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public void tryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
+    public ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
         if (transactionService.isInTransaction()) {
-            doTryFailingServiceCall(serviceCall, errorMessage);
+            return doTryFailingServiceCall(serviceCall, errorMessage);
         } else {
-            transactionService.run(() -> doTryFailingServiceCall(serviceCall, errorMessage));
+            return transactionService.execute(() -> doTryFailingServiceCall(serviceCall, errorMessage));
         }
     }
 
-    private void doTryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
+    private ServiceCallStatus doTryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
         try {
-            synchronized (serviceCallLock) {
-                serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.getExtension(WebServiceDataExportDomainExtension.class)
-                        .ifPresent(serviceCallProperties -> {
-                            serviceCallProperties.setErrorMessage(errorMessage);
-                            Save.UPDATE.save(dataModel, serviceCallProperties);
-                        });
-            }
+            serviceCall = lock(serviceCall);
+            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.getExtension(WebServiceDataExportDomainExtension.class)
+                    .ifPresent(serviceCallProperties -> {
+                        serviceCallProperties.setErrorMessage(errorMessage);
+                        Save.UPDATE.save(dataModel, serviceCallProperties);
+                    });
+            return new ServiceCallStatusImpl(serviceCall, DefaultState.FAILED, errorMessage);
         } catch (NoTransitionException e) {
             // not intended to do anything if the service call is already closed
+            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
         }
     }
 
     @Override
-    public void tryPassingServiceCall(ServiceCall serviceCall) {
+    public ServiceCallStatus tryPassingServiceCall(ServiceCall serviceCall) {
         if (transactionService.isInTransaction()) {
-            doTryPassingServiceCall(serviceCall);
+            return doTryPassingServiceCall(serviceCall);
         } else {
-            transactionService.run(() -> doTryPassingServiceCall(serviceCall));
+            return transactionService.execute(() -> doTryPassingServiceCall(serviceCall));
         }
     }
 
-    public void doTryPassingServiceCall(ServiceCall serviceCall) {
+    private ServiceCallStatus doTryPassingServiceCall(ServiceCall serviceCall) {
         try {
-            synchronized (serviceCallLock) {
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            }
+            serviceCall = lock(serviceCall);
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            return new ServiceCallStatusImpl(serviceCall, DefaultState.SUCCESSFUL, null);
         } catch (NoTransitionException e) {
             // not intended to do anything if the service call is already closed
+            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
         }
     }
 
     @Override
     public ServiceCallStatus getStatus(ServiceCall serviceCall) {
-        synchronized (serviceCallLock) {
-            return new ServiceCallStatusImpl(serviceCallService, serviceCall);
-        }
+        return new ServiceCallStatusImpl(serviceCallService, serviceCall);
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }

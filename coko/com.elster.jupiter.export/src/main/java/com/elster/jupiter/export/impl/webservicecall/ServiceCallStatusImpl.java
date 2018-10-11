@@ -12,8 +12,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import java.util.Optional;
 
 public class ServiceCallStatusImpl implements ServiceCallStatus {
-    public static final ServiceCallStatus SUCCESS = new ServiceCallStatusImpl(null, DefaultState.SUCCESSFUL);
-    public static final ServiceCallStatus ONGOING = new ServiceCallStatusImpl(null, DefaultState.ONGOING);
+    public static final ServiceCallStatus SUCCESS = new ServiceCallStatusImpl(null, DefaultState.SUCCESSFUL, null);
+    public static final ServiceCallStatus ONGOING = new ServiceCallStatusImpl(null, DefaultState.ONGOING, null);
 
     private final ServiceCall serviceCall;
     private final DefaultState state;
@@ -31,9 +31,10 @@ public class ServiceCallStatusImpl implements ServiceCallStatus {
         }
     }
 
-    private ServiceCallStatusImpl(ServiceCall serviceCall, DefaultState state) {
+    ServiceCallStatusImpl(ServiceCall serviceCall, DefaultState state, String errorMessage) {
         this.serviceCall = serviceCall;
         this.state = state;
+        this.errorMessage = errorMessage;
     }
 
     @Override

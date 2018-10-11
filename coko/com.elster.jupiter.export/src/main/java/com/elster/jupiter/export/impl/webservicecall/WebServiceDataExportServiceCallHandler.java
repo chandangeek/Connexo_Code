@@ -21,6 +21,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +41,18 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
     private volatile CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private volatile DataExportServiceCallType dataExportServiceCallType;
 
+    public WebServiceDataExportServiceCallHandler() {
+        // for OSGi purposes
+    }
+
+    @Inject
+    public WebServiceDataExportServiceCallHandler(Thesaurus thesaurus, DataExportServiceCallType dataExportServiceCallType,
+                                                  CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS) {
+        this.thesaurus = thesaurus;
+        this.dataExportServiceCallType = dataExportServiceCallType;
+        this.serviceCallCPS = serviceCallCPS;
+    }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
@@ -57,9 +70,6 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
             case ONGOING:
                 process(serviceCall);
                 break;
-            case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
             default:
                 // No specific action required for these states
                 break;
@@ -67,9 +77,9 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
     }
 
     private void process(ServiceCall serviceCall) {
-        WebServiceDataExportDomainExtension serviceCallProperties = serviceCall.getExtensionFor(serviceCallCPS)
-                .orElseThrow(() -> new DestinationFailedException(thesaurus, MessageSeeds.NO_CPS_VALUES_FOUND, serviceCall.getNumber()));
         try {
+            WebServiceDataExportDomainExtension serviceCallProperties = serviceCall.getExtensionFor(serviceCallCPS)
+                    .orElseThrow(() -> new DestinationFailedException(thesaurus, MessageSeeds.NO_CPS_VALUES_FOUND, serviceCall.getNumber()));
             CompletableFuture.supplyAsync(() -> checkStateUntilClosed(serviceCall), Executors.newSingleThreadExecutor())
                     .get(serviceCallProperties.getTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException | TimeoutException e) {
@@ -79,6 +89,8 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
         } catch (CompletionException | ExecutionException e) {
             dataExportServiceCallType.tryFailingServiceCall(serviceCall,
                     thesaurus.getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_WAITING_FAILURE).format(e.getCause().getLocalizedMessage()));
+        } catch (Exception e) {
+            dataExportServiceCallType.tryFailingServiceCall(serviceCall, e.getLocalizedMessage());
         }
     }
 

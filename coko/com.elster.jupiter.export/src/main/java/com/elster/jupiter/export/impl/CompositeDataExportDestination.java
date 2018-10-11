@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -18,6 +19,10 @@ class CompositeDataExportDestination implements FormattedFileDestination, DataDe
 
     private final List<FormattedFileDestination> fileDestinations;
     private final List<DataDestination> dataDestinations;
+
+    public CompositeDataExportDestination(Destination... components) {
+        this(Arrays.asList(components));
+    }
 
     public CompositeDataExportDestination(List<? extends Destination> components) {
         fileDestinations = new ArrayList<>(components.size());
@@ -31,8 +36,8 @@ class CompositeDataExportDestination implements FormattedFileDestination, DataDe
                     fileDestinations.add((FormattedFileDestination) component);
                     break;
                 case COMPOSITE:
-                    dataDestinations.add((DataDestination) component);
-                    fileDestinations.add((FormattedFileDestination) component);
+                    dataDestinations.addAll(((CompositeDataExportDestination) component).dataDestinations);
+                    fileDestinations.addAll(((CompositeDataExportDestination) component).fileDestinations);
                     break;
             }
         });
