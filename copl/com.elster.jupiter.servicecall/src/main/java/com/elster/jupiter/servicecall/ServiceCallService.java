@@ -86,6 +86,14 @@ public interface ServiceCallService {
     Optional<ServiceCall> getServiceCall(long id);
 
     /**
+     * Finds and locks a service call with the given id, if it exists
+     *
+     * @param id The id of the service call
+     * @return The optional service call
+     */
+    Optional<ServiceCall> lockServiceCall(long id);
+
+    /**
      * Returns a finder which allows you to filter the found service calls
      *
      * @param serviceCallFilter a filter for servicecalls
