@@ -8,6 +8,7 @@ import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.impl.config.HsmConfigurationPropFileImpl;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
@@ -28,7 +29,7 @@ public class ImportKeyRequestIT {
     private static final byte[] DEVICE_KEY = new byte[]{9,8,7,6,5};
     private static final byte[] DEVICE_KEY_INIT_VECTOR = new byte[]{5,4,3,2,1};;
     public static final int KEY_SIZE = 32;
-    private static final HsmKeyType HSM_KEY_TYPE = new HsmKeyType(LABEL, SessionKeyCapability.SM_KEK_AGREEMENT, SessionKeyCapability.SM_KEK_RENEWAL, KEY_SIZE);
+    private static final HsmKeyType HSM_KEY_TYPE = new HsmKeyType(HsmJssKeyType.AES, LABEL, SessionKeyCapability.SM_KEK_AGREEMENT, SessionKeyCapability.SM_KEK_RENEWAL, KEY_SIZE);
 
     private static HsmConfiguration HSM_CONFIG;
     private static ImportKeyRequest IKR;
@@ -40,7 +41,7 @@ public class ImportKeyRequestIT {
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
+    public static void tearDown() {
         HSM_CONFIG = null;
         IKR = null;
     }

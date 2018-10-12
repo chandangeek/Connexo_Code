@@ -8,7 +8,9 @@ import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
 import com.atos.worldline.jss.api.custom.energy.AESDeviceKey;
+import com.atos.worldline.jss.api.custom.energy.AuthenticationKey;
 import com.atos.worldline.jss.api.custom.energy.DeviceKey;
+import com.atos.worldline.jss.api.custom.energy.HLSecret;
 import com.atos.worldline.jss.api.custom.energy.TransportKey;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
@@ -51,7 +53,7 @@ public class ImportKeyRequest {
     }
 
 
-    public String getImportLabel() throws HsmBaseException {
+    public String getImportLabel() {
         return hsmKeyType.getLabel();
     }
 
@@ -64,10 +66,17 @@ public class ImportKeyRequest {
     }
 
     public DeviceKey getDeviceKey() throws HsmBaseException {
-        if (SymmetricAlgorithm.AES_256_CBC.equals(deviceKeyAlgorhitm)){
-            return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+        switch (hsmKeyType.getHsmJssKeyType()) {
+            case AES:
+                return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+            case AUTHENTICATION:
+                return new AuthenticationKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+            case HLSECRET:
+                return new HLSecret(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+            default:
+                throw new HsmBaseException("Unknown JSS key type");
         }
-        throw new HsmBaseException("Could not construct device key based on symmetric algorithm:" + deviceKeyAlgorhitm);
+
     }
 
     public SessionKeyCapability getImportSessionCapability() {

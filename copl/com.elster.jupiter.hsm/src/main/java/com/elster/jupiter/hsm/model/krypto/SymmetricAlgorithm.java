@@ -24,7 +24,7 @@ public enum SymmetricAlgorithm implements Algorithm {
      * @param identifier
      * @param keySize expressed in bytes, therefore AES 256 is 32 bytes
      */
-    private SymmetricAlgorithm(String cipherName, String identifier, int keySize) {
+    SymmetricAlgorithm(String cipherName, String identifier, int keySize) {
         this.cipherName = cipherName;
         this.identifier = identifier;
         this.keySize = keySize;

@@ -3,19 +3,23 @@ package com.elster.jupiter.hsm.model.keys;
 import java.util.Objects;
 
 public class HsmKeyType {
-
+    private final HsmJssKeyType hsmJssKeyType;
     private final String label;
     private final SessionKeyCapability importCapability;
     private final SessionKeyCapability renewCapability;
     private final int keySize;
 
 
-    public HsmKeyType(String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, int keySize) {
+
+    public HsmKeyType(HsmJssKeyType hsmJssKeyType, String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, int keySize) {
+        this.hsmJssKeyType = hsmJssKeyType;
         this.label = label;
         this.importCapability = importCapability;
         this.renewCapability = renewCapability;
         this.keySize = keySize;
     }
+
+    public HsmJssKeyType getHsmJssKeyType() {  return hsmJssKeyType; }
 
     public String getLabel() {
         return label;
@@ -43,6 +47,7 @@ public class HsmKeyType {
         }
         HsmKeyType that = (HsmKeyType) o;
         return keySize == that.keySize &&
+                hsmJssKeyType == that.hsmJssKeyType &&
                 Objects.equals(label, that.label) &&
                 importCapability == that.importCapability &&
                 renewCapability == that.renewCapability;
@@ -50,6 +55,7 @@ public class HsmKeyType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, importCapability, renewCapability, keySize);
+
+        return Objects.hash(hsmJssKeyType, label, importCapability, renewCapability, keySize);
     }
 }
