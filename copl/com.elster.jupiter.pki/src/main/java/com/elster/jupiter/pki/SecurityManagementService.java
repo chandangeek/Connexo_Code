@@ -240,7 +240,7 @@ public interface SecurityManagementService {
      */
     PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType);
 
-    CertificateWrapper newCertificateWrapper(String alias);
+    RequestableCertificateWrapper newCertificateWrapper(String alias);
 
     List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when);
 
