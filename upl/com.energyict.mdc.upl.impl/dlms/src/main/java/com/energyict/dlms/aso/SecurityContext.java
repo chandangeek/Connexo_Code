@@ -516,7 +516,6 @@ public class SecurityContext {
         //setFrameCounter(1); //right now this call would reset the FC for the GUEK which is not ok, the FC for Agreed Key should be reset
         keyInformationExchanged();
 
-        System.out.println("createKeyAgreementRequest in plain-> "+ plainText);
         return ProtocolTools.concatByteArrays(
                 createGeneralCipheringHeader(),
                 new byte[]{(byte) 0x01},    //Yes, key info is present
@@ -1235,7 +1234,6 @@ public class SecurityContext {
      */
     public long getFrameCounter() {
         long fc = this.frameCounter.get();
-        System.out.println("FrameCounter = "+fc);
         return fc;
     }
 

@@ -69,8 +69,9 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                 doProvide(pskProvider, joiningMacAddress);
             } catch (CommunicationException e) {
                 pskProvider.provideError(e.getMessage(), context);
+            } finally {
+                getCollectedData().addAll(pskProvider.getCollectedDataList());
             }
-            getCollectedData().addAll(pskProvider.getCollectedDataList());
         }
         return DiscoverResultType.DATA;
     }
@@ -179,9 +180,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         if (collectedDatas == null) {
             collectedDatas = new ArrayList<>();
             collectedDatas.add(collectedLogBook);
-        }
-        if (collectedDeviceInfoList != null && !collectedDeviceInfoList.isEmpty()) {
-            collectedDatas.addAll( collectedDeviceInfoList );
+
+            if (collectedDeviceInfoList != null && !collectedDeviceInfoList.isEmpty()) {
+                collectedDatas.addAll(collectedDeviceInfoList);
+            }
         }
         return collectedDatas;
     }

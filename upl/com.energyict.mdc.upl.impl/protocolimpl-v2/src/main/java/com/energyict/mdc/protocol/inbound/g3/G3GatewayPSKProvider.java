@@ -147,7 +147,7 @@ public class G3GatewayPSKProvider {
                 this.tcpComChannel.close();
             }
         } finally {
-            clearInstancesAndStoreCache();
+            //do nothing as we should have another finally clause in upper layer, where we should collect the new farem counter
         }
     }
 
