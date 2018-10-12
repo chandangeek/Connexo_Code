@@ -64,6 +64,11 @@ public class CryptoBeaconPSKProvider extends BeaconPSKProvider {
     }
 
     @Override
+    protected byte[] parseKey(String labelAndKey) {
+        return new IrreversibleKeyImpl(labelAndKey).toBase64ByteArray();
+    }
+
+    @Override
     protected ConnectionType createNewTLSConnectionType(InboundDiscoveryContext context) {
 //        return new TLSHSMConnectionType();
         //TODO: see if we should overwride the normal TLS connection and how should we do it
