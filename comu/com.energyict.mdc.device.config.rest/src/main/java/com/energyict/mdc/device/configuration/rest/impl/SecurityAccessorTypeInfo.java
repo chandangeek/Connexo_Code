@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -30,6 +31,7 @@ public class SecurityAccessorTypeInfo {
     public List<ExecutionLevelInfo> defaultViewLevels = new ArrayList<>();
     public SecurityAccessorInfo defaultValue;
     public IdWithNameInfo purpose;
+    public HsmJssKeyType hsmJssKeyType;
     public String label;
     public SessionKeyCapability importCapability;
     public SessionKeyCapability renewCapability;

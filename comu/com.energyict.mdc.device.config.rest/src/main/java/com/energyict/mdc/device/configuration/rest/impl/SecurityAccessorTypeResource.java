@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.hsm.HsmPublicConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -302,6 +303,7 @@ public class SecurityAccessorTypeResource {
         updater.description(securityAccessorTypeInfo.description);
         if (securityAccessorType.keyTypeIsHSM()){
             checkHSMLabel(securityAccessorTypeInfo.label);
+            updater.jssKeyType(securityAccessorTypeInfo.hsmJssKeyType);
             updater.label(securityAccessorTypeInfo.label);
             updater.importCapabilty(securityAccessorTypeInfo.importCapability);
             updater.renewCapability(securityAccessorTypeInfo.renewCapability);
@@ -408,6 +410,9 @@ public class SecurityAccessorTypeResource {
         }
     }
 
+    /*
+     * perhaps this can be split into 2 endpoints: one for import and one for renew capability (or one with filter)
+     */
     @GET
     @Transactional
     @Path("/hsm/capabilities")
@@ -430,6 +435,13 @@ public class SecurityAccessorTypeResource {
         return Response.ok(sizes).build();
     }
 
-
+    @GET
+    @Transactional
+    @Path("/hsm/keyType")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmKeyTypes() {
+        return Response.ok(HsmJssKeyType.values()).build();
+    }
 
 }
