@@ -126,7 +126,6 @@ public class InboundCommunicationHandler {
         this.initializeContext(context);
         this.initializeLogging();
         this.initializeMonitoring();
-        Optional<OfflineDevice> device;
         com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
