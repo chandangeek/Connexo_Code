@@ -119,10 +119,11 @@ Ext.define('Pkj.view.CertificatePreview', {
             hasKey = certificateRecord.get('hasPrivateKey'),
             hasCSR = certificateRecord.get('hasCSR'),
             hasCertificate = certificateRecord.get('hasCertificate'),
+            keyEncryptionMethod = certificateRecord.get('keyEncryptionMethod'),
             keyContainer = me.down('#pkj-certificate-preview-key-attributes-container'),
             certificateContainer = me.down('#pkj-certificate-preview-certificate-attributes-container');
 
-        keyContainer.setVisible(hasKey);
+        keyContainer.setVisible(hasKey || !Ext.isEmpty(keyEncryptionMethod));
         certificateContainer.setVisible(hasCertificate || hasCSR);
         if (hasCSR) {
             certificateContainer.setFieldLabel(Uni.I18n.translate('general.csrAttributes', 'PKJ', 'CSR attributes'));
