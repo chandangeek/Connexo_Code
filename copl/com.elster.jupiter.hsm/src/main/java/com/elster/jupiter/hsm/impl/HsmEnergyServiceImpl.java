@@ -129,7 +129,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public byte[] generateDigestSHA1(byte[] challenge, IrreversibleKey hlsSecret) throws HsmBaseException {
-        //System.out.println("generateDigestSHA1 HES -> HSM" + ProtocolTools.getHexStringFromBytes(challenge, ""));
         CosemHLSAuthenticationResponse response;
         try {
             response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM4,
@@ -137,41 +136,25 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
-        //System.out.println("generateDigestSHA1 HSM -> HES" + ProtocolTools.getHexStringFromBytes(challenge, ""));
         return response.getAuthenticationTag();
     }
 
     @Override
     public byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
-        //System.out.println("authenticateApdu HES -> HSM" + ProtocolTools.getHexStringFromBytes(apdu, ""));
-        //System.out.println("authenticateApdu HES -> HSM - initializationVector" + ProtocolTools.getHexStringFromBytes(initializationVector, ""));
         CosemAuthDataEncryptionResponse response;
         try {
-            CosemHLSAuthenticationResponse cosemHLSAuthenticationResponse = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), apdu,
-                    initializationVector);
-            //System.out.println("cosemHlsGMACAuthentication: "+ ProtocolTools.getHexStringFromBytes(cosemHLSAuthenticationResponse.getAuthenticationTag(), ""));
-
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
                     new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
                     initializationVector);
-
-
-            if(response.getData() !=null) {
-                //System.out.println("authenticateApdu response.getData(): "+ProtocolTools.getHexStringFromBytes(response.getData(), ""));
-            }
         } catch (FunctionFailedException ffe) {
-            //System.out.println(ffe.getMessage());
             throw new HsmBaseException(ffe);
         }
-        //System.out.println("authenticateApdu HSM -> HES" + ProtocolTools.getHexStringFromBytes(response.getAuthTag(), ""));
         return response.getAuthTag();
     }
 
     @Override
     public byte[] encryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        //System.out.println("encryptApdu HES -> HSM" + ProtocolTools.getHexStringFromBytes(apdu, ""));
-        //System.out.println("encryptApdu HES -> HSM - initializationVector" + ProtocolTools.getHexStringFromBytes(initializationVector, ""));
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
                     new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
@@ -179,14 +162,11 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
-        //System.out.println("encryptApdu HSM -> HES" + ProtocolTools.getHexStringFromBytes(response.getData(), ""));
         return response.getData();
     }
 
     @Override
     public DataAndAuthenticationTag authenticateEncryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
-        //System.out.println("authenticateEncryptApdu HES -> HSM - apdu" + ProtocolTools.getHexStringFromBytes(apdu, ""));
-        //System.out.println("authenticateEncryptApdu HES -> HSM - initializationVector" + ProtocolTools.getHexStringFromBytes(initializationVector, ""));
         CosemAuthDataEncryptionResponse response;
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
@@ -195,8 +175,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
-        //System.out.println("authenticateEncryptApdu HSM -> HES - data" + ProtocolTools.getHexStringFromBytes(response.getData(), ""));
-        //System.out.println("authenticateEncryptApdu HSM -> HES - authTag" + ProtocolTools.getHexStringFromBytes(response.getAuthTag(), ""));
         return new DataAndAuthenticationTagImpl(response.getData(), response.getAuthTag());
     }
 
@@ -232,9 +210,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
-        //System.out.println("verifyApduAuthentication HES -> HSM - apdu" + ProtocolTools.getHexStringFromBytes(apdu, ""));
-        //System.out.println("verifyApduAuthentication HES -> HSM - initializationVector" + ProtocolTools.getHexStringFromBytes(initializationVector, ""));
-        //System.out.println("verifyApduAuthentication HES -> HSM - authenticationTag" + ProtocolTools.getHexStringFromBytes(authenticationTag, ""));
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
@@ -321,7 +296,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public byte[] decryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
-        //System.out.println("decryptApdu HES -> HSM - apdu" + ProtocolTools.getHexStringFromBytes(apdu, ""));
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
@@ -330,7 +304,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
-        //System.out.println("decryptApdu HSM -> HES - response.getData()" + ProtocolTools.getHexStringFromBytes(response.getData(), ""));
         return response.getData();
     }
 

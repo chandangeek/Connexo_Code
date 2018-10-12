@@ -90,7 +90,6 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
-        System.out.println("getCertificateChain for alias: " + alias);
         try {
             KeyStore keyStore = mockKeyStore.get();
             X509Certificate[] certificateChain = (X509Certificate[]) keyStore.getCertificateChain(alias);
@@ -99,7 +98,6 @@ public class HsmKeyManagerImpl implements X509KeyManager {
                 X509Certificate endCertificate = (X509Certificate) keyStore.getCertificate(alias);
                 X509Certificate rootCA = (X509Certificate) keyStore.getCertificate("cxotlsCA");
                 certificateChain = new X509Certificate[]{endCertificate, rootCA};
-                System.out.println("TLS chain = "+certificateChain);
                 return certificateChain;
             }
 
