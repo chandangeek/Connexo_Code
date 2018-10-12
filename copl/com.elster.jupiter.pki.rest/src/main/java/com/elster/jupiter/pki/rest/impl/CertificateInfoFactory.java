@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.HsmPrivateKeyFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
@@ -43,6 +44,15 @@ public class CertificateInfoFactory implements CertificateFormatter {
 
     public CertificateWrapperInfo asInfo(CertificateWrapper certificateWrapper) {
         CertificateWrapperInfo info = new CertificateWrapperInfo();
+
+        setCommonProperties(certificateWrapper, info);
+        setKeyEncryptionMethod(certificateWrapper, info);
+        setX500Properties(certificateWrapper, info);
+
+        return info;
+    }
+
+    private void setCommonProperties(CertificateWrapper certificateWrapper, CertificateWrapperInfo info) {
         info.id = certificateWrapper.getId();
         info.version = certificateWrapper.getVersion();
         info.hasCSR = certificateWrapper.hasCSR();
@@ -53,12 +63,20 @@ public class CertificateInfoFactory implements CertificateFormatter {
         certificateWrapper.getCertificateStatus()
                 .ifPresent(status -> info.status = new IdWithNameInfo(status.getName(), status.getDisplayName(thesaurus)));
         info.expirationDate = certificateWrapper.getExpirationTime().orElse(null);
+    }
 
+    private void setKeyEncryptionMethod(CertificateWrapper certificateWrapper, CertificateWrapperInfo info) {
         if (ClientCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
             ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) certificateWrapper;
             info.keyEncryptionMethod = clientCertificateWrapper.getPrivateKeyWrapper().getKeyEncryptionMethod();
+        } else {
+            if (RequestableCertificateWrapper.class.isAssignableFrom(certificateWrapper.getClass())) {
+                info.keyEncryptionMethod = HsmPrivateKeyFactory.KEY_ENCRYPTION_METHOD;
+            }
         }
+    }
 
+    private void setX500Properties(CertificateWrapper certificateWrapper, CertificateWrapperInfo info) {
         try {
             certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
             if (certificateWrapper.getCertificate().isPresent()) {
@@ -77,8 +95,6 @@ public class CertificateInfoFactory implements CertificateFormatter {
         } catch (InvalidNameException e) {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
-
-        return info;
     }
 
     public CertificateUsagesInfo asCertificateUsagesInfo(List<SecurityAccessor> accessors, List<String> devices, List<DirectoryCertificateUsage> directories) {

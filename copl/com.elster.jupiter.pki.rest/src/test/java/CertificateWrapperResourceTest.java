@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -84,7 +85,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
     @Test
     public void testImportCertificate() throws Exception {
-        CertificateWrapper certificateWrapper = mock(CertificateWrapper.class);
+        RequestableCertificateWrapper certificateWrapper = mock(RequestableCertificateWrapper.class);
         when(securityManagementService.newCertificateWrapper(anyString())).thenReturn(certificateWrapper);
 
         String fileName = "myRootCA.cert";

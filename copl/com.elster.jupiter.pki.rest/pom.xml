@@ -110,6 +110,20 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+        </dependency>
+
+        <!--  EJBCA library dependencies -->
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-elster-bundle</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>
