@@ -20,6 +20,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
         'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
         'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+        'Mdc.securityaccessors.store.HsmJssKeyTypes',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
         'Mdc.securityaccessors.store.HsmCapabilities',
         'Mdc.securityaccessors.store.KeySizes'
@@ -271,6 +272,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     delete accessorToAdd.data.renewCapability;
                     delete accessorToAdd.data.label;
                     delete accessorToAdd.data.keySize;
+                    delete accessorToAdd.data.hsmJssKeySize;
                 }
                 return accessorToAdd.getData();
             }),
@@ -550,6 +552,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
                         if (record.get('keyType').name == 'HSM Key') {
+                            view.down('#mdc-security-accessor-jss-keytype-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('hsmJssKeyType'));
                             view.down('#mdc-security-accessor-import-capability-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-import-capability-combobox').setRawValue(record.get('importCapability'));
                             view.down('#mdc-security-accessor-renew-capability-combobox').setDisabled(false);
@@ -659,6 +663,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = form.down('#mdc-security-accessor-validity-period'),
+            hsmJssKeyTypeCombo = form.down('#mdc-security-accessor-jss-keytype-combobox')
             importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
@@ -668,12 +673,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         validityPeriod.setVisible(requiresDuration);
         if (newValue && newValue.name == 'HSM Key') {
+            hsmJssKeyTypeCombo.setVisible(true);
             importCapabiltyCombo.setVisible(true);
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
             keySizeCombo.setVisible(true);
         }
         else {
+            hsmJssKeyTypeCombo.setVisible(false);
             importCapabiltyCombo.setVisible(false);
             renewCapabiltyCombo.setVisible(false);
             labelEndPointCombo.setVisible(false);

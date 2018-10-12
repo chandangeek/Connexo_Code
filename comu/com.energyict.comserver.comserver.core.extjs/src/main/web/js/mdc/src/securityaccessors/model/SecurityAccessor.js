@@ -8,6 +8,7 @@ var securityAccessorWritter = Ext.create('Ext.data.writer.Json', {
             delete record.data.renewCapability;
             delete record.data.label;
             delete record.data.keySize;
+            delete record.data.hsmJssKeyType;
         }
         return record.data;
     }
@@ -32,6 +33,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'defaultViewLevels', type: 'auto', useNull: true},
         {name: 'defaultEditLevels', type: 'auto', useNull: true},
         {name: 'defaultValue', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'hsmJssKeyType', type: 'auto'},
         {name: 'label', type: 'auto'},
         {name: 'importCapability', type: 'auto'},
         {name: 'renewCapability', type: 'auto'},
