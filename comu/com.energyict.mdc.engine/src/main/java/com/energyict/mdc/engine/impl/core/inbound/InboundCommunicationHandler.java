@@ -26,17 +26,8 @@ import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.Counters;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -64,11 +55,12 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-
 import com.energyict.protocol.exceptions.CommunicationException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -139,18 +131,36 @@ public class InboundCommunicationHandler {
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
             this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
-            device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
-            if (device.isPresent()) {
-                this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
-                this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
-            } else {
-                this.handleUnknownDevice(inboundDeviceProtocol);
-            }
+            findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, discoverResultType);
         } catch (Exception e) {
-            this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
+            //In case we have already prepared some collected data and we have device cache among them then try to store it
+            if (!inboundDeviceProtocol.getCollectedData().isEmpty()) {
+                try {
+                    for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
+                        if (collectedData instanceof CollectedDeviceCache) { //if we have collected device cache then we should store it in order to keep track of the correct Frame counter
+                            findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
+                        }
+                    }
+                } catch (Exception e1) {
+                    this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
+                }
+            } else {
+                this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
+            }
         }
 
         this.closeContext();
+    }
+
+    private void findDeviceAndHandleCollectedData(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context, InboundDeviceProtocol.DiscoverResultType discoverResultType) {
+        Optional<OfflineDevice> device;
+        device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
+        if (device.isPresent()) {
+            this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+            this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
+        } else {
+            this.handleUnknownDevice(inboundDeviceProtocol);
+        }
     }
 
     private void publishDiscoveryResult(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol) {
