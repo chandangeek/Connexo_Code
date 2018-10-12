@@ -56,7 +56,6 @@ public class CryptoSecurityContext extends SecurityContext {
      */
     @Override
     public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
-        System.out.println("-----------dataTransportEncryption------------");
         try {
             byte[] encryptedRequest = null;
             byte[] tag = null;
@@ -83,7 +82,6 @@ public class CryptoSecurityContext extends SecurityContext {
 
     @Override
     public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType, byte[] generalCipheringHeader) throws ProtocolException, ConnectionException, DLMSConnectionException {
-        System.out.println("-----------dataTransportDecryption------------");
         int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
         int responseSecurityControlByte = (cipherFrame[LENGTH_INDEX + lengthOffset]) & 0xFF;
 
@@ -139,7 +137,6 @@ public class CryptoSecurityContext extends SecurityContext {
 
     @Override
     public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) throws UnsupportedException {
-        System.out.println("-----------applyGeneralSigning------------");
         byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
         byte[] requestData = includeRequestLength ? ProtocolTools.concatByteArrays(DLMSUtils.getAXDRLengthEncoding(securedRequest.length), securedRequest) : securedRequest;
         byte[] dataToSign = ProtocolTools.concatByteArrays(generalCipheringHeader, requestData);
@@ -166,7 +163,6 @@ public class CryptoSecurityContext extends SecurityContext {
     }
 
     protected byte[] dataTransportGeneralEncryptionWithKeyAgreement(byte[] plainText) throws UnsupportedException {
-        System.out.println("-----------dataTransportGeneralEncryptionWithKeyAgreement------------");
         Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
         if (serverKeyAgreementCertificate == null) {
             throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
@@ -192,7 +188,6 @@ public class CryptoSecurityContext extends SecurityContext {
     }
 
     protected int dataTransportGeneralDecryptionForAgreedKey(byte[] generalCipheringAPDU, int ptr) throws UnsupportedException {
-        System.out.println("-----------dataTransportGeneralDecryptionForAgreedKey------------");
         int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
         int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
 
