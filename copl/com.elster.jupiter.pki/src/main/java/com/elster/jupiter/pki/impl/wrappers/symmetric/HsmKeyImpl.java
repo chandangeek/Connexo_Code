@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,6 +43,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     private String label;
     private String smartMeterKey;
+    private HsmJssKeyType hsmJssKeyType;
 
 
 
@@ -57,10 +59,11 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     }
 
-    HsmKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label) {
+    HsmKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label, HsmJssKeyType hsmJssKeyType) {
         super.getKeyTypeReference().set(keyType);
         this.calculateExpirationTime(timeDuration);
         this.setLabel(label);
+        this.setHsmJssKeyType(hsmJssKeyType);
         return this;
     }
 
@@ -155,4 +158,11 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         this.save();
     }
 
+    public HsmJssKeyType getHsmJssKeyType() {
+        return hsmJssKeyType;
+    }
+
+    public void setHsmJssKeyType(HsmJssKeyType hsmJssKeyType) {
+        this.hsmJssKeyType = hsmJssKeyType;
+    }
 }

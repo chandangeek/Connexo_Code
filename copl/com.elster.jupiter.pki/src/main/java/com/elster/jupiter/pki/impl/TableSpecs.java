@@ -272,10 +272,16 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
                     .since(Version.version(10, 3))
                     .add();
+            table.column("HSM_JSS_KEY_TYPE")
+                    .varChar(30)
+                    .conversion(CHAR2ENUM)
+                    .map(SecurityAccessorTypeImpl.Fields.HSM_JSS_KEY_TYPE.fieldName())
+                    .since(version(10,4,3))
+                    .add();
             table.column("LABEL")
                     .varChar(SHORT_DESCRIPTION_LENGTH)
                     .map(SecurityAccessorTypeImpl.Fields.LABEL.fieldName())
-                    .since(version(10,4,2))
+                    .since(version(10,4,3))
                     .add();
             table.column("IMPORT_CAPABILITY")
                     .varChar(30)

@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
@@ -96,7 +97,7 @@ public class HsmKeyTest {
         when(validator.validate(anyObject(), any(Class.class))).thenReturn(new HashSet<>());
 
         this.hsmKeyUnderTest = new HsmKeyImpl(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
-        this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL);
+        this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL, HsmJssKeyType.AES);
     }
 
 
@@ -139,7 +140,7 @@ public class HsmKeyTest {
     public void generateValue() throws HsmBaseException {
         // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
         SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
-        HsmKeyType keyType = new HsmKeyType("label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16);
+        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16);
         when(securityAccesorType.getHsmKeyType()).thenReturn(keyType);
 
 

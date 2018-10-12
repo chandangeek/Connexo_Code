@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl.accessors;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
@@ -68,6 +69,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private boolean managedCentrally;
     private Purpose purpose;
+    private HsmJssKeyType hsmJssKeyType;
     private String label;
     private SessionKeyCapability importCapability;
     private SessionKeyCapability renewCapability;
@@ -201,7 +203,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     @Override
     public HsmKeyType getHsmKeyType() {
-        return new HsmKeyType(label, importCapability, renewCapability, keySize);
+        return new HsmKeyType(hsmJssKeyType, label, importCapability, renewCapability, keySize);
     }
 
     @Override
@@ -243,6 +245,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     protected void setLabel(String label) {
         this.label = label;
+    }
+
+    protected void setHsmJssKeyType(HsmJssKeyType hsmJssKeyType) {
+        this.hsmJssKeyType = hsmJssKeyType;
     }
 
     protected void setImportCapability(SessionKeyCapability importCapability) {
@@ -306,6 +312,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         return getClass().getName() + ": " + name;
     }
 
+
     public enum Fields {
         ID("id"),
         NAME("name"),
@@ -316,6 +323,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         TRUSTSTORE("trustStore"),
         MANAGED_CENTRALLY("managedCentrally"),
         PURPOSE("purpose"),
+        HSM_JSS_KEY_TYPE("hsmJssKeyType"),
         LABEL("label"),
         IMPORT_CAPABILITY("importCapability"),
         RENEW_CAPABILITY("renewCapability"),
@@ -352,6 +360,12 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         @Override
         public SecurityAccessorType.Updater duration(TimeDuration duration) {
             SecurityAccessorTypeImpl.this.setDuration(duration);
+            return this;
+        }
+
+        @Override
+        public Updater jssKeyType(HsmJssKeyType hsmJssKeyType) {
+            SecurityAccessorTypeImpl.this.setHsmJssKeyType(hsmJssKeyType);
             return this;
         }
 

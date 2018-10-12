@@ -69,7 +69,8 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
         LABEL("label"),
         SMARTMETER_KEY("smartMeterKey"),
         KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),;
+        EXPIRATION("expirationTime"),
+        HSM_JSS_KEY_TYPE("hsmJssKeyType");
 
         private final String fieldName;
 

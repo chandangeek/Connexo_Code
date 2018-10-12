@@ -85,7 +85,8 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
             symmetricKeyWrapper = dataModel.getInstance(HsmKeyImpl.class)
                     .init(securityAccessorType.getKeyType(),
                             securityAccessorType.getDuration().get(),
-                            securityAccessorType.getHsmKeyType().getLabel());
+                            securityAccessorType.getHsmKeyType().getLabel(),
+                            securityAccessorType.getHsmKeyType().getHsmJssKeyType());
         } else {
             symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
                     .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());

@@ -1,5 +1,6 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.time.TimeDuration;
@@ -159,6 +160,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater description(String description);
 
         Updater duration(TimeDuration duration);
+
+        Updater jssKeyType(HsmJssKeyType hsmJssKeyType);
 
         Updater label(String label);
 

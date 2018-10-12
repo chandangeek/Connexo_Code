@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.KeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -84,6 +85,12 @@ public enum TableSpecs {
             table.column("SM_KEY")
                     .varChar(SHORT_DESCRIPTION_LENGTH)
                     .map(KeyImpl.Fields.SMARTMETER_KEY.fieldName())
+                    .since(version(10,4,3))
+                    .add();
+            table.column("HSM_JSS_KEY_TYPE")
+                    .varChar(30)
+                    .conversion(CHAR2ENUM)
+                    .map(KeyImpl.Fields.HSM_JSS_KEY_TYPE.fieldName())
                     .since(version(10,4,3))
                     .add();
             table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn)
