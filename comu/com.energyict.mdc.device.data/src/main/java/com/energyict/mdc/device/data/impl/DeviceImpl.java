@@ -1258,6 +1258,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (propertyValue != null) {
             DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
+            this.notifyUpdate(deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }
     }
@@ -1280,6 +1281,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return Optional.empty();
+    }
+
+    private void notifyUpdate(DeviceProtocolProperty property) {
+        DevicePropertyUpdateEventEnum
+                .stream()
+                .filter(enumValue -> enumValue.getName().equals(property.getName()))
+                .findFirst()
+                .ifPresent(enumValue -> {
+                    eventService.postEvent(enumValue.getTopic(),
+                            new DeviceProtocolPropertyEventSource(this.getmRID()));
+                });
     }
 
 
@@ -1308,6 +1320,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);
+                this.notifyUpdate(deviceProtocolProperty);
                 dataModel.touch(this);
                 break;
             }
