@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.common.IrreversibleKeyImpl;
+import com.energyict.common.tls.TLSHSMConnectionType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.DeviceProtocol;
@@ -70,9 +71,7 @@ public class CryptoBeaconPSKProvider extends BeaconPSKProvider {
 
     @Override
     protected ConnectionType createNewTLSConnectionType(InboundDiscoveryContext context) {
-//        return new TLSHSMConnectionType();
-        //TODO: see if we should overwride the normal TLS connection and how should we do it
-        return super.createNewTLSConnectionType(context);
+        return new TLSHSMConnectionType(context.getPropertySpecService(), context.getCertificateWrapperExtractor());
     }
 
 }

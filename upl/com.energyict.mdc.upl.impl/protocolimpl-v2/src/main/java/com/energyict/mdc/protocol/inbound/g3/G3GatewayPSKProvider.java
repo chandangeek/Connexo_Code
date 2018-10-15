@@ -220,7 +220,7 @@ public class G3GatewayPSKProvider {
             PropertySpecService propertySpecService = context.getPropertySpecService();
             ConnectionType connectionType;
             if (tlsConnection) {
-                connectionType = new TLSConnectionType(propertySpecService, context.getCertificateWrapperExtractor());
+                connectionType = createNewTLSConnectionType(context);
             } else {
                 connectionType = new OutboundTcpIpConnectionType(propertySpecService);
             }
