@@ -2784,10 +2784,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void addRoutingEntryUsingConfiguredIPv6AddressInGeneralProperties(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        final String iPv6AddressAndPrefixLength = getBeacon3100Properties().getIPv6AddressAndPrefixLength();
+        if (iPv6AddressAndPrefixLength == null) {
+            throw new ProtocolException("IPv6 address and prefix length in protocol General attributes is null!");
+        }
         TypeEnum routingEntryType = new TypeEnum(NetworkConnectivityMessage.RoutingEntryType.G3_PLC.getId()); //always the same
         BigDecimal routingEntryId = new BigDecimal(ROUTING_ENTRY_ID); //always ID = 1
-        String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(getBeacon3100Properties().getIPv6AddressAndPrefixLength());
-        BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(getBeacon3100Properties().getIPv6AddressAndPrefixLength()));
+        String routingDestination = IPv6Utils.getFullyExtendedIPv6Address(iPv6AddressAndPrefixLength);
+        BigDecimal routingDestinationLength = new BigDecimal(IPv6Utils.getPrefixLength(iPv6AddressAndPrefixLength));
         boolean removeExistingEntryIfNeeded = getBooleanAttribute(pendingMessage);
 
         validateExistingRoutingEntriesAndCleanUpIfNeeded(pendingMessage, collectedMessage, routingEntryType, routingEntryId, routingDestination, routingDestinationLength, removeExistingEntryIfNeeded);
