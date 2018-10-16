@@ -193,7 +193,7 @@ public class MockDeviceTopology implements CollectedTopology {
     public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
                                      int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime,
                                      int neighbourValidTime, String nodeAddress, int shortAddress, Date lastUpdate,
-                                     Date lastPathRequest, int state, long roundTrip, int linkCost) {
+                                     Date lastPathRequest, int state, long roundTrip, int linkCost, boolean isBeaconModulation) {
         topologyNeighbours.add(
                 new TopologyNeighbour(neighbour, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi,
                         phaseDifferential, tmrValidTime, neighbourValidTime, nodeAddress, shortAddress, lastUpdate,
