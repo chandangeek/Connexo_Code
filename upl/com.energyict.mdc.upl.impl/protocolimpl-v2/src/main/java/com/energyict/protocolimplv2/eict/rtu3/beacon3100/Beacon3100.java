@@ -80,13 +80,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -567,7 +561,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
-        final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
+        final List<G3Topology.G3Node> g3Nodes = getDlmsSessionProperties().hasPre20Firmware() ?
+                G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone()) :
+                G3Topology.convertNodeListV2(nodeList, this.getDlmsSession().getTimeZone());
 
         final Optional<String> dcMacAddress = extractDCMacAddress(g3Nodes);
 
@@ -666,8 +662,20 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
                                 int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
                                 int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+                                // g3Node
+                                String nodeAddress = g3Node.getMacAddressString();
+                                int shortAddress = g3Node.getShortAddress();
+                                Date lastUpdate = g3Node.getLastSeenDate();
+                                Date lastPathRequest = g3Node.getLastPathRequest();
+                                int state = g3Node.getNodeState().getValue();
+                                long roundTrip = g3Node.getRoundTrip();
+                                int linkCost = g3Node.getLinkCost();
 
-                                deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                                deviceTopology.addTopologyNeighbour(
+                                        slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
+                                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, nodeAddress,
+                                        shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
+                                );
                             } else {
                                 getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
                             }

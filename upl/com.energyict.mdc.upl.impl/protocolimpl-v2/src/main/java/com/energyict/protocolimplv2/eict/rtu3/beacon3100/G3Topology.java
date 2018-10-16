@@ -25,9 +25,33 @@ public class G3Topology {
         }
 
         for (final AbstractDataType dataType : nodeList) {
-            if (dataType != null && dataType instanceof Structure) {
+            if (dataType instanceof Structure) {
                 try {
                     final G3Node g3Node = G3Node.fromStructure((Structure) dataType, timeZone);
+                    if (g3Node != null) {
+                        nodes.add(g3Node);
+                    }
+                } catch (IOException e) {
+                    if (logger.isLoggable(Level.WARNING)) {
+                        logger.log(Level.WARNING, "Unable to parse G3Node info: " + e.getMessage() + " [" + dataType.toString() + "]", e);
+                    }
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+    public static List<G3Node> convertNodeListV2(final Array nodeList, final TimeZone timeZone) {
+        final List<G3Node> nodes = new ArrayList<>();
+        if (nodeList == null) {
+            return nodes;
+        }
+
+        for (final AbstractDataType dataType : nodeList) {
+            if (dataType instanceof Structure) {
+                try {
+                    final G3Node g3Node = G3Node.fromStructureV2((Structure) dataType, timeZone);
                     if (g3Node != null) {
                         nodes.add(g3Node);
                     }
@@ -52,6 +76,9 @@ public class G3Topology {
         private final int shortAddress;
         private final Date lastSeenDate;
         private final Date lastPathRequest;
+        private final G3NodeState nodeState;
+        private final long roundTrip;
+        private final int linkCost;
 
         public G3Node(final byte[] macAddress, final byte[] parentMacAddress, final int shortAddress, final Date lastSeenDate, final Date lastPathRequest) {
             this.macAddress = safeCopy(macAddress);
@@ -59,6 +86,22 @@ public class G3Topology {
             this.shortAddress = shortAddress;
             this.lastSeenDate = lastSeenDate;
             this.lastPathRequest = lastPathRequest;
+            this.nodeState = null;
+            this.roundTrip = -1;
+            this.linkCost = -1;
+        }
+
+        public G3Node(final byte[] macAddress, final byte[] parentMacAddress, final int shortAddress,
+                      final Date lastSeenDate, final Date lastPathRequest,    final G3NodeState nodeState,
+                      final long roundTrip,    final int linkCost) {
+            this.macAddress = safeCopy(macAddress);
+            this.parentMacAddress = safeCopy(parentMacAddress);
+            this.shortAddress = shortAddress;
+            this.lastSeenDate = lastSeenDate;
+            this.lastPathRequest = lastPathRequest;
+            this.nodeState = nodeState;
+            this.roundTrip = roundTrip;
+            this.linkCost = linkCost;
         }
 
         private static final byte[] safeCopy(final byte[] bytes) {
@@ -94,6 +137,43 @@ public class G3Topology {
                     shortAddress,
                     lastSeenDate,
                     lastPathRequest
+            );
+
+        }
+
+        /**
+         * @param structure
+         * @param timeZone
+         * @return
+         * @throws java.io.IOException
+         */
+        public static G3Node fromStructureV2(final Structure structure, final TimeZone timeZone) throws IOException {
+            if (structure == null) {
+                return null;
+            }
+
+            final OctetString macAddressAttr = structure.getDataType(0, OctetString.class);
+            final OctetString parentMacAddressAttr = structure.getDataType(1, OctetString.class);
+            final Integer32 shortAddressAttr = structure.getDataType(2, Integer32.class);
+            final OctetString lastUpdatedAttr = structure.getDataType(3, OctetString.class);
+            final OctetString lastPathRequestAttr = structure.getDataType(4, OctetString.class);
+            final TypeEnum stateAttr = structure.getDataType(6, TypeEnum.class);
+            final Unsigned32 roundTripAttr = structure.getDataType(11, Unsigned32.class);
+            final Unsigned8 linkCostAttr = structure.getDataType(12, Unsigned8.class);
+
+            final byte[] macAddress = macAddressAttr == null ? new byte[0] : macAddressAttr.getOctetStr();
+            final byte[] parentMacAddress = parentMacAddressAttr == null ? new byte[0] : parentMacAddressAttr.getOctetStr();
+            final int shortAddress = shortAddressAttr == null ? -1 : shortAddressAttr.getValue();
+            final Date lastSeenDate = getDateFromOctetString(timeZone, lastUpdatedAttr);
+            final Date lastPathRequest = getDateFromOctetString(timeZone, lastPathRequestAttr);
+            final G3NodeState nodeState = G3NodeState.fromValue( stateAttr.getValue() );
+            final long roundTrip = roundTripAttr.getValue();
+            final int linkCost = linkCostAttr.getValue();
+
+            return new G3Node(
+                    macAddress, parentMacAddress, shortAddress,
+                    lastSeenDate, lastPathRequest, nodeState,
+                    roundTrip, linkCost
             );
 
         }
@@ -145,6 +225,18 @@ public class G3Topology {
 
         public Date getLastPathRequest() {
             return lastPathRequest;    //Null if the date is unspecified!
+        }
+
+        public G3NodeState getNodeState() {
+            return nodeState;
+        }
+
+        public long getRoundTrip() {
+            return roundTrip;
+        }
+
+        public int getLinkCost() {
+            return linkCost;
         }
 
         @Override
