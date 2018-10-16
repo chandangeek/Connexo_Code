@@ -2,6 +2,8 @@ package com.energyict.mdc.upl.meterdata;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import java.util.Date;
+
 /**
  * Straightforward ValueObject for a Topology neighbour
  * <p>
@@ -22,8 +24,23 @@ public class TopologyNeighbour {
     private final int phaseDifferential;
     private final int tmrValidTime;
     private final int neighbourValidTime;
+    private String nodeAddress;
+    private int shortAddress;
+    private Date lastUpdate;
+    private Date lastPathRequest;
+    private int state;
+    private long roundTrip;
+    private int linkCost;
 
+    @Deprecated
     public TopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime) {
+        throw new UnsupportedOperationException("Deprecated constructor. Usage: TopologyNeighbour(com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier,int,long,int,int,int,int,int,int,int,int,java.lang.String,int,java.util.Date,java.util.Date,int,long,int)");
+    }
+
+    public TopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
+                             int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime,
+                             int neighbourValidTime, String nodeAddress, int shortAddress, Date lastUpdate,
+                             Date lastPathRequest, int state, long roundTrip, int linkCost) {
         this.neighbour = neighbour;
         this.modulationSchema = modulationSchema;
         this.toneMap = toneMap;
@@ -35,6 +52,13 @@ public class TopologyNeighbour {
         this.phaseDifferential = phaseDifferential;
         this.tmrValidTime = tmrValidTime;
         this.neighbourValidTime = neighbourValidTime;
+        this.nodeAddress = nodeAddress;
+        this.shortAddress = shortAddress;
+        this.lastUpdate = lastUpdate;
+        this.lastPathRequest = lastPathRequest;
+        this.state = state;
+        this.roundTrip = roundTrip;
+        this.linkCost = linkCost;
     }
 
     public DeviceIdentifier getNeighbour() {
@@ -79,5 +103,33 @@ public class TopologyNeighbour {
 
     public int getNeighbourValidTime() {
         return neighbourValidTime;
+    }
+
+    public String getNodeAddress() {
+        return nodeAddress;
+    }
+
+    public int getShortAddress() {
+        return shortAddress;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public Date getLastPathRequest() {
+        return lastPathRequest;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public long getRoundTrip() {
+        return roundTrip;
+    }
+
+    public int getLinkCost() {
+        return linkCost;
     }
 }
