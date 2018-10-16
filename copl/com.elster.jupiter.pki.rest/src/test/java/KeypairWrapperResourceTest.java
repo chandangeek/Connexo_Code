@@ -6,10 +6,15 @@ import com.elster.jupiter.pki.KeypairWrapper;
 
 import com.jayway.jsonpath.JsonModel;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
@@ -85,7 +90,17 @@ public class KeypairWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         InputStream entity = (InputStream) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(entity).hasSameContentAs(new ByteArrayInputStream(keyPair.getPublic().getEncoded()));
+        assertThat(entity).hasSameContentAs(new ByteArrayInputStream(serializePublicKey(keyPair.getPublic())));
+    }
+
+    private byte[] serializePublicKey(final PublicKey publicKey) throws IOException {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final JcaPEMWriter jcaPEMWriter = new JcaPEMWriter(new OutputStreamWriter(outStream,
+                StandardCharsets.UTF_8));
+        jcaPEMWriter.writeObject(publicKey);
+        jcaPEMWriter.flush();
+        jcaPEMWriter.close();
+        return outStream.toByteArray();
     }
 
 
