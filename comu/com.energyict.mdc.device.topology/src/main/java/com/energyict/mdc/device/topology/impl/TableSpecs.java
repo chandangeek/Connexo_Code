@@ -23,9 +23,7 @@ import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -122,6 +120,20 @@ public enum TableSpecs {
             table.column("TONEMAP").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP.fieldName()).add();
             table.column("TM_TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP_TIME_TO_LIVE.fieldName()).add();
             table.column("PHASEINFO").number().conversion(NUMBER2ENUM).map(PLCNeighborImpl.Field.PHASE_INFO.fieldName()).add();
+            table.column("NODE_ADDRESS").varChar(Table.NAME_LENGTH).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.NODE_ADDRESS.fieldName()).since(version(10, 4, 3)).add();
+            table.column("SHORT_ADDRESS").number().conversion(NUMBER2INT).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.SHORT_ADDRESS.fieldName()).since(version(10, 4, 3)).add();
+            table.column("LAST_UPDATE").number().conversion(NUMBER2INSTANT).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.LAST_UPDATE.fieldName()).since(version(10, 4, 3)).add();
+            table.column("LAST_PATH_REQUEST").number().conversion(NUMBER2INSTANT).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.LAST_PATH_REQUEST.fieldName()).since(version(10, 4, 3)).add();
+            table.column("STATE").number().conversion(NUMBER2ENUM).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.STATE.fieldName()).since(version(10, 4, 3)).add();
+            table.column("ROUND_TRIP").number().conversion(NUMBER2LONG)
+                    .map(PLCNeighborImpl.Field.ROUND_TRIP.fieldName()).since(version(10, 4, 3)).add();
+            table.column("LINK_COST").number().conversion(NUMBER2INT)
+                    .map(PLCNeighborImpl.Field.LINK_COST.fieldName()).since(version(10, 4, 3)).add();
             table.primaryKey("PK_DTL_PLCNEIGHBOR").on(device, neighbor, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PLCNEIGHBOR_DEV").
                     on(device).

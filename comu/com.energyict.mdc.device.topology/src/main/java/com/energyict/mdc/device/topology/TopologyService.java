@@ -22,6 +22,7 @@ import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -478,7 +479,7 @@ public interface TopologyService {
      * Build all the neighbors of one {@link Device}.
      * Device's whose neighborhood has been built before can be updated
      * with the same builder. Devices that were not revisited, i.e.
-     * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo)}
+     * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo, State)}
      * was not called will be deleted upon completion.
      */
     interface G3NeighborhoodBuilder {
@@ -496,7 +497,10 @@ public interface TopologyService {
          * @param phaseInfo The PhaseInfo
          * @return The G3NeighborBuilder that allows you to specify the optional neighboring information
          */
+        @Deprecated
         G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
+
+        G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State state);
 
         /**
          * Completes the building process and returns
@@ -524,6 +528,18 @@ public interface TopologyService {
         G3NeighborBuilder toneMap(long toneMap);
 
         G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds);
+
+        G3NeighborBuilder nodeAddress(String nodeAddress);
+
+        G3NeighborBuilder shortAddress(int shortAddress);
+
+        G3NeighborBuilder lastUpdate(Date lastUpdate);
+
+        G3NeighborBuilder lastPathRequest(Date lastPathRequest);
+
+        G3NeighborBuilder roundTrip(long roundTrip);
+
+        G3NeighborBuilder linkCost(int linkCost);
     }
 
 }

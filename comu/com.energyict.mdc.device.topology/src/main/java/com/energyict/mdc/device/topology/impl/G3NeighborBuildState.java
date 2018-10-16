@@ -4,11 +4,9 @@
 
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.topology.G3Neighbor;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.*;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -20,7 +18,8 @@ import java.util.Optional;
 enum G3NeighborBuildState {
     CREATE {
         @Override
-        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
             // Already editing
         }
 
@@ -60,15 +59,51 @@ enum G3NeighborBuildState {
         }
 
         @Override
+        public void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
+            builder.setNodeAddress(nodeAddress);
+        }
+
+        @Override
+        void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress) {
+            builder.setShortAddress(shortAddress);
+        }
+
+        @Override
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+            builder.setLastUpdate(lastUpdate);
+        }
+
+        @Override
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+            builder.setLastPathRequest(lastPathRequest);
+        }
+
+        @Override
+        void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip) {
+            builder.setRoundTrip(roundTrip);
+        }
+
+        @Override
+        void setLinkCost(TopologyServiceImpl.G3NeighborBuilderImpl builder, int linkCost) {
+            builder.setLinkCost(linkCost);
+        }
+
+        @Override
         Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
             oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
             neighborTableEntry.save();
             return Optional.of(neighborTableEntry);
+        }
+
+        @Deprecated
+        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            throw new UnsupportedOperationException("Deprecated method");
         }
     },
     UPDATE {
         @Override
-        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
             // Already editing
         }
 
@@ -115,16 +150,58 @@ enum G3NeighborBuildState {
         }
 
         @Override
+        void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
+            builder.terminateOldAndStartNew();
+            builder.setNodeAddress(nodeAddress);
+        }
+
+        @Override
+        void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress) {
+            builder.terminateOldAndStartNew();
+            builder.setShortAddress(shortAddress);
+        }
+
+        @Override
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+            builder.terminateOldAndStartNew();
+            builder.setLastUpdate(lastUpdate);
+        }
+
+        @Override
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+            builder.terminateOldAndStartNew();
+            builder.setLastPathRequest(lastPathRequest);
+        }
+
+        @Override
+        void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip) {
+            builder.terminateOldAndStartNew();
+            builder.setRoundTrip(roundTrip);
+        }
+
+        @Override
+        void setLinkCost(TopologyServiceImpl.G3NeighborBuilderImpl builder, int linkCost) {
+            builder.terminateOldAndStartNew();
+            builder.setLinkCost(linkCost);
+        }
+
+        @Override
         Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
             oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
             neighborTableEntry.save();
             return Optional.of(neighborTableEntry);
         }
+
+        @Deprecated
+        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            throw new UnsupportedOperationException("Deprecated method");
+        }
     },
     TERMINATE {
         @Override
-        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl builder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
+        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl builder,
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+            builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo, g3State);
         }
 
         @Override
@@ -159,6 +236,36 @@ enum G3NeighborBuildState {
 
         @Override
         public void setToneMapTimeToLiveSeconds(TopologyServiceImpl.G3NeighborBuilderImpl builder, int seconds) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLinkCost(TopologyServiceImpl.G3NeighborBuilderImpl builder, int linkCost) {
             throw illegalStateException();
         }
 
@@ -169,13 +276,19 @@ enum G3NeighborBuildState {
             return Optional.empty();
         }
 
+        @Deprecated
+        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            throw new UnsupportedOperationException("Deprecated method");
+        }
+
         private IllegalStateException illegalStateException() {
             return new IllegalStateException("Neighbor entry building process was not switched to edit mode");
         }
     },
     COMPLETE {
         @Override
-        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
             throw illegalStateException();
         }
 
@@ -215,8 +328,44 @@ enum G3NeighborBuildState {
         }
 
         @Override
+        void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip) {
+            throw illegalStateException();
+        }
+
+        @Override
+        void setLinkCost(TopologyServiceImpl.G3NeighborBuilderImpl builder, int linkCost) {
+            throw illegalStateException();
+        }
+
+        @Override
         Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
             throw illegalStateException();
+        }
+
+
+        @Deprecated
+        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            throw new UnsupportedOperationException("Deprecated method");
         }
 
         private IllegalStateException illegalStateException() {
@@ -227,6 +376,9 @@ enum G3NeighborBuildState {
     abstract Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry);
 
     abstract void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
+
+
+    abstract void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State);
 
     abstract void setTxGain(TopologyServiceImpl.G3NeighborBuilderImpl builder, int txGain);
 
@@ -241,5 +393,17 @@ enum G3NeighborBuildState {
     abstract void setToneMap(TopologyServiceImpl.G3NeighborBuilderImpl builder, long toneMap);
 
     abstract void setToneMapTimeToLiveSeconds(TopologyServiceImpl.G3NeighborBuilderImpl builder, int seconds);
+
+    abstract void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress);
+
+    abstract void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress);
+
+    abstract void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate);
+
+    abstract void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest);
+
+    abstract void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip);
+
+    abstract void setLinkCost(TopologyServiceImpl.G3NeighborBuilderImpl builder, int linkCost);
 
 }

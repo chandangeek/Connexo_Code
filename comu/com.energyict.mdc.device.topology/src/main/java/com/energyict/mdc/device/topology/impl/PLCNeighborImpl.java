@@ -16,6 +16,7 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PLCNeighbor;
 
+import com.energyict.mdc.device.topology.State;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
@@ -46,7 +47,14 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
         TIME_TO_LIVE("timeToLive"),
         TONE_MAP("toneMap"),
         TONE_MAP_TIME_TO_LIVE("toneMapTimeToLive"),
-        PHASE_INFO("phaseInfo");
+        PHASE_INFO("phaseInfo"),
+        NODE_ADDRESS("nodeAddress"),
+        SHORT_ADDRESS("shortAddress"),
+        LAST_UPDATE("lastUpdate"),
+        LAST_PATH_REQUEST("lastPathRequest"),
+        STATE("state"),
+        ROUND_TRIP("roundTrip"),
+        LINK_COST("linkCost");
 
         private final String javaFieldName;
 
@@ -75,6 +83,8 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
     private ModulationScheme modulationScheme;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Modulation modulation;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
+    private State state;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Device> device = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
@@ -111,6 +121,15 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
 
     protected void setModulation(Modulation modulation) {
         this.modulation = modulation;
+    }
+
+    @Override
+    public State getState() {
+        return state;
+    }
+
+    protected void setState(State state) {
+        this.state = state;
     }
 
     @Override

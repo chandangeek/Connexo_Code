@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -48,20 +49,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.DataLoggerReference;
-import com.energyict.mdc.device.topology.DeviceTopology;
-import com.energyict.mdc.device.topology.G3CommunicationPath;
-import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
-import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
-import com.energyict.mdc.device.topology.G3Neighbor;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.PhysicalGatewayReference;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiServiceImpl;
 import com.energyict.mdc.device.topology.impl.kpi.TranslationKeys;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
@@ -88,14 +76,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -182,7 +163,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
             Version.version(10, 2), V10_2SimpleUpgrader.class,
-            Version.version(10, 4), UpgraderV10_4.class));
+            Version.version(10, 4), UpgraderV10_4.class,
+            Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class));
         this.registerRealServices(bundleContext);
     }
 
@@ -1168,12 +1150,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return neighbors;
     }
 
-    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
+    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State state) {
+        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo, state);
     }
 
     private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
-        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
+        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(),
+                existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo(), existingNeighbor.getState());
     }
 
     @Override
@@ -1325,14 +1308,18 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
 
         @Override
-        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
             G3NeighborBuilderImpl builder = this.deviceId2NeighborBuilderMap
                     .computeIfAbsent(
                             neighbor.getId(),
-                            id -> this.creator(newG3Neighbor(this.device, neighbor, modulationScheme, modulation, phaseInfo)));
-            builder.startEditing(modulationScheme, modulation, phaseInfo);
+                            id -> this.creator(newG3Neighbor(this.device, neighbor, modulationScheme, modulation, phaseInfo, g3State)));
+            builder.startEditing(modulationScheme, modulation, phaseInfo, g3State);
             return builder;
         }
+
+        @Deprecated
+        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        throw new UnsupportedOperationException("Deprecated method");}
 
         @Override
         public List<G3Neighbor> complete() {
@@ -1358,26 +1345,27 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             this.state = state;
         }
 
-        private void startEditing(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            this.state.startEditing(this, modulationScheme, modulation, phaseInfo);
+        private void startEditing(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+            this.state.startEditing(this, modulationScheme, modulation, phaseInfo, g3State);
         }
 
-        private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
             return !modulationScheme.equals(this.neighborTableEntry.getModulationScheme())
                     || !modulation.equals(this.neighborTableEntry.getModulation())
-                    || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
+                    || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo())
+                    || !g3State.equals(this.neighborTableEntry.getG3State());
         }
 
-        void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            if (this.different(modulationScheme, modulation, phaseInfo)) {
-                this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
+        void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+            if (this.different(modulationScheme, modulation, phaseInfo, g3State)) {
+                this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo, g3State);
             } else {
                 this.prepareForUdate();
             }
         }
 
-        private void terminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry.getDevice(), this.neighborTableEntry.getNeighbor(), modulationScheme, modulation, phaseInfo);
+        private void terminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry.getDevice(), this.neighborTableEntry.getNeighbor(), modulationScheme, modulation, phaseInfo, g3State);
             this.neighborTableEntry.terminate(newG3Neighbor.getEffectiveStart());
             this.oldNeighborTableEntry = Optional.of(this.neighborTableEntry);
             this.neighborTableEntry = newG3Neighbor;
@@ -1385,6 +1373,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             this.modulationScheme(modulationScheme);
             this.modulation(modulation);
             this.phaseInfo(phaseInfo);
+            this.g3State(g3State);
         }
 
         void terminateOldAndStartNew() {
@@ -1417,6 +1406,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
         private G3NeighborBuilderImpl phaseInfo(PhaseInfo phaseInfo) {
             this.neighborTableEntry.setPhaseInfo(phaseInfo);
+            return this;
+        }
+
+        private G3NeighborBuilderImpl g3State(State g3State) {
+            this.neighborTableEntry.setG3State(g3State);
             return this;
         }
 
@@ -1484,6 +1478,66 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds) {
             this.state.setToneMapTimeToLiveSeconds(this, seconds);
             return this;
+        }
+
+        @Override
+        public G3NeighborBuilder nodeAddress(String nodeAddress) {
+            this.state.setNodeAddress(this, nodeAddress);
+            return this;
+        }
+
+        void setNodeAddress(String nodeAddress) {
+            this.neighborTableEntry.setNodeAddress(nodeAddress);
+        }
+
+        @Override
+        public G3NeighborBuilder shortAddress(int shortAddress) {
+            this.state.setShortAddress(this, shortAddress);
+            return this;
+        }
+
+        void setShortAddress(int shortAddress) {
+            this.neighborTableEntry.setShortAddress(shortAddress);
+        }
+
+        @Override
+        public G3NeighborBuilder lastUpdate(Date lastUpdate) {
+            this.state.setLastUpdate(this, lastUpdate);
+            return this;
+        }
+
+        void setLastUpdate(Date lastUpdate) {
+            this.neighborTableEntry.setLastUpdate(lastUpdate);
+        }
+
+        @Override
+        public G3NeighborBuilder lastPathRequest(Date lastPathRequest) {
+            this.state.setLastPathRequest(this, lastPathRequest);
+            return this;
+        }
+
+        void setLastPathRequest(Date lastPathRequest) {
+            this.neighborTableEntry.setLastPathRequest(lastPathRequest);
+        }
+
+        @Override
+        public G3NeighborBuilder roundTrip(long roundTrip) {
+            this.state.setRoundTrip(this, roundTrip);
+            return this;
+        }
+
+        void setRoundTrip(long roundTrip) {
+            this.neighborTableEntry.setRoundTrip(roundTrip);
+        }
+
+        @Override
+        public G3NeighborBuilder linkCost(int linkCost) {
+            this.state.setLinkCost(this, linkCost);
+            return this;
+        }
+
+        void setLinkCost(int linkCost) {
+            this.neighborTableEntry.setLinkCost(linkCost);
         }
 
         void setToneMapTimeToLiveFromSeconds(int seconds) {

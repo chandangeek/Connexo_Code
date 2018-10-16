@@ -6,14 +6,12 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.G3Neighbor;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.*;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.Date;
 
 /**
  * Provides an implementation for the {@link G3Neighbor} interface.
@@ -31,20 +29,32 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMap;
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
+    private State g3State;
+    private String nodeAddress;
+    private int shortAddress;
+    private Date lastUpdate;
+    private Date lastPathRequest;
+    private long roundTrip;
+    private int linkCost;
 
     @Inject
     public G3NeighborImpl(DataModel dataModel, Clock clock) {
         super(dataModel, clock);
     }
 
-    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
         this.init(device, neighbor, modulationScheme, modulation);
         this.phaseInfo = phaseInfo;
+        this.g3State = g3State;
         return this;
     }
 
     void setPhaseInfo(PhaseInfo phaseInfo) {
         this.phaseInfo = phaseInfo;
+    }
+
+    void setG3State(State g3State) {
+        this.g3State = g3State;
     }
 
     @Override
@@ -113,6 +123,65 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     @Override
     public PhaseInfo getPhaseInfo() {
         return phaseInfo;
+    }
+
+    @Override
+    public State getG3State() {
+        return g3State;
+    }
+
+    @Override
+    public String getNodeAddress() {
+        return nodeAddress;
+    }
+
+    void setNodeAddress(String nodeAddress) {
+        this.nodeAddress = nodeAddress;
+    }
+
+    @Override
+    public int getShortAddress() {
+        return shortAddress;
+    }
+
+    void setShortAddress(int shortAddress) {
+        this.shortAddress = shortAddress;
+    }
+
+    @Override
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    @Override
+    public Date getLastPathRequest() {
+        return lastPathRequest;
+    }
+
+    void setLastPathRequest(Date lastPathRequest) {
+        this.lastPathRequest = lastPathRequest;
+    }
+
+    @Override
+    public long getRoundTrip() {
+        return roundTrip;
+    }
+
+    void setRoundTrip(long roundTrip) {
+        this.roundTrip = roundTrip;
+    }
+
+    @Override
+    public int getLinkCost() {
+        return linkCost;
+    }
+
+    void setLinkCost(int linkCost) {
+        this.linkCost = linkCost;
     }
 
 }
