@@ -158,7 +158,7 @@ public class CreateBeaconDeviceCommand {
         addSecurityPropertiesToDevice(device);
 
         device.save();
-        addConnectionTasksToDevice(device);
+        // addConnectionTasksToDevice(device);
         // add location
         AddLocationInfoToDevicesCommand addLocationInfoToDevicesCommand = this.addLocationInfoToDevicesCommandProvider.get();
         addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device));
