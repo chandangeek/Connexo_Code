@@ -43,7 +43,7 @@ public interface G3Neighbor extends PLCNeighbor {
 
     public PhaseInfo getPhaseInfo();
 
-    State getG3State();
+    G3NodeState getG3NodeState();
 
     String getNodeAddress();
 

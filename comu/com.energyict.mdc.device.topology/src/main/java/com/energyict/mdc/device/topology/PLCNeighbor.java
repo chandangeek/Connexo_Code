@@ -23,8 +23,6 @@ public interface PLCNeighbor extends Effectivity {
 
     public Modulation getModulation();
 
-    State getState();
-
     /**
      * Gets the {@link Device} for which this
      * PLCNeighbor was created.

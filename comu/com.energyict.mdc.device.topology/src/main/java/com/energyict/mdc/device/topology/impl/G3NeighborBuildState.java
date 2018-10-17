@@ -19,7 +19,7 @@ enum G3NeighborBuildState {
     CREATE {
         @Override
         protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
-                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
             // Already editing
         }
 
@@ -94,16 +94,11 @@ enum G3NeighborBuildState {
             neighborTableEntry.save();
             return Optional.of(neighborTableEntry);
         }
-
-        @Deprecated
-        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
     },
     UPDATE {
         @Override
         protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
-                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
             // Already editing
         }
 
@@ -191,17 +186,12 @@ enum G3NeighborBuildState {
             neighborTableEntry.save();
             return Optional.of(neighborTableEntry);
         }
-
-        @Deprecated
-        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
     },
     TERMINATE {
         @Override
         protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl builder,
-                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
-            builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo, g3State);
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+            builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo, g3NodeState);
         }
 
         @Override
@@ -276,11 +266,6 @@ enum G3NeighborBuildState {
             return Optional.empty();
         }
 
-        @Deprecated
-        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
-
         private IllegalStateException illegalStateException() {
             return new IllegalStateException("Neighbor entry building process was not switched to edit mode");
         }
@@ -288,7 +273,7 @@ enum G3NeighborBuildState {
     COMPLETE {
         @Override
         protected void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder,
-                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+                                    ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
             throw illegalStateException();
         }
 
@@ -362,12 +347,6 @@ enum G3NeighborBuildState {
             throw illegalStateException();
         }
 
-
-        @Deprecated
-        void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
-
         private IllegalStateException illegalStateException() {
             return new IllegalStateException("Neighbor entry building process is already complete");
         }
@@ -375,10 +354,7 @@ enum G3NeighborBuildState {
 
     abstract Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry);
 
-    abstract void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
-
-
-    abstract void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State);
+    abstract void startEditing(TopologyServiceImpl.G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState);
 
     abstract void setTxGain(TopologyServiceImpl.G3NeighborBuilderImpl builder, int txGain);
 

@@ -2,7 +2,7 @@ package com.energyict.mdc.device.topology;
 
 import java.util.stream.Stream;
 
-public enum State {
+public enum G3NodeState {
 
     UNKNOWN(0),
     NOT_ASSOCIATED(1),
@@ -12,7 +12,7 @@ public enum State {
 
     private final int id;
 
-    State(int id) {
+    G3NodeState(int id) {
         this.id = id;
     }
 
@@ -21,18 +21,18 @@ public enum State {
     }
 
     /**
-     * Returns the State that is uniquely identifier
+     * Returns the G3NodeState that is uniquely identifier
      * by the specified ID.
      *
      * @param id The ID.
-     * @return The corresponding State, <code>null</code> if none matching.
+     * @return The corresponding G3NodeState, <code>null</code> if none matching.
      */
-    public static State fromId(int id) {
+    public static G3NodeState fromId(int id) {
         return Stream
-                .of(State.values())
+                .of(G3NodeState.values())
                 .filter(p -> p.getId() == id)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown State id " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown G3NodeState id " + id));
     }
 
 }

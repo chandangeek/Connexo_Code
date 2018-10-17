@@ -43,7 +43,7 @@ public interface TopologyService {
 
     Optional<Device> getPhysicalGateway(Device slave, Instant when);
 
-    Map<Device, Device> getPhycicalGateways(List<Device> deviceList);
+    Map<Device, Device> getPhysicalGateways(List<Device> deviceList);
 
     /**
      * Sets the physical gateway of the slave {@link Device} to the specified Device.
@@ -89,7 +89,7 @@ public interface TopologyService {
      * @return The TopologyTimeline
      * @see #getPhysicalGateway(Device)
      */
-    TopologyTimeline getPysicalTopologyTimeline(Device device);
+    TopologyTimeline getPhysicalTopologyTimeline(Device device);
 
     /**
      * Gets the {@link PhysicalGatewayReference} for a specified gateway for a certain range
@@ -98,7 +98,7 @@ public interface TopologyService {
      * @param range The range
      * @return a list of PhysicalGataweyReference
      */
-    List<PhysicalGatewayReference> getPhysyicalGatewayReferencesFor(Device device, Range<Instant> range);
+    List<PhysicalGatewayReference> getPhysicalGatewayReferencesFor(Device device, Range<Instant> range);
 
     /**
      * Gets the most recent additions to the {@link TopologyTimeline}
@@ -126,14 +126,8 @@ public interface TopologyService {
      * Starts the process to add {@link G3CommunicationPathSegment}s
      * from the source to multiple target {@link Device}s.
      *
-     * @param source The source Device
      * @return The G3CommunicationPathSegmentBuilder
      */
-    @Deprecated
-    default G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source) {
-        throw new UnsupportedOperationException("Unsupported operation");
-    }
-
     G3CommunicationPathSegmentBuilder addCommunicationSegments();
 
     /**
@@ -446,23 +440,19 @@ public interface TopologyService {
         /**
          * Adds a {@link G3CommunicationPathSegment} from the source to the target
          * {@link Device}, using the specified intermediate Device.
-         * The source Device is the one that was specified in the
+         * <strike>The source Device is the one that was specified in the
          * {@link #addCommunicationSegments(Device)} method
-         * that returned this Builder in the first place.
+         * that returned this Builder in the first place.</strike>
          * It is allowed that the intermediate Device is null or
          * the same as the  target Device, in that case,
          * the added segment will be a direct or final segment.
          *
+         * @param source The source Device
          * @param target The target Device
          * @param intermediateHop The intermediate Device
          * @param timeToLive The time to live
          * @param cost The segment's cost
          */
-        @Deprecated
-        default G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost) {
-            throw new UnsupportedOperationException("Unsupported operation");
-        }
-
         G3CommunicationPathSegmentBuilder add(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
         /**
@@ -479,7 +469,7 @@ public interface TopologyService {
      * Build all the neighbors of one {@link Device}.
      * Device's whose neighborhood has been built before can be updated
      * with the same builder. Devices that were not revisited, i.e.
-     * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo, State)}
+     * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo, G3NodeState)}
      * was not called will be deleted upon completion.
      */
     interface G3NeighborhoodBuilder {
@@ -495,12 +485,10 @@ public interface TopologyService {
          * @param modulationScheme The ModulationScheme
          * @param modulation The Modulation
          * @param phaseInfo The PhaseInfo
+         * @param g3NodeState The G3NodeState
          * @return The G3NeighborBuilder that allows you to specify the optional neighboring information
          */
-        @Deprecated
-        G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
-
-        G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State state);
+        G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState);
 
         /**
          * Completes the building process and returns

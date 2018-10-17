@@ -95,7 +95,7 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
         ScheduleExpression expression = getTemporalExpression(frequency.getFrequency());
         Optional<ZonedDateTime> zonedDateTime = expression.nextOccurrence(ZonedDateTime.ofInstant(interval.lowerEndpoint().minus(frequency.getFrequency()), clock.getZone()));
         ZonedDateTime startTime = zonedDateTime.get();
-        List<PhysicalGatewayReference> gatewayReferences = topologyService.getPhysyicalGatewayReferencesFor(gateway, interval);
+        List<PhysicalGatewayReference> gatewayReferences = topologyService.getPhysicalGatewayReferencesFor(gateway, interval);
         Map<Instant, Integer> countPerInstant = getInstantsMap(interval, expression, startTime);
         gatewayReferences
                 .forEach(physicalGatewayReference -> belongsToInstants(countPerInstant, physicalGatewayReference.getRange()));

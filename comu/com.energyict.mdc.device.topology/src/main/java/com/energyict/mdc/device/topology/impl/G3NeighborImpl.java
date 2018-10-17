@@ -29,7 +29,7 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMap;
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
-    private State g3State;
+    private G3NodeState g3NodeState;
     private String nodeAddress;
     private int shortAddress;
     private Date lastUpdate;
@@ -42,10 +42,10 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         super(dataModel, clock);
     }
 
-    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, State g3State) {
+    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
         this.init(device, neighbor, modulationScheme, modulation);
         this.phaseInfo = phaseInfo;
-        this.g3State = g3State;
+        this.g3NodeState = g3NodeState;
         return this;
     }
 
@@ -53,8 +53,8 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         this.phaseInfo = phaseInfo;
     }
 
-    void setG3State(State g3State) {
-        this.g3State = g3State;
+    void setG3NodeState(G3NodeState g3NodeState) {
+        this.g3NodeState = g3NodeState;
     }
 
     @Override
@@ -126,8 +126,8 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     }
 
     @Override
-    public State getG3State() {
-        return g3State;
+    public G3NodeState getG3NodeState() {
+        return g3NodeState;
     }
 
     @Override
