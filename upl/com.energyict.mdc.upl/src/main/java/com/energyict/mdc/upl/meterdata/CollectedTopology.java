@@ -96,15 +96,10 @@ public interface CollectedTopology extends CollectedData {
 
     void addPathSegmentFor(DeviceIdentifier source, DeviceIdentifier target, DeviceIdentifier intermediateHop, Duration timeToLive, int cost);
 
-    @Deprecated
-    void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime);
-
-    default void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
+    void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
                               int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime,
                               int neighbourValidTime, String nodeAddress, int shortAddress, Date lastUpdate,
-                              Date lastPathRequest, int state, long roundTrip, int linkCost, boolean isBeaconModulation) {
-        throw new UnsupportedOperationException("Unsupported default operation");
-    }
+                              Date lastPathRequest, int state, long roundTrip, int linkCost);
 
     void addG3IdentificationInformation(String formattedIPv6Address, int ipv6ShortAddress, int logicalDeviceId);
 
