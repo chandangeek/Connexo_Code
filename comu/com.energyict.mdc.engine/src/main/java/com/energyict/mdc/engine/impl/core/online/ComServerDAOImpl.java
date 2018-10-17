@@ -1121,9 +1121,9 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (optionalDevice.isPresent()) {
                 TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(
                         optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()),
-                        Modulation.fromOrdinal(topologyNeighbour.getModulation()),
+                        Modulation.fromId(topologyNeighbour.getModulation()),
                         PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()),
-                        State.fromId(topologyNeighbour.getState())
+                        G3NodeState.fromId(topologyNeighbour.getState())
                 );
                 g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
                 g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
