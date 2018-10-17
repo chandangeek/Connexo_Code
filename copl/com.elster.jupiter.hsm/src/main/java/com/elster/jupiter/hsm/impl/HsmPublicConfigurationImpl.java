@@ -8,8 +8,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Collection;
 
-@Component(name = "com.elster.jupiter.hsm.impl.HsmPublicConfigurationImpl", service = {HsmPublicConfiguration.class}, immediate = true, property = "name=" + HsmPublicConfiguration.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.hsm.impl.HsmPublicConfigurationImpl", service = {HsmPublicConfiguration.class}, immediate = true, property = "name=" + HsmPublicConfigurationImpl.COMPONENTNAME)
 public class HsmPublicConfigurationImpl implements HsmPublicConfiguration {
+
+    public static final String COMPONENTNAME = "HsmPublicConfigurationImpl";
 
     private volatile HsmConfigurationService hsmConfigurationService;
 
