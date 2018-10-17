@@ -1,23 +1,15 @@
 package com.energyict.mdc.device.topology.rest.demo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
-import com.energyict.mdc.device.topology.G3Neighbor;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.device.topology.rest.demo.layer.GraphLayerBuilder;
 
-import java.nio.file.attribute.UserPrincipalLookupService;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -154,7 +146,7 @@ public class NetworkTopologyBuilder {
 
     private List<G3Neighbor> addNeighbors(G3CommunicationPathSegment segment){
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(segment.getSource());
-        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO)
+        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromId(99), PhaseInfo.NOPHASEINFO, G3NodeState.UNKNOWN)
                            .linkQualityIndicator(segment.getCost()) ;
         return neighborhoodBuilder.complete();
     }
