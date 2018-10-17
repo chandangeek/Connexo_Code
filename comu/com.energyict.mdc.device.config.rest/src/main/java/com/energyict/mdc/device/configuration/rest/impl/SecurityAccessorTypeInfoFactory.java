@@ -49,6 +49,7 @@ public class SecurityAccessorTypeInfoFactory {
 
         if (securityAccessorType.keyTypeIsHSM()) {
             info.label = securityAccessorType.getHsmKeyType().getLabel();
+            info.hsmJssKeyType = securityAccessorType.getHsmKeyType().getHsmJssKeyType();
             info.importCapability =  securityAccessorType.getHsmKeyType().getImportCapability();
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
             info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();

@@ -227,6 +227,7 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.purpose == null || securityAccessorTypeInfo.purpose.id == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "purpose");
         }
+
         KeyType keyType = securityManagementService.getKeyType(securityAccessorTypeInfo.keyType.name)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorTypeInfo.keyType.name));
         Builder keyFunctionTypeBuilder = securityManagementService.addSecurityAccessorType(securityAccessorTypeInfo.name, keyType)
@@ -250,10 +251,10 @@ public class SecurityAccessorTypeResource {
         if (CryptographicType.Hsm.equals(keyType.getCryptographicType())) {
             checkHSMLabel(securityAccessorTypeInfo.label);
             keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
+            keyFunctionTypeBuilder.jssType(securityAccessorTypeInfo.hsmJssKeyType);
             keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
             keyFunctionTypeBuilder.renewCapability(securityAccessorTypeInfo.renewCapability);
             keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
-
         }
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
