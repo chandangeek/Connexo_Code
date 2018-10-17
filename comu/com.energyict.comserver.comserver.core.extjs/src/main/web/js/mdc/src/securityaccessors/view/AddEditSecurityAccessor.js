@@ -220,7 +220,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 },
                 {
                     xtype: 'combo',
-                    fieldLabel: Uni.I18n.translate('general.hsm.jss.keytype', 'MDC', 'JSS Key type'),
+                    fieldLabel: Uni.I18n.translate('general.hsm.jss.keytype', 'MDC', 'Key subtype'),
                     itemId: 'mdc-security-accessor-jss-keytype-combobox',
                     name: 'hsmJssKeyType',
                     store: 'Mdc.securityaccessors.store.HsmJssKeyTypes',
