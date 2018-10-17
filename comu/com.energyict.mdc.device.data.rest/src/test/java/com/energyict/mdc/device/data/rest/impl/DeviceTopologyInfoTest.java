@@ -76,7 +76,7 @@ public class DeviceTopologyInfoTest {
         when(topologyTimeline.getAllDevices()).thenReturn(allDevices);
         when(topologyTimeline.mostRecentlyAddedOn(device)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
         State state = mock(State.class);
         when(state.getName()).thenReturn("dlc.default.inStock");
