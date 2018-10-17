@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.CertificateChainBuilder;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.upl.Services;
@@ -110,14 +111,19 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     public KeyStore getKeyStore(CertificateWrapper certificateWrapper) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, InvalidKeyException {
         com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = this.toConnexoCertificateWrapper(certificateWrapper);
 
-        if (connexoCertificateWrapper instanceof ClientCertificateWrapper) {
-            ClientCertificateWrapper clientCertificateWrapper = (ClientCertificateWrapper) connexoCertificateWrapper;
-            if (clientCertificateWrapper.getCertificate().isPresent()) {
+        if (connexoCertificateWrapper instanceof RequestableCertificateWrapper) {
+            RequestableCertificateWrapper requestableCertificateWrapper = (RequestableCertificateWrapper) connexoCertificateWrapper;
+            if (requestableCertificateWrapper.getCertificate().isPresent()) {
                 KeyStore keyStore = KeyStore.getInstance(KEY_STORE);
                 keyStore.load(null); // This initializes the empty key store
-                LinkedList<com.elster.jupiter.pki.CertificateWrapper> certificateChain = CertificateChainBuilder.getCertificateChain(clientCertificateWrapper);
-                //well this cast is horrible but this is the model we have ...
-                CertificateChainBuilder.populateKeyStore((LinkedList<ClientCertificateWrapper>)(LinkedList<?>) certificateChain, keyStore, PARAMETERS);
+                LinkedList<com.elster.jupiter.pki.CertificateWrapper> certificateChain = CertificateChainBuilder.getCertificateChain(requestableCertificateWrapper);
+                if (connexoCertificateWrapper instanceof ClientCertificateWrapper) {
+                    //well this cast is horrible but this is the model we have ...
+                    CertificateChainBuilder.populateKeyStore((LinkedList<ClientCertificateWrapper>) (LinkedList<?>) certificateChain, keyStore, PARAMETERS);
+                } else {
+
+                    //TODO: log something? in this case we have a certificate based on a CSR for which we don't have the private key (csr for HSM private key, or for a beacon device private key....)
+                }
                 return keyStore;
             } else {
                 throw new IllegalArgumentException("The given client CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must contain a private key and a client certificate");
@@ -142,8 +148,8 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     @Override
     public Optional<X509KeyManager> getHsmKeyManager(CertificateWrapper clientCertificateWrapper) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException {
         com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = toConnexoCertificateWrapper(clientCertificateWrapper);
-        KeyStore keyStore = null; //TODO: use following method when CXO will be ready to have clientCertificate associated with HSM private key... getKeyStore(clientCertificateWrapper);
-        return Optional.of(hsmProtocolService.getKeyManager(keyStore, PARAMETERS, connexoCertificateWrapper.getAlias()));
+        KeyStore keyStore = getKeyStore(clientCertificateWrapper);
+        return Optional.of(hsmProtocolService.getKeyManager(keyStore, PARAMETERS, connexoCertificateWrapper.getAlias(), getCertificateChain(clientCertificateWrapper)));
     }
 
     @Override
@@ -164,5 +170,27 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
         } else {
             throw new IllegalArgumentException("The given CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must be of type TrustedCertificate");
         }
+    }
+
+    @Override
+    public X509Certificate[] getCertificateChain(CertificateWrapper serverCertificateWrapper) {
+        LinkedList<com.elster.jupiter.pki.CertificateWrapper> certificateChain = CertificateChainBuilder.getCertificateChain(((CertificateWrapperAdapter) serverCertificateWrapper).getCertificateWrapper());
+        return certificateChain
+                .stream()
+                .map(com.elster.jupiter.pki.CertificateWrapper::getCertificate)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .skip(1)//skip root CA....should not be included
+                .toArray(X509Certificate[]::new);
+    }
+
+    @Override
+    public String getRootCAAlias(CertificateWrapper serverCertificateWrapper) {
+        com.elster.jupiter.pki.CertificateWrapper clientCertificateWrapper = ((CertificateWrapperAdapter) serverCertificateWrapper).getCertificateWrapper();
+        while (!clientCertificateWrapper.getSubject().isEmpty() && !clientCertificateWrapper.getSubject().equalsIgnoreCase(clientCertificateWrapper.getIssuer())) {
+            clientCertificateWrapper = clientCertificateWrapper.getParent();
+        }
+        return clientCertificateWrapper.getAlias();
+
     }
 }
