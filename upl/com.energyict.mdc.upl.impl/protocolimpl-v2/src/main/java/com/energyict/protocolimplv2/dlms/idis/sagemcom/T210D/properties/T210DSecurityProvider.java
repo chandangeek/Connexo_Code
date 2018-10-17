@@ -158,6 +158,12 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
         return new Certificate[0];
     }
 
+    @Override
+    public String getRootCA(String propertyName) {
+        //not used
+        return null;
+    }
+
     /**
      * Returns a valid X509 v3 certificate, or null if the property has no value
      */

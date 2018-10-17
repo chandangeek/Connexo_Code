@@ -170,10 +170,10 @@ public class CryptoSecurityContext extends SecurityContext {
 
         String clientPrivateSigningKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
         Certificate[] serverKeyAgreementCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
-        String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
+        String caCertificate = getGeneralCipheringSecurityProvider().getRootCA(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
         final byte[] kdfOtherInfo = getKdfOtherInfo(getSystemTitle(), getResponseSystemTitle());
 
-        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel();
 
         //call hsm eekAgreeSender1e1s method.
         EEKAgreeResponse eekAgreeResponse = Services.hsmService().eekAgreeSender1e1s(getSecuritySuite(), clientPrivateSigningKeyLabel, serverKeyAgreementCertificateChain, caCertificate, kdfOtherInfo, storageKey);
@@ -211,9 +211,9 @@ public class CryptoSecurityContext extends SecurityContext {
         }
         Certificate[] serverSignatureKeyCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         String clientPrivateKeyAgreementKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKeyLabel();
-        String caCertificate = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
+        String caCertificate = getGeneralCipheringSecurityProvider().getRootCA(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         byte[] kdfOtherInfo = getKdfOtherInfo(getResponseSystemTitle(), getSystemTitle());
-        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel(); //TODO S-DB1? same as the one used for EK and AK....get it from a protocol property? or?
+        String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel();
 
         //call hsm eekAgreeReceiver1e1s method.
         IrreversibleKey agreedSesionKey = Services.hsmService().eekAgreeReceiver1e1s(getSecuritySuite(), serverSignatureKeyCertificateChain, serverEphemeralPublicKeyBytes, signature, clientPrivateKeyAgreementKeyLabel, caCertificate, kdfOtherInfo, storageKey);

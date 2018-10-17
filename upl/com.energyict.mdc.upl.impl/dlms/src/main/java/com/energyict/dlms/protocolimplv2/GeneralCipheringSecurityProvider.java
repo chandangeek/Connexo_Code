@@ -84,4 +84,6 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
     String getClientPrivateKeyAgreementKeyLabel();
 
     Certificate[] getCertificateChain(String propertyName);
+
+    String getRootCA(String propertyName);
 }

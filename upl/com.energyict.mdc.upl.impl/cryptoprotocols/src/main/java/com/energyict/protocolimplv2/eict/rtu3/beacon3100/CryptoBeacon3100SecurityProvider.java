@@ -15,16 +15,12 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
  */
 public class CryptoBeacon3100SecurityProvider extends Beacon3100SecurityProvider {
 
-
-//    private SecurityPropertyValueParser securityPropertyValueParser = new SecurityPropertyValueParser();
-
     public CryptoBeacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(properties, authenticationDeviceAccessLevel, securitySuite, certificateWrapperExtractor);
         initializeKeys();
     }
 
     private void initializeKeys() {
-        //TODO: get the keys directly from security accsesors?
         setAuthenticationKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
         setEncryptionKey(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
         setHlsSecret(parseSecurityPropertyValue(SecurityPropertySpecTranslationKeys.PASSWORD.toString()));
