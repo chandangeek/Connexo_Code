@@ -273,6 +273,14 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_NTA_MASTERKEY("upl.property.v2.masterkey", "Master key"),
     V2_NTA_MASTERKEY_DESCRIPTION("upl.property.v2.masterkey.description", "Master key"),
 
+    V2_NTA_ESMR_50_HEX_PASSWORD("upl.property.v2.nta.esmr50HexPassword", "ESMR 50 Hex password"),
+    V2_NTA_FIRMWARE_UPGRADE_AUTHENTICATION_KEY("upl.property.v2.nta.firmwareUpgradeAuthenticationKey", "Firmware upgrade authentication key"),
+    V2_NTA_IGNORE_DST_STATUS_BIT("upl.property.v2.nta.ignoreDstStatusBit", "Ignore DST status bit"),
+    V2_NTA_FRAME_COUNTER_LIMIT("upl.property.v2.nta.frameCounterLimit", "Frame counter limit"),
+    V2_NTA_DEFAULT_KEY("upl.property.v2.nta.defaultKey", "Default key"),
+    V2_NTA_WORKING_KEY_LABEL_PHASE1("upl.property.v2.nta.workingKeyLabelPhase1", "Working key label phase 1"),
+    V2_NTA_WORKING_KEY_LABEL_PHASE2("upl.property.v2.nta.workingKeyLabelPhase2", "Working key label phase 2"),
+
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID("upl.property.v2.elster.gatewayLogicalDeviceId", "Gateway logical device id"),
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID_DESCRIPTION("upl.property.v2.elster.gatewayLogicalDeviceId.description", "Gateway logical device id"),
     V2_ELSTER_POLLING_DELAY("upl.property.v2.elster.pollingDelay", "Polling delay"),
