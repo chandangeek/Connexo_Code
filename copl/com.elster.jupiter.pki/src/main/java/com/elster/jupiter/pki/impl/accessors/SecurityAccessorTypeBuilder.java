@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.*;
@@ -61,6 +62,12 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
     @Override
     public SecurityAccessorType.Builder purpose(SecurityAccessorType.Purpose purpose) {
         underConstruction.setPurpose(purpose);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder jssType(HsmJssKeyType jssType) {
+        underConstruction.setHsmJssKeyType(jssType);
         return this;
     }
 

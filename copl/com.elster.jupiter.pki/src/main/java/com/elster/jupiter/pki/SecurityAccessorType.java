@@ -139,6 +139,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
          */
         SecurityAccessorType.Builder purpose(Purpose purpose);
 
+        Builder jssType(HsmJssKeyType jssType);
+
         /**
          * Set HSM label
          */
