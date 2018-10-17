@@ -49,6 +49,10 @@ public interface CertificateWrapperExtractor {
 
     Optional<CRL> getCRL(CertificateWrapper trustedCertificateWrapper);
 
+    X509Certificate[] getCertificateChain(CertificateWrapper serverCertificateWrapper);
+
+    String getRootCAAlias(CertificateWrapper serverCertificateWrapper);
+
     //TODO also support ClientCertificateWrapper extraction (including its certificate and private key)
 
 }
