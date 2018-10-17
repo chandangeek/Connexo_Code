@@ -674,7 +674,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 deviceTopology.addTopologyNeighbour(
                                         slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
                                         txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, nodeAddress,
-                                        shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost, true
+                                        shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
                                 );
                             } else {
                                 getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
