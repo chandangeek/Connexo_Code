@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -310,9 +311,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     @Override
     public IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
         KeyDerivation[] signatureKeyCertChain = createKeyDerivationArray(deviceSignatureKeyCertChain);
-        //TODO: remove this test hardcoded values and use the ones comming from the protocol
-        String clientPrivateKeyAgreementKeyLabel = "vm-cosem-ka-s1-1";
-        String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
         ProtectedSessionKey protectedSessionKey =
                 null;
         try {
@@ -320,8 +318,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                     signatureKeyCertChain,
                     ephemeralKaKey,
                     signature,
-                    new KeyLabel(clientPrivateKeyAgreementKeyLabel),
-                    new KeyLabel(caCertificateTest),
+                    new KeyLabel(hesKaKeyLabel),
+                    new KeyLabel(deviceCaCertificateLabel),
                     kdfOtherInfo,
                     new KeyLabel(storageKeyLabel));
         } catch (FunctionFailedException e) {
@@ -343,17 +341,14 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
 
         KeyDerivation[] certChainFromReceiver = createKeyDerivationArray(deviceKeyAgreementKeyCertChain);
-        //TODO: remove this test hardcoded values and use the ones comming from the protocol
-        String clientPrivateSigningKeyLabel = "vm-cosem-sign-s1-1";
-        String caCertificateTest = "Energy CA certificate_certificate_ROOTCA_CERT";
 
         com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse =
                 null;
         try {
             eekAgreeResponse = Energy.eekAgreeSender1e1s(getAtosSecuritySuite(securitySuite),
-                    new KeyLabel(clientPrivateSigningKeyLabel),
+                    new KeyLabel(hesSignatureKeyLabel),
                     certChainFromReceiver,
-                    new KeyLabel(caCertificateTest),
+                    new KeyLabel(deviceCaCertificateLabel),
                     kdfOtherInfo,
                     new KeyLabel(storageKeyLabel));
         } catch (FunctionFailedException e) {
@@ -392,14 +387,15 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
      * @param keyStore
      * @param password
      * @param clientTlsPrivateKeyAlias
+     * @param certificateChain
      * @return
      * @throws UnrecoverableKeyException
      * @throws NoSuchAlgorithmException
      * @throws KeyStoreException
      */
     @Override
-    public X509KeyManager getKeyManager(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
-        return new HsmKeyManagerImpl(keyStore, password, clientTlsPrivateKeyAlias);
+    public X509KeyManager getKeyManager(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias, X509Certificate[] certificateChain) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
+        return new HsmKeyManagerImpl(keyStore, password, clientTlsPrivateKeyAlias, certificateChain);
     }
 
     private ProtectedSessionKey toProtectedSessionKey(IrreversibleKey irreversibleKey) {

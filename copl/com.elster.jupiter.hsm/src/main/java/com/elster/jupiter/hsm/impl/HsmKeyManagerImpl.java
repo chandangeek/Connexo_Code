@@ -6,38 +6,25 @@ import com.atos.worldline.jss.api.jca.spec.KeyLabelKeySpec;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509KeyManager;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.security.*;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Optional;
 
 public class HsmKeyManagerImpl implements X509KeyManager {
 
     private final String clientTlsPrivateKeyAlias;
+    private X509Certificate[] certificateChain;
     private X509KeyManager x509KeyManager;
-    private Optional<KeyStore> mockKeyStore = null;
 
-    public HsmKeyManagerImpl(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+    public HsmKeyManagerImpl(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias, X509Certificate[] certificateChain) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
         this.clientTlsPrivateKeyAlias = clientTlsPrivateKeyAlias;
+        this.certificateChain = certificateChain;
+        //important to add here the provider used by HSM
         Security.addProvider(new JSSJCAProvider());
 
-        final char[] PARAMETERS = new char[]{'p', 'a', 's', 's', 'w', 'o', 'r', 'd'};
-        mockKeyStore = Optional.of(KeyStore.getInstance("JKS"));
-        try {
-            mockKeyStore.get().load(new FileInputStream("C:\\protocols to implement\\Salzburg\\certificates\\keystore.jks"), PARAMETERS);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
-
-        //TODO: use the received keyStore and pass instead of the mocked one
         KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmfactory.init(mockKeyStore.get(), PARAMETERS);
+        kmfactory.init(keyStore, password);
         KeyManager[] keyManagers = kmfactory.getKeyManagers();
 
         /*
@@ -90,21 +77,7 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
-        try {
-            KeyStore keyStore = mockKeyStore.get();
-            X509Certificate[] certificateChain = (X509Certificate[]) keyStore.getCertificateChain(alias);
-            if (certificateChain == null) {//mock a certificate chain for testing. Needs to be investigated why the chain is null...
-                //TODO: Needs to be investigated why the chain is null...right now, mock a certificate chain for testing.
-                X509Certificate endCertificate = (X509Certificate) keyStore.getCertificate(alias);
-                X509Certificate rootCA = (X509Certificate) keyStore.getCertificate("cxotlsCA");
-                certificateChain = new X509Certificate[]{endCertificate, rootCA};
-                return certificateChain;
-            }
-
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-        return x509KeyManager.getCertificateChain(alias);
+        return certificateChain;
     }
 
     /**
