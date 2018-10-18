@@ -38,7 +38,7 @@ import java.util.Map;
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
 
     private static final int AES_KEY_LENGTH = 16;
-    private static final int AES256_KEY_LENGTH = 32;
+
     /** Size of the frame counter when encoded. */
     private static final int FRAMECOUNTER_SIZE = 4;
 
@@ -84,7 +84,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
                     protectedSessionKey,
                     newLabel,
-                    getSessionKeyType(renewKeyRequest.getHsmKeyType()));
+                    renewKeyRequest.getHsmKeyType().getSessionKeyType());
             ProtectedSessionKey psk = response.getMdmStorageKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
@@ -93,18 +93,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
-    private ProtectedSessionKeyType getSessionKeyType(HsmKeyType keyType) throws HsmBaseException {
 
-        int keyLength = keyType.getKeySize();
-        if (keyLength == AES_KEY_LENGTH) {
-            return ProtectedSessionKeyType.AES;
-        }
-
-        if (keyLength == AES256_KEY_LENGTH) {
-            return ProtectedSessionKeyType.AES_256;
-        }
-        throw new HsmBaseException("Could not determine session key type for key length:" + keyLength);
-    }
 
 
     @Reference
