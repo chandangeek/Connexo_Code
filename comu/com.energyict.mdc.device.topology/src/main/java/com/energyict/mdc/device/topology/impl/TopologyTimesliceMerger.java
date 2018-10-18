@@ -98,7 +98,11 @@ public class TopologyTimesliceMerger {
         }
 
         public Range<Instant> fromEndToEnd(Range<Instant> first, Range<Instant> second) {
-            return Range.closed(upperEndpoint(first), upperEndpoint(second));
+            if (second.hasUpperBound()) {
+                return Range.closed(upperEndpoint(first), upperEndpoint(second));
+            } else {
+                return Range.atLeast(upperEndpoint(first));
+            }
         }
 
         public List<Device> concat(List<Device> devices, List<Device> moreDevices) {

@@ -18,7 +18,11 @@ public enum Modulation {
     DBPSK(ModulationScheme.DIFFERENTIAL),
     C8PSK(ModulationScheme.COHERENT),
     CQPSK(ModulationScheme.COHERENT),
-    CBPSK(ModulationScheme.COHERENT);
+    CBPSK(ModulationScheme.COHERENT),
+    ROBO(ModulationScheme.COHERENT),
+    QAM16(ModulationScheme.COHERENT),
+    SUPERROBO(ModulationScheme.COHERENT),
+    UNKNOWN(ModulationScheme.COHERENT);
 
     private ModulationScheme modulationScheme;
 

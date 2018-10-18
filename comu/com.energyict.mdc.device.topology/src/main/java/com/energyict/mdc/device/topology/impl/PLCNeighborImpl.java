@@ -46,7 +46,16 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
         TIME_TO_LIVE("timeToLive"),
         TONE_MAP("toneMap"),
         TONE_MAP_TIME_TO_LIVE("toneMapTimeToLive"),
-        PHASE_INFO("phaseInfo");
+        PHASE_INFO("phaseInfo"),
+        NODE_ADDRESS("nodeAddress"),
+        SHORT_ADDRESS("shortAddress"),
+        LAST_UPDATE("lastUpdate"),
+        LAST_PATH_REQUEST("lastPathRequest"),
+        STATE("state"),
+        ROUND_TRIP("roundTrip"),
+        LINK_COST("linkCost"),
+        MAC_PAN_ID("macPANId");
+
 
         private final String javaFieldName;
 

@@ -10,10 +10,12 @@ import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.State;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link G3Neighbor} interface.
@@ -31,6 +33,14 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMap;
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
+    private String nodeAddress;
+    private long shortAddress;
+    private Instant lastUpdate;
+    private Instant lastPathRequest;
+    private State state;
+    private long roundTrip;
+    private long linkCost;
+    private long macPANId;
 
     @Inject
     public G3NeighborImpl(DataModel dataModel, Clock clock) {
@@ -115,4 +125,43 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         return phaseInfo;
     }
 
+    @Override
+    public String getNodeAddress() {
+        return nodeAddress;
+    }
+
+    @Override
+    public long getShortAddress() {
+        return shortAddress;
+    }
+
+    @Override
+    public Instant getLastUpdate() {
+        return lastUpdate;
+    }
+
+    @Override
+    public Instant getLastPathRequest() {
+        return lastPathRequest;
+    }
+
+    @Override
+    public State getState() {
+        return state;
+    }
+
+    @Override
+    public long getRoundTrip() {
+        return roundTrip;
+    }
+
+    @Override
+    public long getLinkCost() {
+        return linkCost;
+    }
+
+    @Override
+    public long getMacPanId() {
+        return macPANId;
+    }
 }

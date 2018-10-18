@@ -8,9 +8,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -21,8 +21,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -59,6 +59,7 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.State;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
@@ -166,6 +167,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(State.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
