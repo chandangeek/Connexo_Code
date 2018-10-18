@@ -68,6 +68,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -123,13 +124,18 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolReadingQualities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -154,14 +160,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
