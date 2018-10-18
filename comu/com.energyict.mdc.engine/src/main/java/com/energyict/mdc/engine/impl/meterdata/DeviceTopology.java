@@ -191,12 +191,13 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     @Override
     public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
                                      int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential,
-                                     int tmrValidTime, int neighbourValidTime, String nodeAddress, int shortAddress,
-                                     Date lastUpdate, Date lastPathRequest, int state, long roundTrip, int linkCost) {
+                                     int tmrValidTime, int neighbourValidTime, long macPANId, String nodeAddress,
+                                     int shortAddress, Date lastUpdate, Date lastPathRequest, int state, long roundTrip,
+                                     int linkCost) {
         topologyNeighbours.add(
                 new TopologyNeighbour(neighbour, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi,
-                        phaseDifferential, tmrValidTime, neighbourValidTime, nodeAddress, shortAddress, lastUpdate,
-                        lastPathRequest, state, roundTrip, linkCost)
+                        phaseDifferential, tmrValidTime, neighbourValidTime, macPANId, nodeAddress, shortAddress,
+                        lastUpdate, lastPathRequest, state, roundTrip, linkCost)
         );
     }
 
