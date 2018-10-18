@@ -22,7 +22,16 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -33,7 +42,16 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -42,7 +60,11 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.*;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -80,7 +102,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -662,6 +691,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
                                 int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
                                 int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+                                long macPANId = getNeighbourTable().get().getDataType(3).getUnsigned16().longValue();
                                 // g3Node
                                 String nodeAddress = g3Node.getMacAddressString();
                                 int shortAddress = g3Node.getShortAddress();
@@ -673,8 +703,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
                                 deviceTopology.addTopologyNeighbour(
                                         slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
-                                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, nodeAddress,
-                                        shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
+                                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
+                                        nodeAddress, shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
                                 );
                             } else {
                                 getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
