@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableSet;
 
@@ -15,14 +16,19 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 /**
  * Wrapper around a ScheduledExecutorService that allows scheduling CronJobs according to their CronExpression.
  */
 class CronExpressionScheduler {
 
+    private static final Logger LOGGER = Logger.getLogger(CronExpressionScheduler.class.getName());
+    private static final long RETRY_TIMER = 60;
+    private static final int RETRY_COUNT = 3;
     private final ScheduledExecutorService scheduledExecutorService;
     private final Clock clock;
     @GuardedBy("jobHandleLock")
@@ -52,15 +58,33 @@ class CronExpressionScheduler {
      */
     public void submitOnce(CronJob cronJob) {
         ZonedDateTime now = ZonedDateTime.now(clock);
-        cronJob.getSchedule()
-                .nextOccurrence(now)
-                .ifPresent(
-                        nextOccurrence -> {
-                            long delay = Math.max(0L, nextOccurrence.toInstant().toEpochMilli() - now.toInstant().toEpochMilli());
-                            synchronized (jobHandleLock) {
-                                scheduledJobHandles.put(cronJob.getId(), scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS));
-                            }
-                        });
+        int retryCount = 0;
+        boolean submitFailed = false;
+        do {
+            try {
+                cronJob.getSchedule()
+                        .nextOccurrence(now)
+                        .ifPresent(
+                                nextOccurrence -> {
+                                    long delay = Math.max(0L, nextOccurrence.toInstant().toEpochMilli() - now.toInstant().toEpochMilli());
+                                    synchronized (jobHandleLock) {
+                                        scheduledJobHandles.put(cronJob.getId(), scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS));
+                                    }
+                                });
+                return;
+            } catch (UnderlyingSQLFailedException e) {
+                submitFailed = true;
+                LOGGER.warning("[try #" + (++retryCount) + "] Database exception encountered, will try to reschedule the cronJob with id=" + cronJob.getId() + " in " + RETRY_TIMER + "s");
+                try {
+                    Thread.sleep(RETRY_TIMER * 1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        } while (submitFailed && retryCount <= RETRY_COUNT);
+
+        LOGGER.severe("Couldn't reconnect to database, cronJob with id=" + cronJob.getId() + " won't run anymore!");
     }
 
     /**
@@ -107,7 +131,12 @@ class CronExpressionScheduler {
 
         @Override
         public void run() {
-            wrapped.run();
+            try {
+                wrapped.run();
+            } catch (Exception e) {
+                LOGGER.severe("[" + Thread.currentThread().getName() + "] Exception caught: " + e);
+            }
+
             synchronized (jobHandleLock) {
                 if (scheduledJobHandles.containsKey(wrapped.getId())) {
                     submit(wrapped);
