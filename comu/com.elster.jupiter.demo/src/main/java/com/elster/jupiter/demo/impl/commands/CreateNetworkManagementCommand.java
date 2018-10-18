@@ -27,11 +27,16 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.demo.layer.GraphLayerBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.scheduling.SchedulingService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
