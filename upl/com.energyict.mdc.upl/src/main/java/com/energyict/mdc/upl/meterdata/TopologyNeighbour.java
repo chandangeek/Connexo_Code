@@ -24,6 +24,7 @@ public class TopologyNeighbour {
     private final int phaseDifferential;
     private final int tmrValidTime;
     private final int neighbourValidTime;
+    private long macPANId;
     private String nodeAddress;
     private int shortAddress;
     private Date lastUpdate;
@@ -32,14 +33,9 @@ public class TopologyNeighbour {
     private long roundTrip;
     private int linkCost;
 
-    @Deprecated
-    public TopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime) {
-        throw new UnsupportedOperationException("Deprecated constructor. Usage: TopologyNeighbour(com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier,int,long,int,int,int,int,int,int,int,int,java.lang.String,int,java.util.Date,java.util.Date,int,long,int)");
-    }
-
     public TopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
                              int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime,
-                             int neighbourValidTime, String nodeAddress, int shortAddress, Date lastUpdate,
+                             int neighbourValidTime, long macPANId, String nodeAddress, int shortAddress, Date lastUpdate,
                              Date lastPathRequest, int state, long roundTrip, int linkCost) {
         this.neighbour = neighbour;
         this.modulationSchema = modulationSchema;
@@ -52,6 +48,7 @@ public class TopologyNeighbour {
         this.phaseDifferential = phaseDifferential;
         this.tmrValidTime = tmrValidTime;
         this.neighbourValidTime = neighbourValidTime;
+        this.macPANId = macPANId;
         this.nodeAddress = nodeAddress;
         this.shortAddress = shortAddress;
         this.lastUpdate = lastUpdate;
@@ -103,6 +100,10 @@ public class TopologyNeighbour {
 
     public int getNeighbourValidTime() {
         return neighbourValidTime;
+    }
+
+    public long getMacPANId() {
+        return macPANId;
     }
 
     public String getNodeAddress() {

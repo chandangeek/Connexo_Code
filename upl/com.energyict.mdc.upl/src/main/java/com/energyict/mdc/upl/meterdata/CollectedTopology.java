@@ -98,7 +98,7 @@ public interface CollectedTopology extends CollectedData {
 
     void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
                               int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime,
-                              int neighbourValidTime, String nodeAddress, int shortAddress, Date lastUpdate,
+                              int neighbourValidTime, long macPANId, String nodeAddress, int shortAddress, Date lastUpdate,
                               Date lastPathRequest, int state, long roundTrip, int linkCost);
 
     void addG3IdentificationInformation(String formattedIPv6Address, int ipv6ShortAddress, int logicalDeviceId);
