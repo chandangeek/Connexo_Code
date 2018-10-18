@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
     refs: [
         {ref: 'deviceTopology', selector: '#deviceTopologySetup'},
-        {ref: 'topFilter', selector: '#deviceTopologySetup #mdc-view-setup-devicechannels-topologiestopfilter'}
+        {ref: 'topFilter', selector: '#deviceTopologySetup #mdc-view-setup-devicechannels-topologiestopfilter'},
+        {ref: 'preview', selector: '#deviceTopologySetup #device-topology-preview'},
     ],
 
     init: function () {
@@ -35,7 +36,10 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             },
             '#deviceTopologySetup #mdc-topology-edit-master-save-btn': {
                 click: this.onEditMasterSave
-            }
+            },
+            '#deviceTopologyGrid': {
+                selectionchange: this.topologySelectionchange
+            },
         });
     },
 
@@ -152,5 +156,21 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 deviceTopologyContent.setLoading(false);
             }
         });
+    },
+
+    topologySelectionchange: function (grid) {
+        var me = this,
+            topologyRecord = grid.getSelection()[0],
+            preview = me.getPreview(),
+            topologyPreview = preview.down('#topologyPreview'),
+            g3NodePLCInfoPreview = preview.down('#plcInfoPreview');
+
+        Ext.suspendLayouts();
+        topologyPreview.loadRecord(topologyRecord);
+        topologyRecord.getG3NodePLCInfo() ? g3NodePLCInfoPreview.loadRecord(topologyRecord.getG3NodePLCInfo()) : g3NodePLCInfoPreview.loadRecord(Ext.create('Mdc.model.G3NodePLCInfo'));
+        preview.setTitle(Ext.String.htmlEncode(topologyRecord.get('name')));
+        Ext.resumeLayouts(true);
+
+
     }
 });

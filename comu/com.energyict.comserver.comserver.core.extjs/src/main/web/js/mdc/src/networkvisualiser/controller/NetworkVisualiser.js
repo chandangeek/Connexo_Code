@@ -208,7 +208,14 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                 'descendants',
                 'alarms',
                 'issues',
-                'failedComTasks'
+                'failedComTasks',
+                'nodeAddress',
+                'state',
+                'modulation',
+                'phaseInfo',
+                'linkQualityIndicator',
+                'linkCost',
+                'roundTrip'
             ],
             deviceProperties = [
                 'name',
@@ -217,7 +224,14 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                 'deviceConfiguration',
                 'alarms',
                 'issues',
-                'failedComTasks'
+                'failedComTasks',
+                'nodeAddress',
+                'state',
+                'modulation',
+                'phaseInfo',
+                'linkQualityIndicator',
+                'linkCost',
+                'roundTrip'
             ],
             fieldLabels = [
                 Uni.I18n.translate('general.name', 'MDC', 'Name'),
@@ -229,7 +243,14 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                 Uni.I18n.translate('general.totalDescendants', 'MDC', 'Total descendants'),
                 Uni.I18n.translate('general.alarms', 'MDC', 'Alarms'),
                 Uni.I18n.translate('general.issues', 'MDC', 'Issues'),
-                Uni.I18n.translate('general.failedCommunicationTasks', 'MDC', 'Failed communication tasks')
+                Uni.I18n.translate('general.failedCommunicationTasks', 'MDC', 'Failed communication tasks'),
+                Uni.I18n.translate('general.nodeAddress', 'MDC', 'Node address'),
+                Uni.I18n.translate('general.associationState', 'MDC', 'Association state'),
+                Uni.I18n.translate('general.modulation', 'MDC', 'Modulation'),
+                Uni.I18n.translate('general.phaseInfo', 'MDC', 'Phase info'),
+                Uni.I18n.translate('general.linkQualityIndicator', 'MDC', 'Link quality'),
+                Uni.I18n.translate('general.linkCost', 'MDC', 'Link cost'),
+                Uni.I18n.translate('general.roundTrip', 'MDC', 'Round trip')
             ];
 
         if (!propertyViewer.getCollapsed()) {
@@ -252,6 +273,39 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                         graphDataPropertyValue = graphData[property];
 
                     switch(property) {
+                        case 'phaseInfo':
+                            switch (graphDataPropertyValue) {
+                                case 'INPHASE':
+                                    graphDataPropertyValue = '0 &deg;';
+                                    break;
+                                case 'DEGREE60':
+                                    graphDataPropertyValue = '60 &deg;';
+                                    break;
+                                case 'DEGREE120':
+                                    graphDataPropertyValue = '120 &deg;';
+                                    break;
+                                case 'DEGREE180':
+                                    graphDataPropertyValue = '180 &deg;';
+                                    break;
+                                case 'DEGREE240':
+                                    graphDataPropertyValue = '240 &deg;';
+                                    break;
+                                case 'DEGREE300':
+                                    graphDataPropertyValue = '300 &deg;';
+                                    break;
+                                case 'NOPHASEINFO':
+                                    graphDataPropertyValue = Uni.I18n.translate('G3NodePLCInfo.nophaseinfo', 'MDC', 'No phase');
+                                    break;
+                                case 'UNKNOWN':
+                                    graphDataPropertyValue = Uni.I18n.translate('G3NodePLCInfo.unknown', 'MDC', 'Unknown');
+                                    break;
+                            }
+                            htmlEncode = false;
+                            break;
+
+                        case 'modulation':
+                            graphDataPropertyValue = graphDataPropertyValue === 'UNKNOWN' ? Uni.I18n.translate('modulation.unknown', 'MDC', 'Unknown') : graphDataPropertyValue;
+                            break;
                         case 'alarms':
                         case 'issues':
                             if (graphDataPropertyValue === 0) {

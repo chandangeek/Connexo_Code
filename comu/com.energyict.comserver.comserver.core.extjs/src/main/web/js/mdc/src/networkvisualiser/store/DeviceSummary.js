@@ -13,7 +13,18 @@ Ext.define('Mdc.networkvisualiser.store.DeviceSummary', {
         'alarms',
         'issues',
         'failedComTasks',
-        'period'
+        'period',
+        'nodeAddress',
+        'shortAddress',
+        'lastUpdate',
+        'lastPathRequest',
+        'state',
+        'modulationScheme',
+        'modulation',
+        'linkQualityIndicator',
+        'phaseInfo',
+        'roundTrip',
+        'linkCost'
     ],
     autoLoad: false,
     proxy: {
