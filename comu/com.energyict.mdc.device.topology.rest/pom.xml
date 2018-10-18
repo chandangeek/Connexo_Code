@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.device.topology.rest</artifactId>
-    <version>1.0.3${revision}</version>
+    <version>1.1.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.topology.rest [DTG]</name>
 
