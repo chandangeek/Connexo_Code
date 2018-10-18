@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
 
 import java.util.Date;
 import java.util.Optional;
@@ -56,6 +60,11 @@ enum G3NeighborBuildState {
         @Override
         public void setToneMapTimeToLiveSeconds(TopologyServiceImpl.G3NeighborBuilderImpl builder, int seconds) {
             builder.setToneMapTimeToLiveFromSeconds(seconds);
+        }
+
+        @Override
+        public void setMacPANId(TopologyServiceImpl.G3NeighborBuilderImpl builder, long macPANId) {
+            builder.setMacPANId(macPANId);
         }
 
         @Override
@@ -145,6 +154,12 @@ enum G3NeighborBuildState {
         }
 
         @Override
+        public void setMacPANId(TopologyServiceImpl.G3NeighborBuilderImpl builder, long macPANId) {
+            builder.terminateOldAndStartNew();
+            builder.setMacPANId(macPANId);
+        }
+
+        @Override
         void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
             builder.terminateOldAndStartNew();
             builder.setNodeAddress(nodeAddress);
@@ -226,6 +241,11 @@ enum G3NeighborBuildState {
 
         @Override
         public void setToneMapTimeToLiveSeconds(TopologyServiceImpl.G3NeighborBuilderImpl builder, int seconds) {
+            throw illegalStateException();
+        }
+
+        @Override
+        public void setMacPANId(TopologyServiceImpl.G3NeighborBuilderImpl builder, long macPANId) {
             throw illegalStateException();
         }
 
@@ -313,6 +333,11 @@ enum G3NeighborBuildState {
         }
 
         @Override
+        public void setMacPANId(TopologyServiceImpl.G3NeighborBuilderImpl builder, long macPANId) {
+            throw illegalStateException();
+        }
+
+        @Override
         void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress) {
             throw illegalStateException();
         }
@@ -369,6 +394,8 @@ enum G3NeighborBuildState {
     abstract void setToneMap(TopologyServiceImpl.G3NeighborBuilderImpl builder, long toneMap);
 
     abstract void setToneMapTimeToLiveSeconds(TopologyServiceImpl.G3NeighborBuilderImpl builder, int seconds);
+
+    abstract void setMacPANId(TopologyServiceImpl.G3NeighborBuilderImpl builder, long macPANId);
 
     abstract void setNodeAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, String nodeAddress);
 

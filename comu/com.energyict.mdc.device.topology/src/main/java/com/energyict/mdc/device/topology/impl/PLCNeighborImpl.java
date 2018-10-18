@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PLCNeighbor;
-
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
@@ -47,6 +46,7 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
         TONE_MAP("toneMap"),
         TONE_MAP_TIME_TO_LIVE("toneMapTimeToLive"),
         PHASE_INFO("phaseInfo"),
+        MAC_PAN_ID("macPANId"),
         NODE_ADDRESS("nodeAddress"),
         SHORT_ADDRESS("shortAddress"),
         LAST_UPDATE("lastUpdate"),

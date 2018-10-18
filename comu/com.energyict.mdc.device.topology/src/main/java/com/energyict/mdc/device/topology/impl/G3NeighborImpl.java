@@ -6,7 +6,11 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -30,6 +34,7 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
     private G3NodeState g3NodeState;
+    private long macPANId;
     private String nodeAddress;
     private int shortAddress;
     private Date lastUpdate;
@@ -128,6 +133,15 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     @Override
     public G3NodeState getG3NodeState() {
         return g3NodeState;
+    }
+
+    @Override
+    public long getMacPANId() {
+        return macPANId;
+    }
+
+    void setMacPANId(long macPANId) {
+        this.macPANId = macPANId;
     }
 
     @Override

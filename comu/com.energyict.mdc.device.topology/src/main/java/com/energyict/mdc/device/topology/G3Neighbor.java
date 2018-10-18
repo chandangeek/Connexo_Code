@@ -45,6 +45,8 @@ public interface G3Neighbor extends PLCNeighbor {
 
     G3NodeState getG3NodeState();
 
+    long getMacPANId();
+
     String getNodeAddress();
 
     int getShortAddress();

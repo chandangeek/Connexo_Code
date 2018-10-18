@@ -120,6 +120,8 @@ public enum TableSpecs {
             table.column("TONEMAP").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP.fieldName()).add();
             table.column("TM_TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(PLCNeighborImpl.Field.TONE_MAP_TIME_TO_LIVE.fieldName()).add();
             table.column("PHASEINFO").number().conversion(NUMBER2ENUM).map(PLCNeighborImpl.Field.PHASE_INFO.fieldName()).add();
+            table.column("MAC_PAN_ID").number().conversion(NUMBER2LONG).notNull().installValue("0")
+                    .map(PLCNeighborImpl.Field.MAC_PAN_ID.fieldName()).since(version(10, 4, 3)).add();
             table.column("NODE_ADDRESS").varChar(Table.NAME_LENGTH).notNull().installValue("0")
                     .map(PLCNeighborImpl.Field.NODE_ADDRESS.fieldName()).since(version(10, 4, 3)).add();
             table.column("SHORT_ADDRESS").number().conversion(NUMBER2INT).notNull().installValue("0")

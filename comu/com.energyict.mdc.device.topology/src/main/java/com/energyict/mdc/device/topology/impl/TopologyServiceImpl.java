@@ -8,9 +8,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -21,8 +21,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -49,7 +49,21 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.DataLoggerReference;
+import com.energyict.mdc.device.topology.DeviceTopology;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiServiceImpl;
 import com.energyict.mdc.device.topology.impl.kpi.TranslationKeys;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
@@ -59,7 +73,6 @@ import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -76,7 +89,15 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1478,6 +1499,16 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds) {
             this.state.setToneMapTimeToLiveSeconds(this, seconds);
             return this;
+        }
+
+        @Override
+        public G3NeighborBuilder macPANId(long macPANId) {
+            this.state.setMacPANId(this, macPANId);
+            return this;
+        }
+
+        void setMacPANId(long macPANId) {
+            this.neighborTableEntry.setMacPANId(macPANId);
         }
 
         @Override

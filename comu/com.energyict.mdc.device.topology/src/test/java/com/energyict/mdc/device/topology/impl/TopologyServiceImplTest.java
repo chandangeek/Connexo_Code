@@ -18,22 +18,37 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
-
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -472,6 +487,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         int expectedTxGain = 3;
         int expectedTxResolution = 11;
         int expectedTxCoefficient = 121;
+        long expectedMacPANId = 123;
         String expectedNodeAddress = "0200:00FF:FE00:002C";
         int expectedShortAddress = 2;
         Date expectedLastUpdate = new Date();
@@ -487,6 +503,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 .txGain(expectedTxGain)
                 .txResolution(expectedTxResolution)
                 .txCoefficient(expectedTxCoefficient)
+                .macPANId(expectedMacPANId)
                 .nodeAddress(expectedNodeAddress)
                 .shortAddress(expectedShortAddress)
                 .lastUpdate(expectedLastUpdate)
@@ -511,6 +528,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(g3Neighbor1.getTxGain()).isEqualTo(expectedTxGain);
         assertThat(g3Neighbor1.getTxResolution()).isEqualTo(expectedTxResolution);
         assertThat(g3Neighbor1.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+        assertThat(g3Neighbor1.getMacPANId()).isEqualTo(expectedMacPANId);
         assertThat(g3Neighbor1.getNodeAddress()).isEqualTo(expectedNodeAddress);
         assertThat(g3Neighbor1.getShortAddress()).isEqualTo(expectedShortAddress);
         assertThat(g3Neighbor1.getLastUpdate()).isEqualTo(expectedLastUpdate);
@@ -877,6 +895,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         int expectedTxGain = 3;
         int expectedTxResolution = 11;
         int expectedTxCoefficient = 121;
+        long expectedMacPANId = 123;
         String expectedNodeAddress = "0200:00FF:FE00:002C";
         int expectedShortAddress = 2;
         Date expectedLastUpdate = new Date();
@@ -892,6 +911,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 .txGain(expectedTxGain)
                 .txResolution(expectedTxResolution)
                 .txCoefficient(expectedTxCoefficient)
+                .macPANId(expectedMacPANId)
                 .nodeAddress(expectedNodeAddress)
                 .shortAddress(expectedShortAddress)
                 .lastUpdate(expectedLastUpdate)
@@ -921,6 +941,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbor.getTxGain()).isEqualTo(expectedTxGain);
         assertThat(updatedNeighbor.getTxResolution()).isEqualTo(expectedTxResolution);
         assertThat(updatedNeighbor.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+        assertThat(updatedNeighbor.getMacPANId()).isEqualTo(expectedMacPANId);
         assertThat(updatedNeighbor.getNodeAddress()).isEqualTo(expectedNodeAddress);
         assertThat(updatedNeighbor.getShortAddress()).isEqualTo(expectedShortAddress);
         assertThat(updatedNeighbor.getLastUpdate()).isEqualTo(expectedLastUpdate);
