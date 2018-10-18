@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
@@ -18,8 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.osgi.util.measurement.Unit.s;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceTopologyInfo {
     public long id;
@@ -30,6 +30,7 @@ public class DeviceTopologyInfo {
     public String serialNumber;
     public long creationTime;
     public String state;
+    public G3NodePLCInfo g3NodePLCInfo;
 
     public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         return timeline.getAllDevices().stream()
@@ -51,6 +52,13 @@ public class DeviceTopologyInfo {
         }
         info.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
         return info;
+    }
+
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                          Optional<G3Neighbor> g3Neighbor, Thesaurus thesaurus) {
+        DeviceTopologyInfo deviceTopologyInfo = DeviceTopologyInfo.from(device, linkingTimeStamp, deviceLifeCycleConfigurationService);
+        g3Neighbor.ifPresent(g3Neighbor1 -> deviceTopologyInfo.g3NodePLCInfo = G3NodePLCInfo.from(g3Neighbor1, thesaurus));
+        return deviceTopologyInfo;
     }
 
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
@@ -77,6 +85,16 @@ public class DeviceTopologyInfo {
     }
 
     public static boolean hasNotEnded(TopologyTimeline timeline, Device device) {
+        List<TopologyTimeslice> x1 = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device)).collect(Collectors.toList());
+
+        List<TopologyTimeslice> x2 = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device))
+                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
+                .collect(Collectors.toList());
+
         Optional<TopologyTimeslice> first = timeline.getSlices()
                 .stream()
                 .filter(s -> contains(s, device))
