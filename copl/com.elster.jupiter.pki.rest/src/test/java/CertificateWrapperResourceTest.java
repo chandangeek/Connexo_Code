@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -84,7 +85,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
     @Test
     public void testImportCertificate() throws Exception {
-        CertificateWrapper certificateWrapper = mock(CertificateWrapper.class);
+        RequestableCertificateWrapper certificateWrapper = mock(RequestableCertificateWrapper.class);
         when(securityManagementService.newCertificateWrapper(anyString())).thenReturn(certificateWrapper);
 
         String fileName = "myRootCA.cert";
@@ -108,7 +109,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<X509Certificate> certificateArgumentCaptor = ArgumentCaptor.forClass(X509Certificate.class);
         verify(securityManagementService, times(1)).newCertificateWrapper(stringArgumentCaptor.capture());
-        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture());
+        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture(), Optional.empty());
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
     }
@@ -629,14 +630,14 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         PKCS10CertificationRequest csr = mock(PKCS10CertificationRequest.class);
         X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
         when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
-        when(caService.signCsr(csr)).thenReturn(x509Certificate);
+        when(caService.signCsr(csr,Optional.empty())).thenReturn(x509Certificate);
         Response response = target("/certificates/" + certId + "/requestCertificate").request().post(null);
 
         //Verify
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(securityManagementService, times(1)).findCertificateWrapper(certId);
         verifyNoMoreInteractions(securityManagementService);
-        verify(certificateWrapper, times(1)).setCertificate(x509Certificate);
+        verify(certificateWrapper, times(1)).setCertificate(x509Certificate, Optional.empty());
     }
 
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
