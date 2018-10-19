@@ -16,7 +16,6 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -120,6 +119,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         } else if (value instanceof com.elster.jupiter.pki.CertificateWrapper) {
             return Optional.of(new CertificateWrapperAdapter((com.elster.jupiter.pki.CertificateWrapper) value, Optional.empty()));      //Return instance of CertificateWrapper as-is
         }
+        //TODO: extend this for HSM purpose...
         return Optional.empty();
     }
 

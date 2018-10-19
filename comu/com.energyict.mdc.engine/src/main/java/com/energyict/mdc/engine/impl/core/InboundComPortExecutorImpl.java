@@ -63,6 +63,7 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         context.setMessageFileExtractor(Services.deviceMessageFileExtractor());
         context.setCertificateWrapperExtractor(Services.certificateWrapperExtractor());
         context.setKeyAccessorTypeExtractor(Services.keyAccessorTypeExtractor());
+        context.setHsmProtocolService(Services.hsmService());
 
         return context;
     }
