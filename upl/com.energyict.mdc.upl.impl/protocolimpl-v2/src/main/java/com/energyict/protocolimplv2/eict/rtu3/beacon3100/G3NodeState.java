@@ -5,7 +5,7 @@ public enum G3NodeState {
     UNKNOWN(0, "Unknown"),
     NOT_ASSOCIATED(1, "Not Associated"),
     AVAILABLE(2, "Available"),
-    VANISHED(2, "Vanished"),
+    VANISHED(3, "Vanished"),
     BLACKLISTED(4, "Blacklisted");
 
     private int value;
