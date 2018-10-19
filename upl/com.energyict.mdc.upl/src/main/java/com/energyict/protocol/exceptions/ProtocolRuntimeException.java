@@ -38,6 +38,10 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
         this.messageArguments = messageArguments;
     }
 
+    public ProtocolRuntimeException(Throwable cause) {
+        super(cause.getMessage());
+    }
+
     private static String defaultFormattedMessage(MessageSeed messageSeed, Object[] messageArguments) {
         return MessageFormat.format(messageSeed.getDefaultFormat(), messageArguments);
     }
