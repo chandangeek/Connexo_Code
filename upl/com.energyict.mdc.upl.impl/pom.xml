@@ -46,12 +46,13 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Protocol api -->
+			<!-- Universal protocol layer -->
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.upl</artifactId>
 				<version>${universal-protocol.version}</version>
 			</dependency>
+			<!-- Protocol api -->
             <dependency>
                 <groupId>com.energyict</groupId>
 				<artifactId>protocol-api</artifactId>
@@ -145,6 +146,7 @@
 		<module>protocolimpl-elster</module>
 		<module>connectiontypes</module>
 		<module>protocolimpl-us</module>
+		<module>cryptoprotocols</module>
 	</modules>
 
 	<build>

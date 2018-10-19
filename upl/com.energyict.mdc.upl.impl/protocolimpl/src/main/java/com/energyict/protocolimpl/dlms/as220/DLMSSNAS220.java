@@ -1,45 +1,22 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.LLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityPolicy;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -52,20 +29,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -245,7 +213,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
 
         LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
-        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
+        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType, false);
         ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
         aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());

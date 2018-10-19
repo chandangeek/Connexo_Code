@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.messages.validators;
 
 import com.energyict.mdc.upl.messages.DeviceMessage;
-
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.security.SecurityPropertySet;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Created by cisac on 11/25/2016.
  */
 public class KeyMessageChangeValidator {
-    public void validateNewKeyValue(long id, DeviceMessage deviceMessage, SecurityPropertySpecTranslationKeys authenticationKey) {
+    public void validateNewKeyValue(Device device, DeviceMessage deviceMessage, SecurityPropertySpecTranslationKeys authenticationKey) {
         //TODO make compatible with UPL
     }
 
@@ -50,26 +51,26 @@ public class KeyMessageChangeValidator {
             deviceMessage.fail(failReason);
             throw unsupportedPropertyValueWithReason(getAttributeNameForSecurityProperty(securityPropertySpecName), newKey, failReason);
         }
-    }
+    } */
 
     public void validateSecurityKeyLength(SecurityPropertySet securityPropertySet, String propertyName, String key, DeviceMessage deviceMessage) {
-        int securitySuite = securityPropertySet.getSecuritySuiteId();
-        int suite2Length = 64;
-        int defaultLength = 32;
-
-        if(securitySuite == 2 && key.length() != suite2Length){
-            String failedReason = "The length of the security key is incorrect. Expected " + suite2Length + " but was " + key.length();
-            deviceMessage.fail(failedReason);
-            unsupportedPropertyValueLengthWithReason(propertyName, String.valueOf(suite2Length), failedReason);
-        } else if(key.length() != defaultLength) {
-            //for other suites use defaultLength
-            String failedReason = "The length of the security key is incorrect. Expected " + defaultLength + " but was " + key.length();
-            deviceMessage.fail(failedReason);
-            unsupportedPropertyValueLengthWithReason(propertyName, String.valueOf(defaultLength), failedReason);
-        }
+//        int securitySuite = securityPropertySet.getSecuritySuiteId();
+//        int suite2Length = 64;
+//        int defaultLength = 32;
+//
+//        if(securitySuite == 2 && key.length() != suite2Length){
+//            String failedReason = "The length of the security key is incorrect. Expected " + suite2Length + " but was " + key.length();
+//            deviceMessage.fail(failedReason);
+//            unsupportedPropertyValueLengthWithReason(propertyName, String.valueOf(suite2Length), failedReason);
+//        } else if(key.length() != defaultLength) {
+//            //for other suites use defaultLength
+//            String failedReason = "The length of the security key is incorrect. Expected " + defaultLength + " but was " + key.length();
+//            deviceMessage.fail(failedReason);
+//            unsupportedPropertyValueLengthWithReason(propertyName, String.valueOf(defaultLength), failedReason);
+//        }
     }
 
-    private String getAttributeNameForSecurityProperty(SecurityPropertySpecName securityPropertySpecName){
+/*    private String getAttributeNameForSecurityProperty(SecurityPropertySpecName securityPropertySpecName){
         switch (securityPropertySpecName) {
             case AUTHENTICATION_KEY:
                 return DeviceMessageConstants.newAuthenticationKeyAttributeName;

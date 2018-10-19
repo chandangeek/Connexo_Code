@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.HexString;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -29,6 +29,10 @@ public class Beacon3100Properties extends DlmsProperties {
 
     public Beacon3100Properties(CertificateWrapperExtractor certificateWrapperExtractor) {
         this.certificateWrapperExtractor = certificateWrapperExtractor;
+    }
+
+    public CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
     }
 
     /**
@@ -204,5 +208,10 @@ public class Beacon3100Properties extends DlmsProperties {
 
     public String getIPv6AddressAndPrefixLength() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.IPV6_ADDRESS_AND_PREFIX_LENGTH);
+    }
+
+    @Override
+    public boolean incrementFrameCounterForReplyToHLS() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false);
     }
 }

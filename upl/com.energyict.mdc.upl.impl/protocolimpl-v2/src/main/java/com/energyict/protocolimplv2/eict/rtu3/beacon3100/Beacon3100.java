@@ -154,6 +154,38 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.deviceExtractor = deviceExtractor;
     }
 
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected DeviceMasterDataExtractor getExtractor() {
+        return extractor;
+    }
+
+    protected DeviceGroupExtractor getDeviceGroupExtractor() {
+        return deviceGroupExtractor;
+    }
+
+    protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
+    protected DeviceExtractor getDeviceExtractor() {
+        return deviceExtractor;
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
@@ -371,10 +403,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
+        //TODO: uncoment this once we have sepparate FC for agreed, dedicated and global key. for now global FC is always used
+        /*
         if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
         }
+*/
 
         if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
             byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();

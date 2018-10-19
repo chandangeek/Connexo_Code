@@ -100,5 +100,7 @@ public class DlmsProtocolProperties {
     public static final boolean DEFAULT_ENABLE_GBT = false;
     public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(-1);
     private static final int DEFAULT_DEST_WPDU_PORT = 1;
+    /** The default for the {@value #INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS} is false. */
+    private static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = false;
 
 }

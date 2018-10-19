@@ -147,7 +147,7 @@ public class G3GatewayPSKProvider {
                 this.tcpComChannel.close();
             }
         } finally {
-            clearInstancesAndStoreCache();
+            //do nothing as we should have another finally clause in upper layer, where we should collect the new farem counter
         }
     }
 
@@ -220,7 +220,7 @@ public class G3GatewayPSKProvider {
             PropertySpecService propertySpecService = context.getPropertySpecService();
             ConnectionType connectionType;
             if (tlsConnection) {
-                connectionType = new TLSConnectionType(propertySpecService, context.getCertificateWrapperExtractor());
+                connectionType = createNewTLSConnectionType(context);
             } else {
                 connectionType = new OutboundTcpIpConnectionType(propertySpecService);
             }
@@ -229,6 +229,10 @@ public class G3GatewayPSKProvider {
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }
+    }
+
+    protected ConnectionType createNewTLSConnectionType(InboundDiscoveryContext context) {
+        return new TLSConnectionType(context.getPropertySpecService(), context.getCertificateWrapperExtractor());
     }
 
     /**
