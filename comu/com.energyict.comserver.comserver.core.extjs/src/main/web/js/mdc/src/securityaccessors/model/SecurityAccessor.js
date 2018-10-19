@@ -1,6 +1,19 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+var securityAccessorWritter = Ext.create('Ext.data.writer.Json', {
+    getRecordData: function (record) {
+        if (record.get('keyType').name != 'HSM Key') {
+            delete record.data.importCapability;
+            delete record.data.renewCapability;
+            delete record.data.label;
+            delete record.data.keySize;
+            delete record.data.hsmJssKeyType;
+        }
+        return record.data;
+    }
+});
+
 Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
     extend: 'Uni.model.Version',
     requires: [
@@ -20,6 +33,11 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'defaultViewLevels', type: 'auto', useNull: true},
         {name: 'defaultEditLevels', type: 'auto', useNull: true},
         {name: 'defaultValue', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'hsmJssKeyType', type: 'auto'},
+        {name: 'label', type: 'auto'},
+        {name: 'importCapability', type: 'auto'},
+        {name: 'renewCapability', type: 'auto'},
+        {name: 'keySize', type: 'auto'},
         {
             name: 'viewLevelsInfo',
             persist: false,
@@ -99,7 +117,8 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
 
         setUrl: function (deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
-        }
+        },
+        writer: securityAccessorWritter
     },
     associations: [
         {
@@ -112,4 +131,5 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             foreignKey: 'keyType'
         }
     ]
+
 });

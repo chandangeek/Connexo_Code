@@ -82,6 +82,13 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.label', 'MDC', 'Label'),
+                        name: 'label',
+                        renderer: function (val) {
+                            return Ext.isEmpty(val) ? '-' : val;
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
                         name: 'duration',
                         renderer: function (val) {

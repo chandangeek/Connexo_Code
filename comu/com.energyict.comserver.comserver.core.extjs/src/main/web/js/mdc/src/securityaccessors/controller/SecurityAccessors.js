@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
@@ -18,7 +19,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.store.TimeUnitsYearsSeconds',
         'Mdc.securityaccessors.store.UnusedSecurityAccessors',
         'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType',
-        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose'
+        'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
+        'Mdc.securityaccessors.store.HsmJssKeyTypes',
+        'Mdc.securityaccessors.store.HSMLabelEndPoint',
+        'Mdc.securityaccessors.store.HsmCapabilities',
+        'Mdc.securityaccessors.store.KeySizes'
     ],
 
     models: [
@@ -262,6 +267,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         var me = this,
             grid = this.getAvailableSecurityAccessorsGrid(),
             securityAccessors = _.map(grid.getSelectionModel().getSelection(), function (accessorToAdd) {
+                if (accessorToAdd.get('keyType').name != 'HSM Key') {
+                    delete accessorToAdd.data.importCapability;
+                    delete accessorToAdd.data.renewCapability;
+                    delete accessorToAdd.data.label;
+                    delete accessorToAdd.data.keySize;
+                    delete accessorToAdd.data.hsmJssKeySize;
+                }
                 return accessorToAdd.getData();
             }),
             jsonData = {
@@ -332,6 +344,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         me.isManageCentrallyChecked = false;
         keyTypesStore.load();
         trustStoresStore.load();
+
         view = Ext.widget('security-accessor-add-form');
         view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
         unitStore.load({
@@ -538,11 +551,24 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         } else {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
+                        if (record.get('keyType').name == 'HSM Key') {
+                            view.down('#mdc-security-accessor-jss-keytype-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('hsmJssKeyType'));
+                            view.down('#mdc-security-accessor-import-capability-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-import-capability-combobox').setRawValue(record.get('importCapability'));
+                            view.down('#mdc-security-accessor-renew-capability-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-renew-capability-combobox').setRawValue(record.get('renewCapability'));
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
+                            view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
+                            view.down('#mdc-security-key-size-combobox').setDisabled(false);
+                            view.down('#mdc-security-key-size-combobox').setRawValue(record.get('keySize'));
+                        }
                         if (record.get('purpose').id === 'FILE_OPERATIONS') {
                             view.down('#mdc-security-accessor-purpose-file-operations').setValue(true);
                         } else {
                             view.down('#mdc-security-accessor-purpose-device-operations').setValue(true);
                         }
+                        view.down('#mdc-security-accessor-key-type-combobox').editAccessorRecord = record;
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
                         if (record.get('duration')) {
                             view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
@@ -637,10 +663,29 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = form.down('#mdc-security-accessor-validity-period'),
+            hsmJssKeyTypeCombo = form.down('#mdc-security-accessor-jss-keytype-combobox')
+            importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
+            renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
+            labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
+            keySizeCombo = form.down('#mdc-security-key-size-combobox'),
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
         validityPeriod.setVisible(requiresDuration);
+        if (newValue && newValue.name == 'HSM Key') {
+            hsmJssKeyTypeCombo.setVisible(true);
+            importCapabiltyCombo.setVisible(true);
+            renewCapabiltyCombo.setVisible(true);
+            labelEndPointCombo.setVisible(true);
+            keySizeCombo.setVisible(true);
+        }
+        else {
+            hsmJssKeyTypeCombo.setVisible(false);
+            importCapabiltyCombo.setVisible(false);
+            renewCapabiltyCombo.setVisible(false);
+            labelEndPointCombo.setVisible(false);
+            keySizeCombo.setVisible(false);
+        }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);
 
@@ -658,14 +703,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyEncryptionMethodStore.getProxy().setUrl(newValue.id);
             keyEncryptionMethodStore.on('load', function (store, records, successful) {
                 storageMethodCombo.bindStore(keyEncryptionMethodStore);
-                if (successful && store.getCount() === 1) {
-                    storageMethodCombo.setValue(store.getAt(0).get('name'));
+                if (successful){
+                    if (store.getCount() === 1) {
+                        storageMethodCombo.setValue(store.getAt(0).get('name'));
+                    }
                 }
             }, me, {single: true});
             keyEncryptionMethodStore.load();
         }
     },
-
     saveSecurityAccessor: function () {
         var me = this,
             editWindow = me.getSecurityAccessorPrivilegesEditWindow(),
