@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.topology;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -17,6 +16,8 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;

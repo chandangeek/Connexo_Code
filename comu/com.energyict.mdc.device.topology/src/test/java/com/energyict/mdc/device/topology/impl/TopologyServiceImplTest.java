@@ -30,11 +30,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
+
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -49,6 +46,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -15,7 +15,7 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
+import java.util.Date;
 
 /**
  * Provides an implementation for the {@link G3Neighbor} interface.
@@ -37,8 +37,8 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long macPANId;
     private String nodeAddress;
     private int shortAddress;
-    private Instant lastUpdate;
-    private Instant lastPathRequest;
+    private Date lastUpdate;
+    private Date lastPathRequest;
     private long roundTrip;
     private int linkCost;
 
@@ -163,20 +163,20 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     }
 
     @Override
-    public Instant getLastUpdate() {
+    public Date getLastUpdate() {
         return lastUpdate;
     }
 
-    void setLastUpdate(Instant lastUpdate) {
+    void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
     @Override
-    public Instant getLastPathRequest() {
+    public Date getLastPathRequest() {
         return lastPathRequest;
     }
 
-    void setLastPathRequest(Instant lastPathRequest) {
+    void setLastPathRequest(Date lastPathRequest) {
         this.lastPathRequest = lastPathRequest;
     }
 

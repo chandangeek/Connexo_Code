@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PLCNeighbor;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;

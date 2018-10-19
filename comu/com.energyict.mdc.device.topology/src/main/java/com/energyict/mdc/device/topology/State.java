@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public enum State implements TranslationKey {
 
     /**
-     * IUNKNOWN.
+     * UNKNOWN.
      */
     UNKNOWN(0, "state.unknown", "Unknown"),
 

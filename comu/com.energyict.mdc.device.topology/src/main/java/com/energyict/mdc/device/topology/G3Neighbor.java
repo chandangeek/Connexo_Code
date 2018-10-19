@@ -9,7 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Duration;
-import java.time.Instant;
+import java.util.Date;
 
 /**
  * Models neighbor information that is maintained by a {@link Device}
@@ -51,9 +51,9 @@ public interface G3Neighbor extends PLCNeighbor {
 
     int getShortAddress();
 
-    Instant getLastUpdate();
+    Date getLastUpdate();
 
-    Instant getLastPathRequest();
+    Date getLastPathRequest();
 
     long getRoundTrip();
 

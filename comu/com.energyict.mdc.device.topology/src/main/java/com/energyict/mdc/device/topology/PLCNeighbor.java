@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.device.topology;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.device.data.Device;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Models neighbor information that is maintained by a {@link Device}

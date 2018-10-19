@@ -61,7 +61,6 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
-import com.energyict.mdc.device.topology.State;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
@@ -74,6 +73,7 @@ import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -169,7 +169,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(State.values()),
+                Arrays.stream(G3NodeState.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -186,8 +186,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
             Version.version(10, 2), V10_2SimpleUpgrader.class,
-            Version.version(10, 4), UpgraderV10_4.class,
-            Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class));
+                Version.version(10, 4), UpgraderV10_4.class,
+                Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class));
         this.registerRealServices(bundleContext);
     }
 
@@ -1342,7 +1342,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
         @Deprecated
         public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-        throw new UnsupportedOperationException("Deprecated method");}
+            throw new UnsupportedOperationException("Deprecated method");
+        }
 
         @Override
         public List<G3Neighbor> complete() {

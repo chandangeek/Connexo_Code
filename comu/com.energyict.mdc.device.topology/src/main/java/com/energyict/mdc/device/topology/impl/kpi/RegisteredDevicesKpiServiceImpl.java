@@ -20,6 +20,7 @@ import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiFrequency;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
