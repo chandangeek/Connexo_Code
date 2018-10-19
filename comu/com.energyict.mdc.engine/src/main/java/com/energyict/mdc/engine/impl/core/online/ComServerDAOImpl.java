@@ -1140,8 +1140,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                 g3NeighborBuilder.macPANId(topologyNeighbour.getMacPANId());
                 g3NeighborBuilder.nodeAddress(topologyNeighbour.getNodeAddress());
                 g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
-                g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate());
-                g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest());
+                g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
+                g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
                 g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                 g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
             }
