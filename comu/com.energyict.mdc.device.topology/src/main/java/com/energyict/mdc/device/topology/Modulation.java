@@ -13,20 +13,22 @@ import java.util.stream.Stream;
  * @since 2014-12-15 (14:01)
  */
 public enum Modulation {
-    D8PSK(ModulationScheme.DIFFERENTIAL),
-    DQPSK(ModulationScheme.DIFFERENTIAL),
-    DBPSK(ModulationScheme.DIFFERENTIAL),
-    C8PSK(ModulationScheme.COHERENT),
-    CQPSK(ModulationScheme.COHERENT),
-    CBPSK(ModulationScheme.COHERENT),
-    ROBO(ModulationScheme.COHERENT),
-    QAM16(ModulationScheme.COHERENT),
-    SUPERROBO(ModulationScheme.COHERENT),
-    UNKNOWN(ModulationScheme.COHERENT);
+    ROBO(0, ModulationScheme.DIFFERENTIAL),
+    DBPSK(1, ModulationScheme.DIFFERENTIAL),
+    DQPSK(2, ModulationScheme.DIFFERENTIAL),
+    D8PSK(3, ModulationScheme.DIFFERENTIAL),
+    QAM16(4, ModulationScheme.COHERENT),
+    SUPERROBO(5, ModulationScheme.DIFFERENTIAL),
+    C8PSK(6, ModulationScheme.COHERENT),
+    CQPSK(7, ModulationScheme.COHERENT),
+    CBPSK(8, ModulationScheme.COHERENT),
+    UNKNOWN(99, ModulationScheme.COHERENT);
 
+    private int id;
     private ModulationScheme modulationScheme;
 
-    Modulation(ModulationScheme modulationScheme) {
+    Modulation(int id, ModulationScheme modulationScheme) {
+        this.id = id;
         this.modulationScheme = modulationScheme;
     }
 
@@ -34,19 +36,23 @@ public enum Modulation {
         return this.modulationScheme;
     }
 
+    public final int getId() {
+        return this.id;
+    }
 
     /**
      * Returns the ModulationScheme that is uniquely identifier
      * by the specified ordinal.
      *
-     * @param ordinal The ordinal.
-     * @return The coresponding scheme, <code>null</code> if none matching.
+     * @param id The ordinal.
+     * @return The corresponding scheme if found.
+     * @throws IllegalArgumentException if Modulation with give id is not found.
      */
-    public static Modulation fromOrdinal(int ordinal) {
+    public static Modulation fromId(int id) {
         return Stream
                 .of(Modulation.values())
-                .filter(p -> p.ordinal() == ordinal)
+                .filter(i -> i.id == id)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown Modulation ordinal " + ordinal));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown Modulation id " + id));
     }
 }

@@ -43,20 +43,20 @@ public interface G3Neighbor extends PLCNeighbor {
 
     public PhaseInfo getPhaseInfo();
 
-    public String getNodeAddress();
+    G3NodeState getG3NodeState();
 
-    public long getShortAddress();
+    long getMacPANId();
 
-    public Instant getLastUpdate();
+    String getNodeAddress();
 
-    public Instant getLastPathRequest();
+    int getShortAddress();
 
-    public State getState();
+    Instant getLastUpdate();
 
-    public long getRoundTrip();
+    Instant getLastPathRequest();
 
-    public long getLinkCost();
+    long getRoundTrip();
 
-    public long getMacPanId();
+    int getLinkCost();
 
 }

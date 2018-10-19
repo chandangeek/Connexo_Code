@@ -7,10 +7,10 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.State;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -33,28 +33,33 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMap;
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
+    private G3NodeState g3NodeState;
+    private long macPANId;
     private String nodeAddress;
-    private long shortAddress;
+    private int shortAddress;
     private Instant lastUpdate;
     private Instant lastPathRequest;
-    private State state;
     private long roundTrip;
-    private long linkCost;
-    private long macPANId;
+    private int linkCost;
 
     @Inject
     public G3NeighborImpl(DataModel dataModel, Clock clock) {
         super(dataModel, clock);
     }
 
-    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+    G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
         this.init(device, neighbor, modulationScheme, modulation);
         this.phaseInfo = phaseInfo;
+        this.g3NodeState = g3NodeState;
         return this;
     }
 
     void setPhaseInfo(PhaseInfo phaseInfo) {
         this.phaseInfo = phaseInfo;
+    }
+
+    void setG3NodeState(G3NodeState g3NodeState) {
+        this.g3NodeState = g3NodeState;
     }
 
     @Override
@@ -126,13 +131,35 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     }
 
     @Override
+    public G3NodeState getG3NodeState() {
+        return g3NodeState;
+    }
+
+    @Override
+    public long getMacPANId() {
+        return macPANId;
+    }
+
+    void setMacPANId(long macPANId) {
+        this.macPANId = macPANId;
+    }
+
+    @Override
     public String getNodeAddress() {
         return nodeAddress;
     }
 
+    void setNodeAddress(String nodeAddress) {
+        this.nodeAddress = nodeAddress;
+    }
+
     @Override
-    public long getShortAddress() {
+    public int getShortAddress() {
         return shortAddress;
+    }
+
+    void setShortAddress(int shortAddress) {
+        this.shortAddress = shortAddress;
     }
 
     @Override
@@ -140,14 +167,17 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         return lastUpdate;
     }
 
+    void setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     @Override
     public Instant getLastPathRequest() {
         return lastPathRequest;
     }
 
-    @Override
-    public State getState() {
-        return state;
+    void setLastPathRequest(Instant lastPathRequest) {
+        this.lastPathRequest = lastPathRequest;
     }
 
     @Override
@@ -155,13 +185,17 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         return roundTrip;
     }
 
-    @Override
-    public long getLinkCost() {
-        return linkCost;
+    void setRoundTrip(long roundTrip) {
+        this.roundTrip = roundTrip;
     }
 
     @Override
-    public long getMacPanId() {
-        return macPANId;
+    public int getLinkCost() {
+        return linkCost;
     }
+
+    void setLinkCost(int linkCost) {
+        this.linkCost = linkCost;
+    }
+
 }
