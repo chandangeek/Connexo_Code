@@ -120,8 +120,10 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         Properties properties = new Properties();
         properties.setProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost());
         properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
-        properties.setProperty("mail.smtp.user", user);
-        properties.setProperty("mail.smtp.password", password);
+        if(user != null && !user.isEmpty())
+            properties.setProperty("mail.smtp.user", user);
+        if(password != null && !password.isEmpty())
+            properties.setProperty("mail.smtp.password", password);
         final Session session = Session.getInstance(properties);
         return new MailSession() {
             @Override
@@ -134,9 +136,13 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
                 Transport transport = null;
                 MessagingException rootException = null;
                 try {
-                    transport = session.getTransport("smtp");
-                    transport.connect(smtpHost, user, password);
-                    transport.sendMessage(message, message.getAllRecipients());
+                    if(user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
+                        transport = session.getTransport("smtp");
+                        transport.connect(smtpHost, user, password);
+                        transport.sendMessage(message, message.getAllRecipients());
+                    }
+                    else
+                        Transport.send(message, message.getAllRecipients());
                 } catch (MessagingException e) {
                     rootException = e;
                     // TODO
@@ -167,8 +173,10 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         List<String> badProperties = new ArrayList<>();
         validateMailProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost(), badProperties);
         validateMailProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort(), badProperties);
+        /*user and password are not mandatory
         validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
         validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
+        */
         if (!badProperties.isEmpty()){
             throw new IncompleteMailConfigException(this.thesaurus, badProperties.toArray(new String[badProperties.size()]));
         }
