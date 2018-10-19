@@ -19,6 +19,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     OutboundUdpConnectionType(com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType.class),
     WavenisGatewayConnectionType(com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType.class),
     TLSConnectionType(com.energyict.mdc.channels.ip.socket.TLSConnectionType.class),
+    TLSHSMConnectionType(com.energyict.common.tls.TLSHSMConnectionType.class),
     TcpIpPostDialConnectionType(com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType.class),
     OutboundTcpIpConnectionType(com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType.class),
     InboundIpConnectionType(com.energyict.mdc.channels.ip.InboundIpConnectionType.class),
