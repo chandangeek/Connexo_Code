@@ -691,7 +691,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
                                 int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
                                 int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
-                                long macPANId = getNeighbourTable().get().getDataType(3).getUnsigned16().longValue();
+                                long macPANId = -1;
+                                try {
+                                    macPANId = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readPanId().longValue();
+                                } catch (NotInObjectListException e) {
+                                    getLogger().warning("Could not read PAN ID: NotInObjectListException");
+                                } catch (IOException e) {
+                                    getLogger().warning("IOException while reading PAN ID");
+                                }
                                 // g3Node
                                 String nodeAddress = g3Node.getMacAddressString();
                                 int shortAddress = g3Node.getShortAddress();
