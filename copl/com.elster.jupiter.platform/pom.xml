@@ -192,6 +192,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>hsm</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>http.whiteboard</artifactId>
                 <version>2.3.3${revision}</version>
                 <scope>provided</scope>
@@ -259,7 +265,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki</artifactId>
-                <version>2.2.1${revision}</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -546,6 +552,16 @@
                 <version>2.3.0</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.3</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>3.0.0</version>
@@ -732,6 +748,7 @@
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.ftpclient</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
+                <module>../com.elster.jupiter.hsm</module>
                 <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
