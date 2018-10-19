@@ -571,7 +571,7 @@ public class DeviceResource {
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
             slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), deviceLifeCycleConfigurationService);
         } else {
-            slaves = DeviceTopologyInfo.from(topologyService.getPysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
         }
         return slaves;
     }
@@ -1013,7 +1013,7 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
         List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));

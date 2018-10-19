@@ -12,8 +12,12 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
-
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -22,12 +26,6 @@ import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -76,7 +74,7 @@ public class DeviceTopologyInfoTest {
         when(topologyTimeline.getAllDevices()).thenReturn(allDevices);
         when(topologyTimeline.mostRecentlyAddedOn(device)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
         State state = mock(State.class);
         when(state.getName()).thenReturn("dlc.default.inStock");

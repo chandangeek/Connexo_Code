@@ -26,7 +26,7 @@ public class GatewayRetriever {
     public GatewayRetriever(TopologyService topologyService, List<Device> deviceList) {
         this.topologyService = topologyService;
         if (deviceList != null) {
-            gatewayCache = topologyService.getPhycicalGateways(deviceList);
+            gatewayCache = topologyService.getPhysicalGateways(deviceList);
         } else {
             gatewayCache = null;
         }
