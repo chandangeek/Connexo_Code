@@ -29,7 +29,7 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
     }
 
     public static DeviceConfigurationChangeException cannotChangeToSameConfig(Thesaurus thesaurus, Device device) {
-        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, device);
+        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, device.getName());
         deviceConfigurationChangeException.set("device", device);
         return deviceConfigurationChangeException;
     }

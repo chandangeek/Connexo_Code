@@ -112,11 +112,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         printSecurityAccessors(securityAccessors,logger);
         List<SecurityAccessor> resultList = securityAccessors
                 .stream()
-                .filter(securityAccessor -> {
-                    Optional<SecretKey> secretKey =
-                            getDeviceKey((SymmetricKeyAccessor) securityAccessor);
-                    return secretKey.isPresent() && deviceKeyExpired((SymmetricKeyAccessor) securityAccessor);
-                })
+                .filter(securityAccessor -> deviceKeyExpired((SymmetricKeyAccessor) securityAccessor))
                 .filter(this::checkSecuritySets)
                 .filter(SecurityAccessor::isEditable)
                 .collect(Collectors.toList());
@@ -141,26 +137,12 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         logger.log(Level.INFO, sb.toString());
     }
 
-    private Optional<SecretKey> getDeviceKey(SymmetricKeyAccessor symmetricKeyAccessor) {
-        logger.log(Level.INFO, "Getting device key, Type=" + symmetricKeyAccessor.getKeyAccessorType().getName()
-                + " Device=" + symmetricKeyAccessor.getDevice().getName());
-        SecretKey secretKey = null;
-        Optional<SymmetricKeyWrapper> symmetricKeyWrapper = symmetricKeyAccessor.getActualValue();
-        if (symmetricKeyWrapper.isPresent() && symmetricKeyWrapper.get() instanceof PlaintextSymmetricKey) {
-            PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) symmetricKeyWrapper.get();
-            if (plaintextSymmetricKey.getKey().isPresent()) {
-                secretKey = plaintextSymmetricKey.getKey().get();
-                logger.log(Level.INFO, "Secret key found");
-            }
-        }
-        return Optional.ofNullable(secretKey);
-    }
 
     private boolean deviceKeyExpired(SymmetricKeyAccessor symmetricKeyAccessor) {
         logger.log(Level.INFO, "Checking key expiration, Type=" + symmetricKeyAccessor.getKeyAccessorType().getName()
                 + " Device=" + symmetricKeyAccessor.getDevice().getName());
         Optional<SymmetricKeyWrapper> symmetricKeyWrapper = symmetricKeyAccessor.getActualValue();
-        if (symmetricKeyWrapper.isPresent() && symmetricKeyWrapper.get() instanceof PlaintextSymmetricKey) {
+        if (symmetricKeyWrapper.isPresent()) {
             Optional<Instant> expirationTime = symmetricKeyWrapper.get().getExpirationTime();
             if (expirationTime.isPresent()) {
                 logger.log(Level.INFO, "Expiration time " + expirationTime);

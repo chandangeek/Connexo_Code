@@ -140,7 +140,9 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.HsmSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
@@ -3390,7 +3392,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case SymmetricKey:
-                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
@@ -3401,6 +3403,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return passphraseAccessor;
             case AsymmetricKey:
                 return null; // TODO implement? will this occur?
+            case Hsm:
+                symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
             default:
                 throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }
