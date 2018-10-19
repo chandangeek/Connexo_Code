@@ -15,7 +15,7 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link G3Neighbor} interface.
@@ -33,12 +33,12 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     private long toneMap;
     private long toneMapTimeToLive;
     private PhaseInfo phaseInfo;
-    private G3NodeState g3NodeState;
+    private G3NodeState state;
     private long macPANId;
     private String nodeAddress;
     private int shortAddress;
-    private Date lastUpdate;
-    private Date lastPathRequest;
+    private Instant lastUpdate;
+    private Instant lastPathRequest;
     private long roundTrip;
     private int linkCost;
 
@@ -50,7 +50,7 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     G3NeighborImpl createFor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
         this.init(device, neighbor, modulationScheme, modulation);
         this.phaseInfo = phaseInfo;
-        this.g3NodeState = g3NodeState;
+        this.state = g3NodeState;
         return this;
     }
 
@@ -58,8 +58,8 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         this.phaseInfo = phaseInfo;
     }
 
-    void setG3NodeState(G3NodeState g3NodeState) {
-        this.g3NodeState = g3NodeState;
+    void setState(G3NodeState state) {
+        this.state = state;
     }
 
     @Override
@@ -131,8 +131,8 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     }
 
     @Override
-    public G3NodeState getG3NodeState() {
-        return g3NodeState;
+    public G3NodeState getState() {
+        return state;
     }
 
     @Override
@@ -163,20 +163,20 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
     }
 
     @Override
-    public Date getLastUpdate() {
+    public Instant getLastUpdate() {
         return lastUpdate;
     }
 
-    void setLastUpdate(Date lastUpdate) {
+    void setLastUpdate(Instant lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
     @Override
-    public Date getLastPathRequest() {
+    public Instant getLastPathRequest() {
         return lastPathRequest;
     }
 
-    void setLastPathRequest(Date lastPathRequest) {
+    void setLastPathRequest(Instant lastPathRequest) {
         this.lastPathRequest = lastPathRequest;
     }
 

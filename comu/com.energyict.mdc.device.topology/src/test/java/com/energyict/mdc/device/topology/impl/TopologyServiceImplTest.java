@@ -460,13 +460,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.D8PSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-                assertThat(neighbor.getG3NodeState()).isEqualTo(G3NodeState.AVAILABLE);
+                assertThat(neighbor.getState()).isEqualTo(G3NodeState.AVAILABLE);
                 assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
             } else {
                 assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.CBPSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
-                assertThat(neighbor.getG3NodeState()).isEqualTo(G3NodeState.UNKNOWN);
+                assertThat(neighbor.getState()).isEqualTo(G3NodeState.UNKNOWN);
                 assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
             }
         }
@@ -492,8 +492,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         long expectedMacPANId = 123;
         String expectedNodeAddress = "0200:00FF:FE00:002C";
         int expectedShortAddress = 2;
-        Date expectedLastUpdate = new Date();
-        Date expectedLastPathRequest = new Date();
+        Instant expectedLastUpdate = new Date().toInstant();
+        Instant expectedLastPathRequest = new Date().toInstant();
         long expectedRoundTrip = 140;
         int expectedLinkCost = 4;
         neighborhoodBuilder
@@ -522,7 +522,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(g3Neighbor1.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
         assertThat(g3Neighbor1.getModulation()).isEqualTo(Modulation.D8PSK);
         assertThat(g3Neighbor1.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-        assertThat(g3Neighbor1.getG3NodeState()).isEqualTo(G3NodeState.AVAILABLE);
+        assertThat(g3Neighbor1.getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(g3Neighbor1.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
         assertThat(g3Neighbor1.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
         assertThat(g3Neighbor1.getToneMap()).isEqualTo(expectedToneMap);
@@ -861,13 +861,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbors.get(0).getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbors.get(0).getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-        assertThat(updatedNeighbors.get(0).getG3NodeState()).isEqualTo(G3NodeState.AVAILABLE);
+        assertThat(updatedNeighbors.get(0).getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(updatedNeighbors.get(0).isEffectiveAt(initialTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(0).isEffectiveAt(updateTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(1).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbors.get(1).getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbors.get(1).getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
-        assertThat(updatedNeighbors.get(1).getG3NodeState()).isEqualTo(G3NodeState.UNKNOWN);
+        assertThat(updatedNeighbors.get(1).getState()).isEqualTo(G3NodeState.UNKNOWN);
         assertThat(updatedNeighbors.get(1).isEffectiveAt(initialTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(1).isEffectiveAt(updateTimestamp)).isTrue();
     }
@@ -900,8 +900,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         long expectedMacPANId = 123;
         String expectedNodeAddress = "0200:00FF:FE00:002C";
         int expectedShortAddress = 2;
-        Date expectedLastUpdate = new Date();
-        Date expectedLastPathRequest = new Date();
+        Instant expectedLastUpdate = new Date().toInstant();
+        Instant expectedLastPathRequest = new Date().toInstant();
         long expectedRoundTrip = 140;
         int expectedLinkCost = 4;
         neighborhoodBuilder
@@ -935,7 +935,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-        assertThat(updatedNeighbor.getG3NodeState()).isEqualTo(G3NodeState.UNKNOWN);
+        assertThat(updatedNeighbor.getState()).isEqualTo(G3NodeState.UNKNOWN);
         assertThat(updatedNeighbor.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
         assertThat(updatedNeighbor.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
         assertThat(updatedNeighbor.getToneMap()).isEqualTo(expectedToneMap);
@@ -959,7 +959,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(initialNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(initialNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(initialNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-        assertThat(initialNeighbor.getG3NodeState()).isEqualTo(G3NodeState.AVAILABLE);
+        assertThat(initialNeighbor.getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(initialNeighbor.isEffectiveAt(initialTimestamp)).isTrue();
     }
 

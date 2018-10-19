@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.topology;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -16,13 +17,10 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
-
-import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -523,9 +521,9 @@ public interface TopologyService {
 
         G3NeighborBuilder shortAddress(int shortAddress);
 
-        G3NeighborBuilder lastUpdate(Date lastUpdate);
+        G3NeighborBuilder lastUpdate(Instant lastUpdate);
 
-        G3NeighborBuilder lastPathRequest(Date lastPathRequest);
+        G3NeighborBuilder lastPathRequest(Instant lastPathRequest);
 
         G3NeighborBuilder roundTrip(long roundTrip);
 

@@ -73,7 +73,6 @@ import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -94,7 +93,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1179,7 +1177,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
         return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(),
-                existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo(), existingNeighbor.getG3NodeState());
+                existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo(), existingNeighbor.getState());
     }
 
     @Override
@@ -1377,7 +1375,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             return !modulationScheme.equals(this.neighborTableEntry.getModulationScheme())
                     || !modulation.equals(this.neighborTableEntry.getModulation())
                     || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo())
-                    || !g3NodeState.equals(this.neighborTableEntry.getG3NodeState());
+                    || !g3NodeState.equals(this.neighborTableEntry.getState());
         }
 
         void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
@@ -1434,7 +1432,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
 
         private G3NeighborBuilderImpl g3NodeState(G3NodeState g3NodeState) {
-            this.neighborTableEntry.setG3NodeState(g3NodeState);
+            this.neighborTableEntry.setState(g3NodeState);
             return this;
         }
 
@@ -1535,22 +1533,22 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
 
         @Override
-        public G3NeighborBuilder lastUpdate(Date lastUpdate) {
+        public G3NeighborBuilder lastUpdate(Instant lastUpdate) {
             this.state.setLastUpdate(this, lastUpdate);
             return this;
         }
 
-        void setLastUpdate(Date lastUpdate) {
+        void setLastUpdate(Instant lastUpdate) {
             this.neighborTableEntry.setLastUpdate(lastUpdate);
         }
 
         @Override
-        public G3NeighborBuilder lastPathRequest(Date lastPathRequest) {
+        public G3NeighborBuilder lastPathRequest(Instant lastPathRequest) {
             this.state.setLastPathRequest(this, lastPathRequest);
             return this;
         }
 
-        void setLastPathRequest(Date lastPathRequest) {
+        void setLastPathRequest(Instant lastPathRequest) {
             this.neighborTableEntry.setLastPathRequest(lastPathRequest);
         }
 

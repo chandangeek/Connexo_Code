@@ -4,12 +4,11 @@
 
 package com.energyict.mdc.device.topology;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.data.Device;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Models neighbor information that is maintained by a {@link Device}
@@ -43,7 +42,7 @@ public interface G3Neighbor extends PLCNeighbor {
 
     public PhaseInfo getPhaseInfo();
 
-    G3NodeState getG3NodeState();
+    G3NodeState getState();
 
     long getMacPANId();
 
@@ -51,9 +50,9 @@ public interface G3Neighbor extends PLCNeighbor {
 
     int getShortAddress();
 
-    Date getLastUpdate();
+    Instant getLastUpdate();
 
-    Date getLastPathRequest();
+    Instant getLastPathRequest();
 
     long getRoundTrip();
 

@@ -10,7 +10,7 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -78,12 +78,12 @@ enum G3NeighborBuildState {
         }
 
         @Override
-        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastUpdate) {
             builder.setLastUpdate(lastUpdate);
         }
 
         @Override
-        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastPathRequest) {
             builder.setLastPathRequest(lastPathRequest);
         }
 
@@ -172,13 +172,13 @@ enum G3NeighborBuildState {
         }
 
         @Override
-        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastUpdate) {
             builder.terminateOldAndStartNew();
             builder.setLastUpdate(lastUpdate);
         }
 
         @Override
-        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastPathRequest) {
             builder.terminateOldAndStartNew();
             builder.setLastPathRequest(lastPathRequest);
         }
@@ -260,12 +260,12 @@ enum G3NeighborBuildState {
         }
 
         @Override
-        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastUpdate) {
             throw illegalStateException();
         }
 
         @Override
-        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastPathRequest) {
             throw illegalStateException();
         }
 
@@ -348,12 +348,12 @@ enum G3NeighborBuildState {
         }
 
         @Override
-        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate) {
+        void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastUpdate) {
             throw illegalStateException();
         }
 
         @Override
-        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest) {
+        void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastPathRequest) {
             throw illegalStateException();
         }
 
@@ -401,9 +401,9 @@ enum G3NeighborBuildState {
 
     abstract void setShortAddress(TopologyServiceImpl.G3NeighborBuilderImpl builder, int shortAddress);
 
-    abstract void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastUpdate);
+    abstract void setLastUpdate(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastUpdate);
 
-    abstract void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Date lastPathRequest);
+    abstract void setLastPathRequest(TopologyServiceImpl.G3NeighborBuilderImpl builder, Instant lastPathRequest);
 
     abstract void setRoundTrip(TopologyServiceImpl.G3NeighborBuilderImpl builder, long roundTrip);
 
