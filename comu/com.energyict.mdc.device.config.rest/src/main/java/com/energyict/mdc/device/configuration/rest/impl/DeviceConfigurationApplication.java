@@ -140,7 +140,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceConfigurationEstimationRuleSetResource.class,
                 MultiPartFeature.class,
                 TrustStoreResource.class,
-                IssueService.class
+                IssueService.class,
                 TrustStoreResource.class,
                 HsmPublicConfiguration.class
         );
