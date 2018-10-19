@@ -133,7 +133,7 @@ public class PLCDetailsLayer extends AbstractGraphLayer<Device> {
                 .ifPresent(g3Neighbor -> {
                     this.setPhaseInfo(g3Neighbor.getPhaseInfo().toString());
                     this.setModulation(g3Neighbor.getModulation().toString());
-                    this.setState(thesaurus.getFormat(g3Neighbor.getG3NodeState()).format());
+                    this.setState(thesaurus.getFormat(g3Neighbor.getState()).format());
                     this.setLinkQualityIndicator(g3Neighbor.getLinkQualityIndicator());
                     this.setNodeAddress(g3Neighbor.getNodeAddress());
                     this.setLinkCost(g3Neighbor.getLinkCost());
