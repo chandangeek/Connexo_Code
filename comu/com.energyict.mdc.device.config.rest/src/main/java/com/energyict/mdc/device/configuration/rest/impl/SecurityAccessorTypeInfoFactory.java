@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
@@ -44,6 +45,14 @@ public class SecurityAccessorTypeInfoFactory {
         info.purpose = purposeToInfo(securityAccessorType.getPurpose());
         if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
             info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
+        }
+
+        if (securityAccessorType.keyTypeIsHSM()) {
+            info.label = securityAccessorType.getHsmKeyType().getLabel();
+            info.hsmJssKeyType = securityAccessorType.getHsmKeyType().getHsmJssKeyType();
+            info.importCapability =  securityAccessorType.getHsmKeyType().getImportCapability();
+            info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
+            info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
         }
         return info;
     }
