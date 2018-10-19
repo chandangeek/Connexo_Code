@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -134,13 +135,13 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
+                        .specForValuesOf(new InstantFactory())
                         .named(GetEndDeviceEventsDomainExtension.FieldNames.FROM_DATE.javaName(), TranslationKeys.FROM_DATE)
                         .describedAs(TranslationKeys.FROM_DATE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
+                        .specForValuesOf(new InstantFactory())
                         .named(GetEndDeviceEventsDomainExtension.FieldNames.TO_DATE.javaName(), TranslationKeys.TO_DATE)
                         .describedAs(TranslationKeys.TO_DATE)
                         .fromThesaurus(thesaurus)
