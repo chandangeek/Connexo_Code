@@ -22,7 +22,16 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -33,7 +42,16 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -42,7 +60,11 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.*;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -83,10 +105,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -129,6 +152,38 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.deviceExtractor = deviceExtractor;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected DeviceMasterDataExtractor getExtractor() {
+        return extractor;
+    }
+
+    protected DeviceGroupExtractor getDeviceGroupExtractor() {
+        return deviceGroupExtractor;
+    }
+
+    protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
+    protected DeviceExtractor getDeviceExtractor() {
+        return deviceExtractor;
     }
 
     @Override
@@ -348,10 +403,13 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
+        //TODO: uncoment this once we have sepparate FC for agreed, dedicated and global key. for now global FC is always used
+        /*
         if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
         }
+*/
 
         if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
             byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
@@ -567,7 +625,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
-        final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
+        final List<G3Topology.G3Node> g3Nodes = getDlmsSessionProperties().hasPre20Firmware() ?
+                G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone()) :
+                G3Topology.convertNodeListV2(nodeList, this.getDlmsSession().getTimeZone());
 
         final Optional<String> dcMacAddress = extractDCMacAddress(g3Nodes);
 
@@ -666,8 +726,28 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
                                 int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
                                 int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+                                long macPANId = -1;
+                                try {
+                                    macPANId = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readPanId().longValue();
+                                } catch (NotInObjectListException e) {
+                                    getLogger().warning("Could not read PAN ID: NotInObjectListException");
+                                } catch (IOException e) {
+                                    getLogger().warning("IOException while reading PAN ID");
+                                }
+                                // g3Node
+                                String nodeAddress = g3Node.getMacAddressString();
+                                int shortAddress = g3Node.getShortAddress();
+                                Date lastUpdate = g3Node.getLastSeenDate();
+                                Date lastPathRequest = g3Node.getLastPathRequest();
+                                int state = g3Node.getNodeState().getValue();
+                                long roundTrip = g3Node.getRoundTrip();
+                                int linkCost = g3Node.getLinkCost();
 
-                                deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime);
+                                deviceTopology.addTopologyNeighbour(
+                                        slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
+                                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
+                                        nodeAddress, shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
+                                );
                             } else {
                                 getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
                             }

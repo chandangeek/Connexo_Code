@@ -323,11 +323,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     T210D(281, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
 
-/*
-    //Evn crypto protocols
-    EVN_CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
-    EVN_CRYPTO_BEACON3100(284, "com.evn.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
-*/
+    //Evn, Salzburg crypto protocols
+//    CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+    CRYPTO_BEACON3100(284, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
 
     T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
     MK10_V2(286, "com.energyict.protocolimplv2.edmi.mk10.MK10", FamilyRule.EDMI),
@@ -342,6 +340,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 //    CRYPTO_AM132(290, "com.evn.protocolimplv2.dlms.idis.am132.CryptoAM132"),
     MINI_MAX(291, "com.elster.us.protocolimplv2.mercury.minimax.MiniMax"),
     A1860(293, "com.energyict.protocolimplv2.dlms.a1860.A1860"),
+    CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
