@@ -282,7 +282,7 @@ public class DeviceLifeCycleStateResource {
     private void validateInfo(DeviceLifeCycleStateInfo stateInfo) {
         new RestValidationBuilder()
                 .notEmpty(stateInfo.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
-                .notEmpty(stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(stateInfo.stage != null ? stateInfo.stage.id : stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .validate();
     }
 }
