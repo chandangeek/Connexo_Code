@@ -17,6 +17,7 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DEFAULT_KEY = "DefaultKey";
     public static final String WORKING_KEY_LABEL_PHASE1 = "WorkingKeyLabelPhase1";
     public static final String WORKING_KEY_LABEL_PHASE2 = "WorkingKeyLabelPhase2";
+    public static final String READCACHE_PROPERTY = "ReadCache";
 
     public ESMR50ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -32,6 +33,7 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(this.defaultKey());
         propertySpecs.add(this.workingKeyLabelPhase1());
         propertySpecs.add(this.workingKeyLabelPhase2());
+        propertySpecs.add(this.readCache());
         return propertySpecs;
     }
 
@@ -60,5 +62,9 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec workingKeyLabelPhase2(){
         return UPLPropertySpecFactory.specBuilder(WORKING_KEY_LABEL_PHASE2, false, PropertyTranslationKeys.V2_NTA_WORKING_KEY_LABEL_PHASE2, getPropertySpecService()::stringSpec).finish();
+    }
+
+    private PropertySpec readCache(){
+        return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_READCACHE, getPropertySpecService()::booleanSpec).finish();
     }
 }
