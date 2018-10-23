@@ -1,10 +1,11 @@
 package com.elster.jupiter.hsm.gogo;
 
+import com.atos.worldline.jss.api.JSSRuntimeControl;
+import com.atos.worldline.jss.api.ServerStatus;
 import com.elster.jupiter.hsm.impl.HsmConfigurationService;
-import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -25,6 +26,8 @@ public class HsmConfigGogo {
         for (HsmLabelConfiguration label: labels){
             System.out.println("Configured label:" + label.toString());
         }
+        ServerStatus serverStatus = JSSRuntimeControl.getServerStatus();
+        System.out.println("HSM server status = " + serverStatus);
 
     }
 

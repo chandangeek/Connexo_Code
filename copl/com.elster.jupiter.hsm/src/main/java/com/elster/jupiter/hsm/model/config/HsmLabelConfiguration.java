@@ -8,8 +8,6 @@ package com.elster.jupiter.hsm.model.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
-import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Objects;
 
 public class HsmLabelConfiguration {
@@ -19,7 +17,7 @@ public class HsmLabelConfiguration {
     private final String label;
     private final String importFileLabel;
 
-    public HsmLabelConfiguration(@Nonnull String label, @Nonnull String configuredStringValue) throws HsmBaseException {
+    public HsmLabelConfiguration(String label, String configuredStringValue) throws HsmBaseException {
         this.label = label;
         if (Objects.isNull(label) || label.trim().isEmpty() || Objects.isNull(configuredStringValue) || configuredStringValue.trim().isEmpty()) {
             throw new HsmBaseException("Wrong label configuration format, label configuration value:" + configuredStringValue);

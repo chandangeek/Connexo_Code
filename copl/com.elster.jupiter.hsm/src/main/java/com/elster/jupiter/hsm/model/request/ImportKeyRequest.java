@@ -1,21 +1,15 @@
 package com.elster.jupiter.hsm.model.request;
 
-import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.atos.worldline.jss.api.custom.energy.*;
+import com.atos.worldline.jss.api.key.KeyLabel;
+import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
-import com.atos.worldline.jss.api.custom.energy.AESDeviceKey;
-import com.atos.worldline.jss.api.custom.energy.AuthenticationKey;
-import com.atos.worldline.jss.api.custom.energy.DeviceKey;
-import com.atos.worldline.jss.api.custom.energy.HLSecret;
-import com.atos.worldline.jss.api.custom.energy.TransportKey;
-import com.atos.worldline.jss.api.key.KeyLabel;
-import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
-
-import javax.annotation.Nonnull;
 
 public class ImportKeyRequest {
 
@@ -37,7 +31,7 @@ public class ImportKeyRequest {
      * @param deviceKeyValue device key encrypted using transportKeyAlgorithm and encryptedTransportKey
      * @param deviceKeyInitialVector initial vector (first bytes or by convention).In file from the deviceKeyValue + deviceKeyInitialVector will form the cipher value.
      */
-    public ImportKeyRequest(@Nonnull String wrapperKeyLabel, @Nonnull AsymmetricAlgorithm wrapperKeyAlgorithm, @Nonnull byte[] encryptedTransportKey, @Nonnull SymmetricAlgorithm transportKeyAlgorithm, @Nonnull byte[] deviceKeyValue, @Nonnull byte[] deviceKeyInitialVector, HsmKeyType hsmKeyType) {
+    public ImportKeyRequest(String wrapperKeyLabel, AsymmetricAlgorithm wrapperKeyAlgorithm, byte[] encryptedTransportKey, SymmetricAlgorithm transportKeyAlgorithm, byte[] deviceKeyValue, byte[] deviceKeyInitialVector, HsmKeyType hsmKeyType) {
         this.wrapperKeyLabel = wrapperKeyLabel;
         this.wrapperKeyAlgorithm = wrapperKeyAlgorithm;
         this.encryptedTransportKey = encryptedTransportKey;

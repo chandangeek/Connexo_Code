@@ -3,7 +3,6 @@ package com.elster.jupiter.hsm.model;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
-import javax.annotation.Nonnull;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
@@ -14,18 +13,18 @@ public class Message {
     private final Charset charSet;
 
 
-    public Message(@Nonnull byte[] data) {
+    public Message(byte[] data) {
         this.bytes = data;
         this.charSet = Charset.defaultCharset();
     }
 
 
-    public Message(@Nonnull  String string) {
+    public Message(String string) {
         this.charSet = Charset.defaultCharset();
         this.bytes = string.getBytes(this.getCharSet());
     }
 
-    public Message(@Nonnull String s, @Nonnull Charset charSet) {
+    public Message(String s, Charset charSet) {
         this.bytes = s.getBytes(charSet);
         this.charSet = charSet;
     }

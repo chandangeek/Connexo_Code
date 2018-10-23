@@ -9,16 +9,10 @@ package com.elster.jupiter.hsm.impl.config;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class HsmConfigurationPropFileImpl implements HsmConfiguration {
 
@@ -27,7 +21,7 @@ public class HsmConfigurationPropFileImpl implements HsmConfiguration {
     private final Map<String, String> importToHsmLabelMap = new HashMap<>();
     private final Map<String, HsmLabelConfiguration> labelToConfigMap = new HashMap<>();
 
-    public HsmConfigurationPropFileImpl(@Nonnull String configFile) throws HsmBaseException {
+    public HsmConfigurationPropFileImpl(String configFile) throws HsmBaseException {
         properties = new Properties();
         this.file = new File(configFile);
         try (FileReader fr = new FileReader(file)) {
