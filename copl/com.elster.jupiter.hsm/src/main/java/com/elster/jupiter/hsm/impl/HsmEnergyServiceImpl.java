@@ -11,7 +11,7 @@ import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
-import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -81,18 +81,33 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         try {
             KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
             ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getActualLabel()),renewKeyRequest.getActualKey());
-            KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
-                    protectedSessionKey,
-                    newLabel,
-                    renewKeyRequest.getHsmKeyType().getSessionKeyType());
-            ProtectedSessionKey psk = response.getMdmStorageKey();
-            String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-            return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
+
+            if (isSecretRenewal(renewKeyRequest)) {
+                KeyRenewalResponse response = Energy.cosemSecretRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
+                        renewKeyRequest.getHsmKeyType().getKeySize(),
+                        protectedSessionKey,
+                        newLabel);
+                ProtectedSessionKey psk = response.getMdmStorageKey();
+                String kekLabel = ((KeyLabel) psk.getKek()).getValue();
+                return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
+            } else {
+                KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
+                        protectedSessionKey,
+                        newLabel,
+                        renewKeyRequest.getHsmKeyType().getSessionKeyType());
+                ProtectedSessionKey psk = response.getMdmStorageKey();
+                String kekLabel = ((KeyLabel) psk.getKek()).getValue();
+                return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
+            }
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
     }
 
+    private boolean isSecretRenewal(RenewKeyRequest renewKeyRequest) {
+        return renewKeyRequest.getHsmKeyType().getHsmJssKeyType().equals(HsmJssKeyType.AUTHENTICATION)
+                || renewKeyRequest.getHsmKeyType().getHsmJssKeyType().equals(HsmJssKeyType.HLSECRET);
+    }
 
 
 
@@ -254,7 +269,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             }
 
             return false;
-        } catch (final FunctionFailedException | UnsupportedKEKEncryptionMethodException e) {
+        } catch (final FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
     }
