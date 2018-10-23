@@ -341,6 +341,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     MINI_MAX(291, "com.elster.us.protocolimplv2.mercury.minimax.MiniMax"),
     A1860(293, "com.energyict.protocolimplv2.dlms.a1860.A1860"),
     CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
+    HONEYWELL_HS3300(295, "com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

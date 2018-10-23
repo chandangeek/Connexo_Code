@@ -1737,4 +1737,14 @@ public final class DeviceMessageConstants {
     // Renew GMK single action schedule IC
     public static final String RENEW_GMK_EXECUTION_TIME = "DeviceActionMessage.RENEW_GMK_EXECUTION_TIME";
     public static final String RENEW_GMK_EXECUTION_TIMEDefaultTranslation = "Execution time";
+
+    // Specific G3/PLC Network Management Objects
+    public static final String MAC_TONE_MASK = "DeviceActionMessage.MAC_TONE_MASK";
+    public static final String MAC_TONE_MASKDefaultTranslation = "MAC Tone Mask";
+    public static final String G3_PLC_BANDPLAN = "DeviceActionMessage.G3_PLC_BANDPLAN";
+    public static final String G3_PLC_BANDPLANDefaultTranslation = "G3 PLC Bandplan";
+    public static final String ADP_LOW_LQI = "DeviceMessageConstants.ADP_LOW_LQI";
+    public static final String ADP_LOW_LQIDefaultTranslation = "ADP Low LQI";
+    public static final String ADP_HIGH_LQI = "DeviceMessageConstants.ADP_HIGH_LQI";
+    public static final String ADP_HIGH_LQIDefaultTranslation = "ADP High LQI";
 }

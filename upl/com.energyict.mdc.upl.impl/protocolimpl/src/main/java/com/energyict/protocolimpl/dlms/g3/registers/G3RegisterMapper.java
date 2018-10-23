@@ -380,6 +380,12 @@ public class G3RegisterMapper {
     public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP = ObisCode.fromString("0.168.96.193.0.255");
     public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP_ATTR2 = ObisCode.fromString("0.168.96.193.2.255");
 
+    /**
+     * ObisCode mapper for Specific G3-PLC Network Management Objects
+     */
+    public static final ObisCode G3_PLC_BANDPLAN = ObisCode.fromString("0.0.94.43.128.255");
+    //public static final ObisCode ;
+
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
     private final Logger logger;
