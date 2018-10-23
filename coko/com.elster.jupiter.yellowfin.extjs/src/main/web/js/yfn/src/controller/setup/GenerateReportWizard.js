@@ -402,7 +402,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                             align: 'stretch'
                         },
                         columnWidth: 0.5,
-                        maxWidth: 330,
+                        maxWidth: 332,
                         padding:20,
                         items:formFields
                     };
