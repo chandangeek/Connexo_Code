@@ -34,7 +34,7 @@ public class FirmwareVersionInfoFactory {
         info.firmwareType = new FirmwareTypeInfo(firmwareVersion.getFirmwareType(), thesaurus);
         info.version = firmwareVersion.getVersion();
         if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(firmwareVersion.getDeviceType())){
-            info.setImageIdentifier(firmwareVersion.getImageIdentifier());
+            info.imageIdentifier = firmwareVersion.getImageIdentifier();
         }
         return info;
     }

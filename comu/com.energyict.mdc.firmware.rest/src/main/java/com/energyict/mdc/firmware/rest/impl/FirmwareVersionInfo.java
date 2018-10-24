@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,16 +15,5 @@ public class FirmwareVersionInfo {
     public Integer fileSize;
     public Boolean isInUse;
     public long version;
-    @JsonIgnore
-    private String imageIdentifier;
-
-    @JsonGetter
-    @SuppressWarnings("unused")
-    public String getImageIdentifier() {
-        return imageIdentifier;
-    }
-
-    public void setImageIdentifier(String imageIdentifier) {
-        this.imageIdentifier = imageIdentifier;
-    }
+    public String imageIdentifier;
 }
