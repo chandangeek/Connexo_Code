@@ -18,7 +18,7 @@
 
     <properties>
         <apache.cxf.version>3.1.6</apache.cxf.version>
-        <bouncycastle.version>1.56</bouncycastle.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
         <ejbcabundle.version>1.0.0</ejbcabundle.version>
         <!--<apache.cxf.version>2.7.18</apache.cxf.version>-->
     </properties>
