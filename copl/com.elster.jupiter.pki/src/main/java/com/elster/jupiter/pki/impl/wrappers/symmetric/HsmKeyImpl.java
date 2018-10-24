@@ -100,9 +100,9 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     @Override
-    public void generateValue(SecurityAccessorType securityAccessorType, HsmKey currentKey) {
+    public void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey) {
         try {
-            HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(currentKey.getKey(), currentKey.getLabel(), securityAccessorType.getHsmKeyType()));
+            HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(masterKey.getKey(), masterKey.getLabel(), securityAccessorType.getHsmKeyType()));
             this.setKey(hsmRenewKey.getEncryptedKey(), hsmRenewKey.getKeyLabel());
             this.setSmartMeterKey(hsmRenewKey.getSmartMeterKey());
         } catch (HsmBaseException e) {
