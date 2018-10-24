@@ -80,7 +80,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException {
         try {
             KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
-            ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getActualLabel()),renewKeyRequest.getActualKey());
+            ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getMasterKeyLabel()), renewKeyRequest.getMasterKey());
 
             if (isSecretRenewal(renewKeyRequest)) {
                 KeyRenewalResponse response = Energy.cosemSecretRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
@@ -292,7 +292,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         CosemHLSAuthenticationResponse response;
         try {
             response = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), challenge,
-                    initializationVector);
+                    initializationVector, getAtosSecuritySuite(securitySuite));
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
         }
