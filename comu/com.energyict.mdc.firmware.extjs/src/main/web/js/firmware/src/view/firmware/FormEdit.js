@@ -41,8 +41,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'text-image-identifier',
             name: 'imageIdentifier',
             fieldLabel: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
-            required: false,
-            allowBlank: true,
+            required: true,
             anchor: '60%'
         },
         {
