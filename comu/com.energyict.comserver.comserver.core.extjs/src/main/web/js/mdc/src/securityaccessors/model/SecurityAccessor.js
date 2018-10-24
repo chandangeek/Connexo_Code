@@ -33,7 +33,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'defaultViewLevels', type: 'auto', useNull: true},
         {name: 'defaultEditLevels', type: 'auto', useNull: true},
         {name: 'defaultValue', type: 'auto', useNull: true, defaultValue: null},
-        {name: 'hsmJssKeyType', type: 'auto'},
+        {name: 'hsmJssKeyType', type: 'auto', useNull: true, defaultValue: null},
         {name: 'label', type: 'auto'},
         {name: 'importCapability', type: 'auto'},
         {name: 'renewCapability', type: 'auto'},

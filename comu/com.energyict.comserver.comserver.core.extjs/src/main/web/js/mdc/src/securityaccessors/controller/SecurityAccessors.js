@@ -663,7 +663,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             storageMethodCombo = form.down('#mdc-security-accessor-storage-method-combobox'),
             manageCentrallyCheckbox = form.down('#mdc-security-accessor-manage-centrally-checkbox'),
             validityPeriod = form.down('#mdc-security-accessor-validity-period'),
-            hsmJssKeyTypeCombo = form.down('#mdc-security-accessor-jss-keytype-combobox')
+            hsmJssKeyTypeCombo = form.down('#mdc-security-accessor-jss-keytype-combobox'),
             importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
