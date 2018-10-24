@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 typeAhead: true,
                                 msgTarget: 'under',
                                 disabled: true,
-                                required: true
+                                required: false
                             },
                             {
                                 xtype: 'combobox',
