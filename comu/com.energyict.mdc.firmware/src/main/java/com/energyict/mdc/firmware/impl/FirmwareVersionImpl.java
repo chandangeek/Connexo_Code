@@ -56,6 +56,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
     private Long firmwareFileSize = null; // set this size for validation reason
     private boolean hasFirmwareFile = false; // boolean indicating whether or not the firmware file has been set/updated
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String imageIdentifier;
     @SuppressWarnings("unused")
