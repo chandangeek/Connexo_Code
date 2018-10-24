@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -40,6 +41,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -100,9 +102,11 @@ public class ConnectionMethodResource {
     private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
-                if (!task.isActive()) {
+                if (!task.isActive() && hasAllRequiredProps(task)) {
                     task.activate();
-                }
+                } else {
+                    throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+            }
                 break;
             case INACTIVE:
                 if (task.isActive()) {
@@ -110,6 +114,15 @@ public class ConnectionMethodResource {
                 }
                 break;
         }
+    };
+
+    private boolean hasAllRequiredProps(ConnectionTask<?,?> task) {
+        List<ConnectionTaskProperty> props = task.getProperties();
+        return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+    }
+
+    private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
+        return properties.stream().filter(prop -> prop.getName().equals(name)).findFirst();
     }
 
     @GET @Transactional

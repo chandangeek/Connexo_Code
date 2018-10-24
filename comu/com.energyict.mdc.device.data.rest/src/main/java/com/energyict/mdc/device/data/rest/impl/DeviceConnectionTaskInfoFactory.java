@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -67,7 +68,9 @@ public class DeviceConnectionTaskInfoFactory {
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
             info.comSessionId = comSession.getId();
         }
-        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+        if (Objects.nonNull(connectionTask.getComPortPool())) {
+            info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+        }
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(), connectionTask.getConnectionType().getDirection().name());
         info.connectionType = connectionTask.getPluggableClass().getName();
         info.connectionMethod = new ConnectionMethodInfo();
