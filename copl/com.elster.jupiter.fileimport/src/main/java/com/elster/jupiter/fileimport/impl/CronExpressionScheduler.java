@@ -6,6 +6,7 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
@@ -28,7 +28,6 @@ class CronExpressionScheduler {
 
     private static final Logger LOGGER = Logger.getLogger(CronExpressionScheduler.class.getName());
     private static final long RETRY_TIMER = 60;
-    private static final int RETRY_COUNT = 3;
     private final ScheduledExecutorService scheduledExecutorService;
     private final Clock clock;
     @GuardedBy("jobHandleLock")
@@ -58,7 +57,6 @@ class CronExpressionScheduler {
      */
     public void submitOnce(CronJob cronJob) {
         ZonedDateTime now = ZonedDateTime.now(clock);
-        int retryCount = 0;
         boolean submitFailed = false;
         do {
             try {
@@ -74,7 +72,7 @@ class CronExpressionScheduler {
                 return;
             } catch (UnderlyingSQLFailedException e) {
                 submitFailed = true;
-                LOGGER.warning("[try #" + (++retryCount) + "] Database exception encountered, will try to reschedule the cronJob with id=" + cronJob.getId() + " in " + RETRY_TIMER + "s");
+                LOGGER.warning("Database exception encountered, will try to reschedule the cronJob with id=" + cronJob.getId() + " in " + RETRY_TIMER + "s");
                 try {
                     Thread.sleep(RETRY_TIMER * 1000);
                 } catch (InterruptedException ie) {
@@ -82,9 +80,7 @@ class CronExpressionScheduler {
                     return;
                 }
             }
-        } while (submitFailed && retryCount <= RETRY_COUNT);
-
-        LOGGER.severe("Couldn't reconnect to database, cronJob with id=" + cronJob.getId() + " won't run anymore!");
+        } while (submitFailed);
     }
 
     /**
