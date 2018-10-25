@@ -8,9 +8,13 @@ import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.energyict.mdc.cim.webservices.outbound.soap.IEndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
 import ch.iec.tc57._2011.enddeviceevents.Asset;
@@ -34,15 +38,16 @@ import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
-        service = {IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
+        service = {IEndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + EndDeviceEventsServiceProvider.NAME})
-public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, OutboundSoapEndPointProvider {
+        property = {"name=" + IEndDeviceEventsServiceProvider.NAME})
+public class EndDeviceEventsServiceProvider implements IEndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider {
 
-    static final String NAME = "CIM SendEndDeviceEvents";
-
+    private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsServiceProvider.class.getName());
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
     private static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
@@ -55,20 +60,27 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
     private List<EndDeviceEventsPort> endDeviceEvents = new ArrayList<>();
 
     private volatile WebServicesService webServicesService;
+    private Thesaurus thesaurus;
 
     public EndDeviceEventsServiceProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceEventsServiceProvider(WebServicesService webServicesService) {
+    public EndDeviceEventsServiceProvider(WebServicesService webServicesService, NlsService nlsService) {
         this();
         setWebServicesService(webServicesService);
+        setNlsService(nlsService);
     }
 
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(IEndDeviceEventsServiceProvider.NAME, Layer.SERVICE);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -152,7 +164,7 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
                 endDeviceEvent.setReason(record.getDescription());
                 endDeviceEvent.setUserID(record.getUserID());
                 endDeviceEvent.setSeverity(record.getSeverity());
-                EndDeviceEventDetail endDeviceEventDetail =  new EndDeviceEventDetail();
+                EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
                 endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
                 endDeviceEventDetail.setValue(record.getDeviceEventType());
                 endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
@@ -161,6 +173,61 @@ public class EndDeviceEventsServiceProvider implements IssueWebServiceClient, Ou
                 endDeviceEvent.setEndDeviceEventType(eventType);
             });
         }
+        return endDeviceEvent;
+    }
+
+    @Override
+    public boolean send(EndDeviceEventRecord record) {
+        if (getEndDeviceEventsPorts().isEmpty()) {
+            throw new EndDeviceEventsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        getEndDeviceEventsPorts().forEach(event -> {
+            try {
+                event.createdEndDeviceEvents(createResponseMessage(record));
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            }
+        });
+        return true;
+    }
+
+    private EndDeviceEventsEventMessageType createResponseMessage(EndDeviceEventRecord record) {
+        EndDeviceEventsEventMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsEventMessageType();
+
+        // set header
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setVerb(HeaderType.Verb.CREATED);
+        header.setNoun(END_DEVICE_EVENTS);
+        responseMessage.setHeader(header);
+
+        // set payload
+        EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
+        EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
+        endDeviceEvents.getEndDeviceEvent().add(createEndDeviceEvent(record));
+        endDeviceEventsPayload.setEndDeviceEvents(endDeviceEvents);
+        responseMessage.setPayload(endDeviceEventsPayload);
+
+        return responseMessage;
+    }
+
+    private EndDeviceEvent createEndDeviceEvent(EndDeviceEventRecord record) {
+        EndDevice device = record.getEndDevice();
+        EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
+        endDeviceEvent.setAssets(createAsset(device));
+        endDeviceEvent.setMRID(record.getMRID());
+        endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
+        endDeviceEvent.setIssuerID(record.getIssuerID());
+        endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
+        endDeviceEvent.setReason(record.getDescription());
+        endDeviceEvent.setUserID(record.getUserID());
+        endDeviceEvent.setSeverity(record.getSeverity());
+        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+        endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
+        endDeviceEventDetail.setValue(record.getDeviceEventType());
+        endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
+        EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
+        eventType.setRef(record.getEventTypeCode());
+        endDeviceEvent.setEndDeviceEventType(eventType);
         return endDeviceEvent;
     }
 
