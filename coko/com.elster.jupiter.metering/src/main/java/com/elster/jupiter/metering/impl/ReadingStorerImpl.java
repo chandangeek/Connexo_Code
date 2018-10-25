@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingsInfoType;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -36,6 +37,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -613,5 +615,18 @@ class ReadingStorerImpl implements ReadingStorer {
 
     Subscription subscribe(BackflowListener observer) {
         return backflowListeners.subscribe(observer);
+    }
+
+    public List<ReadingsInfoType> getReadings() {
+        List<ReadingsInfoType> readingsInfos = new ArrayList<>();
+        for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
+            ReadingsInfoType readingsInfo = new ReadingsInfoType();
+            entry.getKey().getFirst().getChannelsContainer().getMeter().ifPresent(meter -> readingsInfo.setMeter(meter));
+            entry.getKey().getFirst().getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingsInfo.setUsagePoint(usagePoint));
+            readingsInfo.setReadingType(entry.getKey().getFirst().getMainReadingType());
+            readingsInfo.setReading(entry.getValue());
+            readingsInfos.add(readingsInfo);
+        }
+        return readingsInfos;
     }
 }

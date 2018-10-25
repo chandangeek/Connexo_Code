@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -48,4 +49,6 @@ public interface ReadingStorer {
     boolean processed(Channel channel, Instant instant);
 
     StorerProcess getStorerProcess();
+
+    List<ReadingsInfoType> getReadings();
 }
