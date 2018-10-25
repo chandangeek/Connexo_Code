@@ -7,10 +7,13 @@ package com.elster.jupiter.issue.share;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /**
  * Created by H165696 on 7/26/2017.
  */
 
+@ConsumerType
 public interface IssueWebServiceClient {
     /**
      * Get the registered web service name
