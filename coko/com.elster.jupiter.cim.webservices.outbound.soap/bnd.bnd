@@ -2,7 +2,8 @@
 -dsannotations: *
 
 Private-Package: com.elster.jupiter.cim.webservices.outbound.soap.impl,\
-                 com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig
+                 com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig,\
+                 com.elster.jupiter.cim.webservices.outbound.soap.meterreadings
 Export-Package: com.elster.jupiter.cim.webservices.outbound.soap,\
                  ch.iec.tc57._2011.*,\
                  com.elster.connexo.*,\
