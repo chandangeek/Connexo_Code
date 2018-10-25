@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.FrameCounterCache;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -21,6 +22,8 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.util.List;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -30,15 +33,22 @@ import java.util.List;
  */
 public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
 
+    private static final String SEPARATOR = ",";
+
     public CommonCryptoMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
 
-    private String changeKeyAndUseNewKey(OfflineDeviceMessage offlineDeviceMessage, int keyId, String keyAttributeName, String wrappedKeyAttributeName, ObisCode clientSecuritySetupObis) throws
+    private String changeKeyAndUseNewKey(OfflineDeviceMessage offlineDeviceMessage, int keyId, String keyAttributeName, ObisCode clientSecuritySetupObis) throws
             IOException {
-        //TODO: see how this key will be changed? how should be implemented to use HSM and not user input?
-        String newKey = getDeviceMessageAttributeValue(offlineDeviceMessage, keyAttributeName);
-        String newWrappedKey = getDeviceMessageAttributeValue(offlineDeviceMessage, wrappedKeyAttributeName);
+
+        String[] hsmKeyAndLabelAndSmartMeterKey = getDeviceMessageAttributeValue(offlineDeviceMessage, keyAttributeName).split(SEPARATOR);
+        if (hsmKeyAndLabelAndSmartMeterKey.length != 2) {
+            throw DeviceConfigurationException.unexpectedHsmKeyFormat();
+        }
+
+        String newKey = hsmKeyAndLabelAndSmartMeterKey[0];
+        String newWrappedKey = hsmKeyAndLabelAndSmartMeterKey[1];
         byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
 
         Array keyArray = new Array();
@@ -53,24 +63,20 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
     }
 
     public void changeMasterKey(OfflineDeviceMessage offlineDeviceMessage, ObisCode clientSecuritySetupObis) throws IOException {
-        //TODO: see how this key will be changed? how should be implemented
-        //        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newMasterKeyAttributeName, newWrappedMasterKeyAttributeName, clientSecuritySetupObis);
-//
-//        //Update the key in the security provider, it is used instantly
-//        byte[] plainMasterKey = convertPlainKey(DeviceMessageConstants.newMasterKeyAttributeName, newKey);
-//        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(plainMasterKey);
+        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newMasterKeyAttributeName, clientSecuritySetupObis);
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(getHsmIrreversibleKeyBytes(newKey));
     }
 
     public void changeAuthKey(OfflineDeviceMessage offlineDeviceMessage, ObisCode clientSecuritySetupObis, int clientToChangeKeyFor) throws IOException {
-    //TODO: see how this key will be changed? how should be implemented
-        //        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newAuthenticationKeyAttributeName, newWrappedAuthenticationKeyAttributeName, clientSecuritySetupObis);
-//
-//        //Use the new AK immediately, if it was renewed for the current client
-//        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
-//        if (isForCurrentClient(clientToChangeKeyFor, clientInUse)) {
-//            byte[] plainAuthenticationKey = convertPlainKey(DeviceMessageConstants.newAuthenticationKeyAttributeName, newKey);
-//            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(plainAuthenticationKey);
-//        }
+        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newAuthenticationKeyAttributeName, clientSecuritySetupObis);
+
+        //Use the new AK immediately, if it was renewed for the current client
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        if (isForCurrentClient(clientToChangeKeyFor, clientInUse)) {
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(getHsmIrreversibleKeyBytes(newKey));
+        }
 
     }
 
@@ -83,25 +89,21 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
 
     public void changeEncryptionKey(OfflineDeviceMessage offlineDeviceMessage, ObisCode clientSecuritySetupObis, int clientToChangeKeyFor) throws IOException {
         //TODO: see how this key will be changed? how should be implemented
-        //        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newEncryptionKeyAttributeName, newWrappedEncryptionKeyAttributeName, clientSecuritySetupObis);
-//
-//        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
-//        //Use the new EK immediately, if it was renewed for the current client
-//        if (isForCurrentClient(clientToChangeKeyFor, clientInUse)) {
-//            byte[] plainEncryptionKey = convertPlainKey(DeviceMessageConstants.newEncryptionKeyAttributeName, newKey);
-//            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(plainEncryptionKey);
-//        }
-//
-//        resetFCForClient(clientToChangeKeyFor, clientInUse);
+
+        String newKey = changeKeyAndUseNewKey(offlineDeviceMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newEncryptionKeyAttributeName, clientSecuritySetupObis);
+
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        //Use the new EK immediately, if it was renewed for the current client
+        if (isForCurrentClient(clientToChangeKeyFor, clientInUse)) {
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(getHsmIrreversibleKeyBytes(newKey));
+        }
+
+        resetFCForClient(clientToChangeKeyFor, clientInUse);
     }
 
-//    /**
-//     * Parse the given 'plain' key (message attribute) into the format as expected by the security provider.
-//     */
-//    private byte[] convertPlainKey(String propertyName, String plainKey) {
-//        SecurityPropertyValueParser securityPropertyValueParser = new SecurityPropertyValueParser();
-//        return securityPropertyValueParser.parseSecurityPropertyValue(propertyName, plainKey);
-//    }
+    private byte[] getHsmIrreversibleKeyBytes(String irreversibleKeyAndLabel) {
+        return new IrreversibleKeyImpl(irreversibleKeyAndLabel).toBase64ByteArray();
+    }
 
  /*   *//** //TODO: ServiceKey not supported atm in Connexo
      * Writing of the global keys (AK and EK) must be combined.

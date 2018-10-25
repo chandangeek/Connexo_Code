@@ -85,5 +85,5 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
 
     Certificate[] getCertificateChain(String propertyName);
 
-    String getRootCA(String propertyName);
+    String getRootCAAlias(String propertyName);
 }

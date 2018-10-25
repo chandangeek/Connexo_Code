@@ -42,6 +42,8 @@ public class CommonCryptoMessaging {
                         .contains(offlineDeviceMessage.getSpecification())) {
                     return ((HexString) messageAttribute).getContent();
                 }
+
+                return messageAttribute.toString();
         }
         return null;
     }

@@ -240,7 +240,7 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
                 serverEphemeralPublicKeyBytes
         );
 
-        String caCertLabel = "Energy CA certificate_certificate_ROOTCA_CERT"; //TODO HSM key label for the CA on top of the device cert chain
+        String caCertLabel = securityProvider.getRootCAAlias(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         Certificate[] serverSignatureKeyCertificateChain = securityProvider.getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
 
         //finalize process and obtain the new HSM key.

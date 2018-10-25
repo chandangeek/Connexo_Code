@@ -184,7 +184,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     }
 
     @Override
-    public String getRootCA(String propertyName) {
+    public String getRootCAAlias(String propertyName) {
         CertificateWrapper endCertificateWrapper = properties.getTypedProperty(propertyName);
         if (endCertificateWrapper != null) {
             return certificateWrapperExtractor.getRootCAAlias(endCertificateWrapper);

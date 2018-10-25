@@ -170,7 +170,7 @@ public class CryptoSecurityContext extends SecurityContext {
 
         String clientPrivateSigningKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
         Certificate[] serverKeyAgreementCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
-        String caCertificate = getGeneralCipheringSecurityProvider().getRootCA(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+        String caCertificate = getGeneralCipheringSecurityProvider().getRootCAAlias(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
         final byte[] kdfOtherInfo = getKdfOtherInfo(getSystemTitle(), getResponseSystemTitle());
 
         String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel();
@@ -211,7 +211,7 @@ public class CryptoSecurityContext extends SecurityContext {
         }
         Certificate[] serverSignatureKeyCertificateChain = getGeneralCipheringSecurityProvider().getCertificateChain(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         String clientPrivateKeyAgreementKeyLabel = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKeyLabel();
-        String caCertificate = getGeneralCipheringSecurityProvider().getRootCA(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
+        String caCertificate = getGeneralCipheringSecurityProvider().getRootCAAlias(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         byte[] kdfOtherInfo = getKdfOtherInfo(getResponseSystemTitle(), getSystemTitle());
         String storageKey = ((CryptoBeacon3100SecurityProvider) getSecurityProvider()).getEekStorageLabel();
 

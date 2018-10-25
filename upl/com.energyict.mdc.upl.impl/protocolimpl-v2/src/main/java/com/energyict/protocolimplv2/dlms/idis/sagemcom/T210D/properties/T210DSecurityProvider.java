@@ -159,7 +159,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
     }
 
     @Override
-    public String getRootCA(String propertyName) {
+    public String getRootCAAlias(String propertyName) {
         //not used
         return null;
     }
