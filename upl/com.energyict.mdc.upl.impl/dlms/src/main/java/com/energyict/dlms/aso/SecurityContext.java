@@ -860,11 +860,11 @@ public class SecurityContext {
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
-        plainArray.add(ProtocolTools.getBytesFromHexString("B367C21590CC4B8B07CE7AB0AC8AA92C", ""));
+        plainArray.add(getSecurityProvider().getAuthenticationKey());
         plainArray.add(clientChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm aesGcm = new AesGcm(ProtocolTools.getBytesFromHexString("628F3D8CF9A3E1FDEBEC1008267AA762", ""), DLMS_AUTH_TAG_SIZE);
+        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
         aesGcm.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
 
