@@ -186,11 +186,11 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         Map<String, OfflineDevice> oldSlavesBySerialNumber = this.mapOldSlavesToSerialNumber(device);
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = this.mapActualSlavedToDeviceIdAndHandleUnknownDevices(comServerDAO);
 
-        this.handleSlaveRemoval(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
-        this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
-
         if (deviceTopology.getJoinedSlaveDeviceIdentifiers() != null) {
             this.processJoinedSlaves(comServerDAO);
+        } else {
+            this.handleSlaveRemoval(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
+            this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
         }
     }
 
