@@ -92,6 +92,7 @@ import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -402,12 +403,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
         if (Objects.nonNull(deviceConfiguration)) {
             deviceConfiguration.getPartialConnectionTasks().stream().forEach(partialConnectionTask -> {
-                if (partialConnectionTask instanceof PartialInboundConnectionTask) {
-                    this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask).add();
-                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask){
-                    this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask).add();
+                if (partialConnectionTask instanceof PartialInboundConnectionTask && !this.getInboundConnectionTasks().contains(partialConnectionTask)) {
+                    InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
+                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
+                    inboundConnectionTaskBuilder.add();
+                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask  && !this.getScheduledConnectionTasks().contains(partialConnectionTask)){
+                    ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
+                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
+                    scheduledConnectionTaskBuilder.add();
                 }
             });
+        }
+    }
+
+    private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask partialConnectionTask, InboundConnectionTaskBuilder inboundConnectionTaskBuilder) {
+        if(Objects.isNull(partialConnectionTask.getComPortPool())){
+            inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        }
+    }
+
+    private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask scheduledConnectionTask, ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder) {
+        //it's wrong that the properties name are hardcoded but to add the properties from OutboundIpConnectionProperties.Fields this bundle will have a dependency on com.energyict.mdc.protocols.
+        //also iterating over properties is also not a valid solution because if the property value is null, it isn't present in the list.....
+        if(Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
+            scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
     }
 
