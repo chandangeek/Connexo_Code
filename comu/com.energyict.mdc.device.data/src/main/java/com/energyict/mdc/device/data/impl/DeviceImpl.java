@@ -66,7 +66,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -1242,7 +1244,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setProtocolProperty(String name, Object value) {
         PropertySpec propertySpec = getPropertySpecForProperty(name);
-        String propertyValue = propertySpec.getValueFactory().toStringValue(value);
+        ValueFactory valueFactory = propertySpec.getValueFactory();
+        String propertyValue;
+
+        if (valueFactory instanceof BigDecimalFactory && value instanceof Integer) {
+            propertyValue = ((Integer) value).toString();
+        } else {
+            propertyValue = propertySpec.getValueFactory().toStringValue(value);
+        }
 
         Optional<DeviceProtocolProperty> optionalProperty = getDeviceProtocolProperty(name);
         if (optionalProperty.isPresent()) {
