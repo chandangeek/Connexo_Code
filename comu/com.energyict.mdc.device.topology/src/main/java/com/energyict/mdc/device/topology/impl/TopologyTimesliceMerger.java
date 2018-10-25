@@ -90,16 +90,20 @@ public class TopologyTimesliceMerger {
         }
 
         public Range<Instant> fromStartToStart(Range<Instant> first, Range<Instant> second) {
-            return Range.closed(lowerEndpoint(first), lowerEndpoint(second));
+            return swapRangeClosed(lowerEndpoint(first), lowerEndpoint(second));
         }
 
         public Range<Instant> fromStartToEnd(Range<Instant> first, Range<Instant> second) {
-            return Range.closed(lowerEndpoint(first), upperEndpoint(second));
+            if (second.hasUpperBound()) {
+                return swapRangeClosed(lowerEndpoint(first), upperEndpoint(second));
+            } else {
+                return Range.atLeast(lowerEndpoint(first));
+            }
         }
 
         public Range<Instant> fromEndToEnd(Range<Instant> first, Range<Instant> second) {
             if (second.hasUpperBound()) {
-                return Range.closed(upperEndpoint(first), upperEndpoint(second));
+                return swapRangeClosed(upperEndpoint(first), upperEndpoint(second));
             } else {
                 return Range.atLeast(upperEndpoint(first));
             }
@@ -109,6 +113,10 @@ public class TopologyTimesliceMerger {
             List<Device> concatenated = new ArrayList<>(devices);
             concatenated.addAll(moreDevices);
             return concatenated;
+        }
+
+        private Range<Instant> swapRangeClosed(Instant start, Instant end) {
+            return (start.isBefore(end)) ? Range.closed(start, end) : Range.closed(end, start);
         }
     }
 
