@@ -5,16 +5,54 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.domain.util.*;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateUsagesFinder;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
+import com.elster.jupiter.pki.ExpirationSupport;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.KeypairWrapper;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PassphraseWrapper;
+import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.SymmetricAlgorithm;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
@@ -33,6 +71,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
@@ -43,10 +82,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -58,7 +102,13 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -272,6 +322,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4.class,
                         version(10, 4, 1), UpgraderV10_4_1.class,
+                        version(10, 4, 2), V10_4_2SimpleUpgrader.class,
                         version(10, 4, 3), V10_4_3SimpleUpgrader.class));
     }
 
