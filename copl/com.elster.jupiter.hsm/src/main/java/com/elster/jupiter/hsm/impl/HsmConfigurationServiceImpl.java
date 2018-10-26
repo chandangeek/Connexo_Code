@@ -102,8 +102,9 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             configurator.doConfigure(resource);
         } catch (Exception e) {
             String msg = "Unable to re-configure logger";
-            System.out.println(msg);
-            LOG.warn(msg);
+            System.out.println(msg +  e.getMessage() + " stackTrace:");
+            e.printStackTrace();
+            LOG.warn(msg, e);
         }
 
     }
