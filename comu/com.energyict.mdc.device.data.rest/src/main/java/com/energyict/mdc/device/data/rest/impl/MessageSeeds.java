@@ -137,7 +137,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_PROCESS_DEFINITION(319, "NoSuchProcessDefinition", "No process definition found"),
     NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist"),
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
-    CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique.")
+    CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique."),
+    NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!")
     ;
 
     private final int number;
