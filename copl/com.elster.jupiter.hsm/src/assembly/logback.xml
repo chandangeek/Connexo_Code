@@ -9,17 +9,24 @@
 
     <property name="defaultPattern" value="%-5p | %c | %d{ISO8601}%n   > %m%n%n" />
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!--appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
         <encoder>
             <pattern>${defaultPattern}</pattern>
         </encoder>
+    </appender-->
+
+    <appender name="SERVER" class="ch.qos.logback.core.FileAppender">
+        <file>./logs/server.log</file>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${log.dir}/logs/jss.log</file>
+    <appender name="HSM" class="ch.qos.logback.core.FileAppender">
+        <file>./logs/hsm.log</file>
         <encoder>
             <pattern>${defaultPattern}</pattern>
         </encoder>
@@ -27,12 +34,12 @@
 
     <!-- ================================================================================================ -->
 
-    <appender name="HSMTRACE" class="ch.qos.logback.core.FileAppender">
-        <file>${log.dir}/jss-hsm-trace.log</file>
+    <!--appender name="HSMTRACE" class="ch.qos.logback.core.FileAppender">
+        <file>./logs/hsm-trace.log</file>
         <encoder>
             <pattern>%d{ISO8601} %m%n%n</pattern>
         </encoder>
-    </appender>
+    </appender-->
 
     <!--
       Set level to TRACE or DEBUG here to see all network traffic send to and received from HSM devices:
@@ -40,64 +47,42 @@
       * TRACE: trace hexadecimal representation of network traffic as a line-breaked dump with offsets
       * other: do not trace network traffic
     -->
-    <logger name="jss.hsm.trace" level="WARN" additivity="false">
-    </logger>
+    <!--logger name="jss.hsm.trace" level="WARN" additivity="false">
+    </logger-->
 
-    <!-- ================================================================================================ -->
 
-    <appender name="SSLTRACE" class="ch.qos.logback.core.FileAppender">
-        <file>${log.dir}/jss-ssl-trace.log</file>
-        <encoder>
-            <pattern>%d{ISO8601} %m%n%n</pattern>
-        </encoder>
-    </appender>
-
-    <!--
-      Set level to TRACE or DEBUG here to see SSL handshake information:
-      * DEBUG: trace SSL handshake completion
-      * TRACE: trace SSL handshake completion as well as the certificates of the remote peer
-      * other: do not trace SSL handshake information
-    -->
-    <logger name="jss.ssl.trace" level="TRACE" additivity="false">
-        <appender-ref ref="SSLTRACE" />
-    </logger>
-
-    <!-- ================================================================================================ -->
 
     <appender name="HSMALERTS" class="ch.qos.logback.core.FileAppender">
-        <file>${log.dir}/jss-alerts.log</file>
+        <file>./logs/hsm-alerts.log</file>
         <encoder>
             <pattern>%-5p|%d{ISO8601}|%m%n</pattern>
         </encoder>
     </appender>
 
     <logger name="jss.alerts" level="INFO">
-        <!--
-          Uncomment the following section to log HSM up/down alerts into a separate file:
-        -->
-        <!--
         <appender-ref ref="HSMALERTS"/>
-        -->
     </logger>
 
     <!-- ================================================================================================ -->
     <!-- WORLDLINE library logger configuration ========================================================= -->
     <!-- ================================================================================================ -->
 
-    <logger name="com.atos.worldline"                                                        level="WARN"  />
+    <logger name="com.atos.worldline"                                                        level="WARN">
+        <appender-ref ref="HSM"/>
+    </logger>
     <logger name="com.atos.worldline.jss"                                                    level="WARN"  />
     <logger name="com.atos.worldline.jss.maint.migration"                                    level="WARN"  />
     <logger name="com.atos.worldline.jss.driver.asm6.ASM6Protocol"                           level="WARN" />
     <logger name="com.atos.worldline.jss.maint.gui.GuiThrowableHandler"                      level="WARN" />
     <logger name="com.atos.worldline.jss.metrics"                                            level="WARN"  />
     <logger name="com.atos.worldline.jss.commondev.spring.ApplicationContextLoadedLogger"    level="WARN"  />
-    
+
     <logger name="JSS_CHANNEL_POOL_LOG"                                                      level="WARN"  />
 
     <!-- ================================================================================================ -->
     <!-- 3rd party frameworks logger configuration ====================================================== -->
     <!-- ================================================================================================ -->
-    
+
     <logger name="org.jboss.serial"                                                          level="FATAL" />
     <logger name="org.springframework"                                                       level="WARN"  />
     <logger name="org.eclipse.jetty"                                                         level="WARN"  />
@@ -110,8 +95,12 @@
     <!-- Setup the Root category ======================================================================== -->
     <!-- ================================================================================================ -->
 
+    <logger name="com.elster.jupiter.hsm"                                                     level="DEBUG">
+        <appender-ref ref="HSM"/>
+    </logger>
+
     <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SERVER"/>
     </root>
 
 </configuration>

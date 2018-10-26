@@ -12,6 +12,8 @@ import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.commondev.log.Slf4JLogFactory;
 import com.atos.worldline.jss.configuration.RawConfiguration;
@@ -23,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -47,7 +50,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             JSSRuntimeControl.newConfiguration(rawConfiguration);
             this.initialized = true;
         } catch (Throwable e) {
-            System.out.println(e);
+            LOG.error("Unable to initialize JSS", e);
             throw (e);
         }
 
@@ -69,6 +72,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     @Activate
     public void activate(BundleContext context) {
         HsmClassLoaderHelper.setClassLoader();
+        configureLogger();
 
         String configFile = context.getProperty(HSM_CONFIGURATION);
         if (Objects.nonNull(configFile)) {
@@ -79,8 +83,30 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
                 // Doing nothing while other bundles might fail because this one was not properly initialized.
                 // As an example: HSM is down but we want other bundles to work even is HSM is not available for the time being, yet we need to activate it later by hand when HSM is back (like using gogo)
                 //throw new RuntimeException(e);
+                LOG.warn("Unable to activate HSM bundle", e);
             }
         }
+    }
+
+    /**
+     * This will try to re-configure logger used by JSS and underlying libs
+     */
+    private void configureLogger() {
+        try {
+            LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+            String logbackFile = "logback.xml";
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(logbackFile);
+            JoranConfigurator configurator = new JoranConfigurator();
+            configurator.setContext(context);
+            context.reset();
+            configurator.doConfigure(resource);
+        } catch (Exception e) {
+            String msg = "Unable to re-configure logger";
+            System.out.println(msg +  e.getMessage() + " stackTrace:");
+            e.printStackTrace();
+            LOG.warn(msg, e);
+        }
+
     }
 
     @Override
