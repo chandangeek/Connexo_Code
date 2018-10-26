@@ -1016,7 +1016,8 @@ public class DeviceResource {
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
         List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));
+        //Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));
+        Stream<Device> stream = topologyService.findPhysicalConnectedDevices(device).stream();
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
