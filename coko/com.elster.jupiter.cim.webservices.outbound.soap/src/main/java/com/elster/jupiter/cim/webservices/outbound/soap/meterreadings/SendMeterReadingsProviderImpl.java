@@ -45,7 +45,7 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private final List<MeterReadingsPort> meterReadingsPortServices = new CopyOnWriteArrayList<>();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
-    private final MeterReadingsFactory meterReadingsFactory = new MeterReadingsFactory();
+    private final MeterReadingsBuilder meterReadingsFactory = new MeterReadingsBuilder();
     private Thesaurus thesaurus;
 
     public SendMeterReadingsProviderImpl() {

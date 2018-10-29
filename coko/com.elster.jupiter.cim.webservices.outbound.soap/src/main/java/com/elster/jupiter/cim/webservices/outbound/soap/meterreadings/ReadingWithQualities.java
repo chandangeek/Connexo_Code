@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class ReadingWithQualities {
+class ReadingWithQualities implements Comparable {
     private Instant timestamp;
     private BaseReading reading;
     private List<ReadingQuality> readingQualities = Collections.emptyList();
@@ -33,7 +33,7 @@ class ReadingWithQualities {
         return rwq;
     }
 
-    Instant getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
@@ -47,5 +47,10 @@ class ReadingWithQualities {
                 readingQualities.stream()
         ).collect(Collectors.toMap(ReadingQuality::getType, Function.identity(), (a, b) -> a, LinkedHashMap::new));
         return new ArrayList<>(qualitiesByTypes.values());
+    }
+
+    @Override
+    public int compareTo(Object reading) {
+        return this.getTimestamp().compareTo(((ReadingWithQualities) reading).getTimestamp());
     }
 }
