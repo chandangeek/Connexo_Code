@@ -162,7 +162,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         CosemAuthDataEncryptionResponse response;
         try {
             response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
                     initializationVector);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
@@ -304,7 +304,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         CosemAuthDataDecryptionResponse response;
         try {
             response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
                     initializationVector, null);
         } catch (FunctionFailedException ffe) {
             throw new HsmBaseException(ffe);
