@@ -17,17 +17,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-@Component(name = "DemoMeterReadingsEventHandler", service = TopicHandler.class, immediate = true)
-public class DemoMeterReadingsEventHandler implements TopicHandler {
+@Component(name = "MeterReadingsEventHandler", service = TopicHandler.class, immediate = true)
+public class MeterReadingsEventHandler implements TopicHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(DemoMeterReadingsEventHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MeterReadingsEventHandler.class.getName());
     private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
 
-    public DemoMeterReadingsEventHandler() {
+    public MeterReadingsEventHandler() {
     }
 
     @Inject
-    public DemoMeterReadingsEventHandler(SendMeterReadingsProvider sendMeterReadingsProvider) {
+    public MeterReadingsEventHandler(SendMeterReadingsProvider sendMeterReadingsProvider) {
         this();
         setSendMeterReadingsProvider(sendMeterReadingsProvider);
     }

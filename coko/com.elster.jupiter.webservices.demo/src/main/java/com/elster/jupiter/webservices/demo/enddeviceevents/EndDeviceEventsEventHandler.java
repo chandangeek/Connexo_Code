@@ -16,19 +16,19 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "DemoEndDeviceEventsEventHandler", service = TopicHandler.class, immediate = true)
-public class DemoEndDeviceEventsEventHandler implements TopicHandler {
-    private static final Logger LOGGER = Logger.getLogger(DemoEndDeviceEventsEventHandler.class.getName());
+@Component(name = "EndDeviceEventsEventHandler", service = TopicHandler.class, immediate = true)
+public class EndDeviceEventsEventHandler implements TopicHandler {
+    private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsEventHandler.class.getName());
     private volatile IEndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
 
     // OSGi
-    public DemoEndDeviceEventsEventHandler() {
+    public EndDeviceEventsEventHandler() {
         super();
     }
 
     @Inject
     // For testing purposes only
-    public DemoEndDeviceEventsEventHandler(IEndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
+    public EndDeviceEventsEventHandler(IEndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
         this();
         setEndDeviceEventsServiceProvider(endDeviceEventsServiceProvider);
     }
@@ -52,5 +52,4 @@ public class DemoEndDeviceEventsEventHandler implements TopicHandler {
     public void setEndDeviceEventsServiceProvider(IEndDeviceEventsServiceProvider endDeviceEventsServiceProvider) {
         this.endDeviceEventsServiceProvider = endDeviceEventsServiceProvider;
     }
-
 }
