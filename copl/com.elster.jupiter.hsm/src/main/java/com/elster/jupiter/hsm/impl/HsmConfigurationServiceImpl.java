@@ -71,11 +71,10 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
     @Activate
     public void activate(BundleContext context) {
-        HsmClassLoaderHelper.setClassLoader();
-        configureLogger();
-
         String configFile = context.getProperty(HSM_CONFIGURATION);
         if (Objects.nonNull(configFile)) {
+            HsmClassLoaderHelper.setClassLoader();
+            configureLogger();
             try {
                 this.hsmConfigurationLoader = new HsmResourceReloader<>(new HsmConfigRefreshableResourceBuilder(new File(configFile)));
                 init(hsmConfigurationLoader.load().getJssInitFile());
@@ -111,6 +110,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
     @Override
     public HsmConfiguration getHsmConfiguration() throws HsmBaseException {
+        checkInit();
         return hsmConfigurationLoader.load();
     }
 
