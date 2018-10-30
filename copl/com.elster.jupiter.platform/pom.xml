@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>platform</artifactId>
-    <version>1.4.3${revision}</version>
+    <version>1.4.4${revision}</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.platform</name>
 
@@ -22,7 +22,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>third-party.bom</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -31,476 +31,476 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver.extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.oracle</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm</artifactId>
-                <version>3.2.3${revision}</version>
+                <version>3.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.handler</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>connexo.filter</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps.rest</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps.extjs</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>datavault</artifactId>
-                <version>2.1.3${revision}</version>
+                <version>2.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>domain.util</artifactId>
-                <version>3.2.3${revision}</version>
+                <version>3.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>dualcontrol</artifactId>
-                <version>1.1.3${revision}</version>
+                <version>1.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>facts.filter</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport</artifactId>
-                <version>2.4.2${revision}</version>
+                <version>2.4.3${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport.extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>flow.filter</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm</artifactId>
-                <version>3.1.3${revision}</version>
+                <version>3.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.handler</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.rest</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>ftpclient</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>hsm</artifactId>
-                <version>1.0.0${revision}</version>
+                <version>1.0.2${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>http.whiteboard</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>jbpm.extension</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>launcher</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>loaderjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>login.app</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mail</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging</artifactId>
-                <version>2.2.3${revision}</version>
+                <version>2.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging.oracle</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>nls.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm</artifactId>
-                <version>4.2.2${revision}</version>
+                <version>4.2.3${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>osgi.goodies</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>3.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.rest</artifactId>
-                <version>1.1.3${revision}</version>
+                <version>1.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.extjs</artifactId>
-                <version>1.1.3${revision}</version>
+                <version>1.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
-                <version>2.4.2${revision}</version>
+                <version>2.4.3${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties.rest</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>public.rest.util</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pubsub</artifactId>
-                <version>2.2.3${revision}</version>
+                <version>2.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.util</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.whiteboard</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>search</artifactId>
-                <version>2.2.3${revision}</version>
+                <version>2.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>search.rest</artifactId>
-                <version>3.1.3${revision}</version>
+                <version>3.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>security.thread</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.examples</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.extjs</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.rest</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecalltype.extjs</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.currency.converter</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.currency.converter.client</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.whiteboard.cxf</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system</artifactId>
-                <version>1.3.3${revision}</version>
+                <version>1.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <!-- todo rename to license -->
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>theme.skyline</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time</artifactId>
-                <version>4.1.3${revision}</version>
+                <version>4.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.rest</artifactId>
-                <version>2.2.3${revision}</version>
+                <version>2.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>transaction</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>unifyingjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>upgrade</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users</artifactId>
-                <version>3.4.1${revision}</version>
+                <version>3.4.2${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.extjs</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.rest</artifactId>
-                <version>4.1.3${revision}</version>
+                <version>4.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
-                <version>2.3.3${revision}</version>
+                <version>2.3.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.extjs</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.rest</artifactId>
-                <version>1.2.3${revision}</version>
+                <version>1.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin</artifactId>
-                <version>3.0.3${revision}</version>
+                <version>3.0.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.app</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.installer</artifactId>
-                <version>2.0.3${revision}</version>
+                <version>2.0.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -508,31 +508,31 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.persistence</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.rest</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.h2</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging.h2</artifactId>
-                <version>1.4.3${revision}</version>
+                <version>1.4.4${revision}</version>
                 <scope>test</scope>
             </dependency>
 
