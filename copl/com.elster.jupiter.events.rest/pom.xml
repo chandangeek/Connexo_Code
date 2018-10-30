@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.3${revision}</version>
+        <version>1.4.4${revision}</version>
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>events.rest</artifactId>
-    <version>1.4.3${revision}</version>
+    <version>1.4.4${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.events.rest</name>
 
