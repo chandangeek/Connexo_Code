@@ -9,12 +9,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.3${revision}</version>
+        <version>1.4.4${revision}</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.servicecall.examples</artifactId>
-    <version>1.2.3${revision}</version>
+    <version>1.2.4${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.servicecall.examples</name>
     <description>
