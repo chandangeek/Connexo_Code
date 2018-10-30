@@ -102,10 +102,10 @@ public class ConnectionMethodResource {
     private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
-                if (!task.isActive() && hasAllRequiredProps(task)) {
-                    task.activate();
-                } else {
+                if (!hasAllRequiredProps(task)) {
                     throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                } else if(!task.isActive()){
+                    task.activate();
             }
                 break;
             case INACTIVE:
