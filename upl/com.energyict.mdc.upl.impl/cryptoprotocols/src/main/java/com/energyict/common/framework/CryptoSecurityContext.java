@@ -157,11 +157,6 @@ public class CryptoSecurityContext extends SecurityContext {
         );
     }
 
-    @Override
-    public byte[] unwrapGeneralSigning(byte[] generalSigningAPDU) {
-        throw DeviceConfigurationException.unsupportedPropertyValueWithReason("EncryptionAccessLevel", String.valueOf(getSecurityPolicy().getDataTransportSecurityLevel()), "Checking the signature of responses (ECDSA) is not yet supported");
-    }
-
     protected byte[] dataTransportGeneralEncryptionWithKeyAgreement(byte[] plainText) throws UnsupportedException {
         Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
         if (serverKeyAgreementCertificate == null) {

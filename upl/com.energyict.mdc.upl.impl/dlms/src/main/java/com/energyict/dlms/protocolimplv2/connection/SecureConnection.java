@@ -172,6 +172,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                             // Note that its contents can still be a ciphered APDU, it will be decrypted below.
                             byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
 
+                            //if we have general signing first
                             if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
                                 securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
                                 securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
@@ -208,6 +209,11 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                             } else {
                                 IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
                                 throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+                            }
+
+                            //we check again for general signing tag, in case it is wrapped by another encryption tag
+                            if (decryptedResponse[0] == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+                                decryptedResponse = unwrapGeneralSigning(decryptedResponse);
                             }
 
                         }
