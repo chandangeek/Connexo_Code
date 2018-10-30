@@ -4,8 +4,8 @@
   "creator": "Elster Jupiter Project",
   "summary": "Short summary",
   "detailedDescription": "Long description of package",
-  "version": "1.4.4",
-  "compatVersion": "1.4.4",
+  "version": "1.4.5",
+  "compatVersion": "1.4.5",
   "format": "1",
   "local": true,
   "requires": [
