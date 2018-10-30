@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.4.3${revision}</version>
+        <version>1.4.4${revision}</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
 
     <artifactId>yellowfin.rest</artifactId>
-    <version>1.4.3${revision}</version>
+    <version>1.4.4${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.yellowfin.rest</name>
 
