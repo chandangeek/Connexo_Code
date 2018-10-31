@@ -8,7 +8,8 @@ Ext.define('Mdc.model.Device', {
         'Mdc.model.DeviceLabel',
         'Mdc.model.DeviceConnection',
         'Mdc.model.DeviceCommunication',
-        'Mdc.model.DataLoggerSlaveDevice'
+        'Mdc.model.DataLoggerSlaveDevice',
+        'Mdc.model.G3NodePLCInfo'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
@@ -52,7 +53,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'version', type: 'number', useNull: true},
         {name: 'estimationStatus', defaultValue: null},
         {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null},
-        {name: 'protocolNeedsImageIdentifierForFirmwareUpgrade', type: 'boolean'}
+        {name: 'protocolNeedsImageIdentifierForFirmwareUpgrade', type: 'boolean'},
+        {name: 'g3NodePLCInfo', type: 'auto', defaultValue: null, persist: false}
     ],
 
     associations: [
@@ -99,6 +101,15 @@ Ext.define('Mdc.model.Device', {
             model: 'Mdc.model.DataLoggerSlaveDevice',
             associationKey: 'dataLoggerSlaveDevices',
             foreignKey: 'dataLoggerSlaveDevices'
+        },
+        {
+            name: 'g3NodePLCInfo',
+            type: 'hasOne',
+            model: 'Mdc.model.G3NodePLCInfo',
+            associationKey: 'g3NodePLCInfo',
+            getterName: 'getG3NodePLCInfo',
+            setterName: 'setG3NodePLCInfo',
+            foreignKey: 'g3NodePLCInfo'
         }
     ],
 

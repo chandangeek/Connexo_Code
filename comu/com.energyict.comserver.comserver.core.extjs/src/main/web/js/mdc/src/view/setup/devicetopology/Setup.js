@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.devicetopology.Preview'
     ],
 
     stores: [
@@ -60,6 +61,10 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                             Uni.I18n.translate('deviceCommunicationTopology.empty.list.item1', 'MDC', 'The gateway contains no slave devices.'),
                             Uni.I18n.translate('deviceCommunicationTopology.empty.list.item2', 'MDC', 'No slave devices comply with the filter.')
                         ]
+                    },
+                    previewComponent: {
+                        xtype: 'deviceTopologyPreview',
+                        itemId: 'device-topology-preview'
                     }
                 }
             ],

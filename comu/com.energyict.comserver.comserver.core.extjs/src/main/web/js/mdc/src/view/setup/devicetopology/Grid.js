@@ -31,19 +31,44 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'deviceTypeName',
-                flex: 1
+                header: Uni.I18n.translate('general.nodeAddress', 'MDC', 'Node address'),
+                dataIndex: 'nodeAddress',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('nodeAddress')) ? record.getG3NodePLCInfo().get('nodeAddress') : '-';
+                }
             },
             {
-                header: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
-                dataIndex: 'deviceConfigurationName',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.state', 'MDC', 'State'),
+                header: Uni.I18n.translate('general.associationState', 'MDC', 'Association state'),
                 dataIndex: 'state',
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('state')) ? record.getG3NodePLCInfo().get('state') : '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.modulation', 'MDC', 'Modulation'),
+                dataIndex: 'modulation',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('modulation')) ? record.getG3NodePLCInfo().get('modulation') : '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.phaseInfo', 'MDC', 'Phase info'),
+                dataIndex: 'phaseInfo',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('phaseInfo')) ? record.getG3NodePLCInfo().get('phaseInfo') : '-';
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.linkQualityIndicator', 'MDC', 'Link quality'),
+                dataIndex: 'linkQualityIndicator',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('linkQualityIndicator')) ? record.getG3NodePLCInfo().get('linkQualityIndicator') : '-';
+                }
             },
             {
                 header: Uni.I18n.translate('general.linkedOn', 'MDC', 'Linked on'),
@@ -53,6 +78,23 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                     return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 }
             }
+            /* {
+                 header: Uni.I18n.translate('general.linkCost', 'MDC', 'Link cost'),
+                 dataIndex: 'linkCost',
+                 flex: 1,
+                 renderer: function (value, metaData, record) {
+                     return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('linkCost')) ? record.getG3NodePLCInfo().get('linkCost') : '-';
+                 }
+             },
+             {
+                 header: Uni.I18n.translate('general.roundTrip', 'MDC', 'Round trip'),
+                 dataIndex: 'roundTrip',
+                 flex: 1,
+                 renderer: function (value, metaData, record) {
+                     return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('roundTrip')) ? record.getG3NodePLCInfo().get('roundTrip') : '-';
+                 }
+             },*/
+
         ];
 
         me.dockedItems = [
