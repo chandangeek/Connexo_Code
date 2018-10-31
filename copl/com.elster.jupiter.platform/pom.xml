@@ -193,7 +193,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>hsm</artifactId>
-                <version>1.0.2${revision}</version>
+                <version>1.0.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
