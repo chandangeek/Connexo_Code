@@ -113,7 +113,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
                 .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
