@@ -51,6 +51,7 @@ import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_1;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_3;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
@@ -74,7 +75,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
@@ -298,7 +298,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 2, 1), UpgraderV10_2_1.class,
                         version(10, 3), UpgraderV10_3.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class
+                        version(10, 4, 1), UpgraderV10_4_1.class,
+                        version(10, 4, 3), UpgraderV10_4_3.class
                 ));
         this.meteringService.readLocationTemplatesFromDatabase();
     }
