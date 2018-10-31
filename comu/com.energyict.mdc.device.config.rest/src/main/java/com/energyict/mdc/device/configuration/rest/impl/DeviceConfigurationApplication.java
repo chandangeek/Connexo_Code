@@ -9,6 +9,7 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.hsm.HsmPublicConfiguration;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -107,6 +108,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private volatile TrustStoreValuesProvider trustStoreValuesProvider;
     private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
+    private volatile HsmPublicConfiguration hsmPublicConfiguration;
     private volatile IssueService issueService;
 
     @Override
@@ -138,7 +140,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceConfigurationEstimationRuleSetResource.class,
                 MultiPartFeature.class,
                 TrustStoreResource.class,
-                IssueService.class
+                IssueService.class,
+                TrustStoreResource.class,
+                HsmPublicConfiguration.class
         );
     }
 
@@ -337,6 +341,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setHsmPublicConfiguration(HsmPublicConfiguration hsmPublicConfiguration){ this.hsmPublicConfiguration = hsmPublicConfiguration;}
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -389,6 +396,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
             bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
             bind(issueService).to(IssueService.class);
+            bind(hsmPublicConfiguration).to(HsmPublicConfiguration.class);
         }
     }
 }

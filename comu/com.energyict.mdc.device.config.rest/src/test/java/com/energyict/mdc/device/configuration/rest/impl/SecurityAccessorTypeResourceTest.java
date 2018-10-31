@@ -6,7 +6,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -57,7 +56,6 @@ import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -81,6 +79,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
     private ClientCertificateWrapper actualClientCertificateWrapper;
     private ClientCertificateWrapper tempClientCertificateWrapper;
     private SecurityAccessor<CertificateWrapper> certificateAccessor;
+
 
     @Override
     public void setupThesaurus() {
@@ -107,6 +106,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         Finder<CertificateWrapper> finder = mockFinder(Collections.singletonList(actualClientCertificateWrapper));
         when(securityManagementService.getAliasesByFilter(any(SecurityManagementService.AliasSearchFilter.class))).thenReturn(finder);
     }
+
 
     @Test
     public void testGetAllSecurityAccessorTypes() throws Exception {

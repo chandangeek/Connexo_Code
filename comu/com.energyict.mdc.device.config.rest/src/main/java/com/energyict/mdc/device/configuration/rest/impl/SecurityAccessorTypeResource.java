@@ -4,10 +4,15 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.hsm.HsmPublicConfiguration;
+import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -72,6 +77,7 @@ public class SecurityAccessorTypeResource {
     private final TrustStoreValuesProvider trustStoreValuesProvider;
     private final AliasSearchFilterFactory aliasSearchFilterFactory;
     private final Thesaurus thesaurus;
+    private final HsmPublicConfiguration hsmPublicConfiguration;
 
     @Inject
     public SecurityAccessorTypeResource(ResourceHelper resourceHelper,
@@ -82,7 +88,8 @@ public class SecurityAccessorTypeResource {
                                         SecurityAccessorInfoFactory securityAccessorInfoFactory,
                                         TrustStoreValuesProvider trustStoreValuesProvider,
                                         AliasSearchFilterFactory aliasSearchFilterFactory,
-                                        Thesaurus thesaurus) {
+                                        Thesaurus thesaurus,
+                                        HsmPublicConfiguration hsmPublicConfiguration) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
@@ -92,6 +99,15 @@ public class SecurityAccessorTypeResource {
         this.trustStoreValuesProvider = trustStoreValuesProvider;
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
         this.thesaurus = thesaurus;
+        this.hsmPublicConfiguration = hsmPublicConfiguration;
+    }
+
+    private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
+        try {
+            return securityAccessorInfo.duration.asTimeDuration();
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
+        }
     }
 
     @GET
@@ -211,6 +227,7 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.purpose == null || securityAccessorTypeInfo.purpose.id == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "purpose");
         }
+
         KeyType keyType = securityManagementService.getKeyType(securityAccessorTypeInfo.keyType.name)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorTypeInfo.keyType.name));
         Builder keyFunctionTypeBuilder = securityManagementService.addSecurityAccessorType(securityAccessorTypeInfo.name, keyType)
@@ -230,6 +247,16 @@ public class SecurityAccessorTypeResource {
         if (securityAccessorTypeInfo.defaultValue != null) {
             keyFunctionTypeBuilder.managedCentrally();
         }
+
+        if (CryptographicType.Hsm.equals(keyType.getCryptographicType())) {
+            checkHSMLabel(securityAccessorTypeInfo.label);
+            keyFunctionTypeBuilder.label(securityAccessorTypeInfo.label);
+            keyFunctionTypeBuilder.jssType(securityAccessorTypeInfo.hsmJssKeyType);
+            keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
+            keyFunctionTypeBuilder.renewCapability(securityAccessorTypeInfo.renewCapability);
+            keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
+        }
+
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
         SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(keyFunctionType);
 
@@ -245,11 +272,9 @@ public class SecurityAccessorTypeResource {
         return resultInfo;
     }
 
-    private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
-        try {
-            return securityAccessorInfo.duration.asTimeDuration();
-        } catch (Exception e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
+    private void checkHSMLabel(String label){
+        if (label == null || label.isEmpty()){
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "label");
         }
     }
 
@@ -277,6 +302,14 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorTypeUpdater updater = securityAccessorType.startUpdate();
         updater.name(securityAccessorTypeInfo.name);
         updater.description(securityAccessorTypeInfo.description);
+        if (securityAccessorType.keyTypeIsHSM()){
+            checkHSMLabel(securityAccessorTypeInfo.label);
+            updater.jssKeyType(securityAccessorTypeInfo.hsmJssKeyType);
+            updater.label(securityAccessorTypeInfo.label);
+            updater.importCapabilty(securityAccessorTypeInfo.importCapability);
+            updater.renewCapability(securityAccessorTypeInfo.renewCapability);
+            updater.keySize(securityAccessorTypeInfo.keySize);
+        }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
         } else {
@@ -363,4 +396,53 @@ public class SecurityAccessorTypeResource {
         keyFunctionType.delete();
         return Response.noContent().build();
     }
+
+
+    @GET
+    @Transactional
+    @Path("/hsm/labels")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmLabels() {
+        try {
+            return Response.ok(hsmPublicConfiguration.labels()).build();
+        } catch (HsmBaseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+     * perhaps this can be split into 2 endpoints: one for import and one for renew capability (or one with filter)
+     */
+    @GET
+    @Transactional
+    @Path("/hsm/capabilities")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmCapabilities() {
+        return Response.ok(SessionKeyCapability.values()).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/hsm/keysizes")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getKeySizes() {
+        /**
+         * This comes from AES device key (JSS)
+         */
+        int[] sizes = {16, 24, 32};
+        return Response.ok(sizes).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/hsm/keyType")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
+    public Response getHsmKeyTypes() {
+        return Response.ok(HsmJssKeyType.values()).build();
+    }
+
 }
