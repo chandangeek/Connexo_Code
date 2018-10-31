@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.device.config</artifactId>
-    <version>5.2.1${revision}</version>
+    <version>5.2.2${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.config [init DTC]</name>
     <description>
