@@ -623,7 +623,10 @@ class ReadingStorerImpl implements ReadingStorer {
             ReadingsInfoType readingsInfo = new ReadingsInfoType();
             entry.getKey().getFirst().getChannelsContainer().getMeter().ifPresent(meter -> readingsInfo.setMeter(meter));
             entry.getKey().getFirst().getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingsInfo.setUsagePoint(usagePoint));
-            readingsInfo.setReadingType(entry.getKey().getFirst().getMainReadingType());
+            Optional<CimChannel> channel = getScope().keySet().stream().filter(key -> key.getChannel().getId() == entry.getKey().getFirst().getId()).findFirst();
+            if (channel.isPresent()) {
+                readingsInfo.setReadingType(channel.get().getReadingType());
+            }
             readingsInfo.setReading(entry.getValue());
             readingsInfos.add(readingsInfo);
         }
