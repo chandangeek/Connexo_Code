@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>hsm</artifactId>
-    <version>1.0.2${revision}</version>
+    <version>1.0.1${revision}</version>
     <name>[HSM] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
