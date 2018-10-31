@@ -90,30 +90,34 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return SendMeterReadingsProvider.NAME;
     }
 
-    public void call(MeterReadings meterReadings) {
+    public void call(MeterReadings meterReadings, boolean isCreated) {
         if (meterReadingsPortServices.isEmpty()) {
             throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
         meterReadingsPortServices.forEach(soapService -> {
             try {
-                soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings));
+                soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, isCreated));
             } catch (FaultMessage faultMessage) {
                 LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
             }
         });
     }
 
-    public void send(ReadingStorer readingStorer) {
+    public void send(ReadingStorer readingStorer, boolean isCreated) {
         MeterReadings meterReadings = meterReadingsFactory.build(readingStorer);
-        call(meterReadings);
+        call(meterReadings, isCreated);
     }
 
-    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings) {
+    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, boolean isCreated) {
         MeterReadingsEventMessageType meterReadingsResponseMessageType = meterReadingsMessageObjectFactory.createMeterReadingsEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setVerb(HeaderType.Verb.CREATED);
+        if (isCreated) {
+            header.setVerb(HeaderType.Verb.CREATED);
+        } else {
+            header.setVerb(HeaderType.Verb.CHANGED);
+        }
         header.setNoun(NOUN);
         meterReadingsResponseMessageType.setHeader(header);
 

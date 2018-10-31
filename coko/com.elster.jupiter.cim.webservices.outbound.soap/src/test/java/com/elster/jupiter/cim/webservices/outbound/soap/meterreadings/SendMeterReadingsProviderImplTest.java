@@ -67,7 +67,7 @@ public class SendMeterReadingsProviderImplTest {
     public void testCall() throws FaultMessage {
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl(nlsService);
         provider.addMeterReadingsPortService(meterReadingsPort);
-        provider.call(meterReadings);
+        provider.call(meterReadings, true);
 
         Mockito.verify(meterReadingsPort).createdMeterReadings(Mockito.any(MeterReadingsEventMessageType.class));
     }
@@ -79,7 +79,7 @@ public class SendMeterReadingsProviderImplTest {
         expectedException.expect(MeterReadinsServiceException.class);
         expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
 
-        provider.send(readingStorer);
+        provider.send(readingStorer, true);
     }
 
     @Test
