@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>export</artifactId>
-    <version>4.2.2${revision}</version>
+    <version>4.2.3${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.export</name>
 
