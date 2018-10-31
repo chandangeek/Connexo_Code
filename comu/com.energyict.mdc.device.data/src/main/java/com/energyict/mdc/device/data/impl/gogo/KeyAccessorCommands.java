@@ -228,7 +228,7 @@ public class KeyAccessorCommands {
             }
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, "DataVault")
                     .alias(certificateAlias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate, Optional.empty());
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();
@@ -265,7 +265,7 @@ public class KeyAccessorCommands {
             }
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(certSecurityAccessorType
                     .getKeyType(), certSecurityAccessorType.getKeyEncryptionMethod()).alias(alias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate, Optional.empty());
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();
@@ -315,7 +315,7 @@ public class KeyAccessorCommands {
             }
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(certSecurityAccessorType
                     .getKeyType(), certSecurityAccessorType.getKeyEncryptionMethod()).alias(alias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate, Optional.empty());
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();

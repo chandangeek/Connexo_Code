@@ -42,7 +42,8 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
             ImmutableMap.of(
                     "C", CertificateAccessorImpl.class,
                     "P", PassphraseAccessorImpl.class,
-                    "S", SymmetricKeyAccessorImpl.class);
+                    "S", PlainTextSymmetricKeyAccessorImpl.class,
+                    "H", HsmSymmetricKeyAccessorImpl.class);
 
     protected AbstractDeviceSecurityAccessorImpl(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
@@ -120,7 +121,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
 
     @Override
     public KeyAccessorStatus getStatus() {
-        if (!getActualValue().isPresent() || getActualValue().get().getProperties().containsValue(null) || getActualValue().get().getProperties().size()!=getPropertySpecs().size()) {
+        if (!getActualValue().isPresent() || !getActualValue().get().isValid()) {
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;

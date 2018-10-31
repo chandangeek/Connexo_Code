@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
+import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class DeviceSecurityAccessorTest {
         when(propertySpec2.getName()).thenReturn("prop2");
         when(securityManagementService.getPropertySpecs(securityAccessorType)).thenReturn(Arrays.asList(propertySpec1, propertySpec2));
         when(dataModel.asRefAny(anyObject())).then(invocation->new FakeRefAny(invocation.getArguments()[0]));
-        symmetricKeyAccessor = new SymmetricKeyAccessorImpl(dataModel, securityManagementService, null);
+        symmetricKeyAccessor = new PlainTextSymmetricKeyAccessorImpl(dataModel, securityManagementService, null);
         symmetricKeyAccessor.init(securityAccessorType, device);
     }
 
