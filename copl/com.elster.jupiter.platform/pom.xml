@@ -446,7 +446,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>upgrade</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>1.6.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
