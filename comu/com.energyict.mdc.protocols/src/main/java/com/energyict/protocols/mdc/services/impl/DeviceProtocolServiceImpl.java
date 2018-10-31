@@ -17,25 +17,15 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.RuntimeEnvironment;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -146,6 +136,10 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     @Reference
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
+    }
+
+    @Reference
+    public void setHsmProtocolService(HsmProtocolService hsmProtocolService) {
     }
 
     @Override
