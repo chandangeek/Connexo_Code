@@ -41,4 +41,5 @@ public interface SymmetricKeyFactory{
      * @return The {@link DeviceSecretImporter}
      */
     DeviceSecretImporter getDeviceKeyImporter(SecurityAccessorType securityAccessorType);
+
 }

@@ -15,7 +15,7 @@ import java.util.EnumSet;
  * Validate the KeyAccessorType has a duration is required, that is, in case of Passphrase of symmetric key
  */
 public class DurationPresentValidator implements ConstraintValidator<DurationPresent, SecurityAccessorType> {
-    private static final EnumSet<CryptographicType> EXPIREABLE = EnumSet.of(CryptographicType.Passphrase, CryptographicType.SymmetricKey);
+    private static final EnumSet<CryptographicType> EXPIREABLE = EnumSet.of(CryptographicType.Passphrase, CryptographicType.SymmetricKey, CryptographicType.Hsm);
     private String message;
 
     @Override

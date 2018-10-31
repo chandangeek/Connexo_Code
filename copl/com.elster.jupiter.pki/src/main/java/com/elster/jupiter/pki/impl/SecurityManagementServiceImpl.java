@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -63,12 +64,15 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapper
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HsmKeyImpl;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -78,7 +82,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -136,6 +140,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile QueryService queryService;
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
+    private volatile HsmEnergyService hsmEnergyService;
 
     @Inject
     public SecurityManagementServiceImpl(OrmService ormService,
@@ -147,7 +152,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                                          UserService userService,
                                          QueryService queryService,
                                          MessageService messageService,
-                                         FileImportService fileImportService) {
+                                         FileImportService fileImportService,
+                                         HsmEnergyService hsmEnergyService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -158,6 +164,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setQueryService(queryService);
         this.setMessageService(messageService);
         this.setFileImportService(fileImportService);
+        this.setHSMEnergyService(hsmEnergyService);
         this.activate();
     }
 
@@ -189,6 +196,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             case AsymmetricKey:
                 return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case SymmetricKey:
+            case Hsm:
                 return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
             case Passphrase:
                 return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
@@ -245,6 +253,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setHSMEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
     }
 
     @Reference
@@ -308,7 +321,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class));
+                        version(10, 4, 1), UpgraderV10_4_1.class,
+                        version(10, 4, 2), V10_4_2SimpleUpgrader.class,
+                        version(10, 4, 3), V10_4_3SimpleUpgrader.class));
     }
 
     private AbstractModule getModule() {
@@ -326,6 +341,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(QueryService.class).toInstance(queryService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(FileImportService.class).toInstance(fileImportService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(HsmEnergyService.class).toInstance(hsmEnergyService);
             }
         };
     }
@@ -384,6 +401,14 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public KeyTypeBuilder newHsmKeyType(String name) {
+        KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
+        keyType.setName(name);
+        keyType.setCryptographicType(CryptographicType.Hsm);
+        return new KeyTypeBuilderImpl(keyType);
+    }
+
+    @Override
     public ClientCertificateTypeBuilder newClientCertificateType(String name, String signingAlgorithm) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setCryptographicType(CryptographicType.ClientCertificate);
@@ -431,6 +456,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 return getPassphraseFactoryOrThrowException(keyEncryptionMethod).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
+            case Hsm:
+                return getDataModel().getInstance(HsmKeyImpl.class).getPropertySpecs();
             default:
                 throw new RuntimeException("A new case was added: implement it");
         }
@@ -499,12 +526,17 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType) {
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(securityAccessorType);
+                return getDeviceSecretImporterOrThrowException(securityAccessorType);
             case Passphrase:
                 return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(securityAccessorType);
             default:
                 throw new UnsupportedImportOperation(thesaurus, securityAccessorType);
         }
+    }
+
+    private DeviceSecretImporter getDeviceSecretImporterOrThrowException(SecurityAccessorType securityAccessorType) {
+        SymmetricKeyFactory factory = getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod());
+        return factory.getDeviceKeyImporter(securityAccessorType);
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {

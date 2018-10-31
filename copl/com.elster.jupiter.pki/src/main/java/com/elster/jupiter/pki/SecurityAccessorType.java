@@ -1,5 +1,8 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -20,11 +23,7 @@ import java.util.Set;
  */
 @ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
-    @ProviderType
-    enum Purpose {
-        DEVICE_OPERATIONS,
-        FILE_OPERATIONS
-    }
+
 
     /**
      * The KeyAccessorType system assigned id
@@ -88,6 +87,20 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     Purpose getPurpose();
 
+    /**
+     *
+     * @return import capability (only for HSM key type) or null
+     */
+    HsmKeyType getHsmKeyType();
+
+    boolean keyTypeIsHSM();
+
+    @ProviderType
+    enum Purpose {
+        DEVICE_OPERATIONS,
+        FILE_OPERATIONS
+    }
+
     @ProviderType
     interface Builder {
         /**
@@ -126,6 +139,19 @@ public interface SecurityAccessorType extends HasId, HasName  {
          */
         SecurityAccessorType.Builder purpose(Purpose purpose);
 
+        Builder jssType(HsmJssKeyType jssType);
+
+        /**
+         * Set HSM label
+         */
+        Builder label(String label);
+
+        Builder importCapability(SessionKeyCapability importCapability);
+
+        Builder renewCapability(SessionKeyCapability renewCapability);
+
+        Builder keySize(int keySize);
+
         SecurityAccessorType add();
     }
 
@@ -136,6 +162,16 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater description(String description);
 
         Updater duration(TimeDuration duration);
+
+        Updater jssKeyType(HsmJssKeyType hsmJssKeyType);
+
+        Updater label(String label);
+
+        Updater importCapabilty(SessionKeyCapability importCapabilty);
+
+        Updater renewCapability(SessionKeyCapability renewCapability);
+
+        Updater keySize(int keySize);
 
         SecurityAccessorType complete();
     }

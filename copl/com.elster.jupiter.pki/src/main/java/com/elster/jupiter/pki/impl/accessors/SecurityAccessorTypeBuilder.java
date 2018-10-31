@@ -5,12 +5,10 @@
 package com.elster.jupiter.pki.impl.accessors;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityAccessorUserAction;
-import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.EnumSet;
@@ -66,6 +64,38 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
         underConstruction.setPurpose(purpose);
         return this;
     }
+
+    @Override
+    public SecurityAccessorType.Builder jssType(HsmJssKeyType jssType) {
+        underConstruction.setHsmJssKeyType(jssType);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder label(String label) {
+        underConstruction.setLabel(label);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder importCapability(SessionKeyCapability importCapability) {
+        underConstruction.setImportCapability(importCapability);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder renewCapability(SessionKeyCapability renewCapability) {
+        underConstruction.setRenewCapability(renewCapability);
+        return this;
+    }
+
+    @Override
+    public SecurityAccessorType.Builder keySize(int keySize) {
+        underConstruction.setKeySize(keySize);
+        return this;
+    }
+
+
 
     @Override
     public SecurityAccessorType add() {

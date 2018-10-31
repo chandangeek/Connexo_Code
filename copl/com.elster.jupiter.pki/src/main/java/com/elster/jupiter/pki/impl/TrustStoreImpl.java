@@ -194,7 +194,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
                     Optional<TrustedCertificate> certificate = this.findCertificate(alias);
                     if (certificate.isPresent()) {
-                        certificate.get().setCertificate((X509Certificate) entry);
+                        certificate.get().setCertificate((X509Certificate) entry, Optional.empty());
                     } else {
                         this.addCertificate(alias, (X509Certificate) entry);
                     }

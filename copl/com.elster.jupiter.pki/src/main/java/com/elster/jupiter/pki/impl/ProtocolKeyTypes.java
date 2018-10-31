@@ -212,7 +212,22 @@ public enum ProtocolKeyTypes {
                     .description("General purpose certificate")
                     .add();
         }
-    },;
+    },
+    HSM {
+        @Override
+        public String getName() {
+            return "HSM Key";
+        }
+
+        @Override
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
+                    .newHsmKeyType(getName())
+                    .description("HSM Key Type")
+                    .add();
+        }
+    }
+    ,;
 
     abstract public String getName();
 

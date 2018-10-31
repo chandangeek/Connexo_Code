@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.impl.importers.csr;
 
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
@@ -39,13 +40,15 @@ class CSRProcessor {
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
     private final Map<String, Object> properties;
+    private  final Optional<CertificateRequestData> certificateRequestData;
 
     @Inject
-    CSRProcessor(SecurityManagementService securityManagementService, CaService caService, Map<String, Object> properties, CSRImporterLogger logger) {
+    CSRProcessor(SecurityManagementService securityManagementService, CaService caService, Map<String, Object> properties, CSRImporterLogger logger, Optional<CertificateRequestData> certificateRequestData) {
         this.securityManagementService = securityManagementService;
         this.caService = caService;
         this.properties = properties;
         this.logger = logger;
+        this.certificateRequestData = certificateRequestData;
     }
 
     public Map<String, Map<String, X509Certificate>> process(Map<String, Map<String, PKCS10CertificationRequest>> csrMap) {
@@ -86,7 +89,7 @@ class CSRProcessor {
         X509Certificate certificate = signCsr(csr, alias);
         logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
 
-        csrWrapper.setCertificate(certificate);
+        csrWrapper.setCertificate(certificate, certificateRequestData);
         csrWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
         csrWrapper.save();
         logger.log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, alias);
@@ -104,7 +107,9 @@ class CSRProcessor {
         TimeDuration timeout = (TimeDuration) properties.get(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey());
         // TODO: move to RequestableCertificateWrapper?
         try {
-            return CompletableFuture.supplyAsync(() -> caService.signCsr(csr), Executors.newSingleThreadExecutor())
+            return CompletableFuture.supplyAsync(() -> {
+                return caService.signCsr(csr, certificateRequestData);
+            }, Executors.newSingleThreadExecutor())
                     .get(timeout.getMilliSeconds(), TimeUnit.MILLISECONDS);
         } catch (CompletionException | InterruptedException | TimeoutException e) {
             throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.SIGN_CSR_BY_CA_TIMED_OUT, alias);

@@ -9,7 +9,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>pki</artifactId>
-    <version>2.2.1${revision}</version>
+    <version>3.1.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.pki</name>
 
@@ -88,6 +88,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ftpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
         </dependency>
 
         <!--  Bouncy castle library dependencies  -->

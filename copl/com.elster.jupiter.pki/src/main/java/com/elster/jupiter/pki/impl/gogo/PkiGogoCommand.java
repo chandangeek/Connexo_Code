@@ -199,7 +199,7 @@ public class PkiGogoCommand {
             collect.add(0, Arrays.asList("Sending CSR with X500 name"));
             collect.add(1, Arrays.asList(csr.getSubject()));
             MYSQL_PRINT.printTable(collect);
-            X509Certificate x509Certificate = caService.signCsr(csr);
+            X509Certificate x509Certificate = caService.signCsr(csr, Optional.empty());
 
             byte[] encoded = x509Certificate.getEncoded();
             FileOutputStream output = new FileOutputStream(new File(saveToPath + "/cert_" + i));
@@ -242,7 +242,7 @@ public class PkiGogoCommand {
         collect.add(0, Arrays.asList("Sending CSR with X500 name"));
         collect.add(1, Arrays.asList(csr.getSubject()));
         MYSQL_PRINT.printTable(collect);
-        X509Certificate x509Certificate = caService.signCsr(csr);
+        X509Certificate x509Certificate = caService.signCsr(csr, Optional.empty());
         collect.clear();
         collect.add(0, Arrays
                 .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
@@ -259,7 +259,7 @@ public class PkiGogoCommand {
         collect.add(0, Arrays.asList("Sending CSR with X500 name"));
         collect.add(1, Arrays.asList(csr.getSubject()));
         MYSQL_PRINT.printTable(collect);
-        X509Certificate x509Certificate = caService.signCsr(csr);
+        X509Certificate x509Certificate = caService.signCsr(csr,Optional.empty());
         collect.clear();
         collect.add(0, Arrays
                 .asList("Received certificate IssuerDN", "Received certificate IssuerX500Principal", "Received  certificate SubjectDN",
@@ -447,7 +447,7 @@ public class PkiGogoCommand {
                     .orElseGet(() -> securityManagementService.newClientCertificateType("TLS-RSA-2048", "SHA256withRSA").RSA().keySize(2048).add());
             ClientCertificateWrapper clientCertificateWrapper = securityManagementService
                     .newClientCertificateWrapper(certificateType, "DataVault").alias(alias).add();
-            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate, Optional.empty());
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();

@@ -29,13 +29,4 @@ public interface SymmetricKeyWrapper extends HasDynamicPropertiesWithUpdatableVa
      */
     void delete();
 
-    /**
-     * Allows the generation of a random value for an empty wrapper, in this case, a symmetric key.
-     * Any existing value will be overwritten.
-     * It's up to the implementing class to make sure all renewal information is available (through linking
-     * KeyTypes/KeyAccessorTypes)
-     * Note that not all key encryption methods will permit automatic renewal.
-     */
-    public void generateValue();
-
 }

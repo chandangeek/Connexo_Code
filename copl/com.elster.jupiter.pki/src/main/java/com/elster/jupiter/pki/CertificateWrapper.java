@@ -100,7 +100,7 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     /**
      * Sets a value for the certificate. Any existing value will be overridden.
      */
-    void setCertificate(X509Certificate certificate);
+    void setCertificate(X509Certificate certificate, Optional<CertificateRequestData> certificateRequestData);
 
     /**
      * Deletes this wrapper and the contained certificate and private key, if applicable.
@@ -150,4 +150,14 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
     void setWrapperStatus(CertificateWrapperStatus status);
 
     CertificateWrapperStatus getWrapperStatus();
+
+    Optional<CertificateRequestData> getCertificateRequestData();
+
+    /**
+     *
+     * @return parent certificate wrapper. if issuer is different than subject it means we should find a matching parent certificate
+     * that has the subject value equals with current object issuer.
+     * null is returned if this is a root CA
+     */
+    CertificateWrapper getParent();
 }

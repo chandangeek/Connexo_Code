@@ -55,7 +55,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     public TrustedCertificateImpl init(TrustStore trustStore, String alias, X509Certificate x509Certificate) {
         this.trustStoreReference.set(trustStore);
         this.setAlias(alias);
-        this.setCertificate(x509Certificate);
+        this.setCertificate(x509Certificate, Optional.empty());
         return this;
     }
 

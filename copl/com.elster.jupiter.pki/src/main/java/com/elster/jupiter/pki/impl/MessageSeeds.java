@@ -94,7 +94,9 @@ public enum MessageSeeds implements MessageSeed {
     POSITIVE_VALUE_IS_REQUIRED(1079, "PositiveValueIsRequired", "Positive value is required."),
     CA_RUNTIME_ERROR_NOT_CONFIGURED_PROPERLY(1080, "CaErrorNotConfigured", "CA service isn''t properly configured."),
     CERTIFICATES_EXPORTED_SUCCESSFULLY(1081, "CertificatesExportedSuccessfully", "''{0}'' has been successfully exported to the destination ''{1}''.", Level.INFO),
-    NO_TRUSTED_CERTIFICATE_IN_KEYSTORE(1082, "NoTrustedCertificateInKeystore", "No trusted certificate(s) found in keystore");
+    NO_TRUSTED_CERTIFICATE_IN_KEYSTORE(1082, "NoTrustedCertificateInKeystore", "No trusted certificate(s) found in keystore"),
+    HEXBINARY_EVEN_LENGTH(1083, Keys.HEXBINARY_EVEN_LENGTH, "The key size needs to be even-length"),
+    ENCRYPTED_KEY_INVALID(1084, "CouldNotRenewKey", "The encrypted key couldn''t be created");
 
     private final int number;
     private final String key;
@@ -151,6 +153,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
         public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
+        public static final String HEXBINARY_EVEN_LENGTH="HexBinaryEvenLength";
     }
 
 }

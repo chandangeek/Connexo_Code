@@ -7,6 +7,9 @@ package com.elster.jupiter.pki.impl.accessors;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
+import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -19,6 +22,7 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.ProtocolKeyTypes;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -45,6 +49,9 @@ import static java.util.stream.Collectors.toList;
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public class SecurityAccessorTypeImpl implements SecurityAccessorType, PersistenceAware, ShouldHaveUniqueName {
+    private final DataModel dataModel;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final EventService eventService;
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -62,6 +69,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private boolean managedCentrally;
     private Purpose purpose;
+    private HsmJssKeyType hsmJssKeyType;
+    private String label;
+    private SessionKeyCapability importCapability;
+    private SessionKeyCapability renewCapability;
+    private int keySize;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -70,31 +82,6 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
-    private final DataModel dataModel;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final EventService eventService;
-
-    public enum Fields {
-        ID("id"),
-        NAME("name"),
-        DESCRIPTION("description"),
-        ENCRYPTIONMETHOD("keyEncryptionMethod"),
-        DURATION("duration"),
-        KEYTYPE("keyType"),
-        TRUSTSTORE("trustStore"),
-        MANAGED_CENTRALLY("managedCentrally"),
-        PURPOSE("purpose");
-
-        private final String javaFieldName;
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        public String fieldName() {
-            return javaFieldName;
-        }
-    }
 
     @Inject
     public SecurityAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, EventService eventService) {
@@ -110,13 +97,6 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean hasUniqueName() {
-        return !dataModel.mapper(getClass()).getUnique(Fields.NAME.fieldName(), getName())
-                .filter(kat -> kat.getId() != getId())
-                .isPresent();
     }
 
     @Override
@@ -158,69 +138,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
-    public void postLoad() {
-        userActions.addAll(userActionRecords.stream().map(UserActionRecord::getUserAction).collect(toList()));
-    }
-
-    @Override
-    public void delete() {
-        eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), this);
-        userActionRecords.clear();
-        dataModel.remove(this);
-        eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_DELETED.topic(), this);
-    }
-
-    protected void save() {
-        Save.UPDATE.save(dataModel, this);
-    }
-
-    public void setKeyEncryptionMethod(String keyEncryptionMethod) {
-        this.keyEncryptionMethod = keyEncryptionMethod;
-    }
-
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    protected void setDescription(String description) {
-        this.description = description;
-    }
-
-    protected void setDuration(TimeDuration duration) {
-        this.duration = duration;
-    }
-
-    protected void setManagedCentrally(boolean managedCentrally) {
-        this.managedCentrally = managedCentrally;
-    }
-
-    protected void setPurpose(Purpose purpose) {
-        this.purpose = purpose;
-    }
-
-    @Override
     public Set<SecurityAccessorUserAction> getUserActions() {
         return Collections.unmodifiableSet(userActions);
-    }
-
-    protected void addUserAction(SecurityAccessorUserAction userAction) {
-        boolean changed = userActions.add(userAction);
-        if (changed) {
-            userActionRecords.add(new UserActionRecord(this, userAction));
-        }
-    }
-
-    private void removeUserAction(SecurityAccessorUserAction userAction) {
-        boolean changed = userActions.remove(userAction);
-        if (changed) {
-            for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
-                if (iterator.next().getUserAction().equals(userAction)) {
-                    iterator.remove();
-                    dataModel.touch(this);
-                    break;
-                }
-            }
-        }
     }
 
     @Override
@@ -251,6 +170,119 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         return false;
     }
 
+    @Override
+    public SecurityAccessorTypeUpdater startUpdate() {
+        return new SecurityAccessorTypeUpdaterImpl();
+    }
+
+    @Override
+    public void delete() {
+        eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), this);
+        userActionRecords.clear();
+        dataModel.remove(this);
+        eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_DELETED.topic(), this);
+    }
+
+    @Override
+    public boolean isManagedCentrally() {
+        return managedCentrally;
+    }
+
+    protected void setManagedCentrally(boolean managedCentrally) {
+        this.managedCentrally = managedCentrally;
+    }
+
+    @Override
+    public Purpose getPurpose() {
+        return purpose;
+    }
+
+    protected void setPurpose(Purpose purpose) {
+        this.purpose = purpose;
+    }
+
+    @Override
+    public HsmKeyType getHsmKeyType() {
+        return new HsmKeyType(hsmJssKeyType, label, importCapability, renewCapability, keySize);
+    }
+
+    @Override
+    public boolean keyTypeIsHSM() {
+        return ProtocolKeyTypes.HSM.getName().equals(this.getKeyType().getName());
+    }
+
+    public void setKeyEncryptionMethod(String keyEncryptionMethod) {
+        this.keyEncryptionMethod = keyEncryptionMethod;
+    }
+
+    protected void setDuration(TimeDuration duration) {
+        this.duration = duration;
+    }
+
+    protected void setDescription(String description) {
+        this.description = description;
+    }
+
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean hasUniqueName() {
+        return !dataModel.mapper(getClass()).getUnique(Fields.NAME.fieldName(), getName())
+                .filter(kat -> kat.getId() != getId())
+                .isPresent();
+    }
+
+    @Override
+    public void postLoad() {
+        userActions.addAll(userActionRecords.stream().map(UserActionRecord::getUserAction).collect(toList()));
+    }
+
+    protected void save() {
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    protected void setLabel(String label) {
+        this.label = label;
+    }
+
+    protected void setHsmJssKeyType(HsmJssKeyType hsmJssKeyType) {
+        this.hsmJssKeyType = hsmJssKeyType;
+    }
+
+    protected void setImportCapability(SessionKeyCapability importCapability) {
+        this.importCapability = importCapability;
+    }
+
+    protected void setRenewCapability(SessionKeyCapability renewCapability) {
+        this.renewCapability = renewCapability;
+    }
+
+    protected void setKeySize(int keySize) {
+        this.keySize = keySize;
+    }
+
+    protected void addUserAction(SecurityAccessorUserAction userAction) {
+        boolean changed = userActions.add(userAction);
+        if (changed) {
+            userActionRecords.add(new UserActionRecord(this, userAction));
+        }
+    }
+
+    private void removeUserAction(SecurityAccessorUserAction userAction) {
+        boolean changed = userActions.remove(userAction);
+        if (changed) {
+            for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
+                if (iterator.next().getUserAction().equals(userAction)) {
+                    iterator.remove();
+                    dataModel.touch(this);
+                    break;
+                }
+            }
+        }
+    }
+
     private boolean viewingIsAuthorizedFor(String application, SecurityAccessorUserAction action, User user) {
         return action.isViewing() && isAuthorized(application, action, user);
     }
@@ -264,6 +296,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
     public boolean equals(Object o) {
         return this == o
                 || o instanceof SecurityAccessorTypeImpl
@@ -271,28 +308,37 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
-    public int hashCode() {
-        return (int) (id ^ (id >>> 32));
-    }
-
-    @Override
     public String toString() {
         return getClass().getName() + ": " + name;
     }
 
-    @Override
-    public boolean isManagedCentrally() {
-        return managedCentrally;
-    }
 
-    @Override
-    public Purpose getPurpose() {
-        return purpose;
-    }
+    public enum Fields {
+        ID("id"),
+        NAME("name"),
+        DESCRIPTION("description"),
+        ENCRYPTIONMETHOD("keyEncryptionMethod"),
+        DURATION("duration"),
+        KEYTYPE("keyType"),
+        TRUSTSTORE("trustStore"),
+        MANAGED_CENTRALLY("managedCentrally"),
+        PURPOSE("purpose"),
+        HSM_JSS_KEY_TYPE("hsmJssKeyType"),
+        LABEL("label"),
+        IMPORT_CAPABILITY("importCapability"),
+        RENEW_CAPABILITY("renewCapability"),
+        KEY_SIZE("keySize");
 
-    @Override
-    public SecurityAccessorTypeUpdater startUpdate() {
-        return new SecurityAccessorTypeUpdaterImpl();
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
     }
 
     protected class SecurityAccessorTypeUpdaterImpl implements SecurityAccessorTypeUpdater {
@@ -318,6 +364,42 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         }
 
         @Override
+        public Updater jssKeyType(HsmJssKeyType hsmJssKeyType) {
+            SecurityAccessorTypeImpl.this.setHsmJssKeyType(hsmJssKeyType);
+            return this;
+        }
+
+        @Override
+        public SecurityAccessorType.Updater label(String label) {
+            SecurityAccessorTypeImpl.this.setLabel(label);
+            return this;
+        }
+
+        @Override
+        public Updater importCapabilty(SessionKeyCapability importCapabilty) {
+            SecurityAccessorTypeImpl.this.setImportCapability(importCapabilty);
+            return this;
+        }
+
+        @Override
+        public Updater renewCapability(SessionKeyCapability renewCapability) {
+            SecurityAccessorTypeImpl.this.setRenewCapability(renewCapability);
+            return this;
+        }
+
+        @Override
+        public Updater keySize(int keySize) {
+            SecurityAccessorTypeImpl.this.setKeySize(keySize);
+            return this;
+        }
+
+        @Override
+        public SecurityAccessorType complete() {
+            SecurityAccessorTypeImpl.this.save();
+            return SecurityAccessorTypeImpl.this;
+        }
+
+        @Override
         public SecurityAccessorTypeUpdater addUserAction(SecurityAccessorUserAction userAction) {
             SecurityAccessorTypeImpl.this.addUserAction(userAction);
             return this;
@@ -329,10 +411,6 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
             return this;
         }
 
-        @Override
-        public SecurityAccessorType complete() {
-            SecurityAccessorTypeImpl.this.save();
-            return SecurityAccessorTypeImpl.this;
-        }
+
     }
 }

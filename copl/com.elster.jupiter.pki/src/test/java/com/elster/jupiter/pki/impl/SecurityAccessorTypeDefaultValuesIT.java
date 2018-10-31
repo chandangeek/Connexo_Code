@@ -377,7 +377,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         KeyType certificateType = securityManagementService.newCertificateType("Cert")
                 .add();
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("RSA-2048");
-        certificateWrapper.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=IAm").getFirst());
+        certificateWrapper.setCertificate(SecurityTestUtils.generateSelfSignedCertificate("CN=IAm").getFirst(), Optional.empty());
         SecurityAccessorType securityAccessorType = securityManagementService.addSecurityAccessorType("SA", certificateType)
                 .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .managedCentrally()

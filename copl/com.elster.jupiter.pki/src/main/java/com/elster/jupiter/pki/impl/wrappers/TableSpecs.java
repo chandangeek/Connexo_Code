@@ -14,9 +14,11 @@ import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.KeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -52,12 +54,15 @@ public enum TableSpecs {
                     .add();
         }
     },
+
     SSM_PLAINTEXTSK {
         @Override
         void addTo(DataModel dataModel) {
-            Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class).since(Version.version(10, 3));
-            table.map(PlaintextSymmetricKeyImpl.class);
+            Table<SymmetricKeyWrapper> table = dataModel.addTable(this.name(), SymmetricKeyWrapper.class);
+            table.map(KeyImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)")
+                    .since(version(10, 4,3));
             table.column("KEY")
                     .varChar()
                     .map(PlaintextSymmetricKeyImpl.Fields.ENCRYPTED_KEY.fieldName())
@@ -67,15 +72,26 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
-            table.column("LABEL")
-                    .varChar(SHORT_DESCRIPTION_LENGTH)
-                    .map(PlaintextSymmetricKeyImpl.Fields.LABEL.fieldName())
-                    .since(version(10,4,2))
-                    .add();
             table.column("EXPIRATION")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(PlaintextSymmetricKeyImpl.Fields.EXPIRATION.fieldName())
+                    .add();
+            table.column("LABEL")
+                    .varChar(SHORT_DESCRIPTION_LENGTH)
+                    .map(KeyImpl.Fields.LABEL.fieldName())
+                    .since(version(10,4,3))
+                    .add();
+            table.column("SM_KEY")
+                    .varChar(SHORT_DESCRIPTION_LENGTH)
+                    .map(KeyImpl.Fields.SMARTMETER_KEY.fieldName())
+                    .since(version(10,4,3))
+                    .add();
+            table.column("HSM_JSS_KEY_TYPE")
+                    .varChar(30)
+                    .conversion(CHAR2ENUM)
+                    .map(KeyImpl.Fields.HSM_JSS_KEY_TYPE.fieldName())
+                    .since(version(10,4,3))
                     .add();
             table.foreignKey("SSM_FK_SYMKEY_KT").on(keyTypeColumn)
                     .references(KeyType.class)

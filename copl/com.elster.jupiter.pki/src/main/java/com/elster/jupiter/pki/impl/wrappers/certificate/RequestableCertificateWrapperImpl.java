@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl.wrappers.certificate;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
@@ -65,9 +66,9 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     }
 
     @Override
-    public void setCertificate(X509Certificate certificate) {
+    public void setCertificate(X509Certificate certificate, Optional<CertificateRequestData> certificateRequestUserData) {
         validateCertificateMatchesCsr(certificate);
-        super.setCertificate(certificate);
+        super.setCertificate(certificate, certificateRequestUserData);
     }
 
     private void validateCertificateMatchesCsr(X509Certificate certificate) {

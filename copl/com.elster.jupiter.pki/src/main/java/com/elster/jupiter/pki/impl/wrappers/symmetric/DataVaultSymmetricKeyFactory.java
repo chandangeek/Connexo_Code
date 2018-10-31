@@ -80,8 +80,17 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
 
     @Override
     public SymmetricKeyWrapper newSymmetricKey(SecurityAccessorType securityAccessorType) {
-        PlaintextSymmetricKeyImpl symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
-                .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());
+        KeyImpl symmetricKeyWrapper;
+        if (securityAccessorType.keyTypeIsHSM()){
+            symmetricKeyWrapper = dataModel.getInstance(HsmKeyImpl.class)
+                    .init(securityAccessorType.getKeyType(),
+                            securityAccessorType.getDuration().get(),
+                            securityAccessorType.getHsmKeyType().getLabel(),
+                            securityAccessorType.getHsmKeyType().getHsmJssKeyType());
+        } else {
+            symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
+                    .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());
+        }
         symmetricKeyWrapper.save();
         return symmetricKeyWrapper;
     }
@@ -89,7 +98,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     @Override
     public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> wrappers = new ArrayList<>();
-        wrappers.addAll(dataModel.query(SymmetricKeyWrapper.class).select(expiration.isExpired("expirationTime", when)));
+        wrappers.addAll(dataModel.query(KeyImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
     }
 

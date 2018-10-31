@@ -48,7 +48,13 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
             "&lt;dateyear&gt;," +
             "&lt;datemonth&gt;," +
             "&lt;dateday&gt;. " +
-            "&lt;dateformat:X&gt; stands for custom date format (eg. X = yyyyMMddHHmmss).");
+            "&lt;dateformat:X&gt; stands for custom date format (eg. X = yyyyMMddHHmmss)."),
+    CA_NAME("certificate.name", "Certificate name"),
+    CA_NAME_DESCRIPTION("certificate.name.description", "Certificate name"),
+    CA_END_ENTITY_NAME("certificate.end.entity.name", "Certificate end entity name"),
+    CA_END_ENTITY_NAME_DESCRIPTION("certificate.end.entity.name.description", "Certificate end entity name"),
+    CA_PROFILE_NAME("certificate.profile.name.description", "Certificate profile name"),
+    CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile name");
 
     private final String key;
     private final String defaultFormat;

@@ -9,14 +9,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.CertificateFormatter;
-import com.elster.jupiter.pki.CertificateStatus;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.CertificateWrapperStatus;
-import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.KeyUsage;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.VetoDeleteCertificateException;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.EventType;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
@@ -24,8 +17,9 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
@@ -35,20 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -72,6 +55,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
                     TRUSTED_CERTIFICATE_DISCRIMINATOR, TrustedCertificateImpl.class,
                     CERTIFICATE_DISCRIMINATOR, RequestableCertificateWrapperImpl.class);
 
+
     public enum Fields {
         CERTIFICATE("certificate"),
         CSR("csr"),
@@ -86,7 +70,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         SUBJECT("subject"),
         ISSUER("issuer"),
         KEY_USAGES("keyUsagesCsv"),
-        WRAPPER_STATUS("wrapperStatus");
+        WRAPPER_STATUS("wrapperStatus"),
+        CA_NAME("caName"),
+        CA_END_ENTITY_NAME("caEndEntityName"),
+        CA_PROFILE_NAME("caProfileName");
 
         private final String fieldName;
 
@@ -122,6 +109,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
     private CertificateWrapperStatus wrapperStatus;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String caName;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String caEndEntityName;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String caProfileName;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -173,7 +166,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public void setCertificate(X509Certificate certificate) {
+    public void setCertificate(X509Certificate certificate, Optional<CertificateRequestData> certificateRequestUserData) {
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
@@ -182,6 +175,13 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
             }
+
+            if (certificateRequestUserData.isPresent()) {
+                this.caName = certificateRequestUserData.get().getCaName();
+                this.caEndEntityName = certificateRequestUserData.get().getEndEntityName();
+                this.caProfileName = certificateRequestUserData.get().getCertificateProfileName();
+            }
+
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
@@ -435,5 +435,43 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @Override
     public CertificateWrapperStatus getWrapperStatus() {
         return wrapperStatus;
+    }
+
+
+    public Optional<CertificateRequestData> getCertificateRequestData(){
+        // testing only caName present while others should be in same status
+        if (!Objects.isNull(this.caName) &&  !this.caName.isEmpty()) {
+            return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public CertificateWrapper getParent(){
+
+        if (!this.subject.isEmpty() && this.subject.equals(this.issuer)) {
+            // this is root certificate
+            return null;
+        }
+
+        Condition matchingParentCondition = Operator.EQUAL.compare(Fields.SUBJECT.fieldName, this.issuer);
+        List<CertificateWrapper> parentCertificates = dataModel.query(CertificateWrapper.class).select(matchingParentCondition);
+        List<CertificateWrapper> validCertificates = new ArrayList<>();
+        for (CertificateWrapper cert: parentCertificates) {
+            if (cert.getCertificate().isPresent()) {
+                try {
+                    cert.getCertificate().get().checkValidity();
+                    validCertificates.add(cert);
+                } catch (CertificateExpiredException|CertificateNotYetValidException e) {
+                    // nothing to do, will just ignore invalid certificates
+                }
+            }
+        }
+        if (validCertificates.isEmpty() || validCertificates.size() > 1) {
+            // more than 1 should not happen except when issued by different authorities, otherwise one authority will refuse to issue a certificate with same subject
+            throw new RuntimeException("Could not determine parent certificate: found none or too many with subject:" + this.issuer + " result list contains no of elements:" + parentCertificates.size());
+        }
+
+        return validCertificates.get(0);
     }
 }
