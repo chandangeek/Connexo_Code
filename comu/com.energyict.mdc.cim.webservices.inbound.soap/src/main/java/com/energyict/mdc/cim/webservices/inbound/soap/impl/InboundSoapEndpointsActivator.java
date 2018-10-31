@@ -4,11 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
-
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -17,7 +12,6 @@ import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -36,6 +30,10 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
@@ -320,7 +318,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         this.webServicesService = webServicesService;
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
         this.webServiceExtensionFactory.setWebServiceExtension(webServiceExtension);
     }
