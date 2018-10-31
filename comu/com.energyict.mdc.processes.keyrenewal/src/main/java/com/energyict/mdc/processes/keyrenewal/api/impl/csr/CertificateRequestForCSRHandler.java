@@ -7,6 +7,7 @@ package com.energyict.mdc.processes.keyrenewal.api.impl.csr;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.pki.CaService;
+import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -28,6 +29,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Optional;
 
 public class CertificateRequestForCSRHandler implements MessageHandler {
 
@@ -92,8 +94,11 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             if(serviceCall.canTransitionTo(DefaultState.ONGOING)) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
             }
-            X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest);
-            certificateWrapper.setCertificate(certificate);
+
+            // assuming this is called during renew and therefore certificateWrapper received as param is the old one and already populated
+            Optional<CertificateRequestData> certificateRequestData = certificateWrapper.getCertificateRequestData();
+            X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest, certificateRequestData);
+            certificateWrapper.setCertificate(certificate, certificateRequestData);
             certificateWrapper.save();
 
             securityAccessor.setTempValue(certificateWrapper);
