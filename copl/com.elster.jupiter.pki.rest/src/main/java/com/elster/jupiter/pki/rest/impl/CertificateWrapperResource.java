@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.hsm.utils.krypto.CSRGenerator;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.AliasParameterFilter;
@@ -21,6 +22,8 @@ import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.HsmPrivateKeyFactory;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -75,12 +78,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 @Path("/certificates")
 public class CertificateWrapperResource {
+    private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
     private static final long MAX_FILE_SIZE = 2048;
     private static final long DEFAULT_TIMEOUT = 30000;
 
@@ -276,7 +281,7 @@ public class CertificateWrapperResource {
         try {
             X509Certificate certificate = signCertificateAsync(pkcs10CertificationRequest).get(timeout, TimeUnit.SECONDS);
             try {
-                certificateWrapper.setCertificate(certificate);
+                certificateWrapper.setCertificate(certificate, Optional.empty());
                 certificateWrapper.save();
             } catch (Exception e) {
                 throw exceptionFactory.newException(MessageSeeds.COULD_NOT_SAVE_CERTIFICATE_FROM_CA, e.getLocalizedMessage());
@@ -290,7 +295,7 @@ public class CertificateWrapperResource {
     }
 
     private CompletableFuture<X509Certificate> signCertificateAsync(PKCS10CertificationRequest pkcs10CertificationRequest) {
-        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest), Executors.newSingleThreadExecutor());
+        return CompletableFuture.supplyAsync(() -> caService.signCsr(pkcs10CertificationRequest, Optional.empty()), Executors.newSingleThreadExecutor());
     }
 
     @POST
@@ -456,6 +461,20 @@ public class CertificateWrapperResource {
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
+        checkMandatoryFields(csrInfo);
+        KeyType keyType = securityManagementService.getKeyType(csrInfo.keyTypeId)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_KEY_TYPE, "keyType"));
+        switch (csrInfo.keyEncryptionMethod) {
+            case HsmPrivateKeyFactory.KEY_ENCRYPTION_METHOD:
+                return createRequestableCertificateWrapper(csrInfo, keyType);
+            case DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD:
+                return createClientCertificateWrapper(csrInfo, keyType);
+            default:
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CRYPTOGRAPHIC_TYPE);
+        }
+    }
+
+    private void checkMandatoryFields(CsrInfo csrInfo) {
         if (csrInfo.keyTypeId == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyTypeId");
         }
@@ -468,13 +487,32 @@ public class CertificateWrapperResource {
         if (csrInfo.CN == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
         }
-        KeyType keyType = securityManagementService.getKeyType(csrInfo.keyTypeId)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_KEY_TYPE, "keyType"));
+    }
+
+    private Response createClientCertificateWrapper(CsrInfo csrInfo, KeyType keyType) {
         ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, csrInfo.keyEncryptionMethod).alias(csrInfo.alias).add();
-        X500Name x500Name = getX500Name(csrInfo);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
+        X500Name x500Name = getX500Name(csrInfo);
         clientCertificateWrapper.generateCSR(x500Name);
         return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(clientCertificateWrapper)).build();
+    }
+
+    private Response createRequestableCertificateWrapper(CsrInfo csrInfo, KeyType keyType) {
+        X500Name x500Name = getX500Name(csrInfo);
+        try {
+            LOGGER.info("Requesting CSR signature for HSM label " + csrInfo.alias);
+            PKCS10CertificationRequest csr = new PKCS10CertificationRequest(new CSRGenerator().generate(csrInfo.alias, x500Name.toString()));
+            LOGGER.info("CSR obtained for subject: " + csr.getSubject().toString());
+            RequestableCertificateWrapper requestableCertificateWrapper =
+                    securityManagementService.newCertificateWrapper(csrInfo.alias);
+            requestableCertificateWrapper.setCSR(csr, keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
+            requestableCertificateWrapper.save();
+            LOGGER.info("CSR saved");
+            return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(requestableCertificateWrapper)).build();
+        } catch (Exception e) {
+            LOGGER.info(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR.getKey() + " " + e);
+            throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_CREATE_CSR, e);
+        }
     }
 
     @GET
@@ -553,7 +591,7 @@ public class CertificateWrapperResource {
             if (certificate == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
-            certificateWrapper.setCertificate(certificate);
+            certificateWrapper.setCertificate(certificate, Optional.empty());
             certificateWrapper.save();
         } catch (CertificateException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, e);
