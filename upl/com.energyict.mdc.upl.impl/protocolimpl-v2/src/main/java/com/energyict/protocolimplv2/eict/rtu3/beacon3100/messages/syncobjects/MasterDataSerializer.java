@@ -773,7 +773,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private byte[] parseASCIIPassword(Device device, String propertyName, String propertyValue) {
+    protected byte[] parseASCIIPassword(Device device, String propertyName, String propertyValue) {
         return parseASCIIPassword(this.extractor.id(device), propertyName, propertyValue);
     }
 

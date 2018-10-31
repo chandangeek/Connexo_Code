@@ -209,7 +209,7 @@ public abstract class Beacon3100AbstractEventLog {
                 //All events for which we don't have a mapping in MeterEvent will result in Unknown Event (0)
             }
         }
-        String composedEventMessage = eventMessage.isEmpty() ? message : getDescriptionPrefix(eiCode) + message;
+        String composedEventMessage = eventMessage.isEmpty() ? MeterEvent.codeToMessage(eiCode) : getDescriptionPrefix(eiCode) + message;
         return new MeterEvent((Date) eventTimeStamp.clone(), eiCode, eventKey, composedEventMessage);
     }
 

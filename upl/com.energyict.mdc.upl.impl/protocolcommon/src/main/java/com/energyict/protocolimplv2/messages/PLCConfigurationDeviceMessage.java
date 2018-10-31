@@ -10,9 +10,11 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -629,6 +631,52 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         }
     },
 
+    RENEW_GMK(3093, "Generate a new GMK and initiates a rekeying process") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return new ArrayList<>();
+        }
+    },
+
+    WRITE_GMK_SCHEDULE_EXECUTION_TIME(3094, "Write GMK schedule execution time") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    dateTimeSpec(service, DeviceMessageConstants.RENEW_GMK_EXECUTION_TIME, DeviceMessageConstants.RENEW_GMK_EXECUTION_TIMEDefaultTranslation)
+            );
+        }
+    },
+
+    WRITE_MAC_TONE_MASK(3095, "Write MAC Tone Mask") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    hexStringSpec(service, DeviceMessageConstants.MAC_TONE_MASK, DeviceMessageConstants.MAC_TONE_MASKDefaultTranslation)
+            );
+        }
+    },
+
+    WRITE_G3_PLC_BANDPLAN(3096, "Write G3 PLC Bandplan") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.G3_PLC_BANDPLAN, DeviceMessageConstants.G3_PLC_BANDPLANDefaultTranslation)
+                            .addValues(PLCBandplanType.getDescriptionValues())
+                            .finish()
+            );
+        }
+    },
+
+    WRITE_ADP_LQI_RANGE(3097, "Write AdpLQIRange") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ADP_LOW_LQI, DeviceMessageConstants.ADP_LOW_LQIDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ADP_HIGH_LQI, DeviceMessageConstants.ADP_HIGH_LQIDefaultTranslation)
+            );
+        }
+    }
+
     ;
 
     private final long id;
@@ -642,30 +690,10 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .booleanSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .referenceSpec(DeviceGroup.class.getName())
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
@@ -695,16 +723,6 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
@@ -731,6 +749,44 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 DeviceMessageCategories.PLC_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
+    }
+
+    public enum PLCBandplanType {
+        CENELEC_A(0, "CENELEC_A"),
+        FCC(3, "FCC");
+
+        private final int id;
+        private final String description;
+
+        PLCBandplanType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static PLCBandplanType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            PLCBandplanType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 
 }

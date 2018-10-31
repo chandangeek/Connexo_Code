@@ -2,16 +2,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
@@ -294,6 +285,10 @@ public class G3NetworkManagement extends AbstractCosemObject {
 
     public final void setKeepAliveTimeout(int value) throws IOException {
         write(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, new Unsigned16(value));
+    }
+
+    public final void renewGMK() throws IOException {
+        methodInvoke(G3NetworkManagementMethods.RENEW_GMK, new Integer8(0));
     }
 
     /**

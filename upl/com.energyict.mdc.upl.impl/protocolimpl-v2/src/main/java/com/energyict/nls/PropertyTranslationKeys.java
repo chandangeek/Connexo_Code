@@ -330,6 +330,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_DEFAULT_BACKLOG_EVENTLOG("upl.property.v2.eict.DEFAULT_BACKLOG_EVENTLOG", "Default backlog event log"),
     V2_DEFAULT_BUFFERSIZE_REGISTERS("upl.property.v2.eict.DEFAULT_BUFFERSIZE_REGISTERS", "Default buffer size registers"),
     V2_READ_OLD_OBIS_CODES("upl.property.v2.eict.READ_OLD_OBIS_CODES", "Read old obis codes"),
+    V2_PRE_2_0_FIRMWARE("upl.property.v2.eict.PRE_2_0_FIRMWARE", "Pre 2.0 firmware"),
     V2_EICT_REQUEST_AUTHENTCATED_FRAME_COUNTER_DESCRIPTION("upl.property.v2.eict.requestAuthenticatedFrameCounter.description", "Request authenticated framecounter"),
     V2_EICT_POLLING_DELAY("upl.property.v2.eict.pollingDelay", "Polling delay"),
     V2_EICT_POLLING_DELAY_DESCRIPTION("upl.property.v2.eict.pollingDelay.description", "Polling delay"),
@@ -354,7 +355,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_BROADCAST_AUTHENTICATION_KEY("upl.property.v2.eict.broadcastAuthenticationKey", "Broadcast authentication Key"),
     V2_BROADCAST_ENCRYPTION_KEY("upl.property.v2.eict.broadcastEncryptionKey", "Broadcast encryption Key"),
     V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS("upl.property.v2.eict.incrementFrameCounterForReplyToHLS", "Increment frame counter when replying to HLS"),
-    IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length");
+    IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length"),
+    EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label");
 
     private final String key;
     private final String defaultFormat;

@@ -52,16 +52,6 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         return Collections.singletonList(this.stringSpec(service, this.propertyName, this.propertyDefaultTranslation));
     }
 
-    private PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(

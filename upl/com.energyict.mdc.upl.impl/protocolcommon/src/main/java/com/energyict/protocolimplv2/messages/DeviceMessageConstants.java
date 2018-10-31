@@ -365,6 +365,14 @@ public final class DeviceMessageConstants {
     public static final String apnConfigurationsDefaultTranslation = "APN configurations";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String ntpAddressDefaultTranslation = "NTP address";
+    public static final String ntpSetActivated = "ConfigurationChangeDeviceMessage.ntpSetActivated";
+    public static final String ntpSetActivatedDefaultTranslation = "Activate NTP time synchronization";
+    public static final String ntpSetAuthMethod = "ConfigurationChangeDeviceMessage.ntpSetAuthMethod";
+    public static final String ntpSetAuthMethodDefaultTranslation = "NTP authentication method";
+    public static final String ntpAuthKeyId = "ConfigurationChangeDeviceMessage.ntpAuthKeyId";
+    public static final String ntpAuthKeyIdDefaultTranslation = "NTP authentication key ID";
+    public static final String ntpAuthKey = "ConfigurationChangeDeviceMessage.ntpAuthKey";
+    public static final String ntpAuthKeyDefaultTranslation = "NTP authentication key";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
     public static final String enableAutomaticDemandResetAttributeDefaultTranslation = "Enable automatic demand reset";
     public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";
@@ -969,6 +977,8 @@ public final class DeviceMessageConstants {
     public static final String uplinkPingIntervalDefaultTranslation = "Uplink ping interval";
     public static final String uplinkPingTimeout = "UplinkConfigurationDeviceMessage.uplinkPingTimeout";
     public static final String uplinkPingTimeoutDefaultTranslation = "Uplink ping timeout";
+    public static final String uplinkMaxInactiveInterval = "UplinkConfigurationDeviceMessage.uplinkMaxInactiveInterval";
+    public static final String uplinkMaxInactiveIntervalDefaultTranslation = "Firmware maximum inactive uplink interval in seconds";
 
     public static final String ReferenceVoltageAttributeName = "PowerConfigurationDeviceMessage.referencevoltage";
     public static final String ReferenceVoltageAttributeDefaultTranslation = "Reference voltage";
@@ -1666,6 +1676,32 @@ public final class DeviceMessageConstants {
     public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
     public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
 
+    // SNMP Setup IC
+    public static final String snmpSystemContact = "NetworkConnectivityMessage.snmpSystemContact";
+    public static final String snmpSystemContactDefaultTranslation = "System contact";
+    public static final String snmpSystemLocation = "NetworkConnectivityMessage.snmpSystemLocation";
+    public static final String snmpSystemLocationDefaultTranslation = "System location";
+    public static final String snmpLocalEngineId = "NetworkConnectivityMessage.snmpLocalEngineId";
+    public static final String snmpLocalEngineIdDefaultTranslation = "SNMP engine ID";
+    public static final String snmpNotificationType = "NetworkConnectivityMessage.snmpNotificationType";
+    public static final String snmpNotificationTypeDefaultTranslation = "SNMP notification type";
+    public static final String snmpNotificationUserProfile = "NetworkConnectivityMessage.snmpNotificationUserProfile";
+    public static final String snmpNotificationUserProfileDefaultTranslation = "SMNP notification user profile";
+    public static final String snmpNotificationHost = "NetworkConnectivityMessage.snmpNotificationHost";
+    public static final String snmpNotificationHostDefaultTranslation = "SNMP notification host";
+    public static final String snmpNotificationPort = "NetworkConnectivityMessage.snmpNotificationPort";
+    public static final String snmpNotificationPortDefaultTranslation = "SNMP notification port";
+    public static final String snmpUserProfile = "NetworkConnectivityMessage.snmpUserProfile";
+    public static final String snmpUserProfileDefaultTranslation = "SNMP user profile";
+    public static final String snmpNewUserName = "NetworkConnectivityMessage.snmpNewUserName";
+    public static final String snmpNewUserNameDefaultTranslation = "New security name";
+    public static final String snmpPrivPassphrase = "NetworkConnectivityMessage.snmpPrivPassphrase";
+    public static final String snmpPrivPassphraseDefaultTranslation = "USM privacy passphrase";
+    public static final String snmpAuthPassphrase = "NetworkConnectivityMessage.snmpAuthPassphrase";
+    public static final String snmpAuthPassphraseDefaultTranslation = "USM authentication passphrase";
+    public static final String snmpUserState = "NetworkConnectivityMessage.snmpUserState";
+    public static final String snmpUserStateDefaultTranslation = "User state";
+
     //VPN Setup IC
     public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";
     public static final String vpnEnabledDefaultTranslation = "Set VPN enabled";
@@ -1697,4 +1733,18 @@ public final class DeviceMessageConstants {
     public static final String remoteSyslogPortDefaultTranslation = "Port";
     public static final String remoteSyslogIpVersion = "DeviceActionMessage.remoteSyslogIpVersion";
     public static final String remoteSyslogIpVersionDefaultTranslation = "IP version";
+
+    // Renew GMK single action schedule IC
+    public static final String RENEW_GMK_EXECUTION_TIME = "DeviceActionMessage.RENEW_GMK_EXECUTION_TIME";
+    public static final String RENEW_GMK_EXECUTION_TIMEDefaultTranslation = "Execution time";
+
+    // Specific G3/PLC Network Management Objects
+    public static final String MAC_TONE_MASK = "DeviceActionMessage.MAC_TONE_MASK";
+    public static final String MAC_TONE_MASKDefaultTranslation = "MAC Tone Mask";
+    public static final String G3_PLC_BANDPLAN = "DeviceActionMessage.G3_PLC_BANDPLAN";
+    public static final String G3_PLC_BANDPLANDefaultTranslation = "G3 PLC Bandplan";
+    public static final String ADP_LOW_LQI = "DeviceMessageConstants.ADP_LOW_LQI";
+    public static final String ADP_LOW_LQIDefaultTranslation = "ADP Low LQI";
+    public static final String ADP_HIGH_LQI = "DeviceMessageConstants.ADP_HIGH_LQI";
+    public static final String ADP_HIGH_LQIDefaultTranslation = "ADP High LQI";
 }

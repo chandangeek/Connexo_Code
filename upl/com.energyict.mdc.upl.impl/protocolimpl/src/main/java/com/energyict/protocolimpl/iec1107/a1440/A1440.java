@@ -240,7 +240,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.IEC1107_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL),
                 this.integerSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
                 this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
-                this.integerSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
+                this.stringSpec(READ_LOGBOOK_AND_LP_COMBINED, PropertyTranslationKeys.READ_LOGBOOK_AND_LP_COMBINED));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {

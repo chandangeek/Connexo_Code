@@ -59,6 +59,30 @@ public class MasterDataSync {
         this.nlsService = nlsService;
     }
 
+    protected Beacon3100Messaging getBeacon3100Messaging() {
+        return beacon3100Messaging;
+    }
+
+    protected ObjectMapperService getObjectMapperService() {
+        return objectMapperService;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected DeviceMasterDataExtractor getDeviceMasterDataExtractor() {
+        return deviceMasterDataExtractor;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
@@ -271,12 +295,12 @@ public class MasterDataSync {
     }
 
     public CollectedMessage syncAllDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        syncAllDevices(newMasterDataSerializer().getMeterDetails((int) pendingMessage.getDeviceId()));
+        syncAllDevices(getMasterDataSerializer().getMeterDetails((int) pendingMessage.getDeviceId()));
 
         return collectedMessage;
     }
 
-    private MasterDataSerializer newMasterDataSerializer() {
+    protected MasterDataSerializer getMasterDataSerializer() {
         return new MasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, getBeacon3100Properties(), nlsService);
     }
 
@@ -297,7 +321,7 @@ public class MasterDataSync {
 
     public CollectedMessage syncOneDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getValue());
-        Beacon3100MeterDetails meterDetails = newMasterDataSerializer().getMeterDetails(deviceId, (int) pendingMessage.getDeviceId());
+        Beacon3100MeterDetails meterDetails = getMasterDataSerializer().getMeterDetails(deviceId, (int) pendingMessage.getDeviceId());
 
         if (meterDetails != null) {
             syncOneDevice(meterDetails.toStructureFWVersion10AndAbove(meterDetails));
@@ -321,7 +345,7 @@ public class MasterDataSync {
         Long previousStartTime = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.previousStartDate).getValue());
         Long previousEndTime = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.previousEndDate).getValue());
         int deviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceId).getValue());
-        Beacon3100MeterDetails meterDetails = newMasterDataSerializer().getMeterDetails(deviceId, (int) pendingMessage.getDeviceId());
+        Beacon3100MeterDetails meterDetails = getMasterDataSerializer().getMeterDetails(deviceId, (int) pendingMessage.getDeviceId());
 
         if (meterDetails != null) {
             try {
@@ -515,7 +539,7 @@ public class MasterDataSync {
     public CollectedMessage setBufferForAllLoadProfiles(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         long bufferSize = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.bufferSize).getValue());
 
-        List<Beacon3100DeviceType> beacon3100DeviceTypes = newMasterDataSerializer().getDeviceTypes((int) pendingMessage.getDeviceId(), readOldObisCodes());
+        List<Beacon3100DeviceType> beacon3100DeviceTypes = getMasterDataSerializer().getDeviceTypes((int) pendingMessage.getDeviceId(), readOldObisCodes());
 
         StringBuilder info = new StringBuilder();
         List<Issue> issues = new ArrayList<Issue>();
