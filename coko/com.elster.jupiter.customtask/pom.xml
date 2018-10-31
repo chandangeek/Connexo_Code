@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>customtask</artifactId>
-    <version>1.0.1${revision}</version>
+    <version>1.0.2${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.customtask</name>
 
