@@ -8,6 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.StorerProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -41,7 +42,7 @@ public class MeterReadingsEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         try {
             ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
-            sendMeterReadingsProvider.send(readingStorer);
+            sendMeterReadingsProvider.send(readingStorer, readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
