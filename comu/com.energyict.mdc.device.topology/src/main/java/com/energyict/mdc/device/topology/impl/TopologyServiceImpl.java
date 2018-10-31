@@ -8,9 +8,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -21,11 +21,12 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -55,6 +56,7 @@ import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -71,7 +73,6 @@ import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -166,6 +167,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(G3NodeState.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -182,7 +184,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
             Version.version(10, 2), V10_2SimpleUpgrader.class,
-            Version.version(10, 4), UpgraderV10_4.class));
+                Version.version(10, 4), UpgraderV10_4.class,
+                Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class));
         this.registerRealServices(bundleContext);
     }
 
@@ -484,7 +487,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public Map<Device, Device> getPhycicalGateways(List<Device> deviceList) {
+    public Map<Device, Device> getPhysicalGateways(List<Device> deviceList) {
         if (deviceList.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -1026,12 +1029,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public TopologyTimeline getPysicalTopologyTimeline(Device device) {
+    public TopologyTimeline getPhysicalTopologyTimeline(Device device) {
         return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, Range.all()));
     }
 
     @Override
-    public List<PhysicalGatewayReference> getPhysyicalGatewayReferencesFor(Device device, Range<Instant> range) {
+    public List<PhysicalGatewayReference> getPhysicalGatewayReferencesFor(Device device, Range<Instant> range) {
         Condition condition = this.getDevicesInTopologyInIntervalCondition(device, range);
         return this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
     }
@@ -1168,12 +1171,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return neighbors;
     }
 
-    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
+    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo, g3NodeState);
     }
 
     private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
-        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
+        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(),
+                existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo(), existingNeighbor.getState());
     }
 
     @Override
@@ -1325,13 +1329,18 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
 
         @Override
-        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
             G3NeighborBuilderImpl builder = this.deviceId2NeighborBuilderMap
                     .computeIfAbsent(
                             neighbor.getId(),
-                            id -> this.creator(newG3Neighbor(this.device, neighbor, modulationScheme, modulation, phaseInfo)));
-            builder.startEditing(modulationScheme, modulation, phaseInfo);
+                            id -> this.creator(newG3Neighbor(this.device, neighbor, modulationScheme, modulation, phaseInfo, g3NodeState)));
+            builder.startEditing(modulationScheme, modulation, phaseInfo, g3NodeState);
             return builder;
+        }
+
+        @Deprecated
+        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            throw new UnsupportedOperationException("Deprecated method");
         }
 
         @Override
@@ -1358,26 +1367,27 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             this.state = state;
         }
 
-        private void startEditing(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            this.state.startEditing(this, modulationScheme, modulation, phaseInfo);
+        private void startEditing(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+            this.state.startEditing(this, modulationScheme, modulation, phaseInfo, g3NodeState);
         }
 
-        private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
             return !modulationScheme.equals(this.neighborTableEntry.getModulationScheme())
                     || !modulation.equals(this.neighborTableEntry.getModulation())
-                    || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
+                    || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo())
+                    || !g3NodeState.equals(this.neighborTableEntry.getState());
         }
 
-        void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            if (this.different(modulationScheme, modulation, phaseInfo)) {
-                this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
+        void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+            if (this.different(modulationScheme, modulation, phaseInfo, g3NodeState)) {
+                this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo, g3NodeState);
             } else {
                 this.prepareForUdate();
             }
         }
 
-        private void terminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry.getDevice(), this.neighborTableEntry.getNeighbor(), modulationScheme, modulation, phaseInfo);
+        private void terminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry.getDevice(), this.neighborTableEntry.getNeighbor(), modulationScheme, modulation, phaseInfo, g3NodeState);
             this.neighborTableEntry.terminate(newG3Neighbor.getEffectiveStart());
             this.oldNeighborTableEntry = Optional.of(this.neighborTableEntry);
             this.neighborTableEntry = newG3Neighbor;
@@ -1385,6 +1395,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             this.modulationScheme(modulationScheme);
             this.modulation(modulation);
             this.phaseInfo(phaseInfo);
+            this.g3NodeState(g3NodeState);
         }
 
         void terminateOldAndStartNew() {
@@ -1417,6 +1428,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
         private G3NeighborBuilderImpl phaseInfo(PhaseInfo phaseInfo) {
             this.neighborTableEntry.setPhaseInfo(phaseInfo);
+            return this;
+        }
+
+        private G3NeighborBuilderImpl g3NodeState(G3NodeState g3NodeState) {
+            this.neighborTableEntry.setState(g3NodeState);
             return this;
         }
 
@@ -1484,6 +1500,76 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds) {
             this.state.setToneMapTimeToLiveSeconds(this, seconds);
             return this;
+        }
+
+        @Override
+        public G3NeighborBuilder macPANId(long macPANId) {
+            this.state.setMacPANId(this, macPANId);
+            return this;
+        }
+
+        void setMacPANId(long macPANId) {
+            this.neighborTableEntry.setMacPANId(macPANId);
+        }
+
+        @Override
+        public G3NeighborBuilder nodeAddress(String nodeAddress) {
+            this.state.setNodeAddress(this, nodeAddress);
+            return this;
+        }
+
+        void setNodeAddress(String nodeAddress) {
+            this.neighborTableEntry.setNodeAddress(nodeAddress);
+        }
+
+        @Override
+        public G3NeighborBuilder shortAddress(int shortAddress) {
+            this.state.setShortAddress(this, shortAddress);
+            return this;
+        }
+
+        void setShortAddress(int shortAddress) {
+            this.neighborTableEntry.setShortAddress(shortAddress);
+        }
+
+        @Override
+        public G3NeighborBuilder lastUpdate(Instant lastUpdate) {
+            this.state.setLastUpdate(this, lastUpdate);
+            return this;
+        }
+
+        void setLastUpdate(Instant lastUpdate) {
+            this.neighborTableEntry.setLastUpdate(lastUpdate);
+        }
+
+        @Override
+        public G3NeighborBuilder lastPathRequest(Instant lastPathRequest) {
+            this.state.setLastPathRequest(this, lastPathRequest);
+            return this;
+        }
+
+        void setLastPathRequest(Instant lastPathRequest) {
+            this.neighborTableEntry.setLastPathRequest(lastPathRequest);
+        }
+
+        @Override
+        public G3NeighborBuilder roundTrip(long roundTrip) {
+            this.state.setRoundTrip(this, roundTrip);
+            return this;
+        }
+
+        void setRoundTrip(long roundTrip) {
+            this.neighborTableEntry.setRoundTrip(roundTrip);
+        }
+
+        @Override
+        public G3NeighborBuilder linkCost(int linkCost) {
+            this.state.setLinkCost(this, linkCost);
+            return this;
+        }
+
+        void setLinkCost(int linkCost) {
+            this.neighborTableEntry.setLinkCost(linkCost);
         }
 
         void setToneMapTimeToLiveFromSeconds(int seconds) {

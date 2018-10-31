@@ -22,6 +22,7 @@ import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -38,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -446,8 +448,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
 
         // Business method
         List<G3Neighbor> neighbors = neighborhoodBuilder.complete();
@@ -460,11 +462,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.D8PSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+                assertThat(neighbor.getState()).isEqualTo(G3NodeState.AVAILABLE);
                 assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
             } else {
                 assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.CBPSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
+                assertThat(neighbor.getState()).isEqualTo(G3NodeState.UNKNOWN);
                 assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
             }
         }
@@ -487,15 +491,29 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         int expectedTxGain = 3;
         int expectedTxResolution = 11;
         int expectedTxCoefficient = 121;
+        long expectedMacPANId = 123;
+        String expectedNodeAddress = "0200:00FF:FE00:002C";
+        int expectedShortAddress = 2;
+        Instant expectedLastUpdate = new Date().toInstant();
+        Instant expectedLastPathRequest = new Date().toInstant();
+        long expectedRoundTrip = 140;
+        int expectedLinkCost = 4;
         neighborhoodBuilder
-                .addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE)
+                .addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE)
                 .linkQualityIndicator(expectedLinkQualityIndicator)
                 .timeToLiveSeconds(expectedTimeToLiveSeconds)
                 .toneMap(expectedToneMap)
                 .toneMapTimeToLiveSeconds(expectedTimeToLiveSeconds)
                 .txGain(expectedTxGain)
                 .txResolution(expectedTxResolution)
-                .txCoefficient(expectedTxCoefficient);
+                .txCoefficient(expectedTxCoefficient)
+                .macPANId(expectedMacPANId)
+                .nodeAddress(expectedNodeAddress)
+                .shortAddress(expectedShortAddress)
+                .lastUpdate(expectedLastUpdate)
+                .lastPathRequest(expectedLastPathRequest)
+                .roundTrip(expectedRoundTrip)
+                .linkCost(expectedLinkCost);
 
         // Business method
         List<G3Neighbor> g3Neighbors = neighborhoodBuilder.complete();
@@ -506,6 +524,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(g3Neighbor1.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
         assertThat(g3Neighbor1.getModulation()).isEqualTo(Modulation.D8PSK);
         assertThat(g3Neighbor1.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(g3Neighbor1.getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(g3Neighbor1.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
         assertThat(g3Neighbor1.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
         assertThat(g3Neighbor1.getToneMap()).isEqualTo(expectedToneMap);
@@ -513,6 +532,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(g3Neighbor1.getTxGain()).isEqualTo(expectedTxGain);
         assertThat(g3Neighbor1.getTxResolution()).isEqualTo(expectedTxResolution);
         assertThat(g3Neighbor1.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+        assertThat(g3Neighbor1.getMacPANId()).isEqualTo(expectedMacPANId);
+        assertThat(g3Neighbor1.getNodeAddress()).isEqualTo(expectedNodeAddress);
+        assertThat(g3Neighbor1.getShortAddress()).isEqualTo(expectedShortAddress);
+        assertThat(g3Neighbor1.getLastUpdate()).isEqualTo(expectedLastUpdate);
+        assertThat(g3Neighbor1.getLastPathRequest()).isEqualTo(expectedLastPathRequest);
+        assertThat(g3Neighbor1.getRoundTrip()).isEqualTo(expectedRoundTrip);
+        assertThat(g3Neighbor1.getLinkCost()).isEqualTo(expectedLinkCost);
     }
 
     @Test
@@ -529,8 +555,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         List<G3Neighbor> neighbors = neighborhoodBuilder.complete();
 
         // Business method
@@ -560,8 +586,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Business method
@@ -592,8 +618,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", now);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Business method
@@ -618,8 +644,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", now);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Business method
@@ -644,8 +670,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", now);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         List<G3Neighbor> neighbors = neighborhoodBuilder.complete();
 
         // Business method
@@ -676,8 +702,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", now);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Business method
@@ -707,13 +733,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", past);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialBuilder = topologyService.buildG3Neighborhood(device);
-        initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        initialBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        initialBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         initialBuilder.complete();
         Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(now);
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         // Do not add neighbor2, effectively removing it from the neighborhood
         neighborhoodBuilder.complete();
 
@@ -738,13 +764,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", past);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialBuilder = topologyService.buildG3Neighborhood(device);
-        initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        initialBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        initialBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         initialBuilder.complete();
         Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(now);
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         // Do not add neighbor2, effectively removing it from the neighborhood
         neighborhoodBuilder.complete();
 
@@ -769,16 +795,16 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
-        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         initialNeighborhoodBuilder.complete();
         Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
 
         // Business method
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Asserts: assert that the device in the neigherbood are all still there
@@ -813,16 +839,16 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
-        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         initialNeighborhoodBuilder.complete();
         Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
 
         // Business method
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         neighborhoodBuilder.complete();
 
         // Asserts: assert that the device in the neigherbood are all still there
@@ -837,11 +863,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbors.get(0).getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbors.get(0).getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(updatedNeighbors.get(0).getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(updatedNeighbors.get(0).isEffectiveAt(initialTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(0).isEffectiveAt(updateTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(1).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbors.get(1).getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbors.get(1).getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
+        assertThat(updatedNeighbors.get(1).getState()).isEqualTo(G3NodeState.UNKNOWN);
         assertThat(updatedNeighbors.get(1).isEffectiveAt(initialTimestamp)).isTrue();
         assertThat(updatedNeighbors.get(1).isEffectiveAt(updateTimestamp)).isTrue();
     }
@@ -858,7 +886,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", initialTimestamp);
         neighbor1.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         initialNeighborhoodBuilder.complete();
         Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
@@ -871,15 +899,29 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         int expectedTxGain = 3;
         int expectedTxResolution = 11;
         int expectedTxCoefficient = 121;
+        long expectedMacPANId = 123;
+        String expectedNodeAddress = "0200:00FF:FE00:002C";
+        int expectedShortAddress = 2;
+        Instant expectedLastUpdate = new Date().toInstant();
+        Instant expectedLastPathRequest = new Date().toInstant();
+        long expectedRoundTrip = 140;
+        int expectedLinkCost = 4;
         neighborhoodBuilder
-                .addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE)
+                .addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.UNKNOWN)
                 .linkQualityIndicator(expectedLinkQualityIndicator)
                 .timeToLiveSeconds(expectedTimeToLiveSeconds)
                 .toneMap(expectedToneMap)
                 .toneMapTimeToLiveSeconds(expectedTimeToLiveSeconds)
                 .txGain(expectedTxGain)
                 .txResolution(expectedTxResolution)
-                .txCoefficient(expectedTxCoefficient);
+                .txCoefficient(expectedTxCoefficient)
+                .macPANId(expectedMacPANId)
+                .nodeAddress(expectedNodeAddress)
+                .shortAddress(expectedShortAddress)
+                .lastUpdate(expectedLastUpdate)
+                .lastPathRequest(expectedLastPathRequest)
+                .roundTrip(expectedRoundTrip)
+                .linkCost(expectedLinkCost);
         neighborhoodBuilder.complete();
 
         // Asserts: assert that the device in the neigherbood are all still there
@@ -895,6 +937,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(updatedNeighbor.getState()).isEqualTo(G3NodeState.UNKNOWN);
         assertThat(updatedNeighbor.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
         assertThat(updatedNeighbor.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
         assertThat(updatedNeighbor.getToneMap()).isEqualTo(expectedToneMap);
@@ -902,6 +945,13 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbor.getTxGain()).isEqualTo(expectedTxGain);
         assertThat(updatedNeighbor.getTxResolution()).isEqualTo(expectedTxResolution);
         assertThat(updatedNeighbor.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+        assertThat(updatedNeighbor.getMacPANId()).isEqualTo(expectedMacPANId);
+        assertThat(updatedNeighbor.getNodeAddress()).isEqualTo(expectedNodeAddress);
+        assertThat(updatedNeighbor.getShortAddress()).isEqualTo(expectedShortAddress);
+        assertThat(updatedNeighbor.getLastUpdate()).isEqualTo(expectedLastUpdate);
+        assertThat(updatedNeighbor.getLastPathRequest()).isEqualTo(expectedLastPathRequest);
+        assertThat(updatedNeighbor.getRoundTrip()).isEqualTo(expectedRoundTrip);
+        assertThat(updatedNeighbor.getLinkCost()).isEqualTo(expectedLinkCost);
         assertThat(updatedNeighbor.isEffectiveAt(initialTimestamp)).isFalse();
         assertThat(updatedNeighbor.isEffectiveAt(updateTimestamp)).isTrue();
 
@@ -911,6 +961,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(initialNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(initialNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(initialNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(initialNeighbor.getState()).isEqualTo(G3NodeState.AVAILABLE);
         assertThat(initialNeighbor.isEffectiveAt(initialTimestamp)).isTrue();
     }
 
@@ -928,15 +979,15 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", initialTimestamp);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
-        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180, G3NodeState.UNKNOWN);
         initialNeighborhoodBuilder.complete();
         Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
 
         // Business method
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         // Not adding neighbor2 should equal to removing it
         List<G3Neighbor> neighbors = neighborhoodBuilder.complete();
 
@@ -963,7 +1014,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", fromDateForExistingNeighbors);
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         initialNeighborhoodBuilder.complete();
 
         Instant fromDateForAddedNeighbor = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
@@ -971,8 +1022,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
         // Business method
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
-        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
-        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         List<G3Neighbor> neighbors = neighborhoodBuilder.complete();
 
         // Asserts
@@ -1004,7 +1055,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder builder = topologyService.buildG3Neighborhood(device);
-        builder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        builder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
         builder.complete();
 
         // Business method

@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.topology;
 
+import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.stream.Stream;
 
 /**
@@ -12,19 +14,23 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-15 (13:16)
  */
-public enum ModulationScheme {
+public enum ModulationScheme implements TranslationKey {
 
-    DIFFERENTIAL(0),
-    COHERENT(1);
+    DIFFERENTIAL(0, "modulationScheme.differential", "Differential"),
+    COHERENT(1, "modulationScheme.coherent", "Coherent");
 
     private final int id;
-
-    private ModulationScheme(int id) {
-        this.id = id;
-    }
+    private final String key;
+    private final String defaultFormat;
 
     public final int getId() {
         return this.id;
+    }
+
+    ModulationScheme(int id, String key, String defaultFormat) {
+        this.id = id;
+        this.key = key;
+        this.defaultFormat = defaultFormat;
     }
 
     /**
@@ -40,6 +46,16 @@ public enum ModulationScheme {
                 .filter(p -> p.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown ModulationScheme id " + id));
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return defaultFormat;
     }
 
 }
