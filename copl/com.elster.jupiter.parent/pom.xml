@@ -395,24 +395,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <configuration>
-                    <organizationId>d20084a2-0924-4e47-94b2-c9d018ad73d3</organizationId>
-                    <restModel>
-                        <restFramework>
-                            <name>jax-rs</name>
-                        </restFramework>
-                    </restModel>
-                    <output>
-                        <html>
-                            <location>miredot/${project.version}</location>
-                        </html>
-                    </output>
-                    <!-- insert other configuration here (optional) -->
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <dependencies>
@@ -779,6 +761,32 @@
                         </configuration>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <configuration>
+                            <organizationId>d20084a2-0924-4e47-94b2-c9d018ad73d3</organizationId>
+                            <restModel>
+                                <restFramework>
+                                    <name>jax-rs</name>
+                                </restFramework>
+                            </restModel>
+                            <output>
+                                <html>
+                                    <location>miredot/${project.version}</location>
+                                </html>
+                            </output>
+                            <!-- insert other configuration here (optional) -->
+                        </configuration>
+                    </plugin>
+                </plugins>
+
             </build>
         </profile>
     </profiles>
