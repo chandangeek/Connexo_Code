@@ -39,7 +39,7 @@
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <json.version>20090211</json.version>
-        <protocols.version>1.1.3${revision}</protocols.version>
+        <protocols.version>1.1.4${revision}</protocols.version>
         <javadoc.excluded.package.names>
             com.energyict.mdc.device.alarms.security:com.energyict.mdc.device.command.security:com.energyict.mdc.device.config.security:com.energyict.mdc.device.data.security:${line.separator}
             com.energyict.mdc.engine.config.security:com.energyict.mdc.firmware.security:com.energyict.mdc.masterdata.security:com.energyict.mdc.multisense.api.security:com.energyict.mdc.scheduling.security:${line.separator}
