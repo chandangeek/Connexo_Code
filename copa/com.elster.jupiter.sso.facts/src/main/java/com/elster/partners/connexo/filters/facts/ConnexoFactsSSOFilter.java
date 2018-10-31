@@ -100,7 +100,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
         ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(request.getLocalPort(), request
                 .getContextPath(), request.getProtocol());
 
-        Optional<String> result = manager.getUser(principal.getName(), principal.getRoles());
+        Optional<String> result = manager.getUser(principal.getName(), principal.getPrivileges());
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {
             result = manager.createUser(principal.getName(), principal.getPrivileges());
         }

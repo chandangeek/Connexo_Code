@@ -38,7 +38,7 @@ public class ConnexoFactsWebServiceManager {
         this.adminPwd = (pwd!=null)?pwd:"admin";
     }
 
-    Optional<String> getUser(String username, List<String> roles) {
+    Optional<String> getUser(String username, List<String> privileges) {
         System.out.println("YFN: Get user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -66,7 +66,7 @@ public class ConnexoFactsWebServiceManager {
                 if (rs != null){
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
                         if(rs.getPerson().getRoleCode().equals("YFREPORTCONSUMER")){
-                            return updateUser(username, roles);
+                            return updateUser(username, privileges);
                         }
                         else {
                             return Optional.of("SUCCESS");
