@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.tasks.TopologyAction;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,8 +189,16 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     }
 
     @Override
-    public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime) {
-        topologyNeighbours.add(new TopologyNeighbour(neighbour, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime));
+    public void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation,
+                                     int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential,
+                                     int tmrValidTime, int neighbourValidTime, long macPANId, String nodeAddress,
+                                     int shortAddress, Date lastUpdate, Date lastPathRequest, int state, long roundTrip,
+                                     int linkCost) {
+        topologyNeighbours.add(
+                new TopologyNeighbour(neighbour, modulationSchema, toneMap, modulation, txGain, txRes, txCoeff, lqi,
+                        phaseDifferential, tmrValidTime, neighbourValidTime, macPANId, nodeAddress, shortAddress,
+                        lastUpdate, lastPathRequest, state, roundTrip, linkCost)
+        );
     }
 
     @Override

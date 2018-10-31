@@ -4,10 +4,7 @@
 
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.KeyAccessorTypeAdapter;
@@ -16,7 +13,6 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -119,6 +115,16 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
             return handlePlainTextPassphrase((PlaintextPassphrase) value);
         } else if (value instanceof com.elster.jupiter.pki.CertificateWrapper) {
             return Optional.of(new CertificateWrapperAdapter((com.elster.jupiter.pki.CertificateWrapper) value, Optional.empty()));      //Return instance of CertificateWrapper as-is
+        } else if (value instanceof HsmKey) {
+            return handleHsmKey((HsmKey) value);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Object> handleHsmKey(HsmKey value) {
+        HsmKey hsmKey = value;
+        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
+            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
         }
         return Optional.empty();
     }

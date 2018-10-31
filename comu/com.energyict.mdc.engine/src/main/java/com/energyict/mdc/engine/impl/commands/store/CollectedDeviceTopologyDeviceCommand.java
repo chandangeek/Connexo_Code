@@ -186,8 +186,12 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         Map<String, OfflineDevice> oldSlavesBySerialNumber = this.mapOldSlavesToSerialNumber(device);
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = this.mapActualSlavedToDeviceIdAndHandleUnknownDevices(comServerDAO);
 
-        this.handleSlaveRemoval(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
-        this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
+        if (deviceTopology.getJoinedSlaveDeviceIdentifiers() != null) {
+            this.processJoinedSlaves(comServerDAO);
+        } else {
+            this.handleSlaveRemoval(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
+            this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
+        }
     }
 
     private boolean isVerifyTopologyAction() {
@@ -217,6 +221,28 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
                         getIssueService().newProblem(deviceTopology, e.getMessageSeed(), movedSlave));
+            }
+        }
+    }
+
+    private void processJoinedSlaves(ComServerDAO comServerDAO) {
+        for (DeviceIdentifier slaveId : this.deviceTopology.getJoinedSlaveDeviceIdentifiers().keySet()) {
+            Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
+            try {
+                slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+            } catch (CanNotFindForIdentifier e) {
+                this.addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), slaveId));
+            }
+            if (slave.isPresent()) {
+                this.knownSerialNumbersAddedToTopology.add(slave.get().getSerialNumber());
+                this.handleMoveOfSlave(comServerDAO, slaveId);
+                this.topologyChanged = true;
+            } else {
+                this.handleAdditionOfSlave(comServerDAO, slaveId);
+                this.unknownSerialNumbersAddedToTopology.add(slaveId.toString());
+                this.topologyChanged = true;
             }
         }
     }

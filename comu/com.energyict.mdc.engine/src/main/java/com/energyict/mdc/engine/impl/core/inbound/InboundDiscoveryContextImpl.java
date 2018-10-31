@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
@@ -71,6 +72,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceMessageFileExtractor messageFileExtractor;
     private CertificateWrapperExtractor certificateWrapperExtractor;
     private KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    private HsmProtocolService hsmProtocolService;
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -260,6 +262,14 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public void setKeyAccessorTypeExtractor(KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+    }
+
+    public HsmProtocolService getHsmProtocolService() {
+        return hsmProtocolService;
+    }
+
+    public void setHsmProtocolService(HsmProtocolService hsmProtocolService) {
+        this.hsmProtocolService = hsmProtocolService;
     }
 
     @Override

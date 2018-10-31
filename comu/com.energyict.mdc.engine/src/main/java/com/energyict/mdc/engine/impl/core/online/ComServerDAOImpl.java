@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.G3NodeState;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -1123,8 +1124,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         topologyNeighbours.forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
             if (optionalDevice.isPresent()) {
-                TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation
-                        .fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
+                TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(
+                        optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()),
+                        Modulation.fromId(topologyNeighbour.getModulation()),
+                        PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()),
+                        G3NodeState.fromId(topologyNeighbour.getState())
+                );
                 g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
                 g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
                 g3NeighborBuilder.toneMap(topologyNeighbour.getToneMap());
@@ -1132,6 +1137,13 @@ public class ComServerDAOImpl implements ComServerDAO {
                 g3NeighborBuilder.txCoefficient(topologyNeighbour.getTxCoeff());
                 g3NeighborBuilder.txGain(topologyNeighbour.getTxGain());
                 g3NeighborBuilder.txResolution(topologyNeighbour.getTxRes());
+                g3NeighborBuilder.macPANId(topologyNeighbour.getMacPANId());
+                g3NeighborBuilder.nodeAddress(topologyNeighbour.getNodeAddress());
+                g3NeighborBuilder.shortAddress(topologyNeighbour.getShortAddress());
+                g3NeighborBuilder.lastUpdate(topologyNeighbour.getLastUpdate().toInstant());
+                g3NeighborBuilder.lastPathRequest(topologyNeighbour.getLastPathRequest().toInstant());
+                g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
+                g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
             }
         });
         g3NeighborhoodBuilder.complete();

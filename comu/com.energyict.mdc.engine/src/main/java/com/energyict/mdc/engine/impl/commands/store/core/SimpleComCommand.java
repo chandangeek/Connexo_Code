@@ -29,17 +29,10 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.ConnectionSetupException;
-import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,7 +54,8 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private final BasicComCommandBehavior basicComCommandBehavior;
 
     /**
-     * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
+     * A List containing all the {@link CollectedData} which is collected during the executi
+     * on of this {@link ComCommand}
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
