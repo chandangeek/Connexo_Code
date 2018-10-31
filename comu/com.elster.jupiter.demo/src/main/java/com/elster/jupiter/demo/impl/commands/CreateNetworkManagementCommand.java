@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.G3NodeState;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -36,7 +37,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.demo.layer.GraphLayerBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.scheduling.SchedulingService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
@@ -263,7 +263,7 @@ public class CreateNetworkManagementCommand extends CommandWithTransaction {
 
     private List<G3Neighbor> addNeighbors(G3CommunicationPathSegment segment) {
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(segment.getSource());
-        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO)
+        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromId(99), PhaseInfo.NOPHASEINFO, G3NodeState.UNKNOWN)
                 .linkQualityIndicator(segment.getCost());
         return neighborhoodBuilder.complete();
     }
