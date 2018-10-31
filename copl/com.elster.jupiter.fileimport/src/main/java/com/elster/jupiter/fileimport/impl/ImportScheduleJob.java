@@ -16,11 +16,14 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 /**
  * CronJob to scan the import directory of the configured ImportSchedule, and pass files to the DefaultFileHandler.
  */
 class ImportScheduleJob implements CronJob {
+
+    private static final Logger LOGGER = Logger.getLogger(ImportScheduleJob.class.getName());
 
     private final TransactionService transactionService;
     private final FileUtils fileSystem;
@@ -56,17 +59,18 @@ class ImportScheduleJob implements CronJob {
 
     @Override
     public void run() {
+        LOGGER.info("[" + Thread.currentThread().getName() + "] waken up");
         fileImportService.getImportSchedule(importScheduleId)
                 .filter(ImportSchedule::isActive)
                 .map(ServerImportSchedule.class::cast)
                 .ifPresent(importSchedule -> {
                     Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
+                    LOGGER.fine("import folder: " + importFolder.toString());
                     FolderScanningJob folderScanningJob = new FolderScanningJob(
                             new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
                             new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
                     folderScanningJob.run();
 
                 });
-
     }
 }
