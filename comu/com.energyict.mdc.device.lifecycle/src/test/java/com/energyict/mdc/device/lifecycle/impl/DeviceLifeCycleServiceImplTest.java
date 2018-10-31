@@ -77,6 +77,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -181,6 +182,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(user.getLocale()).thenReturn(Optional.empty());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
+        when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.empty());
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
         when(this.eventType.getId()).thenReturn(EVENT_TYPE_ID);
         for (MicroCheck microCheck : MicroCheck.values()) {

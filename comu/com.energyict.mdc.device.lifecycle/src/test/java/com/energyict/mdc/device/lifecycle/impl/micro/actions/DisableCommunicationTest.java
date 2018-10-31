@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -60,6 +61,7 @@ public class DisableCommunicationTest {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
+        when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
@@ -75,6 +77,7 @@ public class DisableCommunicationTest {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+        when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
