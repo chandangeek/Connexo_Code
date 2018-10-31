@@ -232,7 +232,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
         }
 
         private boolean isKey(SecurityAccessorType securityAccessorType) {
-            return securityAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.SymmetricKey);
+            return securityAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.SymmetricKey) || securityAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.Hsm);
         }
     }
 

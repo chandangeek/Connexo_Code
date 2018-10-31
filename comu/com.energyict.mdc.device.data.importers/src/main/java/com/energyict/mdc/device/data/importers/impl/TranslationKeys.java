@@ -21,6 +21,8 @@ import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.Secu
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
 public enum TranslationKeys implements TranslationKey {
@@ -28,6 +30,7 @@ public enum TranslationKeys implements TranslationKey {
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
     SECURE_SHIPMENT_IMPORT_SUBSCRIBER(SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure shipment import"),
     SECURE_SHIPMENT_KEY_SUBSCRIBER(SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure key import"),
+    SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER(SecureHSMDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle hsm secure shipment import"),
 
     IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no devices have been processed."),
     IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),
@@ -90,6 +93,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer [STD]"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer [STD]"),
     SECURE_DEVICE_SHIPMENT_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secure device shipment importer [STD]"),
+    SECURE_HSM_DEVICE_SHIPMENT_IMPORTER(SecureHSMDeviceShipmentImporterFactory.NAME, "Secure HSM device shipment importer [STD]"),
     SECURE_DEVICE_KEY_IMPORTER(SecureDeviceKeyImporterFactory.NAME, "Secured device key importer [STD]"),
     DEVICE_INSTALLATION_IMPORTER(DeviceInstallationImporterFactory.NAME, "Devices installation importer [STD]"),
     DEVICE_COMMISSIONING_IMPORTER(DeviceCommissioningImportFactory.NAME, "Devices commissioning  importer [STD]"),
@@ -109,6 +113,7 @@ public enum TranslationKeys implements TranslationKey {
     BOOLEAN_FORMAT("BooleanFormat", "boolean: 0 or 1"),
     INTEGER_FORMAT("IntegerFormat", "integer"),
     OBIS_CODE_FORMAT("ObisCodeFormat", "obis code");
+
 
     private final String key;
     private final String defaultFormat;

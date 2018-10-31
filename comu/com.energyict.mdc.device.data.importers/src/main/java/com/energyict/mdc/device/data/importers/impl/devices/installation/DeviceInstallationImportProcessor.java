@@ -50,6 +50,58 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
 
     @Override
     protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
+        if (!findEndDeviceByIdentifier(data.getDeviceIdentifier()).isPresent()) {
+            throw new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier());
+        }
+
+        List<String> locationData = data.getLocation();
+        if (!isLocationPresent(locationData)) {
+            return;
+        }
+
+        Map<String, Integer> ranking = super.getContext()
+                .getMeteringService()
+                .getLocationTemplate()
+                .getTemplateMembers()
+                .stream()
+                .collect(Collectors.toMap(TemplateField::getName,
+                        TemplateField::getRanking));
+
+        if (ranking.entrySet().size() != locationData.size()) {
+            String fields = super.getContext()
+                    .getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                    .map(TemplateField::getName)
+                    .map(s -> s = "<" + s + ">")
+                    .collect(Collectors.joining(" "));
+            throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
+        } else {
+            super.getContext()
+                    .getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .filter(TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if (locationData.get(field.getRanking()) == null) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                        }
+                    });
+        }
+    }
+
+    @Override
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
+        super.afterTransition(device, data, logger);
+
+        updateEndDeviceWithLocation(data);
+        processUsagePoint(device, data, logger);
+    }
+
+    private void updateEndDeviceWithLocation(DeviceInstallationImportRecord data) {
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = findEndDeviceByIdentifier(data.getDeviceIdentifier())
@@ -63,30 +115,6 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                     .stream()
                     .collect(Collectors.toMap(TemplateField::getName,
                             TemplateField::getRanking));
-            if (ranking.entrySet().size() != locationData.size()) {
-                String fields = super.getContext()
-                        .getMeteringService()
-                        .getLocationTemplate()
-                        .getTemplateMembers()
-                        .stream()
-                        .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
-                        .map(TemplateField::getName)
-                        .map(s -> s = "<" + s + ">")
-                        .collect(Collectors.joining(" "));
-                throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
-            } else {
-                super.getContext()
-                        .getMeteringService()
-                        .getLocationTemplate()
-                        .getTemplateMembers()
-                        .stream()
-                        .filter(TemplateField::isMandatory)
-                        .forEach(field -> {
-                            if (locationData.get(field.getRanking()) == null) {
-                                throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                            }
-                        });
-            }
             Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
@@ -97,16 +125,11 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
             endDevice.setLocation(builder.create());
         }
 
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
-        endDevice.update();
-    }
 
-    @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
-        super.afterTransition(device, data, logger);
-        processUsagePoint(device, data, logger);
+        endDevice.update();
     }
 
     protected DefaultCustomStateTransitionEventType getTransitionEventType(DeviceInstallationImportRecord data) {
@@ -226,7 +249,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         return builder;
     }
 
-    private boolean isLocationPresent(List<String> locationData){
+    private boolean isLocationPresent(List<String> locationData) {
         return locationData != null && !locationData.isEmpty() && !locationData.stream().allMatch(location -> location == null);
     }
 }
