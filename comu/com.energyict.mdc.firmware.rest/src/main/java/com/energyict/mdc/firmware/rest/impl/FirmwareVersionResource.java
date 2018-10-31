@@ -5,7 +5,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -19,8 +18,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -38,14 +36,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -99,7 +92,7 @@ public class FirmwareVersionResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersionBuilder versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
-                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
+                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier);
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -161,7 +154,7 @@ public class FirmwareVersionResource {
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
-            firmwareVersion.setImageIdentifier(firmwareVersionInfo.getImageIdentifier());
+            firmwareVersion.setImageIdentifier(firmwareVersionInfo.imageIdentifier);
         }
         if (firmwareVersionInfo.fileSize != null) {
             firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -191,13 +184,13 @@ public class FirmwareVersionResource {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.id = id;
         info.firmwareVersion = getStringValueFromStream(versionInputStream);
-        info.setImageIdentifier(getStringValueFromStream(imageIdentifierInputStream));
+        info.imageIdentifier = getStringValueFromStream(imageIdentifierInputStream);
         info.version = parseEntityVersion(entityVersionStream);
 
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
         firmwareVersion.setFirmwareVersion(info.firmwareVersion);
         if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)){
-            firmwareVersion.setImageIdentifier(info.getImageIdentifier());
+            firmwareVersion.setImageIdentifier(info.imageIdentifier);
         }
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
