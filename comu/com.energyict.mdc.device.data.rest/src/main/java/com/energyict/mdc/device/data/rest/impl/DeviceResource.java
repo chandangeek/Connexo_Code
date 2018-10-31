@@ -60,6 +60,7 @@ import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
@@ -570,7 +571,7 @@ public class DeviceResource {
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
             slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), deviceLifeCycleConfigurationService);
         } else {
-            slaves = DeviceTopologyInfo.from(topologyService.getPysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
         }
         return slaves;
     }
@@ -1032,13 +1033,16 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
+        List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).sorted(Comparator.comparing(Device::getName));
+        //Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));
+        Stream<Device> stream = topologyService.findPhysicalConnectedDevices(device).stream();
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService,
+                neighbors.stream().filter(g3Neighbor -> g3Neighbor.getNeighbor().getmRID().equals(d.getmRID())).findFirst(), thesaurus))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }

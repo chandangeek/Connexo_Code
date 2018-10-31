@@ -1378,7 +1378,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
     }
 
@@ -1408,7 +1408,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
 
 
@@ -1480,7 +1480,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
 
 
@@ -1554,7 +1554,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
-        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         TopologyTimeslice slice = mock(TopologyTimeslice.class);
         Range<Instant> range = Range.atLeast(NOW.minus(1, ChronoUnit.DAYS));
         when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
@@ -1601,7 +1601,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1653,7 +1653,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1713,7 +1713,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -2022,7 +2022,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -2079,7 +2079,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));  // datalogger has linked channel
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -2126,7 +2126,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.empty());
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -2207,7 +2207,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
@@ -2309,7 +2309,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -2459,7 +2459,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));  // datalogger has linked channel
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -3062,7 +3062,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
         Response response = target("/devices/").request().post(Entity.json(deviceInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(cimLifecycleDates, times(1)).setReceivedDate(shipmentDate);
@@ -3106,7 +3106,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         deviceInfo.shipmentDate = shipmentDate;
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
         when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
         Map<String, Object> response = target("/devices/theDevice/").request().get(Map.class);
         assertThat(response).contains(MapEntry.entry("hasEstimationRules", true));
@@ -3152,7 +3152,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
-        when(topologyService.getPysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
+        when(topologyService.getPhysicalTopologyTimeline(device)).thenReturn(topologyTimeLine);
         Map<String, Object> response = target("/devices/theDevice/").request().get(Map.class);
         assertThat(response).contains(MapEntry.entry("hasEstimationRules", false));
         assertThat(response).contains(MapEntry.entry("hasValidationRules", true));

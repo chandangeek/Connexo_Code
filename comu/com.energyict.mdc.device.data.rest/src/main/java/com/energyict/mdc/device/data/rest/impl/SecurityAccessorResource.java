@@ -71,7 +71,7 @@ public class SecurityAccessorResource {
     private static final String TEMP_PROPERTIES = "tempProperties";
 
     private final Set<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate, CryptographicType.TrustedCertificate);
-    private final Set<CryptographicType> KEYS = EnumSet.of(CryptographicType.SymmetricKey, CryptographicType.Passphrase);
+    private final Set<CryptographicType> KEYS = EnumSet.of(CryptographicType.Hsm, CryptographicType.SymmetricKey, CryptographicType.Passphrase);
 
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private final SecurityManagementService securityManagementService;
