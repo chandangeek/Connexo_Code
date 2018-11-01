@@ -66,7 +66,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -93,6 +95,7 @@ import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -141,7 +144,9 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.HsmSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
@@ -401,12 +406,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
         if (Objects.nonNull(deviceConfiguration)) {
             deviceConfiguration.getPartialConnectionTasks().stream().forEach(partialConnectionTask -> {
-                if (partialConnectionTask instanceof PartialInboundConnectionTask) {
-                    this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask).add();
-                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask){
-                    this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask).add();
+                if (partialConnectionTask instanceof PartialInboundConnectionTask && !this.getInboundConnectionTasks().contains(partialConnectionTask)) {
+                    InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
+                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
+                    inboundConnectionTaskBuilder.add();
+                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask  && !this.getScheduledConnectionTasks().contains(partialConnectionTask)){
+                    ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
+                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
+                    scheduledConnectionTaskBuilder.add();
                 }
             });
+        }
+    }
+
+    private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask partialConnectionTask, InboundConnectionTaskBuilder inboundConnectionTaskBuilder) {
+        if(Objects.isNull(partialConnectionTask.getComPortPool())){
+            inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        }
+    }
+
+    private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask scheduledConnectionTask, ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder) {
+        //it's wrong that the properties name are hardcoded but to add the properties from OutboundIpConnectionProperties.Fields this bundle will have a dependency on com.energyict.mdc.protocols.
+        //also iterating over properties is also not a valid solution because if the property value is null, it isn't present in the list.....
+        if(Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
+            scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
     }
 
@@ -828,10 +851,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getSerialNumber();
-        } else if (meter.isPresent()) {
+        } else if (meter.isPresent() &&  !meter.get().getSerialNumber().isEmpty()) {
             return meter.get().getSerialNumber();
         }
-        return null;
+
+        return this.serialNumber;
     }
 
     @Override
@@ -1241,7 +1265,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setProtocolProperty(String name, Object value) {
         PropertySpec propertySpec = getPropertySpecForProperty(name);
-        String propertyValue = propertySpec.getValueFactory().toStringValue(value);
+        ValueFactory valueFactory = propertySpec.getValueFactory();
+        String propertyValue;
+
+        if (valueFactory instanceof BigDecimalFactory && value instanceof Integer) {
+            propertyValue = ((Integer) value).toString();
+        } else {
+            propertyValue = propertySpec.getValueFactory().toStringValue(value);
+        }
 
         Optional<DeviceProtocolProperty> optionalProperty = getDeviceProtocolProperty(name);
         if (optionalProperty.isPresent()) {
@@ -1259,6 +1290,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (propertyValue != null) {
             DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
+            this.notifyUpdate(deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }
     }
@@ -1281,6 +1313,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return Optional.empty();
+    }
+
+    private void notifyUpdate(DeviceProtocolProperty property) {
+        DevicePropertyUpdateEventEnum
+                .stream()
+                .filter(enumValue -> enumValue.getName().equals(property.getName()))
+                .findFirst()
+                .ifPresent(enumValue -> {
+                    eventService.postEvent(enumValue.getTopic(),
+                            new DeviceProtocolPropertyEventSource(this.getmRID()));
+                });
     }
 
 
@@ -1309,6 +1352,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);
+                this.notifyUpdate(deviceProtocolProperty);
                 dataModel.touch(this);
                 break;
             }
@@ -3392,7 +3436,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case SymmetricKey:
-                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
                 symmetricKeyAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
@@ -3403,6 +3447,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return passphraseAccessor;
             case AsymmetricKey:
                 return null; // TODO implement? will this occur?
+            case Hsm:
+                symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
             default:
                 throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }
