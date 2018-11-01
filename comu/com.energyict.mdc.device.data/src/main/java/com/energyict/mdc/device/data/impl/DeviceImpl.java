@@ -850,10 +850,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getSerialNumber();
-        } else if (meter.isPresent()) {
+        } else if (meter.isPresent() &&  !meter.get().getSerialNumber().isEmpty()) {
             return meter.get().getSerialNumber();
         }
-        return null;
+
+        return this.serialNumber;
     }
 
     @Override
