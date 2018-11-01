@@ -9,6 +9,8 @@ import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+
 /**
  * Models one segment of a {@link CommunicationPath}
  * and cannot be broken down any further.
@@ -38,5 +40,10 @@ public interface CommunicationPathSegment extends Effectivity {
      * @see #getSource()
      */
     public Device getTarget();
+
+    /**
+     * Closes the current interval.
+     */
+    void terminate(Instant closingDate);
 
 }
