@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.energyict.mdc.cim.webservices.outbound.soap.IEndDeviceEventsServiceProvider;
+import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
 import ch.iec.tc57._2011.enddeviceevents.Asset;
@@ -42,12 +42,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
-        service = {IEndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
+        service = {EndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + IEndDeviceEventsServiceProvider.NAME})
-public class EndDeviceEventsServiceProvider implements IEndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider {
+        property = {"name=" + EndDeviceEventsServiceProvider.NAME})
+public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsServiceProvider.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsServiceProviderImpl.class.getName());
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
     private static final String DEVICE_PROTOCOL_CODE_LABEL = "DeviceProtocolCode";
@@ -62,12 +62,12 @@ public class EndDeviceEventsServiceProvider implements IEndDeviceEventsServicePr
     private volatile WebServicesService webServicesService;
     private Thesaurus thesaurus;
 
-    public EndDeviceEventsServiceProvider() {
+    public EndDeviceEventsServiceProviderImpl() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceEventsServiceProvider(WebServicesService webServicesService, NlsService nlsService) {
+    public EndDeviceEventsServiceProviderImpl(WebServicesService webServicesService, NlsService nlsService) {
         this();
         setWebServicesService(webServicesService);
         setNlsService(nlsService);
@@ -80,7 +80,7 @@ public class EndDeviceEventsServiceProvider implements IEndDeviceEventsServicePr
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IEndDeviceEventsServiceProvider.NAME, Layer.SERVICE);
+        this.thesaurus = nlsService.getThesaurus(EndDeviceEventsServiceProvider.NAME, Layer.SERVICE);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

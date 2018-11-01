@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface IEndDeviceEventsServiceProvider {
+public interface EndDeviceEventsServiceProvider {
 
     String NAME = "CIM SendEndDeviceEvents";
 

@@ -6,6 +6,8 @@ package com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
+
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
