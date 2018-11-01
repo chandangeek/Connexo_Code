@@ -152,7 +152,7 @@ public class InstallerImpl implements FullInstaller {
         );
         doTry(
                 "Create default End Device Event Types",
-                () -> createEndDeviceEventTypes(logger),
+                () -> createEndDeviceEventTypes(meteringService, getClass(), logger),
                 logger
         );
         doTry(
@@ -204,9 +204,9 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private void createEndDeviceEventTypes(Logger logger) {
-        try (InputStream resourceAsStream = getClass().getClassLoader()
-                .getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
+    static void createEndDeviceEventTypes(ServerMeteringService meteringService, Class clazz, Logger logger) {
+        try (InputStream resourceAsStream = clazz.getClassLoader()
+                .getResourceAsStream(clazz.getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
             for (String line : new BufferedReaderIterable(reader)) {
                 String[] fields = line.split(",");
@@ -237,7 +237,7 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
+    static Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
         if ("*".equals(field)) {
             return Arrays.asList(EndDeviceEventOrAction.values());
         } else {
@@ -249,11 +249,11 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private String sanitized(String field) {
+    private static String sanitized(String field) {
         return field.toUpperCase().replaceAll("[\\-%]", "");
     }
 
-    private Iterable<EndDeviceSubDomain> subDomains(String field) {
+    static Iterable<EndDeviceSubDomain> subDomains(String field) {
         if ("*".equals(field)) {
             return Arrays.asList(EndDeviceSubDomain.values());
         } else {
@@ -265,7 +265,7 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private Iterable<EndDeviceDomain> domains(String field) {
+    static Iterable<EndDeviceDomain> domains(String field) {
         if ("*".equals(field)) {
             return Arrays.asList(EndDeviceDomain.values());
         } else {
@@ -277,7 +277,7 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private Iterable<EndDeviceType> endDeviceTypes(String field) {
+    static Iterable<EndDeviceType> endDeviceTypes(String field) {
         if ("*".equals(field)) {
             return Arrays.asList(EndDeviceType.values());
         } else {
