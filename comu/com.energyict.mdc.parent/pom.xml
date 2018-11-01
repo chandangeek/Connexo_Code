@@ -259,7 +259,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.topology</artifactId>
-                <version>3.0.1${revision}</version>
+                <version>3.1.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
