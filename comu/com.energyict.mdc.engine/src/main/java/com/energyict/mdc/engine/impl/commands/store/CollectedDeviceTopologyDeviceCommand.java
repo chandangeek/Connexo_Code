@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
@@ -185,10 +186,18 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     private void handlePhysicalTopologyUpdate(ComServerDAO comServerDAO, OfflineDevice device) {
         Map<String, OfflineDevice> oldSlavesBySerialNumber = this.mapOldSlavesToSerialNumber(device);
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = this.mapActualSlavedToDeviceIdAndHandleUnknownDevices(comServerDAO);
+        Map<String, DeviceIdentifier> removedSlavesByDeviceId  = this.mapRemovedSlavesToSerialNumber(comServerDAO);
 
         if (deviceTopology.getJoinedSlaveDeviceIdentifiers() != null) {
             this.processJoinedSlaves(comServerDAO);
         } else {
+            //the actual slaves list in case that some devices have been removed
+            if(actualSlavesByDeviceId.isEmpty() && !removedSlavesByDeviceId.isEmpty()){
+                actualSlavesByDeviceId.putAll(oldSlavesBySerialNumber.entrySet().stream()
+                        .filter(item->!removedSlavesByDeviceId.containsKey(item.getKey()))
+                        .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().getDeviceIdentifier())));
+            }
+
             this.handleSlaveRemoval(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
             this.handleSlaveMoves(comServerDAO, oldSlavesBySerialNumber, actualSlavesByDeviceId);
         }
@@ -296,6 +305,28 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         }
         return oldSlavesBySerialNumber;
     }
+
+    private Map<String, DeviceIdentifier> mapRemovedSlavesToSerialNumber(ComServerDAO comServerDAO) {
+        Map<String, DeviceIdentifier> removedSlavesBySerialNumber = new HashMap<>();
+        Collection<DeviceIdentifier> lostSlaveDevices = deviceTopology.getLostSlaveDeviceIdentifiers();
+        if(lostSlaveDevices !=  null){
+            for (DeviceIdentifier slaveId : lostSlaveDevices) {
+                Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
+                try {
+                    slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+                } catch (CanNotFindForIdentifier e) {
+                    this.addIssue(
+                            CompletionCode.ConfigurationWarning,
+                            getIssueService().newProblem(deviceTopology, e.getMessageSeed(), slaveId));
+                }
+                if (slave.isPresent()) {
+                    removedSlavesBySerialNumber.put(slave.get().getSerialNumber(), slaveId);
+                }
+            }
+        }
+        return removedSlavesBySerialNumber;
+    }
+
 
     /**
      * Method to execute when we detect a removed slave device.
