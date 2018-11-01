@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -63,4 +64,8 @@ public class G3CommunicationPathSegmentImpl extends CommunicationPathSegmentImpl
         this.cost = cost;
     }
 
+    @Override
+    public void terminate(Instant closingDate) {
+        super.terminate(closingDate);
+    }
 }

@@ -60,6 +60,14 @@ public interface TopologyService {
      */
     void clearPhysicalGateway(Device slave);
 
+    /**
+     * Clears the old communication segment of the gateway{@link Device},
+     * i.e. removes all communication paths that has as source the specified device.
+     * We use the current timestamp to remove the communication path, but round it down to the previous minute.
+     *
+     * @param gateway, the source device
+     */
+    void clearOldCommunicationPathSegments(Device gateway, Instant now);
 
     /**
      * Finds the {@link Device}s that are physically connected to the specified Device.

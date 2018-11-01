@@ -87,4 +87,12 @@ public abstract class CommunicationPathSegmentImpl implements CommunicationPathS
         return this.interval;
     }
 
+    @Override
+    public void terminate(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw new IllegalArgumentException();
+        }
+        interval = interval.withEnd(closingDate);
+    }
+
 }

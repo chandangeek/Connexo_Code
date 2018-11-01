@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.device.topology</artifactId>
-    <version>3.0.1${revision}</version>
+    <version>3.1.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.topology [init DTL]</name>
     <description>
