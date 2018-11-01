@@ -34,6 +34,7 @@ public class DeviceTopologyInfo {
 
     public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         return timeline.getAllDevices().stream()
+                .filter(device -> hasNotEnded(timeline, device))
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
                 .map(d -> from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
