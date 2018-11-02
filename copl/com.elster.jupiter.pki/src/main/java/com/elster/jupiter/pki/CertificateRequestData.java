@@ -2,8 +2,6 @@ package com.elster.jupiter.pki;
 
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Map;
 
 public class CertificateRequestData {
