@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>hsm</artifactId>
-    <version>1.0.1${revision}</version>
+    <version>1.1.0${revision}</version>
     <name>[HSM] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>com.atos.worldline</groupId>
             <artifactId>jss-runtime-embedded</artifactId>
-            <version>9.5.0</version>
+            <version>9.5.1</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
