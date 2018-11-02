@@ -14,7 +14,7 @@ public class CertificateRequestData {
 
 
     public CertificateRequestData(String caName, String endEntityName,String certificateProfileName) {
-        if (StringUtils.isEmpty(caName) || StringUtils.isEmpty(endEntityName) || StringUtils.isEmpty(certificateProfileName)) {
+        if (isEmpty(caName) || isEmpty(endEntityName) || isEmpty(certificateProfileName)) {
             throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
         }
         this.caName = caName;
@@ -37,6 +37,10 @@ public class CertificateRequestData {
 
     public static CertificateRequestData from(Map<String, Object> properties){
         return new CertificateRequestData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()));
+    }
+
+    private boolean isEmpty(String caName) {
+        return caName == null || caName.isEmpty();
     }
 
 }
