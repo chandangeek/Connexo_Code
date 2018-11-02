@@ -1,6 +1,10 @@
 package com.elster.jupiter.pki;
 
-import javax.validation.constraints.NotNull;
+import com.elster.jupiter.pki.impl.importers.csr.CSRImporterTranslatedProperty;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 public class CertificateRequestData {
 
@@ -9,7 +13,10 @@ public class CertificateRequestData {
     private final String certificateProfileName;
 
 
-    public CertificateRequestData(@NotNull  String caName, @NotNull String endEntityName, @NotNull String certificateProfileName) {
+    public CertificateRequestData(String caName, String endEntityName,String certificateProfileName) {
+        if (StringUtils.isEmpty(caName) || StringUtils.isEmpty(endEntityName) || StringUtils.isEmpty(certificateProfileName)) {
+            throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
+        }
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
@@ -27,4 +34,9 @@ public class CertificateRequestData {
     public String getCertificateProfileName() {
         return certificateProfileName;
     }
+
+    public static CertificateRequestData from(Map<String, Object> properties){
+        return new CertificateRequestData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()));
+    }
+
 }

@@ -66,8 +66,8 @@ class CSRImporter implements FileImporter {
 
             Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
                     .parseInputStream(reusableInputStream.stream());
-
-            Optional<CertificateRequestData> certificateUserData = Optional.of(new CertificateRequestData((String)properties.get(CSRImporterTranslatedProperty.CA_NAME),(String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME),(String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME)));;
+            // kind of ugly but model forced us to send optional later on ...
+            Optional<CertificateRequestData> certificateUserData = Optional.of(CertificateRequestData.from(properties));
             Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger, certificateUserData)
                     .process(csrMap);
 
