@@ -41,7 +41,7 @@ public class CryptoAssociationControlServiceElement extends AssociationControlSe
         IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         DataAndAuthenticationTag dataAndAuthenticationTag;
         try {
-            dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApdu(userInformation, getInitialVector(), ak, ek, getSecurityContext().getSecuritySuite());
+            dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApduWithAAD(userInformation, new byte[0], getInitialVector(), ak, ek, getSecurityContext().getSecuritySuite());
         } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
@@ -63,7 +63,7 @@ public class CryptoAssociationControlServiceElement extends AssociationControlSe
         IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getGlobalKey());
         IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         try {
-            return Services.hsmService().verifyAuthenticationDecryptApdu(cipheredText, authenticationTag, getInitialVector(getRespondingAPTtitle(), frameCounter), ak, ek, getSecurityContext().getSecuritySuite());
+            return Services.hsmService().verifyAuthenticationDecryptApduWithAAD(cipheredText, new byte[0], authenticationTag, getInitialVector(getRespondingAPTtitle(), frameCounter), ak, ek, getSecurityContext().getSecuritySuite());
         } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
