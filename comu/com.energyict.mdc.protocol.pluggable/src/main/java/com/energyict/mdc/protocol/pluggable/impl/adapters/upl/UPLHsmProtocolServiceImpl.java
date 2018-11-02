@@ -71,6 +71,15 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
+    public byte[] authenticateApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
+        try {
+            return actual.authenticateApduWithAAD(apdu, additionalAuthenticationData, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
     public byte[] encryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
         try {
             return actual.encryptApdu(apdu, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
@@ -91,9 +100,29 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
+    public DataAndAuthenticationTag authenticateEncryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
+        com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag hsmDataAndAuthenticationTag;
+        try {
+            hsmDataAndAuthenticationTag = actual.authenticateEncryptApduWithAAD(apdu, additionalAuthenticationData, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
+            return adaptHsmDataAndAuthenticationTagToUplValue(hsmDataAndAuthenticationTag);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
     public void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
         try {
             actual.verifyApduAuthentication(apdu, authenticationTag, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
+    public void verifyApduAuthenticationWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
+        try {
+            actual.verifyApduAuthenticationWithAAD(apdu, additionalAuthenticationData, authenticationTag, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
@@ -112,6 +141,15 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     public byte[] verifyAuthenticationDecryptApdu(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
         try {
             return actual.verifyAuthenticationDecryptApdu(apdu, authenticationTag, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
+    public byte[] verifyAuthenticationDecryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
+        try {
+            return actual.verifyAuthenticationDecryptApduWithAAD(apdu, additionalAuthenticationData, authenticationTag, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
