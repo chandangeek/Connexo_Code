@@ -1,9 +1,11 @@
 package com.energyict.mdc.upl.crypto;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.protocol.exceptions.HsmException;
 
 import java.security.cert.Certificate;
 
+@ProviderType
 public interface HsmProtocolService {
 
     byte[] generateDigestMD5(byte[] challenge, IrreversibleKey hlsSecret) throws HsmException;
@@ -12,20 +14,46 @@ public interface HsmProtocolService {
 
     byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
+    @Deprecated
+    /**
+     * this method is not working in case of General ciphering. Instead HsmProtocolService#authenticateApduWithAAD should be used
+     */
     byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
+
+    byte[] authenticateApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
     byte[] encryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
+    @Deprecated
+    /**
+     * this method is not working in case of General ciphering. Instead HsmProtocolService#authenticateEncryptApduWithAAD should be used
+     */
     DataAndAuthenticationTag authenticateEncryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite)
             throws HsmException;
 
+    DataAndAuthenticationTag authenticateEncryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite)
+            throws HsmException;
+
+    @Deprecated
+    /**
+     * this method is not working in case of General ciphering. Instead HsmProtocolService#verifyApduAuthenticationWithAAD should be used
+     */
     void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite)
             throws HsmException;
 
+    void verifyApduAuthenticationWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
+
     byte[] decryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
+    @Deprecated
+    /**
+     * this method is not working in case of General ciphering. Instead HsmProtocolService#verifyAuthenticationDecryptApduWithAAD should be used
+     */
     byte[] verifyAuthenticationDecryptApdu(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak,
                                            IrreversibleKey guek, int securitySuite) throws HsmException;
+
+    byte[] verifyAuthenticationDecryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, IrreversibleKey gak,
+                                                  IrreversibleKey guek, int securitySuite) throws HsmException;
 
     byte[] wrapMeterKeyForConcentrator(IrreversibleKey meterKey, IrreversibleKey concentratorKey) throws HsmException;
 
