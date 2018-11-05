@@ -76,7 +76,7 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
 
     protected PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_RETRIES, getPropertySpecService()::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_TIMEOUT, getPropertySpecService()::durationSpec)
                 .setDefaultValue(DEFAULT_TCP_TIMEOUT)
                 .finish();
     }

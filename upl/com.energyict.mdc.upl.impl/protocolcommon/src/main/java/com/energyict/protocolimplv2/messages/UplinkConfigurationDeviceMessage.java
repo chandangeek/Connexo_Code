@@ -41,6 +41,15 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.uplinkPingTimeout, DeviceMessageConstants.uplinkPingTimeoutDefaultTranslation));
         }
+    },
+
+    WRITE_MAX_INACTIVE_UPLINK(36005, "Write firmware maximum inactive uplink interval") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.durationSpec(service, DeviceMessageConstants.uplinkMaxInactiveInterval, DeviceMessageConstants.uplinkMaxInactiveIntervalDefaultTranslation)
+            );
+        }
     };
 
     private final long id;
@@ -57,26 +66,6 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
     }
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
-
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .booleanSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);

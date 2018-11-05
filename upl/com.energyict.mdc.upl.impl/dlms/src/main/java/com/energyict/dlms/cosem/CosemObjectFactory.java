@@ -823,6 +823,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DataProtection(this.protocolLink, this.getObjectReference(DataProtection.OBIS_CODE));
     }
 
+    public FirmwareConfigurationIC getFirmwareConfigurationIC() throws NotInObjectListException {
+        return new FirmwareConfigurationIC(this.protocolLink, this.getObjectReference(FirmwareConfigurationIC.OBIS_CODE));
+    }
+
     public InactiveFirmwareIC getInactiveFirmwareIC() throws NotInObjectListException {
         return new InactiveFirmwareIC(this.protocolLink, this.getObjectReference(InactiveFirmwareIC.OBIS_CODE));
     }
@@ -847,7 +851,15 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new LTEMonitoringIC(this.protocolLink, this.getObjectReference(obisCode));
     }
 
+    public WWANStateTransitionIC getWWANStateTransitionIC(ObisCode obisCode) throws NotInObjectListException {
+        return new WWANStateTransitionIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
     public GSMDiagnosticsIC getGSMDiagnosticsIC(ObisCode obisCode) throws NotInObjectListException {
         return new GSMDiagnosticsIC(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
+    public RenewGMKSingleActionScheduleIC getRenewGMKSingleActionScheduleIC() throws NotInObjectListException {
+        return new RenewGMKSingleActionScheduleIC(this.protocolLink, this.getObjectReference(RenewGMKSingleActionScheduleIC.OBIS_CODE));
     }
 }

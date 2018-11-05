@@ -27,11 +27,10 @@ public enum AlgorithmID {
      */
     AES_WRAP_256(3);
 
-    // FIXME : This should be 2.16.756.5.8.3.x, but the encoded value in the green book has 06 instead of 05, so we'll use that for the time being.
     /**
      * The OID pattern.
      */
-    private static final String OID_PATTERN = "2.16.756.6.8.3.%d";
+    private static final String OID_PATTERN = "2.16.756.5.8.3.%d";
 
     /**
      * The algo ID.

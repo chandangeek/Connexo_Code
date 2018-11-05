@@ -3,9 +3,6 @@
  *
  * Created on 16 oktober 2007, 11:35
  *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.dlms.axrdencoding;
@@ -14,8 +11,10 @@ import com.energyict.mdc.upl.ProtocolException;
 
 import com.energyict.dlms.DLMSUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -87,6 +86,11 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
      * @param nrOfBits this parameter is ignored
      */
     public BitString(final long value, final int size, final int nrOfBits) {
+
+        if (size > Long.SIZE || nrOfBits > Long.SIZE) {
+            throw new IllegalArgumentException("Wrong size of bits for LONG!");
+        }
+
         this.nrOfBits = size;
         this.bitSet = new BitSet(this.nrOfBits);
         for (int i = 0; i < size; i++) {
@@ -95,17 +99,58 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
         }
     }
 
-    protected byte[] doGetBEREncodedByteArray() {
-        final byte[] encodedLength = DLMSUtils.getAXDRLengthEncoding(this.nrOfBits);
-        final byte[] data = new byte[(this.nrOfBits / 8) + ((this.nrOfBits % 8) > 0 ? 1 : 0) + 1 + encodedLength.length];
-        data[0] = AxdrType.BIT_STRING.getTag();
-        for (int i = 0; i < encodedLength.length; i++) {
-            data[1 + i] = encodedLength[i];
+    public BitString(final BigDecimal value, final int nrOfBits) {
+        final BigInteger bigIntegerValue = value.toBigInteger();
+        this.nrOfBits = nrOfBits;
+        this.bitSet = new BitSet(this.nrOfBits);
+        for (int i = 0; i < nrOfBits; i++) {
+            final long bitValue = bigIntegerValue.shiftRight(i).testBit(0) ? 1 : 0;
+            this.bitSet.set(this.nrOfBits - (i + 1), bitValue != 0);
         }
-        for (int i = 0; i < (data.length - (1 + encodedLength.length)); i++) {
-            data[(data.length - 1) - i] = (byte) (longValue() >> (8 * i));
+    }
+
+    /**
+     * Returns the number of bytes required.
+     *
+     * @return    The number of bytes required.
+     */
+    private int getNumberOfBytesRequired() {
+        return (this.nrOfBits / 8) + (this.nrOfBits % 8 > 0 ? 1 : 0);
+    }
+
+    /**
+     * Returns the data in the form of an integer array.
+     *
+     * @return    The data in the form of an integer array.
+     */
+    public byte[] getData() {
+        final byte[] data = new byte[this.getNumberOfBytesRequired()];
+
+        for (int i = 0; i < data.length; i++) {
+            byte current = 0;
+
+            for (int j = 0; j < 8; j++) {
+                current |= (this.bitSet.get((i * 8) + j) ? (0x80 >>> j) : 0x00);
+            }
+
+            data[i] = current;
         }
+
         return data;
+    }
+
+    protected byte[] doGetBEREncodedByteArray() {
+        try {
+            final ByteArrayOutputStream stream = new ByteArrayOutputStream();;
+
+            stream.write(AxdrType.BIT_STRING.getTag());
+            stream.write( DLMSUtils.getAXDRLengthEncoding( this.nrOfBits ) );
+            stream.write( this.getData() );
+
+            return stream.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException("IO error when encoding bitstring : [" + e.getMessage() + "]", e);
+        }
     }
 
     /**

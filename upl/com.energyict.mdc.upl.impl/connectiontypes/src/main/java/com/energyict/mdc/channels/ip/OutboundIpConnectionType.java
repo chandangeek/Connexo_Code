@@ -32,7 +32,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec hostPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(HOST_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_IP_HOST, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(HOST_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_HOST, this.propertySpecService::stringSpec).finish();
     }
 
     protected String hostPropertyValue() {
@@ -40,7 +40,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PORT_PROPERTY_NAME, true, PropertyTranslationKeys.OUTBOUND_IP_PORT_NUMBER, this.propertySpecService::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PORT_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_PORT_NUMBER, this.propertySpecService::bigDecimalSpec).finish();
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {

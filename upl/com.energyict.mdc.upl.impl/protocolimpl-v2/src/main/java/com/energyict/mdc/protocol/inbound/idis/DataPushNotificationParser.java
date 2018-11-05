@@ -66,7 +66,7 @@ public class DataPushNotificationParser {
     private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
 
     protected final ObisCode logbookObisCode;
-    private final InboundDiscoveryContext context;
+    protected final InboundDiscoveryContext context;
     protected final CollectedDataFactory collectedDataFactory;
     public InboundDAO inboundDAO;
     protected DeviceIdentifier deviceIdentifier;

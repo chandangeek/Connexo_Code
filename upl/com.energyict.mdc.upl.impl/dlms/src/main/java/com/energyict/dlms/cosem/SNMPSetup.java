@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
+import com.energyict.dlms.cosem.methods.SNMPSetupMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -150,6 +151,14 @@ public class SNMPSetup extends AbstractCosemObject {
 
     public void enableInterfaces(Array interfacesArray) throws IOException {
         write(SNMPAttributes.ENABLED_INTERFACES, interfacesArray.getBEREncodedByteArray());
+    }
+
+    public void writeAttribute(SNMPAttributes attribute, AbstractDataType data) throws IOException {
+        write(attribute, data);
+    }
+
+    public void invokeSNMPMethod(SNMPSetupMethods snmpSetupMethod, AbstractDataType data) throws IOException {
+        methodInvoke(snmpSetupMethod, data);
     }
 
 
