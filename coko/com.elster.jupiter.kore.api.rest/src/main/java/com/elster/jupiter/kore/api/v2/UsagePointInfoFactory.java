@@ -200,6 +200,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         if (coordinates != null) {
             usagePointBuilder.withGeoCoordinates(coordinates);
         }
+        if (usagePointInfo.lifeCycle != null) {
+            usagePointBuilder.withLifeCycle(usagePointInfo.lifeCycle.name);
+        }
         addCustomPropertySetsValues(usagePointBuilder, usagePointInfo.customPropertySets);
         UsagePoint usagePoint = usagePointBuilder.create();
         createDefaultDetails(usagePoint);

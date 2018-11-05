@@ -6,6 +6,7 @@ package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,5 +38,5 @@ public class UsagePointInfo extends LinkInfo<Long> {
     public List<LinkInfo> usagePointConfigurations;
 
     public LinkInfo state;
-
+    public IdWithNameInfo lifeCycle;
 }
