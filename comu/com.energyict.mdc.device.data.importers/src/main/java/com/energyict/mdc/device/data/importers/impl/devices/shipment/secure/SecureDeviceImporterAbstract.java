@@ -142,7 +142,7 @@ public abstract class SecureDeviceImporterAbstract {
             CertificateException,
             InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
-            CertPathValidatorException, IOException, HsmBaseException {
+            CertPathValidatorException, IOException, ImportFailedException, HsmBaseException {
         ReusableInputStream inputStreamProvider = ReusableInputStream.from(fileImportOccurrence.getContents());
         Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.stream());
         if (shouldValidateCert()) {
@@ -211,11 +211,13 @@ public abstract class SecureDeviceImporterAbstract {
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
                     importDeviceKey(device, deviceKey, wrapKeyMap, logger);
                 }
-
                 postProcessDevice(device, xmlDevice, shipment, logger);
                 log(logger, MessageSeeds.IMPORTED_DEVICE, deviceName);
                 deviceCount++;
-            } catch (Exception e) {
+            } catch (ImportFailedException e) {
+                throw e;
+            }
+            catch (Exception e) {
                 log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
                 throw new RuntimeException(e);
             }
@@ -223,7 +225,7 @@ public abstract class SecureDeviceImporterAbstract {
         return deviceCount;
     }
 
-    protected abstract void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException;
+    protected abstract void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException, ImportFailedException;
 
     /**
      * Creates a map to quickly get a WrapKey from its label
@@ -346,6 +348,7 @@ public abstract class SecureDeviceImporterAbstract {
         logger.log(messageSeed.getLevel(), thesaurus.getFormat(messageSeed).format(e));
     }
 
+
     private void verifySignature(InputStream inputStream, PublicKey publicKey, Logger logger) throws CertificateException {
         try {
             DOMValidateContext validateContext = new DOMValidateContext(publicKey, getSignatureNode(inputStream));
@@ -429,18 +432,12 @@ public abstract class SecureDeviceImporterAbstract {
         }
     }
 
-    protected SecurityAccessorType getSecurityAccessorType(Device device, String securityAccessorName, Logger logger) {
-        Optional<SecurityAccessorType> securityAccessorTypeOptional = device.getDeviceType()
+    protected Optional<SecurityAccessorType> getSecurityAccessorType(Device device, String securityAccessorName, Logger logger) {
+        return device.getDeviceType()
                 .getSecurityAccessorTypes()
                 .stream()
                 .filter(kat -> kat.getName().equals(securityAccessorName))
                 .findAny();
-        if (!securityAccessorTypeOptional.isPresent()) {
-            log(logger, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName);
-            return null;
-        } else {
-            return securityAccessorTypeOptional.get();
-        }
     }
 
     private interface DeviceCreator {

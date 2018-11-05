@@ -42,7 +42,7 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
     @Override
     protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) {
         String securityAccessorName = deviceKey.getName();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
         final WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
         if (wrapKey == null) {
             throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
@@ -72,6 +72,6 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
 
     @Override
     protected boolean shouldValidateCert() {
-        return true;
+        return false;
     }
 }
