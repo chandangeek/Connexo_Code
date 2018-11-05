@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -117,6 +118,9 @@ public class ConnectionMethodResource {
     };
 
     private boolean hasAllRequiredProps(ConnectionTask<?,?> task) {
+        //if the connection is inbound don't check the props: host name and portPool
+        if (InboundConnectionTask.class.isAssignableFrom(task.getClass()))
+            return true;
         List<ConnectionTaskProperty> props = task.getProperties();
         return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
     }
