@@ -12,23 +12,36 @@ import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDe
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
+import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -52,8 +65,10 @@ public class CreateBeaconDeviceCommand {
     private String host = "158.138.16.171";
     private boolean withLocation;
     private KeyAccessorValuePersister keyAccessorValuePersister;
+    private final ProtocolPluggableService protocolPluggableService;
     static final String SECURITY_PROPERTY_SET_NAME = "No security";
     static final String SECURITY_ACCESSOR_TYPE = "PSK";
+    private Map<ComTaskTpl, ComTask> comTasks;
 
     @Inject
     public CreateBeaconDeviceCommand(DeviceService deviceService,
@@ -63,7 +78,7 @@ public class CreateBeaconDeviceCommand {
                                      Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
                                      Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
                                      Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
-                                     Clock clock) {
+                                     Clock clock, ProtocolPluggableService protocolPluggableService) {
         this.deviceService = deviceService;
         this.securityManagementService = securityManagementService;
         this.connectionTaskService = connectionTaskService;
@@ -72,6 +87,7 @@ public class CreateBeaconDeviceCommand {
         this.setCustomAttributeValuesToDevicePostBuilderProvider = setCustomAttributeValuesToDevicePostBuilderProvider;
         this.addLocationInfoToDevicesCommandProvider = addLocationInfoToDevicesCommandProvider;
         this.clock = clock;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     public void setDeviceName(String deviceName) {
@@ -128,6 +144,7 @@ public class CreateBeaconDeviceCommand {
     }
 
     public String run() {
+        findComTasks();
         if (this.serialNumber == null) {
             throw new UnableToCreate("Please specify the serial number for device");
         }
@@ -154,11 +171,10 @@ public class CreateBeaconDeviceCommand {
                 .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
                 .get();
 
-
         addSecurityPropertiesToDevice(device);
 
         device.save();
-        // addConnectionTasksToDevice(device);
+        addConnectionTasksToDevice(device);
         // add location
         AddLocationInfoToDevicesCommand addLocationInfoToDevicesCommand = this.addLocationInfoToDevicesCommandProvider.get();
         addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device));
@@ -171,16 +187,49 @@ public class CreateBeaconDeviceCommand {
         return deviceName;
     }
 
+
+    private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
+
+    }
+
     private void addConnectionTasksToDevice(Device device) {
+
         DeviceConfiguration configuration = device.getDeviceConfiguration();
-        //PartialScheduledConnectionTask outboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-        //ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(outboundConnectionTask).add();
-        //connectionTaskService.setDefaultConnectionTask(scheduledConnectionTask);
+        PartialScheduledConnectionTask outboundConnectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+        if(!connectionTaskService.findConnectionTaskForPartialOnDevice(outboundConnectionTask, device).isPresent()) {
+            ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(outboundConnectionTask)
+                    .setComPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
+                    .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                    .setNextExecutionSpecsFrom(null)
+                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                    .setProperty("host", "localhost")
+                    .setProperty("portNumber", new BigDecimal(4059))
+                    .setNumberOfSimultaneousConnections(1)
+                    .add();
+            connectionTaskService.setConnectionTaskHavingConnectionFunction(scheduledConnectionTask, Optional.empty());
+        }
+
+
         PartialInboundConnectionTask partialInboundConnectionTask = configuration.getPartialInboundConnectionTasks().get(0);
-        InboundConnectionTask inboundConnectionTask = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
-                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .add();
-        connectionTaskService.setConnectionTaskHavingConnectionFunction(inboundConnectionTask, Optional.empty());
+        if(!connectionTaskService.findConnectionTaskForPartialOnDevice(partialInboundConnectionTask, device).isPresent()){
+            InboundConnectionTask inboundConnectionTask = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
+                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                    .add();
+            connectionTaskService.setConnectionTaskHavingConnectionFunction(inboundConnectionTask, Optional.empty());
+        }
+    }
+
+
+    private void addComTasksToDevice(Device device) {
+        addComTaskToDevice(device, ComTaskTpl.READ_LOG_BOOK_DATA, TimeDuration.hours(1));
+        addComTaskToDevice(device, ComTaskTpl.READ_LOAD_PROFILE_DATA, TimeDuration.hours(1));
+        addComTaskToDevice(device, ComTaskTpl.READ_REGISTER_DATA, TimeDuration.minutes(15));
+    }
+
+    private void addComTaskToDevice(Device device, ComTaskTpl comTask, TimeDuration every) {
+        DeviceConfiguration configuration = device.getDeviceConfiguration();
+        ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(comTasks.get(comTask)).get();
+        device.newManuallyScheduledComTaskExecution(taskEnablement, new TemporalExpression(every)).add();
     }
 
     private void addSecurityPropertiesToDevice(Device device) {
@@ -192,5 +241,18 @@ public class CreateBeaconDeviceCommand {
             keyAccessorValuePersister = new KeyAccessorValuePersister(securityManagementService);
         }
         return keyAccessorValuePersister;
+    }
+
+
+    private void findComTasks() {
+        comTasks = new HashMap<>();
+        // findComTask(ComTaskTpl.READ_ALL);
+        findComTask(ComTaskTpl.READ_LOAD_PROFILE_DATA);
+        findComTask(ComTaskTpl.READ_LOG_BOOK_DATA);
+        findComTask(ComTaskTpl.READ_REGISTER_DATA);
+    }
+
+    private ComTask findComTask(ComTaskTpl comTaskTpl) {
+        return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
     }
 }
