@@ -110,7 +110,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     private KeyType createOrGetKeyType(KeyAccessorTpl keyAccessorType) {
         if (keyAccessorType.getName().contains("Password")) {
             return securityManagementService.getKeyType(keyAccessorType.getName())
-                    .orElseGet(() -> securityManagementService.newPassphraseType(keyAccessorType.getName()).withSpecialCharacters().length(keyAccessorType.getKeyType().getKeySize()).add());
+                    .orElseGet(() -> securityManagementService.newPassphraseType(keyAccessorType.getName()).withSpecialCharacters().length(keyAccessorType.getKeyType().getKeySize() !=null ? keyAccessorType.getKeyType().getKeySize() : keyAccessorType.getKeyType().getSpecialCharacters()).add());
         } else {
             return securityManagementService.getKeyType(keyAccessorType.getName())
                     .orElseGet(() -> securityManagementService.newSymmetricKeyType(keyAccessorType.getName(), keyAccessorType.getKeyType().getKeyAlgorithmName(), keyAccessorType.getKeyType().getKeySize()).add());
