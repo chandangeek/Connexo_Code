@@ -5,7 +5,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 
-public class ReadingsInfoType {
+public class ReadingInfoType {
     private Meter meter;
     private UsagePoint usagePoint;
     private ReadingType readingType;
@@ -42,5 +42,4 @@ public class ReadingsInfoType {
     public void setReading(BaseReading reading) {
         this.reading = reading;
     }
-
 }

@@ -19,9 +19,9 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingInfoType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingsInfoType;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -76,41 +76,6 @@ class ReadingStorerImpl implements ReadingStorer {
     private ObserverContainer<OverflowListener> overflowListeners = new ThreadSafeObserverContainer<>();
     private ObserverContainer<BackflowListener> backflowListeners = new ThreadSafeObserverContainer<>();
 
-    private static class Derivation {
-        private final ChannelContract channel;
-        private final IReadingType readingType;
-        private final DerivationRule derivationRule;
-        private final int index;
-
-        public Derivation(ChannelContract channel, IReadingType readingType, DerivationRule derivationRule, int index) {
-            this.channel = channel;
-            this.readingType = readingType;
-            this.derivationRule = derivationRule;
-            this.index = index;
-        }
-
-        public IReadingType getReadingType() {
-            return readingType;
-        }
-
-        public DerivationRule getDerivationRule() {
-            return derivationRule;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public ChannelContract getChannel() {
-            return channel;
-        }
-
-    }
-
-    private enum FlowDetection {
-        NORMAL, OVERFLOW, BACKFLOW
-    }
-
     private ReadingStorerImpl(IdsService idsService, EventService eventService, Behaviours updateBehaviour, StorerProcess storerProcess) {
         this.idsService = idsService;
         this.eventService = eventService;
@@ -135,101 +100,24 @@ class ReadingStorerImpl implements ReadingStorer {
         return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE, storerProcess);
     }
 
-    private interface UpdateBehaviour {
-        TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService);
-    }
-
-    private enum Behaviours implements UpdateBehaviour {
-        INSERT_ONLY {
-            @Override
-            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
-                return idsService.createNonOverrulingStorer();
-            }
-        },
-
-        OVERRULE {
-            @Override
-            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
-                return idsService.createOverrulingStorer();
-            }
-        },
-
-        UPDATE {
-            @Override
-            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
-                return idsService.createUpdatingStorer();
-            }
-
-            @Override
-            Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
-                HashSet<Pair<ChannelContract, Instant>> needed = new HashSet<>(valuesView.keySet());
-                needed.addAll(super.determineNeed(valuesView));
-                return needed;
-            }
-        };
-
-        Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
-            return valuesView.keySet()
-                    .stream()
-                    .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
-                    .collect(Collectors.toSet());
+    private static FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
+        if (value.compareTo(overflowValue) > 0) {
+            return FlowDetection.OVERFLOW;
         }
-
-    }
-
-    @Override
-    public void addReading(CimChannel channel, BaseReading reading) {
-        addReading(channel, reading, DEFAULTPROCESSSTATUS);
-    }
-
-    @Override
-    public void addReading(CimChannel channel, BaseReading reading, ProcessStatus status) {
-        ChannelContract channelContract = (ChannelContract) channel.getChannel();
-        Pair<ChannelContract, Instant> key = Pair.of(channelContract, reading.getTimeStamp());
-        int offset = channel.isRegular() ? 2 : 1;
-
-        List<? extends FieldSpec> fieldSpecs = channelContract.getTimeSeries().getRecordSpec().getFieldSpecs();
-
-        Object[] values = consolidatedValues.computeIfAbsent(key, k -> {
-            Object[] newValues = new Object[fieldSpecs.size()];
-            IntStream.range(0, newValues.length).forEach(i -> newValues[i] = storer.doNotUpdateMarker());
-            return newValues;
-        });
-        Object[] valuesToAdd = channelContract.toArray(reading, channel.getReadingType(), status);
-
-        IntStream.range(offset, values.length)
-                .filter(i -> valuesToAdd[i] != null)
-                .forEach(i -> values[i] = valuesToAdd[i]);
-
-        ProcessStatus processStatus;
-        if (values[0] != null && !Objects.equals(storer.doNotUpdateMarker(), values[0])) {
-            processStatus = status.or(new ProcessStatus((Long) values[0]));
-        } else {
-            processStatus = status;
+        if (previousValue != null && cimChannel.getReadingType().isCumulative()) {
+            BigDecimal diff = previousValue.subtract(value).abs();
+            BigDecimal halfOfRange = overflowValue.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
+            if (is(value).smallerThan(previousValue)) {
+                if (diff.compareTo(halfOfRange) < 0) {
+                    return FlowDetection.BACKFLOW;
+                } else {
+                    return FlowDetection.OVERFLOW;
+                }
+            } else if (is(diff).greaterThan(halfOfRange)) {
+                return FlowDetection.BACKFLOW;
+            }
         }
-        values[0] = processStatus.getBits();
-        if (reading instanceof IntervalReading) {
-            values[1] = 0L; //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
-        }
-        addScope(channel, reading.getTimeStamp());
-        readings.put(key, reading);
-    }
-
-    @Override
-    public void execute(QualityCodeSystem system) {
-        doDeltas();
-        doMultiplications();
-        consolidatedValues.entrySet()
-                .forEach(entry -> {
-                    ChannelContract channel = entry.getKey().getFirst();
-                    Instant timestamp = entry.getKey().getLast();
-                    Object[] values = entry.getValue();
-                    channel.validateValues(readings.get(entry.getKey()), values);
-                    overflowBackflowDetection(system, channel, timestamp, values);
-                    storer.add(channel.getTimeSeries(), timestamp, values);
-                });
-        storer.execute();
-        eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
+        return FlowDetection.NORMAL;
     }
 
     private void overflowBackflowDetection(QualityCodeSystem system, ChannelContract channel, Instant timestamp, Object[] values) {
@@ -264,26 +152,6 @@ class ReadingStorerImpl implements ReadingStorer {
                 default:
             }
         }
-    }
-
-    private static FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
-        if (value.compareTo(overflowValue) > 0) {
-            return FlowDetection.OVERFLOW;
-        }
-        if (previousValue != null && cimChannel.getReadingType().isCumulative()) {
-            BigDecimal diff = previousValue.subtract(value).abs();
-            BigDecimal halfOfRange = overflowValue.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
-            if (is(value).smallerThan(previousValue)) {
-                if (diff.compareTo(halfOfRange) < 0) {
-                    return FlowDetection.BACKFLOW;
-                } else {
-                    return FlowDetection.OVERFLOW;
-                }
-            } else if (is(diff).greaterThan(halfOfRange)) {
-                return FlowDetection.BACKFLOW;
-            }
-        }
-        return FlowDetection.NORMAL;
     }
 
     private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
@@ -591,12 +459,63 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     @Override
-    public Map<CimChannel, Range<Instant>> getScope() {
-        return Collections.unmodifiableMap(scope);
+    public void execute(QualityCodeSystem system) {
+        doDeltas();
+        doMultiplications();
+        consolidatedValues.entrySet()
+                .forEach(entry -> {
+                    ChannelContract channel = entry.getKey().getFirst();
+                    Instant timestamp = entry.getKey().getLast();
+                    Object[] values = entry.getValue();
+                    channel.validateValues(readings.get(entry.getKey()), values);
+                    overflowBackflowDetection(system, channel, timestamp, values);
+                    storer.add(channel.getTimeSeries(), timestamp, values);
+                });
+        storer.execute();
+        eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
 
-    private void addScope(CimChannel channel, Instant timestamp) {
-        scope.merge(channel, Range.singleton(timestamp), Range::span);
+    @Override
+    public void addReading(CimChannel channel, BaseReading reading) {
+        addReading(channel, reading, DEFAULTPROCESSSTATUS);
+    }
+
+    @Override
+    public void addReading(CimChannel channel, BaseReading reading, ProcessStatus status) {
+        ChannelContract channelContract = (ChannelContract) channel.getChannel();
+        Pair<ChannelContract, Instant> key = Pair.of(channelContract, reading.getTimeStamp());
+        int offset = channel.isRegular() ? 2 : 1;
+
+        List<? extends FieldSpec> fieldSpecs = channelContract.getTimeSeries().getRecordSpec().getFieldSpecs();
+
+        Object[] values = consolidatedValues.computeIfAbsent(key, k -> {
+            Object[] newValues = new Object[fieldSpecs.size()];
+            IntStream.range(0, newValues.length).forEach(i -> newValues[i] = storer.doNotUpdateMarker());
+            return newValues;
+        });
+        Object[] valuesToAdd = channelContract.toArray(reading, channel.getReadingType(), status);
+
+        IntStream.range(offset, values.length)
+                .filter(i -> valuesToAdd[i] != null)
+                .forEach(i -> values[i] = valuesToAdd[i]);
+
+        ProcessStatus processStatus;
+        if (values[0] != null && !Objects.equals(storer.doNotUpdateMarker(), values[0])) {
+            processStatus = status.or(new ProcessStatus((Long) values[0]));
+        } else {
+            processStatus = status;
+        }
+        values[0] = processStatus.getBits();
+        if (reading instanceof IntervalReading) {
+            values[1] = 0L; //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+        }
+        addScope(channel, reading.getTimeStamp());
+        readings.put(key, reading);
+    }
+
+    @Override
+    public Map<CimChannel, Range<Instant>> getScope() {
+        return Collections.unmodifiableMap(scope);
     }
 
     @Override
@@ -609,6 +528,25 @@ class ReadingStorerImpl implements ReadingStorer {
         return storerProcess;
     }
 
+    public List<ReadingInfoType> getReadings() {
+        List<ReadingInfoType> readingInfos = new ArrayList<>();
+        for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
+            ReadingInfoType readingInfo = new ReadingInfoType();
+            ChannelContract сhannelContract = entry.getKey().getFirst();
+            сhannelContract.getChannelsContainer().getMeter().ifPresent(meter -> readingInfo.setMeter(meter));
+            сhannelContract.getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingInfo.setUsagePoint(usagePoint));
+            getScope().keySet().stream().filter(key -> key.getChannel().getId() == сhannelContract.getId())
+                    .findFirst().ifPresent(channel -> readingInfo.setReadingType(channel.getReadingType()));
+            readingInfo.setReading(entry.getValue());
+            readingInfos.add(readingInfo);
+        }
+        return readingInfos;
+    }
+
+    private void addScope(CimChannel channel, Instant timestamp) {
+        scope.merge(channel, Range.singleton(timestamp), Range::span);
+    }
+
     Subscription subscribe(OverflowListener observer) {
         return overflowListeners.subscribe(observer);
     }
@@ -617,19 +555,80 @@ class ReadingStorerImpl implements ReadingStorer {
         return backflowListeners.subscribe(observer);
     }
 
-    public List<ReadingsInfoType> getReadings() {
-        List<ReadingsInfoType> readingsInfos = new ArrayList<>();
-        for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
-            ReadingsInfoType readingsInfo = new ReadingsInfoType();
-            entry.getKey().getFirst().getChannelsContainer().getMeter().ifPresent(meter -> readingsInfo.setMeter(meter));
-            entry.getKey().getFirst().getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingsInfo.setUsagePoint(usagePoint));
-            Optional<CimChannel> channel = getScope().keySet().stream().filter(key -> key.getChannel().getId() == entry.getKey().getFirst().getId()).findFirst();
-            if (channel.isPresent()) {
-                readingsInfo.setReadingType(channel.get().getReadingType());
+    private enum FlowDetection {
+        NORMAL, OVERFLOW, BACKFLOW
+    }
+
+    private enum Behaviours implements UpdateBehaviour {
+        INSERT_ONLY {
+            @Override
+            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
+                return idsService.createNonOverrulingStorer();
             }
-            readingsInfo.setReading(entry.getValue());
-            readingsInfos.add(readingsInfo);
+        },
+
+        OVERRULE {
+            @Override
+            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
+                return idsService.createOverrulingStorer();
+            }
+        },
+
+        UPDATE {
+            @Override
+            public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
+                return idsService.createUpdatingStorer();
+            }
+
+            @Override
+            Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+                HashSet<Pair<ChannelContract, Instant>> needed = new HashSet<>(valuesView.keySet());
+                needed.addAll(super.determineNeed(valuesView));
+                return needed;
+            }
+        };
+
+        Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+            return valuesView.keySet()
+                    .stream()
+                    .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
+                    .collect(Collectors.toSet());
         }
-        return readingsInfos;
+
+    }
+
+    private interface UpdateBehaviour {
+        TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService);
+    }
+
+    private static class Derivation {
+        private final ChannelContract channel;
+        private final IReadingType readingType;
+        private final DerivationRule derivationRule;
+        private final int index;
+
+        public Derivation(ChannelContract channel, IReadingType readingType, DerivationRule derivationRule, int index) {
+            this.channel = channel;
+            this.readingType = readingType;
+            this.derivationRule = derivationRule;
+            this.index = index;
+        }
+
+        public IReadingType getReadingType() {
+            return readingType;
+        }
+
+        public DerivationRule getDerivationRule() {
+            return derivationRule;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public ChannelContract getChannel() {
+            return channel;
+        }
+
     }
 }
