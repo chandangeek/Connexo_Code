@@ -4,26 +4,17 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.MessageSeeds;
-import com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.MeterReadinsServiceException;
-import com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.SendMeterReadingsProviderImpl;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.ReadingInfoType;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
 
-import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
 import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
+import com.google.common.collect.Range;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,54 +23,65 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SendMeterReadingsProviderImplTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
 
     @Mock
     private NlsService nlsService;
-
-    @Mock
-    private ReadingStorer readingStorer;
-
-    @Mock
-    MeterReadings meterReadings;
-
-    @Mock
-    private ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType outboundMessage;
-
     @Mock
     private MeterReadingsPort meterReadingsPort;
+    @Mock
+    private AggregatedChannel.AggregatedIntervalReadingRecord dailyReading;
+    @Mock
+    private ReadingInfoType readingInfoType;
 
-    public Thesaurus getThesaurus() {
-        return thesaurus;
-    }
-
-    @Before
-    public void setUp() {
-        when(nlsService.getThesaurus(SendMeterReadingsProvider.NAME, Layer.SERVICE)).thenReturn(getThesaurus());
+    private void mockIntervalReadings() {
+        mockIntervalReading(dailyReading, Range.openClosed(JAN_1ST.minusDays(1).toInstant(), JAN_1ST.toInstant()), 1.05);
     }
 
     @Test
     public void testCall() throws FaultMessage {
+        when(clock.instant()).thenReturn(JAN_1ST.toInstant());
+        mockReadingsInfoType(readingInfoType, dailyReadingType, dailyReading);
+        mockReadingType(dailyReadingType, DAILY_MRID, DAILY_FULL_ALIAS_NAME, true);
+        when(dailyReading.getReadingType()).thenReturn(dailyReadingType);
+        listReadingInfoType.add(readingInfoType);
+        when(readingStorer.getReadings()).thenReturn(listReadingInfoType);
+        mockIntervalReadings();
+
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl(nlsService);
         provider.addMeterReadingsPortService(meterReadingsPort);
-        provider.call(meterReadings, true);
+
+        provider.call(readingStorer, true);
 
         Mockito.verify(meterReadingsPort).createdMeterReadings(Mockito.any(MeterReadingsEventMessageType.class));
     }
 
     @Test
+    public void testSendEventWithoutReadings() throws FaultMessage {
+        SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl(nlsService);
+
+        expectedException.expect(MeterReadinsServiceException.class);
+        expectedException.expectMessage(MessageSeeds.NO_READINGS_IN_EVENT.getDefaultFormat());
+
+        provider.call(readingStorer, true);
+    }
+
+    @Test
     public void testSendWithoutPort() {
+        when(clock.instant()).thenReturn(JAN_1ST.toInstant());
+        mockReadingsInfoType(readingInfoType, dailyReadingType, dailyReading);
+        mockReadingType(dailyReadingType, DAILY_MRID, DAILY_FULL_ALIAS_NAME, true);
+        when(dailyReading.getReadingType()).thenReturn(dailyReadingType);
+        listReadingInfoType.add(readingInfoType);
+        when(readingStorer.getReadings()).thenReturn(listReadingInfoType);
+        mockIntervalReadings();
+
         SendMeterReadingsProvider provider = new SendMeterReadingsProviderImpl(nlsService);
 
         expectedException.expect(MeterReadinsServiceException.class);
         expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
 
-        provider.send(readingStorer, true);
+        provider.call(readingStorer, true);
     }
 
     @Test

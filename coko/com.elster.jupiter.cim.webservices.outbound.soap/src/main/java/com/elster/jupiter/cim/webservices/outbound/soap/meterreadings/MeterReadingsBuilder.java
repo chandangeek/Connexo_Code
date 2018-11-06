@@ -8,12 +8,14 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingInfoType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingsInfoType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Ranges;
 
@@ -33,7 +35,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +49,7 @@ class MeterReadingsBuilder {
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
+    private Thesaurus thesaurus;
 
     private static ch.iec.tc57._2011.meterreadings.ReadingType createReadingType(ReadingType readingType) {
         ch.iec.tc57._2011.meterreadings.ReadingType info = new ch.iec.tc57._2011.meterreadings.ReadingType();
@@ -126,32 +129,57 @@ class MeterReadingsBuilder {
         return info;
     }
 
-    MeterReadings build(ReadingStorer readingStorer) {
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
+    MeterReadings build(ReadingStorer readingStorer) throws MeterReadinsServiceException {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
         List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
-        Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes = new HashMap<>();
+        Map<ReadingType, List<BaseReading>> readingsByReadingTypes = new HashMap<>();
 
         if (!readingStorer.getReadings().isEmpty()) {
-            Meter meter = readingStorer.getReadings().get(0).getMeter();
-            UsagePoint usagePoint = readingStorer.getReadings().get(0).getUsagePoint();
+            Optional<Meter> meter = Optional.ofNullable(readingStorer.getReadings().get(0).getMeter());
+            Optional<UsagePoint> usagePoint = Optional.ofNullable(readingStorer.getReadings().get(0).getUsagePoint());
 
-            for (ReadingsInfoType reading : readingStorer.getReadings()) {
-                ReadingWithQualities readingsWithQualities = ReadingWithQualities.from(reading.getReading());
-                List<ReadingWithQualities> readings = Optional.ofNullable(readingsByReadingTypes.get(reading.getReadingType())).orElse(new ArrayList<>());
-                readings.add(readingsWithQualities);
+            for (ReadingInfoType readingInfo : readingStorer.getReadings()) {
+                BaseReading reading = readingInfo.getReading();
+                // skip reading without value
+                if (reading.getValue() == null) {
+                    continue;
+                }
+                // readings in the event should relate to the same meter (if it is defined)
+                if (!meter.equals(Optional.ofNullable(readingInfo.getMeter()))) {
+                    throw new MeterReadinsServiceException(thesaurus, MessageSeeds.READINGS_METER_IS_NOT_THE_SAME);
+                }
+                // readings in the event should relate to the same usage point (if it is defined)
+                if (!usagePoint.equals(Optional.ofNullable(readingInfo.getUsagePoint()))) {
+                    throw new MeterReadinsServiceException(thesaurus, MessageSeeds.READINGS_USAGE_POINT_IS_NOT_THE_SAME);
+                }
+                List<BaseReading> readings = Optional.ofNullable(readingsByReadingTypes.get(readingInfo.getReadingType())).orElse(new ArrayList<>());
+                readings.add(reading);
                 // sort readings by timestamp
-                Collections.sort(readings);
-                readingsByReadingTypes.put(reading.getReadingType(), readings);
-            }
+                readings.sort(new Comparator<BaseReading>() {
+                    @Override
+                    public int compare(BaseReading reading1, BaseReading reading2) {
+                        return (reading1.getTimeStamp()).compareTo(reading2.getTimeStamp());
+                    }
+                });
+                readingsByReadingTypes.put(readingInfo.getReadingType(), readings);
 
-            Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, Optional.ofNullable(usagePoint), Optional.ofNullable(meter));
-            if (meterReading.isPresent()) {
-                meterReadingsList.add(meterReading.get());
+                Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
+                if (meterReading.isPresent()) {
+                    meterReadingsList.add(meterReading.get());
+                }
             }
+        }
+
+        if (meterReadingsList.isEmpty()) {
+            throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_READINGS_IN_EVENT);
         }
 
         // filled in scope of wrapInMeterReading
@@ -166,18 +194,18 @@ class MeterReadingsBuilder {
         return meterReadings;
     }
 
-    private Optional<MeterReading> wrapInMeterReading(Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes, Optional<UsagePoint> usagePoint, Optional<Meter> meter) {
+    private Optional<MeterReading> wrapInMeterReading(Map<ReadingType, List<BaseReading>> readingsByReadingTypes, Optional<UsagePoint> usagePoint, Optional<Meter> meter) {
         MeterReading meterReading = new MeterReading();
         List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
         List<Reading> registerReadings = meterReading.getReadings();
-        readingsByReadingTypes.forEach((readingType, readingsWithQualities) -> {
+        readingsByReadingTypes.forEach((readingType, readings) -> {
             if (readingType.isRegular()) {
-                if (!readingsWithQualities.isEmpty()) {
-                    intervalBlocks.add(createIntervalBlock(readingType, readingsWithQualities));
+                if (!readings.isEmpty()) {
+                    intervalBlocks.add(createIntervalBlock(readingType, readings));
                 }
             } else {
-                registerReadings.addAll(readingsWithQualities.stream()
-                        .map(readingRecord -> createReading(readingType, readingRecord))
+                registerReadings.addAll(readings.stream()
+                        .map(reading -> createReading(readingType, reading))
                         .collect(Collectors.toList()));
             }
         });
@@ -193,55 +221,52 @@ class MeterReadingsBuilder {
         return Optional.of(meterReading);
     }
 
-    private IntervalBlock createIntervalBlock(ReadingType readingType, List<ReadingWithQualities> records) {
+    private IntervalBlock createIntervalBlock(ReadingType readingType, List<BaseReading> readings) {
         ch.iec.tc57._2011.meterreadings.IntervalBlock.ReadingType intervalBlockReadingType = new IntervalBlock.ReadingType();
         reference(readingType, intervalBlockReadingType::setRef);
 
         IntervalBlock intervalBlock = new IntervalBlock();
         intervalBlock.setReadingType(intervalBlockReadingType);
-        intervalBlock.getIntervalReadings().addAll(records.stream().map(this::createIntervalReading).collect(Collectors.toList()));
+        intervalBlock.getIntervalReadings().addAll(readings.stream().map(this::createIntervalReading).collect(Collectors.toList()));
 
         return intervalBlock;
     }
 
-    private IntervalReading createIntervalReading(ReadingWithQualities record) {
+    private IntervalReading createIntervalReading(BaseReading reading) {
         IntervalReading info = new IntervalReading();
-        info.setTimeStamp(record.getTimestamp());
-        record.getReading().ifPresent(reading -> {
-            Optional.ofNullable(reading.getValue())
-                    .map(BigDecimal::toPlainString)
-                    .ifPresent(info::setValue);
-            info.setReportedDateTime(reading.getReportedDateTime());
-        });
+        info.setTimeStamp(reading.getTimeStamp());
+        Optional.ofNullable(reading.getValue())
+                .map(BigDecimal::toPlainString)
+                .ifPresent(info::setValue);
+        info.setReportedDateTime(reading.getReportedDateTime());
 
         List<ReadingQuality> readingQualities = info.getReadingQualities();
-        record.getReadingQualities().stream()
+        reading.getReadingQualities().stream()
                 .map(this::createReadingQuality)
                 .forEach(readingQualities::add);
 
         return info;
     }
 
-    private Reading createReading(ReadingType readingType, ReadingWithQualities record) {
+    private Reading createReading(ReadingType readingType, BaseReading reading) {
         Reading.ReadingType readingReadingType = new Reading.ReadingType();
         reference(readingType, readingReadingType::setRef);
 
         Reading info = new Reading();
         info.setReadingType(readingReadingType);
-        info.setTimeStamp(record.getTimestamp());
+        info.setTimeStamp(reading.getTimeStamp());
 
-        record.getReading().ifPresent(reading -> {
-            Optional.ofNullable(reading.getValue())
-                    .map(BigDecimal::toPlainString)
-                    .ifPresent(info::setValue);
-            info.setReportedDateTime(reading.getReportedDateTime());
-            reading.getTimePeriod()
-                    .map(MeterReadingsBuilder::createDateTimeInterval)
-                    .ifPresent(info::setTimePeriod);
-        });
+        Optional.ofNullable(reading.getValue())
+                .map(BigDecimal::toPlainString)
+                .ifPresent(info::setValue);
+        info.setReportedDateTime(reading.getReportedDateTime());
+        reading.getTimePeriod()
+                .map(MeterReadingsBuilder::createDateTimeInterval)
+                .ifPresent(info::setTimePeriod);
+
 
         List<ReadingQuality> readingQualities = info.getReadingQualities();
-        record.getReadingQualities().stream()
+        reading.getReadingQualities().stream()
                 .map(this::createReadingQuality)
                 .forEach(readingQualities::add);
 

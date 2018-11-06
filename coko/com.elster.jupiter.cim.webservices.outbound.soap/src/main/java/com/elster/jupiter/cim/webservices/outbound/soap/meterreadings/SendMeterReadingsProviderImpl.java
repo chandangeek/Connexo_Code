@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.List;
@@ -45,7 +46,7 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private final List<MeterReadingsPort> meterReadingsPortServices = new CopyOnWriteArrayList<>();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
-    private final MeterReadingsBuilder meterReadingsFactory = new MeterReadingsBuilder();
+    private final MeterReadingsBuilder readingBuilderProvider = new MeterReadingsBuilder();
     private Thesaurus thesaurus;
 
     public SendMeterReadingsProviderImpl() {
@@ -90,7 +91,9 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return SendMeterReadingsProvider.NAME;
     }
 
-    public void call(MeterReadings meterReadings, boolean isCreated) {
+    public void call(ReadingStorer readingStorer, boolean isCreated) {
+        readingBuilderProvider.setThesaurus(thesaurus);
+        MeterReadings meterReadings = readingBuilderProvider.build(readingStorer);
         if (meterReadingsPortServices.isEmpty()) {
             throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
@@ -101,11 +104,6 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
                 LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
             }
         });
-    }
-
-    public void send(ReadingStorer readingStorer, boolean isCreated) {
-        MeterReadings meterReadings = meterReadingsFactory.build(readingStorer);
-        call(meterReadings, isCreated);
     }
 
     protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, boolean isCreated) {

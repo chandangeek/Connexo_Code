@@ -12,5 +12,5 @@ public interface SendMeterReadingsProvider {
 
     String NAME = "CIM SendMeterReadings";
 
-    void send(ReadingStorer readingStorer, boolean isCreated);
+    void call(ReadingStorer readingStorer, boolean isCreated);
 }
