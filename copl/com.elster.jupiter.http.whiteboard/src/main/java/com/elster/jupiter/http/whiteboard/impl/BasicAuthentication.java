@@ -9,7 +9,6 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -24,8 +23,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 
 import javax.inject.Inject;
@@ -100,7 +97,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> host;
     private Optional<Integer> port;
     private Optional<String> scheme;
-    private MessageHandlerFactory whiteboardEventFactory = null;
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService) throws
@@ -159,15 +155,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
-    }
-
-    @Reference(target = "(&(subscriber=WhiteboardSubscriber" + ")(destination=" + EventService.JUPITER_EVENTS + "))", cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addWhiteboardEventFactory(MessageHandlerFactory factory) {
-        whiteboardEventFactory = factory;
-    }
-
-    public void removeWhiteboardEventFactory(MessageHandlerFactory factory) {
-        whiteboardEventFactory = null;
     }
 
     @Activate
@@ -249,7 +236,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                         dataVaultService.decrypt(keyStore.get().getPrivateKey()),
                         tokenExpTime, tokenRefreshMaxCount, timeout);
                 securityToken.setEventService(eventService);
-                securityToken.preventEventGeneration(whiteboardEventFactory == null);
+                securityToken.preventEventGeneration(false);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
@@ -491,9 +478,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private void postWhiteboardEvent(String topic, Object user) {
-        if (whiteboardEventFactory != null) {
             eventService.postEvent(topic, user);
-        }
     }
 
 }

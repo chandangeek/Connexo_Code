@@ -18,13 +18,10 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.inject.Inject;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Statement;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -33,10 +30,9 @@ import static com.elster.jupiter.util.Checks.is;
 
 class Installer implements FullInstaller {
 
-    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String PUBLIC_KEY_FILE_NAME = "publicKey.txt";
-    private static final TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey("WhiteboardSubscriber",
-            "Handle events to propagate login/logout/login_failed/token_renewal/token_expiration into MSG_RAWTOPICTABLE");
+    private static final TranslationKey SUBSCRIBER_DISPLAYNAME = new SimpleTranslationKey(TranslationKeys.SUBSCRIBER_DISPLAYNAME.getKey(),
+            TranslationKeys.SUBSCRIBER_DISPLAYNAME.getDefaultFormat());
 
     private final DataModel dataModel;
     private final DataVaultService dataVaultService;
@@ -144,7 +140,7 @@ class Installer implements FullInstaller {
             return;
         }
 
-        jupiterEvents.subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
+        jupiterEvents.subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.REST,
                 whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
                         .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
         );
@@ -174,7 +170,7 @@ class Installer implements FullInstaller {
         }
 
         jupiterEvents
-                .subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.DOMAIN,
+                .subscribe(SUBSCRIBER_DISPLAYNAME, BasicAuthentication.COMPONENT_NAME, Layer.REST,
                         whereCorrelationId().isEqualTo(WhiteboardEvent.LOGOUT.topic())
                                 .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN.topic()))
                                 .or(whereCorrelationId().isEqualTo(WhiteboardEvent.LOGIN_FAILED.topic()))

@@ -12,6 +12,8 @@ import com.elster.jupiter.http.whiteboard.MessageSeeds;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.BinderProvider;
@@ -42,8 +44,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.http.whiteboard",
@@ -60,6 +65,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
     private volatile HttpAuthenticationService httpAuthenticationService;
+    private volatile Thesaurus thesaurus;
 
     private final Object registrationLock = new Object();
 
@@ -122,6 +128,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Reference
     public void setHttpAuthenticationService(HttpAuthenticationService httpAuthenticationService) {
         this.httpAuthenticationService = httpAuthenticationService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, getLayer());
     }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -218,7 +229,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(TranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
 }
