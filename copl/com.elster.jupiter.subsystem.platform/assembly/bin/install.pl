@@ -40,6 +40,7 @@ my $HTTPS="no";
 my $UPGRADE="no";
 my $UPGRADE_PATH;
 my $UPGRADE_OLD_SERVICE_VERSION="";
+my $SYSTEM_IDENTIFICATION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
@@ -189,6 +190,7 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "SYSTEM_IDENTIFICATION" )         {$SYSTEM_IDENTIFICATION=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
@@ -218,6 +220,8 @@ sub read_config {
         print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
         chomp($JAVA_HOME=<STDIN>);
         check_java8();
+        print "Please enter the system identification (leave empty to use the system variable): ";
+        chomp($SYSTEM_IDENTIFICATION=<STDIN>);
         print "Please enter the hostname (leave empty to use the system variable): ";
         chomp($HOST_NAME=<STDIN>);
         while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
@@ -403,6 +407,7 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
             } else {
@@ -1300,6 +1305,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
