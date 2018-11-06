@@ -42,7 +42,7 @@ public class MeterReadingsEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         try {
             ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
-            sendMeterReadingsProvider.send(readingStorer, readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT));
+            sendMeterReadingsProvider.call(readingStorer, readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
