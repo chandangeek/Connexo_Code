@@ -12,5 +12,5 @@ public interface EndDeviceEventsServiceProvider {
 
     String NAME = "CIM SendEndDeviceEvents";
 
-    boolean send(EndDeviceEventRecord record);
+    boolean call(EndDeviceEventRecord record);
 }

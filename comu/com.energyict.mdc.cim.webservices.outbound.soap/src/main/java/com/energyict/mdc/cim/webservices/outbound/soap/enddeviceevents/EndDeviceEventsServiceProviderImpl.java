@@ -177,7 +177,7 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
     }
 
     @Override
-    public boolean send(EndDeviceEventRecord record) {
+    public boolean call(EndDeviceEventRecord record) {
         if (getEndDeviceEventsPorts().isEmpty()) {
             throw new EndDeviceEventsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
