@@ -35,6 +35,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -141,6 +142,9 @@ public class DeviceLifeCycleChangeEventsTest {
     private LockService lockService;
     @Mock
     private SecurityManagementService securityManagementService;
+
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void initializeMocks() {
@@ -351,7 +355,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.deviceConfigurationService,
                 deviceService,
                 lockService,
-                securityManagementService)
+                securityManagementService, connectionTaskService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;
