@@ -41,6 +41,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
@@ -49,11 +52,12 @@ import java.util.List;
 public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
     private static final String NOUN = "MeterConfig";
+    private static final String URL = "url";
     private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
-    private final List<MeterConfigPort> meterConfigPorts = new ArrayList<>();
+    private final Map<String, MeterConfigPort> meterConfigPorts = new ConcurrentHashMap<>();
     private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new ArrayList<>();
     private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
@@ -71,16 +75,16 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addMeterConfigPort(MeterConfigPort meterConfigPort) {
-        meterConfigPorts.add(meterConfigPort);
+    public void addMeterConfigPort(MeterConfigPort meterConfigPort, Map<String, Object> properties) {
+        meterConfigPorts.put(properties.get(URL).toString(), meterConfigPort);
     }
 
     public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
-        meterConfigPorts.remove(meterConfigPort);
+        meterConfigPorts.values().removeIf(meterConfigPort1 -> meterConfigPort1 == meterConfigPort);
     }
 
-    public List<MeterConfigPort> getMeterConfigPorts() {
-        return Collections.unmodifiableList(meterConfigPorts);
+    public Map<String, MeterConfigPort> getMeterConfigPorts() {
+        return Collections.unmodifiableMap(meterConfigPorts);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -126,10 +130,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         publish(endPointConfiguration);
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
             try {
-                getMeterConfigPorts()
-                        .stream()
-                        .filter(port -> isValidMeterConfigPortService(port))
-                        .findAny()
+                Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
+                        .filter(meterConfigPort -> isValidMeterConfigPortService(meterConfigPort))
                         .ifPresent(meterConfigPortService -> {
                             try {
                                 meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections
@@ -150,10 +152,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                      List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
         publish(endPointConfiguration);
         try {
-            getMeterConfigPorts()
-                    .stream()
-                    .filter(port -> isValidMeterConfigPortService(port))
-                    .findAny()
+            Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
+                    .filter(meterConfigPort -> isValidMeterConfigPortService(meterConfigPort))
                     .ifPresent(meterConfigPortService -> {
                         try {
                             switch (operation) {
