@@ -91,14 +91,7 @@ public class FirmwareVersionResource {
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
-        FirmwareVersionBuilder versionToValidate;
-        if (FirmwareType.CA_CONFIG_IMAGE.equals(firmwareVersionInfo.firmwareType.id)) {
-            versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion, firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.firmwareVersion);
-        } else if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
-            versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion, firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier);
-        } else
-            versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion, firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier);
-
+        FirmwareVersionBuilder versionToValidate = getFirmwareVersionBuilder(deviceType, firmwareVersionInfo.firmwareVersion, firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier);
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -129,14 +122,8 @@ public class FirmwareVersionResource {
         FirmwareType firmwareType = parseFirmwareTypeField(typeInputStream).orElse(null);
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
-        FirmwareVersionBuilder firmwareVersionBuilder;
-        if (FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType)) {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, firmwareVersion);
-        } else if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)) {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
-        } else {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
-        }
+        FirmwareVersionBuilder firmwareVersionBuilder = getFirmwareVersionBuilder(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
+
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
                 .ifPresent(securityAccessor -> resourceHelper.checkFirmwareVersion(deviceType, securityAccessor, firmwareFile));
@@ -331,6 +318,18 @@ public class FirmwareVersionResource {
             }
         }
         return null;
+    }
+
+    private FirmwareVersionBuilder getFirmwareVersionBuilder(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier)
+    {
+        FirmwareVersionBuilder firmwareVersionBuilder;
+        if (FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType)) {
+            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, firmwareVersion);
+        }
+       else {
+            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
+        }
+        return firmwareVersionBuilder;
     }
 
 }
