@@ -157,7 +157,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                       The connection has been canceled.
                       We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested).
                  */
-                LOGGER.info("SQLTimeoutException: " + e.getMessage());
+                LOGGER.warning("SQLTimeoutException: " + e.getMessage());
             }
         } finally {
             if (cancellableConnection != null) {
