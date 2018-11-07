@@ -24,7 +24,9 @@ public enum TranslationKeys implements TranslationKey {
     CSR_IMPORT_FAILED("CSRImportFailed", "Failed to complete, no CSR has been processed."),
     KEY("Key", "Key"),
     LABEL("Label", "Label"),
-    SM_KEY("Smart meter key", "Smart meter key");
+    SM_KEY("Smart meter key", "Smart meter key"),
+    DECRYPTED_KEY("decryptedKey", "Key"),
+    DECRYPTED_KEY_DESCRIPTION("decryptedKeyDescription", "Plain text key");
 
     private final String key;
     private final String defaultFormat;
