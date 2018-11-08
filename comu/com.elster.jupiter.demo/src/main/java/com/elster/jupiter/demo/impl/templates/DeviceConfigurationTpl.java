@@ -110,7 +110,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             Arrays.<ComTaskCfgTpl>asList(new ComTaskCfgTpl(ComTaskTpl.BEACON_INBOUND, SecurityPropertySetTpl.NO_SECURITY_DEFAULT, "PSK Inbound", true), new ComTaskCfgTpl(ComTaskTpl.TOPOLOGY_VERIFY, SecurityPropertySetTpl.NO_SECURITY_DEFAULT, "Gateway DLMS Beacon", false)),
             Arrays.asList(ConnectionMethodTpl.GATEWAY_DLMS_BEACON, ConnectionMethodTpl.PSK_INBOUND),
-            ImmutableMap.of("PSKEncryptionKey", "PSK", "ReadOldObisCodes", true),
+            ImmutableMap.of("PSKEncryptionKey", "PSK", "ReadOldObisCodes", true, "IncrementFrameCounterForReplyToHLS", false),
             true),
     DEFAULT_AM540("Default", GatewayType.NONE,
             Arrays.asList(SecurityPropertySetTpl.NO_SECURITY_DEFAULT),
