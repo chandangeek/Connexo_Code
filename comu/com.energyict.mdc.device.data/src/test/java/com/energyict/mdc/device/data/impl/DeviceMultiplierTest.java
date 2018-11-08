@@ -38,6 +38,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -149,6 +150,8 @@ public class DeviceMultiplierTest {
     private LockService lockService;
     @Mock
     private SecurityManagementService securityManagementService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -226,7 +229,7 @@ public class DeviceMultiplierTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
