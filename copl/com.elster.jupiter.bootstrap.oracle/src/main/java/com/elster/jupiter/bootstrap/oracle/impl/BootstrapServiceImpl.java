@@ -20,9 +20,27 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This Component is responsible for creating a DataSource on demand. It does so by getting the needed properties from the BundleContext.
@@ -32,6 +50,7 @@ import java.sql.SQLException;
  * <li><code>com.elster.jupiter.datasource.jdbcurl</code> : the database url.</li>
  * <li><code>com.elster.jupiter.datasource.jdbcuser</code> : the database user.</li>
  * <li><code>com.elster.jupiter.datasource.jdbcpassword</code> : the database user's password.</li>
+ * <li><code>com.elster.jupiter.datasource.keyfile</code> : the database user's password encryption key.</li>
  * </ul>
  * Optional properties :
  * <ul>
@@ -50,6 +69,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String jdbcUrl;
     private String jdbcUser;
     private String jdbcPassword;
+    private String keyFile;
     private int maxLimit;
     private int maxStatementsLimit;
     private String onsNodes;
@@ -70,6 +90,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
         jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
         jdbcUser = getRequiredProperty(context, JDBC_USER);
         jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
+        keyFile = getRequiredProperty(context, KEY_FILE);
         maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
         maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
         onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
@@ -79,7 +100,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
     public void deactivate() {
         if (initialized) {
             try {
-                UniversalConnectionPoolManager manager = UniversalConnectionPoolManagerImpl. getUniversalConnectionPoolManager();
+                UniversalConnectionPoolManager manager = UniversalConnectionPoolManagerImpl.getUniversalConnectionPoolManager();
                 manager.destroyConnectionPool(ORACLE_CONNECTION_POOL_NAME);
             } catch (UniversalConnectionPoolException e) {
                 throw new RuntimeException(e);
@@ -110,7 +131,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
         source.setConnectionFactoryClassName("oracle.jdbc.replay.OracleDataSourceImpl");
         source.setURL(jdbcUrl);
         source.setUser(jdbcUser);
-        source.setPassword(jdbcPassword);
+        source.setPassword(getDecryptedPassword(jdbcPassword, keyFile));
         source.setConnectionPoolName(ORACLE_CONNECTION_POOL_NAME);
         source.setMinPoolSize(3);
         source.setMaxPoolSize(maxLimit);
@@ -157,5 +178,46 @@ public final class BootstrapServiceImpl implements BootstrapService {
         sb.append(" jdbcUrl = ").append(jdbcUrl).append("\n");
         sb.append(" dbUser = ").append(jdbcUser).append("\n");
         System.out.println(sb.toString());
+    }
+
+    private String getDecryptedPassword(String encryptedPassword, String filePath) {
+
+        String decryptedPassword = "";
+        List<String> list = null;
+        try {
+            list = Files.lines(Paths.get(filePath))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new PropertyNotFoundException(JDBC_PASSWORD);
+        }
+
+        if (list.size() != 2) {
+            throw new PropertyNotFoundException(JDBC_PASSWORD);
+        } else {
+            try {
+                byte[] aesEncryptionKey = list.get(0).getBytes("UTF-8");
+                String id = list.get(1);
+
+                MessageDigest md5 = MessageDigest.getInstance("MD5");
+                md5.update(id.getBytes("UTF-8"));
+                byte[] encryptedPasswordData = DatatypeConverter.parseBase64Binary(encryptedPassword);
+
+
+                String initVector = new BigInteger(1, md5.digest()).toString(16).substring(0, 16);
+                byte[] iv = initVector.getBytes("UTF-8");
+                Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                decrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(aesEncryptionKey, "AES"), new IvParameterSpec(iv));
+                byte[] decryptedPasswordData = decrypt.doFinal(encryptedPasswordData);
+                decryptedPassword = new String(decryptedPasswordData, "UTF-8");
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
+                    InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+                    | BadPaddingException e) {
+                throw new PropertyNotFoundException(JDBC_PASSWORD);
+            }
+        }
+        return decryptedPassword;
+
     }
 }
