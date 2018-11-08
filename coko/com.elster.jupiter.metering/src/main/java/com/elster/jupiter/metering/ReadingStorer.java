@@ -50,5 +50,5 @@ public interface ReadingStorer {
 
     StorerProcess getStorerProcess();
 
-    List<ReadingsInfoType> getReadings();
+    List<ReadingInfoType> getReadings();
 }

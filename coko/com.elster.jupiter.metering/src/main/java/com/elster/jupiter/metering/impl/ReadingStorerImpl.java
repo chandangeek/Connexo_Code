@@ -21,7 +21,7 @@ import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingsInfoType;
+import com.elster.jupiter.metering.ReadingInfoType;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -617,19 +617,18 @@ class ReadingStorerImpl implements ReadingStorer {
         return backflowListeners.subscribe(observer);
     }
 
-    public List<ReadingsInfoType> getReadings() {
-        List<ReadingsInfoType> readingsInfos = new ArrayList<>();
+    public List<ReadingInfoType> getReadings() {
+        List<ReadingInfoType> readingInfos = new ArrayList<>();
         for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
-            ReadingsInfoType readingsInfo = new ReadingsInfoType();
-            entry.getKey().getFirst().getChannelsContainer().getMeter().ifPresent(meter -> readingsInfo.setMeter(meter));
-            entry.getKey().getFirst().getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingsInfo.setUsagePoint(usagePoint));
-            Optional<CimChannel> channel = getScope().keySet().stream().filter(key -> key.getChannel().getId() == entry.getKey().getFirst().getId()).findFirst();
-            if (channel.isPresent()) {
-                readingsInfo.setReadingType(channel.get().getReadingType());
-            }
-            readingsInfo.setReading(entry.getValue());
-            readingsInfos.add(readingsInfo);
+            ReadingInfoType readingInfo = new ReadingInfoType();
+            ChannelContract сhannelContract = entry.getKey().getFirst();
+            сhannelContract.getChannelsContainer().getMeter().ifPresent(meter -> readingInfo.setMeter(meter));
+            сhannelContract.getChannelsContainer().getUsagePoint().ifPresent(usagePoint -> readingInfo.setUsagePoint(usagePoint));
+            getScope().keySet().stream().filter(key -> key.getChannel().getId() == сhannelContract.getId())
+                    .findFirst().ifPresent(channel -> readingInfo.setReadingType(channel.getReadingType()));
+            readingInfo.setReading(entry.getValue());
+            readingInfos.add(readingInfo);
         }
-        return readingsInfos;
+        return readingInfos;
     }
 }
