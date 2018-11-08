@@ -120,6 +120,17 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
                 } else {
                     cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0, timeZone).getValue();
                 }
+
+                int intervalInMinutes = profileInterval / 60;
+                int currentIntervalMinute = cal.get(Calendar.MINUTE);
+                int remainder = currentIntervalMinute % intervalInMinutes;
+                if (remainder != 0) {
+                    // Adjust the calendar to start of next interval
+                    cal.add(Calendar.SECOND, profileInterval);
+                    Date roundedDate = roundUpToNearestInterval(cal.getTime(), intervalInMinutes);
+                    cal.setTime(roundedDate);
+                }
+
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);
             } else {
