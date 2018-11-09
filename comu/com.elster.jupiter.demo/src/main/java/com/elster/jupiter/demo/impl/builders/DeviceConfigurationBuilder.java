@@ -212,7 +212,8 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     }
 
     private Object resolveAttributeValue(DeviceConfiguration deviceConfiguration, String name, Object value) {
-        if ((name.compareToIgnoreCase("PSKEncryptionKey") == 0) || (name.compareToIgnoreCase("PSK") == 0)) {
+        if ((name.compareToIgnoreCase("PSKEncryptionKey") == 0) || (name.compareToIgnoreCase("PSK") == 0) ||
+                (name.compareToIgnoreCase("IncrementFrameCounterForReplyToHLS") == 0)) {
             return deviceConfiguration.getDeviceType().getSecurityAccessorTypes().stream()
                     .filter(securityAccessorType -> securityAccessorType.getName().compareToIgnoreCase(value.toString()) == 0)
                     .findFirst()
