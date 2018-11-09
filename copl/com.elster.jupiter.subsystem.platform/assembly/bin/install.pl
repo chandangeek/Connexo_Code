@@ -11,7 +11,10 @@ use IO::Uncompress::Unzip qw(unzip $UnzipError);
 use File::Spec::Functions qw(splitpath);
 use Socket;
 use Sys::Hostname;
-
+use Crypt::CBC;
+use Crypt::Cipher::AES;
+use MIME::Base64;
+use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
@@ -26,6 +29,7 @@ my $parameter_file=0;
 my $install=1;
 my $cmd_line=0;
 my $help=0;
+my $renewdatabasepassword=0;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
 my $config_cmd="config.cmd";
@@ -40,6 +44,9 @@ my $HTTPS="no";
 my $UPGRADE="no";
 my $UPGRADE_PATH;
 my $UPGRADE_OLD_SERVICE_VERSION="";
+my $ENCRYPTION_KEYFILE_PATH;
+my $KEY_FILE="keyfile.crypt";
+my $KEYFILE_FULLPATH;
 my $SYSTEM_IDENTIFICATION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
@@ -165,6 +172,10 @@ sub read_args {
         if ($ARGV[$i] eq "--help") {
             $help=1;
         }
+        if ($ARGV[$i] eq "--renewdatabasepassword") {
+            $renewdatabasepassword=1;
+            $parameter_file=1;
+        }
         if ($ARGV[$i] eq "--version") {
             print "\n    Installation script version $INSTALL_VERSION\n";
             exit (0);
@@ -190,6 +201,7 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1];}
                 if ( "$val[0]" eq "SYSTEM_IDENTIFICATION" )         {$SYSTEM_IDENTIFICATION=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
@@ -238,6 +250,8 @@ sub read_config {
         print "Do you want to install Connexo: (yes/no)";
         chomp($INSTALL_CONNEXO=<STDIN>);
         if ("$INSTALL_CONNEXO" eq "yes") {
+            print "Please enter password encryption key file path: ";
+            chomp($ENCRYPTION_KEYFILE_PATH=<STDIN>);
             print "Please enter the database url (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
             chomp($jdbcUrl=<STDIN>);
             print "Please enter the database user: ";
@@ -325,6 +339,7 @@ sub read_config {
         print "Please provide an admin password (different from \"admin\")\n";
         exit (0);
     }
+    $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
     $FLOW_URL="http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow";
 }
@@ -403,11 +418,14 @@ sub install_connexo {
 	if ("$INSTALL_CONNEXO" eq "yes") {
 	    if("$UPGRADE" ne "yes") {
             copy("$CONNEXO_DIR/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+
+            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
-            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
-            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+            update_properties_file_with_encrypted_password();
+
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
             } else {
@@ -438,7 +456,66 @@ sub install_connexo {
 			}
 		}
 	}
+	    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
 }
+
+sub update_properties_file_with_encrypted_password {
+    add_or_update_encryption_key_file();
+    open my $file, '<', $KEYFILE_FULLPATH  or die "Could not open file as specified path $!";
+    my $count=0;
+    $count++ while <$file>;
+    close $file;
+    if($count !=2)
+        {die "Incorrect number of lines in the key file $!";}
+    open (FILE, $KEYFILE_FULLPATH) ||
+        die "ERROR Unable to open key file: $!\n";
+
+    my $rawKey = <FILE>;
+    my $initVector = $rawKey;
+    while (<FILE>) {$initVector = $_}
+    close FILE;
+
+    my $iv = substr(md5_hex($initVector), 0, 16);
+    my $key = substr($rawKey, 0, 16);
+    my $cipher = Crypt::CBC->new(
+                    -key         => $key,
+                    -iv          => $iv,
+                    -cipher      => "Cipher::AES",
+                    -literal_key => 1,
+                    -header      => "none",
+                    -padding     => "standard",
+                    -keysize     => 16
+        );
+
+
+    my $encryptedPassword = $cipher->encrypt($dbPassword);
+    my $base64EncodedPassword = encode_base64($encryptedPassword);
+    replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
+    add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
+}
+
+sub add_or_update_encryption_key_file{
+    my $file = $KEYFILE_FULLPATH;
+    unless(open FILE, '>'.$file) {
+    die "\nCannot create $file\n";
+    }
+    my $rndKey = generate_rnd_str(15);
+    my $rndIv = generate_rnd_str(8);
+    print FILE $rndKey;
+    print FILE "\n";
+    print FILE $rndIv;
+    close FILE;
+}
+
+sub generate_rnd_str
+{
+    my $size = shift;
+    my @alphanum = ('a'..'z', 'A'..'Z', 0..9);
+    my $randString = join '',
+           map $alphanum[rand @alphanum], 0..$size;
+    return $randString;
+}
+
 
 sub install_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
@@ -955,6 +1032,21 @@ sub final_steps {
         print "3. Start Apache HTTP 2.4 service:\n";
         print "   -> sc start Apache2.4\n";
     }
+
+}
+
+sub replace_row_in_file {
+	my ($filename,$src,$dst)=@_;
+	open (IN,"$filename") or die "Cannot open file ".$filename." for read";
+	my @lines=<IN>;
+	close IN;
+
+	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
+	foreach my $line (@lines) {
+	if ($line =~ m/$src/) { print OUT $dst; print OUT "\n"; next;}
+	print OUT $line;
+	}
+	close OUT;
 }
 
 sub uninstall_tomcat_for_upgrade() {
@@ -1301,11 +1393,14 @@ sub perform_upgrade {
             print "Copying and adapting config.properties\n";
             rename("$config_file","$config_file"."_obsolete");
             copy("$UPGRADE_PATH/temp/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+
+            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
-            add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
-            add_to_file_if($config_file,"com.elster.jupiter.system.identification=$SYSTEM_IDENTIFICATION");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+            update_properties_file_with_encrypted_password();
+
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -1436,6 +1531,31 @@ sub show_help {
     print "        no option      : start installation with console input\n";
     print "        --uninstall    : remove installation; ; using the values in bin/config.cmd\n";
     print "        --uninstallcmd : remove installation with console input\n";
+    print "        --renewdatabasepassword  : renew Connexo database password with console input\n";
+}
+
+sub renew_db_password {
+print "Please enter the Connexo database password: ";
+    chomp($dbPassword=<STDIN>);
+update_properties_file_with_encrypted_password();
+
+    print "Stopping Connexo services\n";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        system("sc stop Connexo$SERVICE_VERSION");
+        my $STATE_STRING="-1";
+		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+			sleep 3;
+            $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
+            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+            $STATE_STRING =~ s/.*: //g;
+            $STATE_STRING = $STATE_STRING*1;
+		}
+    } else {
+        system("/sbin/service Connexo$SERVICE_VERSION stop");
+    }
+
+    print "Starting Connexo...";
+    start_connexo();
 }
 
 # Main
@@ -1449,7 +1569,10 @@ if ($help) {
     show_help();
 } elsif ($install) {
 	read_config();
-    if ("$UPGRADE" eq "yes") {
+	if($renewdatabasepassword){
+        renew_db_password();
+        }
+    elsif ("$UPGRADE" eq "yes") {
         perform_upgrade();
     } else {
         checking_ports();
