@@ -26,9 +26,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
@@ -172,7 +170,24 @@ public class CreateDataLoggerCommand {
     private void addConnectionTasksToDevice(Device device) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+        device
+                .getScheduledConnectionTasks().stream()
+                .filter(scheduledConnectionTask -> scheduledConnectionTask.getName().compareToIgnoreCase(connectionTask.getName()) == 0)
+                .findFirst()
+                .ifPresent(
+                        scheduledConnectionTask -> {
+                            scheduledConnectionTask.setComPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get());
+                            scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+                            scheduledConnectionTask.setNextExecutionSpecsFrom(null);
+                            //scheduledConnectionTask.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+                            scheduledConnectionTask.setProperty("host", "localhost");
+                            scheduledConnectionTask.setProperty("portNumber", new BigDecimal(4059));
+                            scheduledConnectionTask.setNumberOfSimultaneousConnections(1);
+                            scheduledConnectionTask.save();
+                            connectionTaskService.setDefaultConnectionTask(scheduledConnectionTask);
+                        }
+                );
+        /*ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
                 .setComPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
@@ -181,7 +196,7 @@ public class CreateDataLoggerCommand {
                 .setProperty("portNumber", new BigDecimal(4059))
                 .setNumberOfSimultaneousConnections(1)
                 .add();
-        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);*/
     }
 
     private void addComTaskToDevice(Device device, ComTaskTpl comTask) {
