@@ -5,13 +5,11 @@
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Models a {@link DeviceProtocol} that was registered in the HeadEnd as a {@link PluggableClass}.
@@ -53,12 +51,11 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
     List<ConnectionFunction> getConsumableConnectionFunctions();
 
     default boolean supportsFileManagement() {
-        Set<Long> fileMessages = DeviceMessageId.fileManagementRelated().stream().map(DeviceMessageId::dbValue).collect(Collectors.toSet());
-
         return this.getDeviceProtocol()
                 .getSupportedMessages()
                 .stream()
-                .map(DeviceMessageSpec::getId)
-                .anyMatch(fileMessages::contains);
+                .map(DeviceMessageSpec::getPropertySpecs)
+                .flatMap(Collection::stream)
+                .anyMatch(propertySpec -> propertySpec.getValueFactory().getValueTypeName().equalsIgnoreCase(com.energyict.mdc.upl.properties.DeviceMessageFile.class.getName()));
     }
 }
