@@ -73,6 +73,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
@@ -166,6 +167,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -255,7 +257,7 @@ import static java.util.stream.Collectors.toList;
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
-
+    private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
     private final DataModel dataModel;
     private final EventService eventService;
     private final IssueService issueService;
@@ -268,7 +270,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final ServerDeviceService deviceService;
     private final LockService lockService;
     private final SecurityManagementService securityManagementService;
-
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
     private final UserPreferencesService userPreferencesService;
@@ -276,15 +277,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final List<SecurityAccessor> keyAccessors = new ArrayList<>();
-
+    private final Reference<DeviceType> deviceType = ValueReference.absent();
+    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
+    private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
+    private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
+    private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
+    private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
+    private final Reference<Batch> batch = ValueReference.absent();
+    private final ConnectionTaskService connectionTaskService;
     @SuppressWarnings("unused")
     private long id;
     @Valid
     private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
-    private final Reference<DeviceType> deviceType = ValueReference.absent();
-    @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
@@ -307,9 +312,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
     private Reference<Meter> meter = ValueReference.absent();
-
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
@@ -317,25 +320,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions = new ArrayList<>();
     private List<DeviceMessageImpl> deviceMessages = new ArrayList<>();
-
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
     private Reference<PassiveCalendar> passiveCalendar = ValueReference.absent();
     private Reference<PassiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
-
-    private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
-    private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
-    private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
-    private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final Reference<Batch> batch = ValueReference.absent();
-
     private transient AmrSystem amrSystem;
-
-    private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
-
     // Next objects separate 'Kore' Specific Behaviour
     // Will help us with Kore specific stuff as there is Meter, MeterActivation, Multiplier....
     private transient SyncDeviceWithKoreForInfo koreHelper;
@@ -363,7 +355,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
             LockService lockService,
-            SecurityManagementService securityManagementService) {
+            SecurityManagementService securityManagementService, ConnectionTaskService connectionTaskService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -386,6 +378,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
         this.securityManagementService = securityManagementService;
+        this.connectionTaskService = connectionTaskService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -404,22 +397,26 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void inheritDeviceConnTaskFromDeviceConfig(DeviceConfiguration deviceConfiguration) {
         if (Objects.nonNull(deviceConfiguration)) {
+            List<Long> inboundTaskIdList = this.getInboundConnectionTasks().stream().map(HasId::getId).collect(Collectors.toList());
+            List<Long> outboundTaskIdList = this.getScheduledConnectionTasks().stream().map(HasId::getId).collect(Collectors.toList());
             deviceConfiguration.getPartialConnectionTasks().stream().forEach(partialConnectionTask -> {
-                if (partialConnectionTask instanceof PartialInboundConnectionTask && !this.getInboundConnectionTasks().contains(partialConnectionTask)) {
-                    InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
-                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
-                    inboundConnectionTaskBuilder.add();
-                } else if (partialConnectionTask instanceof PartialOutboundConnectionTask  && !this.getScheduledConnectionTasks().contains(partialConnectionTask)){
-                    ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
-                    deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
-                    scheduledConnectionTaskBuilder.add();
+                if (!connectionTaskService.findConnectionTaskForPartialOnDevice(partialConnectionTask, this).isPresent()) {
+                    if (partialConnectionTask instanceof PartialInboundConnectionTask && !inboundTaskIdList.contains(partialConnectionTask.getId())) {
+                        InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
+                        deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
+                        inboundConnectionTaskBuilder.add();
+                    } else if (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId())) {
+                        ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
+                        deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
+                        scheduledConnectionTaskBuilder.add();
+                    }
                 }
             });
         }
     }
 
     private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask partialConnectionTask, InboundConnectionTaskBuilder inboundConnectionTaskBuilder) {
-        if(Objects.isNull(partialConnectionTask.getComPortPool())){
+        if (Objects.isNull(partialConnectionTask.getComPortPool())) {
             inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
     }
@@ -427,7 +424,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask scheduledConnectionTask, ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder) {
         //it's wrong that the properties name are hardcoded but to add the properties from OutboundIpConnectionProperties.Fields this bundle will have a dependency on com.energyict.mdc.protocols.
         //also iterating over properties is also not a valid solution because if the property value is null, it isn't present in the list.....
-        if(Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
+        if (Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
     }
@@ -500,28 +497,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.notifyUpdated();
     }
 
-    @Override
-    public void save() {
-        boolean alreadyPersistent = this.id > 0;
-        if (alreadyPersistent) {
-            Save.UPDATE.save(dataModel, this);
-            postSave();
-        } else {
-            Save.CREATE.save(dataModel, this);
-            this.meter.set(this.createKoreMeter(getMdcAmrSystem()));
-            dataModel.update(this);
-
-            //All actions to take to sync with Kore once a Device is created
-            syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
-
-            this.saveNewDialectProperties();
-            this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
-
-            this.notifyCreated();
-        }
-        executeSyncs();
-    }
-
     void validateForUpdate() {
         Save.UPDATE.save(dataModel, this);
     }
@@ -533,44 +508,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .sorted(new CanUpdateMeterActivationLast())
                 .forEach((x) -> x.syncWithKore(DeviceImpl.this));
         syncsWithKore.clear();
-    }
-
-    @Override
-    public Optional<Location> getLocation() {
-        Optional<Location> updatedValue = getUpdatedLocation();
-        if (updatedValue.isPresent()) {
-            return updatedValue;
-        }
-        if (meter.isPresent()) {
-            return meter.get().getLocation();
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        findOrCreateKoreUpdater().setLocation(location);
-    }
-
-    @Override
-    public Optional<SpatialCoordinates> getSpatialCoordinates() {
-        Optional<SpatialCoordinates> updatedValue = getUpdatedSpatialCoordinates();
-        if (updatedValue.isPresent()) {
-            return updatedValue;
-        }
-        return getMeter().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
-    }
-
-    @Override
-    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
-        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
-        if (!currentKoreUpdater.isPresent()) {
-            syncsWithKore.add(koreUpdater);
-        } else {
-            koreUpdater = currentKoreUpdater.get();
-        }
-        koreUpdater.setSpatialCoordinates(spatialCoordinates);
     }
 
     private Optional<Location> getUpdatedLocation() {
@@ -630,7 +567,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
 
-
     private void notifyUpdated() {
         this.eventService.postEvent(UpdateEventType.DEVICE.topic(), this);
     }
@@ -644,13 +580,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void notifyDeleted() {
         this.eventService.postEvent(DeleteEventType.DEVICE.topic(), this);
-    }
-
-    @Override
-    public void delete() {
-        this.notifyDeviceIsGoingToBeDeleted();
-        this.doDelete();
-        this.notifyDeleted();
     }
 
     private void notifyDeviceIsGoingToBeDeleted() {
@@ -687,7 +616,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), register
                                         .getRegisterSpec(), this.getId()))
                 );
-
         this.getLoadProfiles().stream().flatMap(lp -> lp.getChannels().stream())
                 .forEach(channel ->
                         this.getDeviceType()
@@ -775,16 +703,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         forEstimation().findAllOverriddenProperties().forEach(ChannelEstimationRuleOverriddenProperties::delete);
     }
 
-    @Override
-    public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration.orNull();
-    }
-
-    @Override
-    public DeviceType getDeviceType() {
-        return this.getDeviceConfiguration().getDeviceType();
-    }
-
     public Reference<Meter> getMeter() {
         return this.meter;
     }
@@ -794,73 +712,46 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.koreHelper;
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = null;
-        if (name != null) {
-            this.name = name.trim();
+    public Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration deviceConfiguration) {
+        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .filter(emc -> !emc.getRange().intersection(Range.atLeast(from)).isEmpty())
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .collect(Collectors.toList());
+        if (effectiveMetrologyConfigurations.isEmpty()) {
+            return Collections.emptyMap();
         }
+        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(deviceConfiguration);
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
+        for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
+            List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
+                    .stream()
+                    .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
+                    .collect(Collectors.toList());
+            if (!unsatisfied.isEmpty()) {
+                unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
+            }
+        }
+        return unsatisfiedRequirements;
+    }
+
+    @Override
+    public void touch() {
+        this.dataModel.touch(this);
+    }
+
+    @Override
+    public void activateEstimation() {
+        this.estimationActive = true;
+    }
+
+    @Override
+    public void deactivateEstimation() {
+        this.estimationActive = false;
     }
 
     public long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone(getZone());
-    }
-
-    @Override
-    public ZoneId getZone() {
-        if (this.zoneId == null) {
-            if (!Checks.is(timeZoneId).empty() && ZoneId.getAvailableZoneIds().contains(this.timeZoneId)) {
-                this.zoneId = ZoneId.of(timeZoneId);
-            } else {
-                return clock.getZone();
-            }
-        }
-        return this.zoneId;
-    }
-
-    /**
-     * @deprecated use setZone
-     */
-    @Deprecated
-    @Override
-    public void setTimeZone(TimeZone timeZone) {
-        setZone(timeZone.toZoneId());
-    }
-
-    @Override
-    public void setZone(ZoneId zone) {
-        if (zone != null) {
-            this.timeZoneId = zone.getId();
-        } else {
-            this.timeZoneId = "";
-        }
-        this.zoneId = zone;
-    }
-
-    @Override
-    public String getSerialNumber() {
-        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        if (currentKoreUpdater.isPresent()) {
-            return currentKoreUpdater.get().getSerialNumber();
-        } else if (meter.isPresent() &&  !meter.get().getSerialNumber().isEmpty()) {
-            return meter.get().getSerialNumber();
-        }
-
-        return this.serialNumber;
-    }
-
-    @Override
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-        findOrCreateKoreUpdater().setSerialNumber(serialNumber);
     }
 
     //  All 'EndDevice' fields
@@ -875,6 +766,627 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
+    private void validateMultiplierValue(BigDecimal multiplier) {
+        if (multiplier.compareTo(BigDecimal.ZERO) != 1) {
+            throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
+        } else if (multiplier.compareTo(maxMultiplier) == 1) {
+            throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
+        }
+    }
+
+    private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
+        if (startDateMultiplier.isPresent()) {
+            if (this.meter.get().hasData() && startDateMultiplier.get().isBefore(now)) {
+                throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
+            }
+            Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier.get());
+            if (!meterActivationAt.isPresent()) {
+                throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
+            }
+        }
+    }
+
+    @Override
+    public List<Channel> getChannels() {
+        return loadProfiles.stream().flatMap(lp -> lp.getChannels().stream()).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getSerialNumber() {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            return currentKoreUpdater.get().getSerialNumber();
+        } else if (meter.isPresent() && !meter.get().getSerialNumber().isEmpty()) {
+            return meter.get().getSerialNumber();
+        }
+        return this.serialNumber;
+    }
+
+    @Override
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+        findOrCreateKoreUpdater().setSerialNumber(serialNumber);
+    }
+
+    @Override
+    public void setMultiplier(BigDecimal multiplier, Instant from) {
+        if (getMultiplier() == null || multiplier.compareTo(getMultiplier()) != 0) {
+            validateMultiplierValue(multiplier);
+            Instant now = clock.instant();
+            Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
+            validateStartDateOfNewMultiplier(now, startDateMultiplier);
+            SyncDeviceWithKoreForMultiplierChange multiplierChange =
+                    new SyncDeviceWithKoreForMultiplierChange(
+                            this,
+                            startDateMultiplier.get(),
+                            multiplier,
+                            deviceService, readingTypeUtilService, eventService);
+            //All actions to take to sync with Kore once a Device is created
+            syncsWithKore.add(multiplierChange);
+        }
+    }
+
+    @Override
+    public BigDecimal getMultiplier() {
+        return this.koreHelper.getMultiplier().orElse(BigDecimal.ONE);
+    }
+
+    @Override
+    public void setMultiplier(BigDecimal multiplier) {
+        this.setMultiplier(multiplier, null);
+    }
+
+    @Override
+    public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
+        return this.koreHelper.getMultiplierAt(multiplierEffectiveTimeStamp);
+    }
+
+    @Override
+    public Instant getMultiplierEffectiveTimeStamp() {
+        return this.koreHelper.getMultiplierEffectiveTimeStamp();
+    }
+
+    @Override
+    public Integer getYearOfCertification() {
+        return this.yearOfCertification;
+    }
+
+    @Override
+    public void setYearOfCertification(Integer yearOfCertification) {
+        this.yearOfCertification = yearOfCertification;
+    }
+
+    public Instant getModificationDate() {
+        return this.modTime;
+    }
+
+    @Override
+    public List<LogBook> getLogBooks() {
+        return Collections.unmodifiableList(this.logBooks);
+    }
+
+    @Override
+    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
+        return new LogBookUpdaterForDevice((LogBookImpl) logBook);
+    }
+
+    @Override
+    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile) {
+        return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
+    }
+
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter));
+    }
+
+    @Override
+    public TypedProperties getDeviceProtocolProperties() {
+        if (this.getDeviceProtocolPluggableClass().isPresent()) {
+            TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
+            this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs());
+            return properties;
+        } else {
+            return TypedProperties.empty();
+        }
+    }
+
+    @Override
+    public void setProtocolProperty(String name, Object value) {
+        PropertySpec propertySpec = getPropertySpecForProperty(name);
+        ValueFactory valueFactory = propertySpec.getValueFactory();
+        String propertyValue;
+        if (valueFactory instanceof BigDecimalFactory && value instanceof Integer) {
+            propertyValue = ((Integer) value).toString();
+        } else {
+            propertyValue = propertySpec.getValueFactory().toStringValue(value);
+        }
+        Optional<DeviceProtocolProperty> optionalProperty = getDeviceProtocolProperty(name);
+        if (optionalProperty.isPresent()) {
+            updateDeviceProperty(optionalProperty.get(), propertyValue);
+        } else {
+            addDeviceProperty(propertySpec, propertyValue);
+        }
+        if (getId() > 0) {
+            dataModel.touch(this);
+        }
+    }
+
+    @Override
+    public void removeProtocolProperty(String name) {
+        for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
+            if (deviceProtocolProperty.getName().equals(name)) {
+                this.deviceProperties.remove(deviceProtocolProperty);
+                this.notifyUpdate(deviceProtocolProperty);
+                dataModel.touch(this);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) {
+        TypedProperties securityProperties = TypedProperties.empty();
+        for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
+            Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
+                    .stream()
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
+                    .findFirst();
+            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
+                Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getSecurityAccessorType());
+                securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
+            }
+        }
+        return securityProperties;
+    }
+
+    @Override
+    public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
+        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
+                .size());
+        all.addAll(this.dialectPropertiesList);
+        all.addAll(this.newDialectProperties);
+        return all;
+    }
+
+    @Override
+    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties.isPresent()) {
+            return dialectProperties;
+        } else {
+            // Attempt to find the dialect properties in the list of new ones that have not been saved yet
+            return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
+        }
+    }
+
+    @Override
+    public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (!dialectProperties.isPresent()) {
+            ProtocolDialectProperties newDialectProperties = this.createNewLocalDialectProperties(dialectName);
+            newDialectProperties.setProperty(propertyName, value);
+        } else {
+            dialectProperties.get().setProperty(propertyName, value);
+            this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) dialectProperties.get());
+        }
+    }
+
+    @Override
+    public void removeProtocolDialectProperty(String dialectName, String propertyName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties.isPresent()) {
+            ProtocolDialectProperties props = dialectProperties.get();
+            props.removeProperty(propertyName);
+            if (!this.dirtyDialectProperties.contains(props)) {
+                this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) props);
+            }
+        } else {
+            createNewLocalDialectProperties(dialectName);
+        }
+    }
+
+    @Override
+    public void store(MeterReading meterReading) {
+        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
+    }
+
+    @Override
+    public boolean hasData() {
+        return this.getOptionalMeterAspect(this::hasData).get();
+    }
+
+    @Override
+    public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
+        if (start == null || usagePoint == null || meterRole == null) {
+            throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
+        }
+        try {
+            usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
+        } catch (MeterHasUnsatisfiedRequirements badRequirementsEx) {
+            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
+        } catch (UsagePointHasMeterOnThisRole upActiveEx) {
+            throw new UsagePointAlreadyLinkedToAnotherDeviceException(
+                    this.thesaurus,
+                    getLongDateFormatForCurrentUser(),
+                    upActiveEx.getMeter().getMeterActivations(upActiveEx.getConflictActivationRange()).get(0));
+        }
+        this.koreHelper.reloadCurrentMeterActivation();
+        return getCurrentMeterActivation().get();
+    }
+
+    @Override
+    public void deactivate(Instant when) {
+        this.koreHelper.deactivateMeter(when);
+    }
+
+    @Override
+    public void deactivateNow() {
+        this.deactivate(this.clock.instant());
+    }
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        return this.koreHelper.getCurrentMeterActivation();
+    }
+
+    @Override
+    public Optional<MeterActivation> getMeterActivation(Instant when) {
+        return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivationsMostRecentFirst() {
+        return this.getListMeterAspect(this::getSortedMeterActivations);
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivations(Range<Instant> range) {
+        return getSortedMeterActivations(meter.get(), range);
+    }
+
+    @Override
+    public String getmRID() {
+        return mRID;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
+    }
+
+    @Override
+    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask) {
+        return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
+    }
+
+    @Override
+    public ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask) {
+        return new ConnectionInitiationTaskBuilderForDevice(this, partialConnectionInitiationTask);
+    }
+
+    @Override
+    public List<ConnectionTask<?, ?>> getConnectionTasks() {
+        return this.getConnectionTaskImpls().collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ConnectionInitiationTask> getConnectionInitiationTasks() {
+        return this.getConnectionTaskImpls()
+                .filter(ct -> ct instanceof ConnectionInitiationTask)
+                .map(ConnectionInitiationTask.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
+        return this.getConnectionTaskImpls()
+                .filter(ct -> ct instanceof ScheduledConnectionTask)
+                .map(ScheduledConnectionTask.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InboundConnectionTask> getInboundConnectionTasks() {
+        return this.getConnectionTaskImpls()
+                .filter(ct -> ct instanceof InboundConnectionTask)
+                .map(InboundConnectionTask.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
+        this.connectionTasks
+                .stream()
+                .filter(x -> x.getId() == connectionTask.getId())
+                .findAny()
+                .map(ServerConnectionTask.class::cast)
+                .ifPresent(ServerConnectionTask::makeObsolete);
+    }
+
+    @Override
+    public List<ComTaskExecution> getComTaskExecutions() {
+        return comTaskExecutions.stream()
+                .filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getUpdater();
+    }
+
+    @Override
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
+        this.comTaskExecutions
+                .stream()
+                .filter(x -> x.getId() == comTaskExecution.getId())
+                .findAny()
+                .map(ServerComTaskExecution.class::cast)
+                .ifPresent(ServerComTaskExecution::makeObsolete);
+    }
+
+    @Override
+    public ComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule) {
+        return new ScheduledComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comSchedule);
+    }
+
+    @Override
+    public ComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
+        return new ManuallyScheduledComTaskExecutionBuilderForDevice(
+                this.comTaskExecutionProvider,
+                comTaskEnablement,
+                temporalExpression);
+    }
+
+    @Override
+    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new AdHocComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
+    }
+
+    @Override
+    public ComTaskExecutionBuilder newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new FirmwareComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
+    }
+
+    @Override
+    public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
+        return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
+    }
+
+    @Override
+    public void removeComSchedule(ComSchedule comSchedule) {
+        List<ComTaskExecutionImpl> comTasksWithSchedule =
+                getComTaskExecutionImpls()
+                        .filter(cte -> cte.getComSchedule().isPresent())
+                        .filter(cte -> cte.getComSchedule().get().getId() == comSchedule.getId())
+                        .collect(Collectors.toList());
+        if (comTasksWithSchedule.size() == 0) {
+            throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
+        } else {
+            comTasksWithSchedule.forEach(comTaskExecution -> comTaskExecution.getUpdater().removeSchedule().update());
+        }
+    }
+
+    @Override
+    public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range) {
+        enumeratedEndDeviceGroup.add(this.meter.get(), range);
+    }
+
+    @Override
+    public DeviceValidation forValidation() {
+        if (deviceValidation == null) {
+            deviceValidation = new DeviceValidationImpl(this.dataModel, this.validationService, this.thesaurus, this, clock);
+        }
+        return deviceValidation;
+    }
+
+    @Override
+    public DeviceEstimation forEstimation() {
+        return this.dataModel.getInstance(DeviceEstimationImpl.class).init(this, this.estimationActive, this.estimationRuleSetActivations);
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint() {
+        return koreHelper.getUsagePoint();
+    }
+
+    @Override
+    public GatewayType getConfigurationGatewayType() {
+        DeviceConfiguration configuration = getDeviceConfiguration();
+        if (configuration == null) {
+            return GatewayType.NONE;
+        }
+        return configuration.getGatewayType();
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
+        return this.newDeviceMessage(deviceMessageId, TrackingCategory.manual);
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
+        return new InternalDeviceMessageBuilder(deviceMessageId, trackingCategory);
+    }
+
+    @Override
+    public boolean hasOpenIssues() {
+        return !getOpenIssues().isEmpty();
+    }
+
+    @Override
+    public List<OpenIssue> getOpenIssues() {
+        return getListMeterAspect(this::getOpenIssuesForMeter);
+    }
+
+    @Override
+    public State getState() {
+        return this.getState(this.clock.instant()).get();
+    }
+
+    @Override
+    public Stage getStage() {
+        return this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
+    }
+
+    @Override
+    public Optional<State> getState(Instant instant) {
+        if (this.id > 0) {
+            if (this.meter.isPresent()) {
+                return this.meter.get().getState(instant);
+            } else {
+                // Kore meter was not created yet
+                throw new IllegalStateException("Kore meter was not created when this Device was created");
+            }
+        } else {
+            return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
+        }
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public StateTimeline getStateTimeline() {
+        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
+    }
+
+    @Override
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
+        // Merge the StateTimeline with the list of change events from my DeviceType.
+        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
+        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
+        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
+        boolean notReady;
+        do {
+            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
+            changeEvents.add(newEvent);
+            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
+        } while (notReady);
+        return changeEvents;
+    }
+
+    @Override
+    public CIMLifecycleDates getLifecycleDates() {
+        if (this.meter.isPresent()) {
+            return new CIMLifecycleDatesImpl(this.meter.get(), meter.get().getLifecycleDates());
+        } else {
+            return new NoCimLifecycleDates();
+        }
+    }
+
+    @Override
+    public CalendarSupport calendars() {
+        return new DeviceCalendarSupport(this, this.dataModel, this.clock);
+    }
+
+    public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
+        if (readingType == null) {
+            return Optional.empty();
+        }
+        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
+            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
+                return Optional.of(readingTypeObisCodeUsage);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Channel.ChannelUpdater getChannelUpdaterFor(Channel channel) {
+        return new ChannelUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, channel, eventService);
+    }
+
+    @Override
+    public Register.RegisterUpdater getRegisterUpdaterFor(Register register) {
+        return new RegisterUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, eventService, register);
+    }
+
+    @Override
+    public void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction) {
+        Optional<ComTaskExecution> comTaskExecution = Optional.empty();
+        Optional<ComTaskExecution> bestComTaskExecution = getComTaskExecutions().stream()
+                .filter(cte -> containsStatusInformationProtocolTask(cte.getProtocolTasks()))
+                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()))
+                .findFirst();
+        Optional<ComTaskEnablement> bestComTaskEnablement = getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
+                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
+                .findFirst();
+        if (bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
+            if (bestComTaskExecution.get().getComTask().equals(bestComTaskEnablement.get().getComTask())) {
+                comTaskExecution = bestComTaskExecution;
+            } else {
+                comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
+            }
+        } else if (bestComTaskExecution.isPresent()) {
+            comTaskExecution = bestComTaskExecution;
+        } else if (bestComTaskEnablement.isPresent()) {
+            comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
+        }
+        if (!comTaskExecution.isPresent()) {
+            throw new NoStatusInformationTaskException();
+        }
+        requestedAction.accept(comTaskExecution.get());
+    }
+
+    @Override
+    public Optional<Device> getHistory(Instant when) {
+        if (when.isAfter(this.modTime)) {
+            return Optional.of(this);
+        }
+        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+                .at(when)
+                .find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
+    }
+
+    @Override
+    public void addInBatch(Batch batch) {
+        this.batch.set(batch);
+        save();
+    }
+
+    @Override
+    public void removeFromBatch(Batch batch) {
+        if (this.batch.isPresent() && this.batch.get().getId() == batch.getId()) {
+            this.batch.set(null);
+            save();
+        }
+    }
+
+    @Override
+    public Optional<Batch> getBatch() {
+        return this.batch.getOptional();
+    }
+
+    @Override
+    public void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask) {
+        List<ComTask> comTasksWithConnectionTask = this.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> !comTaskEnablement.usesDefaultConnectionTask())
+                .filter(comTaskEnablement -> !comTaskEnablement.getConnectionFunction().isPresent())
+                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().isPresent())
+                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get().equals(connectionTask.getPartialConnectionTask()))
+                .map(ComTaskEnablement::getComTask)
+                .collect(Collectors.toList());
+        this.getComTaskExecutions().stream()
+                .filter(comTaskExecution -> comTasksWithConnectionTask.contains(comTaskExecution.getComTask()))
+                .forEach((comTaskExecution) -> {
+                    ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+                    comTaskExecutionUpdater.connectionTask(connectionTask);
+                    comTaskExecutionUpdater.update();
+                });
+    }
 
     @Override
     public String getManufacturer() {
@@ -925,91 +1437,67 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void setYearOfCertification(Integer yearOfCertification) {
-        this.yearOfCertification = yearOfCertification;
+    public List<SecurityAccessor> getSecurityAccessors() {
+        List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
+        List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
+        securityAccessors.addAll(this.keyAccessors);
+        securityAccessors.addAll(securityAccessorsManagedCentrally);
+        return securityAccessors;
     }
 
     @Override
-    public BigDecimal getMultiplier() {
-        return this.koreHelper.getMultiplier().orElse(BigDecimal.ONE);
+    public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
+        Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
+                .findAny();
+        if (securityAccessor.isPresent()) {
+            return securityAccessor;
+        }
+        return getDeviceType().getSecurityAccessorTypes().stream()
+                .filter(sat -> sat.getId() == securityAccessorType.getId())
+                .findAny()
+                .flatMap(securityManagementService::getDefaultValues)
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa));
     }
 
     @Override
-    public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
-        return this.koreHelper.getMultiplierAt(multiplierEffectiveTimeStamp);
-    }
-
-    @Override
-    public Instant getMultiplierEffectiveTimeStamp() {
-        return this.koreHelper.getMultiplierEffectiveTimeStamp();
-    }
-
-    @Override
-    public void setMultiplier(BigDecimal multiplier) {
-        this.setMultiplier(multiplier, null);
-    }
-
-    @Override
-    public void setMultiplier(BigDecimal multiplier, Instant from) {
-        if (getMultiplier() == null || multiplier.compareTo(getMultiplier()) != 0) {
-            validateMultiplierValue(multiplier);
-            Instant now = clock.instant();
-            Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
-            validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            SyncDeviceWithKoreForMultiplierChange multiplierChange =
-                    new SyncDeviceWithKoreForMultiplierChange(
-                            this,
-                            startDateMultiplier.get(),
-                            multiplier,
-                            deviceService, readingTypeUtilService, eventService);
-            //All actions to take to sync with Kore once a Device is created
-            syncsWithKore.add(multiplierChange);
+    public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
+        validateManageable(securityAccessorType);
+        CryptographicType cryptographicType = securityAccessorType.getKeyType().getCryptographicType();
+        switch (cryptographicType) {
+            case Certificate:
+            case ClientCertificate:
+            case TrustedCertificate:
+                CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
+                certificateAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(certificateAccessor);
+                return certificateAccessor;
+            case SymmetricKey:
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
+            case Passphrase:
+                PassphraseAccessorImpl passphraseAccessor = dataModel.getInstance(PassphraseAccessorImpl.class);
+                passphraseAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(passphraseAccessor);
+                return passphraseAccessor;
+            case AsymmetricKey:
+                return null; // TODO implement? will this occur?
+            case Hsm:
+                symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(securityAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
+            default:
+                throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }
     }
 
     @Override
-    public long getVersion() {
-        return version;
-    }
-
-    @Override
-    public Instant getCreateTime() {
-        return createTime;
-    }
-
-    private void validateMultiplierValue(BigDecimal multiplier) {
-        if (multiplier.compareTo(BigDecimal.ZERO) != 1) {
-            throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
-        } else if (multiplier.compareTo(maxMultiplier) == 1) {
-            throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
-        }
-    }
-
-    private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
-        if (startDateMultiplier.isPresent()) {
-            if (this.meter.get().hasData() && startDateMultiplier.get().isBefore(now)) {
-                throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
-            }
-
-            Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier.get());
-            if (!meterActivationAt.isPresent()) {
-                throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
-            }
-        }
-    }
-
-    @Override
-    public Integer getYearOfCertification() {
-        return this.yearOfCertification;
-    }
-
-    public Instant getModificationDate() {
-        return this.modTime;
-    }
-
-    @Override
-    public List<Channel> getChannels() {
-        return loadProfiles.stream().flatMap(lp -> lp.getChannels().stream()).collect(Collectors.toList());
+    public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
+        validateManageable(securityAccessor.getKeyAccessorType());
+        this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 
     @Override
@@ -1030,23 +1518,94 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.empty();
     }
 
-    private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
-        for (RegisterFactory factory : RegisterFactory.values()) {
-            if (factory.appliesTo(registerSpec)) {
-                return factory.newRegister(this, registerSpec);
-            }
-        }
-        return RegisterFactory.Numerical.newRegister(this, registerSpec);
-    }
-
     public List<LoadProfile> getLoadProfiles() {
         return Collections.unmodifiableList(this.loadProfiles);
     }
 
-
     @Override
     public boolean isLogicalSlave() {
         return getDeviceType().isLogicalSlave();
+    }
+
+    @Override
+    public void save() {
+        boolean alreadyPersistent = this.id > 0;
+        if (alreadyPersistent) {
+            Save.UPDATE.save(dataModel, this);
+            postSave();
+        } else {
+            Save.CREATE.save(dataModel, this);
+            this.meter.set(this.createKoreMeter(getMdcAmrSystem()));
+            dataModel.update(this);
+            //All actions to take to sync with Kore once a Device is created
+            syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), deviceService, readingTypeUtilService, clock, eventService));
+            this.saveNewDialectProperties();
+            this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
+            this.notifyCreated();
+        }
+        executeSyncs();
+    }
+
+    @Override
+    public void delete() {
+        this.notifyDeviceIsGoingToBeDeleted();
+        this.doDelete();
+        this.notifyDeleted();
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        Optional<Location> updatedValue = getUpdatedLocation();
+        if (updatedValue.isPresent()) {
+            return updatedValue;
+        }
+        if (meter.isPresent()) {
+            return meter.get().getLocation();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        findOrCreateKoreUpdater().setLocation(location);
+    }
+
+    @Override
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
+        Optional<SpatialCoordinates> updatedValue = getUpdatedSpatialCoordinates();
+        if (updatedValue.isPresent()) {
+            return updatedValue;
+        }
+        return getMeter().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
+    }
+
+    @Override
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
+        if (!currentKoreUpdater.isPresent()) {
+            syncsWithKore.add(koreUpdater);
+        } else {
+            koreUpdater = currentKoreUpdater.get();
+        }
+        koreUpdater.setSpatialCoordinates(spatialCoordinates);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = null;
+        if (name != null) {
+            this.name = name.trim();
+        }
+    }
+
+    @Override
+    public DeviceType getDeviceType() {
+        return this.getDeviceConfiguration().getDeviceType();
     }
 
     @Override
@@ -1067,37 +1626,52 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<LogBook> getLogBooks() {
-        return Collections.unmodifiableList(this.logBooks);
+    public DeviceConfiguration getDeviceConfiguration() {
+        return this.deviceConfiguration.orNull();
+    }
+
+    public TimeZone getTimeZone() {
+        return TimeZone.getTimeZone(getZone());
+    }
+
+    /**
+     * @deprecated use setZone
+     */
+    @Deprecated
+    @Override
+    public void setTimeZone(TimeZone timeZone) {
+        setZone(timeZone.toZoneId());
     }
 
     @Override
-    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
-        return new LogBookUpdaterForDevice((LogBookImpl) logBook);
+    public ZoneId getZone() {
+        if (this.zoneId == null) {
+            if (!Checks.is(timeZoneId).empty() && ZoneId.getAvailableZoneIds().contains(this.timeZoneId)) {
+                this.zoneId = ZoneId.of(timeZoneId);
+            } else {
+                return clock.getZone();
+            }
+        }
+        return this.zoneId;
     }
 
     @Override
-    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile) {
-        return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
+    public void setZone(ZoneId zone) {
+        if (zone != null) {
+            this.timeZoneId = zone.getId();
+        } else {
+            this.timeZoneId = "";
+        }
+        this.zoneId = zone;
     }
 
-    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
-        LogBookUpdaterForDevice(LogBookImpl logBook) {
-            super(logBook);
+    private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
+        for (RegisterFactory factory : RegisterFactory.values()) {
+            if (factory.appliesTo(registerSpec)) {
+                return factory.newRegister(this, registerSpec);
+            }
         }
-    }
-
-    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
-
-        LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
-            super(loadProfile);
-        }
-
-        @Override
-        public void update() {
-            super.update();
-            dataModel.touch(DeviceImpl.this);
-        }
+        return RegisterFactory.Numerical.newRegister(this, registerSpec);
     }
 
     @Override
@@ -1113,31 +1687,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
         validateMetrologyConfigRequirements(destinationDeviceConfiguration);
-    }
-
-    void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
-        this.getCurrentMeterActivation()
-                .ifPresent(meterActivation -> meterActivation.getUsagePoint()
-                        .ifPresent(usagePoint -> {
-                            Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
-                            if (!unsatisfiedRequirements.isEmpty()) {
-                                throw DeviceConfigurationChangeException.unsatisfiedRequirements(thesaurus, this, destinationDeviceConfiguration, unsatisfiedRequirements);
-                            }
-                        })
-                );
-    }
-
-
-    private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
-        originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
-                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration()
-                        .getId() == originDeviceConfiguration.getId()
-                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration()
-                        .getId() == destinationDeviceConfiguration.getId())
-                .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
-                .ifPresent(deviceConfigConflictMapping1 -> {
-                    throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
-                });
     }
 
     @Override
@@ -1172,6 +1721,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 logBookSpecs.stream()
                         .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
                         .collect(Collectors.toList()));
+    }
+
+    void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
+        this.getCurrentMeterActivation()
+                .ifPresent(meterActivation -> meterActivation.getUsagePoint()
+                        .ifPresent(usagePoint -> {
+                            Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
+                            if (!unsatisfiedRequirements.isEmpty()) {
+                                throw DeviceConfigurationChangeException.unsatisfiedRequirements(thesaurus, this, destinationDeviceConfiguration, unsatisfiedRequirements);
+                            }
+                        })
+                );
+    }
+
+    private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration()
+                        .getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration()
+                        .getId() == destinationDeviceConfiguration.getId())
+                .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
+                .ifPresent(deviceConfigConflictMapping1 -> {
+                    throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
+                });
     }
 
     Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
@@ -1212,18 +1785,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .findAny();
     }
 
-    @Override
-    public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
-        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (!dialectProperties.isPresent()) {
-            ProtocolDialectProperties newDialectProperties = this.createNewLocalDialectProperties(dialectName);
-            newDialectProperties.setProperty(propertyName, value);
-        } else {
-            dialectProperties.get().setProperty(propertyName, value);
-            this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) dialectProperties.get());
-        }
-    }
-
     private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
         ProtocolDialectPropertiesImpl dialectProperties;
         ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
@@ -1245,44 +1806,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return null;
-    }
-
-    @Override
-    public void removeProtocolDialectProperty(String dialectName, String propertyName) {
-        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (dialectProperties.isPresent()) {
-            ProtocolDialectProperties props = dialectProperties.get();
-            props.removeProperty(propertyName);
-            if (!this.dirtyDialectProperties.contains(props)) {
-                this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) props);
-            }
-        } else {
-            createNewLocalDialectProperties(dialectName);
-        }
-    }
-
-    @Override
-    public void setProtocolProperty(String name, Object value) {
-        PropertySpec propertySpec = getPropertySpecForProperty(name);
-        ValueFactory valueFactory = propertySpec.getValueFactory();
-        String propertyValue;
-
-        if (valueFactory instanceof BigDecimalFactory && value instanceof Integer) {
-            propertyValue = ((Integer) value).toString();
-        } else {
-            propertyValue = propertySpec.getValueFactory().toStringValue(value);
-        }
-
-        Optional<DeviceProtocolProperty> optionalProperty = getDeviceProtocolProperty(name);
-        if (optionalProperty.isPresent()) {
-            updateDeviceProperty(optionalProperty.get(), propertyValue);
-        } else {
-            addDeviceProperty(propertySpec, propertyValue);
-        }
-
-        if (getId() > 0) {
-            dataModel.touch(this);
-        }
     }
 
     private void addDeviceProperty(PropertySpec propertySpec, String propertyValue) {
@@ -1325,75 +1848,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 });
     }
 
-
-    @Override
-    public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
-        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
-                .size());
-        all.addAll(this.dialectPropertiesList);
-        all.addAll(this.newDialectProperties);
-        return all;
-    }
-
-    @Override
-    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
-        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
-        if (dialectProperties.isPresent()) {
-            return dialectProperties;
-        } else {
-            // Attempt to find the dialect properties in the list of new ones that have not been saved yet
-            return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
-        }
-    }
-
-    @Override
-    public void removeProtocolProperty(String name) {
-        for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
-            if (deviceProtocolProperty.getName().equals(name)) {
-                this.deviceProperties.remove(deviceProtocolProperty);
-                this.notifyUpdate(deviceProtocolProperty);
-                dataModel.touch(this);
-                break;
-            }
-        }
-    }
-
-    @Override
-    public TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        TypedProperties securityProperties = TypedProperties.empty();
-        for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
-            Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
-                    .stream()
-                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
-                    .findFirst();
-
-            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
-
-                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
-                Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getSecurityAccessorType());
-                securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
-            }
-        }
-        return securityProperties;
-    }
-
-    @Override
-    public TypedProperties getDeviceProtocolProperties() {
-        if (this.getDeviceProtocolPluggableClass().isPresent()) {
-            TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
-            this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs());
-            return properties;
-        } else {
-            return TypedProperties.empty();
-        }
-    }
-
-
     private PropertySpec getPropertySpecForProperty(String name) {
         DeviceProtocol deviceProtocol = this.getDeviceProtocolPluggableClass()
                 .map(DeviceProtocolPluggableClass::getDeviceProtocol)
                 .orElseThrow(() -> new UnsupportedOperationException("No DeviceProtocolPluggableClass to communicate with device type" + getDeviceType().getName()));
-
         return deviceProtocol
                 .getPropertySpecs()
                 .stream()
@@ -1421,11 +1879,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return null;
-    }
-
-    @Override
-    public Optional<UsagePoint> getUsagePoint() {
-        return koreHelper.getUsagePoint();
     }
 
     private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
@@ -1507,7 +1960,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
         }
-
         return Lists.reverse(loadProfileReadings);
     }
 
@@ -1525,7 +1977,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
         }
-
         return Lists.reverse(loadProfileReadings);
     }
 
@@ -1537,9 +1988,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     channel.getLoadProfile(),
                     interval,
                     meter.get());
-
             Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
-
             Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap = sortedLoadProfileReadingMap.entrySet().stream().collect(Collectors.toMap(
                     Map.Entry::getKey,
                     instantLoadProfileReadingEntry -> {
@@ -1558,7 +2007,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         return listOfReadings;
                     }
             ));
-
             meterHasData = this.addChannelWithHistoryDataToMap(clipped, meter.get(), channel, sortedHistoryLoadProfileReadingMap);
             if (meterHasData) {
                 if (changedDataOnly) {
@@ -1584,16 +2032,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
-        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter));
-    }
-
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval                    The interval over which meter readings are requested
-     * @param meter                       The meter for which readings are requested
-     * @param mdcChannel                  The meter's channel for which readings are requested
+     * @param interval The interval over which meter readings are requested
+     * @param meter The meter for which readings are requested
+     * @param mdcChannel The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -1617,7 +2061,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
-
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
@@ -1657,12 +2100,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 readingQualitiesJournal = meter.getReadingQualitiesJournal(meterActivationInterval, Collections.EMPTY_LIST,
                         meterReadings.stream().map(JournaledChannelReadingRecord::getChannel).distinct().collect(Collectors.toList()));
             }
-
             for (JournaledChannelReadingRecord meterReading : meterReadings) {
                 List<LoadProfileJournalReadingImpl> loadProfileReadingList = sortedHistoryLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 setLoadProfileHistoryReading(loadProfileReadingList, meterReading, mdcChannel);
             }
-
             sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
                     .stream()
                     .filter(r -> r.getValue().get(0).getReadingTime() != null)
@@ -1676,7 +2117,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
-
     private void setLoadProfileHistoryReading(List<LoadProfileJournalReadingImpl> loadProfileReadingList, JournaledChannelReadingRecord meterReading, Channel mdcChannel) {
         LoadProfileJournalReadingImpl loadProfileHistoryReading;
         if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
@@ -1685,7 +2125,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
             loadProfileReadingList.add(loadProfileHistoryReading);
         }
-
         loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
         loadProfileHistoryReading.setUserName(meterReading.getUserName());
         loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
@@ -1699,7 +2138,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         sortedHistoryLoadProfileReadingMap.entrySet().stream()
                 .forEach(instantListEntry -> {
                     List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
-
                     List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
                             .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
                             .filter(o -> channelReadingTypes.contains(o.getReadingType()))
@@ -1708,11 +2146,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
                             .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
                             .map(JournalEntry::get).collect(Collectors.toList());
-
                     List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
                     allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
                     allReadingQuality.stream().forEach(rqj -> {
-
                         Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
                         if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
                             journalReadingOptional = instantListEntry.getValue()
@@ -1746,7 +2182,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
             DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
-
             journalReading.setDataValidationStatus(mdcChannel, validationStatus);
             //code below is the processing of removed readings
             validationStatus.getReadingQualities()
@@ -1770,9 +2205,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile       The LoadProfile
+     * @param loadProfile The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter             The Meter
+     * @param meter The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1861,7 +2296,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 zoneId)
                         .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
-
         while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
                 .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             latestAttemptBefore = nextAttempt;
@@ -1884,7 +2318,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 requestedIntervalClippedToMeterActivation.lowerEndpoint(),
                                 zoneId)
                         .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
-
         while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
                 .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
@@ -1975,11 +2408,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getOptionalMeterAspect(meter -> this.getLastReadingsFor(register, meter));
     }
 
-    @Override
-    public void store(MeterReading meterReading) {
-        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
-    }
-
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
         ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
@@ -1992,11 +2420,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return Optional.empty();
-    }
-
-    @Override
-    public boolean hasData() {
-        return this.getOptionalMeterAspect(this::hasData).get();
     }
 
     private Optional<Boolean> hasData(Meter meter) {
@@ -2027,46 +2450,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    @Override
-    public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
-        if (start == null || usagePoint == null || meterRole == null) {
-            throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
-        }
-        try {
-            usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
-        } catch (MeterHasUnsatisfiedRequirements badRequirementsEx) {
-            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
-        } catch (UsagePointHasMeterOnThisRole upActiveEx) {
-            throw new UsagePointAlreadyLinkedToAnotherDeviceException(
-                    this.thesaurus,
-                    getLongDateFormatForCurrentUser(),
-                    upActiveEx.getMeter().getMeterActivations(upActiveEx.getConflictActivationRange()).get(0));
-        }
-        this.koreHelper.reloadCurrentMeterActivation();
-        return getCurrentMeterActivation().get();
-    }
-
     private DateTimeFormatter getLongDateFormatForCurrentUser() {
         return DateTimeFormatGenerator.getDateFormatForUser(
                 DateTimeFormatGenerator.Mode.LONG,
                 DateTimeFormatGenerator.Mode.LONG,
                 this.userPreferencesService,
                 this.threadPrincipalService.getPrincipal());
-    }
-
-    @Override
-    public void deactivateNow() {
-        this.deactivate(this.clock.instant());
-    }
-
-    @Override
-    public void deactivate(Instant when) {
-        this.koreHelper.deactivateMeter(when);
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return this.koreHelper.getCurrentMeterActivation();
     }
 
     private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
@@ -2094,16 +2483,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return new ArrayList<>(meter.getMeterActivations());
     }
 
-    @Override
-    public List<MeterActivation> getMeterActivationsMostRecentFirst() {
-        return this.getListMeterAspect(this::getSortedMeterActivations);
-    }
-
-    @Override
-    public List<MeterActivation> getMeterActivations(Range<Instant> range) {
-        return getSortedMeterActivations(meter.get(), range);
-    }
-
     /**
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * where the most recent activations are returned first.
@@ -2126,11 +2505,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (this.meter.isPresent() && this.meter.get().getMeterActivations().isEmpty()) {
             this.meter.get().activate(when);
         }
-    }
-
-    @Override
-    public Optional<MeterActivation> getMeterActivation(Instant when) {
-        return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
     }
 
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
@@ -2199,7 +2573,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter    The Meter
+     * @param meter The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -2222,59 +2596,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.dataModel.mapper(DeviceImpl.class);
     }
 
-    @Override
-    public String getmRID() {
-        return mRID;
-    }
-
-    @Override
-    public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
-    }
-
-    @Override
-    public InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask) {
-        return new InboundConnectionTaskBuilderForDevice(this, partialInboundConnectionTask);
-    }
-
-    @Override
-    public ConnectionInitiationTaskBuilder getConnectionInitiationTaskBuilder(PartialConnectionInitiationTask partialConnectionInitiationTask) {
-        return new ConnectionInitiationTaskBuilderForDevice(this, partialConnectionInitiationTask);
-    }
-
-    @Override
-    public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return this.getConnectionTaskImpls().collect(Collectors.toList());
-    }
-
     private Stream<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
         return this.connectionTasks
                 .stream()
                 .filter(Predicates.not(ConnectionTask::isObsolete));
-    }
-
-    @Override
-    public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
-        return this.getConnectionTaskImpls()
-                .filter(ct -> ct instanceof ScheduledConnectionTask)
-                .map(ScheduledConnectionTask.class::cast)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ConnectionInitiationTask> getConnectionInitiationTasks() {
-        return this.getConnectionTaskImpls()
-                .filter(ct -> ct instanceof ConnectionInitiationTask)
-                .map(ConnectionInitiationTask.class::cast)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<InboundConnectionTask> getInboundConnectionTasks() {
-        return this.getConnectionTaskImpls()
-                .filter(ct -> ct instanceof InboundConnectionTask)
-                .map(InboundConnectionTask.class::cast)
-                .collect(Collectors.toList());
     }
 
     private ConnectionTask add(ConnectionTaskImpl connectionTask) {
@@ -2289,27 +2614,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return connectionTask;
     }
 
-    @Override
-    public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        this.connectionTasks
-                .stream()
-                .filter(x -> x.getId() == connectionTask.getId())
-                .findAny()
-                .map(ServerConnectionTask.class::cast)
-                .ifPresent(ServerConnectionTask::makeObsolete);
-    }
-
     private Stream<ComTaskExecutionImpl> getComTaskExecutionImpls() {
         return this.comTaskExecutions
                 .stream()
                 .filter(Predicates.not(ComTaskExecution::isObsolete));
-    }
-
-    @Override
-    public List<ComTaskExecution> getComTaskExecutions() {
-        return comTaskExecutions.stream()
-                .filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate())
-                .collect(Collectors.toList());
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
@@ -2323,132 +2631,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return comTaskExecution;
     }
 
-    @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutions
-                .stream()
-                .filter(x -> x.getId() == comTaskExecution.getId())
-                .findAny()
-                .map(ServerComTaskExecution.class::cast)
-                .ifPresent(ServerComTaskExecution::makeObsolete);
-    }
-
-    @Override
-    public ComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule) {
-        return new ScheduledComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comSchedule);
-    }
-
-    @Override
-    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new AdHocComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
-    }
-
-    @Override
-    public ComTaskExecutionBuilder newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new FirmwareComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
-    }
-
-    @Override
-    public ComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
-        return new ManuallyScheduledComTaskExecutionBuilderForDevice(
-                this.comTaskExecutionProvider,
-                comTaskEnablement,
-                temporalExpression);
-    }
-
-    @Override
-    public ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution) {
-        return comTaskExecution.getUpdater();
-    }
-
-    @Override
-    public void removeComSchedule(ComSchedule comSchedule) {
-        List<ComTaskExecutionImpl> comTasksWithSchedule =
-                getComTaskExecutionImpls()
-                        .filter(cte -> cte.getComSchedule().isPresent())
-                        .filter(cte -> cte.getComSchedule().get().getId() == comSchedule.getId())
-                        .collect(Collectors.toList());
-
-        if (comTasksWithSchedule.size() == 0) {
-            throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
-        } else {
-            comTasksWithSchedule.forEach(comTaskExecution -> comTaskExecution.getUpdater().removeSchedule().update());
-        }
-    }
-
-    @Override
-    public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
-        return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
-    }
-
-    @Override
-    public DeviceValidation forValidation() {
-        if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(this.dataModel, this.validationService, this.thesaurus, this, clock);
-        }
-        return deviceValidation;
-    }
-
-    @Override
-    public DeviceEstimation forEstimation() {
-        return this.dataModel.getInstance(DeviceEstimationImpl.class).init(this, this.estimationActive, this.estimationRuleSetActivations);
-    }
-
-    @Override
-    public GatewayType getConfigurationGatewayType() {
-        DeviceConfiguration configuration = getDeviceConfiguration();
-        if (configuration == null) {
-            return GatewayType.NONE;
-        }
-        return configuration.getGatewayType();
-    }
-
-    @Override
-    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
-        return this.newDeviceMessage(deviceMessageId, TrackingCategory.manual);
-    }
-
-    @Override
-    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
-        return new InternalDeviceMessageBuilder(deviceMessageId, trackingCategory);
-    }
-
-    @Override
-    public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range) {
-        enumeratedEndDeviceGroup.add(this.meter.get(), range);
-    }
-
-    @Override
-    public boolean hasOpenIssues() {
-        return !getOpenIssues().isEmpty();
-    }
-
-    @Override
-    public List<OpenIssue> getOpenIssues() {
-        return getListMeterAspect(this::getOpenIssuesForMeter);
-    }
-
     private List<OpenIssue> getOpenIssuesForMeter(Meter meter) {
         return this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
     }
 
     private List<HistoricalIssue> getAllHistoricalIssuesForMeter(Meter meter) {
         return this.issueService.query(HistoricalIssue.class).select(where("device").isEqualTo(meter));
-    }
-
-    @Override
-    public State getState() {
-        return this.getState(this.clock.instant()).get();
-    }
-
-    @Override
-    public Stage getStage() {
-        return this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
-    }
-
-    @Override
-    public CalendarSupport calendars() {
-        return new DeviceCalendarSupport(this, this.dataModel, this.clock);
     }
 
     TemporalReference<ServerActiveEffectiveCalendar> activeEffectiveCalendar() {
@@ -2481,89 +2669,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     void clearPlannedPassiveCalendar() {
         this.plannedPassiveCalendar.set(null);
         this.getPlannedPassiveCalendar().ifPresent(this.dataModel::remove);
-    }
-
-    @Override
-    public void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction) {
-        Optional<ComTaskExecution> comTaskExecution = Optional.empty();
-        Optional<ComTaskExecution> bestComTaskExecution = getComTaskExecutions().stream()
-                .filter(cte -> containsStatusInformationProtocolTask(cte.getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()))
-                .findFirst();
-
-        Optional<ComTaskEnablement> bestComTaskEnablement = getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
-                .findFirst();
-
-        if (bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
-            if (bestComTaskExecution.get().getComTask().equals(bestComTaskEnablement.get().getComTask())) {
-                comTaskExecution = bestComTaskExecution;
-            } else {
-                comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
-            }
-        } else if (bestComTaskExecution.isPresent()) {
-            comTaskExecution = bestComTaskExecution;
-        } else if (bestComTaskEnablement.isPresent()) {
-            comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
-        }
-
-        if (!comTaskExecution.isPresent()) {
-            throw new NoStatusInformationTaskException();
-        }
-
-        requestedAction.accept(comTaskExecution.get());
-    }
-
-    @Override
-    public Optional<Device> getHistory(Instant when) {
-        if (when.isAfter(this.modTime)) {
-            return Optional.of(this);
-        }
-        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
-                .at(when)
-                .find(ImmutableMap.of("id", this.getId()));
-        return journalEntries.stream()
-                .map(JournalEntry::get)
-                .findFirst();
-    }
-
-    @Override
-    public void addInBatch(Batch batch) {
-        this.batch.set(batch);
-        save();
-    }
-
-    @Override
-    public void removeFromBatch(Batch batch) {
-        if (this.batch.isPresent() && this.batch.get().getId() == batch.getId()) {
-            this.batch.set(null);
-            save();
-        }
-    }
-
-    @Override
-    public Optional<Batch> getBatch() {
-        return this.batch.getOptional();
-    }
-
-    @Override
-    public void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask) {
-        List<ComTask> comTasksWithConnectionTask = this.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> !comTaskEnablement.usesDefaultConnectionTask())
-                .filter(comTaskEnablement -> !comTaskEnablement.getConnectionFunction().isPresent())
-                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().isPresent())
-                .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get().equals(connectionTask.getPartialConnectionTask()))
-                .map(ComTaskEnablement::getComTask)
-                .collect(Collectors.toList());
-
-        this.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTasksWithConnectionTask.contains(comTaskExecution.getComTask()))
-                .forEach((comTaskExecution) -> {
-                    ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-                    comTaskExecutionUpdater.connectionTask(connectionTask);
-                    comTaskExecutionUpdater.update();
-                });
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
@@ -2629,51 +2734,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             scorePerProtocolTask.put(MessagesTask.class::isAssignableFrom, 5);
             scorePerProtocolTask.put(FirmwareManagementTask.class::isAssignableFrom, 6);
         }
-
         return scorePerProtocolTask;
-    }
-
-    @Override
-    public Optional<State> getState(Instant instant) {
-        if (this.id > 0) {
-            if (this.meter.isPresent()) {
-                return this.meter.get().getState(instant);
-            } else {
-                // Kore meter was not created yet
-                throw new IllegalStateException("Kore meter was not created when this Device was created");
-            }
-        } else {
-            return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
-        }
-    }
-
-    @Override
-    public StateTimeline getStateTimeline() {
-        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
-    }
-
-    @Override
-    public CIMLifecycleDates getLifecycleDates() {
-        if (this.meter.isPresent()) {
-            return new CIMLifecycleDatesImpl(this.meter.get(), meter.get().getLifecycleDates());
-        } else {
-            return new NoCimLifecycleDates();
-        }
-    }
-
-    @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
     }
 
     private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
@@ -2704,18 +2765,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
             }
         }
-    }
-
-    public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
-        if (readingType == null) {
-            return Optional.empty();
-        }
-        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
-            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                return Optional.of(readingTypeObisCodeUsage);
-            }
-        }
-        return Optional.empty();
     }
 
     void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
@@ -2749,6 +2798,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
         DeviceImpl device = (DeviceImpl) o;
         return id == device.id;
+    }
+
+    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
+        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
+    }
+
+    private List<SecurityAccessor> getSecurityAccessorsManagedCentrally() {
+        List<SecurityAccessorType> securityAccessorTypes = getDeviceType().getSecurityAccessorTypes();
+        return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
+                .collect(toList());
+    }
+
+    private void validateManageable(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.isManagedCentrally()) {
+            throw new UnmanageableSecurityAccessorException(thesaurus, securityAccessorType);
+        }
     }
 
     private enum RegisterFactory {
@@ -2796,6 +2862,55 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         abstract boolean appliesTo(RegisterSpec registerSpec);
 
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+    }
+
+    @Target({java.lang.annotation.ElementType.TYPE, ElementType.FIELD})
+    @Retention(RUNTIME)
+    @Documented
+    @Constraint(validatedBy = {ShipmentDateValidator.class})
+    @interface HasValidShipmentDate {
+        String message() default "";
+
+        Class<?>[] groups() default {};
+
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    private static class ShipmentDateValidator implements ConstraintValidator<HasValidShipmentDate, DeviceImpl> {
+
+        @Override
+        public void initialize(HasValidShipmentDate constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(DeviceImpl device, ConstraintValidatorContext context) {
+            if (!device.koreHelper.getInitialMeterActivationStartDate().isPresent()) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}")
+                        .addPropertyNode("shipmentDate").addConstraintViolation();
+                return false;
+            }
+            return true;
+        }
+    }
+
+    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+        LogBookUpdaterForDevice(LogBookImpl logBook) {
+            super(logBook);
+        }
+    }
+
+    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+
+        LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+            super(loadProfile);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            dataModel.touch(DeviceImpl.this);
+        }
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
@@ -3070,10 +3185,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         ComTaskExecution execution = builder.add();
                         DeviceImpl.this.add((ComTaskExecutionImpl) execution);
                     });
-
             comTaskExecutionsUpdaters.stream()
                     .forEach(ComTaskExecutionUpdater::update);
-
             return getComTaskExecution();
         }
     }
@@ -3121,16 +3234,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             ComTaskExecution comTaskExecution = super.add();
             return DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
-    }
-
-    @Override
-    public Channel.ChannelUpdater getChannelUpdaterFor(Channel channel) {
-        return new ChannelUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, channel, eventService);
-    }
-
-    @Override
-    public Register.RegisterUpdater getRegisterUpdaterFor(Register register) {
-        return new RegisterUpdaterImpl(this.deviceService, this.readingTypeUtilService, this.clock, eventService, register);
     }
 
     private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
@@ -3295,158 +3398,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             int b = o2.canUpdateCurrentMeterActivation() ? 1 : 0;
             return new Integer(a).compareTo(b);
         }
-    }
-
-    @Target({java.lang.annotation.ElementType.TYPE, ElementType.FIELD})
-    @Retention(RUNTIME)
-    @Documented
-    @Constraint(validatedBy = {ShipmentDateValidator.class})
-    @interface HasValidShipmentDate {
-        String message() default "";
-
-        Class<?>[] groups() default {};
-
-        Class<? extends Payload>[] payload() default {};
-    }
-
-    private static class ShipmentDateValidator implements ConstraintValidator<HasValidShipmentDate, DeviceImpl> {
-
-        @Override
-        public void initialize(HasValidShipmentDate constraintAnnotation) {
-
-        }
-
-        @Override
-        public boolean isValid(DeviceImpl device, ConstraintValidatorContext context) {
-            if (!device.koreHelper.getInitialMeterActivationStartDate().isPresent()) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}")
-                        .addPropertyNode("shipmentDate").addConstraintViolation();
-                return false;
-            }
-            return true;
-        }
-    }
-
-
-    public Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration deviceConfiguration) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
-                .stream()
-                .filter(emc -> !emc.getRange().intersection(Range.atLeast(from)).isEmpty())
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                .collect(Collectors.toList());
-
-        if (effectiveMetrologyConfigurations.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(deviceConfiguration);
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
-        for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
-            List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
-                    .stream()
-                    .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
-                    .collect(Collectors.toList());
-            if (!unsatisfied.isEmpty()) {
-                unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
-            }
-        }
-        return unsatisfiedRequirements;
-    }
-
-    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
-        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
-    }
-
-    @Override
-    public void touch() {
-        this.dataModel.touch(this);
-    }
-
-    @Override
-    public void activateEstimation() {
-        this.estimationActive = true;
-    }
-
-    @Override
-    public void deactivateEstimation() {
-        this.estimationActive = false;
-    }
-
-    @Override
-    public List<SecurityAccessor> getSecurityAccessors() {
-        List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
-        List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
-        securityAccessors.addAll(this.keyAccessors);
-        securityAccessors.addAll(securityAccessorsManagedCentrally);
-        return securityAccessors;
-    }
-
-    @Override
-    public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
-                .findAny();
-        if (securityAccessor.isPresent()) {
-            return securityAccessor;
-        }
-        return getDeviceType().getSecurityAccessorTypes().stream()
-                .filter(sat -> sat.getId() == securityAccessorType.getId())
-                .findAny()
-                .flatMap(securityManagementService::getDefaultValues)
-                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa));
-    }
-
-    private List<SecurityAccessor> getSecurityAccessorsManagedCentrally() {
-        List<SecurityAccessorType> securityAccessorTypes = getDeviceType().getSecurityAccessorTypes();
-        return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
-                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
-                .collect(toList());
-    }
-
-    private void validateManageable(SecurityAccessorType securityAccessorType) {
-        if (securityAccessorType.isManagedCentrally()) {
-            throw new UnmanageableSecurityAccessorException(thesaurus, securityAccessorType);
-        }
-    }
-
-    @Override
-    public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        validateManageable(securityAccessorType);
-        CryptographicType cryptographicType = securityAccessorType.getKeyType().getCryptographicType();
-        switch (cryptographicType) {
-            case Certificate:
-            case ClientCertificate:
-            case TrustedCertificate:
-                CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
-                certificateAccessor.init(securityAccessorType, this);
-                this.keyAccessors.add(certificateAccessor);
-                return certificateAccessor;
-            case SymmetricKey:
-                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(PlainTextSymmetricKeyAccessorImpl.class);
-                symmetricKeyAccessor.init(securityAccessorType, this);
-                this.keyAccessors.add(symmetricKeyAccessor);
-                return symmetricKeyAccessor;
-            case Passphrase:
-                PassphraseAccessorImpl passphraseAccessor = dataModel.getInstance(PassphraseAccessorImpl.class);
-                passphraseAccessor.init(securityAccessorType, this);
-                this.keyAccessors.add(passphraseAccessor);
-                return passphraseAccessor;
-            case AsymmetricKey:
-                return null; // TODO implement? will this occur?
-            case Hsm:
-                symmetricKeyAccessor = dataModel.getInstance(HsmSymmetricKeyAccessorImpl.class);
-                symmetricKeyAccessor.init(securityAccessorType, this);
-                this.keyAccessors.add(symmetricKeyAccessor);
-                return symmetricKeyAccessor;
-            default:
-                throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
-        }
-    }
-
-    @Override
-    public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
-        validateManageable(securityAccessor.getKeyAccessorType());
-        this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 
 }

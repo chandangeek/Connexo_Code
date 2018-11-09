@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -179,6 +180,8 @@ public class DeviceDeleteTest {
     private DataMapper<ChannelValidationRuleOverriddenPropertiesImpl> validationOverriddenPropertiesDataMapper;
     @Mock
     private DataMapper<ChannelEstimationRuleOverriddenPropertiesImpl> estimationOverriddenPropertiesDataMapper;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void setup() {
@@ -193,10 +196,8 @@ public class DeviceDeleteTest {
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(deviceService.findDefaultMultiplierType()).thenReturn(defaultMultiplierType);
         when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
-
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
         when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
-
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
@@ -206,14 +207,11 @@ public class DeviceDeleteTest {
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
-
         when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
         when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
-
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
-
         when(issueService.query(OpenIssue.class)).thenReturn(openIssueQuery);
         when(openIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.query(HistoricalIssue.class)).thenReturn(historicalIssueQuery);
@@ -225,7 +223,6 @@ public class DeviceDeleteTest {
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
-
         when(dataModel.mapper(ChannelValidationRuleOverriddenPropertiesImpl.class)).thenReturn(validationOverriddenPropertiesDataMapper);
         when(dataModel.mapper(ChannelEstimationRuleOverriddenPropertiesImpl.class)).thenReturn(estimationOverriddenPropertiesDataMapper);
     }
@@ -234,7 +231,6 @@ public class DeviceDeleteTest {
     public void deleteDeviceTest() {
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
-
         verify(eventService).postEvent(EventType.DEVICE_BEFORE_DELETE.topic(), device);
         verify(meter).makeObsolete();
         verify(dataMapper).remove(device);
@@ -245,13 +241,10 @@ public class DeviceDeleteTest {
         setupMocksForOpenIssues();
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
-
         verify(openIssue1).close(wontFix);
         verify(openIssue2).close(wontFix);
-
         verify(historicalIssue1).delete();
         verify(historicalIssue2).delete();
-
         verify(dataMapper).remove(device);
     }
 
@@ -261,7 +254,6 @@ public class DeviceDeleteTest {
         setupWithMessages(device);
         DeviceMessage deviceMessage = device.newDeviceMessage(DeviceMessageId.CLOCK_SET_TIME).add();
         device.delete();
-
         verify(deviceMessage).delete();
     }
 
@@ -270,7 +262,6 @@ public class DeviceDeleteTest {
         DeviceImpl device = getNewDeviceWithMockedServices();
         setupWithDeviceInStaticGroup();
         device.delete();
-
         verify(endDeviceGroup).remove(entry);
     }
 
@@ -280,9 +271,7 @@ public class DeviceDeleteTest {
         when(clock.instant()).thenReturn(now);
         setupWithActiveMeterActivation();
         DeviceImpl device = getNewDeviceWithMockedServices();
-
         device.delete();
-
         verify(currentActiveMeterActivation).endAt(now.truncatedTo(ChronoUnit.MINUTES));
     }
 
@@ -294,7 +283,6 @@ public class DeviceDeleteTest {
         when(this.deviceType.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
-
         verify(customPropertySetService).removeValuesFor(customPropertySet, device);
     }
 
@@ -335,7 +323,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;
