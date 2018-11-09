@@ -2863,6 +2863,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
             super(inboundConnectionTaskProvider.get());
             this.getInboundConnectionTask().initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
+            this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         }
 
         @Override
