@@ -99,6 +99,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -1135,7 +1136,7 @@ public class UsagePointOutputResource {
      * @return {@code true} if validated, {@code false} otherwise.
      */
     private boolean validateIfPossible(ChannelsContainer channelsContainer, MetrologyContract contract, Instant lastCheckedCandidate) {
-        Instant actuallyValidateFrom = resolveTimestampToValidateFrom(channelsContainer, lastCheckedCandidate);
+        Instant actuallyValidateFrom = UsagePointTimeResolver.resolveLastCheck(validationService, channelsContainer, lastCheckedCandidate);
         return Ranges.nonEmptyIntersection(channelsContainer.getInterval().toOpenClosedRange(), Range.atLeast(actuallyValidateFrom))
                 .filter(rangeToValidate -> canValidateSomething(contract, rangeToValidate, channelsContainer))
                 .map(rangeToValidate -> {
@@ -1147,12 +1148,7 @@ public class UsagePointOutputResource {
                 .orElse(false);
     }
 
-    private Instant resolveTimestampToValidateFrom(ChannelsContainer channelsContainer, Instant candidate) {
-        Instant lastChecked = validationService.getLastChecked(channelsContainer)
-                .orElseGet(channelsContainer::getStart);
-        return (lastChecked.isBefore(candidate) ? lastChecked : candidate)
-                .plusMillis(1); // need to exclude lastChecked timestamp itself from validation
-    }
+
 
     private boolean canValidateSomething(MetrologyContract contract, Range<Instant> rangeToValidate, ChannelsContainer channelsContainer) {
         if (!validationService.isValidationActive(channelsContainer)){
