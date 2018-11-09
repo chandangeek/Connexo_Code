@@ -112,6 +112,9 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.elster.insight.issue.datavalidation.impl.UsagePointDataValidationIssueCreationRuleTemplate;
+import com.elster.insight.issue.datavalidation.impl.UsagePointIssueDataValidationModule;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
@@ -200,6 +203,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -246,8 +250,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
-@Ignore
 public class DemoTest {
 
     private static BundleContext bundleContext = mock(BundleContext.class) ;
@@ -287,6 +289,7 @@ public class DemoTest {
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
             bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractorImpl.class));
             bind(PassphraseFactory.class).toInstance(mock(DataVaultPassphraseFactory.class));
+            bind(HsmProtocolService.class).toInstance(mock(HsmProtocolService.class));
         }
 
         private License mockLicense(String applicationname) {
@@ -422,6 +425,7 @@ public class DemoTest {
                 new ProtocolApiModule(),
                 new IssueDataCollectionModule(),
                 new IssueDataValidationModule(),
+                new UsagePointIssueDataValidationModule(),
                 new TopologyModule(),
                 new FavoritesModule(),
                 new FirmwareModule(),
@@ -888,6 +892,7 @@ public class DemoTest {
         injector.getInstance(IssueDataCollectionService.class);
         injector.getInstance(IssueDataValidationService.class);
         injector.getInstance(DeviceAlarmService.class);
+        injector.getInstance(UsagePointIssueDataValidationService.class);
         fixIssueTemplates();
         fixEstimators(propertySpecService, injector.getInstance(TimeService.class));
 
@@ -903,11 +908,13 @@ public class DemoTest {
         AbstractDataCollectionTemplate template = injector.getInstance(BasicDataCollectionRuleTemplate.class);
         DataValidationIssueCreationRuleTemplate dataValidationIssueCreationRuleTemplate = injector.getInstance(DataValidationIssueCreationRuleTemplate.class);
         AbstractDeviceAlarmTemplate alarmTemplate = injector.getInstance(BasicDeviceAlarmRuleTemplate.class);
+        UsagePointDataValidationIssueCreationRuleTemplate usagePointIssueTemplate = injector.getInstance(UsagePointDataValidationIssueCreationRuleTemplate.class);
 
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
         issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
         issueService.addCreationRuleTemplate(alarmTemplate);
+        issueService.addCreationRuleTemplate(usagePointIssueTemplate);
     }
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService) {

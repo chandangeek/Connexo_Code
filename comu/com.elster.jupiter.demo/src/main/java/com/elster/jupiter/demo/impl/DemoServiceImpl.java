@@ -94,6 +94,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
@@ -206,6 +207,7 @@ public class DemoServiceImpl {
     private volatile PassphraseFactory passphraseFactory;
     private volatile NlsService nlsService;
     private volatile DeviceAlarmService deviceAlarmService;
+    private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private volatile TopologyService topologyService;
 
     private Injector injector;
@@ -268,7 +270,8 @@ public class DemoServiceImpl {
             TopologyService topologyService,
             NlsService nlsService,
             DeviceAlarmService deviceAlarmService,
-            UsagePointConfigurationService usagePointConfigurationService) {
+            UsagePointConfigurationService usagePointConfigurationService,
+            UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -325,6 +328,7 @@ public class DemoServiceImpl {
         setNlsService(nlsService);
         setDeviceAlarmService(deviceAlarmService);
         setUsagePointConfigurationService(usagePointConfigurationService);
+        setUsagePointIssueDataValidationService(usagePointIssueDataValidationService);
         activate();
         reThrowEx = true;
     }
@@ -390,6 +394,7 @@ public class DemoServiceImpl {
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
+                bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         });
@@ -703,6 +708,11 @@ public class DemoServiceImpl {
     @Reference
     public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
         this.deviceAlarmService = deviceAlarmService;
+    }
+
+    @Reference
+    public void setUsagePointIssueDataValidationService(UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+        this.usagePointIssueDataValidationService = usagePointIssueDataValidationService;
     }
 
     @Reference
