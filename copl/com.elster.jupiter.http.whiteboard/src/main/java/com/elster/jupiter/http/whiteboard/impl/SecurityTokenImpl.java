@@ -39,17 +39,17 @@ import java.util.logging.Logger;
 
 public class SecurityTokenImpl {
 
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
-    private final int tokenExpiration;
-    private final int maxTokenCount;
-    private final int timeOut;
     private static final String TOKEN_INVALID = "Invalid token ";
     private static final String TOKEN_EXPIRED = "Token expired for user ";
     private static final String TOKEN_RENEWAL = "Token renewal for user ";
     private static final String TOKEN_GENERATED = "Token generated for user ";
     private static final String USER_NOT_FOUND = "User not found ";
     private static final String USER_DISABLED = "User account disabled ";
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
+    private final int tokenExpiration;
+    private final int maxTokenCount;
+    private final int timeOut;
     private Logger tokenRenewal = Logger.getLogger("tokenRenewal");
 
     private EventService eventService;
@@ -94,6 +94,9 @@ public class SecurityTokenImpl {
                     if (s.getKey().equals("BPM") || s.getKey().equals("YFN"))
                         s.getValue().stream().forEach(p->privileges.add(p.getName()));
                 });
+                privileges.add("privilege.public.api.rest");
+                privileges.add("privilege.pulse.public.api.rest");
+                privileges.add("privilege.view.userAndRole");
 
                 roles.add(new RoleClaimInfo(group.getId(), group.getName()));
             }
@@ -128,39 +131,6 @@ public class SecurityTokenImpl {
 
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    class TokenValidation {
-        private final boolean valid;
-        private final User user;
-        private final String token;
-
-        TokenValidation(boolean valid, User user, String token) {
-            this.valid = valid;
-            this.user = user;
-            this.token = token;
-        }
-
-
-        public boolean isValid() {
-            return valid;
-        }
-
-        public Optional<User> getUser() {
-            if (isValid()) {
-                return Optional.ofNullable(user);
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        public String getToken() {
-            if (valid) {
-                return token;
-            } else {
-                return null;
-            }
-        }
     }
 
     public TokenValidation verifyToken(String token, UserService userService, String ipAddr) {
@@ -276,6 +246,39 @@ public class SecurityTokenImpl {
             tokenRenewal.log(Level.WARNING, message + userName + " ", ipAddr);
         } else if (message.equals(TOKEN_GENERATED) || message.equals(TOKEN_EXPIRED) || message.equals(TOKEN_RENEWAL) || message.equals(USER_DISABLED) || message.equals(USER_NOT_FOUND)) {
             tokenRenewal.log(Level.INFO, message + userName + " ", ipAddr);
+        }
+    }
+
+    class TokenValidation {
+        private final boolean valid;
+        private final User user;
+        private final String token;
+
+        TokenValidation(boolean valid, User user, String token) {
+            this.valid = valid;
+            this.user = user;
+            this.token = token;
+        }
+
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public Optional<User> getUser() {
+            if (isValid()) {
+                return Optional.ofNullable(user);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        public String getToken() {
+            if (valid) {
+                return token;
+            } else {
+                return null;
+            }
         }
     }
 
