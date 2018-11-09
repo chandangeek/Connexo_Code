@@ -7,6 +7,7 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.readings.BaseReading;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -18,7 +19,7 @@ import java.util.Map;
  * Use meter.store(MeterReading meterReading) to store ReadingQualities created by the meter
  * 
  */
-
+@ProviderType
 public interface ReadingStorer {
 
     boolean overrules();
