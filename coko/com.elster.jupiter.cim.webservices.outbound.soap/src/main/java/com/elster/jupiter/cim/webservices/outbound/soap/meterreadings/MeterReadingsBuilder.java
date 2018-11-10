@@ -170,11 +170,10 @@ class MeterReadingsBuilder {
                     }
                 });
                 readingsByReadingTypes.put(readingInfo.getReadingType(), readings);
-
-                Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
-                if (meterReading.isPresent()) {
-                    meterReadingsList.add(meterReading.get());
-                }
+            }
+            Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
+            if (meterReading.isPresent()) {
+                meterReadingsList.add(meterReading.get());
             }
         }
 
