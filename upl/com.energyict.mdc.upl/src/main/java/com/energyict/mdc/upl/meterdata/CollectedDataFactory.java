@@ -3,13 +3,8 @@ package com.energyict.mdc.upl.meterdata;
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-
 import com.energyict.obis.ObisCode;
 
 import java.security.cert.X509Certificate;
@@ -54,6 +49,8 @@ public interface CollectedDataFactory {
     CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
 
     CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
+
+    CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents);
 
     CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate);
 
