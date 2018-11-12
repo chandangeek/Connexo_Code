@@ -73,6 +73,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -303,7 +304,7 @@ public abstract class SecureDeviceImporterAbstract {
      */
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
-        List<NamedAttribute> deviceAttributesList =  xmlDevice.getAttribute();
+        List<NamedAttribute> deviceAttributesList = Stream.concat(xmlDevice.getAttribute().stream(), shipment.getHeader().getAttribute().stream()).collect(Collectors.toList());
 
         Map<String,String> values = deviceAttributesList
                 .stream()
