@@ -73,6 +73,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -142,7 +143,7 @@ public abstract class SecureDeviceImporterAbstract {
             CertificateException,
             InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
-            CertPathValidatorException, IOException, HsmBaseException {
+            CertPathValidatorException, IOException, ImportFailedException, HsmBaseException {
         ReusableInputStream inputStreamProvider = ReusableInputStream.from(fileImportOccurrence.getContents());
         Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.stream());
         if (shouldValidateCert()) {
@@ -211,11 +212,13 @@ public abstract class SecureDeviceImporterAbstract {
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
                     importDeviceKey(device, deviceKey, wrapKeyMap, logger);
                 }
-
                 postProcessDevice(device, xmlDevice, shipment, logger);
                 log(logger, MessageSeeds.IMPORTED_DEVICE, deviceName);
                 deviceCount++;
-            } catch (Exception e) {
+            } catch (ImportFailedException e) {
+                throw e;
+            }
+            catch (Exception e) {
                 log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
                 throw new RuntimeException(e);
             }
@@ -223,7 +226,7 @@ public abstract class SecureDeviceImporterAbstract {
         return deviceCount;
     }
 
-    protected abstract void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException;
+    protected abstract void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException, ImportFailedException;
 
     /**
      * Creates a map to quickly get a WrapKey from its label
@@ -301,7 +304,7 @@ public abstract class SecureDeviceImporterAbstract {
      */
     protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
         // default importer has nothing to do here
-        List<NamedAttribute> deviceAttributesList =  xmlDevice.getAttribute();
+        List<NamedAttribute> deviceAttributesList = Stream.concat(xmlDevice.getAttribute().stream(), shipment.getHeader().getAttribute().stream()).collect(Collectors.toList());
 
         Map<String,String> values = deviceAttributesList
                 .stream()
@@ -345,6 +348,7 @@ public abstract class SecureDeviceImporterAbstract {
     protected void log(Logger logger, MessageSeeds messageSeed, Object... e) {
         logger.log(messageSeed.getLevel(), thesaurus.getFormat(messageSeed).format(e));
     }
+
 
     private void verifySignature(InputStream inputStream, PublicKey publicKey, Logger logger) throws CertificateException {
         try {
@@ -429,18 +433,12 @@ public abstract class SecureDeviceImporterAbstract {
         }
     }
 
-    protected SecurityAccessorType getSecurityAccessorType(Device device, String securityAccessorName, Logger logger) {
-        Optional<SecurityAccessorType> securityAccessorTypeOptional = device.getDeviceType()
+    protected Optional<SecurityAccessorType> getSecurityAccessorType(Device device, String securityAccessorName, Logger logger) {
+        return device.getDeviceType()
                 .getSecurityAccessorTypes()
                 .stream()
                 .filter(kat -> kat.getName().equals(securityAccessorName))
                 .findAny();
-        if (!securityAccessorTypeOptional.isPresent()) {
-            log(logger, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName);
-            return null;
-        } else {
-            return securityAccessorTypeOptional.get();
-        }
     }
 
     private interface DeviceCreator {

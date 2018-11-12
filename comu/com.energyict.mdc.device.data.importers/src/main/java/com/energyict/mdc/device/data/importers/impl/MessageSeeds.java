@@ -98,7 +98,7 @@ public enum MessageSeeds implements MessageSeed {
     IMPORTING_DEVICE(528, "ImportingDevice", "Now importing device ''{0}''", Level.INFO),
     FAILED_TO_STORE_MAC_ADDRESS(529, "FailedToStoreMacAddress", "MAC Address value couldn''t be stored on device ''{0}''", Level.WARNING),
     WRAP_KEY_NOT_FOUND(530, "NoSuchWrapKey", "Can''t process device ''{1}'': Failed to import secret for security accessor ''{0}'': referenced wrap key ''{2}'' is not found in the shipment file", Level.SEVERE),
-    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(531, "NoSuchKeyAccessorTypeOnDeviceType", "Can''t process device ''{0}'': Security accessor ''{1}'' is not available on the device type.", Level.WARNING),
+    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(531, "NoSuchKeyAccessorTypeOnDeviceType", "Can''t process device ''{0}'': Security accessor ''{1}'' is not available on the device type.", Level.SEVERE),
     INITIALIZATION_VECTOR_ERROR(532, "NoIV", "IV not found in encrypted key", Level.SEVERE),
     IMPORTED_DEVICE(533, "ImportedDevice", "Device ''{0}'' imported successfully", Level.INFO),
     ACTUAL_VALUE_ALREADY_EXISTS(534, "ActualValueAlreadyExists", "Can''t process device ''{1}'': security accessor ''{0}'' already as an 'active' value.", Level.WARNING),

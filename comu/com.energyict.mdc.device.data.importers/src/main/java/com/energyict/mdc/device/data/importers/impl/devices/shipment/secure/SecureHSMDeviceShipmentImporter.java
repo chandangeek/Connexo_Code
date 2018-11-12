@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.InvalidAlgorithm;
 
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
         String securityAccessorName = deviceKey.getName();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
 
         ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
         HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
