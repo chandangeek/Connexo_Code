@@ -41,17 +41,17 @@ import java.util.logging.Logger;
 
 public class SecurityTokenImpl {
 
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
-    private final int tokenExpiration;
-    private final int maxTokenCount;
-    private final int timeOut;
     private static final String TOKEN_INVALID = "Invalid token ";
     private static final String TOKEN_EXPIRED = "Token expired for user ";
     private static final String TOKEN_RENEWAL = "Token renewal for user ";
     private static final String TOKEN_GENERATED = "Token generated for user ";
     private static final String USER_NOT_FOUND = "User not found ";
     private static final String USER_DISABLED = "User account disabled ";
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
+    private final int tokenExpiration;
+    private final int maxTokenCount;
+    private final int timeOut;
     private Logger tokenRenewal = Logger.getLogger("tokenRenewal");
 
     private EventService eventService;
@@ -96,6 +96,9 @@ public class SecurityTokenImpl {
                     if (s.getKey().equals("BPM") || s.getKey().equals("YFN"))
                         s.getValue().stream().forEach(p->privileges.add(p.getName()));
                 });
+                privileges.add("privilege.public.api.rest");
+                privileges.add("privilege.pulse.public.api.rest");
+                privileges.add("privilege.view.userAndRole");
 
                 roles.add(new RoleClaimInfo(group.getId(), group.getName()));
             }
