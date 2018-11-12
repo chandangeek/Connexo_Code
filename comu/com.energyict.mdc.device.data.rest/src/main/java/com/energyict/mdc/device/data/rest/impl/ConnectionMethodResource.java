@@ -119,8 +119,9 @@ public class ConnectionMethodResource {
 
     private boolean hasAllRequiredProps(ConnectionTask<?,?> task) {
         //if the connection is inbound don't check the props: host name and portPool
-        if (InboundConnectionTask.class.isAssignableFrom(task.getClass()))
+        if (InboundConnectionTask.class.isAssignableFrom(task.getClass())) {
             return true;
+        }
         List<ConnectionTaskProperty> props = task.getProperties();
         return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
     }
