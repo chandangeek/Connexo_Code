@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gbCookieSupported=null;
 var gbCookieSupportedWithoutPath=null;
 var gbLocalStorageSupported=null;
@@ -70,7 +66,7 @@ function isLocalDBSupported()
 			localStorage.setItem('dummyTestForLocalStorage', 1);
 			localStorage.removeItem('dummyTestForLocalStorage');
 			gbLocalStorageSupported = true;
-		} catch (e) {
+        } catch (e) {
 			gbLocalStorageSupported = false;
 		}
 	}
@@ -78,7 +74,7 @@ function isLocalDBSupported()
 }
 function initSettings(commonRootRelPath)
 {
-	if (commonRootRelPath == null || commonRootRelPath == "" || !rh._.isRelativeUrl(commonRootRelPath))
+    if (commonRootRelPath == null || commonRootRelPath == "" || !rh._.isRelativeUrl(commonRootRelPath))
 		return;
 	var data = rh._.getHostData(commonRootRelPath);
 	window.gHost = data.gHost;

@@ -1,12 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Service calls", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Service_calls.htm"}, {
         "type": "item",
-        "name": "View configured import services",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Monitor_import_services.htm#TOC_View_configured_importbc-1"
-    }];
+        "name": "Service calls, service call types and life cycle",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Service_calls_service_call_types_and_life_cycle.htm"
+    }, {"type": "item", "name": "Manage service call types", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Manage_service_call_types.htm"}, {
+        "type": "item",
+        "name": "Configure log level",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Configure_log_level.htm"
+    }, {"type": "item", "name": "Manage service call custom attribute sets", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Manage_service_call_custom_attribute_sets.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

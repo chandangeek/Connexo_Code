@@ -1,12 +1,16 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Getting started", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/Getting_started.htm"}, {
         "type": "item",
-        "name": "Understand the interface",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Getting_started/Explore_Admin.htm#TOC_Understand_the_interfacebc-1"
-    }, {"type": "item", "name": "Introduction to Admin", "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Getting_started/Introduction_to_Admin.htm"}];
+        "name": "About Admin",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/About_Admin.htm"
+    }, {"type": "item", "name": "Switching apps", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/Switching_apps.htm"}, {
+        "type": "item",
+        "name": "Explore Admin",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/Explore_Admin.htm"
+    }, {"type": "item", "name": "Introduction to Admin", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/Introduction_to_Admin.htm"}, {
+        "type": "item",
+        "name": "Deployment information",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Getting_started/Deployment_information.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

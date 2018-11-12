@@ -1,8 +1,4 @@
-﻿/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-@font-face {
+﻿@font-face {
     font-family: "iconfont";
     src: url("fonts/iconfont.eot");
     src: url("fonts/iconfont.eot?#iefix") format("embedded-opentype"),
@@ -12,6 +8,9 @@
     font-weight: normal;
     font-style: normal;
 }
+
+
+
 
 @font-face {
     font-family: "Lato";
@@ -67,7 +66,6 @@ caption {
     font-style: italic;
     color: #686868;
 }
-
 table {
     width: 75%;
     padding: 10px;
@@ -75,7 +73,6 @@ table {
     margin-top: 15pt;
     border: none;
 }
-
 table.TDefenition {
     width: 75%;
     padding: 10px;
@@ -84,33 +81,25 @@ table.TDefenition {
     border: none;
     background: #CFD9E3;
 }
-
 table.TDefenition tbody tr:nth-child(even) {
     background: #CFD9E3;
 }
-
 a:link {
     text-decoration: none;
-    color: #71adc7;
 }
-
 a:visited {
     text-decoration: none;
-    color: #0083c8;
 }
-
 a:hover {
     color: #70BB51;
     font-weight: bold;
     border-bottom: dotted 1px #1f7e9e;
     text-decoration: none;
 }
-
 a[title] {
     color: #71adc7;
     cursor: help;
 }
-
 a.dropspot {
     cursor: hand;
     font-family: "Lato Bold";
@@ -124,7 +113,6 @@ a.dropspot {
     color: #70bb51;
     text-decoration: none;
 }
-
 a.glossterm {
     color: #f36b22;
     cursor: hand;
@@ -132,7 +120,6 @@ a.glossterm {
     border-bottom: dotted 1px #f36b22;
     text-decoration: none;
 }
-
 p.FM_Copyright {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -150,7 +137,6 @@ p.FM_Copyright {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_DropDownCaption {
     margin-left: 20.000pt;
     margin-right: 0.000pt;
@@ -168,7 +154,6 @@ p.FM_DropDownCaption {
     text-decoration: uppercase;
     letter-spacing: 0.00em;
 }
-
 p.FM_DropDownBody {
     line-height: 140%;
     margin-left: 55.000pt !important;
@@ -187,7 +172,6 @@ p.FM_DropDownBody {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_FooterRightPortrait {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -205,7 +189,6 @@ p.FM_FooterRightPortrait {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_BodyProcedure {
     line-height: 140%;
     margin-left: 67.000pt;
@@ -224,7 +207,6 @@ p.FM_BodyProcedure {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_PProcedure {
     margin-left: 25.000pt;
     margin-right: 0.000pt;
@@ -243,7 +225,6 @@ p.FM_PProcedure {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_Pprocedure2 {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -262,7 +243,6 @@ p.FM_Pprocedure2 {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_PCaution {
     margin-left: 39.685pt;
     margin-right: 0.000pt;
@@ -280,7 +260,6 @@ p.FM_PCaution {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_COTitle {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -298,7 +277,6 @@ p.FM_COTitle {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_COTitleProduct {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -316,7 +294,6 @@ p.FM_COTitleProduct {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_CGraphicCell {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -334,7 +311,6 @@ p.FM_CGraphicCell {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_CellBody {
     margin-left: 0.000pt;
     line-height: 140%;
@@ -353,7 +329,6 @@ p.FM_CellBody {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_User {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -371,7 +346,6 @@ p.FM_User {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_FooterR {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -389,7 +363,6 @@ p.FM_FooterR {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_BoldBody {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -407,7 +380,6 @@ p.FM_BoldBody {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_H3SectionTopicTOC {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -425,7 +397,6 @@ p.FM_H3SectionTopicTOC {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListNumber2 {
     margin-left: 53.858pt;
     margin-right: 0.000pt;
@@ -443,7 +414,6 @@ p.FM_ListNumber2 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_PImportant {
     margin-left: 25.000pt;
     margin-right: 0.000pt;
@@ -462,7 +432,6 @@ p.FM_PImportant {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_PImportant2 {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -481,7 +450,6 @@ p.FM_PImportant2 {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_ListNumber3 {
     margin-left: 93.543pt;
     margin-right: 0.000pt;
@@ -499,7 +467,6 @@ p.FM_ListNumber3 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_CReference {
     margin-left: 11.339pt;
     margin-right: 0.000pt;
@@ -517,7 +484,6 @@ p.FM_CReference {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_CellHeading {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -535,7 +501,6 @@ p.FM_CellHeading {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListNumber0 {
     margin-left: 57pt;
     margin-right: 0.000pt;
@@ -553,7 +518,6 @@ p.FM_ListNumber0 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_H2Section {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -571,7 +535,6 @@ p.FM_H2Section {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 table.TParameter {
     width: 75%;
     padding: 0px;
@@ -588,24 +551,20 @@ table.TParameter {
     x-1st-row: 1;
     x-1st-row-name: t1st;
 }
-
 table.TParameter td {
     padding: 0 10px 0 10px;
 }
-
 table.TParameter tr.t1Row td {
     font-size: 11pt;
     color: #686868;
     border: none;
     background-color: #ffffff;
 }
-
 table.TParameter tr.t2Row td {
     font-size: 11pt;
     border: none;
     background-color: #CFD9E3;
 }
-
 table.TParameter tr.t1st td {
     font-size: 11pt;
     color: #686868;
@@ -613,7 +572,6 @@ table.TParameter tr.t1st td {
     border: none;
     background-color: #1f7e9e;
 }
-
 p.FM_CTableTitle {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -631,7 +589,6 @@ p.FM_CTableTitle {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 table.CGraphic {
     width: 75%;
     padding: 0px;
@@ -647,7 +604,6 @@ table.CGraphic {
     x-1st-row: 1;
     x-1st-row-name: t1st;
 }
-
 p.FM_BodyGrey {
     line-height: 140%;
     margin-left: 42.000pt;
@@ -666,7 +622,6 @@ p.FM_BodyGrey {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_PGlossary {
     margin-left: 10.000pt;
     margin-right: 0.000pt;
@@ -684,7 +639,6 @@ p.FM_PGlossary {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_OPortrait {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -702,7 +656,6 @@ p.FM_OPortrait {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListNumber1 {
     margin-left: 57pt;
     margin-right: 0.000pt;
@@ -720,7 +673,6 @@ p.FM_ListNumber1 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_COType {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -738,7 +690,6 @@ p.FM_COType {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_PNote2 {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -757,7 +708,6 @@ p.FM_PNote2 {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_PNote {
     margin-left: 25.000pt;
     margin-right: 0.000pt;
@@ -776,7 +726,6 @@ p.FM_PNote {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_OLandscape {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -794,7 +743,6 @@ p.FM_OLandscape {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_H1Chapter {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -812,7 +760,6 @@ p.FM_H1Chapter {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListBullet3 {
     margin-left: 10.000pt;
     margin-right: 0.000pt;
@@ -830,7 +777,6 @@ p.FM_ListBullet3 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_H4Topic {
     margin-left: 10.000pt;
     margin-right: 0.000pt;
@@ -848,7 +794,6 @@ p.FM_H4Topic {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_H3SectionTopic {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -866,7 +811,6 @@ p.FM_H3SectionTopic {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_PDefinition2 {
     margin-left: 7.000pt;
     margin-right: 0.000pt;
@@ -885,7 +829,6 @@ p.FM_PDefinition2 {
     letter-spacing: 0.00em;
     display: inline;
 }
-
 p.FM_PDefinition {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -905,7 +848,6 @@ p.FM_PDefinition {
     display: inline;
     line-height: 50px;
 }
-
 p.FM_ListBullet2 {
     margin-left: 10pt !important;
     margin-right: 0.000pt;
@@ -923,7 +865,6 @@ p.FM_ListBullet2 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_COCode {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -941,7 +882,6 @@ p.FM_COCode {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_BoldTopic {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -959,7 +899,6 @@ p.FM_BoldTopic {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListBullet1 {
     margin-left: 20.000pt;
     margin-right: 2.000pt;
@@ -977,7 +916,6 @@ p.FM_ListBullet1 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListBulletTable {
     margin-left: 0.000pt;
     margin-right: 2.000pt;
@@ -995,7 +933,6 @@ p.FM_ListBulletTable {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_Landscape {
     margin-left: 0.000pt;
     margin-right: 0.000pt;
@@ -1013,7 +950,6 @@ p.FM_Landscape {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListLetters0 {
     margin-left: 57.000pt !important;
     margin-right: 45.000pt;
@@ -1031,7 +967,6 @@ p.FM_ListLetters0 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_ListLetters {
     margin-left: 57.000pt;
     margin-right: 45.000pt;
@@ -1049,7 +984,6 @@ p.FM_ListLetters {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_CGraphic {
     margin-left: 25.000pt;
     margin-right: 0.000pt;
@@ -1068,7 +1002,6 @@ p.FM_CGraphic {
     letter-spacing: 0.00em;
     font: italic 11px Lato;
 }
-
 caption.FM_CGraphic {
     margin-left: 25.000pt;
     margin-right: 0.000pt;
@@ -1086,7 +1019,6 @@ caption.FM_CGraphic {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 p.FM_Body {
     line-height: 140%;
     margin-left: 41.000pt;
@@ -1106,21 +1038,18 @@ p.FM_Body {
     letter-spacing: 0.00em;
     right: 8px;
 }
-
 OL {
     margin-top: 0px;
     margin-bottom: 5pt;
     margin-left: 55pt;
     color: #686868;
 }
-
 UL {
     margin-top: 0px;
     margin-bottom: 5pt;
     margin-left: 55pt;
     color: #686868;
 }
-
 span.FM_UIPath {
     font-family: Lato;
     font-style: normal;
@@ -1130,7 +1059,6 @@ span.FM_UIPath {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_Bullet2 {
     font-family: Wingdings;
     font-style: normal;
@@ -1140,7 +1068,6 @@ span.FM_Bullet2 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 .FM_Icons {
     font-family: "iconfont", sans-serif;
     font-style: normal;
@@ -1150,7 +1077,6 @@ span.FM_Bullet2 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_UIRef {
     font-family: "Lato Bold";
     font-style: normal;
@@ -1160,7 +1086,6 @@ span.FM_UIRef {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_TopicSection {
     font-family: Marvel;
     font-style: normal;
@@ -1170,7 +1095,6 @@ span.FM_TopicSection {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_Bold_midgrey {
     font-family: "Lato Bold";
     font-style: normal;
@@ -1180,7 +1104,6 @@ span.FM_Bold_midgrey {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_blue_crossreference {
     font-family: Lato;
     font-style: normal;
@@ -1189,7 +1112,6 @@ span.FM_blue_crossreference {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_Bold_light_blue {
     font-family: Lato;
     font-style: normal;
@@ -1199,7 +1121,6 @@ span.FM_Bold_light_blue {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_FilePath {
     font-family: Lato;
     font-style: normal;
@@ -1209,7 +1130,6 @@ span.FM_FilePath {
     text-decoration: none;
     letter-spacing: 0.20em;
 }
-
 span.FM_Bold {
     font-family: "Lato Bold";
     font-style: normal;
@@ -1219,7 +1139,6 @@ span.FM_Bold {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 span.FM_Underline {
     font-family: Lato;
     font-style: normal;
@@ -1229,10 +1148,8 @@ span.FM_Underline {
     text-decoration: underline;
     letter-spacing: 0.00em;
 }
-
 span.FM_change_bar {
 }
-
 span.FM_Bullet3 {
     font-family: Wingdings;
     font-style: normal;
@@ -1242,7 +1159,6 @@ span.FM_Bullet3 {
     text-decoration: none;
     letter-spacing: 0.00em;
 }
-
 a:-webkit-any-link {
     text-decoration: none !important;
 }

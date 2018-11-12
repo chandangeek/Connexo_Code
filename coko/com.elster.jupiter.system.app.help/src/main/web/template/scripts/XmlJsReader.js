@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gXMLBuffer = null;
 var gFileNameToXMLMap = new Object();
 var xmlJsReader = new XmlJsReader();

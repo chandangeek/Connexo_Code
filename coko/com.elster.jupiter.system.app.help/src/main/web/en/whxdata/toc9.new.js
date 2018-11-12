@@ -1,16 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Calendars", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Calendars/Calendars.htm"}, {
         "type": "item",
-        "name": "Understand certificate management",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Certificate_management.htm#TOC_Understand_certificatebc-1"
-    }, {"type": "item", "name": "Manage trust stores", "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Manage_trust_stores.htm"}, {
+        "name": "Time of use calendars",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Calendars/Time_of_use_calendars.htm"
+    }, {"type": "item", "name": "Create time of use calendar", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Calendars/Create_time_of_use_calendar.htm"}, {
         "type": "item",
-        "name": "Manage certificates",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Manage_certificates.htm"
-    }];
+        "name": "Update time of use calendar",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Calendars/Update_time_of_use_calendar.htm"
+    }, {"type": "item", "name": "Manage time of use calendars", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Calendars/Manage_time_of_use_calendars.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

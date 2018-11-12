@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var	gTopicId = "";
 function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 {
@@ -229,7 +225,7 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			}
 		}
 	}
-	Tree.prototype.insertTreeItem = function (parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, itemType, src, rootRelPath, commonRootRelPath)
+    Tree.prototype.insertTreeItem = function (parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, itemType, src, rootRelPath, commonRootRelPath)
 	{
 		var treeNode = document.createElement("div");
 		treeNode.setAttribute('class', TREEITEMCLASS);
@@ -283,7 +279,7 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			html = this.urlHtml;
 		}
 
-		if (rhTags) {
+        if (rhTags) {
 			treeNode.setAttribute(DATA_RHTAGS, rhTags);
 		}
 
@@ -972,7 +968,7 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 		if (scroll && this.selectedTreeNode !== treeNode) {
 			this.getHtmlNodeFromTreeNode(treeNode).scrollIntoView();
 		}
-	}
+    }
 	Tree.prototype.unselectTreeNode = function(treeNode)
 	{
 		var htmlNode = this.getHtmlNodeFromTreeNode(treeNode);

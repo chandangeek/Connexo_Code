@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gTopicId = "";
 function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 {
@@ -220,7 +216,7 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				loadParentDataForSyncing(gCommonRootRelPath, SCR_PARENT_TOCSYNC);
 		}
 	}
-	DDList.prototype.insertListItem = function (parentId, name, url, rhTags, bookCount, pageCount, childProjOrder, itemType, src, rootRelPath, commonRootRelPath)
+    DDList.prototype.insertListItem = function (parentId, name, url, rhTags, bookCount, pageCount, childProjOrder, itemType, src, rootRelPath, commonRootRelPath)
 	{
 		var listNode = document.createElement("div");
 		listNode.setAttribute('class', LISTITEMCLASS);
@@ -284,7 +280,7 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			html = this.urlHtml;
 			expandableNode = false;
 		}
-		if (rhTags) {
+        if (rhTags) {
 			listNode.setAttribute(DATA_RHTAGS, rhTags);
 		}
 		this.rootHtmlNode.appendChild(listNode);

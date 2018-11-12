@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gbBlockIOSScaling = 0;
 var gbPreviewMode = 0;
 var gRhEvtFuncsList = new Array;
@@ -68,9 +64,9 @@ function getUrlWithoutBookmark(url)
 {
   if(url == null || url == 'undefined')
 	url = document.location.href;
-  
+
   var urlwithoutbookmark = url;
-  
+
   if(url.indexOf("#") != -1)
 	urlwithoutbookmark = url.substring(0, url.indexOf("#"));
   return urlwithoutbookmark;
@@ -79,7 +75,7 @@ function getUrlWithoutParameterAndBookMark(url)
 {
   if(url == null || url == 'undefined')
 	url = document.location.href;
-  
+
   var urlwithoutparameter = url;
 
   if(url.indexOf("?") != -1)
@@ -173,7 +169,7 @@ function getChildElementsByTagName(parentNode, tagName)
 	{
 		var childNode = childNodes[i];
 		if(childNode.nodeType == JS_TAGTOKEN && childNode.nodeName.toLowerCase() == tagName.toLowerCase())
-			childNodesArr[childNodesArr.length] = childNode;		
+            childNodesArr[childNodesArr.length] = childNode;
 	}
 	return childNodesArr;
 }
@@ -181,9 +177,8 @@ function getChildElementsByTagName(parentNode, tagName)
 function trimString(str)
 {
 	str = str.replace(/^\s+/, '');
-	for (var i = str.length - 1; i >= 0; i--) 
-	{
-		if (/\S/.test(str.charAt(i))) 
+    for (var i = str.length - 1; i >= 0; i--) {
+        if (/\S/.test(str.charAt(i)))
 		{
 			str = str.substring(0, i + 1);
 			break;
@@ -223,7 +218,7 @@ function initInputTextBoxes()
 	{
 		var searchAttr = inputs[i].getAttribute('data-search');
 		if(searchAttr != null && searchAttr != 'undefined' && searchAttr == 'true' && searchText != "")
-			inputs[i].value = searchText;		
+            inputs[i].value = searchText;
 
 
 		placeholderText = inputs[i].getAttribute(DATAPH);
@@ -248,6 +243,7 @@ function initInputTextBoxes()
 				input.addEventListener('blur', onTextBoxBlur, false);
 			}
 		}
+        window.rh.model.publish(window.rh.consts('KEY_SEARCH_TERM'), searchText);
 	}
 }
 
@@ -274,7 +270,7 @@ function AddMasterBreadcrumbs(relHomePage, styleInfo, separator, strHome, strHom
 	addRhLoadCompleteEvent(UpdateBreadCrumbsMarker);
 }
 
-function UpdateBreadCrumbsMarker() {  
+function UpdateBreadCrumbsMarker() {
 	if(gBreadCrumbInfo.length > 0)
 	{
 		if(gbPreviewMode)
@@ -285,11 +281,10 @@ function UpdateBreadCrumbsMarker() {
 }
 
 function writeBreadCrumbs() {
-    for(var i=0;i<gBCId;i++) {  
+    for (var i = 0; i < gBCId; i++) {
 		var bHomeFound = false;
         var strTrail = "";
-        if(gBreadCrumbInfo[i].bcLinks.length == 0)
-        {   
+        if(gBreadCrumbInfo[i].bcLinks.length == 0) {
 	        if(gBreadCrumbInfo[i].styleInfo == "breadcrumbs")
 		        strTrail = "<a class=\""+ gBreadCrumbInfo[i].styleInfo + "\"" + " href=\"" + gBreadCrumbInfo[i].strHomePath + "\">" + gBreadCrumbInfo[i].strHome + "</a> " + ((gBreadCrumbInfo[i].strHome == "")? "":gBreadCrumbInfo[i].separator) + " ";
 	        else
@@ -298,18 +293,17 @@ function writeBreadCrumbs() {
         else{
             var len = gBreadCrumbInfo[i].bcLinks.length;
 			var bcName = "";
-            for(var j=len-1;j>=0;j--)
-            { 
+            for(var j=len-1;j>=0;j--) {
 				if(gBreadCrumbInfo[i].bcLinks[j].firstEntry == true)
 				{
 					if(bHomeFound)
 						continue;
 					else
 						bHomeFound = true;
-				}					
+                }
 
 				bcName = gBreadCrumbInfo[i].bcLinks[j].name;
-				
+
                 if(gBreadCrumbInfo[i].bcLinks[j].strLink == "")
                 {
                     strTrail += bcName + " " + gBreadCrumbInfo[i].separator + " ";
@@ -364,7 +358,7 @@ function preventEvent(e)
 	if(e != null)
 	{
 		if (e.preventDefault)
-			e.preventDefault(); 
+            e.preventDefault();
 		else
 			e.returnValue = false;
 	}

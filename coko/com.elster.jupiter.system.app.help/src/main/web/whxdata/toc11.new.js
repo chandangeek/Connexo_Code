@@ -1,22 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Reading Types", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Reading_Types/Reading_Types.htm"}, {
         "type": "item",
-        "name": "Understand application servers",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Understand_application_servers.htm"
-    }, {
-        "type": "book",
-        "name": "Monitor application servers",
-        "key": "toc12",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Monitor_application_servers.htm"
-    }, {
-        "type": "book",
-        "name": "Configure application servers",
-        "key": "toc13",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Configure_application_servers.htm"
+        "name": "Understand reading types",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Reading_Types/Understand_reading_types.htm"
+    }, {"type": "item", "name": "Manage reading types", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Reading_Types/Manage_reading_types.htm"}, {
+        "type": "item",
+        "name": "Manage reading types",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Reading_Types/Manage_reading_types1.htm"
     }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

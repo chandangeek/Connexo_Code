@@ -1,5 +1,1 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Web services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_WebServices/000016_UMNL_WebServices.htm\"><item name=\"Understand web services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_WebServices/Understand_web_services.htm\" /><item name=\"Monitor web service endpoints\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_WebServices/Monitor_web_service_endpoints.htm\" /><book name=\"Configure web service endpoints\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_WebServices/Configure_web_service_endpoints.htm\" src=\"toc19.js\" /></data>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Copyright\"><item name=\"Copyright\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Copyright/Copyright.htm\" /></data>";

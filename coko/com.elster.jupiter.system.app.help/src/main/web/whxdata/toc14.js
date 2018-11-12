@@ -1,5 +1,1 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Import services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/000016_UMNL_ImportServices.htm\"><item name=\"Understand import services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Understand_import_services.htm\" /><book name=\"Monitor import services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Monitor_import_services.htm\" src=\"toc15.js\" /><book name=\"Configure import services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Configure_import_services.htm\" src=\"toc16.js\" /><book name=\"Monitor import services\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Monitor_import_services1.htm\" src=\"toc17.js\" /></data>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Processes\"><item name=\"Processes\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Processes/Processes.htm\" /><item name=\"Manage processes\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Processes/Manage_processes.htm\" /></data>";

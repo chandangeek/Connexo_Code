@@ -1,8 +1,4 @@
 
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 function IdxRootFileXmlObject(xmlDoc, i)
 {
 	this.xmlDoc = xmlDoc;
@@ -254,7 +250,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		treeNode.setAttribute('class', TREEITEMCLASS);
 			parentHtmlNode.appendChild(treeNode);
 
-		if (rhTags) {
+        if (rhTags) {
 			treeNode.setAttribute(DATA_RHTAGS, rhTags);
 			rhTags = "";
 		}
@@ -385,7 +381,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 				break;
 		}
 	}
-	IdxTree.prototype.insertChildHtmlNode = function (parentHtmlNode, name, itemType, rhTags, html, classNormal, classHover, classClick, style, url)
+    IdxTree.prototype.insertChildHtmlNode = function (parentHtmlNode, name, itemType, rhTags, html, classNormal, classHover, classClick, style, url)
 	{
 		var bAddAnchor = false;
 		if(url != null && url != "")
@@ -409,15 +405,15 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			parentHtmlNode.appendChild(htmlNode);
 		var urlWithId = this.addEventsToNode(htmlNode, classNormal, classHover, classClick, url);
 
-		if (bAddAnchor) {
+        if (bAddAnchor) {
 			anchorNode.setAttribute("href", url);
 		}
 
-		if (rhTags) {
-			if (bAddAnchor) {
-				anchorNode.setAttribute(DATA_RHTAGS, rhTags);
+        if (rhTags) {
+            if (bAddAnchor) {
+                anchorNode.setAttribute(DATA_RHTAGS, rhTags);
 			} else {
-				htmlNode.setAttribute(DATA_RHTAGS, rhTags);
+                htmlNode.setAttribute(DATA_RHTAGS, rhTags);
 			}
 		}
 			
@@ -548,7 +544,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var htmlNode = null;
 		var event = "";
 
-		if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
+        if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
 		
 		if(kCode == 38)
 		{
@@ -629,7 +625,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			var pNode = htmlNode.parentNode;
 			if(pNode != null && pNode.nodeName == "A")
 				pNode = pNode.parentNode;
-			if (pNode == this.fragment)
+            if (pNode == this.fragment)
 				return null;
 			else
 				return pNode;
@@ -642,17 +638,17 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var node = document.getElementById(IDXLOADINGDIVID);
 		return node;
 	}
-	IdxTree.prototype.getHtmlChildNodes = function (node, tag, type)
+    IdxTree.prototype.getHtmlChildNodes = function (node, tag, type)
 	{
 		if(tag == "" || tag == 'undefined')
 			return [];
 		var nodeChilds = node.getElementsByTagName(tag);
 		var len = nodeChilds.length;
-		var i = 0, arr = [];
+        var i = 0, arr = [];
 		for(i=0; i<len; i++)
 		{
 			if(this.isNodeItemTypeThis(nodeChilds[i],type))
-				arr.push(nodeChilds[i]);
+                arr.push(nodeChilds[i]);
 		}
 		return arr;
 	}
@@ -834,11 +830,11 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		}
 		var treeNode = this.getTreeNodeFromHtmlNode(htmlNode);
 		var itemType = treeNode.getAttribute(DATAITEMTYPE);
-		if (itemType === ITEMTYPELINK) {
+        if (itemType === ITEMTYPELINK) {
 			rh.$.removeClass(treeNode, this.linkClass);
 			rh.$.addClass(treeNode, this.linkClassHover);
 		}
-		else {
+        else {
 			rh.$.removeClass(treeNode, this.kWClass);
 			rh.$.addClass(treeNode, this.kWClassHover);
 		}
@@ -868,11 +864,11 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var itemType = treeNode.getAttribute(DATAITEMTYPE);
 		if(treeNode != this.selectedTreeNode)
 		{
-			if (itemType === ITEMTYPELINK) {
+            if (itemType === ITEMTYPELINK) {
 				rh.$.addClass(treeNode, this.linkClass);
 				rh.$.removeClass(treeNode, this.linkClassHover);
 			}
-			else {
+            else {
 				rh.$.addClass(treeNode, this.kWClass);
 				rh.$.removeClass(treeNode, this.kWClassHover);
 			}
@@ -882,8 +878,8 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 	{
 		var treeNode = this.getTreeNodeFromHtmlNode(htmlNode);
 		var bookChildsNodes = this.getHtmlChildNodes(treeNode, "div", ITEMTYPEBOOKCHILDS);
-		rh._.each(bookChildsNodes, function (node) {
-			if (node.style.display == "none")
+        rh._.each(bookChildsNodes, function (node) {
+            if (node.style.display == "none")
 				node.style.display = "block";
 			else
 				node.style.display = "none";
@@ -966,7 +962,7 @@ function callbackChunkLoaded(xmlDoc, arg)
 function filterIdx(e)
 {
 	e = e || window.event;
-	if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
+    if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
 		preventEvent(e);
 		e.target.blur();
 	}

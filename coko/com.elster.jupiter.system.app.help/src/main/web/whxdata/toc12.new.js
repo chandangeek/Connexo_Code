@@ -1,12 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Custom Attributes", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Custom_Attributes/Custom_Attributes.htm"}, {
         "type": "item",
-        "name": "View application servers",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Monitor_application_servers.htm#TOC_View_application_serversbc-1"
-    }, {"type": "item", "name": "Monitor application server load", "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Monitor_application_server_load.htm"}];
+        "name": "Understand custom attributes",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Custom_Attributes/Understand_custom_attributes.htm"
+    }, {"type": "item", "name": "Manage custom attributes sets", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Custom_Attributes/Manage_custom_attributes_sets.htm"}, {
+        "type": "item",
+        "name": "Import values of existing custom attribute sets",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Custom_Attributes/Import_values_of_existing_custom_attribute_sets.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

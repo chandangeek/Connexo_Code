@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 initPage();
 function initPage()
 {
@@ -37,7 +33,7 @@ function onPageLoad()
 	{
 		initSettings(gRootRelPath);
 		fireRhLoadCompleteEvent();
-		if (!rh.model.get(rh.consts('KEY_PUBLISH_MODE')))
+        if (!rh.model.get(rh.consts('KEY_PUBLISH_MODE')))
 			window.rh.model.publish(window.rh.consts('KEY_PROJECT_LIST'), ["."]);
 	}
 	else

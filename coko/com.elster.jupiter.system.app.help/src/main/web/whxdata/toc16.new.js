@@ -1,16 +1,20 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Appendices", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Appendices.htm"}, {
         "type": "item",
-        "name": "Set up the import service",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Configure_import_services.htm#TOC_Set_up_the_import_servicebc-1"
-    }, {
+        "name": "Time of use calendar example",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Time_of_use_calendar_example.htm"
+    }, {"type": "item", "name": "Privileges", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Privileges.htm"}, {
         "type": "item",
-        "name": "Set up import service on application server",
-        "url": "000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ImportServices/Set_up_import_service_on_application_server.htm"
+        "name": "Admin privileges",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Admin_privileges.htm"
+    }, {"type": "item", "name": "MultiSense privileges", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/MultiSense_privileges.htm"}, {
+        "type": "item",
+        "name": "Insight privileges",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Insight_privileges.htm"
+    }, {"type": "item", "name": "Flow privileges", "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Flow_privileges.htm"}, {
+        "type": "item",
+        "name": "Facts privileges",
+        "url": "UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Appendices/Facts_privileges.htm"
     }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

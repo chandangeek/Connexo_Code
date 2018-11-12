@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 gDataFolder = "whxdata";
 gCSHDataFile = "csh.js";
 gWndDataFile = "window.js";
@@ -22,20 +18,20 @@ var gMapType = null;
 var gMapData = "";
 var gCshRootPathsArr = null;
 (function () {
-	var _loadTopic = function (defaultTopicURL) {
-		if (!rh._.isRelativeUrl(defaultTopicURL)) {
+    var _loadTopic = function (defaultTopicURL) {
+        if (!rh._.isRelativeUrl(defaultTopicURL)) {
 			return false;
 		}
 
 		gDefTopicURL = defaultTopicURL;
 		var mapnum = getUrlParameter(RHMAPNO);
-		if (mapnum != "") {
+        if (mapnum != "") {
 			showCSHTopic(ITEMTYPEMAPNO, mapnum);
 			return true;
 		}
 		else {
 			var mapid = getUrlParameter(RHMAPID);
-			if (mapid != "") {
+            if (mapid != "") {
 				showCSHTopic(ITEMTYPEMAPID, mapid);
 				return true;
 			}
@@ -44,14 +40,14 @@ var gCshRootPathsArr = null;
 		redirectToTopic();
 	}
 
-	window.loadTopic = function (defaultTopicURL)
+    window.loadTopic = function (defaultTopicURL)
 	{
 		var isLoaded = rh.model.get(rh.consts('EVT_PROJECT_LOADED'));
-		if (isLoaded) {
+        if (isLoaded) {
 			_loadTopic(defaultTopicURL);
 		}
 		else {
-			var unSub = rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
+            var unSub = rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
 				_loadTopic(defaultTopicURL);
 				unSub();
 			});
@@ -91,6 +87,8 @@ function callBackCSHLoaded(xmlDoc, arrIndex)
 		if(mapdata.toLowerCase() == gMapData.toLowerCase())
 		{
 			gTopicURL = gCshRootPathsArr[arrIndex] + "/" + itemNode.getAttribute(TOPICURL);
+            gTopicURL = rh._.makeFullUrl(gTopicURL);
+            gTopicURL = rh._.createHashedUrl(gTopicURL);
 			break;
 		}
 	}
@@ -103,6 +101,10 @@ function callBackCSHLoaded(xmlDoc, arrIndex)
 		}
 		else
 			gTopicURL = gDefTopicURL;
+        gTopicURL = rh._.makeFullUrl(gTopicURL);
+        if (!rh._.isRootUrl(gTopicURL) && !rh._.isHomeUrl(gTopicURL)) {
+            gTopicURL = rh._.createHashedUrl(gTopicURL);
+        }
 	}
 	redirectToTopic(true);
 }
@@ -119,7 +121,7 @@ function redirectToTopic(bCSH)
 	}
 	else
 	{
-		rh.model.subscribe(rh.consts('KEY_PUBLISH_MODE'), function (value) {
+        rh.model.subscribe(rh.consts('KEY_PUBLISH_MODE'), function (value) {
 			if (value) {
 				rh.rhs.logTopicView(gTopicURL);
 			}
@@ -138,7 +140,7 @@ function redirectToTopic(bCSH)
 				if (rh._.isInternal(fullUrl) && rh._.isUrlAllowdInIframe(fullUrl)) {
 					try {
 						target.contentWindow.location.replace(fullUrl);
-					} catch (e) {
+                    } catch (e) {
 						target.contentWindow.document.location.replace(fullUrl);
 					}
 				}
@@ -165,16 +167,16 @@ function callBackWndLoaded(xmlDoc, strWndName)
 		{
 			var attribVal = windowNode.getAttribute(XCOORD);
 			gCSHWnd.sBLeft = attribVal;
-			
+
 			attribVal = windowNode.getAttribute(YCOORD);
 			gCSHWnd.sBTop = attribVal;
-			
+
 			attribVal = windowNode.getAttribute(WIDTH);
 			gCSHWnd.sBWidth = attribVal;
-			
+
 			attribVal = windowNode.getAttribute(HEIGHT);
 			gCSHWnd.sBHeight = attribVal;
-			
+
 			attribVal = windowNode.getAttribute(OPTIONS);
 			gCSHWnd.nBOptions = parseInt(attribVal);
 		}
@@ -184,12 +186,16 @@ function callBackWndLoaded(xmlDoc, strWndName)
 function showTopicWindow(oWnd, bNewWindow)
 {
 	if (gTopicURL) {
-		var strOpt = getBrowserOptionString(oWnd);
-		var sNewName = oWnd ? convertWindowName(oWnd.sName) : window.name;
+        var strOpt = getBrowserOptionString(oWnd);
+        var sNewName = oWnd ? convertWindowName(oWnd.sName) : window.name;
 		var fullUrl = rh._.makeFullUrl(gTopicURL);
 
-		if (bNewWindow) {
-			if (gbNav4 || gbSafari) {
+        if (bNewWindow) {
+            if (rh._.isInternal(fullUrl) && rh._.isUrlAllowdInIframe(fullUrl) && !rh._.isHomeUrl(fullUrl)) {
+                fullUrl = rh._.createHashedUrl(fullUrl);
+                fullUrl = rh._.removeParam(fullUrl, 'rhnewwnd')
+            }
+            if (gbNav4 || gbSafari) {
 				if (gbNav6) {
 					if (navigator.appVersion.indexOf("rv:11.0") > -1) { // IE 11
 						gBrowserWnd = window.open(fullUrl, sNewName, strOpt);
@@ -198,23 +204,21 @@ function showTopicWindow(oWnd, bNewWindow)
 						setTimeout("postTopicWindowOpen();", 100);
 					}
 				} else {
-					window.open("about:blank", sNewName, strOpt);
-					var oNewWnd = window.open(fullUrl, sNewName);
-					window.close();
+                    var oNewWnd = window.open(fullUrl, sNewName, strOpt);
 					oNewWnd.focus();
 					top.blur();
 				}
 			} else {
-				if (gbIE5) {
+                if (gbIE5) {
 					var curWnd = null;
-					curWnd = window.open("about:blank", sNewName, strOpt);
-					gBrowserWnd = window.open(gTopicURL, sNewName);
+                    curWnd = window.open("about:blank", sNewName, strOpt);
+                    gBrowserWnd = window.open(gTopicURL, sNewName);
 				}
 				else {
 					// IE4 had hard time to handle bookmark.
-					gBrowserWnd = window.open("about:blank", sNewName, strOpt);
+                    gBrowserWnd = window.open("about:blank", sNewName, strOpt);
 				}
-				setTimeout("postTopicIEWindowOpen();", 100);
+                setTimeout("postTopicIEWindowOpen();", 100);
 			}
 		} else {
 			document.location.href = fullUrl;
@@ -223,7 +227,7 @@ function showTopicWindow(oWnd, bNewWindow)
 	}
 }
 function postTopicWindowOpen() {
-	if (gBrowserWnd) {
+    if (gBrowserWnd) {
 		if (gTopicURL) {
 			var fullUrl = rh._.makeFullUrl(gTopicURL);
 			gBrowserWnd.document.location.href = fullUrl;
@@ -234,10 +238,10 @@ function postTopicWindowOpen() {
 	}
 }
 function postTopicIEWindowOpen() {
-	if (gBrowserWnd) {
-		if (gTopicURL && !gbIE5 && gbIE4) {
+    if (gBrowserWnd) {
+        if (gTopicURL && !gbIE5 && gbIE4) {
 			var fullUrl = rh._.makeFullUrl(gTopicURL);
-			gBrowserWnd.document.location.href = fullUrl;
+            gBrowserWnd.document.location.href = fullUrl;
 		}
 		gBrowserWnd.focus();
 	}
@@ -252,21 +256,21 @@ function getBrowserOptionString(oWnd)
 	else
 		strOpts+="location=no";
 	if(oWnd.nBOptions&WINTOOLBAR)
-		strOpts+=",toolbar=yes";		
+        strOpts += ",toolbar=yes";
 	else
-		strOpts+=",toolbar=no";		
+        strOpts += ",toolbar=no";
 	if(oWnd.nBOptions&WINMENUBAR)
-		strOpts+=",menubar=yes";		
+        strOpts += ",menubar=yes";
 	else
 		strOpts+=",menubar=no";
 	if(oWnd.nBOptions&WINSTATUS)
-		strOpts+=",status=yes";		
+        strOpts += ",status=yes";
 	else
-		strOpts+=",status=no";		
+        strOpts += ",status=no";
 	if(oWnd.nBOptions&WINSCROLLBARS)
 		strOpts+=",scrollbars=yes";
 	else
-		strOpts+=",scrollbars=no";	
+        strOpts += ",scrollbars=no";
 	if(oWnd.nBOptions&WINRESIZABLE)
 		strOpts+=",resizable=yes";
 	else

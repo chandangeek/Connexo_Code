@@ -1,5 +1,1 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc11.js\"  name=\"Configure application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Configure_application_servers.htm\"><item name=\"Manage application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Configure_application_servers.htm#TOC_Manage_applicationbc-1\" /><item name=\"Manage services on application server\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Manage_services_on_application_server.htm\" /></data>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Purge data\"><item name=\"Purge data\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Purge_data/Purge_data.htm\" /><item name=\"Configure data purge\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Purge_data/Configure_data_purge.htm\" /><item name=\"Monitor data purge\" url=\"UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Purge_data/Monitor_data_purge.htm\" /></data>";
