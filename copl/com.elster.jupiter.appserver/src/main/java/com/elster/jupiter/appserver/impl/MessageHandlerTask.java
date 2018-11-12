@@ -68,7 +68,8 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
         public Message perform() {
             Message message = subscriberSpec.receive();
             if (message == null) { // receive() got cancelled, by a shut down request
-                Thread.currentThread().interrupt();
+                //don't interrupt the current thread as the queue will no longer be processed
+                //Thread.currentThread().interrupt();
                 return null;
             }
             handler.process(message);
