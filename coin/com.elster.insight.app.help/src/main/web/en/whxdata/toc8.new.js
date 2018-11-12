@@ -1,16 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Data editing", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Data_editing.htm"}, {
         "type": "item",
-        "name": "Manage metrology configurations",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Metrology_configuration/Manage_metrology_configurations.htm"
-    }, {
+        "name": "Confirm data",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Confirm_data.htm"
+    }, {"type": "item", "name": "Edit data", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Edit_data.htm"}, {
         "type": "item",
-        "name": "Understand the metrology configuration landing page",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Metrology_configuration/Understand_the_metrology_configuration_landing_page.htm"
-    }];
+        "name": "Estimate channel readings",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Estimate_channel_readings.htm"
+    }, {"type": "item", "name": "Reset data", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Reset_data.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

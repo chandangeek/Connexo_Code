@@ -1,5 +1,1 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Metrology configurations\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Metrology_configuration/000107_UMNL_Metrology_configuration.htm\"><item name=\"Manage metrology configurations\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Metrology_configuration/Manage_metrology_configurations.htm\" /><item name=\"Understand the metrology configuration landing page\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Metrology_configuration/Understand_the_metrology_configuration_landing_page.htm\" /></data>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Data editing\"><item name=\"Data editing\" url=\"UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Data_editing.htm\" /><item name=\"Confirm data\" url=\"UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Confirm_data.htm\" /><item name=\"Edit data\" url=\"UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Edit_data.htm\" /><item name=\"Estimate channel readings\" url=\"UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Estimate_channel_readings.htm\" /><item name=\"Reset data\" url=\"UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_editing/Reset_data.htm\" /></data>";

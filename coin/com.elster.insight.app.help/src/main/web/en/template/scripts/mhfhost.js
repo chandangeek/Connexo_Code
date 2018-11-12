@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gsNoTopics = "No results found";
 var gsLoadXmlFailed = "Failed to load XML file";
 var gsInitDatabaseFailed = "Failed to initialise database";
@@ -18,6 +14,7 @@ var g_RunesWhiteSpaces = "\u0020\u0009\u000D\u000A\u00A0\u2000\u2001\u2002\u2003
 var g_RunesSpecialBreaks = ",!@#$%^&*()~'`:;<>?/{}[]|+-=";
 var g_RunesQuote = '\x22';
 var g_RunesHelSuffixes = new Array("ed,0", "ingly,0", "ings,0", "ing,0", "ly,1", "s,1", "e,1");
+var gEnableOperatorSearch = true;
 
 var gsHLColorFront = "#000000";
 var gsHLColorBackground = "#b2b4bf";
@@ -58,7 +55,11 @@ function initializeSearch() {
 }
 
 function doSearch() {
-    gbANDSearch = 1;
+    readSetting(RHANDSEARCH, callbackDoSearch);
+}
+
+function callbackDoSearch(andFlag) {
+    gbANDSearch = andFlag == TRUESTR ? 1 : 0
     var searchText = rh.model.get(rh.consts('KEY_SEARCH_TERM'));
     rh.model.publish(".l.searchText_actual", searchText, {sync: true});
     searchText = removeStopWordsFromInp(searchText);
@@ -68,10 +69,14 @@ function doSearch() {
         rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), 0, {sync: true});
 
         initSearchPage();
-        readSetting(RHANDSEARCH, callbackAndSearchFlagRead);
+        if (rh.model.get(rh.consts('KEY_SEARCHED_TERM'))) {
+            displaySearchProgressBar(0);
+            loadFts_context();
+        }
     } else {
         rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), false, {sync: true});
         rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), null, {sync: true});
+        displayTopics({aTopics: []});
     }
 }
 
@@ -84,27 +89,13 @@ function removeStopWordsFromInp(searchText) {
             openingQuoteFound = true;
         if (openingQuoteFound == true && searchText[i][searchText[i].length - 1] == '"' || searchText[i][searchText[i].length - 1] == "'")
             gbANDSearch = 0;
-        if (!IsStopWord(searchText[i], gaFtsStop) && searchText[i] != "")
+        if ((openingQuoteFound || !IsStopWord(searchText[i], gaFtsStop)) && searchText[i] !== "")
             stopWordsRemovedInp.push(searchText[i]);
         if (searchText[i] == "or" || searchText[i] == "OR")
             gbANDSearch = 0;
     }
     stopWordsRemovedInp = stopWordsRemovedInp.join(" ");
     return stopWordsRemovedInp;
-}
-
-function callbackAndSearchFlagRead(andFlag) {
-    //gbANDSearch is made to 1 by default. It is made 0 only if we find an "or" in the input.
-    /*
-     if(andFlag == TRUESTR)
-     gbANDSearch = 1;
-     else if(andFlag = FALSESTR)
-     gbANDSearch = 0;
-     */
-    if (rh.model.get(rh.consts('KEY_SEARCHED_TERM'))) {
-        displaySearchProgressBar(0);
-        loadFts_context();
-    }
 }
 
 function registListener(a_Context, a_this) {
@@ -184,7 +175,7 @@ function XmlReader() {
     this.loadFromFile = function (a_Context, a_funcCallback, a_bCache) {
         this.bSucc = false;
         this.funcCallback = a_funcCallback;
-        this.bCache = ( a_bCache == true ) ? true : false;
+        this.bCache = (a_bCache == true) ? true : false;
         if (this.loadFromCache()) {
             this.funcCallback();
             return;
@@ -281,7 +272,7 @@ function XmlReader() {
 
         var begin = 0;
         var end = this.curData.aNodes.length;
-        var mid = Math.floor((end - begin ) / 2);
+        var mid = Math.floor((end - begin) / 2);
         while (mid > 0) {
             mid = mid + begin;
             var term = this.curData.aNodes[mid].aAttrs["nm"];
@@ -291,7 +282,7 @@ function XmlReader() {
                 begin = mid;
             else
                 break;
-            mid = Math.floor((end - begin ) / 2);
+            mid = Math.floor((end - begin) / 2);
         }
         if (((end - begin) == 1) && (!this.matchPrefix(a_strQuery, this.curData.aNodes[mid].aAttrs["nm"]))) {
             mid = end;
@@ -340,7 +331,7 @@ function XmlReader() {
     }
 
     this.getTopicRec = function (a_nTopicId) {
-        if ((a_nTopicId >= 0) && (a_nTopicId < this.curData.aNodes.length )) {
+        if ((a_nTopicId >= 0) && (a_nTopicId < this.curData.aNodes.length)) {
             var objResult = new Object();
             objResult.rd = this.curData.aNodes[a_nTopicId].aAttrs["rd"];
             objResult.ct = this.curData.aNodes[a_nTopicId].aAttrs["ct"];
@@ -360,7 +351,7 @@ function XmlReader() {
             var startWord = this.curData.aNodes[mid].aAttrs["fm"];
             var endWord = this.curData.aNodes[mid].aAttrs["to"];
             if (end == begin) {
-                if ((a_strQuery >= startWord ) && (a_strQuery <= endWord))
+                if ((a_strQuery >= startWord) && (a_strQuery <= endWord))
                     return mid;
                 else
                     return -1;
@@ -651,11 +642,11 @@ function HuginContext() {
     }
 
     this.initTime = function () {
-        context.nLastTime = ( new Date() ).getTime();
+        context.nLastTime = (new Date()).getTime();
     }
 
     this.needBreathe = function () {
-        var nCurTime = ( new Date() ).getTime();
+        var nCurTime = (new Date()).getTime();
         return nCurTime - context.nLastTime >= 100;
     }
 
@@ -744,11 +735,11 @@ var s_aOdinToAscii = new Array
 var s_aBase64DecodeMap = new Array();
 
 function _decordBase64ToStr(a_nA, a_nB) {
-    var uBuf = ( s_aAsciiToBase64[a_nA] << 6 ) + s_aAsciiToBase64[a_nB];
+    var uBuf = (s_aAsciiToBase64[a_nA] << 6) + s_aAsciiToBase64[a_nB];
     var strRslt = "";
     var uCur = 0;
     for (var i = 0; i <= 8; i += 4) {
-        uCur = uBuf >> ( 8 - i ) & 0x000F;
+        uCur = uBuf >> (8 - i) & 0x000F;
         if (uCur == 0)
             return strRslt;
         strRslt += s_aOdinToAscii[uCur];
@@ -764,13 +755,13 @@ function decodeBase64ToOdin(a_strBase64) {
     var strRslt = "";
     var str = 0;
     for (var i = 0; i + 1 < nLen; i += 2) {
-        str = s_aBase64DecodeMap[( a_strBase64.charCodeAt(i) << 8 ) + a_strBase64.charCodeAt(i + 1)];
-        if (!str)        return strRslt;
+        str = s_aBase64DecodeMap[(a_strBase64.charCodeAt(i) << 8) + a_strBase64.charCodeAt(i + 1)];
+        if (!str) return strRslt;
         strRslt += str;
     }
     if (i < nLen) {
-        str = s_aBase64DecodeMap[( a_strBase64.charCodeAt(i) << 8 ) + s_strBase64.charCodeAt(0)];
-        if (!str)        return strRslt;
+        str = s_aBase64DecodeMap[(a_strBase64.charCodeAt(i) << 8) + s_strBase64.charCodeAt(0)];
+        if (!str) return strRslt;
         strRslt += str;
     }
     return strRslt;
@@ -780,7 +771,7 @@ function initBase64DecodeMap() {
     var i, j;
     for (i = 0; i < 64; i++)
         for (j = 0; j < 64; j++)
-            s_aBase64DecodeMap[( s_strBase64.charCodeAt(i) << 8 ) + s_strBase64.charCodeAt(j)] = _decordBase64ToStr(s_strBase64.charCodeAt(i), s_strBase64.charCodeAt(j));
+            s_aBase64DecodeMap[(s_strBase64.charCodeAt(i) << 8) + s_strBase64.charCodeAt(j)] = _decordBase64ToStr(s_strBase64.charCodeAt(i), s_strBase64.charCodeAt(j));
     for (i = 0; i < 64; i++)
         s_aBase64DecodeMap[s_strBase64.charCodeAt(i) << 8] = _decordBase64ToStr(s_strBase64.charCodeAt(i), s_strBase64.charCodeAt(0));
 }
@@ -909,7 +900,8 @@ function HuginPackageIndexReader() {
     }
 
     this.parsePackageInfo = function (a_Context, a_this) {
-        if (!theXmlReader.bSucc || !theXmlReader.checkRoot("cki")) {
+        if (!theXmlReader.bSucc ||
+            !theXmlReader.checkRoot("cki")) {
             a_this.bSucc = false;
             return;
         }
@@ -926,7 +918,8 @@ function HuginPackageIndexReader() {
     }
 
     this.parseTopicInfo = function (a_Context, a_this) {
-        if (!theXmlReader.bSucc || !theXmlReader.checkRoot("cki")) {
+        if (!theXmlReader.bSucc ||
+            !theXmlReader.checkRoot("cki")) {
             a_this.bSucc = false;
             return;
         }
@@ -983,7 +976,8 @@ function HuginTopicTableReader() {
     }
 
     this.processReaderResult = function (a_Context, a_this) {
-        if (!theXmlReader.bSucc || !theXmlReader.checkRoot("ck")) {
+        if (!theXmlReader.bSucc ||
+            !theXmlReader.checkRoot("ck")) {
             a_this.bSucc = false;
             a_this.bInited = false;
             return;
@@ -1104,7 +1098,8 @@ function HuginDatabase() {
     }
 
     this.readOdbInfo = function (a_Context, a_this) {
-        if (!theXmlReader.bSucc || !theXmlReader.checkRoot("odb")) {
+        if (!theXmlReader.bSucc ||
+            !theXmlReader.checkRoot("odb")) {
             a_this.bSucc = false;
             a_this.bInited = false;
             return;
@@ -1145,7 +1140,8 @@ function HuginDatabase() {
     }
 
     this.makeResult = function (a_Context, a_this) {
-        if (!a_this.packageIndexReader.bSucc || !a_this.packageReader.bSucc) {
+        if (!a_this.packageIndexReader.bSucc ||
+            !a_this.packageReader.bSucc) {
             a_this.bSucc = false;
         }
         a_this.recordResult = a_this.packageReader.recordResult;
@@ -1170,7 +1166,7 @@ function HuginDatabase() {
 
     this.makeNotResult = function (a_Context, a_this) {
         var topicRecs = a_this.recordResult.strRecord.split("|");
-        var bIncludeAll = (a_this.recordResult.strRecord == "" );
+        var bIncludeAll = (a_this.recordResult.strRecord == "");
         var arrTopicIds = new Array();
         var j;
         for (j = 0; j < topicRecs.length; j++) {
@@ -1290,7 +1286,7 @@ function LanguageService() {
     this.stemWith = function (a_strWord, a_strSuffix) {
         var s = a_strSuffix.split(",");
         var strSuffix = s[0];
-        var bRemoveOnly = ( s[1] == '1' );
+        var bRemoveOnly = (s[1] == '1');
 
         var ss = a_strWord.match("^..+" + strSuffix + "$");
         if (ss == null)
@@ -1309,7 +1305,7 @@ function LanguageService() {
 
         var strStem = a_strWord.substr(0, nLenRest);
 
-        if (strStem.length < 2 || (( strStem.length == 2) && !bAddE ))
+        if (strStem.length < 2 || ((strStem.length == 2) && !bAddE))
             return null;
 
         //if ( strStem.length <= 2 )
@@ -1340,43 +1336,45 @@ function LanguageService() {
         return g_RunesVowels.indexOf(a_ch) >= 0;
     }
     this.isWordBreak = function (a_ch) {
-        return ( !this.isQuote(a_ch) && g_RunesWordBreaks.indexOf(a_ch) >= 0 );
+        return (!this.isQuote(a_ch) && g_RunesWordBreaks.indexOf(a_ch) >= 0);
     }
     this.isWhiteSpace = function (a_ch) {
-        return ( g_RunesWhiteSpaces.indexOf(a_ch) >= 0 );
+        return (g_RunesWhiteSpaces.indexOf(a_ch) >= 0);
     }
     this.isSpecialBreak = function (a_ch) {
-        return ( g_RunesSpecialBreaks.indexOf(a_ch) >= 0 );
+        return (g_RunesSpecialBreaks.indexOf(a_ch) >= 0);
     }
     this.isCJKCodePoint = function (a_ch) {
         //from http://en.wikipedia.org/wiki/Plane_%28Unicode%29
-        if ((typeof(a_ch) == "undefined" ) || (a_ch == "" ))
+        if ((typeof(a_ch) == "undefined") || (a_ch == ""))
             return false;
         var val = a_ch.charCodeAt(0);
 
-        return (  ((0x2E80 <= val) && ( val <= 0x9FFF)) //East Asian scripts and symbols
-        || ((0xF900 <= val) && ( val <= 0xFAFF))  //CJK Compatibility Ideographs
-        || ((0xFE30 <= val) && ( val <= 0xFE4F)) 	 //CJK Compatibility Forms
-        || ((0xFF00 <= val) && ( val <= 0xFFEF)) ); //Halfwidth and Fullwidth Forms (FF00–FFEF)
+        return (((0x2E80 <= val) && (val <= 0x9FFF)) //East Asian scripts and symbols
+            || ((0xF900 <= val) && (val <= 0xFAFF))  //CJK Compatibility Ideographs
+            || ((0xFE30 <= val) && (val <= 0xFE4F)) 	 //CJK Compatibility Forms
+            || ((0xFF00 <= val) && (val <= 0xFFEF))); //Halfwidth and Fullwidth Forms (FF00–FFEF)
     }
     this.isQuote = function (a_ch) {
-        return ( a_ch == g_RunesQuote );
+        return (a_ch == g_RunesQuote);
     }
+
     this.isAND = function (a_strOp) {
-        return ( a_strOp == "and" );
+        return rh._.isAND(a_strOp, gEnableOperatorSearch)
     }
+
     this.isOR = function (a_strOp) {
-        return ( a_strOp == "or" );
+        return rh._.isOR(a_strOp, gEnableOperatorSearch);
     }
+
     this.isNOT = function (a_strOp) {
-        return ( a_strOp == "not" );
+        return rh._.isNOT(a_strOp, gEnableOperatorSearch);
     }
-    this.isOperator = function (strOp) {
-        if (strOp == "and" ||
-            strOp == "or" ||
-            strOp == "not")
-            return true;
+
+    this.isOperator = function (a_strOp) {
+        return rh._.isOperator(a_strOp, gEnableOperatorSearch);
     }
+
 }
 
 // Runes.js----------------------------------
@@ -1441,14 +1439,19 @@ function RunesService() {
 
     this.getLengthOfWord = function (a_str, a_nFrom) {
         var i = a_nFrom, nLen = a_str.length;
-        while (i < nLen && !this.langSev.isWordBreak(a_str.charAt(i)) && !this.langSev.isQuote(a_str.charAt(i)))
+        while (i < nLen &&
+        !this.langSev.isWordBreak(a_str.charAt(i)) &&
+        !this.langSev.isQuote(a_str.charAt(i)))
             ++i;
         return i - a_nFrom;
     }
 
     this.getNonCJKWord = function (a_str, a_nFrom) {
         var i = a_nFrom, nLen = a_str.length;
-        while (i < nLen && !this.langSev.isWordBreak(a_str.charAt(i)) && !this.langSev.isCJKCodePoint(a_str.charAt(i)) && !this.langSev.isQuote(a_str.charAt(i)))
+        while (i < nLen &&
+        !this.langSev.isWordBreak(a_str.charAt(i)) &&
+        !this.langSev.isCJKCodePoint(a_str.charAt(i)) &&
+        !this.langSev.isQuote(a_str.charAt(i)))
             ++i;
         var nLen = i - a_nFrom;
         return a_str.substr(a_nFrom, nLen);
@@ -1521,7 +1524,9 @@ function RunesService() {
 
     this.getLengthOfDefault = function (a_str, a_nFrom) {
         var i = a_nFrom, nLen = a_str.length;
-        while (i < nLen && !this.isOperator(a_str, i) && !this.langSev.isQuote(a_str.charAt(i))) {
+        while (i < nLen &&
+        !this.isOperator(a_str, i) &&
+        !this.langSev.isQuote(a_str.charAt(i))) {
             i += this.getLengthOfWord(a_str, i);
             i += this.getLengthOfWordBreak(a_str, i);
         }
@@ -1573,7 +1578,7 @@ function RunesService() {
 
         var rslt = new Object;
         if (!this.getTerm(a_Context, rslt)) {
-            if (( this.parseOperator(a_Context, rslt, true) ) && (rslt.eType == ESNT_NOT)) {
+            if ((this.parseOperator(a_Context, rslt, true)) && (rslt.eType == ESNT_NOT)) {
                 a_Result.eType = rslt.eType;
                 if (rslt.right.eType == ESNT_DEFAULT) {
                     a_Result.strTerm = rslt.right.strTerm;
@@ -1760,22 +1765,22 @@ function _rank_ULaw(a_fX) {
     if (a_fX < 0.0)
         return 0.0;
 
-    return 1.0 - 1.0 / ( a_fX + 1.0 );
+    return 1.0 - 1.0 / (a_fX + 1.0);
 }
 
 function _rank_Weaken(a_fWeight, a_fPercent) {
-    var fPercent = ( a_fPercent < 0.0 ) ? 0.0 :
-        ( a_fPercent > 1.0 ) ? 1.0 : a_fPercent;
+    var fPercent = (a_fPercent < 0.0) ? 0.0 :
+        (a_fPercent > 1.0) ? 1.0 : a_fPercent;
 
     return 1 - fPercent + a_fWeight * fPercent;
 }
 
 function _isKeyWord(a_uEmphasis) {
-    return ( a_uEmphasis & HUGIN_KEYWORD_FLAG ) != 0;
+    return (a_uEmphasis & HUGIN_KEYWORD_FLAG) != 0;
 }
 
 function _isTitle(a_uEmphasis) {
-    return ( a_uEmphasis & HUGIN_TITLE_FLAG ) != 0;
+    return (a_uEmphasis & HUGIN_TITLE_FLAG) != 0;
 }
 
 function _isUpperCaseShape(a_nWordShape) {
@@ -1787,7 +1792,7 @@ function _emphasisToScore(a_uEmphasis) {
 
     //H1 = 64, H2 = 32, H3 = 16, H4 = 8, H5 = 4, H6 = 2
     for (var i = 5, nInc = 2; i >= 0; i--, nInc *= 2)
-        nScore += nInc * ( ( a_uEmphasis >> i ) & 1 );
+        nScore += nInc * ((a_uEmphasis >> i) & 1);
 
     return nScore;
 }
@@ -1935,7 +1940,7 @@ function _getPhraseMatch(a_aTiles, iPosition, a_aWords, a_nCurIdx) {
     for (i = 0; i < a_aTiles[iPosition].aWords.length; i++) {
         var wordAtPos = a_aTiles[iPosition].aWords[i].nWordId;
         if (wordAtPos == nCurWordId) {
-            if (a_nCurIdx == (a_aWords.length - 1 )) {
+            if (a_nCurIdx == (a_aWords.length - 1)) {
                 //last word matches, then return true
                 return true;
             }
@@ -1986,11 +1991,11 @@ function _getWeightOfNode(a_TopicImage, a_Node) {
         // Boolean operation
         switch (a_Node.eType) {
             case ESNT_OR:
-                return ( fWeightLeft + fWeightRight ) / 2.0;
+                return (fWeightLeft + fWeightRight) / 2.0;
             case ESNT_AND:
-                return ( fWeightLeft * fWeightRight );
+                return (fWeightLeft * fWeightRight);
             case ESNT_NOT:
-                fWeightRight = ( fWeightRight == 0.0 ) ? 1.0 : 0.0;
+                fWeightRight = (fWeightRight == 0.0) ? 1.0 : 0.0;
                 return fWeightLeft * fWeightRight;
         }
 
@@ -2107,10 +2112,10 @@ function HuginHunter() {
         var fBase = 100 / this.aDatabases.length;
 
         if (this.nState == 1)
-            this.nProgress = Math.round(fProgress + ( this.nWordLoaded / this.nWordNum ) * ( fBase / 3 ));
+            this.nProgress = Math.round(fProgress + (this.nWordLoaded / this.nWordNum) * (fBase / 3));
         else if (this.nState == 2)
             this.nProgress = Math.round(fProgress + fBase / 3 +
-                ( this.iCurTopic / this.aTopics.length ) * ( fBase * 2 / 3 ));
+                (this.iCurTopic / this.aTopics.length) * (fBase * 2 / 3));
     }
 
     this.incCurProjForInit = function (a_Context, a_this) {
@@ -2172,11 +2177,11 @@ function HuginHunter() {
     }
 
     this.getWordImageToAdd = function (a_nWordId, a_aWords) {
-        return a_aWords[a_nWordId] ? a_aWords[a_nWordId] : ( a_aWords[a_nWordId] = new HuginImageWord() );
+        return a_aWords[a_nWordId] ? a_aWords[a_nWordId] : (a_aWords[a_nWordId] = new HuginImageWord());
     }
 
     this.getTileImageToAdd = function (a_nPosition, a_aTiles) {
-        return a_aTiles[a_nPosition] ? a_aTiles[a_nPosition] : ( a_aTiles[a_nPosition] = new HuginImageTile() );
+        return a_aTiles[a_nPosition] ? a_aTiles[a_nPosition] : (a_aTiles[a_nPosition] = new HuginImageTile());
     }
 
     this.addRecordToRecordTable = function (a_nWordId, a_strRecord) {
@@ -2220,7 +2225,7 @@ function HuginHunter() {
 
     this.getRecordOfTermNode = function (a_Context, a_this) {
         a_this.aPossibleOrgs = new Array();
-        a_this.bNeedStopWord = ( a_this.curTermNode.eType == ESNT_PHRASE );
+        a_this.bNeedStopWord = (a_this.curTermNode.eType == ESNT_PHRASE);
         a_this.iCurTermNodeWord = 0;					//Init the iterator of a "for loop"
         a_Context.push(a_this.getRecordOfTermWord, a_this);
     }
@@ -2288,8 +2293,8 @@ function HuginHunter() {
                 return window.rh._.mapTagIndex(id, this.aProjPathes[this.iCurProj].strProjDir);
             }, this);
             if (!window.rh._.any(mappedIds, function (id) {
-                    return this.evaluateTag(id);
-                }, this))
+                return this.evaluateTag(id);
+            }, this))
                 return null;
         }
         record.tagComboId = mappedIds.join(",");
@@ -2425,7 +2430,7 @@ function HuginHunter() {
     this.evaluateExpression = function (a_Context, a_this) {
         if (gbANDSearch) {
             a_this.strQuery = trimString(a_this.strQuery);
-            a_this.strQuery = a_this.strQuery.split(" ").join(" AND ");
+            a_this.strQuery = a_this.strQuery.split(" ").join(" \u00ACand\u00AC ");
         }
 
         a_this.queryExpression = parseQueryExpression(a_this.strQuery);
@@ -2594,7 +2599,7 @@ function ftsContextLoaded(ftsProjDirArr) {
 }
 
 function isValidType(obj) {
-    return ( (typeof(obj) != 'undefined') && (obj != null) );
+    return ((typeof(obj) != 'undefined') && (obj != null));
 }
 
 function Query() {
@@ -2741,12 +2746,14 @@ function displaySearchProgressBar(a_nProgress) {
     }
     rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), a_nProgress, {sync: true});
 }
+
 function displayErrorMsg(msg) {
     changeResultView("");
     updatePrevNextButtons(0, 0);
     updateNavigationPagesBar(0, 0);
     displayMsg(msg);
 }
+
 function updateResultView() {
     if (g_CurState == ECS_SEARCHING)
         displaySearchProgressBar(goOdinHunter.nProgress);

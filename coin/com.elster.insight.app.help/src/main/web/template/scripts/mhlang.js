@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var S = new Array();
 var A = new Array();
 var gaFtsStop = ["a", "about", "after", "against", "all", "also", "among", "an", "and", "are", "as", "at", "be", "became", "because", "been", "between", "but", "by", "can", "come", "do", "during", "each", "early", "for", "form", "found", "from", "had", "has", "have", "he", "her", "his", "however", "in", "include", "into", "is", "it", "its", "late", "later", "made", "many", "may", "me", "med", "more", "most", "near", "no", "non", "not", "of", "on", "only", "or", "other", "over", "several", "she", "some", "such", "than", "that", "the", "their", "then", "there", "these", "they", "this", "through", "to", "under", "until", "use", "was", "we", "were", "when", "where", "which", "who", "with", "you"];
@@ -521,6 +517,7 @@ gaFtsStem[7] = "ly";
 
 
 var gsBiggestChar = "䶮";
+
 function getBiggestChar() {
     return gsBiggestChar;
 }
@@ -561,13 +558,13 @@ function compare(strText1, strText2) {
 
     //compare accent
     /*for(var i=0;i<strText1.length ;i++)
-     {
-     var charCode1 = getAccentCharOrder(strText1,i);
-     var charCode2 = getAccentCharOrder(strText2,i);
+    {
+        var charCode1 = getAccentCharOrder(strText1,i);
+        var charCode2 = getAccentCharOrder(strText2,i);
 
-     if(charCode1<charCode2) return -1;
-     if(charCode1>charCode2) return 1;
-     }*/
+        if(charCode1<charCode2) return -1;
+        if(charCode1>charCode2) return 1;
+    }*/
     return 0;
 }
 

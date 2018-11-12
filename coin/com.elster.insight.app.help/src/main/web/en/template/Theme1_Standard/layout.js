@@ -1,8 +1,4 @@
-﻿/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-/*************
+﻿/*************
 
  Custom setting names. Used to hook into RH settings mechanism.
 
@@ -92,7 +88,7 @@ $(function () {
             .append('<param name="wmode" value="transparent">')
             .append('<embed wmode="transparent" height="' + $(this).attr('height') + '" width="' + $(this).attr('width') + '">');
     });
-
+	
 });
 function initializeLayout() {/* This function makes changes to the layout, including widgets. Called through RH event handler. */
 
@@ -166,6 +162,7 @@ function contentTopToggle() {
         $topPlaceHolder.hide();
     }
 }
+
 var elementToggle = function (link, target) {
     this.link = link;
     this.target = target;
@@ -377,7 +374,7 @@ var resizableSidebar = function (sidebar, reverseWidthElementName, baselineEleme
     this.resetMaximumWidth();
     this.resetMinimumWidth();
     this.sidebar.resizable({alsoResizeReverseWidth: this.reverse, handles: this.handles, maxWidth: this.maximumWidth});
-
+	
 }
 function setLastSidebarWidth(width, arg1, arg2) {
     if (width != "") {
@@ -441,11 +438,11 @@ function changeTopicLink(url, arg1, arg2) {/* Amend return link. Change default 
  ************/
 function setCheckBoxes() {
     /*
-     Credit for On/Off switch logic: http://blog.dbrgn.ch/2011/11/21/jquery-checkbox-on-off-toggleswitch/
+        Credit for On/Off switch logic: http://blog.dbrgn.ch/2011/11/21/jquery-checkbox-on-off-toggleswitch/
 
-     Method is shared under Creative Commons license Attribution-ShareAlike 3.0 Unported - http://creativecommons.org/licenses/by-sa/3.0/
+        Method is shared under Creative Commons license Attribution-ShareAlike 3.0 Unported - http://creativecommons.org/licenses/by-sa/3.0/
 
-     */
+    */
     $('.switch').each(function () {
         var checkbox = $(this).children('input[type=checkbox]');
         var toggle = $(this).children('label.switch-toggle');
@@ -548,8 +545,8 @@ $.ui.plugin.add("resizable", "alsoResizeReverseWidth", {
             _alsoResizeReverseWidth = function (exp, c) {
                 $(exp).each(function () {
                     var el = $(this), start = $(this).data("ui-resizable-alsoresize-reverse"), style = {},
-                    /* Only resize the width of the element. */
-                    //css = c && c.length ? c : el.parents(ui.originalElement[0]).length ? ["width", "height"] : ["width", "height", "top", "left"];
+                        /* Only resize the width of the element. */
+                        //css = c && c.length ? c : el.parents(ui.originalElement[0]).length ? ["width", "height"] : ["width", "height", "top", "left"];
                         css = c && c.length ? c : el.parents(ui.originalElement[0]).length ? ["width"] : ["width", "left"];
 
                     $.each(css, function (i, prop) {

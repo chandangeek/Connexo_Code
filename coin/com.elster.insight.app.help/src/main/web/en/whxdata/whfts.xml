@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
-  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
-  -->
-
 <odb>
     <odbtype type="WebHelp"/>
     <language name="en_UK"/>
@@ -53,12 +49,15 @@
         <file url="whxdata\package_40_xml.js"/>
         <file url="whxdata\package_41_xml.js"/>
         <file url="whxdata\package_42_xml.js"/>
+        <file url="whxdata\package_43_xml.js"/>
+        <file url="whxdata\package_44_xml.js"/>
         <file url="whxdata\packageindex_xml.js"/>
         <file url="whxdata\synonym.xml"/>
         <file url="whxdata\synonym_xml.js"/>
         <file url="whxdata\topictable_0_xml.js"/>
         <file url="whxdata\topictable_1_xml.js"/>
         <file url="whxdata\topictable_2_xml.js"/>
+        <file url="whxdata\topictable_3_xml.js"/>
         <file url="whxdata\topictableindex_xml.js"/>
         <file url="whxdata\whfts.xml"/>
         <file url="whxdata\whfts_xml.js"/>

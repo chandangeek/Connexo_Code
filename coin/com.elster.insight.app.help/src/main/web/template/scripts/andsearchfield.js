@@ -1,17 +1,16 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gANDSearchEnabled = 0;
 var gANDSearchControlId = "andsearch";
 
 initANDSearchControl();
+
 function initANDSearchControl() {
     addRhLoadCompleteEvent(loadANDSearchSetting);
 }
+
 function loadANDSearchSetting() {
     readSetting(RHANDSEARCH, callbackAndSearchCookieRead);
 }
+
 function callbackAndSearchCookieRead(andSearchFlag) {
     if (andSearchFlag == TRUESTR)
         gANDSearchEnabled = 1;
@@ -25,6 +24,7 @@ function callbackAndSearchCookieRead(andSearchFlag) {
             andSearchElem.checked = false;
     }
 }
+
 function onToggleANDSearch() {
     if (gANDSearchEnabled) {
         gANDSearchEnabled = 0;

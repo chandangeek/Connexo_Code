@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 
 var gTopicElemId = "";
 var gsPPath = "";
@@ -47,10 +44,12 @@ var gbSyncEnabled = false;
 var gaBreadcrumbsTrail = new Array();
 var gnYPos = -1;
 var gbBadUriError = false;
+var gEnableOperatorSearch = true;
 
 var EST_TERM = 1;
 var EST_PHRASE = 2;
 var EST_STEM = 3;
+
 
 //Code for breadcrumb variable check for bookmark
 (function () {
@@ -131,11 +130,11 @@ var g_RunesWordBreaks = gsFtsBreakChars;
 var g_RunesWhiteSpaces = "\x20\x09\x0D\x0A\xA0";
 
 function _isWordBreak(a_ch) {
-    return ( g_RunesWordBreaks.indexOf(a_ch) >= 0 );
+    return (g_RunesWordBreaks.indexOf(a_ch) >= 0);
 }
 
 function _isWhiteSpace(a_ch) {
-    return ( g_RunesWhiteSpaces.indexOf(a_ch) >= 0 );
+    return (g_RunesWhiteSpaces.indexOf(a_ch) >= 0);
 }
 
 function _getLengthOfWordBreak(a_str, a_nFrom) {
@@ -534,18 +533,22 @@ function highlightDocument() {
 function applyHighlight() {
     readSetting(RHHIGHLIGHT, callbackHighlightSettingRead);
 }
+
 function callbackHighlightSettingRead(bHighlight) {
     if (bHighlight == TRUESTR)
         readSetting(RHHIGHLIGHTTEXTCOLOR, callbackHighlightTxtColorRead);
 }
+
 function callbackHighlightTxtColorRead(txtColor) {
     gsTextColor = txtColor;
     readSetting(RHHIGHLIGHTBGCOLOR, callbackHighlightBgColorRead);
 }
+
 function callbackHighlightBgColorRead(bgColor) {
     gsBkgndColor = bgColor;
     StartHighLightSearch();
 }
+
 function StartHighLightSearch() {
     var strTerms = GetHighlightTextFromURL();
     var arrSyns = GetSynonymsFromURL();
@@ -615,15 +618,15 @@ function findSearchTerms(searchTerms, bSkip) {
         searchTerms = sInput;
 
         var bAdd = true;
-        if ((sCW == "or") || (sCW == "|") || (sCW == "OR")) {
+        if (rh._.isOR(sCW, gEnableOperatorSearch)) {
             bSkip = false;
             bAdd = false;
         }
-        else if ((sCW == "and") || (sCW == "&") || (sCW == "AND")) {
+        else if (rh._.isAND(sCW, gEnableOperatorSearch)) {
             bSkip = false;
             bAdd = false;
         }
-        else if ((sCW == "not") || (sCW == "~") || (sCW == "NOT")) {
+        else if (rh._.isNOT(sCW, gEnableOperatorSearch)) {
             bSkip = true;
             bAdd = false;
         }
@@ -668,15 +671,15 @@ function getLengthOfPhrase(a_str) {
 }
 
 function GetStem(szWord) {
-    if (gaFtsStem == null || gaFtsStem.length == 0)return szWord;
-    if (IsNonAscii(szWord))             return szWord;
+    if (gaFtsStem == null || gaFtsStem.length == 0) return szWord;
+    if (IsNonAscii(szWord)) return szWord;
     var aStems = gaFtsStem;
 
     var nStemPos = 0;
     var csStem = "";
     for (var iStem = 0; iStem < aStems.length; iStem++) {
 
-        if (aStems[iStem].length >= szWord.length - 1)    continue;
+        if (aStems[iStem].length >= szWord.length - 1) continue;
         nStemPos = szWord.lastIndexOf(aStems[iStem]);
         if (nStemPos > 0) {
             var cssub = szWord.substring(nStemPos);
@@ -750,8 +753,8 @@ function button(sText, nWidth, nHeight) {
 }
 
 
-//recursively finds the parent project StartPage path if exists 
-//also computes the child toc path in the parent toc recursively until 
+//recursively finds the parent project StartPage path if exists
+//also computes the child toc path in the parent toc recursively until
 //main proj
 
 function getPPStartPagePath(sPath) {
@@ -1376,11 +1379,10 @@ function PickupDialog_Invoke() {
 }
 
 function isQuote(a_ch) {
-    return ( a_ch == gsQuote );
+    return (a_ch == gsQuote);
 }
 
 function escapeRegExp(str) {
     var specials = new RegExp("[.*+?|()\\^\\$\\[\\]{}\\\\]", "g"); // .*+?|()^$[]{}\
     return str.replace(specials, "\\$&");
 }
-

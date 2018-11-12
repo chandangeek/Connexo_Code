@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 gDataFolder = "whxdata";
 gCSHDataFile = "csh.js";
 gWndDataFile = "window.js";
@@ -58,19 +54,23 @@ var gCshRootPathsArr = null;
     }
 
 })();
+
 function showCSHTopic(maptype, mapdata) {
     gMapType = maptype;
     gMapData = mapdata;
     initAndCollectAllChildPaths(gRootRelPath, gCommonRootRelPath, SCR_CHILD_CSH);
 }
+
 function loadCSH(cshRootPathsArr) {
     gCshRootPathsArr = cshRootPathsArr;
     var arrIndex = 0;
     loadCSHFile(arrIndex);
 }
+
 function loadCSHFile(arrIndex) {
     xmlJsReader.loadFile(gCshRootPathsArr[arrIndex] + "/" + gDataFolder + "/" + gCSHDataFile, callBackCSHLoaded, arrIndex);
 }
+
 function callBackCSHLoaded(xmlDoc, arrIndex) {
     var cshInfoXmlNode = xmlDoc.getElementsByTagName(CSHINFONODE)[0];
     var itemNodes = cshInfoXmlNode.getElementsByTagName(ITEMNODE);
@@ -84,6 +84,8 @@ function callBackCSHLoaded(xmlDoc, arrIndex) {
             mapdata = itemNode.getAttribute(MAPID);
         if (mapdata.toLowerCase() == gMapData.toLowerCase()) {
             gTopicURL = gCshRootPathsArr[arrIndex] + "/" + itemNode.getAttribute(TOPICURL);
+            gTopicURL = rh._.makeFullUrl(gTopicURL);
+            gTopicURL = rh._.createHashedUrl(gTopicURL);
             break;
         }
     }
@@ -94,9 +96,14 @@ function callBackCSHLoaded(xmlDoc, arrIndex) {
         }
         else
             gTopicURL = gDefTopicURL;
+        gTopicURL = rh._.makeFullUrl(gTopicURL);
+        if (!rh._.isRootUrl(gTopicURL) && !rh._.isHomeUrl(gTopicURL)) {
+            gTopicURL = rh._.createHashedUrl(gTopicURL);
+        }
     }
     redirectToTopic(true);
 }
+
 function redirectToTopic(bCSH) {
     var bNewWin = getUrlParameter(RHNEWWINDOW);
     var strWndName = getUrlParameter(RHWINDOW);
@@ -137,6 +144,7 @@ function redirectToTopic(bCSH) {
 function loadWindow(strWndName) {
     xmlJsReader.loadFile(gRootRelPath + "/" + gDataFolder + "/" + gWndDataFile, callBackWndLoaded, strWndName);
 }
+
 function callBackWndLoaded(xmlDoc, strWndName) {
     var winListXmlNode = xmlDoc.getElementsByTagName(WINDOWLISTNODE)[0];
     var windowNodes = winListXmlNode.getElementsByTagName(WINDOWNODE);
@@ -163,6 +171,7 @@ function callBackWndLoaded(xmlDoc, strWndName) {
     }
     showTopicWindow(gCSHWnd, true);
 }
+
 function showTopicWindow(oWnd, bNewWindow) {
     if (gTopicURL) {
         var strOpt = getBrowserOptionString(oWnd);
@@ -170,6 +179,10 @@ function showTopicWindow(oWnd, bNewWindow) {
         var fullUrl = rh._.makeFullUrl(gTopicURL);
 
         if (bNewWindow) {
+            if (rh._.isInternal(fullUrl) && rh._.isUrlAllowdInIframe(fullUrl) && !rh._.isHomeUrl(fullUrl)) {
+                fullUrl = rh._.createHashedUrl(fullUrl);
+                fullUrl = rh._.removeParam(fullUrl, 'rhnewwnd')
+            }
             if (gbNav4 || gbSafari) {
                 if (gbNav6) {
                     if (navigator.appVersion.indexOf("rv:11.0") > -1) { // IE 11
@@ -179,9 +192,7 @@ function showTopicWindow(oWnd, bNewWindow) {
                         setTimeout("postTopicWindowOpen();", 100);
                     }
                 } else {
-                    window.open("about:blank", sNewName, strOpt);
-                    var oNewWnd = window.open(fullUrl, sNewName);
-                    window.close();
+                    var oNewWnd = window.open(fullUrl, sNewName, strOpt);
                     oNewWnd.focus();
                     top.blur();
                 }
@@ -223,6 +234,7 @@ function postTopicIEWindowOpen() {
         gBrowserWnd.focus();
     }
 }
+
 function getBrowserOptionString(oWnd) {
     var strOpts = "";
     if (oWnd.bUseDefault)
@@ -273,6 +285,7 @@ function getBrowserOptionString(oWnd) {
     }
     return strOpts;
 }
+
 function getSValue(sValue, nLength) {
     var nValue = 0;
     var nPos = sValue.indexOf("%");
@@ -286,6 +299,7 @@ function getSValue(sValue, nLength) {
         nValue = parseInt(sValue);
     return nValue;
 }
+
 function convertWindowName(strName) {
     var strNewName = strName;
     var strResultName = "";

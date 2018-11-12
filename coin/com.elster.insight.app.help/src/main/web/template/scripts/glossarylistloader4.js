@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gGloRootFileName = "glo.js";
 var gGloDataFolder = "whxdata";
 
@@ -13,10 +9,12 @@ var gGloCategoryHtml = "{%LINK_NAME%}";
 LOADINGSTRING = "Loading...";
 
 initGloPage();
+
 function initGloPage() {
     addRhLoadCompleteEvent(loadGlo);
 }
 var gGloList = null;
+
 function loadGlo() {
     if (gbPreviewMode) {
         var gloRootPathsArr = new Array;

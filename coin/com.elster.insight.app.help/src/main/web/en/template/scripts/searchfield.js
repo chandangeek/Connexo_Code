@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gSearchPageFilePath = "searchresults.htm";
 var gbGenerateForSP = 0;
 
@@ -36,10 +32,12 @@ function searchHelp(e, searchBoxId, cshmode, doNotUpdateHash) {
         return false;
     }
 }
+
 function initSearchFieldSubmit() {
     if (gbIE5)
         readSetting(RHCSHMODE, callbackSearchFieldSubmit);
 }
+
 function callbackSearchFieldSubmit(cshmode) {
     if (cshmode == CSHMODE && !gbPreviewMode) {
         var inputs = document.getElementsByTagName('input');

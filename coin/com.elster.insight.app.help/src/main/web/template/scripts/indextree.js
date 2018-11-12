@@ -1,22 +1,21 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 function IdxRootFileXmlObject(xmlDoc, i) {
     this.xmlDoc = xmlDoc;
     this.nodeIndex = i;
 }
+
 function IdxChunkXmlObject(xmlDoc, i, len) {
     this.xmlDoc = xmlDoc;
     this.nodeIndex = i;
     this.length = len;
 }
+
 function KeywordInfoObject(node, path, parentObj) {
     this.node = node;
     this.path = path;
     this.nodeIndex = 0;
     this.parentObj = parentObj;
 }
+
 function IdxTree(idxRootPathsArr, dataFolder, rootFile) {
     this.rootPathsArr = idxRootPathsArr;
     this.rootFilesXmlArr = new Array;
@@ -837,18 +836,23 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile) {
 function onIdxNodeHover(htmlNode, hoverClass) {
     gIdxTree.hoverNode(htmlNode, hoverClass);
 }
+
 function onIdxNodeHoverOut(htmlNode, normalClass) {
     gIdxTree.hoverOutNode(htmlNode, normalClass);
 }
+
 function onIdxNodeClick(htmlNode) {
     gIdxTree.toggleNode(htmlNode);
 }
+
 function onIdxTreeKeyPress(e) {
     gIdxTree.pressKey(e);
 }
+
 function onIdxTreeFocus() {
     gIdxTree.focusHoveredNode();
 }
+
 function onIdxTreeBlur() {
     gIdxTree.blurHoveredNode();
 }
@@ -856,9 +860,11 @@ function callbackRootFileLoaded(xmlDoc, arg) //Cannot use binding as IE9 does no
 {
     gIdxTree.loadRootFiles(xmlDoc, arg);
 }
+
 function callbackChunkLoaded(xmlDoc, arg) {
     gIdxTree.readChunk(xmlDoc, arg);
 }
+
 function filterIdx(e) {
     e = e || window.event;
     if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
@@ -867,6 +873,7 @@ function filterIdx(e) {
     }
     return gIdxTree.filterKeywords();
 }
+
 function callbackIdxCSHModeRead(cshmode) {
     if (cshmode == CSHMODE) {
         var filterBox = document.getElementById(gIdxTree.filterBoxId);

@@ -1,8 +1,4 @@
-﻿/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-* {
+﻿* {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
     outline-style: none;
@@ -36,7 +32,6 @@
     url("../../fonts/Lato-Light.ttf") format("truetype"),
     url("../../fonts/Lato-Light.svg#Lato-Light") format("svg");
 }
-
 @font-face {
     font-family: "Lato Bold";
     src: url("fonts/Lato-Bold.eot");
@@ -64,11 +59,9 @@ body {
     color: #3f4344;
     background-color: #ffffff;
 }
-
 div.content {
     background-color: #ffffff;
 }
-
 div.header {
     background-color: #1E7D9E;
     z-index: 5;
@@ -78,7 +71,6 @@ div.header {
     background: -o-linear-gradient(left, #2e587e, #529ebe);
 
 }
-
 div.content_top_link {
     display: none;
     position: fixed;
@@ -86,7 +78,6 @@ div.content_top_link {
     bottom: 1em;
     height: 1em;
 }
-
 div.content_top_link a {
     font-weight: bold;
     text-decoration: none;
@@ -98,39 +89,31 @@ div.content_top_link a {
     padding-left: 25px;
     color: #83CCDF;
 }
-
 div.content_top_link a:hover {
     text-decoration: none !important;
 }
-
 div.content_top_link a:active {
     text-decoration: none !important;
 }
-
 div.header a {
     text-decoration: inherit;
 }
-
 div.sidebar a {
     color: inherit;
     text-decoration: inherit;
 }
-
 div.desktop_functionholder a {
     color: inherit;
     text-decoration: inherit;
 }
-
 div.searchfieldholdermobile a {
     color: inherit;
     text-decoration: inherit;
 }
-
 div.wSearchResults a {
     color: inherit;
     text-decoration: inherit;
 }
-
 div.buttonbar a {
     color: inherit;
     text-decoration: inherit;
@@ -139,63 +122,50 @@ div.buttonbar a {
     width: 100%;
     text-decoration: none;
 }
-
 a.homelink {
     border: none;
     text-decoration: none;
     color: #ffffff;
     font-family: Open Sans Condensed Light;
 }
-
 a.homelink:hover {
     text-decoration: none;
     color: #ffffff;
 }
-
 div.logo {
     text-align: left;
 }
-
 div.logo img {
     width: auto !important;
     max-height: 100% !important;
     vertical-align: middle;
 }
-
 div#localisation {
     display: none;
 }
-
 input[type="search"]    ::-webkit-search-decoration {
     display: none;
 }
-
 input[type="search"]    ::-webkit-search-cancel-button {
     display: none;
 }
-
 input[type="search"]    ::-webkit-search-results-button {
     display: none;
 }
-
 input[type="search"]    ::-webkit-search-results-decoration {
     display: none;
 }
-
 input[type="search"]    ::-ms-clear {
     display: none;
 }
-
 div.buttonbar {
     background-color: #686868;
 }
-
 div.buttonbarholder {
     width: 45em;
     height: 5em;
     margin: 0 auto;
 }
-
 div.buttonbarholder > div {
     width: 5em;
     height: 5em;
@@ -204,144 +174,123 @@ div.buttonbarholder > div {
     float: left;
     cursor: pointer;
 }
-
 div.buttonbar div img {
     max-width: 100%;
 }
-
 div.bar_toc {
     background-color: transparent;
     background-image: url(toc_buttonbar.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_toc:hover {
     background-color: #ffffff;
     background-image: url(toc_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_toc:active {
     background-color: #ffffff;
     background-image: url(toc_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_toc_active {
     background-color: #ffffff;
     background-image: url(toc_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_index {
     background-color: transparent;
     background-image: url(index_buttonbar.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_index:hover {
     background-color: #ffffff;
     background-image: url(index_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_index:active {
     background-color: #ffffff;
     background-image: url(index_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_index_active {
     background-color: #ffffff;
     background-image: url(index_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_glossary {
     background-color: transparent;
     background-image: url(glo_buttonbar.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_glossary:hover {
     background-color: #ffffff;
     background-image: url(glo_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_glossary:active {
     background-color: #ffffff;
     background-image: url(glo_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_glossary_active {
     background-color: #ffffff;
     background-image: url(glo_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_search {
     background-color: transparent;
     background-image: url(search_buttonbar.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_search:hover {
     background-color: #ffffff;
     background-image: url(search_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_search:active {
     background-color: #ffffff;
     background-image: url(search_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_search_active {
     background-color: #ffffff;
     background-image: url(search_buttonbar_hover.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_topic {
     background-color: transparent;
     background-image: url(topic.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_topic:hover {
     background-color: transparent;
     background-image: url(topic.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.bar_topic:active {
     background-color: transparent;
     background-image: url(topic.png);
     background-repeat: no-repeat;
     background-position: center center;
 }
-
 div.specialpagetitle {
     font-family: Open Sans Condensed Light;
     text-align: center;
@@ -351,18 +300,15 @@ div.specialpagetitle {
     margin: 0;
     padding: .5em 0;
 }
-
 .hidden {
     display: none;
 }
-
 div.switch {
     min-height: 50px;
     line-height: 50px;
     min-height: 1.2em;
     line-height: 1.2em;
 }
-
 label.switch-toggle {
     background-image: url('switch.png');
     background-repeat: repeat-y;
@@ -382,46 +328,38 @@ label.switch-toggle {
     -moz-user-select: none;
     -ms-user-select: none;
 }
-
 label.switch-toggle.on {
     text-align: center;
     background-position: 0px 0px;
     color: #ffffff;
     padding: 0 10px 0 14px;
 }
-
 label.switch-toggle.off {
     text-align: left;
     background-position: 0px 26px;
     color: #ffffff;
 }
-
 label.switch-toggle.hidden {
     display: none;
 }
-
 @media screen and (max-width: 43.68em) {
     body {
         overflow: hidden;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     html {
         overflow: hidden;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.floatholder {
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.phone_scrollarea {
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.header {
         position: absolute;
@@ -432,7 +370,6 @@ label.switch-toggle.hidden {
         height: 3.3em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable {
         height: 3.3em;
@@ -443,21 +380,18 @@ label.switch-toggle.hidden {
         width: 100%;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable tr {
         margin: 0;
         padding: 0;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td {
         margin: 0;
         padding: 0;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.logo {
         width: 1.5em;
@@ -465,19 +399,16 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.logo img {
         max-width: 3em !important;
         vertical-align: middle;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.title {
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.title div {
         height: 2.2em;
@@ -488,7 +419,6 @@ label.switch-toggle.hidden {
         padding-left: .2em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.brsNext {
         width: 40px;
@@ -496,7 +426,6 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.brsBack {
         width: 40px;
@@ -504,21 +433,18 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.brsNext a img {
         max-height: 100% !important;
         vertical-align: middle;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     table.headertable td.brsBack a img {
         max-height: 100% !important;
         vertical-align: middle;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.searchholder {
         margin: 1em 5%;
@@ -527,13 +453,11 @@ label.switch-toggle.hidden {
         float: left;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.sidebar {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.content {
         position: absolute;
@@ -546,49 +470,41 @@ label.switch-toggle.hidden {
         -webkit-overflow-scrolling: touch;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.specialpagetitle {
         font-size: 1.5em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder.searchpage {
         display: block;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder div.brsNext {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder div.brsPrev {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder div.print {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.desktop_functionholder div.home {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.buttonbar {
         position: fixed;
@@ -598,7 +514,6 @@ label.switch-toggle.hidden {
         height: 2.5em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.buttonbar > div {
         width: 100%;
@@ -606,7 +521,6 @@ label.switch-toggle.hidden {
         margin: 0 auto;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.buttonbar > div > div {
         width: 20%;
@@ -616,144 +530,120 @@ label.switch-toggle.hidden {
         float: left;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_toc {
         background-image: url(toc_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_toc:hover {
         background-image: url(toc_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_toc:active {
         background-image: url(toc_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_toc_active {
         background-image: url(toc_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_index {
         background-image: url(index_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_index:hover {
         background-image: url(index_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_index:active {
         background-image: url(index_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_index_active {
         background-image: url(index_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_glossary {
         background-image: url(glo_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_glossary:hover {
         background-image: url(glo_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_glossary:active {
         background-image: url(glo_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_glossary_active {
         background-image: url(glo_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_search {
         background-image: url(search_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_search:hover {
         background-image: url(search_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_search:active {
         background-image: url(search_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_search_active {
         background-image: url(search_hover_buttonbar_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_topic {
         background-image: url(icon_back_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_topic:hover {
         background-image: url(icon_back_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.bar_topic:active {
         background-image: url(icon_back_small.png);
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.buttonbarholder.topic_page_holder div.topic_page {
         width: 25%;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.buttonbarholder.topic_page_holder {
         width: 80%;
         margin: 0 10%;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.floatholder {
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.phone_scrollarea {
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.header {
         position: absolute;
@@ -764,7 +654,6 @@ label.switch-toggle.hidden {
         height: 4em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable {
         height: 4em;
@@ -775,7 +664,6 @@ label.switch-toggle.hidden {
         width: 100%;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.logo {
         max-height: 4em;
@@ -784,19 +672,16 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.logo img {
         vertical-align: middle;
         max-height: 3.5em !important;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.title {
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.title div {
         height: 2.2em;
@@ -808,7 +693,6 @@ label.switch-toggle.hidden {
         padding-left: .4em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.brsNext {
         width: 2.5em;
@@ -816,7 +700,6 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.brsBack {
         width: 2.5em;
@@ -824,7 +707,6 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.brsNext a img {
         min-width: 70% !important;
@@ -833,7 +715,6 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     table.headertable td.brsBack a img {
         min-width: 70% !important;
@@ -842,19 +723,16 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     td.title a {
         font-size: 1em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.sidebar {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.content {
         position: absolute;
@@ -867,43 +745,36 @@ label.switch-toggle.hidden {
         -webkit-overflow-scrolling: touch;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder.searchpage {
         display: block;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder div.brsNext {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder div.brsPrev {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder div.print {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.desktop_functionholder div.home {
         display: none;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.buttonbar {
         position: fixed;
@@ -913,7 +784,6 @@ label.switch-toggle.hidden {
         height: 5em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.buttonbarholder.topic_page_holder {
         width: 36em;
@@ -921,12 +791,10 @@ label.switch-toggle.hidden {
         margin: 0 auto;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.floatholder {
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.header {
         position: fixed;
@@ -937,7 +805,6 @@ label.switch-toggle.hidden {
         overflow: auto;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable {
         height: 4em;
@@ -948,7 +815,6 @@ label.switch-toggle.hidden {
         width: 100%;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.logo {
         max-height: 4em;
@@ -957,19 +823,16 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.logo img {
         max-height: 3.5em !important;
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.title {
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.title div {
         height: 2.2em;
@@ -981,7 +844,6 @@ label.switch-toggle.hidden {
         padding-left: .4em;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.brsNext {
         width: 40px;
@@ -989,7 +851,6 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.brsBack {
         width: 40px;
@@ -997,7 +858,6 @@ label.switch-toggle.hidden {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.brsNext a img {
         min-width: 70% !important;
@@ -1005,7 +865,6 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     table.headertable td.brsBack a img {
         min-width: 70% !important;
@@ -1013,13 +872,11 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.sidebar {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.content {
         position: fixed;
@@ -1031,43 +888,36 @@ label.switch-toggle.hidden {
         -webkit-overflow-scrolling: touch;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder.searchpage {
         display: block;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder div.brsNext {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder div.brsPrev {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder div.print {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.desktop_functionholder div.home {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.buttonbar {
         position: fixed;
@@ -1081,13 +931,11 @@ label.switch-toggle.hidden {
         padding: 0;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.buttonbar::-webkit-scrollbar {
         display: none;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.buttonbar > div {
         margin: 0;
@@ -1096,58 +944,48 @@ label.switch-toggle.hidden {
         height: 100%;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.buttonbar > div > div {
         margin-left: 0;
         margin-right: 0;
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar {
         width: .5em;
         height: .5em;
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar-button {
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar-track {
         background-color: #f1ede9;
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar-track-piece {
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar-thumb {
         background-color: #cfcbc6;
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-scrollbar-corner {
     }
 }
-
 @media screen and (min-width: 81em) {
     ::-webkit-resizer {
     }
 }
-
 @media screen and (min-width: 81em) {
     body {
     }
 }
-
 @media screen and (min-width: 81em) {
     div.header {
         width: 100%;
@@ -1158,12 +996,10 @@ label.switch-toggle.hidden {
         overflow: auto;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.title {
     }
 }
-
 @media screen and (min-width: 81em) {
     div.content {
         position: absolute;
@@ -1174,7 +1010,6 @@ label.switch-toggle.hidden {
         overflow: hidden;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar {
         background-color: #ffffff;
@@ -1186,7 +1021,6 @@ label.switch-toggle.hidden {
         overflow: hidden;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar .ui-resizable-e {
         background-color: #36678C;
@@ -1195,7 +1029,6 @@ label.switch-toggle.hidden {
         cursor: col-resize;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.desktop_functionholder {
         background-color: #383D3E;
@@ -1204,12 +1037,10 @@ label.switch-toggle.hidden {
         overflow: hidden;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.floatholder {
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable {
         height: 4.5em;
@@ -1220,21 +1051,18 @@ label.switch-toggle.hidden {
         border-collapse: collapse;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable tr {
         padding: 0;
         margin: 0;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertablde td {
         padding: 0;
         margin: 0;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.logo {
         padding: 0 0 0 .5em;
@@ -1242,14 +1070,12 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.logo img {
         vertical-align: middle;
         max-height: 4em;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.title {
         font-size: 1.8em;
@@ -1257,25 +1083,21 @@ label.switch-toggle.hidden {
         padding-left: .5em;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.title div {
         display: inline;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.brsNext {
         display: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     table.headertable td.brsBack {
         display: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar div.closebutton {
         position: absolute;
@@ -1292,7 +1114,6 @@ label.switch-toggle.hidden {
         border-radius: .3em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar .buttonOpened {
         background-color: #ffffff;
@@ -1301,7 +1122,6 @@ label.switch-toggle.hidden {
         background-position: left center;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar .buttonClosed {
         background-color: #ffffff;
@@ -1310,7 +1130,6 @@ label.switch-toggle.hidden {
         background-position: right center;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar div.text {
         text-align: center;
@@ -1320,7 +1139,6 @@ label.switch-toggle.hidden {
         padding: .25em 0;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar div.text a {
         color: #59caff;
@@ -1331,13 +1149,11 @@ label.switch-toggle.hidden {
         background: transparent url(topic.png) no-repeat center 2em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.sidebar div.text a:hover {
         background-color: #ffffff;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.contentholder {
         position: absolute;
@@ -1348,13 +1164,11 @@ label.switch-toggle.hidden {
         overflow: auto;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.content_top_link {
         display: block;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.searchholder {
         float: right;
@@ -1362,13 +1176,11 @@ label.switch-toggle.hidden {
         margin: 0 .5em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.secondary_search_box {
         display: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.home {
         float: left;
@@ -1377,7 +1189,6 @@ label.switch-toggle.hidden {
         margin: 0 .25em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.print {
         float: left;
@@ -1386,7 +1197,6 @@ label.switch-toggle.hidden {
         margin: 0 .25em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsBack {
         float: left;
@@ -1395,7 +1205,6 @@ label.switch-toggle.hidden {
         margin: 0 .25em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsNext {
         float: left;
@@ -1404,35 +1213,30 @@ label.switch-toggle.hidden {
         margin: 0 .25em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.home a:hover {
         background-color: #ffffff;
         cursor: pointer;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.print a:hover {
         background-color: #ffffff;
         cursor: pointer;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsBack a:hover {
         background-color: #ffffff;
         cursor: pointer;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsNext a:hover {
         background-color: #ffffff;
         cursor: pointer;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.home a {
         display: block;
@@ -1443,7 +1247,6 @@ label.switch-toggle.hidden {
         border: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsBack a {
         display: block;
@@ -1454,7 +1257,6 @@ label.switch-toggle.hidden {
         border: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.print a {
         display: block;
@@ -1465,7 +1267,6 @@ label.switch-toggle.hidden {
         border: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsNext a {
         display: block;
@@ -1476,7 +1277,6 @@ label.switch-toggle.hidden {
         border: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.home img {
         margin: 25% 25%;
@@ -1484,7 +1284,6 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsBack img {
         margin: 25% 25%;
@@ -1492,7 +1291,6 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.print img {
         margin: 25% 25%;
@@ -1501,7 +1299,6 @@ label.switch-toggle.hidden {
         margin: 30% 25% 20%;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.brsNext img {
         margin: 25% 25%;
@@ -1509,50 +1306,41 @@ label.switch-toggle.hidden {
         vertical-align: middle;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.buttonbar {
         display: none;
     }
 }
-
 @media print {
     div.header {
         display: none;
     }
 }
-
 @media print {
     div.sidebar {
         display: none;
     }
 }
-
 @media print {
     div.searchfieldholdermobile {
         display: none;
     }
 }
-
 @media print {
     div.desktop_functionholder {
         display: none;
     }
 }
-
 @media print {
     div.buttonbar {
         display: none;
     }
 }
-
 div.wTopic {
     margin: 1em;
 }
-
 div.wGlossary {
 }
-
 input.wGloFilter {
     display: block;
     width: 100%;
@@ -1571,7 +1359,6 @@ input.wGloFilter {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 div.wGloTerm {
     color: #3f4344;
     font-weight: normal;
@@ -1582,7 +1369,6 @@ div.wGloTerm {
     border-top-color: #83CCDF;
     padding: 0.8em 1em;
 }
-
 div.wGloTermHover {
     color: #3f4344;
     font-weight: normal;
@@ -1595,7 +1381,6 @@ div.wGloTermHover {
     cursor: pointer;
     background-color: #f1ede9;
 }
-
 div.wGloTermSelected {
     color: #3f4344;
     font-weight: normal;
@@ -1607,23 +1392,18 @@ div.wGloTermSelected {
     border-top-style: solid;
     border-top-color: #83CCDF;
 }
-
 span.wGloTermText {
 }
-
 div.wGloDefinition {
     margin: 0 2em 1em 2.5em;
 }
-
 div.wGloDefinitionHover {
     margin: 0 2em 1em 2.5em;
     cursor: pointer;
 }
-
 span.wGloDefinitionText {
     color: #3f4344;
 }
-
 div.wGloAlphabet {
     text-align: center;
     font-size: 1.8em;
@@ -1631,30 +1411,25 @@ div.wGloAlphabet {
     margin: 0;
     padding: .25em 0 0;
 }
-
 span.wGloAlphabetText {
 }
-
 @media screen and (max-width: 43.68em) {
     input.wGloFilter {
         margin-top: 0;
         max-width: 80%;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloAlphabet {
         display: none;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloTerm {
         font-size: 1.1em;
         padding: .45em .65em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloTermHover {
         font-size: 1.1em;
@@ -1662,39 +1437,33 @@ span.wGloAlphabetText {
         background-color: #f1ede9;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloTermSelected {
         font-size: 1.1em;
         padding: .45em .65em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloDefinition {
         margin: 0 2em 0.5em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wGloDefinitionHover {
         margin: 0 2em 0.5em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGlossary {
         width: 95%;
         font-size: 1em;
     }
 }
-
 @media screen and (min-width: 81em) {
     input.wGloFilter {
         font-size: .8em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloTerm {
         font-size: 1em;
@@ -1708,7 +1477,6 @@ span.wGloAlphabetText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloTermHover {
         font-size: 1em;
@@ -1725,7 +1493,6 @@ span.wGloAlphabetText {
         background-color: transparent;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloTermSelected {
         font-size: 1em;
@@ -1740,7 +1507,6 @@ span.wGloAlphabetText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloDefinition {
         font-size: .9em;
@@ -1751,7 +1517,6 @@ span.wGloAlphabetText {
         padding-left: .3em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloDefinitionHover {
         font-size: .9em;
@@ -1763,13 +1528,11 @@ span.wGloAlphabetText {
         padding-left: .3em;
     }
 }
-
 @media screen and (min-width: 81em) {
     span.wGloDefinitionText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wGloAlphabet {
         margin: .5em 0;
@@ -1779,10 +1542,8 @@ span.wGloAlphabetText {
         border-bottom-color: #1E7D9E;
     }
 }
-
 div.wIndex {
 }
-
 input.wIdxFilter {
     display: block;
     width: 100%;
@@ -1801,7 +1562,6 @@ input.wIdxFilter {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 div.wIdxKeyword {
     color: #3f4344;
     font-weight: normal;
@@ -1819,7 +1579,6 @@ div.wIdxKeyword {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 div.wIdxKeywordHover {
     color: #3f4344;
     font-weight: normal;
@@ -1837,16 +1596,13 @@ div.wIdxKeywordHover {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 span.wIdxKeywordText {
     cursor: pointer;
 }
-
 div.wIdxChildBlock {
     width: 95%;
     margin: 0 0 0 5%;
 }
-
 div.wIdxLink {
     color: #3f4344;
     text-align: left;
@@ -1863,7 +1619,6 @@ div.wIdxLink {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 div.wIdxLinkHover {
     color: #83CCDF;
     text-align: left;
@@ -1880,10 +1635,8 @@ div.wIdxLinkHover {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 span.wIdxLinkText {
 }
-
 div.wIdxAlphabet {
     text-align: center;
     font-size: 1.8em;
@@ -1891,17 +1644,14 @@ div.wIdxAlphabet {
     margin: 0;
     padding: .25em 0 0;
 }
-
 span.wIdxAlphabetText {
 }
-
 @media screen and (max-width: 43.68em) {
     input.wIdxFilter {
         margin-top: 0;
         max-width: 80%;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxKeyword {
         font-size: 1.1em;
@@ -1912,7 +1662,6 @@ span.wIdxAlphabetText {
         background-size: 14px 18px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxKeywordHover {
         font-size: 1.1em;
@@ -1923,14 +1672,12 @@ span.wIdxAlphabetText {
         background-size: 14px 18px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxChildBlock {
         width: 95%;
         margin: 0 0 0 5%;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxLink {
         font-size: 1.1em;
@@ -1941,7 +1688,6 @@ span.wIdxAlphabetText {
         background-size: 14px 18px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxLinkHover {
         font-size: 1.1em;
@@ -1952,26 +1698,22 @@ span.wIdxAlphabetText {
         background-size: 14px 18px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wIdxAlphabet {
         display: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIndex {
         width: 95%;
         font-size: 1em;
     }
 }
-
 @media screen and (min-width: 81em) {
     input.wIdxFilter {
         font-size: .8em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIdxKeyword {
         font-size: 1em;
@@ -1986,7 +1728,6 @@ span.wIdxAlphabetText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIdxKeywordHover {
         font-size: 1em;
@@ -2003,7 +1744,6 @@ span.wIdxAlphabetText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIdxLink {
         font-size: 1em;
@@ -2018,7 +1758,6 @@ span.wIdxAlphabetText {
         color: #1E7D9E;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIdxLinkHover {
         font-size: 1em;
@@ -2035,12 +1774,10 @@ span.wIdxAlphabetText {
         color: #3f4344;
     }
 }
-
 @media screen and (min-width: 81em) {
     span.wIdxLinkText {
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wIdxAlphabet {
         margin: .5em 0;
@@ -2050,12 +1787,10 @@ span.wIdxAlphabetText {
         border-bottom-color: #1E7D9E;
     }
 }
-
 @media screen and (min-width: 81em) {
     span.wIdxAlphabetText {
     }
 }
-
 div.wTOCTreePage {
     line-height: 1em;
     margin: 0;
@@ -2064,7 +1799,6 @@ div.wTOCTreePage {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeCloseBook {
     line-height: 1em;
     margin: 0;
@@ -2073,7 +1807,6 @@ div.wTOCTreeCloseBook {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeCloseBookHover {
     line-height: 1em;
     margin: 0;
@@ -2084,7 +1817,6 @@ div.wTOCTreeCloseBookHover {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeCloseBookSelected {
     line-height: 1em;
     margin: 0;
@@ -2094,11 +1826,9 @@ div.wTOCTreeCloseBookSelected {
     color: #3f4344;
     font-size: 1em;
 }
-
 span.wTOCTreeCloseBookText {
     color: #3f4344;
 }
-
 img.wTOCTreeCloseBookIcon {
     margin: -3px 4px 0 1px;
     vertical-align: middle;
@@ -2106,7 +1836,6 @@ img.wTOCTreeCloseBookIcon {
     height: 18px;
     width: 14px;
 }
-
 div.wTOCTreeOpenBook {
     line-height: 1em;
     margin: 0;
@@ -2115,7 +1844,6 @@ div.wTOCTreeOpenBook {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeOpenBookHover {
     line-height: 1em;
     margin: 0;
@@ -2126,7 +1854,6 @@ div.wTOCTreeOpenBookHover {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeOpenBookSelected {
     line-height: 1em;
     margin: 0;
@@ -2136,16 +1863,13 @@ div.wTOCTreeOpenBookSelected {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeOpenBookChildBlock {
     margin-left: 1em;
     min-width: 10em;
 }
-
 span.wTOCTreeOpenBookText {
     color: #3f4344;
 }
-
 img.wTOCTreeOpenBookIcon {
     margin: -3px 4px 0 1px;
     vertical-align: middle;
@@ -2154,7 +1878,6 @@ img.wTOCTreeOpenBookIcon {
     width: 14px;
     font-size: 1em;
 }
-
 div.wTOCTreePageHover {
     line-height: 1em;
     margin: 0;
@@ -2165,7 +1888,6 @@ div.wTOCTreePageHover {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreePageSelected {
     line-height: 1em;
     margin: 0;
@@ -2175,11 +1897,9 @@ div.wTOCTreePageSelected {
     color: #3f4344;
     font-size: 1em;
 }
-
 span.wTOCTreePageText {
     color: #3f4344;
 }
-
 img.wTOCTreePageIcon {
     margin: -3px 4px 0 1px;
     vertical-align: middle;
@@ -2187,7 +1907,6 @@ img.wTOCTreePageIcon {
     max-height: 18px !important;
     max-width: 14px !important;
 }
-
 div.wTOCTreeLink {
     line-height: 1em;
     margin: 0;
@@ -2196,7 +1915,6 @@ div.wTOCTreeLink {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeLinkHover {
     line-height: 1em;
     margin: 0;
@@ -2207,7 +1925,6 @@ div.wTOCTreeLinkHover {
     color: #3f4344;
     font-size: 1em;
 }
-
 div.wTOCTreeLinkSelected {
     line-height: 1em;
     margin: 0;
@@ -2217,11 +1934,9 @@ div.wTOCTreeLinkSelected {
     color: #3f4344;
     font-size: 1em;
 }
-
 span.wTOCTreeLinkText {
     color: #3f4344;
 }
-
 img.wTOCTreeLinkIcon {
     margin: -3px 4px 0 1px;
     vertical-align: middle;
@@ -2230,10 +1945,8 @@ img.wTOCTreeLinkIcon {
     max-width: 15px !important;
     font-size: 1em;
 }
-
 div.wTOCNode {
 }
-
 div.wTOCNodeCloseBook {
     font-weight: normal;
     text-align: left;
@@ -2250,7 +1963,6 @@ div.wTOCNodeCloseBook {
     background-position: 10px center;
     background-size: 31px 37px;
 }
-
 div.wTOCNodeCloseBookHover {
     font-weight: normal;
     text-align: left;
@@ -2268,7 +1980,6 @@ div.wTOCNodeCloseBookHover {
     background-size: 31px 37px;
     cursor: pointer;
 }
-
 div.wTOCNodeCloseBookSelected {
     font-weight: normal;
     text-align: left;
@@ -2286,15 +1997,12 @@ div.wTOCNodeCloseBookSelected {
     background-size: 31px 37px;
     cursor: pointer;
 }
-
 span.wTOCNodeCloseBookText {
     color: #3f4344;
 }
-
 img.wTOCNodeCloseBookIcon {
     display: none;
 }
-
 div.wTOCNodeOpenBook {
     font-weight: normal;
     text-align: left;
@@ -2311,7 +2019,6 @@ div.wTOCNodeOpenBook {
     background-size: 31px 38px;
     background-position: 10px center;
 }
-
 div.wTOCNodeOpenBookHover {
     font-weight: normal;
     text-align: left;
@@ -2329,7 +2036,6 @@ div.wTOCNodeOpenBookHover {
     background-size: 31px 38px;
     cursor: pointer;
 }
-
 div.wTOCNodeOpenBookSelected {
     font-weight: normal;
     text-align: left;
@@ -2347,15 +2053,12 @@ div.wTOCNodeOpenBookSelected {
     background-size: 31px 38px;
     cursor: pointer;
 }
-
 span.wTOCNodeOpenBookText {
     color: #3f4344;
 }
-
 img.wTOCNodeOpenBookIcon {
     display: none;
 }
-
 div.wTOCNodePage {
     text-align: left;
     font-size: 1.2em;
@@ -2371,7 +2074,6 @@ div.wTOCNodePage {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 div.wTOCNodePageHover {
     text-align: left;
     font-size: 1.2em;
@@ -2388,7 +2090,6 @@ div.wTOCNodePageHover {
     background-size: 31px 38px;
     cursor: pointer;
 }
-
 div.wTOCNodePageSelected {
     text-align: left;
     font-size: 1.2em;
@@ -2404,15 +2105,12 @@ div.wTOCNodePageSelected {
     background-position: 10px center;
     background-size: 31px 38px;
 }
-
 span.wTOCNodePageText {
     color: #3f4344;
 }
-
 img.wTOCNodePageIcon {
     display: none;
 }
-
 div.wTOCNodeLink {
     text-align: left;
     font-size: 1.2em;
@@ -2428,7 +2126,6 @@ div.wTOCNodeLink {
     background-position: 10px center;
     background-size: 33px 33px;
 }
-
 div.wTOCNodeLinkHover {
     text-align: left;
     font-size: 1.2em;
@@ -2445,7 +2142,6 @@ div.wTOCNodeLinkHover {
     background-size: 33px 33px;
     cursor: pointer;
 }
-
 div.wTOCNodeLinkSelected {
     text-align: left;
     font-size: 1.2em;
@@ -2461,15 +2157,12 @@ div.wTOCNodeLinkSelected {
     background-position: 10px center;
     background-size: 33px 33px;
 }
-
 span.wTOCNodeLinkText {
     color: #3f4344;
 }
-
 img.wTOCNodeLinkIcon {
     display: none;
 }
-
 div.wTOCNodeUp {
     text-align: left;
     font-size: 1.2em;
@@ -2485,7 +2178,6 @@ div.wTOCNodeUp {
     background-position: 12px center;
     background-size: 33px 33px;
 }
-
 div.wTOCNodeUpHover {
     text-align: left;
     font-size: 1.2em;
@@ -2502,16 +2194,13 @@ div.wTOCNodeUpHover {
     background-size: 33px 33px;
     cursor: pointer;
 }
-
 span.wTOCNodeUpText {
     text-decoration: none;
     margin-left: .5em;
 }
-
 img.wTOCNodeUpIcon {
     display: none;
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeCloseBook {
         font-size: 1.1em;
@@ -2522,7 +2211,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeCloseBookHover {
         font-size: 1.1em;
@@ -2533,7 +2221,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeCloseBookSelected {
         font-size: 1.1em;
@@ -2544,7 +2231,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeOpenBook {
         font-size: 1.1em;
@@ -2555,7 +2241,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeOpenBookHover {
         font-size: 1.1em;
@@ -2566,7 +2251,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeOpenBookSelected {
         font-size: 1.1em;
@@ -2577,7 +2261,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodePage {
         font-size: 1.1em;
@@ -2588,7 +2271,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodePageHover {
         font-size: 1.1em;
@@ -2599,7 +2281,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodePageSelected {
         font-size: 1.1em;
@@ -2610,7 +2291,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeLink {
         font-size: 1.1em;
@@ -2621,7 +2301,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeLinkHover {
         font-size: 1.1em;
@@ -2632,7 +2311,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeLinkSelected {
         font-size: 1.1em;
@@ -2643,7 +2321,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeUp {
         font-size: 1.1em;
@@ -2655,7 +2332,6 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wTOCNodeUpHover {
         font-size: 1.1em;
@@ -2667,84 +2343,64 @@ img.wTOCNodeUpIcon {
         background-size: 15px 16px;
     }
 }
-
 a.wPrintLink {
     color: #83CCDF;
 }
-
 a.wPrintLink:hover {
     text-decoration: underline;
 }
-
 a.wPrintLink:active {
     text-decoration: underline;
 }
-
 a.wPrintButton {
     color: #83CCDF;
 }
-
 a.wPrintButton:hover {
     text-decoration: underline;
 }
-
 a.wPrintButton:active {
     text-decoration: underline;
 }
-
 img.wPrintButton {
     border: none;
 }
-
 a.wBSBackLink {
     color: #83CCDF;
 }
-
 a.wBSBackLink:active {
     text-decoration: underline;
 }
-
 a.wBSNextLink {
     color: #83CCDF;
 }
-
 a.wBSNextLink:active {
     text-decoration: underline;
 }
-
 a.wBSBackButton {
     color: #83CCDF;
 }
-
 a.wBSBackButton:active {
     text-decoration: underline;
 }
-
 img.wBSBackButton {
     border: none;
 }
-
 a.wBSNextButton {
     color: #83CCDF;
 }
-
 a.wBSNextButton:active {
     text-decoration: underline;
 }
-
 img.wBSNextButton {
     border: none;
 }
-
 div.wSearchResults {
     margin: 1em 1em 2em 1em;
     font-size: 1.1em;
 }
-
 div.cSearchSettingsToggle {
     margin: 0 0 .5em 0;
 }
-
 div.cSearchSettingsToggle a {
     cursor: pointer;
     font-size: .9em;
@@ -2755,11 +2411,9 @@ div.cSearchSettingsToggle a {
     background-position: left top;
     background-size: contain;
 }
-
 div.cSearchSettingsToggle a.opened {
     background-image: url(search_advanced_closed.png);
 }
-
 div.wSearchResultSettings {
     margin: 0 0 1em 0;
     display: none;
@@ -2767,26 +2421,20 @@ div.wSearchResultSettings {
     border-top-style: solid;
     border-top-color: #71ADC7;
 }
-
 div.cSearchAND {
     margin: .5em 0;
 }
-
 div.wSearchHighlight {
     margin: .75em 0;
 }
-
 input.wSearchHighlight {
 }
-
 span.wSearchHighlight {
     font-size: .8em;
 }
-
 div.wSearchCount {
     margin: .75em 0;
 }
-
 select.wSearchCount {
     border-width: 1px;
     border-style: solid;
@@ -2807,12 +2455,10 @@ select.wSearchCount {
         -webkit-appearance: none;
     }
 }
-
 span.wSearchCount {
     font-size: .8em;
     margin-left: .3em;
 }
-
 div.wSearchMessage {
     margin: 0 0 1em 0;
     padding-top: .5em;
@@ -2822,29 +2468,23 @@ div.wSearchMessage {
     border-top-color: #71ADC7;
     display: block;
 }
-
 span.wSearchMessage {
     color: #000000;
 }
-
 div.wSearchResultItemsBlock {
 }
-
 div.wSearchResultItem {
     margin: 0 0 1em 0;
 }
-
 div.wSearchResultTitle {
     color: #71ADC7;
     font-size: 1.1em;
 }
-
 div.wSearchResultTitleHover {
     color: #71ADC7;
     font-size: 1.1em;
     text-decoration: underline;
 }
-
 span.wSearchURL {
     display: block;
     margin-top: .5em;
@@ -2852,27 +2492,22 @@ span.wSearchURL {
     word-break: break-all;
     font-size: .9em;
 }
-
 span.wSearchContext {
     display: block;
     margin-top: -1em;
     color: #383D3E;
     font-size: .9em;
 }
-
 div#searchResList {
 }
-
 div.wSearchNavigation {
     font-size: 2em;
     overflow: hidden;
     margin-bottom: .5em;
 }
-
 div.wSearchBack {
     float: left;
 }
-
 a.wSearchBack {
     text-decoration: none;
     margin-right: 1em;
@@ -2883,20 +2518,16 @@ a.wSearchBack {
     background-position: left center;
     background-size: contain;
 }
-
 a.wSearchBack:hover {
     text-decoration: underline;
 }
-
 a.wSearchBack:active {
     text-decoration: underline;
 }
-
 div.wSearchNext {
     float: right;
     margin-left: .5em;
 }
-
 a.wSearchNext {
     text-decoration: none;
     padding-left: .5em;
@@ -2906,160 +2537,128 @@ a.wSearchNext {
     background-position: left center;
     background-size: contain;
 }
-
 a.wSearchNext:hover {
     text-decoration: underline;
 }
-
 a.wSearchNext:active {
     text-decoration: underline;
 }
-
 div.wSearchPageNumbers {
     float: left;
 }
-
 div.wSearchPageNumbers ul li:first-child {
     margin-left: 0;
     padding-left: 0;
     border-left: none;
 }
-
 li.wSearchPageNumberSelected {
     color: #71ADC7;
     margin-left: 1em;
     padding-left: .5em;
 }
-
 li.wSearchPageNumberLink {
     color: #59caff;
     text-decoration: none;
     margin-left: 1em;
     padding-left: .5em;
 }
-
 li.wSearchPageNumberLink:hover {
     text-decoration: underline;
 }
-
 span.wSearchPageNumberSelected {
 }
-
 a.wSearchPageNumberLink {
 }
-
 @media screen and (max-width: 43.68em) {
     div.wSearchResultItem {
         font-size: .9em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     div.wSearchPageNumbers {
         font-size: .5em;
         margin-top: .6em;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     a.wSearchBack {
         margin-right: 0.5em;
         padding: 0;
     }
 }
-
 @media screen and (max-width: 43.68em) {
     a.wSearchNext {
         padding: 0;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     a.wSearchNext {
         font-size: .75em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     a.wSearchBack {
         font-size: .75em;
     }
 }
-
 @media screen and (min-width: 43.69em) and (max-width: 59.49em) {
     div.wSearchPageNumbers {
         font-size: .6em;
         margin-top: .6em;
     }
 }
-
 @media screen and (min-width: 59.5em) and (max-width: 80.99em) {
     div.wSearchNavigation {
         font-size: 1.4em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wSearchNavigation {
         font-size: 1.2em;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.wSearchNext {
         float: left;
     }
 }
-
 @media screen and (min-width: 81em) {
     a.wSearchNext {
         color: #3f4344 !important;
         background: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     a.wSearchBack {
         color: #3f4344 !important;
         background: none;
     }
 }
-
 div.wSearchResultsSmallScr {
     margin: 1em;
     font-size: 1.1em;
 }
-
 div.wSearchResultSettingsSmallScr {
     margin: 0 0 1em 0;
 }
-
 div.wSearchHighlightSmallScr {
     margin: .5em 0;
 }
-
 input.wSearchHighlightSmallScr {
 }
-
 span.wSearchHighlightSmallScr {
 }
-
 div.wSearchCountSmallScr {
     margin: .5em 0;
 }
-
 div.wSearchCountComboSmallScr {
 }
-
 select.wSearchCountSmallScr {
 }
-
 div.wSearchCountMsgSmallScr {
 }
-
 span.wSearchCountSmallScr {
 }
-
 div.wSearchMessageSmallScr {
     margin: 0 0 1em 0;
     font-size: .9em;
@@ -3067,50 +2666,39 @@ div.wSearchMessageSmallScr {
     border-bottom-style: solid;
     border-bottom-color: #a99f95;
 }
-
 span.wSearchMessageSmallScr {
 }
-
 div.wSearchResultItemsBlockSmallScr {
 }
-
 div.wSearchResultItemSmallScr {
     margin: 0 0 1em 0;
 }
-
 div.wSearchResultTitleSmallScr {
     color: #83CCDF;
     font-size: 1.2em;
     font-weight: bold;
 }
-
 div.wSearchResultTitleHoverSmallScr {
     color: #83CCDF;
     font-size: 1.2em;
     font-weight: bold;
     text-decoration: underline;
 }
-
 span.wSearchURLSmallScr {
     color: #59caff;
     word-break: break-all;
 }
-
 span.wSearchContextSmallScr {
 }
-
 div#searchResListSmallScr {
 }
-
 div.wSearchNavigationSmallScr {
     font-size: 1.1em;
     overflow: hidden;
 }
-
 div.wSearchBackSmallScr {
     float: left;
 }
-
 a.wSearchBackSmallScr {
     color: #3f4344;
     text-decoration: none;
@@ -3120,17 +2708,14 @@ a.wSearchBackSmallScr {
     height: 42px;
     line-height: 60px;
 }
-
 a.wSearchBackSmallScr img {
     margin-right: 15px;
 }
-
 div.wSearchNextSmallScr {
     float: left;
     margin-left: .5em;
     padding-left: .5em;
 }
-
 a.wSearchNextSmallScr {
     color: #3f4344;
     text-decoration: none;
@@ -3138,83 +2723,64 @@ a.wSearchNextSmallScr {
     height: 42px;
     line-height: 60px;
 }
-
 a.wSearchNextSmallScr img {
     margin-left: 15px;
 }
-
 div.wSearchPageNumbersSmallScr {
     float: left;
 }
-
 div.wSearchPageNumbersSmallScr ul li:first-child {
     margin-left: 0;
     padding-left: 0;
     border-left: none;
 }
-
 li.wSearchPageNumberSelectedSmallScr {
     color: #3f4344;
     margin-left: 1em;
     padding-left: .5em;
 }
-
 li.wSearchPageNumberLinkSmallScr {
     color: #59caff;
     text-decoration: none;
     margin-left: 1em;
     padding-left: .5em;
 }
-
 li.wSearchPageNumberLinkSmallScr:hover {
     text-decoration: underline;
 }
-
 span.wSearchPageNumberSelectedSmallScr {
 }
-
 a.wSearchPageNumberLinkSmallScr {
 }
-
 a.wShowHide {
     color: #83CCDF;
 }
-
 a.wShowHide:hover {
     text-decoration: underline;
 }
-
 a.wShowHide:active {
     text-decoration: underline;
 }
-
 a.wShow {
     color: #83CCDF;
 }
-
 a.wShow:hover {
     text-decoration: underline;
 }
-
 a.wShow:active {
     text-decoration: underline;
 }
-
 a.wHide {
     color: #83CCDF;
 }
-
 a.wHide:hover {
     text-decoration: underline;
 }
-
 a.wHide:active {
     text-decoration: underline;
 }
-
 span.wProjTitle {
 }
-
 div.wSearchField {
     width: 100%;
     max-width: 30em;
@@ -3222,7 +2788,6 @@ div.wSearchField {
     margin: 0 auto;
     position: relative;
 }
-
 input.wSearchField {
     font-size: 1em;
     height: 2.4em;
@@ -3241,34 +2806,28 @@ input.wSearchField {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 a.wSearchLink {
     position: absolute;
     top: 1.7em;
     right: 4%;
     -webkit-appearance: none;
 }
-
 img.wSearchLink {
     max-width: 24px;
     max-height: 24px;
     width: auto !important;
     margin-top: 0;
 }
-
 input.wSearchAND {
 }
-
 span.wSearchAND {
     font-size: .8em;
 }
-
 @media screen and (min-width: 81em) {
     div.desktop_functionholder div.wSearchField {
         position: relative;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.desktop_functionholder input.wSearchField {
         -webkit-appearance: none;
@@ -3283,7 +2842,6 @@ span.wSearchAND {
         border: none;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.desktop_functionholder a.wSearchLink {
         position: absolute;
@@ -3300,7 +2858,6 @@ span.wSearchAND {
         text-align: center;
     }
 }
-
 @media screen and (min-width: 81em) {
     div.desktop_functionholder a.wSearchLink img.wSearchLink {
         margin-top: .2em;
@@ -3308,14 +2865,11 @@ span.wSearchAND {
         max-height: 80% !important;
     }
 }
-
 div.wSearchOptions {
 }
-
 div.wTabbedPanel {
     min-width: 17.5em;
 }
-
 ul.wTabGroup {
     background-color: #383D3E;
     height: 3em;
@@ -3326,27 +2880,21 @@ ul.wTabGroup {
     overflow: hidden;
     width: 100%;
 }
-
 ul.wTabGroup li:first-child {
     margin-left: .25em !important;
 }
-
 ul.wTabGroup li img {
     margin-top: .6em;
 }
-
 .wTabSelected img.normal {
     display: none;
 }
-
 img.hover {
     display: none;
 }
-
 img.wTabSelected .hover {
     display: block;
 }
-
 li.wTab {
     display: block !important;
     font-size: 1.2em;
@@ -3358,7 +2906,6 @@ li.wTab {
     text-align: center;
     cursor: default;
 }
-
 li.wTabHover {
     display: block !important;
     font-size: 1.2em;
@@ -3372,7 +2919,6 @@ li.wTabHover {
     background-color: #ffffff;
     color: #383D3E;
 }
-
 li.wTabSelected {
     display: block !important;
     font-size: 1.2em;
@@ -3386,28 +2932,23 @@ li.wTabSelected {
     background-color: #ffffff;
     color: #383D3E;
 }
-
 li.wTab img {
     width: auto !important;
     max-width: 2em !important;
     max-height: 2em !important;
 }
-
 li.wTabHover img {
     width: auto !important;
     max-width: 2em !important;
     max-height: 2em !important;
 }
-
 li.wTabSelected img {
     width: auto !important;
     max-width: 2em !important;
     max-height: 2em !important;
 }
-
 span.wTabText {
 }
-
 div.wTabContentGroup {
     position: absolute;
     top: 3.5em;
@@ -3416,14 +2957,11 @@ div.wTabContentGroup {
     right: 1em;
     overflow: auto;
 }
-
 div.wTabContent {
     display: none;
 }
-
 div.wVTabbedPanel {
 }
-
 ul.wVTabGroup {
     background-color: #ffffff;
     color: #383D3E;
@@ -3433,23 +2971,18 @@ ul.wVTabGroup {
     overflow: hidden;
     min-width: 15em;
 }
-
 li.wVTab img {
 }
-
 li.wVTabHover img {
 }
-
 li.wVTabSelected img {
 }
-
 li.wVTab {
     display: block;
     text-align: center;
     font-size: 1.5em;
     padding: .5em 0;
 }
-
 li.wVTabHover {
     display: block;
     text-align: center;
@@ -3459,7 +2992,6 @@ li.wVTabHover {
     color: #383D3E;
     cursor: pointer;
 }
-
 li.wVTabSelected {
     display: block;
     text-align: center;
@@ -3468,61 +3000,47 @@ li.wVTabSelected {
     background-color: #ffffff;
     color: #383D3E;
 }
-
 span.wVTabText {
 }
-
 div.wVTabContentGroup {
 }
-
 div.wVTabContent {
 }
-
 div.wLoadingIcon {
     text-align: center;
 }
-
 div.loadingicon {
     text-align: center;
 }
-
 img.wLoadingIcon {
     border: none;
     vertical-align: middle;
 }
-
 div.wLoadingText {
     text-align: center;
 }
-
 div.loadingtext {
     text-align: center;
 }
-
 .unclickable {
     cursor: default;
 }
-
 .handcursor {
     cursor: pointer;
     cursor: hand;
 }
-
 .unselectable {
     -webkit-user-select: none;
     -moz-user-select: none;
 }
-
 div.treeitem {
     clear: both;
     margin: 0px;
     padding: 0px;
 }
-
 li.hlist {
     display: inline;
 }
-
 a.nolink {
     color: inherit;
     text-decoration: none;

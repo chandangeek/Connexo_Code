@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gbBlockIOSScaling = 0;
 var gbPreviewMode = 0;
 var gRhEvtFuncsList = new Array;
@@ -29,6 +25,7 @@ function blockIOSScaling() {
         }
     }
 }
+
 function getUrlParamString(url) {
     var paramstr = "";
     if (url == null || url == 'undefined')
@@ -37,6 +34,7 @@ function getUrlParamString(url) {
         paramstr = getUrlWithoutBookmark(url.substring(url.indexOf("?")));
     return paramstr;
 }
+
 function getUrlParameter(paramName, url) {
     if (url == null || url == 'undefined')
         url = document.location.href;
@@ -49,6 +47,7 @@ function getUrlParameter(paramName, url) {
     else
         return results[1] && decodeURIComponent(results[1]);
 }
+
 function getUrlBookmark(url) {
     var bookmark = "";
     if (url == null || url == 'undefined')
@@ -57,6 +56,7 @@ function getUrlBookmark(url) {
         bookmark = url.substring(url.indexOf("#"));
     return bookmark;
 }
+
 function getUrlWithoutBookmark(url) {
     if (url == null || url == 'undefined')
         url = document.location.href;
@@ -67,6 +67,7 @@ function getUrlWithoutBookmark(url) {
         urlwithoutbookmark = url.substring(0, url.indexOf("#"));
     return urlwithoutbookmark;
 }
+
 function getUrlWithoutParameterAndBookMark(url) {
     if (url == null || url == 'undefined')
         url = document.location.href;
@@ -77,6 +78,7 @@ function getUrlWithoutParameterAndBookMark(url) {
         urlwithoutparameter = url.substring(0, url.indexOf("?"));
     return getUrlWithoutBookmark(urlwithoutparameter);
 }
+
 function GetSearchTextFromURL(bRemoveSlash) {
     return getUrlParameter(RHSEARCHSTR);
 }
@@ -183,6 +185,7 @@ function onTextBoxFocus() {
     if (trimString(this.value) == placeholderText)
         this.value = "";
 }
+
 function onTextBoxBlur() {
     if (trimString(this.value).length == 0) {
         var placeholderText = this.getAttribute(DATAPH);
@@ -190,6 +193,7 @@ function onTextBoxBlur() {
             this.value = placeholderText;
     }
 }
+
 function initInputTextBoxes() {
     var searchText = GetSearchTextFromURL(true);
     var inputs = document.getElementsByTagName('input');
@@ -219,6 +223,7 @@ function initInputTextBoxes() {
                 input.addEventListener('blur', onTextBoxBlur, false);
             }
         }
+        window.rh.model.publish(window.rh.consts('KEY_SEARCH_TERM'), searchText);
     }
 }
 
@@ -301,12 +306,14 @@ function addEvent(obj, type, func) {
     if (obj.addEventListener)
         obj.addEventListener(type, func, false);
 }
+
 function removeEvent(obj, type, func) {
     if (obj == null || obj == 'undefined')
         return;
     if (obj.removeEventListener)
         obj.removeEventListener(type, func, false);
 }
+
 function fireEvent(obj, type) {
     if (obj == null || obj == 'undefined')
         return;
@@ -320,6 +327,7 @@ function fireEvent(obj, type) {
         return !obj.dispatchEvent(evt);
     }
 }
+
 function preventEvent(e) {
     if (e != null) {
         if (e.preventDefault)
@@ -328,12 +336,14 @@ function preventEvent(e) {
             e.returnValue = false;
     }
 }
+
 function addRhLoadCompleteEvent(func) {
     if (gbRHLoadComplete)
         func();
     else
         gRhEvtFuncsList.push(func);
 }
+
 function fireRhLoadCompleteEvent() {
     gbRHLoadComplete = true;
     var len = gRhEvtFuncsList.length;
@@ -342,6 +352,7 @@ function fireRhLoadCompleteEvent() {
     gRhEvtFuncsList.splice(0, gRhEvtFuncsList.length);
     window.rh.model.publish(window.rh.consts('EVT_PROJECT_LOADED'), true);
 }
+
 function patchInputForSubmit(input, func) {
     var formElem = document.createElement('form');
     formElem.setAttribute('method', 'POST');

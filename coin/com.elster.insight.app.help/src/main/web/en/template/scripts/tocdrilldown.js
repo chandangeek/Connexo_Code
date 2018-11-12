@@ -1,8 +1,5 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gTopicId = "";
+
 function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
     this.errorMsg = "";
     this.closedBookClass = "";
@@ -367,11 +364,11 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
             else
                 urlWithId = url;
             /*
-             if(htmlNode.attachEvent)
-             htmlNode.attachEvent('onclick', function(){onNodeClick(htmlNode, classClick, classNormal, urlWithId)});
-             else
-             htmlNode.setAttribute("onclick", "onNodeClick(this, '" + classClick + "', '" + classNormal + "', '" + urlWithId + "')");
-             */
+            if(htmlNode.attachEvent)
+                htmlNode.attachEvent('onclick', function(){onNodeClick(htmlNode, classClick, classNormal, urlWithId)});
+            else
+                htmlNode.setAttribute("onclick", "onNodeClick(this, '" + classClick + "', '" + classNormal + "', '" + urlWithId + "')");
+            */
         }
         else {
             if (htmlNode.attachEvent)
@@ -845,30 +842,39 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
     }
 
 }
+
 function onNodeHover(htmlNode, hoverClass) {
     gDDList.hoverNode(htmlNode, hoverClass);
 }
+
 function onNodeHoverOut(htmlNode, normalClass) {
     gDDList.hoverOutNode(htmlNode, normalClass);
 }
+
 function onNodeClick(htmlNode, clickClass, normalClass, url) {
     gDDList.clickNode(htmlNode, clickClass, normalClass, url);
 }
+
 function onBackBtnHover(backBtnDiv) {
     backBtnDiv.className = gDDList.upBtnClassHover;
 }
+
 function onBackBtnHoverOut(backBtnDiv) {
     backBtnDiv.className = gDDList.upBtnClass;
 }
+
 function onBackBtnClick(backBtnDiv) {
     backBtnDiv.className = gDDList.upBtnClassClick;
 }
+
 function onKeyPress(e) {
     gDDList.pressKey(e);
 }
+
 function onListFocus() {
     gDDList.focusHoveredNode();
 }
+
 function onListBlur() {
     gDDList.blurHoveredNode();
 }
@@ -876,9 +882,11 @@ function callbackCreateList(xmlDoc, arg) //Cannot use binding as IE9 does not su
 {
     gDDList.createChildList(xmlDoc, arg);
 }
+
 function onBookClick(htmlNode) {
     gDDList.clickBook(htmlNode);
 }
+
 function onClickUp() {
     gDDList.clickUp();
 }
@@ -893,15 +901,18 @@ function loadProjData(childRootRelPath, childCommonRootRelPath, objContext) {
         xmlJsReader.loadFile(strChildProjPath, callbackCreateList, objContext);
     }
 }
+
 function syncToc(prefix, childOrder) {
     gDDList.sync(prefix, childOrder);
 }
+
 function listContext(bkCount, pgCount, childProjOrder) {
     this.bookCount = bkCount;
     this.pageCount = pgCount;
     this.rootRelPath = null;
     this.childProjOrder = childProjOrder;
 }
+
 function dataInfo(dataXmlNode, index, rootRelPath, commonRootRelPath, bookCount, pageCount) {
     this.dataXmlNode = dataXmlNode;
     this.index = index;
@@ -910,6 +921,7 @@ function dataInfo(dataXmlNode, index, rootRelPath, commonRootRelPath, bookCount,
     this.bookCount = bookCount;
     this.pageCount = pageCount;
 }
+
 function parentBookInfo(projPath, src) {
     this.projPath = projPath;
     this.src = src;

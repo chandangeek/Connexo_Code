@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gCurTabId = null;
 var gTabListIdArr = ["tab"];
 var gTabContentIdArr = ["tocTabPane", "gloTabPane"];
@@ -27,6 +23,7 @@ function loadTabContainer() {
 function selectTab(tabButtonElem, tabId) {
     readSetting(TABBUTTONID + "-" + tabId, callbackSelectTab, tabButtonElem, tabId);
 }
+
 function callbackSelectTab(curTabButtonId, tabButtonElem, tabId) {
     var tabElem = document.getElementById(tabId);
 

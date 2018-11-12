@@ -1,20 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{"type": "item", "name": "Manage usage point life cycles", "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycles1.htm"}, {
+    var toc = [{"type": "item", "name": "Import", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Import/Import.htm"}, {
         "type": "item",
-        "name": "Manage states on a usage point life cycle",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_states_on_a_usage_point_life_cycle.htm"
-    }, {
+        "name": "Understand import services",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Import/Understand_import_services.htm"
+    }, {"type": "item", "name": "Monitor import services", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Import/Monitor_import_services.htm"}, {
         "type": "item",
-        "name": "Manage transitions on a usage point life cycle",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_transitions_on_a_usage_point_life_cycle.htm"
-    }, {
-        "type": "item",
-        "name": "Manage usage point life cycle on a usage point",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycle_on_a_usage_point.htm"
-    }];
+        "name": "Upload a file in application",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Import/Upload_a_file_in_application.htm"
+    }, {"type": "item", "name": "Out-of-the-box importers", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Import/Out-of-the-box_importers.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gTocRootFileName = "toc.js";
 var gTocDataFolder = "whxdata";
 var gParentDataFile = "parentdata.js";
@@ -40,15 +36,18 @@ var gParentDataPathStack = new MhStack();
 LOADINGSTRING = "Loading...";
 
 initTocPage();
+
 function initTocPage() {
     addRhLoadCompleteEvent(loadToc);
 }
+
 function loadToc() {
     if (gbPreviewMode)
         displayToc(gRootRelPath, gCommonRootRelPath);
     else
         initAndLoadParentData(null, SCR_PARENT_TOC);
 }
+
 function displayToc(rootRelPath, commonRootRelPath) {
     gTree = new Tree(rootRelPath, gTocDataFolder, gTocRootFileName, commonRootRelPath);
     gTree.rootId = "toc";

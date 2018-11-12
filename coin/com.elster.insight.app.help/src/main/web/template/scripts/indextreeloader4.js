@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gIdxRootFileName = "idx.js";
 var gIdxDataFolder = "whxdata";
 
@@ -12,10 +8,12 @@ var gIdxCategoryHtml = "{%LINK_NAME%}";
 LOADINGSTRING = "Loading...";
 
 initIdxPage();
+
 function initIdxPage() {
     addRhLoadCompleteEvent(loadIdx);
 }
 var gIdxTree = null;
+
 function loadIdx() {
     if (gbPreviewMode) {
         var idxRootPathsArr = new Array;

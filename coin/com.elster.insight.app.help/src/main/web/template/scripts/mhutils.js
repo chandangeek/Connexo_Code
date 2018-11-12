@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 //	MultiscreenHelp Help 1.0.0
 var gsFileName = "";
 var gsDivName = "";
@@ -185,11 +181,11 @@ function _getPath(strURL) {
     if (n1 >= 0) {
         if (n2 >= 0)
             n = (n1 > n2) ? n2 : n1;
-        else    n = n1;
+        else n = n1;
     } else {
         if (n2 >= 0)
             n = n2;
-        else    n = strURL.length;
+        else n = strURL.length;
     }
     ;
     strURL = strURL.substring(0, n);
@@ -231,12 +227,12 @@ function _isRemoteUrl(strUrl) {
     }
 
     str1 = strUrl.substring(0, 7);
-    if (str1 == "MAILTO:")    return true;
-    if (str1 == "TELNET:")    return true;
-    if (str1 == "GOPHER:")    return true;
+    if (str1 == "MAILTO:") return true;
+    if (str1 == "TELNET:") return true;
+    if (str1 == "GOPHER:") return true;
     str1 = strUrl.substring(0, 5);
-    if (str1 == "FTP://")    return true;
-    if (str1 == "NEWS:")    return true;
+    if (str1 == "FTP://") return true;
+    if (str1 == "NEWS:") return true;
     //if (str1 == "FILE:")	return true;
     if (str1 == "FTP:\\\\") return true;
 

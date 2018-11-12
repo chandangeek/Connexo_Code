@@ -1,20 +1,19 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 function GloRootFileXmlObject(xmlDoc, i) {
     this.xmlDoc = xmlDoc;
     this.nodeIndex = i;
 }
+
 function GloChunkXmlObject(xmlDoc, i, len) {
     this.xmlDoc = xmlDoc;
     this.nodeIndex = i;
     this.length = len;
 }
+
 function TermInfoObject(node, parentObj) {
     this.node = node;
     this.parentObj = parentObj;
 }
+
 function GloList(gloRootPathsArr, dataFolder, rootFile) {
     this.rootPathsArr = gloRootPathsArr;
     this.rootFilesXmlArr = new Array;
@@ -672,18 +671,23 @@ function GloList(gloRootPathsArr, dataFolder, rootFile) {
 function onGloNodeHover(htmlNode, hoverClass) {
     gGloList.hoverNode(htmlNode, hoverClass);
 }
+
 function onGloNodeHoverOut(htmlNode, normalClass) {
     gGloList.hoverOutNode(htmlNode, normalClass);
 }
+
 function onGloNodeClick(htmlNode) {
     gGloList.toggleNode(htmlNode);
 }
+
 function onGloListKeyPress(e) {
     gGloList.pressKey(e);
 }
+
 function onGloListFocus() {
     gGloList.focusHoveredNode();
 }
+
 function onGloListBlur() {
     gGloList.blurHoveredNode();
 }
@@ -691,9 +695,11 @@ function callbackGloRootFileLoaded(xmlDoc, arg) //Cannot use binding as IE9 does
 {
     gGloList.loadRootFiles(xmlDoc, arg);
 }
+
 function callbackGloChunkLoaded(xmlDoc, arg) {
     gGloList.readChunk(xmlDoc, arg);
 }
+
 function onGloNodeExpand(e, plusHtmlNode) {
     var evt = e || window.event;
     if (evt.preventDefault) {
@@ -706,6 +712,7 @@ function onGloNodeExpand(e, plusHtmlNode) {
     var listNode = gGloList.getListNodeFromHtmlNode(plusHtmlNode.parentNode);
     gGloList.expandListNode(listNode);
 }
+
 function onGloNodeCollapse(e, minusHtmlNode) {
     var evt = e || window.event;
     if (evt.preventDefault) {
@@ -718,6 +725,7 @@ function onGloNodeCollapse(e, minusHtmlNode) {
     var listNode = gGloList.getListNodeFromHtmlNode(minusHtmlNode.parentNode);
     gGloList.collapseListNode(listNode);
 }
+
 function filterGlo(e) {
     e = e || window.event;
     if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
@@ -726,6 +734,7 @@ function filterGlo(e) {
     }
     return gGloList.filterKeywords();
 }
+
 function callbackGloCSHModeRead(cshmode) {
     if (cshmode == CSHMODE) {
         var filterBox = document.getElementById(gGloList.filterBoxId);

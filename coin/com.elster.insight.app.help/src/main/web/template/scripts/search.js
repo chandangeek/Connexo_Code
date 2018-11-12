@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gSearchMsgId = "searchMsg";
 var gResultsFoundString = "%1 result(s) found for %2";
 var gSearchResultHtml = "{%LINK_NAME%}\n							\n							<span  class=\"wSearchURL\">{%SEARCH_URL%}</span> \n							 <br />\n							<span  class=\"wSearchContext\">{%SEARCH_SUMMARY%}</span>";
@@ -27,12 +23,15 @@ var gbgHighlightColor = "#b2b4bf";
 gRootRelPath = ".";
 
 var gPageRange = 0;
+
 function initSearchCountDropDown() {
     readSetting(RHSEARCHCOUNT, callbackSearchCountCookieRead);
 }
+
 function initHighlightSearchControl() {
     readSetting(RHHIGHLIGHT, callbackHighlightCookieRead);
 }
+
 function callbackSearchCountCookieRead(maxValCookie) {
     var val;
     if (maxValCookie != "")
@@ -44,6 +43,7 @@ function callbackSearchCountCookieRead(maxValCookie) {
         dropdown.value = val;
     g_nMaxResult = val;
 }
+
 function callbackHighlightCookieRead(highlightFlag) {
     if (highlightFlag == TRUESTR)
         gbHighLight = 1;
@@ -65,6 +65,7 @@ function callbackHighlightCookieRead(highlightFlag) {
         saveSetting(RHHIGHLIGHTBGCOLOR, gbgHighlightColor, true);
     }
 }
+
 function onToggleHighlightSearch() {
     if (gbHighLight) {
         gbHighLight = 0;
@@ -75,6 +76,7 @@ function onToggleHighlightSearch() {
         saveSetting(RHHIGHLIGHT, TRUESTR, true);
     }
 }
+
 function onMaxPageCountChange(maxVal) {
     g_nMaxResult = maxVal;
 
@@ -82,9 +84,11 @@ function onMaxPageCountChange(maxVal) {
         onClickPage(null, 1);
     saveSetting(RHSEARCHCOUNT, maxVal, true);
 }
+
 function onClickPrevNext(btn, a_nPageNumber) {
     onClickPage(a_nPageNumber);
 }
+
 function updateNavigationPagesBar(nCurPage, nNumPages) {
     var pageListBarDiv = document.getElementById(gPageListBarID);
     if (pageListBarDiv == null || pageListBarDiv == 'undefined') {
@@ -120,6 +124,7 @@ function updateNavigationPagesBar(nCurPage, nNumPages) {
     sHTML += "</ul>";
     pageListBarDiv.innerHTML = sHTML;
 }
+
 function updatePrevNextButtons(nCurPage, nNumPages) {
     var prevBtn = document.getElementById(gSearchPrevBtnId);
     var nextBtn = document.getElementById(gSearchNextBtnId);
@@ -158,6 +163,7 @@ function updatePrevNextButtons(nCurPage, nNumPages) {
             nextBtn.style.display = "none";
     }
 }
+
 function initSearchPage() {
     initSearchCountDropDown();
     initHighlightSearchControl();
@@ -200,21 +206,25 @@ function writeResult(a_strUrl, a_strTitle, a_nIndex, a_sSummary, a_rhTags, a_str
         strStyle = "style=\"" + gSearchResStyle + "\" ";
     return "<div class=\'" + gSearchResClassName + "\' " + strStyle + " >" + html + "</div>";
 }
+
 function setResultsStringHTML(results_no, searchStr) {
     var msg = gResultsFoundString;
     msg = msg.replace("%1", results_no);
     msg = msg.replace("%2", "\'" + searchStr + "\'");
     displayMsg(msg);
 }
+
 function displayMsg(msg) {
     var spanNode = document.getElementById(gSearchMsgId);
     if (spanNode != null && spanNode != 'undefined')
         spanNode.innerHTML = msg;
 }
+
 function onSearchItemHover(node, className) {
     if (className != "")
         node.className = className;
 }
+
 function onSearchItemHoverOut(node, className) {
     if (className != "")
         node.className = className;

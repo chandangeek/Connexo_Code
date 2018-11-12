@@ -1,13 +1,24 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{"type": "book", "name": "Manage usage points", "key": "toc10", "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_points.htm"}, {
-        "type": "book",
-        "name": "Manage usage point groups",
-        "key": "toc11",
-        "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_groups.htm"
-    }, {"type": "book", "name": "Manage usage point life cycles", "key": "toc12", "url": "SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycles.htm"}];
+    var toc = [{"type": "item", "name": "Processes", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Processes.htm"}, {
+        "type": "item",
+        "name": "Use processes on a usage point",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Use_processes_on_a_usage_point.htm"
+    }, {"type": "item", "name": "Start a process on a usage point", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Start_a_process_on_a_usage_point.htm"}, {
+        "type": "item",
+        "name": "Understand the out-of-the-box processes in Connexo Insight",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Understand_the_out-of-the-box_processes_in_Connexo_Insight.htm"
+    }, {
+        "type": "item",
+        "name": "Use processes with states in a usage point life cycle",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Use_processes_with_states_in_a_usage_point_life_cycle.htm"
+    }, {"type": "item", "name": "Task management", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Task_management.htm"}, {
+        "type": "item",
+        "name": "Monitor tasks",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Monitor_tasks.htm"
+    }, {"type": "item", "name": "Do tasks", "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Do_tasks.htm"}, {
+        "type": "item",
+        "name": "Edit tasks",
+        "url": "UGen-GB000017_Connexo_Insight_10_5_user_guide/Processes/Edit_tasks.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

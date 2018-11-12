@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
         var projList = [];
         var layout_features;
@@ -82,39 +78,42 @@
             for (var i = 0; i < gFlowTypeArrProjData.length; i++)
                 doReturnProjDataCallAction(gFlowTypeArrProjData[i]);
         }
+
         function doReturnProjDataCallAction(flowType) {
-            if (flowType == SCR_CHILD_IDX) {
-                if (layout_version >= 2.0 && layout_features && layout_features.delay_load_idx !== false) {
-                    var idxLoaded = false;
-                    rh.model.subscribe(rh.consts("EVT_LOAD_IDX"), function () {
-                        if (!idxLoaded) {
-                            idxLoaded = true;
-                            displayIdx(gChildRootRelPathArr);
-                        }
-                    });
+            rh.model.subscribe(rh.consts('KEY_PROJECT_LIST'), function (prjList) {
+                if (flowType == SCR_CHILD_IDX) {
+                    if (layout_version >= 2.0 && layout_features && layout_features.delay_load_idx !== false) {
+                        var idxLoaded = false;
+                        rh.model.subscribe(rh.consts("EVT_LOAD_IDX"), function () {
+                            if (!idxLoaded) {
+                                idxLoaded = true;
+                                displayIdx(prjList);
+                            }
+                        });
+                    }
+                    else {
+                        displayIdx(prjList);
+                    }
                 }
-                else {
-                    displayIdx(gChildRootRelPathArr);
+                else if (flowType == SCR_CHILD_GLO) {
+                    if (layout_version >= 2.0 && layout_features && layout_features.delay_load_glo !== false) {
+                        var gloLoaded = false;
+                        rh.model.subscribe(rh.consts("EVT_LOAD_GLO"), function () {
+                            if (!gloLoaded) {
+                                gloLoaded = true;
+                                displayGlo(prjList);
+                            }
+                        });
+                    }
+                    else {
+                        displayGlo(prjList);
+                    }
                 }
-            }
-            else if (flowType == SCR_CHILD_GLO) {
-                if (layout_version >= 2.0 && layout_features && layout_features.delay_load_glo !== false) {
-                    var gloLoaded = false;
-                    rh.model.subscribe(rh.consts("EVT_LOAD_GLO"), function () {
-                        if (!gloLoaded) {
-                            gloLoaded = true;
-                            displayGlo(gChildRootRelPathArr);
-                        }
-                    });
-                }
-                else {
-                    displayGlo(gChildRootRelPathArr);
-                }
-            }
-            else if (flowType == SCR_CHILD_FTS)
-                ftsContextLoaded(gChildRootRelPathArr);
-            else if (flowType == SCR_CHILD_CSH)
-                loadCSH(gChildRootRelPathArr);
+                else if (flowType == SCR_CHILD_FTS)
+                    ftsContextLoaded(prjList);
+                else if (flowType == SCR_CHILD_CSH)
+                    loadCSH(prjList);
+            });
         }
 
         window.loadProjDataForSyncing = function (flowType, rootRelPath, commonRootRelPath, childName) {
@@ -122,6 +121,7 @@
             var projDataCBObj = new projDataCallBackObj(flowType, commonRootRelPath, rootRelPath, childName);
             xmlJsReader.loadFile(projDataFile, callbackProjDataLoadedForSyncing, projDataCBObj);
         }
+
         function callbackProjDataLoadedForSyncing(xmlDoc, projDataCBObj) {
             returnProjDataCallForSyncing(projDataCBObj.flowType, xmlDoc, projDataCBObj);
         }
@@ -221,10 +221,15 @@
                     prefix += BOOKDELIM;
                 gTocChildPrefixStr = prefix + gTocChildPrefixStr;
             }
-            if (gTocChildOrder == "")
-                gTocChildOrder = TOCCHILDIDPREFIX + childOrder;
-            else
-                gTocChildOrder = TOCCHILDIDPREFIX + childOrder + gTocChildOrder;
+            rh.model.subscribe(rh.consts('KEY_TOC_ORDER'), function (orderData) {
+                var url = rh._.parentPath(rh._.filePath().substring(rh._.getHostFolder().length))
+                url = (url.length && url[url.length - 1] === '/') ? url.substring(0, url.length - 1) : url
+                while (orderData[url] === undefined) {
+                    url = url.substring(0, url.lastIndexOf('/'))
+                }
+                gTocChildOrder = url && orderData[url].order
+            });
 
         }
-    })();
+    }
+)();

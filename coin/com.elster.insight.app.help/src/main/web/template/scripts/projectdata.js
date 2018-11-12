@@ -1,16 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 // Publish project specific data
 (function () {
     rh = window.rh;
     model = rh.model;
 
-    rh.consts('DEFAULT_TOPIC', encodeURI("#SCX-AG-MREN-000103-Insight/01_Cover_Page/01_Cover_Page.htm".substring(1)));
+    rh.consts('DEFAULT_TOPIC', encodeURI("#UGen-GB000017_Connexo_Insight_10_5_user_guide/Cover_Page/Cover_Page.htm".substring(1)));
     rh.consts('HOME_FILEPATH', encodeURI("index.html"));
     rh.consts('START_FILEPATH', encodeURI('index.html'));
-    rh.consts('HELP_ID', 'E81575EA-D5D1-474C-A073-D54DB0A8673E' || 'preview');
+    rh.consts('HELP_ID', '793E11F5-4C3D-4D6A-84A9-307ACAE31A76' || 'preview');
     rh.consts('LNG_STOP_WORDS', ["a", "about", "after", "against", "all", "also", "among", "an", "and", "are", "as", "at", "be", "became", "because", "been", "between", "but", "by", "can", "come", "do", "during", "each", "early", "for", "form", "found", "from", "had", "has", "have", "he", "her", "his", "however", "in", "include", "into", "is", "it", "its", "late", "later", "made", "many", "may", "me", "med", "more", "most", "near", "no", "non", "not", "of", "on", "only", "or", "other", "over", "several", "she", "some", "such", "than", "that", "the", "their", "then", "there", "these", "they", "this", "through", "to", "under", "until", "use", "was", "we", "were", "when", "where", "which", "who", "with", "you"]);
     rh.consts('LNG_SUBSTR_SEARCH', 0);
 
@@ -88,8 +84,8 @@
 ");
     model.publish(rh.consts('KEY_HEADER_CSS'), ".topic-header { background-color: #{background-color}; color: #{color}; width: calc(100%); height: 3em; position: fixed; left: 0; top: 0; font-family: #{font-family}; display: table; box-sizing: border-box; }\
 .topic-header-shadow { height: 3em; width: 100%; }\
-.logo { cursor: pointer; padding: 0.2em; height: calc(100% - 0.4em); text-align: center; display: table-cell; vertical-align: middle; }\
-.logo img { max-height: 100%; display: block; }\
+.logo { cursor: pointer; padding: 0.2em; text-align: center; display: table-cell; vertical-align: middle; }\
+.logo img { width: 1.875em; display: block; }\
 .nav { width: 100%; display: table-cell; }\
 .title { width: 40%; height: 100%; float: left; line-height: 3em; cursor: pointer; }\
 .gotohome { width: 60%; float: left; text-align: right; height: 100%; line-height: 3em; cursor: pointer; }\

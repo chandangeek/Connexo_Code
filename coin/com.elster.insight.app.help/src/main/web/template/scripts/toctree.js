@@ -1,8 +1,5 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gTopicId = "";
+
 function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
     this.errorMsg = "";
     this.closedBookClass = "";
@@ -402,11 +399,11 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
         else
             newUrl = url;
         /*
-         if(htmlNode.attachEvent)
-         htmlNode.attachEvent('onclick', function(){onNodeClick(htmlNode, classClick, classNormal, newUrl)});
-         else
-         htmlNode.setAttribute("onclick", "onNodeClick(this, '" + classClick + "', '" + classNormal + "', '" + newUrl + "')");
-         */
+        if(htmlNode.attachEvent)
+            htmlNode.attachEvent('onclick', function(){onNodeClick(htmlNode, classClick, classNormal, newUrl)});
+        else
+            htmlNode.setAttribute("onclick", "onNodeClick(this, '" + classClick + "', '" + classNormal + "', '" + newUrl + "')");
+        */
         return newUrl;
     }
     Tree.prototype.addBookEventsToNode = function (htmlNode, itemType) {
@@ -1058,18 +1055,23 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath) {
 function onNodeHover(htmlNode, hoverClass) {
     gTree.hoverNode(htmlNode, hoverClass);
 }
+
 function onNodeHoverOut(htmlNode, normalClass) {
     gTree.hoverOutNode(htmlNode, normalClass);
 }
+
 function onNodeClick(htmlNode, clickClass, normalClass, url) {
     gTree.clickNode(htmlNode, clickClass, normalClass, url);
 }
+
 function onKeyPress(e) {
     gTree.pressKey(e);
 }
+
 function onTreeFocus() {
     gTree.focusHoveredNode();
 }
+
 function onTreeBlur() {
     gTree.blurHoveredNode();
 }
@@ -1077,6 +1079,7 @@ function callbackCreateTree(xmlDoc, arg) //Cannot use binding as IE9 does not su
 {
     gTree.createChildTree(xmlDoc, arg);
 }
+
 function onNodeExpand(e, htmlNode) {
     var evt = e || window.event; // IE compatibility
 
@@ -1101,6 +1104,7 @@ function onNodeExpand(e, htmlNode) {
         gTree.expandTreeNode(treeNode);
     }
 }
+
 function onNodeCollapse(e, htmlNode) {
     var evt = e || window.event; // IE compatibility
     if (evt.preventDefault) {
@@ -1119,6 +1123,7 @@ function onNodeCollapse(e, htmlNode) {
     if (treeNode)
         gTree.collapseTreeNode(treeNode);
 }
+
 function loadProjData(childRootRelPath, childCommonRootRelPath, objContext) {
     if (childRootRelPath == "")
         gTree.loadFromStack(objContext);
@@ -1129,10 +1134,12 @@ function loadProjData(childRootRelPath, childCommonRootRelPath, objContext) {
         xmlJsReader.loadFile(strChildProjPath, callbackCreateTree, objContext);
     }
 }
+
 function syncToc(prefix, childOrder) {
     gTree.nonavigation = false;
     gTree.sync(prefix, childOrder);
 }
+
 function treeContext(bkCount, pgCount, parentHtmlNode, projOrderStr, childProjOrder) {
     this.bookCount = bkCount;
     this.pageCount = pgCount;
@@ -1142,6 +1149,7 @@ function treeContext(bkCount, pgCount, parentHtmlNode, projOrderStr, childProjOr
     this.projOrderStr = projOrderStr;
     this.childProjOrder = childProjOrder;
 }
+
 function dataInfo(dataXmlNode, index, rootRelPath, commonRootRelPath, bookCount, pageCount, projOrderStr, childProjOrder) {
     this.dataXmlNode = dataXmlNode;
     this.index = index;

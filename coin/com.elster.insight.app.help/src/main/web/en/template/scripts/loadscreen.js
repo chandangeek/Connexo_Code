@@ -1,14 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 gScreenDataFile = "screendata.js";
 gScreenFolder = "";
 
 var gScreenRelPathMap = new Object();
+
 function redirectToScreenURL() {
     loadScreens(SCR_INIT, ".");
 }
+
 function loadScreenData(relPath, flowType, data) {
     var scrFolder = undefined
 
@@ -22,12 +20,14 @@ function loadScreenData(relPath, flowType, data) {
     }
     loadScreens(flowType, relPath, data);
 }
+
 function screenDataCallBackObj() {
     this.flowType = SCR_NONE;
     this.relPath = null;
     this.data = null;
     this.curScrFolder = null;
 }
+
 function screenObject() {
     this.minWdith = -1;
     this.maxWidth = -1;
@@ -39,6 +39,7 @@ function screenObject() {
     this.isDefault = false;
     this.isDeviceMatching = null;
 }
+
 function loadScreens(flowType, relPath, data) {
     var callBackObj = new screenDataCallBackObj();
     callBackObj.flowType = flowType;

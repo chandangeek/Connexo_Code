@@ -1,8 +1,5 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 initPage();
+
 function initPage() {
     if (window.addEventListener) {
         window.addEventListener('load', onPageLoad, false);
@@ -18,6 +15,7 @@ function initPage() {
     }
 
 }
+
 function onPageUnload() {
     //This function is deliberately set empty.
     //Overriding onunload results in clearing of back-forward cache(also called bfcache)

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gParentDataFile = "parentdata.js";
 gFinalScrFolder = "";
 gbLoadingParentData = false;
@@ -31,6 +27,7 @@ function initAndLoadParentData(path, flowType) {
     loadParentData(path, flowType);
 
 }
+
 function loadParentData(path, flowType) {
     var parentDataCBObj = new parentDataCallbackObj();
     parentDataCBObj.path = path;
@@ -43,6 +40,7 @@ function loadParentData(path, flowType) {
 
     xmlJsReader.loadFile(parentDataFile, callbackParentDataLoaded, parentDataCBObj);
 }
+
 function callbackParentDataLoaded(xmlDoc, parentDataCBObj) {
     var path = parentDataCBObj.path;
     var flowType = parentDataCBObj.flowType;

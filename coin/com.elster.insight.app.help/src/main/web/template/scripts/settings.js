@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gbCookieSupported = null;
 var gbCookieSupportedWithoutPath = null;
 var gbLocalStorageSupported = null;
@@ -18,6 +14,7 @@ function saveSetting(name, value, bPersistent) {
     else if (isCookieSupportedWithoutPath())
         setThroughIFrame(name, value, bPersistent);
 }
+
 function readSetting(name, oCallbackFunc, arg1, arg2) {
     var val = "";
     if (isCookieFullySupported() || gHost == null) {
@@ -37,6 +34,7 @@ function readSetting(name, oCallbackFunc, arg1, arg2) {
 
     return true;
 }
+
 function isCookieFullySupported() {
     if (gbCookieSupported)
         return gbCookieSupported;
@@ -47,6 +45,7 @@ function isCookieFullySupported() {
         gbCookieSupported = false;
     return gbCookieSupported;
 }
+
 function isCookieSupportedWithoutPath() {
     if (gbCookieSupportedWithoutPath)
         return gbCookieSupportedWithoutPath;
@@ -57,6 +56,7 @@ function isCookieSupportedWithoutPath() {
         gbCookieSupportedWithoutPath = false;
     return gbCookieSupportedWithoutPath;
 }
+
 function isLocalDBSupported() {
     if (gbLocalStorageSupported === null) {
         try {
@@ -69,6 +69,7 @@ function isLocalDBSupported() {
     }
     return gbLocalStorageSupported;
 }
+
 function initSettings(commonRootRelPath) {
     if (commonRootRelPath == null || commonRootRelPath == "" || !rh._.isRelativeUrl(commonRootRelPath))
         return;
@@ -76,6 +77,7 @@ function initSettings(commonRootRelPath) {
     window.gHost = data.gHost;
     window.gHostPath = data.gHostPath;
 }
+
 function setCookie(name, value, bPersistent) {
     var expires = ";";
     if (bPersistent)
@@ -85,6 +87,7 @@ function setCookie(name, value, bPersistent) {
     else
         document.cookie = name + "=" + value;
 }
+
 function getCookie(name) {
 
     var val = "";
@@ -117,6 +120,7 @@ function getCookie(name) {
 
     return val;
 }
+
 function setInLocalDB(name, value, bPersistent) {
     try {
         if (bPersistent)
@@ -126,6 +130,7 @@ function setInLocalDB(name, value, bPersistent) {
     } catch (e) {
     }
 }
+
 function getFromLocalDB(name) {
     var val = '';
     try {
@@ -143,12 +148,14 @@ function getFromLocalDB(name) {
 var cookieRequestQ = new MhQueue();
 var gbIFrameLoaded = false;
 var gbIFrameLoading = false;
+
 function cookieSaveRequesObj(reqType, name, value, bPersistent) {
     this.reqType = reqType;
     this.name = name;
     this.value = value;
     this.bPersistent = bPersistent;
 }
+
 function cookieReadRequesObj(reqType, name, oCallbackFunc, arg1, arg2) {
     this.reqType = reqType;
     this.name = name;
@@ -156,6 +163,7 @@ function cookieReadRequesObj(reqType, name, oCallbackFunc, arg1, arg2) {
     this.arg1 = arg1;
     this.arg2 = arg2;
 }
+
 function insertIFrame() {
     gbIFrameLoading = true;
     gIFrameElem = document.createElement('iframe');
@@ -171,6 +179,7 @@ function insertIFrame() {
     else if (gIFrameElem.attachEvent)
         gIFrameElem.attachEvent('onload', performRequest, false);
 }
+
 function setThroughIFrame(name, value, bPersistent) {
     var objSave = new cookieSaveRequesObj(SAVE_REQ, name, value, bPersistent);
     cookieRequestQ.enqueue(objSave);
@@ -198,6 +207,7 @@ function getThroughIFrame(name, oCallbackFunc, arg1, arg2) {
     else
         performRequest();
 }
+
 function performRequest() {
     gbIFrameLoaded = true;
     gbIFrameLoading = false;
