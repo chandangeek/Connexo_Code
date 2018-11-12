@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 /**
  * SubscriberSpec implementation.
@@ -69,6 +70,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private final DataModel dataModel;
     private final NlsService nlsService;
+    private static final Logger LOGGER = Logger.getLogger(SubscriberSpec.class.getName());
 
     @Inject
     SubscriberSpecImpl(DataModel dataModel, NlsService nlsService) {
@@ -157,6 +159,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                       The connection has been canceled.
                       We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested).
                  */
+                LOGGER.warning("SQLTimeoutException: " + e.getMessage());
             }
         } finally {
             if (cancellableConnection != null) {
