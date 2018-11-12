@@ -1114,6 +1114,11 @@ public class ComServerDAOImpl implements ComServerDAO {
                         topologyPathSegment.getCost()
                 );
             }
+            if(source.isPresent())
+                serviceProvider.topologyService().clearOldCommunicationPathSegments(source.get(), Instant.now());
+
+            if(target.isPresent())
+                serviceProvider.topologyService().clearOldCommunicationPathSegments(target.get(), Instant.now());
         });
         g3CommunicationPathSegmentBuilder.complete();
     }
