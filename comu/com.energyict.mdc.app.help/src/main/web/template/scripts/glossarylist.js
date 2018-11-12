@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 function GloRootFileXmlObject(xmlDoc, i)
 {
 	this.xmlDoc = xmlDoc;
@@ -370,7 +366,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 		var htmlNode = null;
 		var event = "";
 
-		if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
+        if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
 		
 		if(kCode == 38)
 		{
@@ -451,7 +447,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 			var pNode = htmlNode.parentNode;
 			if(pNode != null && pNode.nodeName == "A")
 				pNode = pNode.parentNode;
-			if (pNode == this.fragment)
+            if (pNode == this.fragment)
 				return null;
 			else
 				return pNode;
@@ -691,15 +687,15 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 		var listNode = this.getListNodeFromHtmlNode(htmlNode);
 		var defNode = this.getHtmlChildNode(listNode, "div", ITEMTYPEDEF);
 		var termTextNode = $.find(htmlNode, "span")[0];
-		if (defNode.style.display == "none") {
+        if (defNode.style.display == "none") {
 			defNode.style.display = "block";
-			if (termTextNode) {
+            if (termTextNode) {
 				$.addClass(termTextNode, "expanded");
 			}
 		}
 		else {
 			defNode.style.display = "none";
-			if (termTextNode) {
+            if (termTextNode) {
 				$.removeClass(termTextNode, "expanded");
 			}
 		}
@@ -811,7 +807,7 @@ function onGloNodeCollapse(e, minusHtmlNode)
 function filterGlo(e)
 {
 	e = e || window.event;
-	if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
+    if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
 		preventEvent(e);
 		e.target.blur();
 	}

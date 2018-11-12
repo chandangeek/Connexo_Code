@@ -1,17 +1,20 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{"type": "item", "name": "Understand multi-element devices", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Understand_multi-element_devices.htm"}, {
+    var toc = [{"type": "item", "name": "Estimate data", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Estimate_data.htm"}, {
         "type": "item",
-        "name": "Manage multi-element devices",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Manage_multi-element_devices.htm"
-    }, {"type": "book", "name": "Multi-element slaves", "key": "toc17", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Multi-element_slaves.htm"}, {
-        "type": "book",
-        "name": "Monitor data loggers",
-        "key": "toc18",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Monitor_data_loggers1.htm"
-    }];
+        "name": "Understand data estimation",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Understand_data_estimation.htm"
+    }, {"type": "item", "name": "Configure data estimation", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Configure_data_estimation.htm"}, {
+        "type": "item",
+        "name": "Default estimators",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Default_estimators.htm"
+    }, {"type": "item", "name": "Configure estimation rules", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Configure_estimation_rules.htm"}, {
+        "type": "item",
+        "name": "Manage data estimation on a device",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Manage_data_estimation_on_a_device.htm"
+    }, {"type": "item", "name": "Estimate data", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Estimate_data1.htm"}, {
+        "type": "item",
+        "name": "Estimate on request",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Estimate_on_request.htm"
+    }, {"type": "item", "name": "Monitor data estimation", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Estimate_data/Monitor_data_estimation.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

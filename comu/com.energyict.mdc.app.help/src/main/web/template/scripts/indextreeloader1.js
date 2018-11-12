@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gIdxRootFileName = "idx.js";
 var gIdxDataFolder = "whxdata";
 
@@ -52,6 +48,6 @@ function displayIdx(idxRootPathsArr)
 	gIdxTree.errorMsg = "Unknown error";
 	gIdxTree.setLoadingDisplayInfo("loadingicon", "<img src='" + gRootRelPath + "/template/resources/LoadingData.gif' alt='Loading' />", "loadingtext", LOADINGSTRING);
 	gIdxTree.init();
-	if (!rh.model.get(rh.consts('KEY_PUBLISH_MODE')))
+    if (!rh.model.get(rh.consts('KEY_PUBLISH_MODE')))
 		gIdxTree.load();
 }

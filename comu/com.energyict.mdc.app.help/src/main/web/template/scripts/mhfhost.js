@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 var gsNoTopics="No results found";
 var gsLoadXmlFailed="Failed to load XML file";
 var gsInitDatabaseFailed="Failed to initialise database";
@@ -18,6 +14,7 @@ var g_RunesWhiteSpaces="\u0020\u0009\u000D\u000A\u00A0\u2000\u2001\u2002\u2003\u
 var g_RunesSpecialBreaks = ",!@#$%^&*()~'`:;<>?/{}[]|+-=" ;
 var g_RunesQuote='\x22';
 var g_RunesHelSuffixes=new Array("ed,0","ingly,0","ings,0","ing,0","ly,1","s,1","e,1");
+var gEnableOperatorSearch = true;
 
 var gsHLColorFront="#000000";
 var gsHLColorBackground="#b2b4bf";
@@ -43,71 +40,63 @@ var gbSearchInitialized = false;
 function initializeSearch() {
 	var searchText = GetSearchTextFromURL(),
 		searchedText = rh.model.get(rh.consts('KEY_SEARCHED_TERM'));
-	
+
 	gbSearchInitialized = true;
 	initSearchPage();
-	
+
 	if (rh.util.isUsefulString(searchText) && searchText != searchedText) {
 		rh.model.publish(rh.consts('KEY_SEARCH_TERM'), searchText);
-		rh.model.subscribeOnce(rh.consts('EVT_PROJECT_LOADED'), function (value) {
+        rh.model.subscribeOnce(rh.consts('EVT_PROJECT_LOADED'), function (value) {
 			if (value && !rh.rhs.doSearch()) {
-				window.doSearch();
-			}
+                window.doSearch();
+            }
 		});
 	}
 }
 
 function doSearch()
 {
-	gbANDSearch = 1;
+    readSetting(RHANDSEARCH, callbackDoSearch);
+}
+
+function callbackDoSearch(andFlag) {
+    gbANDSearch = andFlag == TRUESTR ? 1 : 0
 	var searchText = rh.model.get(rh.consts('KEY_SEARCH_TERM'));
 	rh.model.publish(".l.searchText_actual", searchText, {sync: true});
-	searchText = removeStopWordsFromInp(searchText);
+    searchText = removeStopWordsFromInp(searchText);
 	if(searchText) {
 		rh.model.publish(rh.consts('KEY_SEARCHED_TERM'), searchText, {sync: true});
 		rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), true, {sync: true});
 		rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), 0, {sync: true});
 
 		initSearchPage();
-		readSetting(RHANDSEARCH, callbackAndSearchFlagRead);
+        if (rh.model.get(rh.consts('KEY_SEARCHED_TERM'))) {
+            displaySearchProgressBar(0);
+            loadFts_context();
+        }
 	} else {
 		rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), false, {sync: true});
 		rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), null, {sync: true});
+        displayTopics({aTopics: []});
 	}
 }
 
 function removeStopWordsFromInp(searchText) {
-	var openingQuoteFound = false;
-	searchText = searchText.split(" ");
-	var stopWordsRemovedInp = [];
-	for (var i = 0; i < searchText.length; i++) {
-		if (openingQuoteFound == false && searchText[i][0] == '"' || searchText[i][0] == "'")
-			openingQuoteFound = true;
-		if (openingQuoteFound == true && searchText[i][searchText[i].length - 1] == '"' || searchText[i][searchText[i].length - 1] == "'")
-			gbANDSearch = 0;
-		if (!IsStopWord(searchText[i], gaFtsStop) && searchText[i] != "")
+    var openingQuoteFound = false;
+    searchText = searchText.split(" ");
+    var stopWordsRemovedInp = [];
+    for (var i = 0; i < searchText.length; i++) {
+        if (openingQuoteFound == false && searchText[i][0] == '"' || searchText[i][0] == "'")
+            openingQuoteFound = true;
+        if (openingQuoteFound == true && searchText[i][searchText[i].length - 1] == '"' || searchText[i][searchText[i].length - 1] == "'")
+            gbANDSearch = 0;
+        if ((openingQuoteFound || !IsStopWord(searchText[i], gaFtsStop)) && searchText[i] !== "")
 			stopWordsRemovedInp.push(searchText[i]);
-		if (searchText[i] == "or" || searchText[i] == "OR")
-			gbANDSearch = 0;
-	}
-	stopWordsRemovedInp = stopWordsRemovedInp.join(" ");
+        if (searchText[i] == "or" || searchText[i] == "OR")
+            gbANDSearch = 0;
+    }
+    stopWordsRemovedInp = stopWordsRemovedInp.join(" ");
 	return stopWordsRemovedInp;
-}
-
-function callbackAndSearchFlagRead(andFlag)
-{
-	//gbANDSearch is made to 1 by default. It is made 0 only if we find an "or" in the input. 
-	/*
-	if(andFlag == TRUESTR)
-		gbANDSearch = 1;
-	else if(andFlag = FALSESTR)
-		gbANDSearch = 0;
-	 */
-	if(rh.model.get(rh.consts('KEY_SEARCHED_TERM')))
-	{
-		displaySearchProgressBar(0);
-		loadFts_context();
-	}
 }
 
 function registListener( a_Context, a_this )
@@ -118,23 +107,23 @@ function registListener( a_Context, a_this )
 // Dirty - This function is copied from mhtopic.js.
 // TODO: Find a way to eliminate 2 copies of the same code.
 function IsStopWord(sCW, aFtsStopArray) {
-	var nStopArrayLen = aFtsStopArray.length;
-	var nB = 0;
-	var nE = nStopArrayLen - 1;
-	var nM = 0;
-	var bFound = false;
-	var sStopWord = "";
-	while (nB <= nE) {
-		nM = (nB + nE);
-		nM >>= 1;
-		sStopWord = aFtsStopArray[nM];
-		if (compare(sCW, sStopWord) > 0) {
-			nB = (nB == nM) ? nM + 1 : nM;
-		} else {
-			if (compare(sCW, sStopWord) < 0) {
-				nE = (nE == nM) ? nM - 1 : nM;
-			} else {
-				bFound = true;
+    var nStopArrayLen = aFtsStopArray.length;
+    var nB = 0;
+    var nE = nStopArrayLen - 1;
+    var nM = 0;
+    var bFound = false;
+    var sStopWord = "";
+    while (nB <= nE) {
+        nM = (nB + nE);
+        nM >>= 1;
+        sStopWord = aFtsStopArray[nM];
+        if (compare(sCW, sStopWord) > 0) {
+            nB = (nB == nM) ? nM + 1 : nM;
+        } else {
+            if (compare(sCW, sStopWord) < 0) {
+                nE = (nE == nM) ? nM - 1 : nM;
+            } else {
+                bFound = true;
 				break;
 			}
 		}
@@ -176,7 +165,7 @@ function XmlReader()
 	this.xmlDoc = null;
 	this.aCache = new Array();
 	this.bCache = false;
-	this.curData = null;	
+    this.curData = null;
 
 	this.loadFromCache = function()
 	{
@@ -206,7 +195,7 @@ function XmlReader()
 		var sCurrentDocPath = _getPath(document.location.href);
 		var sdocPath = _getFullPath(sCurrentDocPath, this.strFilePath);
 		var fileName = _getRelativeFileName(sCurrentDocPath, sdocPath);
-		
+
 		a_Context.pause();
 		xmlJsReader.loadFile(fileName, function(a_xmlDoc, args){
                 if(a_xmlDoc != null)
@@ -250,12 +239,12 @@ function XmlReader()
 			this.aCache[this.aCache.length] = this.curData;
 		}
 	}
-	
+
 	this.getNumOfNodes = function()
 	{
 	    return this.curData.aNodes.length ;
 	}
-	
+
 	this.getNumOfTopics = function(i)
 	{
 	    with( this.curData )
@@ -276,14 +265,14 @@ function XmlReader()
 			else
 				return 0 ;
 		}
-		
-	}
-	
+
+    }
+
 	this.checkRoot = function( a_strRootName )
 	{
 		return this.curData.strRoot == a_strRootName;
 	}
-	
+
 	this.getSynonyms = function ( a_strQuery )
 	{
 		if (gsSubstrSrch)
@@ -309,15 +298,15 @@ function XmlReader()
 	{
 		if (!bPhraseSearch && IsStopWord(a_strQuery, gaFtsStop))
 			return ""; // Return empty if no phrase search and term is a stop word.
-		
-		var begin = 0 ; 
-		var end = this.curData.aNodes.length ; 
+
+        var begin = 0;
+        var end = this.curData.aNodes.length;
 		var mid = Math.floor((end -begin ) / 2) ;
 		while (mid > 0 )
 		{
-			mid = mid + begin ;			
+            mid = mid + begin;
 			var term = this.curData.aNodes[mid].aAttrs["nm"] ;
-			if (a_strQuery < term) 
+            if (a_strQuery < term)
 				end = mid ;
 			else if (a_strQuery > term)
 				begin = mid ;
@@ -327,7 +316,7 @@ function XmlReader()
 		}
 		if (((end-begin) == 1)&&(!this.matchPrefix(a_strQuery,this.curData.aNodes[mid].aAttrs["nm"])))
 		{
-			mid = end ;			
+            mid = end;
 		}
 		if (mid < this.curData.aNodes.length)
 		{
@@ -357,12 +346,12 @@ function XmlReader()
 				{
 					mergedRec = mergeTopicRec(mergedRec , arrTopicRecs[i]);
 				}
-				return mergedRec ;									
+                return mergedRec;
 			}
 			else
 			{
 				//get the one with exact match
-				if ((this.curData.aNodes[mid].aAttrs["nm"])==a_strQuery) 
+                if ((this.curData.aNodes[mid].aAttrs["nm"]) == a_strQuery)
 				{
 					if (bPhraseSearch || gsSubstrSrch)
 						return this.curData.aNodes[mid].aAttrs["rd"] ;
@@ -373,14 +362,14 @@ function XmlReader()
 							return "" ;
 						else
 							return this.curData.aNodes[mid].aAttrs["rd"] ;
-					}		
+                    }
 				}
 				else
 					return "" ;
 			}
-		}			
-	}
-	
+        }
+    }
+
 	this.getTopicRec = function ( a_nTopicId)
 	{
 		if ((a_nTopicId >= 0)&&(a_nTopicId < this.curData.aNodes.length ))
@@ -392,13 +381,13 @@ function XmlReader()
 			return objResult;
 		}
 		else
-			return null ;	
-	}
-	
+            return null;
+    }
+
 	this.getPackageIndex = function (a_strQuery)
 	{
-		var begin = 0 ; 
-		var end = this.curData.aNodes.length - 1 ; 
+        var begin = 0;
+        var end = this.curData.aNodes.length - 1;
 		var mid;
 		while (begin <= end)
 		{
@@ -409,7 +398,7 @@ function XmlReader()
 			{
 				if ((a_strQuery >= startWord )&&(a_strQuery <= endWord))
 					return mid ;
-				else 
+                else
 					return -1 ;
 			}
 			if (a_strQuery < startWord )
@@ -417,17 +406,17 @@ function XmlReader()
 			else if (a_strQuery > endWord )
 				begin = mid + 1;
 			else
-				return mid ;		
-		}		
+                return mid;
+        }
 		return -1 ;
 	}
-	
+
 	this.matchPrefix = function (a_strQuery , a_strTerm )
 	{
 		if (a_strQuery.length > a_strTerm.length )
 			return false ;
 		var bPrefix = true ;
-		var i ; 
+        var i;
 		for (i=0; i< a_strQuery.length;i++)
 		{
 			if (a_strQuery.charAt(i) != a_strTerm.charAt(i))
@@ -444,7 +433,7 @@ function XmlReader()
 		var nArgsNum = this.getAttr.arguments.length;
 		if ( nArgsNum < 2 || nArgsNum % 2 != 0 )
 			return "";
-			
+
 		with( this.curData )
 		{
 			for ( var i = 0; i < aNodes.length; i++ )
@@ -466,13 +455,13 @@ function XmlReader()
 			return "";
 		}
 	}
-	
+
 	this.checkAttr = function( a_strTagName )
 	{
 		var nArgsNum = this.checkAttr.arguments.length;
 		if ( nArgsNum < 1 || nArgsNum % 2 == 0 )
 			return false;
-			
+
 		with( this.curData )
 		{
 			for ( var i = 0; i < aNodes.length; i++ )
@@ -535,15 +524,14 @@ function putDataXML( xmlDoc, sdocPath )
 
 function mergeTopicRec(a_strParentRec , a_strNewRec)
 {
-	var arrOldRecords = a_strParentRec.split("|");	
-	var arrNewRecords = a_strNewRec.split("|");	
-		
+    var arrOldRecords = a_strParentRec.split("|");
+    var arrNewRecords = a_strNewRec.split("|");
+
 	var mergedRec = "" ;
 	var i = 0 ;
-	var j = 0 ;	
+    var j = 0;
 	var arrFinalRec = new Array();
-	while ( i< arrOldRecords.length && j < arrNewRecords.length)
-	{		
+	while ( i< arrOldRecords.length && j < arrNewRecords.length) {
 		var oldTopicRecord = getTopicDetails(arrOldRecords[i]);
 		if (oldTopicRecord == null)
 		{
@@ -571,9 +559,9 @@ function mergeTopicRec(a_strParentRec , a_strNewRec)
 			var temp = arrOldRecords[i].split(":");
 			var uEmphasis =  (oldTopicRecord.uEmphasis > newTopicRecord.uEmphasis)?oldTopicRecord.uEmphasis:newTopicRecord.uEmphasis;
 			var strRec = oldTopicRecord.nTopicId + "," + uEmphasis + ":" + temp [1] ; //since this will not be called in case of phrase search, we can ignore positions of other rec
-			var tagComboId = [oldTopicRecord.tagComboId, newTopicRecord.tagComboId].filter(function (val) {
-				return val;
-			}).join(',');
+            var tagComboId = [oldTopicRecord.tagComboId, newTopicRecord.tagComboId].filter(function (val) {
+                return val;
+            }).join(',');
 			strRec += ":" + tagComboId;
 			arrFinalRec[arrFinalRec.length] = strRec ;
 			j++ ;
@@ -592,11 +580,11 @@ function mergeTopicRec(a_strParentRec , a_strNewRec)
 	}
 
 	if (arrFinalRec.length == 0)
-		return a_strParentRec ; 
+        return a_strParentRec;
 	mergedRec = arrFinalRec[0];
 	for ( i = 1 ; i < arrFinalRec.length ; i++)
 		mergedRec += "|" + arrFinalRec[i] ;
-	return mergedRec ;	
+    return mergedRec;
 }
 
 function getTopicDetails( a_strRecord )
@@ -605,7 +593,7 @@ function getTopicDetails( a_strRecord )
 	if (index == -1)
 		return null ;
 	var nTopicId = a_strRecord.substring(0 , index);
-	var strTopicDetails = a_strRecord.substring(index+1,a_strRecord.length);	
+    var strTopicDetails = a_strRecord.substring(index + 1, a_strRecord.length);
 	var aShapes = strTopicDetails.split( ":" );
 	if ( aShapes.length == 0 )
 		return null;
@@ -639,7 +627,7 @@ function splitPathName( a_strPath )	//this utility function only fit this projec
 
 	var rg1 = /^(.*[\\\/])?([^\\\/]+)(\.[^\\\/\.]*)$/;
 	var rg2 = /^(.*[\\\/])?([^\\\/.]+)$/;
-	
+
 	var v = a_strPath.match( rg1 );
 	if ( v != null )
 	{
@@ -724,9 +712,9 @@ function HuginContext()
 	{
 		if ( context.aTasks.length == 0 )
 			return null;
-		
+
 		var task = context.aTasks[context.aTasks.length - 1];
-		context.aTasks.length--;	
+        context.aTasks.length--;
 		return task;
 	}
 
@@ -734,7 +722,7 @@ function HuginContext()
 	{
 		context.nLastTime = ( new Date() ).getTime();
 	}
-	
+
 	this.needBreathe = function()
 	{
 		var nCurTime = ( new Date() ).getTime();
@@ -749,7 +737,7 @@ function HuginContext()
 				context.bCallBackReady = true;
 			return;
 		}
-	
+
 		context.bExecuting = true;
 		context.bPause = false;
 		context.initTime();
@@ -762,7 +750,7 @@ function HuginContext()
 				updateResultView();
 				return true;
 			}
-			
+
 			var task = context.pop();
 			if ( task == null )
 			{	//All tasks were finished.
@@ -841,8 +829,7 @@ function _decordBase64ToStr( a_nA, a_nB )
 	var uBuf = ( s_aAsciiToBase64[a_nA] << 6 ) + s_aAsciiToBase64[a_nB];
 	var strRslt = "";
 	var uCur = 0;
-	for ( var i = 0; i <= 8; i += 4 )
-	{	
+	for ( var i = 0; i <= 8; i += 4 ) {
 		uCur = uBuf >> ( 8 - i ) & 0x000F;
 		if ( uCur == 0 )
 			return strRslt;
@@ -937,7 +924,7 @@ function HuginPackageReader()
 	{
 		return theXmlReader.getSynonyms(a_strStem).split( "," );
 	}
-	
+
 	this.setSynonymForHighlighting = function( a_Context, a_this )
 	{
 		if ( !theXmlReader.bSucc )
@@ -948,7 +935,7 @@ function HuginPackageReader()
 		var arySynonyms = a_this.pickSynonyms( a_this.strQueryWord );
 		for ( var i = 0; i < arySynonyms.length; ++i )
 		{
-			gstrSyn += " " + arySynonyms[i];			
+            gstrSyn += " " + arySynonyms[i];
 		}
 		if ((gstrSyn == "")||(gstrSyn == " "))
 			return ;
@@ -968,7 +955,7 @@ function HuginPackageReader()
 
 		if ( !a_this.bSucc )
 			return;
-			
+
 		//	By Lein 4:59 PM 7/15/2004
 		a_this.recordResult = new HuginPackageReaderResult();
 		var strRecord = theXmlReader.getWordRec(a_this.strQueryWord,a_this.bPhraseSearch);
@@ -985,7 +972,7 @@ function HuginPackageReader()
 		a_this.bSucc = true;
 		theXmlReader.strFilePath = a_this.strSynonymPath;
 		a_Context.push( a_this.loadFromFile, a_this,
-						a_this.setSynonymForHighlighting, a_this );		
+            a_this.setSynonymForHighlighting, a_this);
 	}
 
 	this.query = function( a_Context, a_this )
@@ -1019,7 +1006,7 @@ function HuginPackageIndexReader()
 		var sf = splitPathName( this.strPackageIndexPath );
 		return sf.strDir + "package_" + a_strSuffix + sf.strExt;
 	}
-	
+
 	this.getTopicTablePath = function( a_strSuffix )
 	{
 		var sf = splitPathName( this.strPackageIndexPath );
@@ -1031,14 +1018,14 @@ function HuginPackageIndexReader()
 		if ( !theXmlReader.bSucc ||
 			 !theXmlReader.checkRoot( "cki" ) )
 		{
-			a_this.bSucc = false;			
+            a_this.bSucc = false;
 			return;
 		}
 		var nPackageIndex = theXmlReader.getPackageIndex(a_this.strCurQuery);
 		if ( nPackageIndex == null || nPackageIndex < 0 )
 		{
 			a_this.packageInfo = null;
-			a_this.bSucc = false;			
+            a_this.bSucc = false;
 			return;
 		}
 
@@ -1046,20 +1033,20 @@ function HuginPackageIndexReader()
 		this.bSucc = true;
 		return ;
 	}
-	
+
 	this.parseTopicInfo = function( a_Context, a_this )
 	{
 		if ( !theXmlReader.bSucc ||
 			 !theXmlReader.checkRoot( "cki" ) )
 		{
-			a_this.bSucc = false;			
+            a_this.bSucc = false;
 			return;
 		}
 		var nPackageIndex = theXmlReader.getPackageIndex(a_this.strCurQuery);
 		if ( nPackageIndex == null || nPackageIndex < 0 )
 		{
 			a_this.packageInfo = null;
-			a_this.bSucc = false;			
+            a_this.bSucc = false;
 			return;
 		}
 
@@ -1067,7 +1054,7 @@ function HuginPackageIndexReader()
 		this.bSucc = true;
 		return ;
 	}
-	
+
 	this.loadFromFile = function( a_Context, a_this, a_funcCallback )
 	{
 		theXmlReader.loadFromFile(a_Context, a_funcCallback , false);
@@ -1080,7 +1067,7 @@ function HuginPackageIndexReader()
 		a_Context.push( a_this.loadFromFile, a_this,
 						a_this.parsePackageInfo, a_this );
 	}
-	
+
 	this.queryTopicInfo = function( a_Context, a_this )
 	{
 		a_this.bSucc = true;
@@ -1102,13 +1089,13 @@ function HuginTopicTableReader()
 	this.strTopicBreadcrumbs = null;
 	this.topicMap = null ;
 	this.curTopicIndex = null ;
-	
+
 	this.prepareQuery = function()
 	{
 		this.bSucc = true;
-		this.strTopicInfo = null;		
-	}
-	
+        this.strTopicInfo = null;
+    }
+
 	this.loadFromFile = function( a_Context, a_this, a_funcCallback )
 	{
 		theXmlReader.loadFromFile(a_Context, a_funcCallback );
@@ -1147,7 +1134,7 @@ function HuginTopicTableReader()
 		a_this.topicInfo.strUrl = v[0];
 		a_this.topicInfo.strTitle = v[1];
 
-		if (a_this.strTopicBreadcrumbs == null || a_this.strTopicBreadcrumbs.length == 0) {
+        if (a_this.strTopicBreadcrumbs == null || a_this.strTopicBreadcrumbs.length == 0) {
 			a_this.strTopicBreadcrumbs = a_this.topicInfo.strUrl;
 		}
 	}
@@ -1157,7 +1144,7 @@ function HuginTopicTableReader()
 		for (var i = 0 ; i < a_this.topicMap.length ; i++)
 		{
 			if (a_this.nQueryId < a_this.topicMap[i] )
-				break ;			
+                break;
 		}
 		if (i >= a_this.topicMap.length)
 		{
@@ -1180,7 +1167,7 @@ function HuginTopicTableReader()
 						a_this.parseTopicInfo, a_this );
 		}
 	}
-	
+
 	this.makeIndexMap = function( a_Context, a_this )
 	{
 		a_this.topicMap = new Array() ;
@@ -1189,9 +1176,9 @@ function HuginTopicTableReader()
 		{
 			a_this.topicMap[i] = theXmlReader.getNumOfTopics(i) + prev;
 			prev = a_this.topicMap[i] ;
-		}		
-	}
-	
+        }
+    }
+
 	this.prepareMap  = function( a_Context, a_this )
 	{
 		a_this.bSucc = true;
@@ -1215,12 +1202,12 @@ function HuginDatabase()
 
 	this.bSucc = false;
 	this.bInited = false;
-	
+
 	this.strTopicTablePath = null;
 	this.strPackageIndexPath = null;
 	this.strSynonymPath = null ;
 	this.packageInfo = null;
-	
+
 	this.iCurTopic = null;
 
 	this.packageIndexReader = new HuginPackageIndexReader();
@@ -1231,9 +1218,9 @@ function HuginDatabase()
 	{
 		this.recordResult = null;
 		this.bSucc = true;
-		
+
 		this.packageInfo = null;
-		
+
 		this.iCurTopic = 0;
 
 		this.packageIndexReader.prepareQuery();
@@ -1260,7 +1247,7 @@ function HuginDatabase()
 			a_this.bInited = false;
 			return;
 		}
-					
+
 		a_this.strTopicTablePath = a_this.getIndexUrl( "TopicIndex" );
 		a_this.strPackageIndexPath = a_this.getIndexUrl( "PackageIndex" );
 		a_this.strSynonymPath = a_this.getIndexUrl( "Synonym" );
@@ -1298,7 +1285,7 @@ function HuginDatabase()
 			a_this.packageReader.strQueryWord = a_this.queryWord.strHelStem;		//use stem in case substring search is off
 		a_Context.push( a_this.packageReader.query, a_this.packageReader );
 	}
-	
+
 	this.makeResult = function( a_Context, a_this )
 	{
 		if ( !a_this.packageIndexReader.bSucc ||
@@ -1316,10 +1303,10 @@ function HuginDatabase()
             }
             theXmlReader.strFilePath = a_this.strTopicTablePath;
             a_Context.push( a_this.loadFromFile, a_this,
-						a_this.makeNotResult, a_this );            
-		}    
-	}
-	
+                a_this.makeNotResult, a_this);
+        }
+    }
+
 	this.makeDummyResultRec = function(strOrg, strStem)
 	{
 	    var recordResult = new Object();
@@ -1328,24 +1315,24 @@ function HuginDatabase()
 	    recordResult.bStopWord = false ;
 	    return recordResult ;
 	}
-	
+
 	this.makeNotResult = function( a_Context, a_this )
 	{
 	    var topicRecs = a_this.recordResult.strRecord.split( "|" );
 	    var bIncludeAll = (a_this.recordResult.strRecord == "" );
         var arrTopicIds = new Array();
-        var j ;            
+        var j;
         for(j=0;j<topicRecs.length;j++)
         {
             var pos = topicRecs[j].indexOf(",");
             if(pos != -1)
                 arrTopicIds[arrTopicIds.length] = topicRecs[j].substring(0,pos);
-        }   
+        }
         var bCheck = false ;
         if(arrTopicIds.length > 0)
             bCheck = true ;
-        var curIndex = 0 ;         
-        var sDummyTopicRec = ",192:0,0,10" ;		
+        var curIndex = 0;
+        var sDummyTopicRec = ",192:0,0,10";
         var i = 0;
         var numTopics = 0 ;
 		for (var k =0 ; k < theXmlReader.getNumOfNodes() ; k++)
@@ -1371,9 +1358,9 @@ function HuginDatabase()
                     a_this.recordResult.strRecord += "|" + topicRec ;
             }
             i++ ;
-        }            
-	}
-	
+        }
+    }
+
 	this.init = function( a_Context, a_this )
 	{
 		theXmlReader.strFilePath = a_this.strOdbPath;
@@ -1399,7 +1386,7 @@ function HuginDatabase()
 						a_this.queryRecordInPackage, a_this,
 						a_this.makeResult, a_this );
 	}
-	
+
 	this.processTopicInfo = function( a_Context, a_this )
 	{
 		if ( !a_this.topicReader.bSucc )
@@ -1412,7 +1399,7 @@ function HuginDatabase()
 		a_this.aQueryTopics[a_this.iCurTopic].strSummary = a_this.topicReader.strTopicContext;
 		a_this.aQueryTopics[a_this.iCurTopic].strBreadcrumbs = a_this.topicReader.strTopicBreadcrumbs;
 	}
-	
+
 	this.incCurTopic = function( a_Context, a_this )
 	{
 		a_this.iCurTopic++;
@@ -1472,7 +1459,7 @@ function LanguageService()
 		var s = a_strSuffix.split( "," );
 		var strSuffix = s[0];
 		var bRemoveOnly = ( s[1] == '1' );
-		
+
 		var ss = a_strWord.match( "^..+" + strSuffix + "$" );
 		if ( ss == null )
 			return null;
@@ -1489,15 +1476,15 @@ function LanguageService()
 					bAddE = true;
 			}
 		}
-		
+
 		var strStem = a_strWord.substr( 0, nLenRest );
-		
+
 		if ( strStem.length < 2 || (( strStem.length == 2) && !bAddE ) )
 			return null;
 
 		//if ( strStem.length <= 2 )
 			//return null;
-			
+
 		return strStem;
 	}
 	this.helStem = function( a_Result )
@@ -1537,35 +1524,40 @@ function LanguageService()
 	this.isSpecialBreak = function( a_ch )
 	{
 		return ( g_RunesSpecialBreaks.indexOf( a_ch ) >= 0 );
-	}	
+    }
 	this.isCJKCodePoint = function( a_ch )
 	{
 		//from http://en.wikipedia.org/wiki/Plane_%28Unicode%29
 		if ( (typeof(a_ch) == "undefined" ) || (a_ch == "" ) )
 			return false ;
 		var val = a_ch.charCodeAt(0)	;
-				
+
 		return (  ((0x2E80 <= val) &&  ( val <= 0x9FFF)) //East Asian scripts and symbols
 				 || ((0xF900 <= val) &&  ( val <= 0xFAFF))  //CJK Compatibility Ideographs
-				 || ((0xFE30 <= val) &&  ( val <= 0xFE4F)) 	 //CJK Compatibility Forms 
+            || ((0xFE30 <= val) && (val <= 0xFE4F)) 	 //CJK Compatibility Forms
 				 || ((0xFF00 <= val) &&  ( val <= 0xFFEF)) ); //Halfwidth and Fullwidth Forms (FF00–FFEF)
 	}
 	this.isQuote = function( a_ch )
 	{
 		return ( a_ch == g_RunesQuote );
 	}
-	this.isAND = function( a_strOp )
-	{	return ( a_strOp == "and" );	}
-	this.isOR = function( a_strOp )
-	{	return ( a_strOp == "or" );		}
-	this.isNOT = function( a_strOp )
-	{	return ( a_strOp == "not" );	}
-	this.isOperator = function( strOp )
-	{	if ( strOp == "and" ||
-			 strOp == "or" ||
-			 strOp == "not" )
-			return true;
-	}
+
+	this.isAND = function( a_strOp ) {
+        return rh._.isAND(a_strOp, gEnableOperatorSearch)
+    }
+
+	this.isOR = function( a_strOp ) {
+        return rh._.isOR(a_strOp, gEnableOperatorSearch);
+    }
+
+	this.isNOT = function( a_strOp ) {
+        return rh._.isNOT(a_strOp, gEnableOperatorSearch);
+    }
+
+    this.isOperator = function (a_strOp) {
+        return rh._.isOperator(a_strOp, gEnableOperatorSearch);
+    }
+
 }
 
 // Runes.js----------------------------------
@@ -1583,7 +1575,7 @@ function RunesContext( a_strSrc )
 	this.bFailed = false;
 	this.bNot = false;
 	this.nWordIndex = 0;
-	
+
 	this.getCurChar = function()
 	{
 		return this.strSrc.charAt( this.nCur );
@@ -1609,7 +1601,7 @@ function SolNode(){}
 function RunesService()
 {
 	this.langSev = new LanguageService();
-	
+
 	this.isOperator = function( a_str, a_nFrom )
 	{
 		var strOp = this.getWord( a_str, a_nFrom ).toLowerCase();
@@ -1619,7 +1611,7 @@ function RunesService()
 
 		return false;
 	}
-	
+
 	this.getLengthOfWordBreak = function( a_str, a_nFrom )
 	{
 		var i = a_nFrom, nLen = a_str.length;
@@ -1627,7 +1619,7 @@ function RunesService()
 			i++;
 		return i - a_nFrom;
 	}
-	
+
 	this.getLengthOfCJKWordBreak = function( a_str, a_nFrom )
 	{
 		var i = a_nFrom, nLen = a_str.length;
@@ -1645,7 +1637,7 @@ function RunesService()
 			++i;
 		return i - a_nFrom;
 	}
-	
+
 	this.getNonCJKWord = function( a_str, a_nFrom )
 	{
 		var i = a_nFrom, nLen = a_str.length;
@@ -1663,7 +1655,7 @@ function RunesService()
 		var nLen = this.getLengthOfWord( a_str, a_nFrom );
 		return a_str.substr( a_nFrom, nLen );
 	}
-	
+
 	this.getTerm = function( a_Context, a_Rslt )
 	{
 		if ( this.langSev.isQuote( a_Context.getCurChar() ) )
@@ -1718,7 +1710,7 @@ function RunesService()
 		{
 			a_Rslt.eType = ESNT_OR;
 		}
-		
+
 		return true;
 	}
 
@@ -1771,7 +1763,7 @@ function RunesService()
 			else
 			{
 			    a_Context.bFailed = true;
-			    return false ;			
+                return false;
 			}
 		}
 		a_Result.eType = rslt.eType;
@@ -1785,10 +1777,10 @@ function RunesService()
 	/**
 	Start parsing the search query from a_Context.nCur and check for presence of a phrase or normal term
 	Or a term prefixed with NOT operator. In case a phrase or normal term is encountered, check for operators
-	in the rest of the expression.	
-	A term can contain many words for e.g. 
+     in the rest of the expression.
+     A term can contain many words for e.g.
 	Search query: hello world AND first topic
-	This consist of two search terms: 
+     This consist of two search terms:
 	1) hello world
 	2) first topic
 	And each of these terms have two words each.
@@ -1805,8 +1797,8 @@ function RunesService()
 		        a_Result.eType = rslt.eType;
 		        if (rslt.right.eType == ESNT_DEFAULT)
 		        {
-			        a_Result.strTerm = rslt.right.strTerm;	
-			        return true ;		    
+                    a_Result.strTerm = rslt.right.strTerm;
+                    return true;
 			    }
 			    else
 			    {
@@ -1818,7 +1810,7 @@ function RunesService()
 		    {
 		        a_Context.bFailed = true;
 			    return false;
-		    }			
+            }
 		}
 
 		if ( this.parseOperator( a_Context, a_Result, false ) )
@@ -1832,8 +1824,8 @@ function RunesService()
 			a_Result.eType = rslt.eType;
 			a_Result.strTerm = rslt.strTerm;
 		}
-		
-		return true;
+
+        return true;
 	}
 
 	this.extractTerm = function( a_Context, a_Term )
@@ -1875,18 +1867,18 @@ function RunesService()
 		this.langSev.getNormalizedOrg( a_strOrg, a_Result );
 		this.langSev.helStem( a_Result );
 	}
-	
-	/**
+
+    /**
 	 * Check presence of any break characters in given term, starting from "cur" position.
 	 * If the break characters present are special break/CJK, include them in a_Result.
 	 * Update position of next word and also character position of next non breaking
-	 * character in the term. 
+     * character in the term.
 	 * Change the term type to phrase, if a CJK break is encountered.
 	 */
 	this.parseBreakCharacters  = function( a_Term , a_positions)
 	{
 		var a_strSrc = a_Term.strTerm;
-		var a_Result = a_Term.aWords ;	
+        var a_Result = a_Term.aWords;
 		var nLen = a_strSrc.length;
 		var nCur = a_positions["cur"];
 		var nPosition = a_positions["pos"] ;
@@ -1894,26 +1886,26 @@ function RunesService()
 		var bCJKBreak = false ;
 		while ( nCur < nLen && (this.langSev.isWordBreak( a_strSrc.charAt( nCur )) || this.langSev.isCJKCodePoint( a_strSrc.charAt( nCur ))) )
 		{
-			
-			if ( this.langSev.isSpecialBreak( a_strSrc.charAt( nCur ) ) || (bCJKBreak = this.langSev.isCJKCodePoint( a_strSrc.charAt( nCur ))) )
+
+            if ( this.langSev.isSpecialBreak( a_strSrc.charAt( nCur ) ) || (bCJKBreak = this.langSev.isCJKCodePoint( a_strSrc.charAt( nCur ))) )
 			{
 				//it's a special word/CJK break, include it in search
 				a_Result[a_Result.length] = new DolWord( a_strSrc.charAt( nCur ), nPosition );
 				nPosition++;
-				
-				if (!bCJKTerm && bCJKBreak) //set the term as CJK term
+
+                if (!bCJKTerm && bCJKBreak) //set the term as CJK term
 					bCJKTerm  = true ;
 			}
 			nCur++;
 		}
 		a_positions["cur"] = nCur ;
-		a_positions["pos"] = nPosition ;		
-		
+        a_positions["pos"] = nPosition;
+
 		if (bCJKTerm)
 			a_Term.eType = ESNT_PHRASE ;
 	}
-	
-	/**
+
+    /**
 	Break the current term in words.
 	If the term contains CJK characters, treat each one of them
 	as a seperate word.
@@ -1922,37 +1914,37 @@ function RunesService()
 	this.dolSegment = function( a_Term )
 	{
 		var a_strSrc = a_Term.strTerm;
-		var a_Result = a_Term.aWords ;		
+        var a_Result = a_Term.aWords;
 		var nLen = a_strSrc.length;
-		var strWord = "";		
+        var strWord = "";
 		var positions = new Array();
 		positions["cur"] = 0 ;
 		positions["pos"] = 1 ;
 
 		this.parseBreakCharacters( a_Term, positions );
-		
-		while ( positions["cur"] < nLen )
+
+        while ( positions["cur"] < nLen )
 		{
 			strWord = this.getNonCJKWord( a_strSrc, positions["cur"] );
 			a_Result[a_Result.length] = new DolWord( strWord, positions["pos"] );
-			
-			positions["cur"] += strWord.length;
+
+            positions["cur"] += strWord.length;
 			positions["pos"]++ ;
-			
-			//check if we can find some special break/CJK characters in between this and next word		
+
+            //check if we can find some special break/CJK characters in between this and next word
 			this.parseBreakCharacters( a_Term, positions  );
 		}
 	}
-	
-	this.solParse = function( a_strSrc, a_Result )
+
+    this.solParse = function( a_strSrc, a_Result )
 	{
 		var context = new RunesContext( a_strSrc );
 		this.parseTerm( context, a_Result );
 
 		if ( context.bFailed )
 			return false;
-			
-		this.parsePhraseAndDefault( context, a_Result );
+
+        this.parsePhraseAndDefault( context, a_Result );
 		if ( context.bFailed )
 			return false;
 
@@ -1987,10 +1979,10 @@ function parseQueryExpression( a_strQuery )
 	var expression = new SolNode();
 	if ( !runes.solParse( a_strQuery, expression ) )
 		return null;
-		
-	_helStemNode( runes, expression );
-	
-	return expression;
+
+    _helStemNode( runes, expression );
+
+    return expression;
 }
 
 
@@ -2017,7 +2009,7 @@ function _rank_ULaw( a_fX )
 
 function _rank_Weaken( a_fWeight, a_fPercent )
 {
-	var fPercent = ( a_fPercent < 0.0 ) ? 0.0 : 
+    var fPercent = (a_fPercent < 0.0) ? 0.0 :
 				   ( a_fPercent > 1.0 ) ? 1.0 : a_fPercent;
 
 	return 1 - fPercent + a_fWeight * fPercent;
@@ -2099,15 +2091,14 @@ function _getTermMatchType( a_aTiles, a_nTileFrom, a_aWords, a_nFrom, a_nLen )
 	var nOffset = a_nTileFrom ;
 
 	var j = a_nTileFrom;
-	for ( var i = a_nFrom; i < a_nFrom + a_nLen; i++  )
-	{		
+	for ( var i = a_nFrom; i < a_nFrom + a_nLen; i++  ) {
 		nOffset = nOffset - a_aWords[i].nWordId;
 		j = nOffset + a_aWords[i].nWordId;	//seek j to the tile that should be matched
-		
-		if ( !a_aTiles[j] )
+
+        if ( !a_aTiles[j] )
 			return EWMT_NotMatch;
-	
-		var eCur = _getWordMatchType( a_aWords[i], a_aTiles[j], j, nOffset );
+
+        var eCur = _getWordMatchType( a_aWords[i], a_aTiles[j], j, nOffset );
 		if ( eCur < eRslt )
 			eRslt = eCur;
 		if ( eRslt == EWMT_NotMatch )
@@ -2137,9 +2128,9 @@ function _computeSingleWordScore( a_TopicImage, a_nWordId )
 	var emphasis = a_TopicImage.aWords[a_nWordId].uEmphasis ;
 	if (emphasis != 0 )
 	    emphasis = _emphasisToScore(emphasis ) ;
-		
-	emphasis += a_TopicImage.aWords[a_nWordId].uFreq; 	
-	    
+
+    emphasis += a_TopicImage.aWords[a_nWordId].uFreq;
+
 	var fWeightScore = _rank_Weaken( _rank_ULaw( emphasis ), WEIGHT_OF_SINGLE_WORD_SCORE );
 
 	if ( _isTitle( a_TopicImage.aWords[a_nWordId].uEmphasis ) )		// Words in title are important than key words and the rest.
@@ -2149,7 +2140,7 @@ function _computeSingleWordScore( a_TopicImage, a_nWordId )
 	if ( _isKeyWord( a_TopicImage.aWords[a_nWordId].uEmphasis ) )	// Key words are always more important than non-keywords.
 	{
 		return fWeightScore / 3.0 + 1.0 / 3.0;
-	}	
+    }
 	else
 	{
 		return fWeightScore / 3.0;
@@ -2169,7 +2160,7 @@ function _computeTermWeight( a_TopicImage, a_Term )
 	{
 		//check if its a phrase
 		var bPhrase = false ;
-		var iPosition = 0;			
+        var iPosition = 0;
 		for ( var strPosition in a_TopicImage.aTiles )
 		{
 			iPosition = parseInt( strPosition );
@@ -2177,14 +2168,13 @@ function _computeTermWeight( a_TopicImage, a_Term )
 			if ( bPhrase )
 				break ;
 		}
-		
-		if (bPhrase)
+
+        if (bPhrase)
 			return fTermScore;
 		else
 			return 0.0 ;
 	}
-	else
-	{		
+	else {
 		return fTermScore;
 	}
 }
@@ -2199,8 +2189,8 @@ function _getPhraseMatch(a_aTiles, iPosition, a_aWords, a_nCurIdx )
 	var nCurWordId = a_aWords[a_nCurIdx].nWordId ;
 	if(!a_aTiles[iPosition])
 		return false ;
-		
-	var i  ;
+
+    var i  ;
 	for ( i = 0 ; i < a_aTiles[iPosition].aWords.length ; i++)
 	{
 		var wordAtPos = a_aTiles[iPosition].aWords[i].nWordId	;
@@ -2249,8 +2239,8 @@ function _getWeightOfNode( a_TopicImage, a_Node )
 		// Right has only 1/2 weight of left
 		var fWeightRight = _getWeightOfNode( a_TopicImage, a_Node.right ) / 2.0;
 		var fWeightLeft = _getWeightOfNode( a_TopicImage, a_Node.left );
-		
-		// To both negativeWeight return negative
+
+        // To both negativeWeight return negative
 		if ( fWeightRight < 0.0 && fWeightLeft < 0.0 )
 			return -1.0;
 
@@ -2269,8 +2259,8 @@ function _getWeightOfNode( a_TopicImage, a_Node )
 			fWeightRight = ( fWeightRight == 0.0 ) ? 1.0 : 0.0;
 			return fWeightLeft * fWeightRight;
 		}
-		
-		// Uncoverd cases (inexistent).
+
+        // Uncoverd cases (inexistent).
 		return 0.0;
 	}
 }
@@ -2292,14 +2282,14 @@ function arrayRemoveAt( a_ary, a_nIndex )
 
 function HuginQueryResult()
 {
-	this.aTopics = new Array();	
+    this.aTopics = new Array();
 }
 
 function HuginImageWord()
 {
-	this.uEmphasis = 0;	
+    this.uEmphasis = 0;
 	this.uFreq     = 0;
-	
+
 };
 
 function HuginImageTileWord( a_nWordId, a_nWordForm )
@@ -2323,34 +2313,34 @@ function HuginHunter()
 {
 	this.aOdbPathes = null;				//in
 	this.strOdbPath = null;				//in
-	
-	this.strQuery = null;				//in
+
+    this.strQuery = null;				//in
 	this.queryResult = null;			//out
-	
-	this.bInited = false;
+
+    this.bInited = false;
 	this.bSucc = true;
-	
-	this.aDatabases = null;
+
+    this.aDatabases = null;
 
 	this.iCurProj = null;
-	
-	this.queryExpression = null;
+
+    this.queryExpression = null;
 	this.queryWord = null;
 	this.curTermNode = null;
 
-	this.aRecordTable = null;	
+    this.aRecordTable = null;
 	this.aSuspendTopics = null;
 	this.aTopics = null;
 	this.iCurTopic = null;
-	
-	this.aTopicImages = null;
+
+    this.aTopicImages = null;
 	this.aNodeStack = null;
 	this.iCurTermNodeWord = null;
 
 	this.aPossibleOrgs = null;
 	this.aRankedTopics = null;
-	
-	this.nWordLoaded = 0;
+
+    this.nWordLoaded = 0;
 	this.nWordNum = 0;
 	this.nState = 0;
 	this.nProgress = 0;
@@ -2359,13 +2349,13 @@ function HuginHunter()
 	{
 		this.queryResult = null;
 		this.bSucc = true;
-		
-		this.iCurProj = 0;
+
+        this.iCurProj = 0;
 		this.queryExpression = null;
 		this.queryWord = null;
 		this.curTermNode = null;
 
-		this.aRecordTable = null;	
+        this.aRecordTable = null;
 		this.aSuspendTopics = null;
 		this.aTopics = null;
 		this.iCurTopic = 0;
@@ -2385,8 +2375,8 @@ function HuginHunter()
 		for ( var i in this.aDatabases )
 			this.aDatabases[i].prepareQuery();
 	}
-	
-	this.updateProgress = function()
+
+    this.updateProgress = function()
 	{
 		var fProgress = 100 * this.iCurProj / this.aDatabases.length;
 		var fBase = 100 / this.aDatabases.length;
@@ -2407,8 +2397,8 @@ function HuginHunter()
 							a_this.incCurProjForInit, a_this );
 		}
 	}
-	
-	this.incCurProjForEvaluate = function( a_Context, a_this )
+
+    this.incCurProjForEvaluate = function( a_Context, a_this )
 	{
 		a_this.iCurProj++;
 		if ( a_this.iCurProj < a_this.aDatabases.length )
@@ -2420,8 +2410,8 @@ function HuginHunter()
 							a_this.incCurProjForEvaluate, a_this );
 		}
 	}
-	
-	this.incCurTermNodeWord = function( a_Context, a_this )
+
+    this.incCurTermNodeWord = function( a_Context, a_this )
 	{
 		a_this.nState = 1;
 
@@ -2437,8 +2427,8 @@ function HuginHunter()
 		a_this.iCurTopic++;
 		a_this.updateProgress();
 	}
-	
-	this.checkInitSucc = function( a_Context, a_this )
+
+    this.checkInitSucc = function( a_Context, a_this )
 	{
 		var bAllFailed = true;
 		var bNotAllDatabaseInited = false;
@@ -2470,8 +2460,8 @@ function HuginHunter()
 	{
 		return a_aWords[a_nWordId] ? a_aWords[a_nWordId] : ( a_aWords[a_nWordId] = new HuginImageWord() );
 	}
-	
-	this.getTileImageToAdd = function( a_nPosition, a_aTiles )
+
+    this.getTileImageToAdd = function( a_nPosition, a_aTiles )
 	{
 		return a_aTiles[a_nPosition] ? a_aTiles[a_nPosition] : ( a_aTiles[a_nPosition] = new HuginImageTile() );
 	}
@@ -2483,8 +2473,8 @@ function HuginHunter()
 
 		if(typeof(this.aRecordTable[a_nWordId]) == "undefined")
 			this.aRecordTable[a_nWordId] = new Array();
-		
-		var aTopics = a_strRecord.split( "|" );
+
+        var aTopics = a_strRecord.split( "|" );
 		for ( var iTopic = 0; iTopic < aTopics.length; iTopic++ )
 		{
 			var topicHead = aTopics[iTopic].match( "^(\\d+),(.*)$" );
@@ -2494,16 +2484,16 @@ function HuginHunter()
 			this.aSuspendTopics[topicHead[1]] = true;
 		}
 	}
-	
-	this.processRecordResult = function( a_Context, a_this )
+
+    this.processRecordResult = function( a_Context, a_this )
 	{
 		if ( !a_this.aDatabases[a_this.iCurProj].bSucc )			// Go on searching for other words while one not found
 			return;
 
 		a_this.wordRecord = a_this.aDatabases[a_this.iCurProj].recordResult;
-		a_this.addRecordToRecordTable( a_this.queryWord.nWordId, a_this.wordRecord.strRecord );		
-	}
-	
+        a_this.addRecordToRecordTable(a_this.queryWord.nWordId, a_this.wordRecord.strRecord);
+    }
+
 	this.getRecordOfTermWord = function( a_Context, a_this )
 	{
 		if ( a_this.iCurTermNodeWord >= a_this.curTermNode.aWords.length )
@@ -2518,21 +2508,21 @@ function HuginHunter()
 						a_this.incCurTermNodeWord, a_this,
 						a_this.getRecordOfTermWord, a_this );
 	}
-	
-	this.getRecordOfTermNode = function( a_Context, a_this )
+
+    this.getRecordOfTermNode = function( a_Context, a_this )
 	{
 		a_this.aPossibleOrgs = new Array();
 		a_this.bNeedStopWord = ( a_this.curTermNode.eType == ESNT_PHRASE );
 		a_this.iCurTermNodeWord = 0;					//Init the iterator of a "for loop"
 		a_Context.push( a_this.getRecordOfTermWord, a_this);
 	}
-	
-	this.getRecordOfNode = function( a_Context, a_this )
+
+    this.getRecordOfNode = function( a_Context, a_this )
 	{
 		if ( a_this.aNodeStack.length == 0 )
 			return;
-			
-		var curNode = a_this.aNodeStack[a_this.aNodeStack.length - 1];
+
+        var curNode = a_this.aNodeStack[a_this.aNodeStack.length - 1];
 		a_this.aNodeStack.length--;
 
 		if ( curNode != null )
@@ -2557,8 +2547,8 @@ function HuginHunter()
 		this.tagExpression = this.tagExpression || window.rh.model.get(window.rh.consts('KEY_TAG_EXPRESSION'));
 		return window.rh._.evalTagExpression(tagCombinationIndex, this.tagExpression);
 	};
-	
-	this.addToTopicImage = function( a_Image, a_nWordId, a_Record )
+
+    this.addToTopicImage = function( a_Image, a_nWordId, a_Record )
 	{
 		var wordImage = this.getWordImageToAdd( a_nWordId, a_Image.aWords );
 
@@ -2568,19 +2558,19 @@ function HuginHunter()
 		{
 			var tileImage = this.getTileImageToAdd( a_Record.aPositions[strPosition],
 														a_Image.aTiles );
-			tileImage.aWords[tileImage.aWords.length] = new HuginImageTileWord( a_nWordId, 0 /*nWordShape*/ );			
+            tileImage.aWords[tileImage.aWords.length] = new HuginImageTileWord(a_nWordId, 0 /*nWordShape*/);
 		}
 
-		if (a_Record.tagComboId) {
+        if (a_Record.tagComboId) {
 			a_Image.rhTags = a_Image.rhTags || [];
-			if (a_Image.rhTags.indexOf(a_Record.tagComboId) == -1) {
+            if (a_Image.rhTags.indexOf(a_Record.tagComboId) == -1) {
 				a_Image.rhTags.push(a_Record.tagComboId);
 			}
 	}
 
 	}
-	
-	this.unpackTopicRecord = function( a_strRecord )
+
+    this.unpackTopicRecord = function( a_strRecord )
 	{
 		var aShapes = a_strRecord.split( ":" );
 		if ( aShapes.length == 0 )
@@ -2592,21 +2582,21 @@ function HuginHunter()
 		if ( record.aPositions.length < 1 )
 			return null;
 		var mappedIds = [];
-		if (this.aProjPathes[this.iCurProj] != null && aShapes[2] != null) {
-			mappedIds = window.rh._.map(aShapes[2].split(","), function (id) {
+        if (this.aProjPathes[this.iCurProj] != null && aShapes[2] != null) {
+            mappedIds = window.rh._.map(aShapes[2].split(","), function (id) {
 				return window.rh._.mapTagIndex(id, this.aProjPathes[this.iCurProj].strProjDir);
-			}, this);
-			if (!window.rh._.any(mappedIds, function (id) {
-					return this.evaluateTag(id);
-				}, this))
+            }, this);
+            if (!window.rh._.any(mappedIds, function (id) {
+                return this.evaluateTag(id);
+            }, this))
 				return null;
 		}
 		record.tagComboId = mappedIds.join(",");
 
 		return record;
 	}
-	
-	this.makeTopicImage = function( a_nTopicId )
+
+    this.makeTopicImage = function( a_nTopicId )
 	{
 		var topicImage = new HuginTopicImage();
 		for ( var strWordId in this.aRecordTable )
@@ -2621,13 +2611,13 @@ function HuginHunter()
 		}
 		return topicImage;
 	}
-	
-	this.calculateRanking = function( a_TopicImage )
+
+    this.calculateRanking = function( a_TopicImage )
 	{
 		return calculateRanking( a_TopicImage, this.queryExpression );
 	}
-	
-	this.calculateWordNum = function( a_Node )
+
+    this.calculateWordNum = function( a_Node )
 	{
 		if ( a_Node.eType == ESNT_PHRASE || a_Node.eType == ESNT_DEFAULT || a_Node.eType == ESNT_NOT)
 		{
@@ -2639,27 +2629,27 @@ function HuginHunter()
 			this.calculateWordNum( a_Node.left );
 		}
 	}
-	
-	this.getRecords = function( a_Context, a_this )
+
+    this.getRecords = function( a_Context, a_this )
 	{
 		a_this.aNodeStack = new Array();
 		a_this.aNodeStack[a_this.aNodeStack.length] = a_this.queryExpression;
 		a_this.aRecordTable = new Array();
 		a_this.aSuspendTopics = new Array();
-		
-		a_this.nWordLoaded = 0;
+
+        a_this.nWordLoaded = 0;
 		a_this.calculateWordNum( a_this.queryExpression );
-		
-		a_Context.push( a_this.getRecordOfNode, a_this );
+
+        a_Context.push( a_this.getRecordOfNode, a_this );
 	}
-	
-	this.evaluateTopic = function( a_Context, a_this )
+
+    this.evaluateTopic = function( a_Context, a_this )
 	{
 		if ( a_this.iCurTopic >= a_this.aTopics.length )
 			return;
-		
-		var rankedTopic = new Object();
-		var topicImage = a_this.makeTopicImage(a_this.aTopics[a_this.iCurTopic]);
+
+        var rankedTopic = new Object();
+        var topicImage = a_this.makeTopicImage(a_this.aTopics[a_this.iCurTopic]);
 		rankedTopic.fRanking = a_this.calculateRanking(topicImage);
 		if ( rankedTopic.fRanking > 0 )
 		{
@@ -2676,8 +2666,8 @@ function HuginHunter()
 		a_this.aTopics = new Array();
 		for ( var iTopic in a_this.aSuspendTopics )
 			a_this.aTopics[a_this.aTopics.length] = iTopic;
-		
-		a_this.iCurTopic = 0;
+
+        a_this.iCurTopic = 0;
 		a_Context.push( a_this.evaluateTopic, a_this );
 	}
 
@@ -2706,8 +2696,8 @@ function HuginHunter()
 			a_this.aRankedTopics[a_this.aRankedTopics.length] = rankedTopic;
 		}
 	}
-	
-	this.compRankedTopics = function( a_itemA, a_itemB )
+
+    this.compRankedTopics = function( a_itemA, a_itemB )
 	{
 		if ( a_itemA.fRanking > a_itemB.fRanking )
 			return true;
@@ -2719,28 +2709,28 @@ function HuginHunter()
 		}
 		return false;
 	}
-	
-	this.swapRankedTopics = function( a_aTopics, a_nIdx, a_itemNew )
+
+    this.swapRankedTopics = function( a_aTopics, a_nIdx, a_itemNew )
 	{
 		a_aTopics[a_nIdx] = a_itemNew;
 	}
-	
-	this.quickSortRankedTopics = function( a_nLow, a_nHigh )
+
+    this.quickSortRankedTopics = function( a_nLow, a_nHigh )
 	{
 		quickSort( this.queryResult.aTopics,
 				   0, this.queryResult.aTopics.length - 1,
 				   this.compRankedTopics,
 				   this.swapRankedTopics );
 	}
-	
-	this.compPossibleOrgs = function( a_itemA, a_itemB )
+
+    this.compPossibleOrgs = function( a_itemA, a_itemB )
 	{
 		if ( utf8Compare(a_itemA, a_itemB) <= 0 )
 			return true;
 		return false;
 	}
-	
-	this.swapPossibleOrgs = function( a_aOrgs, a_nIdx, a_itemNew )
+
+    this.swapPossibleOrgs = function( a_aOrgs, a_nIdx, a_itemNew )
 	{
 		a_aOrgs[a_nIdx] = a_itemNew;
 	}
@@ -2756,9 +2746,9 @@ function HuginHunter()
 		if(gbANDSearch)
 		{
 			a_this.strQuery = trimString(a_this.strQuery);
-            a_this.strQuery = a_this.strQuery.split(" ").join(" AND ");
-		}
-			
+            a_this.strQuery = a_this.strQuery.split(" ").join(" \u00ACand\u00AC ");
+        }
+
 		a_this.queryExpression = parseQueryExpression( a_this.strQuery );
 		if ( a_this.queryExpression == null )
 		{
@@ -2796,15 +2786,15 @@ function HuginHunter()
 		for ( var i = 0; i < a_this.queryResult.aTopics.length; i++ )
 		{
 			a_this.queryResult.aTopics[i].nIndex = i + 1;
-		}		
+        }
 	}
 
 	//interface
 	this.init = function( a_Context, a_this )
 	{
 		a_this.bInited = false;
-		
-		a_this.aDatabases = new Array();
+
+        a_this.aDatabases = new Array();
 		for ( var i in a_this.aProjPathes )
 		{
 			var nLen = a_this.aDatabases.length;
@@ -2831,8 +2821,8 @@ function HuginHunter()
 		a_this.prepareQuery();
 		g_CurState = ECS_SEARCHING;
 		updateResultView();
-		
-		a_this.queryResult = new HuginQueryResult();
+
+        a_this.queryResult = new HuginQueryResult();
 		a_Context.push( a_this.evaluateExpression, a_this,
 						a_this.makeResult, a_this );
 	}
@@ -2908,7 +2898,7 @@ if ( gbNav7 || gbSafari)
 		var nextSibling = this.nextSibling;
 		var parentNode = this.parentNode;
 		a_Node.parentNode.insertBefore( this, a_Node );
-		parentNode.insertBefore( a_Node, nextSibling );  
+        parentNode.insertBefore(a_Node, nextSibling);
 	}
 }
 
@@ -2943,8 +2933,8 @@ function ftsContextLoaded(ftsProjDirArr)
 	context.push( goOdinHunter.init, goOdinHunter,
 				  registListener, this );
 	context.resume();
-	
-	goOdinHunter.strQuery = rh.model.get(rh.consts('KEY_SEARCHED_TERM'));
+
+    goOdinHunter.strQuery = rh.model.get(rh.consts('KEY_SEARCHED_TERM'));
 	Query();
 }
 
@@ -2960,8 +2950,8 @@ function Query()
 		setTimeout( "Query();", 10 );
 		return;
 	}
-	
-	g_CurPage = 1;
+
+    g_CurPage = 1;
 	if (isValidType(context) && isValidType(context.aTasks))
 	{
 		while(context.aTasks.length>0)
@@ -2990,11 +2980,11 @@ function changeResultView( a_strHTML )
 }
 
 function navigateToTopic(topics, params) {
-	if (topics.length > 0) {
+    if (topics.length > 0) {
 		var absUrl = window._getFullPath(rh._.parentPath(), topics[0].strUrl + params);
 		rh.model.publish(rh.consts('EVT_NAVIGATE_TO_URL'), {
-			absUrl: "" + absUrl
-		});
+            absUrl: "" + absUrl
+        });
 	}
 }
 
@@ -3002,28 +2992,28 @@ function displayTopics( a_QueryResult )
 {
 	var sHTML = "";
 	var sLine = "";
-	var szSearchStrings = rh.model.get(".l.searchText_actual");
+    var szSearchStrings = rh.model.get(".l.searchText_actual");
 	var sHighlight = "CLRF=" + gsHLColorFront +
 					 ",CLRB=" + gsHLColorBackground + ",HL=";
-	
-	var i = 0;
+
+    var i = 0;
 	if (g_CurPage < 1)
 	    g_CurPage = 1 ;
-	
-	if ( a_QueryResult != null )
+
+    if ( a_QueryResult != null )
 	{
-	
-		var strParams = "?" + RHHIGHLIGHTTERM + "=" + encodeURIComponent( szSearchStrings ) + "&" + RHSYNSTR + "=" + encodeURIComponent(gstrSyn);
+
+        var strParams = "?" + RHHIGHLIGHTTERM + "=" + encodeURIComponent( szSearchStrings ) + "&" + RHSYNSTR + "=" + encodeURIComponent(gstrSyn);
 
 		if(a_QueryResult.aTopics.length > 0)
 			setResultsStringHTML(a_QueryResult.aTopics.length, _textToHtml_nonbsp(szSearchStrings));
-		
-		var bShowAll = false;
+
+        var bShowAll = false;
 		var nNumPages = 0;
 		if(g_nMaxResult == -1)
 		{
 			i = 0;
-			bShowAll = true;	
+            bShowAll = true;
 			nNumPages = 1;
 		}
 		else
@@ -3034,33 +3024,33 @@ function displayTopics( a_QueryResult )
 
 		if (checkResultDiv()) {
 			// Old search widget workflow: Render html.
-			for (; (i < a_QueryResult.aTopics.length); i++)
+            for (; (i < a_QueryResult.aTopics.length); i++)
 			{
-				if (bShowAll == false && i >= (g_CurPage * g_nMaxResult))
+                if (bShowAll == false && i >= (g_CurPage * g_nMaxResult))
 					break;
 
 				var szTopicURL = a_QueryResult.aTopics[i].strUrl;
-				if (!_isRemoteUrl(szTopicURL)) {
+                if (!_isRemoteUrl(szTopicURL)) {
 					szTopicURL += strParams;
 				}
-				sLine += writeResult(szTopicURL,
-					a_QueryResult.aTopics[i].strTitle,
-					a_QueryResult.aTopics[i].nIndex,
-					a_QueryResult.aTopics[i].strSummary,
-					a_QueryResult.aTopics[i].rhTags,
-					a_QueryResult.aTopics[i].strBreadcrumbs);
-				if (i & 0xF == 0) {
+                sLine += writeResult(szTopicURL,
+                    a_QueryResult.aTopics[i].strTitle,
+                    a_QueryResult.aTopics[i].nIndex,
+                    a_QueryResult.aTopics[i].strSummary,
+                    a_QueryResult.aTopics[i].rhTags,
+                    a_QueryResult.aTopics[i].strBreadcrumbs);
+                if (i & 0xF == 0) {
 					sHTML += sLine;
 					sLine = "";
 				}
 			}
-			if (sLine.length > 0)
+            if (sLine.length > 0)
 				sHTML += sLine;
 
 			updateNavigationPagesBar(g_CurPage, nNumPages);
 			updatePrevNextButtons(g_CurPage, nNumPages);
 		}
-		else {
+        else {
 			// New search widget workflow. Publish search results.
 			rh.model.publish(rh.consts('KEY_SEARCH_RESULT_PARAMS'), strParams);
 			rh.model.publish(rh.consts("KEY_SEARCH_RESULTS"), a_QueryResult.aTopics);
@@ -3068,7 +3058,7 @@ function displayTopics( a_QueryResult )
 		}
 	}
 
-	if (a_QueryResult.aTopics.length == 0) {
+    if (a_QueryResult.aTopics.length == 0) {
 		displayMsg(gsNoTopics);
 	}
 
@@ -3122,22 +3112,22 @@ function updateResultView()
 {
 	if ( g_CurState == ECS_SEARCHING )
 		displaySearchProgressBar( goOdinHunter.nProgress );
-	else if (g_CurState == ECS_FOUND) {
+    else if (g_CurState == ECS_FOUND) {
 		displayTopics( goOdinHunter.queryResult );
-	}		
+    }
 	else if ( g_CurState == ECS_SEARCHFAILED )
 		displayErrorMsg( context.strMsg );
-		
-	else if ( g_CurState == ECS_FATALERROR )
+
+    else if ( g_CurState == ECS_FATALERROR )
 		displayErrorMsg( context.strMsg );
-		
-	else if ( g_CurState == ECS_CANCELED )
+
+    else if ( g_CurState == ECS_CANCELED )
 		displayErrorMsg( gsCanceled );
-		
+
 }
 
 function checkResultDiv() {
-	return getElement(gsResultDivID) != null;
+    return getElement(gsResultDivID) != null;
 }
 
 function processHunterResult( a_Context )
@@ -3151,8 +3141,8 @@ function processHunterResult( a_Context )
 
 	rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), false, {sync: true});
 	rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), null, {sync: true});
-	
-	if ( goOdinHunter == null )
+
+    if ( goOdinHunter == null )
 		return;
 
 	if ( !goOdinHunter.bSucc )

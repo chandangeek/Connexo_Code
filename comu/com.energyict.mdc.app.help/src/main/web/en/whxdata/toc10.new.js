@@ -1,32 +1,32 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Device Commands", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Device_Commands.htm"}, {
         "type": "item",
-        "name": "Understand device configurations",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_devices.htm#TOC_Understand_devicebc-1"
-    }, {"type": "item", "name": "Configure device types", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_device_types.htm"}, {
+        "name": "Understand device commands",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Understand_device_commands.htm"
+    }, {"type": "item", "name": "Configure device commands", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Configure_device_commands.htm"}, {
         "type": "item",
-        "name": "Configure device configurations",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_device_configurations.htm"
-    }, {"type": "item", "name": "Configure register configurations", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_register_configurations.htm"}, {
-        "type": "item",
-        "name": "Configure load profile configurations",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_load_profile_configurations.htm"
+        "name": "Configure device commands on the device configuration",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Configure_device_commands_on_the_device_configuration.htm"
     }, {
         "type": "item",
-        "name": "Configure data sources on a device",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_data_sources_on_a_device.htm"
-    }, {"type": "item", "name": "Configure logbook configurations", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_logbook_configurations.htm"}, {
+        "name": "Configure device commands on a device",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Configure_device_commands_on_a_device.htm"
+    }, {"type": "item", "name": "Monitor device commands", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Monitor_device_commands.htm"}, {
         "type": "item",
-        "name": "Manage device groups",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Manage_device_groups.htm"
-    }, {"type": "item", "name": "Device attributes", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Device_attributes.htm"}, {
+        "name": "Command limitation rules",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Command_limitation_rules.htm"
+    }, {
         "type": "item",
-        "name": "Reporting",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Reporting.htm"
-    }];
+        "name": "Configure command limitation rules",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Configure_command_limitation_rules.htm"
+    }, {
+        "type": "item",
+        "name": "Approve command limitation rule changes",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Approve_command_limitation_rule_changes.htm"
+    }, {
+        "type": "item",
+        "name": "File management using device commands",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/File_management_using_device_commands.htm"
+    }, {"type": "item", "name": "Configure file management options", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Commands/Configure_file_management_options.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

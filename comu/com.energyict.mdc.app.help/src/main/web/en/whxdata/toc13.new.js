@@ -1,13 +1,32 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{"type": "item", "name": "Understand data loggers", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataLogger/Understand_data_loggers.htm"}, {
-        "type": "book",
-        "name": "Data logger slaves",
-        "key": "toc14",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataLogger/Data_logger_slaves.htm"
-    }, {"type": "book", "name": "Monitor data loggers", "key": "toc15", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataLogger/Monitor_data_loggers.htm"}];
+    var toc = [{"type": "item", "name": "Device Lifecycle", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Device_Lifecycle.htm"}, {
+        "type": "item",
+        "name": "Understand the device life cycle management",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Understand_the_device_life_cycle_management.htm"
+    }, {
+        "type": "item",
+        "name": "Default device life cycle management",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Default_device_life_cycle_management.htm"
+    }, {"type": "item", "name": "Default device life cycle stages", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Default_device_life_cycle_stages.htm"}, {
+        "type": "item",
+        "name": "Default device life cycle states",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Default_device_life_cycle_states.htm"
+    }, {"type": "item", "name": "Configure device life cycle", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Configure_device_life_cycle.htm"}, {
+        "type": "item",
+        "name": "Manage device life cycle states",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Manage_device_life_cycle_states.htm"
+    }, {
+        "type": "item",
+        "name": "Manage device life cycle transitions",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Manage_device_life_cycle_transitions.htm"
+    }, {"type": "item", "name": "Monitor device life cycles", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Monitor_device_life_cycles.htm"}, {
+        "type": "item",
+        "name": "Monitor device life cycles on a device",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Monitor_device_life_cycles_on_a_device.htm"
+    }, {"type": "item", "name": "Transition devices", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Transition_devices.htm"}, {
+        "type": "item",
+        "name": "Manage transitions in bulk",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Manage_transitions_in_bulk.htm"
+    }, {"type": "item", "name": "Monitor meter activations", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Lifecycle/Monitor_meter_activations.htm"}];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

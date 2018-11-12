@@ -1,12 +1,8 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Appendices", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Appendices/Appendices.htm"}, {
         "type": "item",
-        "name": "Configure security on device type",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_Security/Configure_security_on_device_type_and_configuration.htm#TOC_Configure_security_on1bc-1"
-    }, {"type": "item", "name": "Configure security on device configuration", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_Security/Configure_security_on_device_configuration.htm"}];
+        "name": "Interval flags mapped to CIM reading qualities",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Appendices/Interval_flags_mapped_to_CIM_reading_qualities.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

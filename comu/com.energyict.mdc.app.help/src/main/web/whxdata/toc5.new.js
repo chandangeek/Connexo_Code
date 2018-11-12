@@ -1,16 +1,16 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Data Logger", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Data_Logger.htm"}, {
         "type": "item",
-        "name": "Understand the object landing page",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Object_landing_page.htm#TOC_Understand_the_objectbc-1"
-    }, {"type": "item", "name": "Widgets", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Widgets.htm"}, {
+        "name": "Understand data loggers",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Understand_data_loggers.htm"
+    }, {"type": "item", "name": "Data logger slaves", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Data_logger_slaves.htm"}, {
         "type": "item",
-        "name": "Actions on the object landing page",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Actions_on_the_object_landing_page.htm"
+        "name": "Link data loggers and slaves",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Link_data_loggers_and_slaves.htm"
+    }, {"type": "item", "name": "Monitor data loggers", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Monitor_data_loggers.htm"}, {
+        "type": "item",
+        "name": "Monitor data logger history",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Logger/Monitor_data_logger_history.htm"
     }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

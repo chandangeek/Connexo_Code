@@ -1,20 +1,12 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Import Data", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Import_Data/Import_Data.htm"}, {
         "type": "item",
-        "name": "Understand communication tasks",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Communication_tasks.htm#TOC_Understand_communication1bc-1"
-    }, {
+        "name": "Understand data import",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Import_Data/Understand_data_import.htm"
+    }, {"type": "item", "name": "Import files", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Import_Data/Import_files.htm"}, {
         "type": "item",
-        "name": "Configure communication tasks (Administration)",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_communication_tasks_Administration.htm"
-    }, {
-        "type": "item",
-        "name": "Configure communication tasks on device configurations",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_communication_tasks_on_device_configurations.htm"
-    }, {"type": "item", "name": "Configure communication tasks on devices", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_communication_tasks_on_devices.htm"}];
+        "name": "Monitor data import",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Import_Data/Monitor_data_import.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

@@ -1,5 +1,1 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cki><ck fm=\"01 Cover Page\" to=\"Configure logbook configurations\" num=\"34\"/><ck fm=\"Manage device groups\" to=\"Communication\" num=\"35\"/><ck fm=\"Monitor communication\" to=\"Configure command limitation rules\" num=\"35\"/><ck fm=\"Approve command limitation rule changes\" to=\"Metrology configurations\" num=\"35\"/><ck fm=\"Manage metrology configuration versions on a usage point\" to=\"Add data\" num=\"36\"/><ck fm=\"Add data in bulk\" to=\"Monitoring service calls\" num=\"39\"/><ck fm=\"View service calls\" to=\"000017_UMNL_Copyright\" num=\"11\"/></cki>";
+gXMLBuffer="<?xml version=\"1.0\" encoding=\"UTF-8\"?><cki><ck fm=\"Cover Page\" to=\"Device attributes\" num=\"36\"/><ck fm=\"Reporting\" to=\"Registered devices KPIs\" num=\"36\"/><ck fm=\"Monitor connections\" to=\"Configure device commands\" num=\"37\"/><ck fm=\"Configure device commands on the device configuration\" to=\"Monitor usage points\" num=\"37\"/><ck fm=\"Create and edit usage points\" to=\"Edit channel data\" num=\"37\"/><ck fm=\"Edit data using estimation\" to=\"Service calls, service call types and life cycle\" num=\"40\"/><ck fm=\"Monitoring service calls\" to=\"Copyright\" num=\"12\"/></cki>";

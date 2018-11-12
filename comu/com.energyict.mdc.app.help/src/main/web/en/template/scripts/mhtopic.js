@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
 
 var gTopicElemId = "";
 var gsPPath="";
@@ -18,7 +15,7 @@ var gsSearchFormHref="";
 var gnTopicOnly=-1;
 var gnOutmostTopic=-1;
 var gsFtsBreakChars="\t\r\n\"\\ .,!@#$%^&*()~'`:;<>?/{}[]|+-=\x85\x92\x93\x94\x95\x96\x97\x99\xA9\xAE\xB7";
-var gsQuote='\x22'; 
+var gsQuote = '\x22';
 var gsBkgndColor="";
 var gsTextColor="";
 var BTN_TEXT=1;
@@ -47,10 +44,12 @@ var gbSyncEnabled=false;
 var gaBreadcrumbsTrail = new Array();
 var gnYPos = -1;
 var gbBadUriError = false;
+var gEnableOperatorSearch = true;
 
 var	EST_TERM		= 1;
 var	EST_PHRASE		= 2;
 var	EST_STEM		= 3;
+
 
 //Code for breadcrumb variable check for bookmark
 (function() {
@@ -72,7 +71,7 @@ function verifyEnvironment() {
 	if (window.self === window.top) {
 		// Loaded without a parent.
 		//addRhLoadCompleteEvent(rh._.redirectToLayout);
-		rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
+        rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
 			rh._.onTopicLoad();
 		});
 	}
@@ -84,7 +83,7 @@ function verifyEnvironment() {
 
 function initializeTopic() {
 	publishTopicData();
-	rh.model.subscribe(rh.consts('KEY_TOPIC_ORIGIN'), function () {
+    rh.model.subscribe(rh.consts('KEY_TOPIC_ORIGIN'), function () {
 		setTimeout(applyHighlight, 50);
 	});
 	loadParentDataForSyncing(gCommonRootRelPath, SCR_PARENT_TOCSYNC);
@@ -94,17 +93,17 @@ function publishTopicData()
 {
 	// Active topic URL
 	rh.model.publish(rh.consts('KEY_TOPIC_URL'), decodeURI(document.location.href));
-	
+
 	// Active topic title
 	rh.model.publish(rh.consts('KEY_TOPIC_TITLE'), document.title);
-	
+
 	// Active topic's browse sequence map
 	var brsPrevNodes = document.querySelectorAll('meta[name=brsprev]');
 	var brsNextNodes = document.querySelectorAll('meta[name=brsnext]');
 	var brsPrevLinks = new Array();
 	var brsNextLinks = new Array();
 	var hostFolder = _isHTTPUrl(document.location.href) ? document.location.protocol + '//' + gHost +  gHostPath : gHostPath;
-	
+
 	if (brsPrevNodes != undefined)
 	{
 		for (i = 0; i < brsPrevNodes.length; i++)
@@ -115,7 +114,7 @@ function publishTopicData()
 		for (i = 0; i < brsNextNodes.length; i++)
 			brsNextLinks[brsNextLinks.length] = rh.util.traverseByPath(document.location.href, gCommonRootRelPath) + brsNextNodes[i].getAttribute('value');
 	}
-	
+
 	rh.model.publish(rh.consts('KEY_TOPIC_BRSMAP'), { p: brsPrevLinks, n: brsNextLinks });
 }
 
@@ -184,7 +183,7 @@ function _getPositionInc( a_str, a_nFrom )
 function _getNormalizedWord( a_strWord )
 {
 	var strLower = a_strWord.toLowerCase();
-	
+
 	return strLower;
 }
 
@@ -208,7 +207,7 @@ function dolSegment( a_strSrc )
 	{
 		strWord = _getNormalizedWord( _getWord( a_strSrc, nCur ) );
 		aRslt[aRslt.length] = new DolWord( strWord, nPosition, nCur );
-		
+
 		nCur += strWord.length;
 		nPosition += _getPositionInc( a_strSrc, nCur );
 		nCur += _getLengthOfWordBreak( a_strSrc, nCur );
@@ -224,12 +223,12 @@ function DomTextNode( a_Node, a_nFrom )
 {
 	this.node = a_Node;
 	this.nFrom = a_nFrom;
-	
+
 	this.aClosedRanges = new Array();
 
 	this.getClosedRanges = function( a_aRanges, a_nStart )
 	{
-		var nTo = this.nFrom + a_Node.data.length;			
+        var nTo = this.nFrom + a_Node.data.length;
 		for ( var i = a_nStart; i < a_aRanges.length; i++ )
 		{
 			if ( a_aRanges[i].nStart <= nTo &&
@@ -257,15 +256,15 @@ function DomTextNode( a_Node, a_nFrom )
 		var nEnd = this.getClosedRanges( a_aRanges, a_nStart );
 		if ( this.aClosedRanges.length == 0 )
 			return nEnd;
-		
+
 		// Check if node.parentNode is a valid parent for a span tag.
 		if (!isValidParentForSpan(this.node.parentNode))
 			return nEnd;
-			
+
 		var strText = this.node.data;
 		//replace newline, carriage return, tab characters with space
-		strText = strText.replace(/[\n\r\t]/g," "); 
-		
+        strText = strText.replace(/[\n\r\t]/g, " ");
+
 		var strHTML = "";
 		var nLastStart = 0;
 		for ( var i = 0; i < this.aClosedRanges.length; i++ )
@@ -279,16 +278,16 @@ function DomTextNode( a_Node, a_nFrom )
 			nLastStart = this.aClosedRanges[i].nEnd - this.nFrom;
 		}
 		strHTML += _textToHtml_nonbsp(strText.substr( nLastStart ));
-		
+
 		var spanElement = document.createElement( "span" );
 		spanElement.innerHTML = strHTML;
 		if (gbIE)
 		{
 		    //for IE, when assigning string to innerHTML, leading whitespaces are dropped
 		    if ((strHTML.length >0)&&(strHTML.charAt(0) == " "))
-		        spanElement.innerHTML = "&nbsp;" + spanElement.innerHTML ;       
-		}   
-		
+                spanElement.innerHTML = "&nbsp;" + spanElement.innerHTML;
+        }
+
 		this.node.parentNode.replaceChild( spanElement, this.node );
 		if(gnYPos == -1)
 		{
@@ -304,7 +303,7 @@ function DomTextNode( a_Node, a_nFrom )
     			}
     			else if (elemObj.y)
         			curtop += elemObj.y;
-			
+
 			gnYPos = curtop;
 		}
 		showHighlightedElement(spanElement);
@@ -365,9 +364,9 @@ function DomTexts()
 			return;
 
 		var strInnerText = a_Node.data;
-		
+
 		//replace newline, carriage return, tab characters with space
-		strInnerText = strInnerText.replace(/[\n\r\t]/g," "); 
+        strInnerText = strInnerText.replace(/[\n\r\t]/g, " ");
 		if ( strInnerText.length != 0 )
 		{
 			var nFrom = this.strText.length;
@@ -380,20 +379,20 @@ function DomTexts()
 	{
 		return a_strTextWord.indexOf(a_strHlWord.toLowerCase()) != -1;
 	}
-	this.calculateMatchLength = function (countTerms) {
+    this.calculateMatchLength = function (countTerms) {
 		var nMatch = 0;
-		for (key in countTerms) {
+        for (key in countTerms) {
 			nMatch += countTerms[key];
 		}
 		this.nMatch = nMatch;
-	}				 
+    }
 
 	this.makeHighlightRanges = function()
 	{
 		if(typeof(gaSearchTerms[0]) == "undefined")
 			return;
 		var count = 0;
-		var str = gaSearchTerms.reduce(function (result, value, index) {
+        var str = gaSearchTerms.reduce(function (result, value, index) {
 			var term = escapeRegExp(value.toLowerCase());
 			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
 				term = '\\b' + term + '\\b';
@@ -403,7 +402,7 @@ function DomTexts()
 		}, '');
 
 		var countTerms = {};
-		gaSearchTerms.forEach(function (value) {
+        gaSearchTerms.forEach(function (value) {
 			var term = escapeRegExp(value.toLowerCase());
 			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
 				term = '\\b' + term + '\\b';
@@ -411,7 +410,7 @@ function DomTexts()
 
 			countTerms [term] = 0;
 		});
-		var str = gaSearchTerms.reduce(function (result, value, index) {
+        var str = gaSearchTerms.reduce(function (result, value, index) {
 			var term = escapeRegExp(value.toLowerCase());
 			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
 				term = '\\b' + term + '\\b';
@@ -429,7 +428,7 @@ function DomTexts()
 			aWords = new Array();
 			aWords[0] = new DolWord( this.strText, 1, 0 );
 		}
-		
+
 		for ( var i = 0; i < aWords.length; i++ )
 		{
 			var n = new Object;
@@ -448,7 +447,7 @@ function DomTexts()
 					var strWord = n[0];
 					for (var key in countTerms) {
 						var regexp_term = new RegExp(key, "i");
-						if (regexp_term.test(strWord)) {
+                        if (regexp_term.test(strWord)) {
 							countTerms[key] = 1;
 						}
 					}
@@ -461,7 +460,7 @@ function DomTexts()
 			this.calculateMatchLength(countTerms);
 		}
 	}
-	
+
 	this.highlightNodes = function()
 	{
 		var nFrom = 0;
@@ -496,15 +495,15 @@ function processSuspendNodes(a_aNodes)
 			dt.addTextNode( node );
 		}
 	}
-	
+
 	dt.makeHighlightRanges();
-	if (dt.nMatch > aLongestlength) {
+    if (dt.nMatch > aLongestlength) {
 		aLongestlength = dt.nMatch;
 		aLongestNodes.length = 0;
 		gnYPos = -1;
-		for (var i = 0, len = dt.aRanges.length; i < len; ++i)
-			aLongestNodes.push(dt.aNodes[i]);
-	}	
+        for (var i = 0, len = dt.aRanges.length; i < len; ++i)
+            aLongestNodes.push(dt.aNodes[i]);
+    }
 	dt.highlightNodes();
 
 	dt.jump2FirstHighlightedWord();
@@ -533,19 +532,19 @@ function isValidParentForSpan(a_Node)
 {
 	if (a_Node == null)
 		return false;
-	
+
 	var strTagName = a_Node.tagName.toLowerCase();
 	var rg = "\\b" + strTagName + "\\b";
 	var ss = s_strSpanInvalidParents.match(rg);
-	
+
 	return ss == null;
 }
 
 function doHighLightDomElement(a_aSuspendedNodes, a_Node)
 {
 	var childNodes = a_Node.childNodes;
-	
-	if ( childNodes == null || childNodes.length == 0 )
+
+    if ( childNodes == null || childNodes.length == 0 )
 		return;
 
 	var nLen = childNodes.length;
@@ -561,7 +560,7 @@ function doHighLightDomElement(a_aSuspendedNodes, a_Node)
 			{
 				if ( a_aSuspendedNodes.length > 0 )
 				{
-					processSuspendNodes(a_aSuspendedNodes);
+                    processSuspendNodes(a_aSuspendedNodes);
 					a_aSuspendedNodes.length = 0;
 				}
 			}
@@ -578,14 +577,14 @@ function highlightDocument()
 {
 	if ( !document.body || document.body == null )
 		return;
-		
-	var aSuspendedNodes = new Array();
+
+    var aSuspendedNodes = new Array();
 	aLongestNodes = new Array();
 	aLongestlength = 0;
 	var topicNode = document.getElementById(gTopicElemId);
 	if(!topicNode)
 		topicNode = document.body;
-	doHighLightDomElement(aSuspendedNodes, topicNode);
+    doHighLightDomElement(aSuspendedNodes, topicNode);
 	processSuspendNodes( aSuspendedNodes );
 }
 
@@ -613,8 +612,8 @@ function StartHighLightSearch()
 {
 	var strTerms = GetHighlightTextFromURL();
 	var arrSyns = GetSynonymsFromURL();
-	
-	findSearchTerms(strTerms, false);
+
+    findSearchTerms(strTerms, false);
 	// Repeat for all synonyms
 	for (var i = 0; i < arrSyns.length; i++)
 		if (trim(arrSyns[i]) != "")
@@ -641,8 +640,8 @@ function findSearchTerms(searchTerms, bSkip)
 				nSep=nChar;
 			}
 		}
-		
-		if(nS==-1){
+
+        if(nS==-1){
 			sCW=sInput;
 			sInput="";
 		}
@@ -660,23 +659,22 @@ function findSearchTerms(searchTerms, bSkip)
 						//invalid expression
 						return ;
 					}
-					else
-					{					
+					else {
 						//phrase begins here
-						bPhrase = true ; 
-						//get the phrase							
-						sCW=sInput.substring(0,phrLen);					
-						sInput=sInput.substring(phrLen + 1);						
+                        bPhrase = true;
+                        //get the phrase
+                        sCW = sInput.substring(0, phrLen);
+                        sInput = sInput.substring(phrLen + 1);
 					}
 				}
 				else
 				{
 					//get the token preceeding phrase
 					sCW=sInput.substring(0,nS);
-					
-					//keep the starting quote for next parse so next parse would know it's a phrase
+
+                    //keep the starting quote for next parse so next parse would know it's a phrase
 					sInput=sInput.substring(nS);
-				}				
+                }
 			}
 			else
 			{
@@ -686,19 +684,19 @@ function findSearchTerms(searchTerms, bSkip)
 		}
 
 		searchTerms=sInput;
-		
-		var bAdd = true;
-		if((sCW=="or")||(sCW=="|")||(sCW=="OR"))
+
+        var bAdd = true;
+        if (rh._.isOR(sCW, gEnableOperatorSearch))
 		{
 			bSkip = false;
 			bAdd = false;
 		}
-		else if((sCW=="and")||(sCW=="&")||(sCW=="AND"))
+        else if (rh._.isAND(sCW, gEnableOperatorSearch))
 		{
 			bSkip = false;
 			bAdd = false;
 		}
-		else if((sCW=="not")||(sCW=="~")||(sCW=="NOT"))
+        else if (rh._.isNOT(sCW, gEnableOperatorSearch))
 		{
 			bSkip = true;
 			bAdd = false;
@@ -715,13 +713,13 @@ function findSearchTerms(searchTerms, bSkip)
 			{
 				gaSearchTermType[gaSearchTermType.length] = EST_TERM ;
 			}
-			
-			if (!bPhrase)
+
+            if (!bPhrase)
 			{
 				var stemWord = GetStem(sCW);
 				if(stemWord != sCW)
 				{
-					gaFtsStem.forEach(function (value) {
+                    gaFtsStem.forEach(function (value) {
 						if (stemWord + value != sCW) {
 							gaSearchTerms[gaSearchTerms.length] = stemWord + value;
 							gaSearchTermType[gaSearchTermType.length] = EST_STEM;
@@ -732,7 +730,7 @@ function findSearchTerms(searchTerms, bSkip)
 		}
 		findSearchTerms(searchTerms, bSkip);
 	}
-	
+
 }
 
 
@@ -829,8 +827,8 @@ function button(sText,nWidth,nHeight)
 	this.sText=sText;
 	this.nWidth=nWidth;
 	this.nHeight=nHeight;
-	
-	this.aImgs=new Array();
+
+    this.aImgs=new Array();
 	var i=0;
 	while(button.arguments.length>i+3)
 	{
@@ -840,8 +838,8 @@ function button(sText,nWidth,nHeight)
 }
 
 
-//recursively finds the parent project StartPage path if exists 
-//also computes the child toc path in the parent toc recursively until 
+//recursively finds the parent project StartPage path if exists
+//also computes the child toc path in the parent toc recursively until
 //main proj
 
 function getPPStartPagePath(sPath)
@@ -852,8 +850,8 @@ function getPPStartPagePath(sPath)
 		if(sXmlFolderPath.indexOf("/mergedProjects/") == -1 &&
 			sXmlFolderPath.indexOf("\\mergedProjects\\") == -1)
 			return sPath;
-		
-		var sdocPath = _getFullPath(sXmlFolderPath, "MasterData.xml");
+
+        var sdocPath = _getFullPath(sXmlFolderPath, "MasterData.xml");
 		try
 		{
 			if(gbIE5) //Internet Explorer
@@ -865,12 +863,12 @@ function getPPStartPagePath(sPath)
 			else if(gbNav6) //Firefox, Mozilla, Opera etc.
 			{
 				var req=new XMLHttpRequest();
- 		        req.open("GET", sdocPath, false);   
-	            req.send(null); 
+                req.open("GET", sdocPath, false);
+                req.send(null);
 	            xmlDoc = req.responseXML;
 			}
 			else if(gbSafari3) //Safari
-			{ 
+            {
 				if(window.XMLHttpRequest)
 					xmlhttp = new XMLHttpRequest();
 				if(xmlhttp)
@@ -886,23 +884,23 @@ function getPPStartPagePath(sPath)
 			return sPath;
 		}
 
-		if(xmlDoc == null) return sPath;			
+        if (xmlDoc == null) return sPath;
 		var root = xmlDoc.documentElement;
 		if(root == null) return sPath;
 		var masterProj = null;
 		try
 		{
-			masterProj = xmlDoc.getElementsByTagName("syncinfo");	
+            masterProj = xmlDoc.getElementsByTagName("syncinfo");
 			var childTocPosInParent = null;
 			if(masterProj)
 			{
-				var startpage = xmlDoc.getElementsByTagName("startpage");	
+                var startpage = xmlDoc.getElementsByTagName("startpage");
 				masterStartPageName = startpage[0].getAttribute("name");
 				masterStartPageRelPath = startpage[0].getAttribute("url");
 				var tocpos = xmlDoc.getElementsByTagName("tocpos");
 				childTocPosInParent = tocpos[0].getAttribute("path");
-						
-			}
+
+            }
 		}
 		catch(e){return sPath;}
 		if(childTocPosInParent)
@@ -1196,7 +1194,7 @@ function createSyncInfo()
 		sPath = _getPath(gsStartPage);
 	else if(gsPPath.length==0)
 		sPath =_getPath(document.location.href);
-	else 
+    else
 		sPath = gsPPath;
 	oParam.sPPath=sPath;
 	oParam.sTPath=document.location.href;
@@ -1324,7 +1322,7 @@ function onSendMessage(oMsg)
 		if(isOutMostTopic())
 		{
 			oMsg.oParam.oTocInfo=createSyncInfo();
-			return false;		
+            return false;
 		}
 		else
 			return true;
@@ -1383,8 +1381,8 @@ function goAvenue(bNext)
 			}
 		}
 	}
-	
-	if(sTopic!=null&&sTopic!="")
+
+    if(sTopic!=null&&sTopic!="")
 	{
 		if(gsPPath!=null&&gsPPath!="")
 		{
@@ -1582,11 +1580,10 @@ function PickupDialog_Invoke()
 function isQuote( a_ch )
 {
 	return ( a_ch == gsQuote );
-} 
+}
 
 function escapeRegExp(str)
 {
 	var specials = new RegExp("[.*+?|()\\^\\$\\[\\]{}\\\\]", "g"); // .*+?|()^$[]{}\
 	return str.replace(specials, "\\$&");
 }
-

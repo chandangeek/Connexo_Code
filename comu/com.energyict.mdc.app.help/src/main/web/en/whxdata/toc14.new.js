@@ -1,12 +1,20 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Data Management", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Data_Management.htm"}, {
         "type": "item",
-        "name": "Manage data logger slaves",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataLogger/Data_logger_slaves.htm#TOC_Manage_data_logger_slavesbc-1"
-    }, {"type": "item", "name": "Link data loggers and slaves", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DataLogger/Link_data_loggers_and_slaves.htm"}];
+        "name": "Usage points",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Usage_points.htm"
+    }, {"type": "item", "name": "Monitor usage points", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Monitor_usage_points.htm"}, {
+        "type": "item",
+        "name": "Create and edit usage points",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Create_and_edit_usage_points.htm"
+    }, {"type": "item", "name": "Link devices to usage points", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Link_devices_to_usage_points.htm"}, {
+        "type": "item",
+        "name": "Metrology configurations",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Metrology_configurations.htm"
+    }, {
+        "type": "item",
+        "name": "Manage metrology configuration versions on a usage point",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Data_Management/Manage_metrology_configuration_versions_on_a_usage_point.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

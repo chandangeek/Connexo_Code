@@ -1,18 +1,16 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
-        "type": "book",
-        "name": "Configure device communication",
-        "key": "toc20",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Configure_device_communication.htm"
-    }, {"type": "book", "name": "Communication tasks", "key": "toc21", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Communication_tasks.htm"}, {
-        "type": "book",
-        "name": "Manage communication",
-        "key": "toc22",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Manage_communication.htm"
-    }, {"type": "book", "name": "Monitor communication", "key": "toc23", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceCommunication/Monitor_communication.htm"}];
+    var toc = [{"type": "item", "name": "Alarm Management", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Alarm_Management.htm"}, {
+        "type": "item",
+        "name": "Understand alarms",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Understand_alarms.htm"
+    }, {"type": "item", "name": "Alarm management in MultiSense", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Alarm_management_in_MultiSense.htm"}, {
+        "type": "item",
+        "name": "Configure alarms",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Configure_alarms.htm"
+    }, {"type": "item", "name": "Handle alarms", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Handle_alarms.htm"}, {
+        "type": "item",
+        "name": "Manage alarms in bulk",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Alarm_Management/Manage_alarms_in_bulk.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();

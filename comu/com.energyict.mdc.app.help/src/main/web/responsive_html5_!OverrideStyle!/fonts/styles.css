@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 @charset "UTF-8";
 
 @font-face {
@@ -45,39 +41,30 @@
 .icon-issue-opened:before {
     content: "1";
 }
-
 .icon-question:before {
     content: "2";
 }
-
 .icon-pencil:before {
     content: "3";
 }
-
 .icon-cog-gear:before {
     content: "4";
 }
-
 .icon-steps:before {
     content: "5";
 }
-
 .icon-filter:before {
     content: "6";
 }
-
 .icon-bulb:before {
     content: "7";
 }
-
 .icon-close-circle-outline:before {
     content: "8";
 }
-
 .icon-check-mark-circle-outline:before {
     content: "9";
 }
-
 .icon-gear-setting:before {
     content: "a";
 }

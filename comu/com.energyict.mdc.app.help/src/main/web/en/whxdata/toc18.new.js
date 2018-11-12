@@ -1,12 +1,16 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 (function () {
-    var toc = [{
+    var toc = [{"type": "item", "name": "Manage issues", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Manage_issues.htm"}, {
         "type": "item",
-        "name": "Monitor multi-element device data",
-        "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Monitor_data_loggers1.htm#TOC_Monitor_multi_elementbc-1"
-    }, {"type": "item", "name": "Monitor multi-element history", "url": "000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Monitor_multi-element_history.htm"}];
+        "name": "Understand issues",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Understand_issues.htm"
+    }, {"type": "item", "name": "Configure issues", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Configure_issues.htm"}, {
+        "type": "item",
+        "name": "Fix issues",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Fix_issues.htm"
+    }, {"type": "item", "name": "Manage data collection issues", "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Manage_data_collection_issues.htm"}, {
+        "type": "item",
+        "name": "Manage data validation issues",
+        "url": "UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Manage_issues/Manage_data_validation_issues.htm"
+    }];
     window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, {sync: true});
 })();
