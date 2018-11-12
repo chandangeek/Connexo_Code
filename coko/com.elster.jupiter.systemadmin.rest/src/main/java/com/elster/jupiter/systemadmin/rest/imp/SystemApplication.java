@@ -20,6 +20,7 @@ import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentStatusTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.FieldResource;
+import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseExtraPropertiesTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseStatusTranslationKeys;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseTypeTranslationKeys;
@@ -172,6 +173,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
         keys.addAll(Arrays.asList(ComponentStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(LicenseTypeTranslationKeys.values()));
         keys.addAll(Arrays.asList(LicenseStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(LicenseExtraPropertiesTranslationKeys.values()));
         return keys;
     }
 
