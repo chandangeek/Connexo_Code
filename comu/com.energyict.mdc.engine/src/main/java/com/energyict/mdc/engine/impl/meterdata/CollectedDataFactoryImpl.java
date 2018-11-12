@@ -9,28 +9,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
@@ -157,6 +137,13 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
         return new DeviceProtocolMessageWithCollectedGeneralProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents) {
+        DeviceProtocolMessageWithCollectedFile collectedMessage = new DeviceProtocolMessageWithCollectedFile(deviceIdentifier, messageIdentifier, fileExtension, contents);
+        collectedMessage.setSentDate(clock.instant());
+        return collectedMessage;
     }
 
     @Override

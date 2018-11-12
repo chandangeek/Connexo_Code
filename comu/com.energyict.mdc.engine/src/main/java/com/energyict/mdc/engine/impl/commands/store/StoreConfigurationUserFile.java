@@ -9,8 +9,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
-import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.format.DateTimeFormatter;
@@ -33,7 +33,7 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigura
     private String fileExtension;
     private byte[] contents;
 
-    public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+    public StoreConfigurationUserFile(CollectedConfigurationInformation configurationInformation, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.deviceIdentifier = configurationInformation.getDeviceIdentifier();
         this.fileExtension = configurationInformation.getFileExtension();
