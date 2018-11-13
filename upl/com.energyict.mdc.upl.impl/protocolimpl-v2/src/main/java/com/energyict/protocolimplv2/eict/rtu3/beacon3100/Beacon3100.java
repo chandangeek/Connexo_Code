@@ -22,16 +22,7 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.DeviceGroupExtractor;
-import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UPLConnectionFunction;
+import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -41,17 +32,9 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -60,11 +43,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.RequestSecurityLevel;
-import com.energyict.mdc.upl.security.ResponseSecurityLevel;
-import com.energyict.mdc.upl.security.SecuritySuite;
+import com.energyict.mdc.upl.security.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -102,14 +81,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -135,6 +107,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private final DeviceExtractor deviceExtractor;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     protected Beacon3100Messaging beacon3100Messaging;
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
@@ -142,7 +115,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private Array neighbourTable = null;
     private Set<String> topologySegments = new LinkedHashSet<>();
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
@@ -152,6 +125,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.deviceExtractor = deviceExtractor;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     protected NlsService getNlsService() {
@@ -184,6 +158,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected DeviceExtractor getDeviceExtractor() {
         return deviceExtractor;
+    }
+
+    protected DeviceMessageFileExtractor getDeviceMessageFileExtractor() {
+        return deviceMessageFileExtractor;
     }
 
     @Override
@@ -565,7 +543,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceMessageFileExtractor);
         }
         return beacon3100Messaging;
     }

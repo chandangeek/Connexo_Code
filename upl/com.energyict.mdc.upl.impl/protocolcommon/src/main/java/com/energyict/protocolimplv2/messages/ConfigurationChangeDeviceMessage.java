@@ -930,6 +930,18 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                     this.bigDecimalSpec(service, DeviceMessageConstants.ntpAuthKeyId, DeviceMessageConstants.ntpAuthKeyIdDefaultTranslation)
             );
         }
+    },
+    IMPORT_CONFIGURATION(31095, "Import configuration") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(this.deviceMessageFileSpec(service, DeviceMessageConstants.configUserFileAttributeName, DeviceMessageConstants.configUserFileAttributeDefaultTranslation));
+        }
+    },
+    EXPORT_CONFIGURATION(31096, "Export configuration") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
     };
 
     private final long id;

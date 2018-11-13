@@ -14,6 +14,7 @@ import com.energyict.dlms.cosem.attributes.FirmwareConfigurationAttributes;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
 import com.energyict.dlms.cosem.attributes.RenewGMKSingleActionScheduleAttributes;
 import com.energyict.dlms.cosem.attributes.SNMPAttributes;
+import com.energyict.dlms.cosem.methods.FirmwareConfigurationMethods;
 import com.energyict.dlms.cosem.methods.NTPSetupMethods;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.cosem.methods.SNMPSetupMethods;
@@ -34,12 +35,14 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
@@ -64,9 +67,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Ma
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.*;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
@@ -85,6 +86,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -151,6 +153,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final int DESTINATION_INDEX = 3;
     private static final int DESTINATION_LENGTH_INDEX = 4;
 
+    private static final String CHARSET = "UTF-8";
 
     /**
      * The set of supported messages (which, ironically, is not used).
@@ -171,6 +174,23 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final DeviceExtractor deviceExtractor;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private MasterDataSync masterDataSync;
+    private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
+
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(protocol, collectedDataFactory, issueFactory);
+        this.objectMapperService = objectMapperService;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
+        this.deviceExtractor = deviceExtractor;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+    }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -279,6 +299,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
 //              ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 ConfigurationChangeDeviceMessage.ConfigureAPNs.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.IMPORT_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.EXPORT_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+
                 DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
@@ -357,22 +380,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return standardMessages;
     }
 
-    private MasterDataSync masterDataSync;
-    private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
-
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(protocol, collectedDataFactory, issueFactory);
-        this.objectMapperService = objectMapperService;
-        this.propertySpecService = propertySpecService;
-        this.nlsService = nlsService;
-        this.converter = converter;
-        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
-        this.deviceGroupExtractor = deviceGroupExtractor;
-        this.deviceExtractor = deviceExtractor;
-        this.certificateWrapperExtractor = certificateWrapperExtractor;
-        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
-    }
-
     protected ObjectMapperService getObjectMapperService() {
         return objectMapperService;
     }
@@ -413,6 +420,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
+            case DeviceMessageConstants.configUserFileAttributeName:
+                return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
             case DeviceMessageConstants.broadcastDevicesGroupAttributeName:
                 DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
                 return serializer.serializeDeviceInfo(messageAttribute);
@@ -697,6 +706,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         setDeviceLogLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureAPNs)) {
                         configureAPNs(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.IMPORT_CONFIGURATION)) {
+                        importFirmwareSystemConfiguration(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EXPORT_CONFIGURATION)) {
+                        collectedMessage = exportFirmwareSystemConfiguration(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
@@ -2418,6 +2431,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         Unsigned32 data = new Unsigned32(maxInactiveUplinkSeconds);
 
         getFirmwareConfigurationIC().writeFirmwareConfigurationAttribute(FirmwareConfigurationAttributes.MAX_INACTIVE_UPLINK, data);
+    }
+
+    private void importFirmwareSystemConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
+        OctetString theNewConfiguration = OctetString.fromString(getDeviceMessageAttributeValue(pendingMessage, configUserFileAttributeName));
+        getFirmwareConfigurationIC().invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods.IMPORT_SYSTEM_CONFIGURATION, theNewConfiguration);
+    }
+
+    private CollectedMessage exportFirmwareSystemConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] exportedConfig = getFirmwareConfigurationIC().invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods.EXPORT_SYSTEM_CONFIGURATION, new Integer8(0));
+        return this.getCollectedDataFactory().createCollectedMessageWithFile(new DeviceIdentifierBySerialNumber(getProtocol().getSerialNumber()), new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId(), pendingMessage.getDeviceIdentifier()), "txt", exportedConfig);
     }
 
     private FirmwareConfigurationIC getFirmwareConfigurationIC() throws NotInObjectListException {
