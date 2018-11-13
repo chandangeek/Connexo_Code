@@ -10,7 +10,7 @@ import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServicePro
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     NO_WEB_SERVICE_ENDPOINTS(1, Constants.NO_WEB_SERVICE_ENDPOINTS, "No published web service endpoint is found to send end device events.", Level.SEVERE),;
 
