@@ -148,10 +148,7 @@ class MeterReadingsBuilder {
 
             for (ReadingInfoType readingInfo : readingStorer.getReadings()) {
                 BaseReading reading = readingInfo.getReading();
-                // skip reading without value
-                if (reading.getValue() == null) {
-                    continue;
-                }
+
                 // readings in the event should relate to the same meter (if it is defined)
                 if (!meter.equals(Optional.ofNullable(readingInfo.getMeter()))) {
                     throw new MeterReadinsServiceException(thesaurus, MessageSeeds.READINGS_METER_IS_NOT_THE_SAME);
@@ -175,10 +172,6 @@ class MeterReadingsBuilder {
             if (meterReading.isPresent()) {
                 meterReadingsList.add(meterReading.get());
             }
-        }
-
-        if (meterReadingsList.isEmpty()) {
-            throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_READINGS_IN_EVENT);
         }
 
         // filled in scope of wrapInMeterReading

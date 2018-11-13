@@ -32,6 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static jdk.nashorn.internal.objects.NativeMath.log;
+
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.provider",
         service = {SendMeterReadingsProvider.class, OutboundSoapEndPointProvider.class},
         immediate = true,
@@ -94,6 +96,11 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     public void call(ReadingStorer readingStorer, boolean isCreated) {
         readingBuilderProvider.setThesaurus(thesaurus);
         MeterReadings meterReadings = readingBuilderProvider.build(readingStorer);
+
+        if (meterReadings.getMeterReading().isEmpty()) {
+            // do not want to send out a message without readings info
+            return;
+        }
         if (meterReadingsPortServices.isEmpty()) {
             throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }

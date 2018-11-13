@@ -57,16 +57,6 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     }
 
     @Test
-    public void testSendEventWithoutReadings() throws FaultMessage {
-        SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl(nlsService);
-
-        expectedException.expect(MeterReadinsServiceException.class);
-        expectedException.expectMessage(MessageSeeds.NO_READINGS_IN_EVENT.getDefaultFormat());
-
-        provider.call(readingStorer, true);
-    }
-
-    @Test
     public void testSendWithoutPort() {
         when(clock.instant()).thenReturn(JAN_1ST.toInstant());
         mockReadingsInfoType(readingInfoType, dailyReadingType, dailyReading);
