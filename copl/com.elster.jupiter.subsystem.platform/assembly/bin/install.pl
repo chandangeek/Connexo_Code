@@ -1529,25 +1529,48 @@ sub show_help {
 sub renew_db_password {
 print "Please enter the Connexo database password: ";
     chomp($dbPassword=<STDIN>);
+print "Please enter the encryption key file path (if empty will use the one defined in the config file): ";
+    chomp($ENCRYPTION_KEYFILE_PATH=<STDIN>);
+    if($ENCRYPTION_KEYFILE_PATH) {
+       $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
+    } else {
+               open(my $FH,"< $config_file") or die "Could not open $config_file: $!";
+               my $kf ='com.elster.jupiter.datasource.keyfile';
+                   while(<$FH>) {
+
+                       my $line = $_ if ($_ =~ m/$kf/);
+                        if ( $line ne "") {
+                            my @val=split('=',$line);
+                            if ( $val[1] ne "" ) {
+                                $KEYFILE_FULLPATH=$val[1];
+                                last;
+                                }
+                            }
+                    }
+                close($FH);
+    }
 update_properties_file_with_encrypted_password();
 
-    print "Stopping Connexo services\n";
-    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        system("sc stop Connexo$SERVICE_VERSION");
-        my $STATE_STRING="-1";
-		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
-			sleep 3;
-            $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
-            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
-            $STATE_STRING =~ s/.*: //g;
-            $STATE_STRING = $STATE_STRING*1;
-		}
-    } else {
-        system("/sbin/service Connexo$SERVICE_VERSION stop");
-    }
+  if ("$CONNEXO_SERVICE" eq "yes") {
+      print "Stopping Connexo services\n";
+      if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+          system("sc stop Connexo$SERVICE_VERSION");
+          my $STATE_STRING="-1";
+  		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+  			sleep 3;
+              $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
+              $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+              $STATE_STRING =~ s/.*: //g;
+              $STATE_STRING = $STATE_STRING*1;
+  		}
+      } else {
+          system("/sbin/service Connexo$SERVICE_VERSION stop");
+      }
 
-    print "Starting Connexo...";
-    start_connexo();
+      print "Starting Connexo...";
+      start_connexo();
+  }
+
 }
 
 # Main
