@@ -200,7 +200,7 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
-                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1];}
+                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1]; $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
@@ -1529,6 +1529,7 @@ sub show_help {
 sub renew_db_password {
 print "Please enter the Connexo database password: ";
     chomp($dbPassword=<STDIN>);
+    $dbPassword=~ s/^\s+|\s+$//g;
     if($dbPassword eq ""){
     die "Please provide a non-empty database password";
     }
@@ -1549,7 +1550,6 @@ print "Please enter the encryption key file path (if empty will use the one defi
                                 $KEYFILE_FULLPATH=$val[1];
                                 $KEYFILE_FULLPATH=~ s|\\|/|g;
                                 $KEYFILE_FULLPATH=~ s/^\s+|\s+$//g;
-                                print $KEYFILE_FULLPATH;
                                 last;
                                 }
                             }
