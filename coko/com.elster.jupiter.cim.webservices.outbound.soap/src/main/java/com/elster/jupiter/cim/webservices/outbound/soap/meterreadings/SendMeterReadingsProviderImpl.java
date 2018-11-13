@@ -24,15 +24,12 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static jdk.nashorn.internal.objects.NativeMath.log;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.provider",
         service = {SendMeterReadingsProvider.class, OutboundSoapEndPointProvider.class},
