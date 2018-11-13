@@ -17,6 +17,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (6) CDMA,
  (7) ... (255) reserved
  */
+@Deprecated
 public enum GSMDiagnosticPSStatus {
     Inactive(0, "Inactive"),
     GPRS(1, "GPRS"),

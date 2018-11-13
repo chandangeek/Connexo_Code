@@ -11,7 +11,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.methods.ESMR50Mbus
 
 import java.io.IOException;
 
-
+@Deprecated
 public class ESMR50MbusClient extends DSMR4_MbusClient {
 
     private int version;

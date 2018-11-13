@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Extends the original DSMR4.0 MbusLog with additional events for ESMR5.0
  */
+@Deprecated
 public class ESMR50MbusEventLog extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.MbusEventLog{
 
     private static final int EVENT_BATTERY_LOW = 100;

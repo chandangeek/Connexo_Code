@@ -9,6 +9,7 @@ import java.util.TimeZone;
 /**
  * Created by avrancea on 10/5/2016.
  */
+@Deprecated
 public class LTEConnectionRejection {
     private static final String SEP = ";\n";
     private int last_reject_cause;

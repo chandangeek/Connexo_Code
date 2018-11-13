@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages;
 /**
  * Created by iulian on 9/28/2016.
  */
+@Deprecated
 public enum MBusKeyID {
     P2(0, "P2 Key"),
     FUAK(1, "FUAK");

@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 /**
  * Created by avrancea on 12/8/2016.
  */
+@Deprecated
 public class MBusConfigurationObject {
     private final static int METEROLOGICAL_FW_POSITION= 4;
     private final static int OPERATIONAL_FW_POSITION= 6;

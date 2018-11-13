@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
+@Deprecated
 public class ESMR50CommunicationSessionLog extends AbstractEvent {
 
     private static final int EVENT_EVENT_LOG_CLEARED = 255;

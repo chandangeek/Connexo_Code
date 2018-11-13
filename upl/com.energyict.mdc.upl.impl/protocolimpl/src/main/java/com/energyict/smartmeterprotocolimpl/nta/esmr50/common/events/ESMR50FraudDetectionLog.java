@@ -8,7 +8,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.FraudDetect
 /**
  * Extends the original DSMR4.0 FraudDetectionLog with additional events for ESMR5.0
  */
-
+@Deprecated
 public class ESMR50FraudDetectionLog extends FraudDetectionLog{
     public ESMR50FraudDetectionLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);

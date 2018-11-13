@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-
+@Deprecated
 public class T210 implements MeterProtocol {
 
 //    protected T210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {

@@ -37,6 +37,7 @@ import com.energyict.dlms.axrdencoding.Structure;
  -	qRxlevMin: specifies the minimum required Rx level in the cell in dBm as defined in 3GPP TS 36.304 .
 
  */
+@Deprecated
 public class LTEMonitoringWrapper {
 
     private static final String SEP = ";\n";

@@ -7,6 +7,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 /**
  * Created by iulian on 3/24/2017.
  */
+@Deprecated
 public class LTEPingAddress {
 
     private String ipAddress;

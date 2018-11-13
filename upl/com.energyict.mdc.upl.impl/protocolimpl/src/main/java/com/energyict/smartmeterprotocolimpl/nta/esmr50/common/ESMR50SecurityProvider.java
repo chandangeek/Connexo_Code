@@ -6,7 +6,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 import java.util.Properties;
 import java.util.Random;
 
-
+@Deprecated
 public class ESMR50SecurityProvider extends Dsmr40SecurityProvider {
 
     /**
