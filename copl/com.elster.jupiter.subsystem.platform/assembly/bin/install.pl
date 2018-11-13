@@ -455,7 +455,7 @@ sub install_connexo {
 
 sub update_properties_file_with_encrypted_password {
     add_or_update_encryption_key_file();
-    open my $file, '<', $KEYFILE_FULLPATH  or die "Could not open file as specified path $!";
+    open my $file, '<', $KEYFILE_FULLPATH or die "Could not open file at specified path $!";
     my $count=0;
     $count++ while <$file>;
     close $file;
@@ -1529,10 +1529,14 @@ sub show_help {
 sub renew_db_password {
 print "Please enter the Connexo database password: ";
     chomp($dbPassword=<STDIN>);
+    if($dbPassword eq ""){
+    die "Please provide a non-empty database password";
+    }
 print "Please enter the encryption key file path (if empty will use the one defined in the config file): ";
     chomp($ENCRYPTION_KEYFILE_PATH=<STDIN>);
     if($ENCRYPTION_KEYFILE_PATH) {
-       $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
+        $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;
+        $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
     } else {
                open(my $FH,"< $config_file") or die "Could not open $config_file: $!";
                my $kf ='com.elster.jupiter.datasource.keyfile';
@@ -1543,6 +1547,9 @@ print "Please enter the encryption key file path (if empty will use the one defi
                             my @val=split('=',$line);
                             if ( $val[1] ne "" ) {
                                 $KEYFILE_FULLPATH=$val[1];
+                                $KEYFILE_FULLPATH=~ s|\\|/|g;
+                                $KEYFILE_FULLPATH=~ s/^\s+|\s+$//g;
+                                print $KEYFILE_FULLPATH;
                                 last;
                                 }
                             }
@@ -1582,12 +1589,11 @@ check_create_users();
 read_args();
 if ($help) {
     show_help();
-} elsif ($install) {
-	read_config();
-	if($renewdatabasepassword){
+}elsif($renewdatabasepassword){
         renew_db_password();
-        }
-    elsif ("$UPGRADE" eq "yes") {
+}elsif ($install) {
+	read_config();
+    if ("$UPGRADE" eq "yes") {
         perform_upgrade();
     } else {
         checking_ports();
