@@ -15,6 +15,8 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.hamcrest.core.IsInstanceOf;
 
 import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 
@@ -47,10 +49,10 @@ public class HsmConfigurationAutoReloadFilelTest {
     private HsmConfigurationAutoReloadFile hsmConfigurationPropFile;
 
     @Before
-    public void setUp() throws ConfigurationException {
+    public void setUp() throws ConfigurationException, URISyntaxException {
         when(mockedConfigurationBuilder.getConfiguration()).thenReturn(mockedConfiguration);
         URL resource = this.getClass().getClassLoader().getResource(CONFIG_FILE);
-        this.testFilePath = resource.getFile();
+        this.testFilePath = new URI(resource.getFile()).getPath();
     }
 
     @Test
