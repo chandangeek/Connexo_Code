@@ -36,6 +36,7 @@ import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.streams.ReusableInputStream;
 
 
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -54,8 +55,11 @@ import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.bc.BcPKCS10CertificationRequest;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -1219,8 +1223,9 @@ public class SecurityManagementServiceImplIT {
         assertThat(securityValues.isEmpty()).isFalse();
     }
 
-    private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
-        return (X509Certificate) certificateFactory.generateCertificate(SecurityManagementServiceImplIT.class.getResourceAsStream(name));
+    private X509Certificate loadCertificate(String name) throws IOException, CertificateException, URISyntaxException {
+        return (X509Certificate) certificateFactory.generateCertificate(ReusableInputStream.from(new FileInputStream(new URI(SecurityManagementServiceImplIT.class.getResource(name).getFile()).getPath())).stream());
+
     }
 
     private X509Certificate generateCertificateFromCSR(X500NameBuilder x500NameBuilder, SubjectPublicKeyInfo subjectPublicKeyInfo) throws
