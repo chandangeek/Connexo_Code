@@ -11,9 +11,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import oracle.ucp.jdbc.PoolDataSourceImpl;
 import org.osgi.framework.BundleContext;
 
+import java.sql.SQLException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,11 +88,13 @@ public class BootstrapServiceImplTest {
         bootstrapService.activate(bundleContext);
     }
 
-    @Test
-    public void testCreateDataSource() {
+    @Test(expected = PropertyNotFoundException.class)
+    public void testCreateDataSource() throws SQLException, PropertyNotFoundException {
+        doNothing().when(mock(PoolDataSourceImpl.class)).setPassword(anyString());
         bootstrapService.activate(bundleContext);
         assertThat(bootstrapService.createDataSource()).isNotNull();
     }
+
 
 
 }
