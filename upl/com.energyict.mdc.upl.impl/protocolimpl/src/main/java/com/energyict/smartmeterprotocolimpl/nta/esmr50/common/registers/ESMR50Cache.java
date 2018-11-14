@@ -4,7 +4,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 
 
-
+@Deprecated
 public class ESMR50Cache extends DLMSCache {
 
     private long frameCounter = 1;

@@ -33,7 +33,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Level;
 
-
+@Deprecated
 public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     private static final String MBUS_IMAGE_TRANSFER_OBIS_CODE = "0.x.44.0.0.255";

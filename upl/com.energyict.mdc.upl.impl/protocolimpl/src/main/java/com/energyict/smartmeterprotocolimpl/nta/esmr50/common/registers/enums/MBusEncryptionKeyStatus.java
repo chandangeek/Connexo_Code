@@ -16,6 +16,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (5) registered, roaming
  (6) ... (255) reserved
  */
+@Deprecated
 public enum MBusEncryptionKeyStatus {
     Status0(0, "no encryption_key"),
     Status1(1, "encryption_key set but not in use by E-meter"),

@@ -42,6 +42,7 @@ import java.util.Date;
  - channel_number: Represents the Absolute radio-frequency channel number (ARFCN or eaRFCN for LTE network)
  - reject cause:
  */
+@Deprecated
 public class LTEDiagnosticCellInfo {
     private static final String SEP = ";\n";
     private long cellId;

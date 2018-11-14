@@ -15,6 +15,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (6) Image activation successful,
  (7) Image activation failed
  */
+@Deprecated
 public enum MBusFWTransferStatus {
     Status0(0, "Image transfer not initiated"),
     Status1(1, "Image transfer initiated"),

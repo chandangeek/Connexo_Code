@@ -10,7 +10,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50Mes
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.events.ElsterEsmr50EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.registers.AS330TRegisterFactory;
-
+@Deprecated
 public class AS330T extends ESMR50Protocol {
 
     protected AS330T(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {

@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.methods;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 
-
+@Deprecated
 public enum ESMR50MbusClientMethods implements DLMSClassMethods {
 
 

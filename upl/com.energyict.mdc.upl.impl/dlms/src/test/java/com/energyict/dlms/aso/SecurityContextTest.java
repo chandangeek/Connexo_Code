@@ -6,12 +6,16 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
 import com.energyict.dlms.mocks.MockSecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class SecurityContextTest {
@@ -127,7 +131,7 @@ public class SecurityContextTest {
         byte[] sysTitle = DLMSUtils.hexStringToByteArray("4D4D4D0000BC614E");
         int frameCounter = 0x01234566;
         String frame = "C0010000080000010000FF0200";
-        String cipheredFrame = "1E3001234567411312FF935A47566827C467BC7D825C3BE4A77C3FCC056B6B";
+        String cipheredFrame = "1E3001234566438AE72E709AF6AAAF4149CC13C17D7E1FF45037FB5BA1B6F9";
         String globalKey = "000102030405060708090A0B0C0D0E0F";
         String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
         String dedicatedKey = "000102030405060708090A0B0C0D0E0F";
@@ -152,9 +156,9 @@ public class SecurityContextTest {
         String dedicatedKey = "000102030405060708090A0B0C0D0E0F";
         String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
         String unSecuredRequest = "C0010000080000010000FF0200";
-        String testDecryptA = "1e1001234567C0010000080000010000FF020003C51f733571866e675bF115";
-        String testDecryptE = "122001234567D0BC0dE872E76d3f64CE312aB1";
-        String testDecryptAE = "1E3001234567D0BC0dE872E76d3f64CE312aB1475c7dC48AB69286B4E42664";
+        String testDecryptA = "1E1001234566C0010000080000010000FF020027AA7B2E5030D8F930323F0A";
+        String testDecryptE = "122001234566843858BD995E0B30DD996ABB08";
+        String testDecryptAE = "1E3001234566843858BD995E0B30DD996ABB08C0F222CC5B8E157DEE2B9C6D";
 
         MockSecurityProvider msp = new MockSecurityProvider();
         msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
@@ -187,7 +191,7 @@ public class SecurityContextTest {
 
         String globalKey = "12348765AABBCCDD55443322ABABCDCD";
         String authenticationKey = "43218765AABBCCDD55443322ABABCDCD";
-        String testDecryptA = "1e10dd1628bbc001c100010000600200ff020084e00541ccc73874c70b8f0c";
+        String testDecryptA = "1E10DD1628BAC001C100010000600200FF02004B61FA5E6DC56FE6CEF36654";
 
         MockSecurityProvider msp = new MockSecurityProvider();
         msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));

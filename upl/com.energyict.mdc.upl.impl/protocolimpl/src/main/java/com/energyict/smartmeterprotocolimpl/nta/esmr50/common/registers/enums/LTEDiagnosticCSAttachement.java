@@ -13,6 +13,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (2) active,
  (3) ... (255) reserved
  */
+@Deprecated
 public enum LTEDiagnosticCSAttachement {
     Inactive(0, "Inactive"),
     IncomingCall(1, "Incoming Call"),

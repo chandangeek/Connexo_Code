@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 /**
  * Created by iulian on 10/6/2016.
  */
+@Deprecated
 public class MBusShortIdFactory {
 
     private String longId;

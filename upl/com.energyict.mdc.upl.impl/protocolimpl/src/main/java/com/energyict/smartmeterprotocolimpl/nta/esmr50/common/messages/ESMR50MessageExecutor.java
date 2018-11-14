@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Level;
 
-
+@Deprecated
 public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     public static final String MBUS_DAILY_BILLING_OBISCODE = "0.x.99.2.0.255";
     public static final String MBUS_MONTHLY_BILLING_OBISCODE = "0.x.98.1.0.255";

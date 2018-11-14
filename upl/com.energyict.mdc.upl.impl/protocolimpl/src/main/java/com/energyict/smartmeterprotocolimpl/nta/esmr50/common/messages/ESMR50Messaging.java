@@ -7,7 +7,7 @@ import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import java.util.List;
-
+@Deprecated
 public class ESMR50Messaging extends Dsmr40Messaging {
     private final ESMR50MessageExecutor messageExecutor;
 

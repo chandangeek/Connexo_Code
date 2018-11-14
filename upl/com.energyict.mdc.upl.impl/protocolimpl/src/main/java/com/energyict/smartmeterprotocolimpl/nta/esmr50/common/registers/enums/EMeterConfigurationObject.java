@@ -9,6 +9,7 @@ import java.util.Iterator;
 /**
  * Created by iulian on 8/27/2016.
  */
+@Deprecated
 public class EMeterConfigurationObject {
 
     private static final String SEP = ";\n";

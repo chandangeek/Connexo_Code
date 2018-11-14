@@ -9,7 +9,7 @@ import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import java.util.List;
-
+@Deprecated
 public class ESMR50MbusMessaging extends Dsmr23MbusMessaging implements MessageProtocol{
 
     public List getMessageCategories() {

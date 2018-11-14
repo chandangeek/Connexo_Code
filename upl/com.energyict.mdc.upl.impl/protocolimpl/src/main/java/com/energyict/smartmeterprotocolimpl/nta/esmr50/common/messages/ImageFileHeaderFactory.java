@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 /**
  * Created by iulian on 10/6/2016.
  */
+@Deprecated
 public class ImageFileHeaderFactory {
     public static final int ACTIVATION_IMMEDIATE = 1;
     public static final int ACTIVATION_TIMED = 2;
