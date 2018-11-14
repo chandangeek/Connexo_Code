@@ -22,7 +22,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.ESMR50Re
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
-
+@Deprecated
 public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
     /*

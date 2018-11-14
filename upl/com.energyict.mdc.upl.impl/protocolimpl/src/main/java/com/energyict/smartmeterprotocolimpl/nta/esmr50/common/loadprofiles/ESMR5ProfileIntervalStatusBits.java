@@ -5,6 +5,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileInte
 /**
  * Created by iulian on 8/17/2016.
  */
+@Deprecated
 public class ESMR5ProfileIntervalStatusBits extends DSMRProfileIntervalStatusBits {
 
     public ESMR5ProfileIntervalStatusBits() {

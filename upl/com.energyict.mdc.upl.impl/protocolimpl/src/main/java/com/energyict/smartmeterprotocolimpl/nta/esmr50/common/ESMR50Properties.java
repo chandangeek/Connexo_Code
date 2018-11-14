@@ -11,7 +11,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import java.util.List;
 import java.util.Properties;
 
-
+@Deprecated
 public class ESMR50Properties extends Dsmr40Properties {
 
     public static final String ESMR_50_HEX_PASSWORD = "HexPassword";

@@ -9,6 +9,7 @@ import java.util.Iterator;
 /**
  * Created by iulian on 8/18/2016.
  */
+@Deprecated
 public class LTEDiagnosticAdjacentCells {
     private long cellId;
     private long signalQuality;

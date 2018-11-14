@@ -10,7 +10,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50Mes
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.events.SagemcomEsmr50EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.registers.XS210RegisterFactory;
-
+@Deprecated
 public class XS210 extends ESMR50Protocol {
 
     protected XS210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {

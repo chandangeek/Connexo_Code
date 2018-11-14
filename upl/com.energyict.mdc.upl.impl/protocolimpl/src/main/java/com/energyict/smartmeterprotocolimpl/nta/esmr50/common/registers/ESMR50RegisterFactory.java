@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+@Deprecated
 public class ESMR50RegisterFactory extends DSMR40RegisterFactory{
     //Firmware
     protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.0.0.2.0.255");

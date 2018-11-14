@@ -3,12 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.registers;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -17,13 +12,7 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.issue.Issue;
@@ -44,11 +33,7 @@ import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -86,6 +71,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};
     protected final AbstractDlmsProtocol protocol;
     protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
+
+    public Map<OfflineRegister, ComposedRegister> getComposedRegisterMap() {
+        return composedRegisterMap;
+    }
+
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -166,6 +156,47 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             }
         }
         return collectedRegisters;
+    }
+
+    /** Handle any special composed register
+     *
+     * @param register - composed register to be handled
+     * @return - true = was able to handle it
+     *          - false = was not able to handle it;
+     */
+    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
+        ScalerUnit su = readUnit(registerComposedCosemObject, register);
+        if (su.getUnitCode() != 0) {
+            Date eventTime = null;   //Optional capture time attribute
+            DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
+            if (registerCaptureTime != null) {
+                eventTime = readEventTime(registerComposedCosemObject, registerCaptureTime);
+            }
+            return new RegisterValue(register,
+                    new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+                            su.getEisUnit()), eventTime);
+        } else {
+            this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
+            return new RegisterValue(register,
+                    new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
+                            null), null);
+        }
+
+    }
+
+    protected Date readEventTime(ComposedCosemObject registerComposedCosemObject, DLMSAttribute registerCaptureTime) throws IOException {
+        AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
+        return attribute.getOctetString().getDateTime(protocol.getDlmsSession().getTimeZone()).getValue().getTime();
+    }
+
+    protected ScalerUnit readUnit(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
+        DLMSAttribute unitAttribute = this.composedRegisterMap.get(register).getRegisterUnitAttribute();
+        if (unitAttribute!=null) {
+            return new ScalerUnit(registerComposedCosemObject.getAttribute(unitAttribute));
+        } else {
+            protocol.getLogger().finest(" - register "+register.getObisCode()+" does now have an unit code specified in the protocol implementation, set to default");
+            return new ScalerUnit(0, Unit.get(0) );
+        }
     }
 
     /**
@@ -325,7 +356,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      * @param oc -  the manipulated ObisCode of the Disconnector object
      * @return the original ObisCode of the Disconnector object
      */
-    private ObisCode adjustToMbusOC(ObisCode oc) {
+    protected ObisCode adjustToMbusOC(ObisCode oc) {
         return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
     }
 

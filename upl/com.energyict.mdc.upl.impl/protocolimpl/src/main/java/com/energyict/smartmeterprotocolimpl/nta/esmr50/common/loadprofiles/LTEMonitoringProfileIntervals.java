@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 /**
  * Created by Iulian on 5/18/2017.
  */
+@Deprecated
 public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
 
     private Logger logger = Logger.getAnonymousLogger();

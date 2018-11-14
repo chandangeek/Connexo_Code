@@ -16,6 +16,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (5) registered, roaming
  (6) ... (255) reserved
  */
+@Deprecated
 public enum LTEDiagnosticStatus {
     NotRegistered(0, "Not registered"),
     RegisteredHome(1, "Registered, home network"),

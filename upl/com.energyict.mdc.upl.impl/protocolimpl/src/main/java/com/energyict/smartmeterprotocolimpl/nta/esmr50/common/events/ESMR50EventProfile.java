@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class ESMR50EventProfile extends DSMR40EventProfile {
     public static final String MBUS_EVENT_LOG = "0.x.99.98.3.255";
 

@@ -7,6 +7,7 @@ import java.util.TimeZone;
 /**
  * Created by iulian on 10/7/2016.
  */
+@Deprecated
 public class MBusDateTypeI {
 
 

@@ -16,6 +16,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common.registers.enums;
  (5) registered, roaming
  (6) ... (255) reserved
  */
+@Deprecated
 public enum MBusFUAKStatus {
     Status0(0, "FUAK status unknown"),
     Status1(1, "FUAK received by E-meter"),

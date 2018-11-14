@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * Extends the original DSMR4.0 EventsLog with additional events for ESMR5.0
  */
+@Deprecated
 public class ESMR50StandardEventLog extends StandardEventLog {
 
 	protected static final int EVENT_SUCCESSFULL_SELFCHECK_AFTER_FIRMWARE_UPDATE = 20;

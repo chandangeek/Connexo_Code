@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.common;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
-
+@Deprecated
 public class ESMR50RespondingFrameCounterHandler extends DSMR40RespondingFrameCounterHandler {
 
     private Integer responseFrameCounter = null;
