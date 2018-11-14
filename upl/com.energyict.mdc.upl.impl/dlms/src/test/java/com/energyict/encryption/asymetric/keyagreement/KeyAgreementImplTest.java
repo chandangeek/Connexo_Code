@@ -79,10 +79,10 @@ public class KeyAgreementImplTest {
             "908D2287BEFA3725017295A096989D2338290B", "");
 
     private static final byte[] ONEPASS_EXPECTED_SHARED_SECRET_SERVER = ProtocolTools.getBytesFromHexString("0D4385BA0DD756CBCAB9887EB538396EE8F090A14C1079B4359F115B977F4615", "");
-    private static final byte[] EXPECTED_GENERAL_CIPHERING_KEY_SERVER = ProtocolTools.getBytesFromHexString("8CD08FF02EAC71712DE8449DC8331833", "");
+    private static final byte[] EXPECTED_GENERAL_CIPHERING_KEY_SERVER = ProtocolTools.getBytesFromHexString("59A71FD81C929A86A99438DA17A66C05", "");
 
     private static final byte[] ONEPASS_EXPECTED_SHARED_SECRET_CLIENT = ProtocolTools.getBytesFromHexString("2B4302DC49790E2E78D990CFB52ED6E2F273DECE441A2D95E4301B93812A9FAC", "");
-    private static final byte[] EXPECTED_GENERAL_CIPHERING_KEY_CLIENT = ProtocolTools.getBytesFromHexString("E357F06755CBF5C2C31457FE3CD1D5B8", "");
+    private static final byte[] EXPECTED_GENERAL_CIPHERING_KEY_CLIENT = ProtocolTools.getBytesFromHexString("F0184BDA9466BFA4601A64A7EF46504A", "");
 
     /**
      * System title of the client ("Party U").
@@ -97,7 +97,7 @@ public class KeyAgreementImplTest {
     /**
      * The expected global unicast encryption key that is to be derived using the key agreement algorithm
      */
-    private static final byte[] EXPECTED_GUEK = ProtocolTools.getBytesFromHexString("E025CA6F9EE8D2B40F993739D44CFBC0", "");
+    private static final byte[] EXPECTED_GUEK = ProtocolTools.getBytesFromHexString("C5F4512846EDE51CFB8CCF59F08A694E", "");
 
     /**
      * Tests Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme
