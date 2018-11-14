@@ -2,6 +2,7 @@ package com.energyict.encryption.kdf;
 
 import com.energyict.encryption.AlgorithmID;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -33,9 +34,9 @@ public final class NIST_SP_800_56_KDFTest {
     /**
      * Expected key when using a compliant NIST KDF.
      */
-    private static final byte[] EXPECTED_GUEK_CLIENT = ProtocolTools.getBytesFromHexString("E025CA6F9EE8D2B40F993739D44CFBC0", "");
+    private static final byte[] EXPECTED_GUEK_CLIENT = ProtocolTools.getBytesFromHexString("C5F4512846EDE51CFB8CCF59F08A694E", "");
 
-    private static final byte[] EXPECTED_GUEK_SERVER = ProtocolTools.getBytesFromHexString("E357F06755CBF5C2C31457FE3CD1D5B8", "");
+    private static final byte[] EXPECTED_GUEK_SERVER = ProtocolTools.getBytesFromHexString("F0184BDA9466BFA4601A64A7EF46504A", "");
 
     /**
      * Tests the KDF.
