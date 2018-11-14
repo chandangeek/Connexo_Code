@@ -53,8 +53,8 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     CA_NAME_DESCRIPTION("certificate.name.description", "Certificate name"),
     CA_END_ENTITY_NAME("certificate.end.entity.name", "Certificate end entity name"),
     CA_END_ENTITY_NAME_DESCRIPTION("certificate.end.entity.name.description", "Certificate end entity name"),
-    CA_PROFILE_NAME("certificate.profile.name.description", "Certificate profile name"),
-    CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile name");
+    CA_PROFILE_NAME("certificate.profile.name", "Certificate profile name"),
+    CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile description");
 
     private final String key;
     private final String defaultFormat;

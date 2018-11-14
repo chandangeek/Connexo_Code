@@ -354,6 +354,9 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.minutes(1))
                 .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(sa)
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
+                .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
+                .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
                 .create();
     }
 
@@ -402,6 +405,10 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey()).withValue("Exported")
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION.getPropertyKey()).withValue("zip")
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey()).withValue("Resource")
+                .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
+                .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
+                .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
+
                 .create();
     }
 

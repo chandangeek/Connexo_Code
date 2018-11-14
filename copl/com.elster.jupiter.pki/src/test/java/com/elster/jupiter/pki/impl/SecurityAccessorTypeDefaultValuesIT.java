@@ -20,10 +20,13 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.streams.ReusableInputStream;
 import com.elster.jupiter.util.time.Never;
 
+import java.io.FileInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.nio.file.FileSystems;
 import java.security.KeyStore;
 import java.util.Arrays;
@@ -66,7 +69,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         ((FileImportServiceImpl) inMemoryPersistence.getFileImportService()).addFileImporter(inMemoryPersistence.getCSRImporterFactory());
 
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
-        keyStore.load(SecurityAccessorTypeDefaultValuesIT.class.getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());
+        keyStore.load(ReusableInputStream.from(new FileInputStream(new URI(SecurityAccessorTypeDefaultValuesIT.class.getResource("SM2016MDMCA-chain.jks").getFile()).getPath())).stream(), "changeit".toCharArray());
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
             TrustStore trustStore = securityManagementService
                     .newTrustStore("imported")
@@ -397,6 +400,9 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(30))
                 .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(securityAccessor)
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
+                .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
+                .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
                 .create();
 
         expectedRule.expect(PkiLocalizedException.class);
