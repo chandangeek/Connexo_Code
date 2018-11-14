@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Understand projected readings</title>
+
+    <link rel="stylesheet" href="Data_estimation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "7.0_5";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_estimation/Understand_the_field_Estimation_comment.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_estimation/View_estimation_rule_sets.htm">
+    <meta name="topic-breadcrumbs" content="Data estimation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_69054_Understand"></a>Understand projected readings</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">When data couldn’t be read from the meter, a substitution is done and this data is flagged as non-permanent. It is a temporary estimation because it is possible that later on new data will be entered - either automatically or manually - overwriting the estimated values. When the data is re-read, imported or edited, this flag will be removed unless the operator decides that the new data must still be considered as temporary. The flag can also be cleared manually. When the flag has been removed the new data will be considered as valid, i.e. not suspect, in Connexo and will be generally available for data export.</span>
+    </p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Only edited and estimated data can be marked as projected. When flagged the value receives the 3.12.0 reading quality and the value is marked with the corresponding icon.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"><img alt="Projected.png" id="image108" src="../../assets/Projected.png" style="max-width: 100% ;height: auto"/>&nbsp;</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; color   : #686868; ">Example</span><span class="FM_change_bar">: Between 0:00 and 04:00 in the morning a communication task starts which asks meters for data. Once received, the data is validated, the suspect data is estimated and the results are exported. If a meter can’t be read or if there are just a few hours for which we can’t read data a ‘Forward estimation task’ is started. This task estimates the missing data and flags it as projected. This flag indicates to the billing system that it isn’t actual data but that it was estimated by Connexo. By estimating this data, we are able to export a full day’s data to the billing system. On the next day, the actual data is read and received. It will replace the projected data with the actual data and all reading qualities are removed.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">To flag a value as projected:</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Open a purpose under </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data</span><span
+            class="FM_change_bar"> in the vertical navigation bar on the left.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Open one of the outputs.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click the action button of an edited or estimated value and select </span><span class="FM_change_bar"
+                                                                                                                                                              style="font-family : Lato; font-weight : bold; ">Mark as projected</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save changes</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The value is marked with the projected icon <img alt="Projected_1.png" id="image109" src="../../assets/Projected_1.png"
+                                                                                                                style="max-width: 100% ;height: auto"/> and has the 3.12.0 reading quality.</span></p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Mark as projected is also available as a bulk action to mark multiple values simultaneously.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Most estimators have a parameter allowing to flag values as projected automatically when they are estimated. See </span><a
+            href="Out-of-the-box_estimators.htm#XREF_57260_Out_of_the_box"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference"></span><span class="FM_change_bar">Out-of-the-box estimators</span><span class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span
+            class="FM_change_bar">. The parameter becomes available when editing a channel reading as described in </span><a
+            href="../Data_editing/Estimate_channel_readings.htm#XREF_62326_Estimate_channel"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“Estimate channel readings”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+</div>
+</body>
+</html>

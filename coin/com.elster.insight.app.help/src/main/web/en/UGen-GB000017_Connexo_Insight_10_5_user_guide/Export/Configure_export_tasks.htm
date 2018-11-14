@@ -1,0 +1,549 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Configure export tasks</title>
+
+    <link rel="stylesheet" href="Export.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "11.0_4";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Export/Monitor_export_tasks.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Export/Out-of-the-box_data_selectors.htm">
+    <meta name="topic-breadcrumbs" content="Export"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section"><a name="XREF_79196_1_2_Configure_data"></a>Configure export tasks</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic" style="margin-top  : 25.000pt; font-size  : 28.0pt; color   : #54ba29;">Understand export configuration</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_66230_Add_a_data_export"></a>Add an export task</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Add and configure an</span>&#160;export task to run it on request or using a schedule. </p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body">Before starting, you need to make sure that the needed usage point group is available. You will have to select one when selecting data for export.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administratio</span><span class="FM_change_bar">n</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data exchange &gt; Export tasks</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add </span><span
+            class="FM_UIRef">export task</span>.</p>
+    <p dir="ltr" class="FM_Indent">The <span class="FM_UIRef">Add </span><span class="FM_change_bar">e</span><span class="FM_UIRef">xport task</span> page is divided in four sections:</p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Name</span>.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Schedule</span>.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Data selection</span>.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Destinations</span>.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent">The sections are described under this procedure.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Complete the required fields.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Indent">The new export task <span class="FM_change_bar">is shown in the export task overview table.</span></p>
+    <p dir="ltr" class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">The four sections of an</span><span class="FM_Bold"> export task configuration:</span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_UIRef">Name</span> is a required field and its value must be unique.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; In <span class="FM_UIRef">Log lev</span><span class="FM_change_bar">e</span><span class="FM_UIRef">l</span>, specify the needed <a
+            href="javascript:BSSCPopup('../../Glo$$aryPopup$/log level.htm');" id="GLPOPUPConfResp1011">
+        <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPConfResp1011');</script>
+        log level</a> for eventual troubleshooting.
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Log level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Error</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">An exception that stops the export task. The message will contain an error code and an error message.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Warning</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This is the default value. An exception that could cause a problem in the future. Warnings aren’t blocking the export task. The message will contain a warning code and message.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Information</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Informative message indicating that a step in the process has been executed as expected.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Debug</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Detailed logging of all the events that take place during the process enabling you to isolate issues. This extensive contextual information is helpful during testing, debugging and development. It is indispensable for troubleshooting.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Trace</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Most detailed <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/log level.htm');" id="GLPOPUPConfResp1012"><script
+                            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                    FilePopupInit('GLPOPUPConfResp1012');</script>log level</a>. It is mainly used during development.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Under <span class="FM_UIRef">Schedule</span> there are two fields that define when the<span class="FM_change_bar">&#160;</span>export task is running.
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Field</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Recurrence</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The frequency with which the <span class="FM_change_bar">e</span>xport task is running. Select <span class="FM_UIRef">None</span>&#160;if you want
+                        to run the task ad hoc.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Start on</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Date and time when the <span class="FM_change_bar">e</span>xport task must start. By default, this field’s value is the current date and time.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">By default, <span class="FM_UIRef">Recurrence</span>&#160;is <span class="FM_UIRef">None</span>&#160;and the <span class="FM_UIRef">Start on</span> date is the
+        current date and time.</p>
+    <p dir="ltr" class="FM_BodyGrey">If you select <span class="FM_UIRef">1 month(s)</span>&#160;in <span class="FM_UIRef">Every</span>&#160;and a specific date and time in <span class="FM_UIRef">Start on</span>,
+        then the <span class="FM_change_bar">e</span>xport task will run every month on the specified day and time.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Under <span class="FM_UIRef">Data selection </span>you select the data for export by selecting an item in the <span
+            class="FM_UIRef">Data selector</span>&#160;drop-down. After selecting the needed data selector the corresponding data selection properties are shown in <span class="FM_UIRef">Data selection</span>&#160;and
+        the <span class="FM_UIRef">Output format</span> section is added.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Under <span class="FM_UIRef">Output format</span>, the available output formats in <span class="FM_UIRef">Data formatter</span>&#160;and the
+        corresponding output format properties are determined by the selected data selector. </p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Finally, under <span class="FM_UIRef">Destinations</span>, you specify where and how the export file(s) must be delivered. An<span
+            class="FM_change_bar">&#160;</span>export task must have at least one destination. It is possible to send an export file to multiple destinations at once. So, you don’t need to configure a
+        new <span class="FM_change_bar">e</span>xport task for each delivery address. Refer to <a href="#XREF_34691_Add_a_new"><span class="FM_blue_crossreference">“</span><span
+                class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add a new destination”</span></a>&#160;for more information about configuring destinations.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Indent">The new <span class="FM_change_bar">e</span>xport task is added to the overview table on the <span class="FM_UIRef">Data exports</span>&#160;page. The configured
+        export will be executed on the specified time(s).</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_34691_Add_a_new"></a>Add a new destination</p>
+    <p dir="ltr" class="FM_Body">To make an export task work, it must have at least one destination for the exported data<span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;<span class="FM_change_bar">&gt; </span><span class="FM_change_bar"
+                                                                                                                                                             style="font-family : Lato; font-weight : bold; ">Data exchange &gt; Export tasks</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar"
+                                                                                                            style="font-family : Lato; font-weight : bold; ">Add export task</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Alternatively, select an </span>export task and select <span class="FM_UIRef">Edit</span>&#160;from the action icon <img
+            alt="Export00047.png" id="image168" src="../../assets/Export00047.png" style="max-width: 100% ;height: auto"/>&#160;at the bottom of the selected row.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; In the section <span class="FM_UIRef">Destinations</span>&#160;click <span class="FM_UIRef">Add destination</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; In <span class="FM_UIRef">Method</span>, select the needed destination.</p>
+    <p dir="ltr" class="FM_Indent">After specifying the method, a number of extra fields appear to configure how the selected method must work. The following methods are available:</p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Save file</span>: Simply save the export file in a folder that is accessible from the application server that is running the<span
+                    class="FM_change_bar">&#160;</span>export task. After selection of this method, the following parameters appear on screen:</p>
+            <div width="100%" align="left">
+                <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+                    <tr class="t1st">
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Description</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File name</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Example: DataExporter2. You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the
+                                text box.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File extension</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Example: csv.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File location</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Type only the relative path where the export file needs to be dropped. The root folder containing all export folders and files is defined
+                                on the application server that is handling the exports. See the Connexo Admin user guide for more detailed information about configuring an application server. Contact
+                                your Connexo administrator if you need assistance in this matter.</p>
+                            <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                            <p dir="ltr" class="FM_CellBody">Example: DataExporter2\MyFolder\MySubFolder</p>
+                            <p dir="ltr" class="FM_CellBody">If the folder doesn’t exist yet, then it will be created.</p>
+                            <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">Mail: </span>Send the export file by email. The mail server that is sending the emails must be configured in the
+                config.properties file after installation of Connexo. The following properties are concerned:</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet3">mail.smtp.host</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet3">mail.smtp.port</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet3">mail.user</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet3">mail.password</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet3">mail.from: This is the e-mail address that will be used as the sender of the e-mails. Typically, it is an address in the style of
+                donotreply@domain.com.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent" style="text-indent : 34.016pt;">After selection of the e-mail method, the following parameters appear on screen:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">To</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Addressee email addresses. The addresses need to be separated by a semicolon.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Subject</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Subject of the email message to which the export file is attached.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Attachment name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Attachment extension</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Example: csv.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">FTP</span>: Send the export file via a file transfer protocol. After selection of this method, the following parameters appear on
+                screen:</p>
+            <div width="100%" align="left">
+                <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+                    <tr class="t1st">
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Description</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Hostname</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Type the correct host name.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Port</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">21 is default.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">User</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">User to log on to the ftp server.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Password</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Password for the ftp connection.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File name</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File extension</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Example: csv.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File location</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_UIRef">FTPS</span>: Send the export file via file transfer protocol over SSL (Secure Sockets Layer). </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2">After selection of this method, the following parameters appear on screen:</p>
+            <div width="100%" align="left">
+                <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+                    <tr class="t1st">
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellHeading">Description</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Hostname</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Type the correct host name.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Port</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">21 is default.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">User</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">User to log on to the ftp server.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Password</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Password for the ftp connection.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File name</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                        </td>
+                    </tr>
+                    <tr class="t1Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File extension</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">Example: csv.</p>
+                        </td>
+                    </tr>
+                    <tr class="t2Row">
+                        <td>
+                            <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">File location</span></p>
+                        </td>
+                        <td>
+                            <p dir="ltr" class="FM_CellBody">You can add multiple tags. A full list of the available tags can be obtained by clicking the info icon next to the text box.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Indent">The new destination is shown in a table on the <span class="FM_UIRef">Add</span><span class="FM_change_bar">&#160;</span><span class="FM_UIRef">export task</span>
+        window.</p>
+    <p dir="ltr" class="FM_H4Topic">View destinations</p>
+    <p dir="ltr" class="FM_Body">You can verify if destinations have been configured for an <span class="FM_change_bar">e</span>xport task, how many of them and with what configuration details.</p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data exchange &gt; Export task</span><span
+            class="FM_change_bar">s</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the needed export task in the overview table.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">On the details pane of the selected export task on the </span><span class="FM_change_bar"
+                                                                                                                                                  style="font-family : Lato; font-weight : bold; ">E</span><span
+            class="FM_UIRef">xport tasks</span>&#160;page or on its detail page you can see only the number of destinations that are configured for this<span class="FM_change_bar">&#160;</span>export
+        task.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Hover over the info icon next to the indicated number of destinations to see a summary of the configured data.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; To see the destinations in a table, you need to edit the<span class="FM_change_bar">&#160;</span>export task.</p>
+    <p dir="ltr" class="FM_H4Topic">Edit destinations</p>
+    <p dir="ltr" class="FM_Body">You can edit existing destinations of an<span class="FM_change_bar">&#160;</span>export task to see the available destinations in a clear overview table and to make
+        changes to their configuration. To edit a destination, you must first edit the <span class="FM_change_bar">e</span>xport task it is associated with. See <a
+                href="Manage_export_tasks.htm#XREF_76248_Edit_data_export"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Edit export tasks”</span></a>.
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administrat</span><span class="FM_change_bar">ion</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data exchange &gt; Export tasks</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the needed </span>export task in the overview table.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Select <span class="FM_UIRef">Edit</span>&#160;from the actions icon <img alt="Export00048.png" id="image169" src="../../assets/Export00048.png"
+                                                                                                                            style="max-width: 100% ;height: auto"/> at the bottom of the selected row.
+    </p>
+    <p dir="ltr" class="FM_Indent">Alternatively, select <span class="FM_UIRef">Edit</span>&#160;from the <span class="FM_UIRef">Actions</span> button on the details pane or detail page.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; On the <span class="FM_UIRef">Edit</span>&#160;page, find the needed destination in the table under <span class="FM_UIRef">Destinations</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Edit</span>&#160;from the action icon <img alt="Export00049.png" id="image170" src="../../assets/Export00049.png"
+                                                                                                                          style="max-width: 100% ;height: auto"/> at the bottom of the selected row.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Make the needed changes on the <span class="FM_UIRef">Edit destination</span> page.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Click <span class="FM_UIRef">Save</span> to keep your changes.</p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; Click again <span class="FM_UIRef">Save</span>&#160;on the <span class="FM_UIRef">Edit</span>&#160;export task page to store the <span
+            class="FM_change_bar">e</span>xport task with the new destination information.</p>
+    <p dir="ltr" class="FM_H4Topic">Remove destinations</p>
+    <p dir="ltr" class="FM_Body">You can remove existing destinations of an<span class="FM_change_bar">&#160;</span>export task if you no longer want the related export file to be delivered to a
+        particular destination.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administrat</span><span class="FM_change_bar">ion</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data exchange &gt; Export tasks</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the needed </span>export task in the overview table.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Select <span class="FM_UIRef">Remove</span>&#160;from the actions icon <img alt="Export00050.png" id="image171" src="../../assets/Export00050.png"
+                                                                                                                              style="max-width: 100% ;height: auto"/> at the bottom of the selected row.
+    </p>
+    <p dir="ltr" class="FM_Indent">Alternatively, select <span class="FM_UIRef">Remove</span>&#160;from the <span class="FM_UIRef">Actions</span> button on the details pane or detail page.</p>
+    <p dir="ltr" class="FM_Indent">The selected destination is no longer shown in the destinations table.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>&#160;to store the <span class="FM_change_bar">e</span>xport task with the new data export information.</p>
+    <p dir="ltr" class="FM_Indent">The export file that is related to the concerned e<span class="FM_change_bar">x</span>port task will no longer be delivered to the removed destination.</p>
+</div>
+</body>
+</html>
