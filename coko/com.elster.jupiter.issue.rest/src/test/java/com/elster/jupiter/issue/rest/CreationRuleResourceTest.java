@@ -56,6 +56,8 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -381,8 +383,14 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         CreationRuleActionBuilder actionBuilder = mock(CreationRuleActionBuilder.class);
         when(ruleBuilder.newCreationRuleAction()).thenReturn(actionBuilder);
         CreationRuleAction action = mock(CreationRuleAction.class);
-        when(actionBuilder.complete()).thenReturn(action);
+        IssueAction issueAction = mock(IssueAction.class);
+        doReturn(Optional.of(issueAction)).when(issueActionService).createIssueAction(anyString(),anyString());
 
+        when(actionBuilder.complete()).thenReturn(action);
+        when(action.getPhase()).thenReturn(CreationRuleActionPhase.CREATE);
+        IssueActionType actionType = mock(IssueActionType.class);
+        when(action.getAction()).thenReturn(actionType);
+        doReturn(Optional.of(issueAction)).when(actionType).createIssueAction();
         CreationRuleActionInfo info = new CreationRuleActionInfo();
 
         Response response = target("/creationrules/validateaction").request().post(Entity.json(info));
