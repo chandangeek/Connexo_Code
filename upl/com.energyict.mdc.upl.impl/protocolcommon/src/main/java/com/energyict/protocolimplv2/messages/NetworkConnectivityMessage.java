@@ -563,6 +563,63 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         }
     },
 
+    CHANGE_SNMP_AGENT_CONFIGURATION(4071, "Change SNMP agent configuration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.snmpSystemContact, DeviceMessageConstants.snmpSystemContactDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.snmpSystemLocation, DeviceMessageConstants.snmpSystemLocationDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.snmpLocalEngineId, DeviceMessageConstants.snmpLocalEngineIdDefaultTranslation),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.snmpNotificationType, DeviceMessageConstants.snmpNotificationTypeDefaultTranslation)
+                            .addValues(SNMPNotificationType.getDescriptionValues())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.snmpNotificationUserProfile, DeviceMessageConstants.snmpNotificationUserProfileDefaultTranslation)
+                            .addValues(SNMPUserProfileType.getDescriptionValues())
+                            .finish(),
+                    this.stringSpec(service, DeviceMessageConstants.snmpNotificationHost, DeviceMessageConstants.snmpNotificationHostDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.snmpNotificationPort, DeviceMessageConstants.snmpNotificationPortDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_SNMP_AGENT_USER_NAME(4072, "Change SNMP agent user name") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
+                        .addValues(SNMPUserProfileType.getDescriptionValues())
+                        .finish(),
+                    this.stringSpec(service, DeviceMessageConstants.snmpNewUserName, DeviceMessageConstants.snmpNewUserNameDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_SNMP_AGENT_USER_PASSPHRASES(4073, "Change SNMP agent user passphrases") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
+                            // The public user profile (0) does not hold any credentials, and therefore cannot be used in this method.
+                            .addValues(Arrays.copyOfRange(SNMPUserProfileType.getDescriptionValues(), 1, SNMPUserProfileType.getDescriptionValues().length))
+                            .finish(),
+                    this.stringSpec(service, DeviceMessageConstants.snmpPrivPassphrase, DeviceMessageConstants.snmpPrivPassphraseDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.snmpAuthPassphrase, DeviceMessageConstants.snmpAuthPassphraseDefaultTranslation)
+            );
+        }
+    },
+
+    ENABLE_SNMP_USER_PROFILE(4074, "Enable/disable a SNMP user profile") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
+                            .addValues(SNMPUserProfileType.getDescriptionValues())
+                            .finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.snmpUserState, DeviceMessageConstants.snmpUserStateDefaultTranslation)
+            );
+        }
+    }
+
     ;
 
     public enum VPNAuthenticationType {
@@ -589,6 +646,85 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
         public static String[] getDescriptionValues() {
             VPNAuthenticationType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum SNMPNotificationType {
+        None(0, "None"),
+        Trap(1, "Trap"),
+        Inform(2, "Inform");
+
+        private final int id;
+        private final String description;
+
+        SNMPNotificationType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static SNMPNotificationType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            SNMPNotificationType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum SNMPUserProfileType {
+        Public(0, "Public"),
+        Read_Only(1, "Read_Only"),
+        Read_Write(2, "Read_Write"),
+        Management(3, "Management");
+
+        private final int id;
+        private final String description;
+
+        SNMPUserProfileType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static SNMPUserProfileType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            SNMPUserProfileType[] allObjects = values();
             String[] result = new String[allObjects.length];
             for (int index = 0; index < allObjects.length; index++) {
                 result[index] = allObjects[index].getDescription();
@@ -764,23 +900,20 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .toArray(BigDecimal[]::new);
     }
 
-    protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired();
-    }
-
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
-    }
-
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .addValues(exhaustiveValues)
                 .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -801,16 +934,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).addValues(possibleValues).markExhaustive().finish();
     }
 
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .booleanSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, boolean defaultValue) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
@@ -826,16 +949,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .timeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

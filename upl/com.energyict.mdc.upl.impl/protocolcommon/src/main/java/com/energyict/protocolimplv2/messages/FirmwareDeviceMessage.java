@@ -593,27 +593,10 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .markRequired();
     }
 
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.booleanPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
-    }
-
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Boolean defaultValue) {
         return this.booleanPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .setDefaultValue(defaultValue)
                 .finish();
-    }
-
-    private PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired();
-    }
-
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... possibleValues) {
@@ -658,16 +641,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .setDefaultValue(defaultValue)
                 .markExhaustive()
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateTimeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }

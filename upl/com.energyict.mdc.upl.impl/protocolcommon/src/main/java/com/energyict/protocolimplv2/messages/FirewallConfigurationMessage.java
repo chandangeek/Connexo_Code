@@ -85,16 +85,6 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .booleanSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return FirewallConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }

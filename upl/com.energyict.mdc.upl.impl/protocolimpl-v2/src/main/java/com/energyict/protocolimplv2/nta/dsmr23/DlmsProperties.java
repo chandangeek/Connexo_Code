@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
@@ -21,55 +15,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.TimeZone;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
-import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ADDRESSING_MODE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CIPHERING_TYPE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CONFORMANCE_BLOCK_VALUE_LN;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CONFORMANCE_BLOCK_VALUE_SN;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_DEVICE_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ENABLE_GBT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FIX_MBUS_HEX_SHORT_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_GBT_WINDOW_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_INFORMATION_FIELD_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_INVOKE_ID_AND_PRIORITY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_LOWER_SERVER_MAC_ADDRESS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MANUFACTURER;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_NTA_SIMULATION_TOOL;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_PROPOSED_DLMS_VERSION;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_PROPOSED_QOS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_REQUEST_TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ROUND_TRIP_CORRECTION;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_SYSTEM_IDENTIFIER;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEOUT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_VALIDATE_INVOKE_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_WAKE_UP;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEVICE_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.FIX_MBUS_HEX_SHORT_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.INFORMATION_FIELD_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MANUFACTURER;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
-import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.RETRIES;
-import static com.energyict.dlms.common.DlmsProtocolProperties.ROUND_TRIP_CORRECTION;
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
-import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
-import static com.energyict.dlms.common.DlmsProtocolProperties.WAKE_UP;
+import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)
@@ -457,7 +403,7 @@ public class DlmsProperties implements DlmsSessionProperties {
      * {@inheritDoc}
      */
     @Override
-    public final boolean incrementFrameCounterForReplyToHLS() {
+    public boolean incrementFrameCounterForReplyToHLS() {
         return this.properties.getTypedProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false);
     }
 

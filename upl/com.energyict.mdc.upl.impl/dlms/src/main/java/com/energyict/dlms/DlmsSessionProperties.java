@@ -1,9 +1,8 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
  * Copyrights EnergyICT
@@ -97,5 +96,13 @@ public interface DlmsSessionProperties {
     int getDeviceBufferSize();
 
     boolean incrementFrameCounterForRetries();
+
+    /**
+     * Indicates whether or not to increment the frame counter when creating the action request for the reply_to_hls.
+     *
+     * @return	<code>true</code> if the frame counter needs to be bumped after generation of the f(StoC), <code>false</code> otherwise. Default is <code>false</code> for
+     * 			backwards compatibility.
+     */
+    boolean incrementFrameCounterForReplyToHLS();
 
 }

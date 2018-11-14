@@ -1,11 +1,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.upl.ProtocolException;
@@ -381,7 +377,8 @@ public class DlmsSession implements ProtocolLink {
                 0, // Suite 0: AES-GCM-128
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
-                getProperties().getCipheringType().getType()
+                getProperties().getCipheringType().getType(),
+                this.getProperties().incrementFrameCounterForReplyToHLS()
         );
     }
 

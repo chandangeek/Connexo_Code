@@ -122,10 +122,12 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
                 AbstractDataType attribute = register.getValueAttr();
                 if (attribute.isOctetString() && attribute.getOctetString() != null) {
                     registerValue = new RegisterValue(obisCode, attribute.getOctetString().stringValue());
-                }else if(attribute.isBitString() && attribute.getBitString() != null){
+                } else if (attribute.isBitString() && attribute.getBitString() != null) {
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit
                             .get("")));
-                }else {
+                } else if (attribute.isInteger64() && attribute.getInteger64() != null) {
+                    registerValue = new RegisterValue(obisCode, new Quantity(attribute.getInteger64().longValue(), Unit.get("")));
+                } else {
                     Unsigned32 value = register.getValueAttr().getUnsigned32();
                     if (value != null) {
                         registerValue = new RegisterValue(obisCode, new Quantity(value.getValue(), Unit.get("")));
@@ -167,14 +169,14 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
             collectedRegister
                     .setFailureInformation(ResultType.InCompatible,
                             issueFactory.createWarning(register.getObisCode(),
-                                    "registerXissue",
+                                    register.getObisCode().toString() + ": " + errorMessage[0].toString(),
                                     register.getObisCode(),
                                     errorMessage[0]));
         } else {
             collectedRegister
                     .setFailureInformation(ResultType.NotSupported,
                             issueFactory.createWarning(register.getObisCode(),
-                                    "registerXnotsupported",
+                                    register.getObisCode().toString() + ": Not Supported",
                                     register.getObisCode()));
         }
         return collectedRegister;

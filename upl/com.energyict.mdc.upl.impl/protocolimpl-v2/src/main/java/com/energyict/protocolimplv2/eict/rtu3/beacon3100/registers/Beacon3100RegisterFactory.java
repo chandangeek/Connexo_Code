@@ -395,7 +395,9 @@ public class Beacon3100RegisterFactory {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(
+                    register.getObisCode(), register.getObisCode().toString() + ": " + errorMessage[0].toString(), register.getObisCode(), errorMessage[0])
+            );
         } else {
             collectedRegister.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }

@@ -353,18 +353,38 @@ public class G3RegisterMapper {
     /**
      * ObisCode mappers for GSM Diagnostics IC
      */
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR2 = ObisCode.fromString("0.0.25.6.2.255");
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR3 = ObisCode.fromString("0.0.25.6.3.255");
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR5 = ObisCode.fromString("0.0.25.6.5.255");
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_3 = ObisCode.fromString("0.0.25.6.252.255");
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_4 = ObisCode.fromString("0.0.25.6.251.255");
-    public static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_5 = ObisCode.fromString("0.0.25.6.250.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR2 = ObisCode.fromString("0.0.25.6.2.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR3 = ObisCode.fromString("0.0.25.6.3.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR4 = ObisCode.fromString("0.0.25.6.4.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR5 = ObisCode.fromString("0.0.25.6.5.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR6 = ObisCode.fromString("0.0.25.6.6.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR7 = ObisCode.fromString("0.0.25.6.7.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR8 = ObisCode.fromString("0.0.25.6.8.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_1 = ObisCode.fromString("0.0.25.6.254.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_2 = ObisCode.fromString("0.0.25.6.253.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_3 = ObisCode.fromString("0.0.25.6.252.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_4 = ObisCode.fromString("0.0.25.6.251.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_5 = ObisCode.fromString("0.0.25.6.250.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_6 = ObisCode.fromString("0.0.25.6.249.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_7 = ObisCode.fromString("0.0.25.6.248.255");
+    private static final ObisCode GSM_DIAGNOSTICS_ATTR_MINUS_8 = ObisCode.fromString("0.0.25.6.247.255");
+
+    /**
+     * ObisCode mappers for WWAN state transition IC
+     */
+    private static final ObisCode WWAN_STATE_TRANSITION_ATTR2 = ObisCode.fromString("0.162.96.192.2.255");
 
     /**
      * ObisCode mappers for LTE Monitoring
      */
     public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP = ObisCode.fromString("0.168.96.193.0.255");
     public static final ObisCode G3_PLC_JOIN_REQ_TIMESTAMP_ATTR2 = ObisCode.fromString("0.168.96.193.2.255");
+
+    /**
+     * ObisCode mapper for Specific G3-PLC Network Management Objects
+     */
+    public static final ObisCode G3_PLC_BANDPLAN = ObisCode.fromString("0.0.94.43.128.255");
+    //public static final ObisCode ;
 
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();
@@ -885,14 +905,29 @@ public class G3RegisterMapper {
         return lteMonitoringMappings;
     }
 
+    protected final List<G3Mapping> getWWANStateTransitionMappings() {
+        final List<G3Mapping> wwanStateTransitionMappings = new ArrayList<>();
+        wwanStateTransitionMappings.add(new WWANStateTransitionMapping(WWAN_STATE_TRANSITION_ATTR2));
+        return wwanStateTransitionMappings;
+    }
+
     protected final List<G3Mapping> getGSMDiagnosticsMappings() {
         final List<G3Mapping> gsmDiagnosticsMappings = new ArrayList<>();
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR2));
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR3));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR4));
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR5));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR6));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR7));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR8));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_1));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_2));
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_3));
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_4));
         gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_5));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_6));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_7));
+        gsmDiagnosticsMappings.add(new GSMDiagnosticsMapping(GSM_DIAGNOSTICS_ATTR_MINUS_8));
         return gsmDiagnosticsMappings;
     }
 
