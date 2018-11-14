@@ -14,6 +14,8 @@ public interface HsmProtocolService {
 
     byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException;
 
+    byte[] generateDigestMechanism6(boolean isServerToClient, IrreversibleKey hlsSecret, byte[] systemTitleClient, byte[] systemTitleServer, byte[] challengeServerToClient, byte[] challengeClientToServer) throws HsmException;
+
     @Deprecated
     /**
      * this method is not working in case of General ciphering. Instead HsmProtocolService#authenticateApduWithAAD should be used
