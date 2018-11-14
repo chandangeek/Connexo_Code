@@ -62,11 +62,11 @@ public class CryptoSecurityContext extends SecurityContext {
             IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(getSecurityProvider().getAuthenticationKey());
             IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(getEncryptionKey(false));
             if (getSecurityPolicy().isRequestAuthenticatedOnly()) {
-                tag = Services.hsmService().authenticateApdu(plainText, getInitializationVector(), ak, ek, getSecuritySuite());
+                tag = Services.hsmService().authenticateApduWithAAD(plainText, createGeneralCipheringHeaderIfNeeded(), getInitializationVector(), ak, ek, getSecuritySuite());
             } else if (getSecurityPolicy().isRequestEncryptedOnly()) {
                 encryptedRequest = Services.hsmService().encryptApdu(plainText, getInitializationVector(), ak, ek, getSecuritySuite());
             } else if (getSecurityPolicy().isRequestAuthenticatedAndEncrypted()) {
-                DataAndAuthenticationTag dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApdu(plainText, getInitializationVector(), ak, ek, getSecuritySuite());
+                DataAndAuthenticationTag dataAndAuthenticationTag = Services.hsmService().authenticateEncryptApduWithAAD(plainText, createGeneralCipheringHeaderIfNeeded(), getInitializationVector(), ak, ek, getSecuritySuite());
                 encryptedRequest = dataAndAuthenticationTag.getData();
                 tag = dataAndAuthenticationTag.getAuthenticationTag();
             } else {
@@ -114,7 +114,7 @@ public class CryptoSecurityContext extends SecurityContext {
                 byte[] apdu = getApdu(cipherFrame, true);
                 byte[] iv = getRespondingInitializationVector();
 
-                Services.hsmService().verifyApduAuthentication(apdu, authTag, iv, ak, ek, getSecuritySuite());
+                Services.hsmService().verifyApduAuthenticationWithAAD(apdu, generalCipheringHeader, authTag, iv, ak, ek, getSecuritySuite());
                 return apdu;
             } else if (!authenticatedResponse) {
                 //Encryption only
@@ -128,7 +128,7 @@ public class CryptoSecurityContext extends SecurityContext {
                 byte[] iv = getRespondingInitializationVector();
                 byte[] authTag = getAuthenticationTag(cipherFrame);
 
-                return Services.hsmService().verifyAuthenticationDecryptApdu(cipheredAPDU, authTag, iv, ak, ek, getSecuritySuite());
+                return Services.hsmService().verifyAuthenticationDecryptApduWithAAD(cipheredAPDU, generalCipheringHeader, authTag, iv, ak, ek, getSecuritySuite());
             }
         } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
