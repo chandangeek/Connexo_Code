@@ -167,7 +167,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(parser.getDeviceIdentifier().forIntrospection().getValue("serialNumber"), "34157300028003");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1458814903000L);
-        assertEquals(meterProtocolEvent.getMessage(), "Tamper detected");
+        assertEquals(meterProtocolEvent.getMessage(), "Tamper detected.");
         assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.TAMPER);
         assertEquals(meterProtocolEvent.getProtocolCode(), MeterEvent.TAMPER);
     }
@@ -264,7 +264,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
         assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
         assertEquals(meterProtocolEvent.getProtocolCode(), 2);
-        assertEquals(meterProtocolEvent.getMessage(), "Power up");
+        assertEquals(meterProtocolEvent.getMessage(), "Power up.");
     }
 
     @Test
@@ -430,8 +430,8 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DeviceIdentifierBySerialNumber("34157300028003"), parser.getDeviceIdentifier());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(1489576684000L, meterProtocolEvent.getTime().getTime());
-        assertEquals("Other event. 02237EFFFEFDAF26", meterProtocolEvent.getMessage());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
+        assertEquals("PLC G3 node link lost. 02237EFFFEFDAF26", meterProtocolEvent.getMessage());
+        assertEquals(MeterEvent.PLC_G3_NODE_LINK_LOST, meterProtocolEvent.getEiCode());
         assertEquals(13303808, meterProtocolEvent.getProtocolCode());
 
 
@@ -525,7 +525,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getTime().getTime(), 1468917580000L);
         assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
         assertEquals(meterProtocolEvent.getProtocolCode(), 2);
-        assertEquals(meterProtocolEvent.getMessage(), "Power up");
+        assertEquals(meterProtocolEvent.getMessage(), "Power up.");
     }
 
     @Test
@@ -544,7 +544,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getTime().getTime(), 1522246308000L);
         assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);
         assertEquals(meterProtocolEvent.getProtocolCode(), MeterEvent.POWERUP);
-        assertEquals(meterProtocolEvent.getMessage(), "{\"address\":\"165.195.39.121\",\"port\":4059,\"transport\":0}");
+        assertEquals(meterProtocolEvent.getMessage(), "Power up.");
     }
 
     @Test
@@ -582,7 +582,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1427291723000L);
-        assertEquals(meterProtocolEvent.getMessage(), "");
+        assertEquals(meterProtocolEvent.getMessage(), "Power up.");
         assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.POWERUP);    //Power up
         assertEquals(meterProtocolEvent.getProtocolCode(), 2);
     }
