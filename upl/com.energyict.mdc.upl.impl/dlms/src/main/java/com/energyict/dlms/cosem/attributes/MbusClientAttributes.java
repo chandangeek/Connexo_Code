@@ -22,7 +22,9 @@ public enum MbusClientAttributes implements DLMSClassAttributes {
     DEVICE_TYPE(9, 0x48, 0x40),
     ACCESS_NUMBER(10, 0x50, 0x48),
     STATUS(11, 0x58, 0x50),
-    ALARM(12, 0x60, 0x58);
+    ALARM(12, 0x60, 0x58),
+    CONFIGURATION(13, 0x70, 0x60),
+    ENCRYPTION_KEY_STATUS(14, 0x78, 0x68);
 
     /**
      * Indicating BlueBook 9th or below is supported
