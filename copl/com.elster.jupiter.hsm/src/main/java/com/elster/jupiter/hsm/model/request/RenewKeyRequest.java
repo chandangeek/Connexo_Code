@@ -4,30 +4,28 @@ package com.elster.jupiter.hsm.model.request;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 
-import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKeyCapability;
-
 import java.util.Arrays;
 import java.util.Objects;
 
 public class RenewKeyRequest {
 
-    private final byte[] actualKey;
-    private final String actualLabel;
+    private final byte[] masterKey;
+    private final String masterKeyLabel;
     private final HsmKeyType hsmKeyType;
 
 
-    public RenewKeyRequest(byte[] actualKey, String actualLabel, HsmKeyType hsmKeyType) {
-        this.actualKey = actualKey;
-        this.actualLabel = actualLabel;
+    public RenewKeyRequest(byte[] masterKey, String actualLabel, HsmKeyType hsmKeyType) {
+        this.masterKey = masterKey;
+        this.masterKeyLabel = actualLabel;
         this.hsmKeyType =hsmKeyType;
     }
 
-    public byte[] getActualKey() {
-        return actualKey;
+    public byte[] getMasterKey() {
+        return masterKey;
     }
 
-    public String getActualLabel() {
-        return actualLabel;
+    public String getMasterKeyLabel() {
+        return masterKeyLabel;
     }
 
 
@@ -54,15 +52,15 @@ public class RenewKeyRequest {
             return false;
         }
         RenewKeyRequest that = (RenewKeyRequest) o;
-        return Arrays.equals(actualKey, that.actualKey) &&
-                Objects.equals(actualLabel, that.actualLabel) &&
+        return Arrays.equals(masterKey, that.masterKey) &&
+                Objects.equals(masterKeyLabel, that.masterKeyLabel) &&
                 Objects.equals(hsmKeyType, that.hsmKeyType);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(actualLabel, hsmKeyType);
-        result = 31 * result + Arrays.hashCode(actualKey);
+        int result = Objects.hash(masterKeyLabel, hsmKeyType);
+        result = 31 * result + Arrays.hashCode(masterKey);
         return result;
     }
 }

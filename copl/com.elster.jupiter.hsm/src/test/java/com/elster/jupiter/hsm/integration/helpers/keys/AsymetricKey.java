@@ -3,20 +3,20 @@ package com.elster.jupiter.hsm.integration.helpers.keys;
 
 public class AsymetricKey {
 
-    private final byte[] hexPublicKey;
-    private final byte[] hexPrivateKey;
+    private final byte[] publicKey;
+    private final byte[] privateKey;
 
-    public AsymetricKey(String hexPublicKey, String hexPrivateKey,Encoder decoder){
-        this.hexPublicKey = decoder.decode(hexPublicKey);
-        this.hexPrivateKey = decoder.decode(hexPrivateKey);
+    public AsymetricKey(String publicKey, String hexPrivateKey, Encoder decoder){
+        this.publicKey = decoder.decode(publicKey);
+        this.privateKey = decoder.decode(hexPrivateKey);
     }
 
     public byte[] getPublicKey(){
-        return hexPublicKey;
+        return publicKey;
     }
 
     public byte[] getPrivateKey(){
-        return hexPrivateKey;
+        return privateKey;
     }
 
 }
