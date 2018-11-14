@@ -150,7 +150,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * @return	The corresponding PropertySpec.
      */
     private final PropertySpec increaseFrameCounterOnHLSReply() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, true, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).setDefaultValue(false).finish();
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
