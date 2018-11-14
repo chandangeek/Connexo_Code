@@ -62,6 +62,8 @@ public class ConnectionsDevicePostBuilder implements Consumer<Device> {
                         return connectionTask;
                     });
         }
+        device.getComTaskExecutions().stream()
+                .forEach(comTaskExecution -> device.getComTaskExecutionUpdater(comTaskExecution).useDefaultConnectionTask(true).update());
     }
 
     private void checkProperties() {
