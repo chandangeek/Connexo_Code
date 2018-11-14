@@ -32,6 +32,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
@@ -82,6 +83,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -696,8 +698,28 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
                 .forEach(channelsContainerValidation::addChannelValidation);
-        channelsContainerValidation.save();
+        try {
+            channelsContainerValidation.save();
+        } catch (UnderlyingSQLFailedException ex) {
+            return getExistingChannelsContainerValidation(ruleSet, channelsContainer, ex);
+        }
         return channelsContainerValidation;
+    }
+
+    private ChannelsContainerValidation getExistingChannelsContainerValidation(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer, UnderlyingSQLFailedException ex) {
+        if (ex.getCause() instanceof SQLIntegrityConstraintViolationException) {
+            Condition condition = where("channelsContainer").isEqualTo(channelsContainer).and(where("ruleSet").isEqualTo(ruleSet))
+                    .and(where("obsoleteTime").isNull());
+            List<ChannelsContainerValidation> result = dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
+            if (result.isEmpty()) {
+                LOGGER.severe("Database reported IntegrityConstraintViolation in " + TableSpecs.VAL_MA_VALIDATION.name() +
+                        " for ruleSet=" + ruleSet.getId() +
+                        ", channelContainer=" + channelsContainer.getId() + "obsoleteTime=null, still can't find the record");
+                throw ex;
+            }
+            return result.get(0);
+        }
+        throw ex;
     }
 
     List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
