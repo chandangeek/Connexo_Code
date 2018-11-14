@@ -16,6 +16,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.Security;
@@ -87,8 +88,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         String fileName = "myRootCA.cert";
         Form form = new Form();
         form.param("alias", "myCert");
-        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
-        String path = resource.getPath();
+        String path = new URI(getClass().getClassLoader().getResource(fileName).getFile()).getPath();
         File file = new File(path);
         MultiPart multiPart = new MultiPart();
         final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -116,8 +116,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         String fileName = "SM2016MDMCA-chain.jks";
         Form form = new Form();
         form.param("password", "changeit");
-        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
-        String path = resource.getPath();
+        String path = new URI(getClass().getClassLoader().getResource(fileName).getFile()).getPath();
         File file = new File(path);
         MultiPart multiPart = new MultiPart();
         final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -145,8 +144,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         String fileName = "SM2016MDMCA-chain.jks";
         Form form = new Form();
         form.param("password", "WRONG");
-        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
-        String path = resource.getPath();
+        String path = new URI(getClass().getClassLoader().getResource(fileName).getFile()).getPath();
         File file = new File(path);
         MultiPart multiPart = new MultiPart();
         final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);

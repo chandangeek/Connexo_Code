@@ -39,6 +39,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -61,6 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -91,8 +93,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         String fileName = "myRootCA.cert";
         Form form = new Form();
         form.param("alias", "myCert");
-        URL resource = TrustStoreResourceTest.class.getClassLoader().getResource(fileName);
-        String path = resource.getPath();
+        String path = new URI(getClass().getClassLoader().getResource(fileName).getFile()).getPath();
         File file = new File(path);
         MultiPart multiPart = new MultiPart();
         final FileDataBodyPart filePart = new FileDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -109,7 +110,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<X509Certificate> certificateArgumentCaptor = ArgumentCaptor.forClass(X509Certificate.class);
         verify(securityManagementService, times(1)).newCertificateWrapper(stringArgumentCaptor.capture());
-        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture(), Optional.empty());
+        verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture(), any(Optional.class));
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
     }
@@ -118,7 +119,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     public void testCreateCertificateWithWrapper() throws Exception {
         CsrInfo csrInfo = new CsrInfo();
         csrInfo.keyTypeId = 123L;
-        csrInfo.keyEncryptionMethod = "vault";
+        csrInfo.keyEncryptionMethod = "DataVault";
         csrInfo.alias = "brandNew";
         csrInfo.CN = "lucifer";
         csrInfo.L = "hell";
@@ -126,6 +127,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         KeyType keyType = mock(KeyType.class);
         when(securityManagementService.getKeyType(123L)).thenReturn(Optional.of(keyType));
         SecurityManagementService.ClientCertificateWrapperBuilder builder = mock(SecurityManagementService.ClientCertificateWrapperBuilder.class);
+        doReturn(builder).when(securityManagementService).newClientCertificateWrapper(any(KeyType.class), anyString());
         when(builder.alias("brandNew")).thenReturn(builder);
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(builder.add()).thenReturn(certificateWrapper);
