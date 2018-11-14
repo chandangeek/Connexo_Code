@@ -361,6 +361,17 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
+    public byte[] generateDigestMechanism6(boolean isServerToClient, IrreversibleKey hlsSecret, byte[] systemTitleClient, byte[] systemTitleServer, byte[] challengeServerToClient, byte[] challengeClientToServer) throws HsmBaseException {
+        CosemHLSAuthenticationResponse response;
+        try {
+            response = Energy.cosemHlsAuthenticationMechanism6(isServerToClient, toProtectedSessionKey(hlsSecret), systemTitleClient, systemTitleServer, challengeServerToClient, challengeClientToServer);
+        } catch (FunctionFailedException ffe) {
+            throw new HsmBaseException(ffe);
+        }
+        return response.getAuthenticationTag();
+    }
+
+    @Override
     public byte[] decryptApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
         try {
