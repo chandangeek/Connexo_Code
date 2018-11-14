@@ -71,7 +71,7 @@ public class AssociationControlServiceElement {
     /**
      * @return the CallingAuthenticationValue from the {@link com.energyict.dlms.aso.SecurityProvider}
      */
-    private byte[] getCallingAuthenticationValue() throws UnsupportedException {
+    public byte[] getCallingAuthenticationValue() throws UnsupportedException {
         return sc.getSecurityProvider().getCallingAuthenticationValue();
     }
 
