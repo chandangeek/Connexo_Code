@@ -1057,6 +1057,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
+        public CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents) {
+            return this.getCollectedDataFactory().createCollectedMessageWithFile(deviceIdentifier, messageIdentifier, fileExtension, contents);
+        }
+
+        @Override
         public CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate) {
             return this.getCollectedDataFactory().createCollectedCertificateWrapper(x509Certificate);
         }
