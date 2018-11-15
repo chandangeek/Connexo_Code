@@ -13,7 +13,7 @@ import com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.registers.AS330TRe
 @Deprecated
 public class AS330T extends ESMR50Protocol {
 
-    protected AS330T(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+    public AS330T(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
     }
 
@@ -51,6 +51,6 @@ public class AS330T extends ESMR50Protocol {
 
     @Override
     public String getProtocolDescription() {
-        return null;
+        return "ESMR 5.0 AS330T DLMS";
     }
 }

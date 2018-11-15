@@ -2,24 +2,11 @@ package com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom;
 
 
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSConnection;
 import com.energyict.mdc.upl.MeterProtocol;
-import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.ProfileData;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50MessageExecutor;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.messages.ESMR50Messaging;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.events.SagemcomEsmr50EventProfile;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.registers.T210RegisterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +18,7 @@ import java.util.logging.Logger;
 @Deprecated
 public class T210 implements MeterProtocol {
 
-//    protected T210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+//    public T210(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
 //        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
 //    }
 //
