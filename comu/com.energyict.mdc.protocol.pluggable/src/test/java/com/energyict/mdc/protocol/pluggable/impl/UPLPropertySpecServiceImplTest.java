@@ -24,22 +24,16 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoTranslationKeyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLPropertySpecServiceImpl;
 import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.util.stream.Stream;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,6 +41,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -129,7 +127,7 @@ public class UPLPropertySpecServiceImplTest {
 
     @Before
     public void initializePropertySpecService() throws Exception {
-        when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(this.nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
         DataVaultService dataVaultService = injector.getInstance(DataVaultService.class);
         this.propertySpecService =
                 new UPLPropertySpecServiceImpl(

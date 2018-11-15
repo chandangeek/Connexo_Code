@@ -137,6 +137,11 @@
 
         <!-- Testing -->
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert-core</artifactId>
         </dependency>
@@ -217,6 +222,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

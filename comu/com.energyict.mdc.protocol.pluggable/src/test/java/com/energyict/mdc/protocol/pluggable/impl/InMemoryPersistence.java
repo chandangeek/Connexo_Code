@@ -38,19 +38,14 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.services.*;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLHsmProtocolServiceImpl;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -100,6 +95,7 @@ public class InMemoryPersistence {
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
     private DataVaultService dataVaultService;
     private LicenseService licenseService;
+    private HsmProtocolService hsmProtocolService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -171,6 +167,7 @@ public class InMemoryPersistence {
         this.licenseService = mock(LicenseService.class);
         this.userService = mock(UserService.class);
         this.meteringService = mock(MeteringService.class);
+        this.hsmProtocolService = mock(HsmProtocolService.class);
 
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
     }
@@ -194,7 +191,8 @@ public class InMemoryPersistence {
                         this.licenseService,
                         this.dataVaultService,
                         this.transactionService,
-                        UpgradeModule.FakeUpgradeService.getInstance()
+                        UpgradeModule.FakeUpgradeService.getInstance(),
+                        this.hsmProtocolService
                 );
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -267,6 +265,7 @@ public class InMemoryPersistence {
             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HsmProtocolService.class).to(UPLHsmProtocolServiceImpl.class).in(Scopes.SINGLETON);
         }
 
     }

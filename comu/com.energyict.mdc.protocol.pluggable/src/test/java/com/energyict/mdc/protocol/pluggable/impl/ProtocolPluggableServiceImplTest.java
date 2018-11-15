@@ -28,22 +28,10 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
+import com.energyict.mdc.protocol.api.services.*;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
-
-import java.util.Optional;
-
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,13 +40,12 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ProtocolPluggableServiceImpl} component.
@@ -102,6 +89,8 @@ public class ProtocolPluggableServiceImplTest {
     private MeteringService meteringService;
     @Mock
     private DataVaultService dataVaultService;
+    @Mock
+    private HsmProtocolService hsmProtocolService;
     @Mock
     private TransactionService transactionService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -800,7 +789,7 @@ public class ProtocolPluggableServiceImplTest {
 
     private ProtocolPluggableServiceImpl newTestInstance() {
         return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, identificationService, deviceMessageSpecificationService, customPropertySetInstantiatorService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService
-                .getInstance());
+                .getInstance(), this.hsmProtocolService);
     }
 
 }
