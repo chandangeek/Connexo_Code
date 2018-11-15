@@ -81,8 +81,10 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
     }
 
+    @Override
     @Before
-    public void initBefore() {
+    public void setUp() throws Exception {
+        super.setUp();
         connectionFunction_1 = mockConnectionFunction(1, "CF_1", "CF 1");
         connectionFunction_2 = mockConnectionFunction(2, "CF_2", "CF 2");
         deviceType = mockDeviceType("device", 11);

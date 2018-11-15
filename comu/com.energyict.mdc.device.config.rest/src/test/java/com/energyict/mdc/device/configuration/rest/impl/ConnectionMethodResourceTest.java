@@ -255,9 +255,10 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
     }
 
+    @Override
     @Before
-    public void setup() {
-        super.setup();
+    public void setUp() throws Exception {
+        super.setUp();
         deviceType = mockDeviceType("device", 11);
         deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));

@@ -25,6 +25,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.hsm.HsmPublicConfiguration;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
@@ -147,6 +148,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     SecurityManagementService securityManagementService;
     @Mock
     IssueService issueService;
+    @Mock
+    HsmPublicConfiguration hsmPublicConfiguration;
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
@@ -188,8 +191,10 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         });
     }
 
+    @Override
     @Before
-    public void setup() {
+    public void setUp() throws Exception {
+        super.setUp();
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         registerConfigInfoFactory = new RegisterConfigInfoFactory(readingTypeInfoFactory, obisCodeDescriptor);
@@ -252,6 +257,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         aliasSearchFilterFactory = new AliasSearchFilterFactoryImpl(securityManagementService);
         application.setIssueService(issueService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
+        application.setHsmPublicConfiguration(hsmPublicConfiguration);
         return application;
     }
 
