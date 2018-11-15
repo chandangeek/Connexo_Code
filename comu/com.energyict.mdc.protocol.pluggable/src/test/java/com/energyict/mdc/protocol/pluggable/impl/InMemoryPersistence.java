@@ -45,6 +45,7 @@ import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
