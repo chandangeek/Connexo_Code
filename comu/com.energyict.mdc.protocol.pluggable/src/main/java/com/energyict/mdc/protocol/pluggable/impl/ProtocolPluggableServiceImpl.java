@@ -144,7 +144,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             LicenseService licenseService,
             DataVaultService dataVaultService,
             TransactionService transactionService,
-            UpgradeService upgradeService
+            UpgradeService upgradeService,
+            HsmProtocolService hsmProtocolService
     ) {
         this();
         setOrmService(ormService);
@@ -164,6 +165,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         setDataVaultService(dataVaultService);
         setTransactionService(transactionService);
         setUpgradeService(upgradeService);
+        setHsmProtocolService(hsmProtocolService);
         activate();
     }
 
