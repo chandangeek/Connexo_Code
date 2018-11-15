@@ -203,7 +203,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -289,7 +288,8 @@ public class DemoTest {
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
             bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractorImpl.class));
             bind(PassphraseFactory.class).toInstance(mock(DataVaultPassphraseFactory.class));
-            bind(HsmProtocolService.class).toInstance(mock(HsmProtocolService.class));
+            bind(com.elster.jupiter.hsm.HsmProtocolService.class).toInstance(mock(com.elster.jupiter.hsm.HsmProtocolService.class));
+            bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
         }
 
         private License mockLicense(String applicationname) {
@@ -441,6 +441,7 @@ public class DemoTest {
                 new SyntheticLoadProfileImportModule(),
                 new MeteringImportsModule()
         );
+
         doPreparations();
     }
 
@@ -755,7 +756,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
-        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(5);
+        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(6);
     }
 
     @Test

@@ -435,5 +435,10 @@
             <artifactId>slp.importers</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

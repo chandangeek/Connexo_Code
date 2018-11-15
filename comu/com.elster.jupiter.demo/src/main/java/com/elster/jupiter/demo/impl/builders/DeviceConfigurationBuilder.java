@@ -195,10 +195,13 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                 throw new UnableToCreate("Please specify at least one security set");
             }
             Optional<SecurityPropertySet> securityPropertySet = securityPropertySets.stream().filter(o -> o.getName().equals(comTaskCfg.getSecurityPropertySetTpl().getName())).findFirst();
-            deviceConfiguration.enableComTask(comTask, securityPropertySet.get())
-                    .setIgnoreNextExecutionSpecsForInbound(comTaskCfg.getIgnoreNextExecutionSpecs())
-                    .setPartialConnectionTask(resolveConnectionTask(deviceConfiguration, comTaskCfg.getConnectionTask()))
-                    .setPriority(100).add().save();
+            if (securityPropertySet.isPresent()) {
+                deviceConfiguration.enableComTask(comTask, securityPropertySet.get())
+                        .setIgnoreNextExecutionSpecsForInbound(comTaskCfg.getIgnoreNextExecutionSpecs())
+                        .setPartialConnectionTask(resolveConnectionTask(deviceConfiguration, comTaskCfg.getConnectionTask()))
+                        .useDefaultConnectionTask(true)
+                        .setPriority(100).add().save();
+            }
         }
     }
 

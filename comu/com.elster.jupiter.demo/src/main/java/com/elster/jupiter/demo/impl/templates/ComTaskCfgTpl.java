@@ -21,6 +21,13 @@ public class ComTaskCfgTpl {
         this.ignoreNextExecutionSpecs = ignoreNextExecutionSpecs;
     }
 
+    ComTaskCfgTpl(ComTaskTpl comTaskTpl, SecurityPropertySetTpl securityPropertySetTpl) {
+        this.comTaskTpl = comTaskTpl;
+        this.securityPropertySetTpl = securityPropertySetTpl;
+        this.connectionTask = "";
+        this.ignoreNextExecutionSpecs = false;
+    }
+
     ComTaskCfgTpl(ComTaskTpl comTaskTpl) {
         this.comTaskTpl = comTaskTpl;
         this.securityPropertySetTpl = SecurityPropertySetTpl.NO_SECURITY_DEFAULT;
