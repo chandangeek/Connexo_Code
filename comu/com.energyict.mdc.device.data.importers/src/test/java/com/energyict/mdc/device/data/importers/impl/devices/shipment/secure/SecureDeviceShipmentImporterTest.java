@@ -164,7 +164,7 @@ public class SecureDeviceShipmentImporterTest {
         }
 
         List<String> logMessages = testHandler.getLogMessages();
-        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
@@ -185,7 +185,7 @@ public class SecureDeviceShipmentImporterTest {
         }
 
         List<String> logMessages = testHandler.getLogMessages();
-        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
