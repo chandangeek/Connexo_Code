@@ -95,6 +95,7 @@ public class SecureDeviceShipmentImporterTest {
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         when(deviceConfig.getName()).thenReturn("Default");
         when(deviceConfig.isActive()).thenReturn(true);
+        when(deviceConfig.isDefault()).thenReturn(true);
 
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfig));
         when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.of(deviceType));
@@ -131,7 +132,9 @@ public class SecureDeviceShipmentImporterTest {
 
         verify(deviceSecretImporter, times(160)).importSecret(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
         List<String> logMessages = testHandler.getLogMessages();
-        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+
+        // changed because of CONM-576:
+        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Now importing device '00376280'");
         assertThat(logMessages).contains("Device '00376280' imported successfully");
         assertThat(logMessages).contains("Now importing device '00376281'");
