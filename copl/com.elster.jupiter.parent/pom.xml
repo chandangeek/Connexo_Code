@@ -395,24 +395,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <configuration>
-                    <organizationId>d20084a2-0924-4e47-94b2-c9d018ad73d3</organizationId>
-                    <restModel>
-                        <restFramework>
-                            <name>jax-rs</name>
-                        </restFramework>
-                    </restModel>
-                    <output>
-                        <html>
-                            <location>miredot/${project.version}</location>
-                        </html>
-                    </output>
-                    <!-- insert other configuration here (optional) -->
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <dependencies>
@@ -461,45 +443,45 @@
         <profile>
             <id>coverage</id>
             <build>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.jacoco</groupId>
-                            <artifactId>jacoco-maven-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>default-prepare-agent</id>
-                                    <goals>
-                                        <goal>prepare-agent</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>default-prepare-agent-integration</id>
-                                    <goals>
-                                        <goal>prepare-agent-integration</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>default-report</id>
-                                    <phase>prepare-package</phase>
-                                    <goals>
-                                        <goal>report</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>default-report-integration</id>
-                                    <goals>
-                                        <goal>report-integration</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                            <configuration>
-                                <includes>
-                                    <include>**/elster/**</include>
-                                    <include><include>**/energyict/**</include></include>
-                                </includes>
-                            </configuration>
-                        </plugin>
-                    </plugins>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>default-prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-prepare-agent-integration</id>
+                            <goals>
+                                <goal>prepare-agent-integration</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report-integration</id>
+                            <goals>
+                                <goal>report-integration</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <includes>
+                            <include>**/elster/**</include>
+                            <include><include>**/energyict/**</include></include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
             </build>
         </profile>
         <profile>
@@ -780,6 +762,31 @@
                                     </includes>
                                 </fileset>
                             </filesets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <configuration>
+                            <organizationId>d20084a2-0924-4e47-94b2-c9d018ad73d3</organizationId>
+                            <restModel>
+                                <restFramework>
+                                    <name>jax-rs</name>
+                                </restFramework>
+                            </restModel>
+                            <output>
+                                <html>
+                                    <location>miredot/${project.version}</location>
+                                </html>
+                            </output>
+                            <!-- insert other configuration here (optional) -->
                         </configuration>
                     </plugin>
                 </plugins>
