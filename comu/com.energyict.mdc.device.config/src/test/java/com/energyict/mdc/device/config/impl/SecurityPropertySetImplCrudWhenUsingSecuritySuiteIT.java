@@ -24,6 +24,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -183,6 +184,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(com.energyict.mdc.upl.io.SocketService.class).toInstance(mock(com.energyict.mdc.upl.io.SocketService.class));
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
         }
     }
 
