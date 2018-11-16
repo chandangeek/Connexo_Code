@@ -4,10 +4,7 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
@@ -23,7 +20,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.List;
@@ -31,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.provider",
+@Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.meterreadings.SendMeterReadingsProviderImpl",
         service = {SendMeterReadingsProvider.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + SendMeterReadingsProvider.NAME})
@@ -46,21 +42,9 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
     private final MeterReadingsBuilder readingBuilderProvider = new MeterReadingsBuilder();
-    private Thesaurus thesaurus;
 
     public SendMeterReadingsProviderImpl() {
         // for OSGI purposes
-    }
-
-    @Inject
-    public SendMeterReadingsProviderImpl(NlsService nlsService) {
-        this();
-        setNlsService(nlsService);
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(SendMeterReadingsProvider.NAME, Layer.SERVICE);
     }
 
     public List<MeterReadingsPort> getMeterReadingsPortServices() {
@@ -90,36 +74,32 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return SendMeterReadingsProvider.NAME;
     }
 
-    public void call(ReadingStorer readingStorer, boolean isCreated) {
-        readingBuilderProvider.setThesaurus(thesaurus);
-        MeterReadings meterReadings = readingBuilderProvider.build(readingStorer);
+    public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
+        MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
 
         if (meterReadings.getMeterReading().isEmpty()) {
             // do not want to send out a message without readings info
             return;
         }
         if (meterReadingsPortServices.isEmpty()) {
-            throw new MeterReadinsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+            LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send meter readings.");
+            return;
         }
         meterReadingsPortServices.forEach(soapService -> {
             try {
-                soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, isCreated));
+                soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
             } catch (FaultMessage faultMessage) {
                 LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
             }
         });
     }
 
-    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, boolean isCreated) {
+    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType.Verb requestVerb) {
         MeterReadingsEventMessageType meterReadingsResponseMessageType = meterReadingsMessageObjectFactory.createMeterReadingsEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        if (isCreated) {
-            header.setVerb(HeaderType.Verb.CREATED);
-        } else {
-            header.setVerb(HeaderType.Verb.CHANGED);
-        }
+        header.setVerb(requestVerb);
         header.setNoun(NOUN);
         meterReadingsResponseMessageType.setHeader(header);
 

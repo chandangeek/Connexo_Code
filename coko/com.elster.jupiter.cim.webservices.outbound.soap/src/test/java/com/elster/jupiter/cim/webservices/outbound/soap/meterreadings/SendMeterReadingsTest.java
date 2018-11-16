@@ -18,7 +18,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingInfoType;
+import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
@@ -36,16 +36,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-public class SendMeterReadingsTest {
+public abstract class SendMeterReadingsTest {
     protected static final String METER_MRID = "Meter mrid";
     protected static final String METER_NAME = "Meter name";
     protected static final String USAGE_POINT_MRID = "Usage Point mrid";
@@ -57,10 +57,8 @@ public class SendMeterReadingsTest {
 
     @Rule
     public TestRule snowy = Using.timeZoneOfMcMurdo();
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
-    protected List<ReadingInfoType> listReadingInfoType = new ArrayList<>();
+    protected List<ReadingInfo> listReadingInfo = new ArrayList<>();
 
     @Mock
     protected Clock clock;
@@ -83,9 +81,9 @@ public class SendMeterReadingsTest {
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
     }
 
-    protected void mockReadingsInfoType(ReadingInfoType mock, ReadingType readingType, BaseReading baseReading) {
-        when(mock.getMeter()).thenReturn(meter);
-        when(mock.getUsagePoint()).thenReturn(usagePoint);
+    protected void mockReadingsInfoType(ReadingInfo mock, ReadingType readingType, BaseReading baseReading) {
+        when(mock.getMeter()).thenReturn(Optional.ofNullable(meter));
+        when(mock.getUsagePoint()).thenReturn(Optional.ofNullable(usagePoint));
         when(mock.getReading()).thenReturn(baseReading);
         when(mock.getReadingType()).thenReturn(readingType);
     }

@@ -8,15 +8,15 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingInfoType;
+import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 
 import ch.iec.tc57._2011.meterreadings.DateTimeInterval;
@@ -49,7 +49,6 @@ class MeterReadingsBuilder {
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
-    private Thesaurus thesaurus;
 
     private static ch.iec.tc57._2011.meterreadings.ReadingType createReadingType(ReadingType readingType) {
         ch.iec.tc57._2011.meterreadings.ReadingType info = new ch.iec.tc57._2011.meterreadings.ReadingType();
@@ -129,11 +128,7 @@ class MeterReadingsBuilder {
         return info;
     }
 
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
-
-    MeterReadings build(ReadingStorer readingStorer) throws MeterReadinsServiceException {
+    MeterReadings build(List<ReadingInfo> readingInfos) {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
@@ -142,35 +137,25 @@ class MeterReadingsBuilder {
         referencedReadingQualityTypes = new HashSet<>();
         Map<ReadingType, List<BaseReading>> readingsByReadingTypes = new HashMap<>();
 
-        if (!readingStorer.getReadings().isEmpty()) {
-            Optional<Meter> meter = Optional.ofNullable(readingStorer.getReadings().get(0).getMeter());
-            Optional<UsagePoint> usagePoint = Optional.ofNullable(readingStorer.getReadings().get(0).getUsagePoint());
+        if (! readingInfos.isEmpty()) {
+            Map<Pair<Optional<Meter>, Optional<UsagePoint>>, List<ReadingInfo>> readingsMap =
+                    readingInfos.stream().collect(Collectors.groupingBy(rInfo -> Pair.of(rInfo.getMeter(), rInfo.getUsagePoint())));
 
-            for (ReadingInfoType readingInfo : readingStorer.getReadings()) {
-                BaseReading reading = readingInfo.getReading();
-
-                // readings in the event should relate to the same meter (if it is defined)
-                if (!meter.equals(Optional.ofNullable(readingInfo.getMeter()))) {
-                    throw new MeterReadinsServiceException(thesaurus, MessageSeeds.READINGS_METER_IS_NOT_THE_SAME);
+            for (Map.Entry<Pair<Optional<Meter>, Optional<UsagePoint>>, List<ReadingInfo>> entry : readingsMap.entrySet()) {
+                Optional<Meter> meter = entry.getKey().getFirst();
+                Optional<UsagePoint> usagePoint = entry.getKey().getLast();
+                for (ReadingInfo readingInfo : entry.getValue()) {
+                    BaseReading reading = readingInfo.getReading();
+                    List<BaseReading> readings = Optional.ofNullable(readingsByReadingTypes.get(readingInfo.getReadingType())).orElse(new ArrayList<>());
+                    readings.add(reading);
+                    // sort readings by timestamp
+                    readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                    readingsByReadingTypes.put(readingInfo.getReadingType(), readings);
                 }
-                // readings in the event should relate to the same usage point (if it is defined)
-                if (!usagePoint.equals(Optional.ofNullable(readingInfo.getUsagePoint()))) {
-                    throw new MeterReadinsServiceException(thesaurus, MessageSeeds.READINGS_USAGE_POINT_IS_NOT_THE_SAME);
+                Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
+                if (meterReading.isPresent()) {
+                    meterReadingsList.add(meterReading.get());
                 }
-                List<BaseReading> readings = Optional.ofNullable(readingsByReadingTypes.get(readingInfo.getReadingType())).orElse(new ArrayList<>());
-                readings.add(reading);
-                // sort readings by timestamp
-                readings.sort(new Comparator<BaseReading>() {
-                    @Override
-                    public int compare(BaseReading reading1, BaseReading reading2) {
-                        return (reading1.getTimeStamp()).compareTo(reading2.getTimeStamp());
-                    }
-                });
-                readingsByReadingTypes.put(readingInfo.getReadingType(), readings);
-            }
-            Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
-            if (meterReading.isPresent()) {
-                meterReadingsList.add(meterReading.get());
             }
         }
 
