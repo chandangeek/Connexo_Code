@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -122,15 +123,16 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return EnumSet.allOf(Properties.class)
-                .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
+                .stream().map(properties -> properties.asPropertySpec(propertySpecService, thesaurus)).collect(toList());
     }
 
-    public enum Properties {
+    public enum Properties  {
         DECRYPTED_KEY("key") {
-            public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
+            public PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService.stringSpec()
-                        .named(getPropertyName(), "Key")
-                        .describedAs("Plain text key")
+                        .named(getPropertyName(), TranslationKeys.DECRYPTED_KEY)
+                        .describedAs(TranslationKeys.DECRYPTED_KEY_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
                         .finish();
             }
 
@@ -153,7 +155,7 @@ public final class PlaintextSymmetricKeyImpl extends KeyImpl implements Plaintex
             this.propertyName = propertyName;
         }
 
-        abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
+        abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
         abstract void copyFromMap(Map<String, Object> properties, PropertySetter key);
 
