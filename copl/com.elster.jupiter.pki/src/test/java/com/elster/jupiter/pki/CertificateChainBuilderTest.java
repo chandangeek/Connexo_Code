@@ -1,7 +1,16 @@
 package com.elster.jupiter.pki;
 
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.LinkedList;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -42,10 +51,28 @@ public class CertificateChainBuilderTest {
         Assert.assertEquals(clientCertificateWrapper3, certificateChain.pollFirst());
     }
 
+    // This test does not work while KS does allot of checking and mocking it does not work with our mock/test frameworks..... You can uncomment it and debug ...
     @Test
     @Ignore
-    public void testPopulateKeyStoreSingleCertificate() {
-        // this cannot be implemented while Keystore setKeyEntry method is final and cannot be mocked with current mockito version and changing version is unfeasible since on 10.4 tests are broken aanyway... may God help us all!
+    public void testPopulateKeyStoreSingleCertificate() throws KeyStoreException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, IOException {
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        ks.load(null);
+
+        LinkedList<ClientCertificateWrapper> list = new LinkedList<>();
+        mockAndAddCertificate(list, Mockito.mock(ClientCertificateWrapper.class), Mockito.mock(X509Certificate.class));
+        mockAndAddCertificate(list, Mockito.mock(ClientCertificateWrapper.class), Mockito.mock(X509Certificate.class));
+
+        CertificateChainBuilder.populateKeyStore(list, ks, "password".toCharArray());
+
+    }
+
+    private void mockAndAddCertificate(LinkedList<ClientCertificateWrapper> list, ClientCertificateWrapper certificateWrapperMock, X509Certificate certMock) throws InvalidKeyException {
+        PrivateKeyWrapper mockedPrvKWrapper = Mockito.mock(PrivateKeyWrapper.class);
+        PrivateKey mockedPrivateKey = Mockito.mock(PrivateKey.class);
+        Mockito.when(mockedPrvKWrapper.getPrivateKey()).thenReturn(Optional.of(mockedPrivateKey));
+        Mockito.when(certificateWrapperMock.getPrivateKeyWrapper()).thenReturn(mockedPrvKWrapper);
+        Mockito.when(certificateWrapperMock.getCertificate()).thenReturn(Optional.of(certMock));
+        list.add(certificateWrapperMock);
     }
 
 }
