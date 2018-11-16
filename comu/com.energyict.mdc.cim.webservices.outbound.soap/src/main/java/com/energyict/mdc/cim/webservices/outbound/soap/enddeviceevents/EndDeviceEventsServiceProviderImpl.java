@@ -8,9 +8,6 @@ import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -60,27 +57,20 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
     private List<EndDeviceEventsPort> endDeviceEvents = new ArrayList<>();
 
     private volatile WebServicesService webServicesService;
-    private Thesaurus thesaurus;
 
     public EndDeviceEventsServiceProviderImpl() {
         // for OSGI purposes
     }
 
     @Inject
-    public EndDeviceEventsServiceProviderImpl(WebServicesService webServicesService, NlsService nlsService) {
+    public EndDeviceEventsServiceProviderImpl(WebServicesService webServicesService) {
         this();
         setWebServicesService(webServicesService);
-        setNlsService(nlsService);
     }
 
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(EndDeviceEventsServiceProvider.NAME, Layer.SERVICE);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -156,39 +146,26 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         endDeviceEvent.setAssets(createAsset(device));
         if (issue instanceof OpenDeviceAlarm) {
             ((OpenDeviceAlarm) issue).getDeviceAlarmRelatedEvents().stream().findFirst().ifPresent(event -> {
-                EndDeviceEventRecord record = event.getEventRecord();
-                endDeviceEvent.setMRID(record.getMRID());
-                endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
-                endDeviceEvent.setIssuerID(record.getIssuerID());
-                endDeviceEvent.setIssuerTrackingID(record.getIssuerTrackingID());
-                endDeviceEvent.setReason(record.getDescription());
-                endDeviceEvent.setUserID(record.getUserID());
-                endDeviceEvent.setSeverity(record.getSeverity());
-                EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
-                endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
-                endDeviceEventDetail.setValue(record.getDeviceEventType());
-                endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
-                EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
-                eventType.setRef(record.getEventTypeCode());
-                endDeviceEvent.setEndDeviceEventType(eventType);
+                setEndDeviceEvent(endDeviceEvent, event.getEventRecord());
             });
         }
         return endDeviceEvent;
     }
 
     @Override
-    public boolean call(EndDeviceEventRecord record) {
-        if (getEndDeviceEventsPorts().isEmpty()) {
-            throw new EndDeviceEventsServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+    public void call(EndDeviceEventRecord record) {
+        if (! getEndDeviceEventsPorts().isEmpty()) {
+            EndDeviceEventsEventMessageType message = createResponseMessage(record);
+            getEndDeviceEventsPorts().forEach(event -> {
+                try {
+                    event.createdEndDeviceEvents(message);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                }
+            });
+        } else {
+            LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send end device events.");
         }
-        getEndDeviceEventsPorts().forEach(event -> {
-            try {
-                event.createdEndDeviceEvents(createResponseMessage(record));
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-            }
-        });
-        return true;
     }
 
     private EndDeviceEventsEventMessageType createResponseMessage(EndDeviceEventRecord record) {
@@ -214,6 +191,11 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         EndDevice device = record.getEndDevice();
         EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
         endDeviceEvent.setAssets(createAsset(device));
+        setEndDeviceEvent(endDeviceEvent, record);
+        return endDeviceEvent;
+    }
+
+    private void setEndDeviceEvent(EndDeviceEvent endDeviceEvent, EndDeviceEventRecord record) {
         endDeviceEvent.setMRID(record.getMRID());
         endDeviceEvent.setCreatedDateTime(record.getCreatedDateTime());
         endDeviceEvent.setIssuerID(record.getIssuerID());
@@ -228,7 +210,6 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
         eventType.setRef(record.getEventTypeCode());
         endDeviceEvent.setEndDeviceEventType(eventType);
-        return endDeviceEvent;
     }
 
     private Asset createAsset(EndDevice endDevice) {
