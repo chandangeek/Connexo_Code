@@ -1037,7 +1037,7 @@ sub replace_row_in_file {
 
 	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
 	foreach my $line (@lines) {
-	if ($line =~ m/$src/) { print OUT $dst; print OUT "\n"; next;}
+	if ($line =~ m/$src/) { print OUT "\n"; print OUT $dst; print OUT "\n"; next;}
 	print OUT $line;
 	}
 	close OUT;
