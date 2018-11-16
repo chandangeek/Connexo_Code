@@ -58,6 +58,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -788,6 +789,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     @Transactional
+    @Ignore //not relevant anymore
     public void testCreateWithoutComPortPoolButIncompleteStatus() {
         // Business method
         device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -801,6 +803,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     @Transactional
+    @Ignore //not relevant anymore
     public void testCreateWithoutComPortPool() {
         // Business method
         device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
@@ -814,6 +817,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
+    @Ignore //not relevant anymore
     public void testUpdateWithoutPoolTest() {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("ShouldFailWithUpdate");
         ScheduledConnectionTask reloadedConnectionTask = (ScheduledConnectionTask) inMemoryPersistence.getConnectionTaskService().findConnectionTask(connectionTask.getId()).get();
