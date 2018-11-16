@@ -5,22 +5,24 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 
-public class ReadingInfoType {
+import java.util.Optional;
+
+public class ReadingInfo {
     private Meter meter;
     private UsagePoint usagePoint;
     private ReadingType readingType;
     private BaseReading reading;
 
-    public Meter getMeter() {
-        return meter;
+    public Optional<Meter> getMeter() {
+        return Optional.ofNullable(meter);
     }
 
     public void setMeter(Meter meter) {
         this.meter = meter;
     }
 
-    public UsagePoint getUsagePoint() {
-        return usagePoint;
+    public Optional<UsagePoint> getUsagePoint() {
+        return Optional.ofNullable(usagePoint);
     }
 
     public void setUsagePoint(UsagePoint usagePoint) {
