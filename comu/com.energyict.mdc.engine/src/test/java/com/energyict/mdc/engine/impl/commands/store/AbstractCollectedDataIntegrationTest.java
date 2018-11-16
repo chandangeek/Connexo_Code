@@ -19,6 +19,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -123,6 +124,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static MasterDataService masterDataService;
     private static TopologyService topologyService;
     private static TransactionService transactionService;
+    private static HsmEnergyService hsmEnergyService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
@@ -229,6 +231,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);
                 topologyService = injector.getInstance(TopologyService.class);
+                hsmEnergyService = injector.getInstance(HsmEnergyService.class);
             }
         });
     }
@@ -317,6 +320,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(FileImportService.class).toInstance(mock(FileImportService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractor.class));
+            bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
+
         }
 
     }
