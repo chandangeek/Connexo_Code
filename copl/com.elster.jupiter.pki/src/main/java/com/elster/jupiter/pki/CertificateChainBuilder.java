@@ -20,13 +20,16 @@ public class CertificateChainBuilder {
      */
     public static void populateKeyStore(LinkedList<ClientCertificateWrapper> certChain, KeyStore keyStore, char[] parameters) throws KeyStoreException, InvalidKeyException {
         Certificate[] certs = new Certificate[certChain.size()];
+        int i=0;
         while (certChain.peek() != null) {
             ClientCertificateWrapper cert = certChain.pollFirst();
+            certs[i] = cert.getCertificate().get();
+            i++;
             keyStore.setKeyEntry(
                     cert.getAlias(),
                     cert.getPrivateKeyWrapper().getPrivateKey().get(),
                     parameters,
-                    Arrays.copyOf(certs, certs.length));
+                    Arrays.copyOf(certs, i));
         }
     }
 
