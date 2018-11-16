@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
 
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -18,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-@Component(name = "MeterReadingsEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.elster.jupiter.webservices.demo.meterreadings.MeterReadingsEventHandler", service = TopicHandler.class, immediate = true)
 public class MeterReadingsEventHandler implements TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(MeterReadingsEventHandler.class.getName());
@@ -42,7 +43,7 @@ public class MeterReadingsEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         try {
             ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
-            sendMeterReadingsProvider.call(readingStorer, readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT));
+            sendMeterReadingsProvider.call(readingStorer.getReadings(), readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT) ? HeaderType.Verb.CREATED : HeaderType.Verb.CHANGED);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
