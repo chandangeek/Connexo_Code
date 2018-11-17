@@ -5,6 +5,7 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -64,6 +65,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
     private ConnectionType outboundConnectionType2;
     private ConnectionType inConnectionType1;
     private ConnectionType inConnectionType2;
+    private HsmEnergyService hsmEnergyService;
 
     @Override
     @Before
@@ -90,7 +92,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClasses = Arrays.asList(connectionTypePluggableCass1, connectionTypePluggableCass2, connectionTypePluggableCass3, connectionTypePluggableCass4, connectionTypePluggableCass5);
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(allConnectionTypePluggableClasses);
-
+        hsmEnergyService = mock(HsmEnergyService.class);
     }
 
     @Test
