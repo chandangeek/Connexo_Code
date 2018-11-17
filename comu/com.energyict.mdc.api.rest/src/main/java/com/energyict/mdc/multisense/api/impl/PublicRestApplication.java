@@ -7,6 +7,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
@@ -414,6 +415,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceAlarmShortInfoFactory.class).to(DeviceAlarmShortInfoFactory.class);
             bind(ConnectionFunctionInfoFactory.class).to(ConnectionFunctionInfoFactory.class);
             bind(CertificateWrapperInfoFactory.class).to(CertificateWrapperInfoFactory.class);
+            bind(HsmEnergyService.class).to(HsmEnergyService.class);
         }
     }
 
