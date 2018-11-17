@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -135,22 +134,23 @@ class MeterReadingsBuilder {
         List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
-        Map<ReadingType, List<BaseReading>> readingsByReadingTypes = new HashMap<>();
+        Map<ReadingType, List<Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>>>> readingsByReadingTypes = new HashMap<>();
 
-        if (! readingInfos.isEmpty()) {
-            Map<Pair<Optional<Meter>, Optional<UsagePoint>>, List<ReadingInfo>> readingsMap =
-                    readingInfos.stream().collect(Collectors.groupingBy(rInfo -> Pair.of(rInfo.getMeter(), rInfo.getUsagePoint())));
+        if (!readingInfos.isEmpty()) {
+            Map<Pair<Meter, UsagePoint>, List<ReadingInfo>> readingsMap =
+                    readingInfos.stream().collect(Collectors.groupingBy(rInfo -> Pair.of(rInfo.getMeter().orElse(null), rInfo.getUsagePoint().orElse(null))));
 
-            for (Map.Entry<Pair<Optional<Meter>, Optional<UsagePoint>>, List<ReadingInfo>> entry : readingsMap.entrySet()) {
-                Optional<Meter> meter = entry.getKey().getFirst();
-                Optional<UsagePoint> usagePoint = entry.getKey().getLast();
+            for (Map.Entry<Pair<Meter, UsagePoint>, List<ReadingInfo>> entry : readingsMap.entrySet()) {
+                Meter meter = entry.getKey().getFirst();
+                UsagePoint usagePoint = entry.getKey().getLast();
                 for (ReadingInfo readingInfo : entry.getValue()) {
                     BaseReading reading = readingInfo.getReading();
-                    List<BaseReading> readings = Optional.ofNullable(readingsByReadingTypes.get(readingInfo.getReadingType())).orElse(new ArrayList<>());
-                    readings.add(reading);
-                    // sort readings by timestamp
-                    readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-                    readingsByReadingTypes.put(readingInfo.getReadingType(), readings);
+                    List<Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>>> readingsWithQualities = Optional.ofNullable(readingsByReadingTypes.get(readingInfo.getReadingType()))
+                            .orElse(new ArrayList<>());
+                    readingsWithQualities.add(Pair.of(reading, readingInfo.getReadingQualities()));
+                    // sort readings by timestamp within readingType
+                    readingsWithQualities.sort(Comparator.comparing(rPair -> rPair.getFirst().getTimeStamp()));
+                    readingsByReadingTypes.put(readingInfo.getReadingType(), readingsWithQualities);
                 }
                 Optional<MeterReading> meterReading = wrapInMeterReading(readingsByReadingTypes, usagePoint, meter);
                 if (meterReading.isPresent()) {
@@ -168,10 +168,12 @@ class MeterReadingsBuilder {
                 .map(MeterReadingsBuilder::createReadingQualityType)
                 .forEach(readingQualityTypeList::add);
 
+        // sort readings globally by timestamp
+        meterReadings.getMeterReading().sort(Comparator.comparing(mReading -> mReading.getReadings().get(0).getTimeStamp()));
         return meterReadings;
     }
 
-    private Optional<MeterReading> wrapInMeterReading(Map<ReadingType, List<BaseReading>> readingsByReadingTypes, Optional<UsagePoint> usagePoint, Optional<Meter> meter) {
+    private Optional<MeterReading> wrapInMeterReading(Map<ReadingType, List<Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>>>> readingsByReadingTypes, UsagePoint usagePoint, Meter meter) {
         MeterReading meterReading = new MeterReading();
         List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
         List<Reading> registerReadings = meterReading.getReadings();
@@ -189,65 +191,64 @@ class MeterReadingsBuilder {
         if (intervalBlocks.isEmpty() && registerReadings.isEmpty()) {
             return Optional.empty();
         }
-        if (meter.isPresent()) {
-            meterReading.setMeter(createMeter(meter.get()));
+        if (meter != null) {
+            meterReading.setMeter(createMeter(meter));
         }
-        if (usagePoint.isPresent()) {
-            meterReading.setUsagePoint(createUsagePoint(usagePoint.get()));
+        if (usagePoint != null) {
+            meterReading.setUsagePoint(createUsagePoint(usagePoint));
         }
         return Optional.of(meterReading);
     }
 
-    private IntervalBlock createIntervalBlock(ReadingType readingType, List<BaseReading> readings) {
+    private IntervalBlock createIntervalBlock(ReadingType readingType, List<Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>>> readingsWithQualities) {
         ch.iec.tc57._2011.meterreadings.IntervalBlock.ReadingType intervalBlockReadingType = new IntervalBlock.ReadingType();
         reference(readingType, intervalBlockReadingType::setRef);
 
         IntervalBlock intervalBlock = new IntervalBlock();
         intervalBlock.setReadingType(intervalBlockReadingType);
-        intervalBlock.getIntervalReadings().addAll(readings.stream().map(this::createIntervalReading).collect(Collectors.toList()));
+        intervalBlock.getIntervalReadings().addAll(readingsWithQualities.stream().map(this::createIntervalReading).collect(Collectors.toList()));
 
         return intervalBlock;
     }
 
-    private IntervalReading createIntervalReading(BaseReading reading) {
-        IntervalReading info = new IntervalReading();
-        info.setTimeStamp(reading.getTimeStamp());
-        Optional.ofNullable(reading.getValue())
+    private IntervalReading createIntervalReading(Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>> readingWithQualities) {
+        IntervalReading reading = new IntervalReading();
+        reading.setTimeStamp(readingWithQualities.getFirst().getTimeStamp());
+        Optional.ofNullable(readingWithQualities.getFirst().getValue())
                 .map(BigDecimal::toPlainString)
-                .ifPresent(info::setValue);
-        info.setReportedDateTime(reading.getReportedDateTime());
+                .ifPresent(reading::setValue);
+        reading.setReportedDateTime(readingWithQualities.getFirst().getReportedDateTime());
 
-        List<ReadingQuality> readingQualities = info.getReadingQualities();
-        reading.getReadingQualities().stream()
+        List<ReadingQuality> readingQualities = reading.getReadingQualities();
+        readingWithQualities.getLast().stream()
                 .map(this::createReadingQuality)
                 .forEach(readingQualities::add);
 
-        return info;
+        return reading;
     }
 
-    private Reading createReading(ReadingType readingType, BaseReading reading) {
+    private Reading createReading(ReadingType readingType, Pair<BaseReading, List<? extends com.elster.jupiter.metering.readings.ReadingQuality>> readingWithQualities) {
         Reading.ReadingType readingReadingType = new Reading.ReadingType();
         reference(readingType, readingReadingType::setRef);
 
-        Reading info = new Reading();
-        info.setReadingType(readingReadingType);
-        info.setTimeStamp(reading.getTimeStamp());
+        Reading reading = new Reading();
+        reading.setReadingType(readingReadingType);
+        reading.setTimeStamp(readingWithQualities.getFirst().getTimeStamp());
 
-        Optional.ofNullable(reading.getValue())
+        Optional.ofNullable(readingWithQualities.getFirst().getValue())
                 .map(BigDecimal::toPlainString)
-                .ifPresent(info::setValue);
-        info.setReportedDateTime(reading.getReportedDateTime());
-        reading.getTimePeriod()
+                .ifPresent(reading::setValue);
+        reading.setReportedDateTime(readingWithQualities.getFirst().getReportedDateTime());
+        readingWithQualities.getFirst().getTimePeriod()
                 .map(MeterReadingsBuilder::createDateTimeInterval)
-                .ifPresent(info::setTimePeriod);
+                .ifPresent(reading::setTimePeriod);
 
-
-        List<ReadingQuality> readingQualities = info.getReadingQualities();
-        reading.getReadingQualities().stream()
+        List<ReadingQuality> readingQualities = reading.getReadingQualities();
+        readingWithQualities.getLast().stream()
                 .map(this::createReadingQuality)
                 .forEach(readingQualities::add);
 
-        return info;
+        return reading;
     }
 
     private void reference(ReadingType readingType, Consumer<String> referenceSetter) {
@@ -256,13 +257,13 @@ class MeterReadingsBuilder {
     }
 
     private ch.iec.tc57._2011.meterreadings.ReadingQuality createReadingQuality(com.elster.jupiter.metering.readings.ReadingQuality qualityRecord) {
-        ch.iec.tc57._2011.meterreadings.ReadingQuality info = new ch.iec.tc57._2011.meterreadings.ReadingQuality();
+        ch.iec.tc57._2011.meterreadings.ReadingQuality quality = new ch.iec.tc57._2011.meterreadings.ReadingQuality();
         if (qualityRecord instanceof ReadingQualityRecord) {
-            info.setTimeStamp(((ReadingQualityRecord) qualityRecord).getTimestamp());
+            quality.setTimeStamp(((ReadingQualityRecord) qualityRecord).getTimestamp());
         }
-        info.setReadingQualityType(reference(qualityRecord.getType()));
-        info.setComment(qualityRecord.getComment());
-        return info;
+        quality.setReadingQualityType(reference(qualityRecord.getType()));
+        quality.setComment(qualityRecord.getComment());
+        return quality;
     }
 
     private ch.iec.tc57._2011.meterreadings.ReadingQuality.ReadingQualityType reference(ReadingQualityType readingQualityType) {
