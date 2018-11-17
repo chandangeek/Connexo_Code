@@ -4,7 +4,10 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class ReadingInfo {
@@ -12,6 +15,7 @@ public class ReadingInfo {
     private UsagePoint usagePoint;
     private ReadingType readingType;
     private BaseReading reading;
+    private List<? extends ReadingQuality> readingQualities = Collections.emptyList();
 
     public Optional<Meter> getMeter() {
         return Optional.ofNullable(meter);
@@ -43,5 +47,13 @@ public class ReadingInfo {
 
     public void setReading(BaseReading reading) {
         this.reading = reading;
+    }
+
+    public List<? extends ReadingQuality> getReadingQualities() {
+        return readingQualities;
+    }
+
+    public void setReadingQualities(List<? extends ReadingQuality> readingQualities) {
+        this.readingQualities = readingQualities;
     }
 }
