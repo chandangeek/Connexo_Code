@@ -50,8 +50,10 @@ public class DeviceComTaskInfoFactory {
                 .collect(Collectors.toList());
         compatibleComTaskExecutions.forEach(comTaskExecution -> {
             ComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
-            updater.ignoreNextExecutionSpecForInbound(comTaskEnablement.isIgnoreNextExecutionSpecsForInbound());
-            updater.update();
+            if (updater != null) {
+                updater.ignoreNextExecutionSpecForInbound(comTaskEnablement.isIgnoreNextExecutionSpecsForInbound());
+                updater.update();
+            }
         });
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);

@@ -26,6 +26,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -263,6 +264,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     @Mock
     CrlRequestService crlRequestService;
+    @Mock
+    HsmEnergyService hsmEnergyService;
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
