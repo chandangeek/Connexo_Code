@@ -26,6 +26,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -97,7 +99,7 @@ public class SyntheticLoadProfileProcessorTest {
     private SyntheticLoadProfileDataImporterContext context;
 
     @Before
-    public void initMocks() {
+    public void initMocks() throws URISyntaxException {
         MockitoAnnotations.initMocks(this);
 
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
@@ -134,11 +136,11 @@ public class SyntheticLoadProfileProcessorTest {
             when(fileImportOccurrenceIncorrectInterval.getLogger()).thenReturn(logger);
             when(fileImportOccurrenceIncorrectDuration.getLogger()).thenReturn(logger);
             when(fileImportOccurrenceCorrect.getContents())
-                    .thenReturn(new FileInputStream(getClass().getClassLoader().getResource("slp_syntheticloadprofile_correct.csv").getPath()));
+                    .thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("slp_syntheticloadprofile_correct.csv").getFile()).getPath()));
             when(fileImportOccurrenceIncorrectInterval.getContents())
-                    .thenReturn(new FileInputStream(getClass().getClassLoader().getResource("slp_syntheticloadprofile_incorrectinterval.csv").getPath()));
+                    .thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("slp_syntheticloadprofile_incorrectinterval.csv").getFile()).getPath()));
             when(fileImportOccurrenceIncorrectDuration.getContents())
-                    .thenReturn(new FileInputStream(getClass().getClassLoader().getResource("slp_syntheticloadprofile_incorrectduration.csv").getPath()));
+                    .thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("slp_syntheticloadprofile_incorrectduration.csv").getFile()).getPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
