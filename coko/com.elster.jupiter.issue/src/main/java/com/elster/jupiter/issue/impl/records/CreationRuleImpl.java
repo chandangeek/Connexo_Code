@@ -297,6 +297,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
             super.delete(); // delete from table
         } else {
             this.setObsoleteTime(Instant.now(clock)); // mark obsolete
+            this.deactivate();
             this.update();
         }
         issueService.getIssueCreationService().reReadRules();
