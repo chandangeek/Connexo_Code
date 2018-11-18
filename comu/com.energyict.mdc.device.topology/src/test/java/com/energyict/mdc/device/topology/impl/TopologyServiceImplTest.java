@@ -1080,7 +1080,6 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test(expected = IllegalStateException.class)
     @Transactional
-    @Ignore //not relevant
     public void completeTwice() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
@@ -1091,7 +1090,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder builder = topologyService.buildG3Neighborhood(device);
-        builder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        TopologyService.G3NeighborBuilder setPropertiesToNeighborBuilder = builder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE, G3NodeState.AVAILABLE);
+        setPropertiesToNeighborBuilder(setPropertiesToNeighborBuilder);
         builder.complete();
 
         // Business method
