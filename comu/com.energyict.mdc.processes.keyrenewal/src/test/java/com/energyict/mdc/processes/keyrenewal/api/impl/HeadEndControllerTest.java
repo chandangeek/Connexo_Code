@@ -6,6 +6,7 @@ package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -126,6 +127,8 @@ public class HeadEndControllerTest {
     MultiSenseHeadEndInterface multiSenseHeadEndInterface;
     @Mock
     ComTaskExecution comTaskExecution;
+    @Mock
+    HsmEnergyService hsmEnergyService;
 
     ExceptionFactory exceptionFactory;
 
