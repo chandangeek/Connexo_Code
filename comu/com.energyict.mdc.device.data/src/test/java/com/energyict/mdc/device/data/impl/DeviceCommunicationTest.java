@@ -579,12 +579,12 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
 
-        Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
+        //Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
+        device.getConnectionTasks().get(0).setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
         // Business method
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
-        scheduledConnectionTaskBuilder.add();
+        device.getConnectionTasks().get(0).setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
+        device.getConnectionTasks().get(0).save();
 
         // Asserts: see expected exception rule
     }
