@@ -37,6 +37,8 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Instant;
@@ -140,7 +142,7 @@ public class UsagePointProcessorForMultisenseTest {
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() throws FileNotFoundException {
+    public void initMocks() throws FileNotFoundException, URISyntaxException {
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
@@ -173,9 +175,9 @@ public class UsagePointProcessorForMultisenseTest {
         when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceFail.getLogger()).thenReturn(logger);
-        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
-        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
-        when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_fail.csv").getPath()));
+        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("usagepoint_correct.csv").getFile()).getPath()));
+        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getFile()).getPath()));
+        when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(new URI(getClass().getClassLoader().getResource("usagepoint_fail.csv").getFile()).getPath()));
 
         context = new MeteringDataImporterContext();
         context.setMeteringService(meteringService);
