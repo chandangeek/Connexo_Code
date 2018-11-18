@@ -635,7 +635,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWhileThereAreStillConflictingMappingsTest() {
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
@@ -663,7 +662,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWithNoConflictConnectionMethodsTest() {
         final String connectionTaskName = "MyDefaultConnectionTaskName";
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
@@ -685,7 +683,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+            //device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
 
             context.commit();
         }
@@ -698,7 +696,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWithNoConflictsRemoveAndMapConnectionMethodsTest() {
         final String firstConnectionTaskName = "myFirstConnectionTaskName";
         final String secondConnectionTaskName = "mySecondConnectionTaskName";
@@ -722,12 +719,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
-                    .add();
-            final ScheduledConnectionTask originalSecondScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(mySecondConnectionTask)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
-                    .add();
 
             context.commit();
         }
@@ -741,7 +732,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWithConflictAndResolvedRemoveActionTest() {
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
@@ -761,10 +751,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
-                    .add();
-
             context.commit();
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService()
@@ -776,7 +762,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWithConflictAndResolvedMapActionTest() {
         Device device;
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
@@ -798,9 +783,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
-                    .add();
 
             context.commit();
         }
@@ -813,7 +795,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore //to be adapted
     public void changeConfigWithConflictAndResolvedMapWithPropertiesTest() {
         Device device;
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
@@ -830,7 +811,11 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
             mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            mySecondConnectionTask.setProperty(ipAddressPropertyName, ipAddressValue);
+            mySecondConnectionTask.setProperty(portNumberPropertyName, portNumberValue);
+            mySecondConnectionTask.save();
             secondDeviceConfiguration.activate();
+
 
             updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
             final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
@@ -838,10 +823,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
-                    .setProperty(ipAddressPropertyName, ipAddressValue)
-                    .setProperty(portNumberPropertyName, portNumberValue)
-                    .add();
             context.commit();
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService()
@@ -850,8 +831,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
-        assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(ipAddressPropertyName).getValue()).isEqualTo(ipAddressValue);
-        assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(portNumberPropertyName).getValue()).isEqualTo(portNumberValue);
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getProperty(ipAddressPropertyName).getValue()).isEqualTo(ipAddressValue);
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getProperty(portNumberPropertyName).getValue()).isEqualTo(portNumberValue);
     }
 
     @Test

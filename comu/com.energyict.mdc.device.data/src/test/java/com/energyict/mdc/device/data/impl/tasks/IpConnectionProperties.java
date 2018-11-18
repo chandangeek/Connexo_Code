@@ -27,7 +27,7 @@ public enum IpConnectionProperties {
                     .stringSpec()
                     .named(this.propertyName(), this.propertyName())
                     .describedAs("Description for " + this.propertyName())
-                    .markRequired()
+                    //.markRequired()
                     .finish();
         }
     },
