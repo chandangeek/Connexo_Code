@@ -126,7 +126,8 @@ import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
-
+    private static final String DEVICE_ASSOCIATION = "device";
+    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final MultiElementDeviceService multiElementDeviceService;
@@ -173,9 +174,6 @@ public class DeviceResource {
     private final DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
     private final BpmService bpmService;
     private final JsonService jsonService;
-
-    private static final String DEVICE_ASSOCIATION = "device";
-    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
 
     @Inject
     public DeviceResource(
@@ -1037,7 +1035,10 @@ public class DeviceResource {
         List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         //Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));
-        Stream<Device> stream = topologyService.findPhysicalConnectedDevices(device).stream();
+        Stream<Device> stream = topologyService.findPhysicalConnectedDevices(device)
+                .stream()
+                .filter(filterPredicate)
+                .sorted(Comparator.comparing(Device::getName));
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }

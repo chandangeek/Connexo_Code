@@ -223,13 +223,13 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     private ConnectionFunction mockConnectionFunction(int id, String name, String displayName) {
         return new ConnectionFunction() {
             @Override
-            public long getId() {
-                return id;
+            public String getConnectionFunctionName() {
+                return name;
             }
 
             @Override
-            public String getConnectionFunctionName() {
-                return name;
+            public long getId() {
+                return id;
             }
 
             @Override

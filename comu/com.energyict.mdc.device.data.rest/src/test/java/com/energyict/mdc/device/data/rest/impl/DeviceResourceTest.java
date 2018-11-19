@@ -160,7 +160,6 @@ import java.util.stream.Stream;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -1282,7 +1281,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testGetCommunicationTopology() {
         when(clock.instant()).thenReturn(NOW);
         int limit = 10;
@@ -1299,7 +1297,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testCommunicationTopologyPaging() {
         when(clock.instant()).thenReturn(NOW);
         int limit = 2;
@@ -1327,7 +1324,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testGetCommunicationTopologyPagingBigEnd() {
         when(clock.instant()).thenReturn(NOW);
         int limit = 1000;
@@ -1341,7 +1337,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testGetCommunicationTopologyNoPaging() {
         when(clock.instant()).thenReturn(NOW);
         mockTopologyTimeline(Integer.MAX_VALUE);
@@ -1370,7 +1365,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
         when(slice.getDevices()).thenReturn(slavesList);
         when(slice.getPeriod()).thenReturn(range);
-        when(topologyTimeline.getAllDevices()).thenReturn(slavesSet);
+        when(topologyService.findPhysicalConnectedDevices(gateway)).thenReturn(slavesList);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave3)).thenReturn(Optional.of(Instant.ofEpochMilli(30L)));
@@ -1388,7 +1383,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testGetCommunicationTopologyFilter() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
@@ -1407,7 +1401,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
         when(slice.getDevices()).thenReturn(slavesList);
         when(slice.getPeriod()).thenReturn(range);
-        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyService.findPhysicalConnectedDevices(gateway)).thenReturn(slavesList);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
@@ -1462,7 +1456,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    @Ignore //to be updated
     public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
@@ -1475,7 +1468,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
-        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyService.findPhysicalConnectedDevices(gateway)).thenReturn(slavesList);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
         TopologyTimeslice slice = mock(TopologyTimeslice.class);
