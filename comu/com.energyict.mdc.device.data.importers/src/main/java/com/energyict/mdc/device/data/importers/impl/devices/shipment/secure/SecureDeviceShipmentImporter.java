@@ -72,6 +72,6 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
 
     @Override
     protected boolean shouldValidateCert() {
-        return false;
+        return true;
     }
 }
