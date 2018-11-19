@@ -5,7 +5,6 @@
 package com.elster.jupiter.issue.share;
 
 import aQute.bnd.annotation.ConsumerType;
-import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -35,5 +34,4 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
 
     Optional<? extends Issue> resolveIssue(IssueEvent event);
 
-    default Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {return Optional.empty();}
 }

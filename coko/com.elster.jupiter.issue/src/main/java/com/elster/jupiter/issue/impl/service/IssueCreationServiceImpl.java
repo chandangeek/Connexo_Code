@@ -313,7 +313,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private List<CreationRule> getCreationRules() {
         List<CreationRule> ruleList;
         try {
-            ruleList = getCreationRuleQuery().select(where("active").isEqualTo(true).and(where("obsoleteTime").isNull()));
+            ruleList = getCreationRuleQuery().select(where("active").isEqualTo(true));
         } catch (UnderlyingSQLFailedException sqlEx) {
             throw new IllegalStateException("Rule store is not available yet");
         }
@@ -321,7 +321,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     private boolean canEvaluateRules() {
-        createKnowledgeBase();
-        return knowledgeBase != null;
+        boolean canEvaluateRules = true;
+        if (knowledgeBase == null) {
+            createKnowledgeBase();
+            canEvaluateRules = knowledgeBase != null;
+        }
+        return canEvaluateRules;
     }
 }

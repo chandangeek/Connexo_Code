@@ -90,17 +90,6 @@ public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAc
         Save.CREATE.validate(getDataModel(), this);
     }
 
-    @Override
-    public String getFormattedProperties() {
-        if (type.isPresent()) {
-            Optional<IssueAction> issueAction = getAction().createIssueAction();
-            if (issueAction.isPresent()) {
-                return issueAction.get().getFormattedProperties(getProperties());
-            }
-        }
-        return "";
-    }
-
     void setAction(IssueActionType type) {
         this.type.set(type);
     }

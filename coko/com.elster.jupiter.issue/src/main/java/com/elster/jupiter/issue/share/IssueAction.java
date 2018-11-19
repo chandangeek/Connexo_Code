@@ -36,8 +36,4 @@ public interface IssueAction extends HasDynamicPropertiesWithValues {
     }
 
     long getActionType();
-
-    default String getFormattedProperties(Map<String, Object> properties) {
-        return "";
-    }
 }

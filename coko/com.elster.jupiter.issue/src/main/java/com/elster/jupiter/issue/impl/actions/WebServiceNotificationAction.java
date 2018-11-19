@@ -144,15 +144,6 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         return builder.build();
     }
 
-    @Override
-    public String getFormattedProperties(Map<String, Object> props) {
-        Object value = props.get(WEBSERVICE);
-        if (value != null) {
-            return Optional.ofNullable(((EndPoint) value).endPointConfiguration).get().getName();
-        }
-        return "";
-    }
-
     private EndPoint[] getPossibleStatuses() {
         return endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isActive)
