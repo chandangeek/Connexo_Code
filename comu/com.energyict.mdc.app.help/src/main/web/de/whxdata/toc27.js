@@ -1,0 +1,1 @@
+gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"26 Glossar\"><item name=\"26 Glossar\" url=\"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/26_Glossar/26_Glossar.htm\" /></data>";

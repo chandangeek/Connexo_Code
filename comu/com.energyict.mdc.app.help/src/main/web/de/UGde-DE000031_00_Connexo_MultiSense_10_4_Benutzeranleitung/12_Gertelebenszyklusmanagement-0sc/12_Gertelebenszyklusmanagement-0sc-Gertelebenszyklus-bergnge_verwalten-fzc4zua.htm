@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>GerÃ¤telebenszyklus-ÃœbergÃ¤nge verwalten</title>
+
+ <link rel="stylesheet" href="12_Gertelebenszyklusmanagement-0sc.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "13.0_8";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/12_Gertelebenszyklusmanagement-0sc/12_Gertelebenszyklusmanagement-0sc-Gertelebenszyklus-Status_verwalten-d4c.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/12_Gertelebenszyklusmanagement-0sc/12_Gertelebenszyklusmanagement-0sc-Gerte-Lebenszyklen_berwachen-7mc05e.htm">
+ <meta name="topic-breadcrumbs" content="12 Gerätelebenszyklusmanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic">GerÃ¤telebenszyklus-ÃœbergÃ¤nge verwalten</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_12954_Understand"></a>ÃœbergÃ¤nge verstehen</p>
+  <p dir="ltr" class="FM_Body">Ein Ãœbergang ist die Aktion, wo ein GerÃ¤t von einem Status zu einem anderen wechselt. Dieser Ãœbergang ist mit VorÃ¼bergangsprÃ¼fungen und Autoaktionen verbunden. Die VorÃ¼bergangstests sind verschiedene Anforderungen, die erfÃ¼llt werden mÃ¼ssen, bevor das GerÃ¤t einen Ãœbergang machen kann. Die Autoaktionen sind automatisierte AktivitÃ¤ten, die gewÃ¤hrleisten, dass das GerÃ¤t fÃ¼r den nÃ¤chsten Zustand bereit ist.</p>
+  <p dir="ltr" class="FM_Body">Beim Konfigurieren eines Ãœbergangs mÃ¼ssen Sie den AuslÃ¶ser selektieren, der den Ãœbergang aktiviert. Neben dem auslÃ¶senden Ereignis mÃ¼ssen Sie den Status selektieren, von dem der Ãœbergang beginnt ,und den Status, bei dem der Ãœbergang endet. Die Kombination dieser drei Parameter mÃ¼ssen im GerÃ¤telebenszyklus einzigartig sein. Ein weiterer wichtiger Aspekt der Konfiguration von ÃœbergÃ¤ngen ist zu definieren, wer den Ãœbergang ausfÃ¼hren kann.</p>
+  <p dir="ltr" class="FM_Body">WÃ¤hrend der Konfiguration des Ãœbergangs kÃ¶nnen Sie auch zusÃ¤tzliche optionale VorÃ¼bergangstests und Autoaktionen hinzufÃ¼gen. StandardmÃ¤ÃŸig hat jeder Ãœbergang verschiedene obligatorische VorÃ¼bergangstests und Autoaktionen, die immer gemeinsam mit bestimmten Status ausgefÃ¼hrt werden.</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: GerÃ¤telebenszyklus-ÃœbergÃ¤nge</caption>
+   <tr class="tr117">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Device_life_cycle_management_2.png" id="image253" src="../../assets/Device_life_cycle_management_2.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic">Ãœbergang hinzufÃ¼gen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Ã–ffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklusmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklen &gt; </span><span style="font-weight : normal; ">klicken Sie auf den Namen eines GerÃ¤telebenszyklus &gt; klicken Sie auf </span><span class="FM_UIRef">ÃœbergÃ¤nge</span><span style="font-weight : normal; ">&#160;im MenÃ¼ auf der linken Seite.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Ãœbergang hinzufÃ¼gen</span><span style="font-weight : normal; "> und fÃ¼llen Sie die nachfolgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">AusgelÃ¶st durch</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie das Ereignis, das den Ãœbergang auslÃ¶st.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Automatisch auf der Grundlage des AuslÃ¶sers erzeugt, aber kann geÃ¤ndert werden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Von</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Der Anfangsstatus.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Bis</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Der Endstatus</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Berechtigungen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Welche Anwender kÃ¶nnen den Ãœbergang ausfÃ¼hren. Die verschiedenen Ebenen werden in Connexo konfiguriert <span data-name="SystemAdmin_App" data-val="Admin" data-showval="TRUE" data-format="SystemAdmin_App">Admin</span>.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">PrÃ¼fungen vor dem Ãœbergang</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren sie, welche PrÃ¼fungen Ã¼berwacht werden sollten, bevor ein GerÃ¤t den Ãœbergang von einem Status in den anderen machen kann. Weitere Informationen sind verfÃ¼gbar, wenn Sie auf das Informationssymbol klicken. StandardmÃ¤ÃŸig werden nur die optionalen VorÃ¼bergangsprÃ¼fungen angezeigt, aber Sie kÃ¶nnen sich entscheiden, auch diese zu sehen, die standardmÃ¤ÃŸig nach Klicken auf <span class="FM_UIRef">Alle anzeigen</span><span style="font-weight : normal; ">&#160;selektiert werden. Weitere Informationen zu VorÃ¼bergangsprÃ¼fungen entnehmen Sie bitte </span><a href="#XREF_12954_Understand"><span style="font-weight : normal; "></span><span class="FM_blue_crossreference">â€œ</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">ÃœbergÃ¤nge verstehenâ€</span></a>.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Auto-Aktionen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren, welche Autoaktionen ausgefÃ¼hrt werden sollten, bevor ein GerÃ¤t den Ãœbergang von einem in den anderen Status machen kann. Weitere Informationen sind verfÃ¼gbar, wenn Sie auf das Informationssymbol klicken. StandardmÃ¤ÃŸig werden nur die optionalen Autoaktionen angezeigt, aber Sie kÃ¶nnen sich entscheiden, auch diese zu sehen, die standardmÃ¤ÃŸig nach Klicken auf <span class="FM_UIRef">Alle anzeigen</span><span style="font-weight : normal; ">&#160;selektiert werden. Weitere Informationen zu Autoaktionen entnehmen Sie bitte </span><a href="#XREF_12954_Understand"><span style="font-weight : normal; "></span><span class="FM_blue_crossreference">â€œ</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">ÃœbergÃ¤nge verstehenâ€</span></a>.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">EinfÃ¼gen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Die Kombination des AuslÃ¶ser von Status zu Status muss im GerÃ¤telebenszyklus einzigartig sein.</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_12101_Edit_transition"></a>Ãœbergang bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Ã–ffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklusmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklen &gt; </span><span style="font-weight : normal; ">klicken Sie auf den Namen eines GerÃ¤telebenszyklus &gt; klicken Sie </span><span class="FM_UIRef">ÃœbergÃ¤nge</span><span style="font-weight : normal; ">&#160;im MenÃ¼ auf der linken Seite.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_142.png" id="image254" src="../../assets/masterActions_142.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Sie kÃ¶nnen jeden Parameter bearbeiten, prÃ¼fen Sie jedoch, ob die Kombination AuslÃ¶ser/von/zu einzigartig ist. Wenn nicht erscheint eine Fehlermeldung und die Ã„nderung wird nicht gespeichert.</p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Ãœbergang lÃ¶schen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Ã–ffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklusmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">GerÃ¤telebenszyklen &gt; </span><span style="font-weight : normal; ">klicken Sie auf den Namen eines GerÃ¤telebenszyklus &gt; klicken Sie </span><span class="FM_UIRef">ÃœbergÃ¤nge</span><span style="font-weight : normal; ">&#160;im MenÃ¼ auf der linken Seite.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_143.png" id="image255" src="../../assets/masterActions_143.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">LÃ¶schen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Ein Ãœbergang kann immer gelÃ¶scht werden, auch wenn er Teil eines Lebenszyklus ist, der verwendet wird.</p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">LÃ¶schen</span><span style="font-weight : normal; ">.</span></p>
+  </div>
+</body>
+</html>

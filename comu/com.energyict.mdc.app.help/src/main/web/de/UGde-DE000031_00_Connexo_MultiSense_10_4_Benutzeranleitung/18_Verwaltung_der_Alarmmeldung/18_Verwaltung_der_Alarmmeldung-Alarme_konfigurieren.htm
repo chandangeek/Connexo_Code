@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Alarme konfigurieren</title>
+
+ <link rel="stylesheet" href="18_Verwaltung_der_Alarmmeldung.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "19.0_4";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/18_Verwaltung_der_Alarmmeldung/18_Verwaltung_der_Alarmmeldung-Alarmmanagement_in_MultiSense.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/18_Verwaltung_der_Alarmmeldung/18_Verwaltung_der_Alarmmeldung-Alarme_handhaben.htm">
+ <meta name="topic-breadcrumbs" content="18 Verwaltung der Alarmmeldung" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Alarme konfigurieren</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Alarmerstellungsregeln konfigurieren</p>
+  <p dir="ltr" class="FM_H4Topic">Alarmerstellungsregeln verstehen</p>
+  <p dir="ltr" class="FM_Body">In <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;können Sie definieren, wann ein Alarm entsteht, indem Sie die Alarmerstellungsregeln definieren. In dieser Regel können Sie definieren, welche speziellen Logbuchregeln einen Alarm auslösen, sowie welche Ereignisse den Alarm löschen. Wenn ein Alarm gelöscht wird, müssen Sie ihn noch immer schließen. Sie haben auch die Möglichkeit zu selektieren, wie oft ein Ereignis auftreten sollte, bevor ein Alarm ausgelöst wird.</p>
+  <p dir="ltr" class="FM_Body">Zusätzlich zum Ereignistyp müssen Sie auch konfigurieren, welchen Zustand das Gerät haben sollte, bevor ein Ereignis einen Alarm auslösen kann. Es ist beispielsweise nicht relevant einen Manipulationsalarm auszulösen, wenn das Gerät noch immer vorrätig ist.</p>
+  <p dir="ltr" class="FM_Body">Es gibt auch eine Option die Dringlichkeit des Alarms zu erhöhen oder zu vermindern, wenn der Alarm erneut auftritt oder gelöscht wird. Ein Alarm wird gelöscht, wenn ein Ereignis auftritt, welches das Ereignis beseitigt, das den Alarm auslöst. Der Alarm bekommt den Status gelöscht, aber muss noch immer geschlossen werden. Ein Alarm kann beispielsweise von einem Manipulationsereignis ausgelöst werden, welcher durch die Öffnung des Messgeräts verursacht wird. Wenn das Messgerät geschlossen wird, entsteht ein Löschereignis. Dieses Ereignis weist dem entstandenen Alarm den Status gelöscht zu. Der Alarm bleibt offen, sodass der Bediener diese Alarme löschen kann und prüft, ob das Ereignis dafür sorgt, dass der Alarm wirklich beseitigt wurde.</p>
+  <p dir="ltr" class="FM_Body">In der Alarmerstellungsregel können Sie einige Handlungen auswählen, die immer dann ausgeführt werden, wenn der Alarm entsteht oder überfällig ist. Sie können sich entscheiden ihn automatisch einem speziellen Anwender und/oder Arbeitsgruppe zuzuweisen oder den Alarm zu schließen.</p>
+  <p dir="ltr" class="FM_H4Topic">Eine Alarmerstellungsregel für Geräteereignisse hinzufügen</p>
+  <p dir="ltr" class="FM_Body">Diese Erstellungsregel ermöglicht Ihnen Alarme auszulösen, wenn spezielle Ereignisse an Geräten auftreten.</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmerstellungsregeln</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Regel hinzufügen</span><span style="font-weight : normal; "> und füllen Sie die nachfolgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geben Sie einen einmaligen Namen.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Regelvorlage</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie <span class="FM_UIRef">Gerätealarmvorlage</span><span style="font-weight : normal; ">.</span></p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Entstanden nach Ereignistyp</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Definieren, welches Geräteereignis einen Alarm auslöst.</p>
+   <p dir="ltr" class="FM_ListNumber2">a. Klicken Sie auf <span class="FM_UIRef">Ereignistypen einfügen</span><span style="font-weight : normal; ">. Selektieren Sie </span><span class="FM_UIRef">Ereignistyp angeben</span><span style="font-weight : normal; ">, wenn Sie die Ereignistypkennung manuell eingeben. Diese hat das Format x.x.x.x und Sie können Joker verwenden. Bei Geräte, die keine CIM-Ereigniskennung haben, können Sie die Gerätekennung durch Eingabe der Kennung 0.0.0.0 im Ereignistypenfeld definieren.</span></p>
+   <p dir="ltr" class="FM_ListNumber2">b. Wählen Sie <span class="FM_UIRef">Ereignistypenteile angeben</span><span style="font-weight : normal; ">, wenn Sie automatisch die Ereignistypenkennung erstellen möchten, indem Sie die verschiedenen Teile der Kennung aus einer Drop-Down-Liste selektiert haben. Um die Gerätekennung zu aktivieren, wählen Sie aus der Liste für jeden Teil des Ereignistypen NA.</span></p>
+   <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Gelöscht nach Ereignistyp</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definieren Sie, welches Geräteereignis den Alarm löschen kann, der von Geräteereignissen entstanden ist, die im Parameter <span class="FM_UIRef">Entstanden nach Ereignistyp</span><span style="font-weight : normal; "> definiert ist.</span></p>
+   <p dir="ltr" class="FM_CellBody">Zum Definieren des Ereignistyps gehen Sie vor, wie in den oben beschriebenen Schritten.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Gerätezustand</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definiert, welcher Gerätezustand einen Alarm auslöst. Wenn das Gerät sich nicht im ausgewählten Zustand befindet, löst das Ereignis keinen Alarm aus.</p>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie zuerst einen oder mehrere Gerätetypen, selektieren Sie dann einen oder mehrere Gerätezustände.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Ereignisse auslösen sollte</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie, ob ein Ereignis einen neuen Alarm auslöst oder einen Einfluss auf andere bestehende offenen Alarme hat.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Bei erneuter Auslösung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nur aktiv, wenn Sie &#160;<span class="FM_UIRef">bestehende offene Alarme anmelden</span><span style="font-weight : normal; ">&#160;selektieren.</span></p>
+   <p dir="ltr" class="FM_CellBody">Sie können sich entscheiden nichts zu tun, oder die Dringlichkeit eine Stufe erhöhen.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Wenn erneut gelöscht</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nur aktiv, wenn Sie &#160;<span class="FM_UIRef">bestehende offene Alarme anmelden</span><span style="font-weight : normal; ">&#160;selektieren.</span></p>
+   <p dir="ltr" class="FM_CellBody">Sie können sich entscheiden nichts zu tun, oder die Dringlichkeit eine Stufe zu erhöhen.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Alarmmeldungen erstellen, wenn mindestens</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definieren, wie oft ein Ereignis in einem bestimmten Zeitraum auftreten sollte, bevor es einen Alarm auslöst.</p>
+   <p dir="ltr" class="FM_CellBody">Die Zeitspanne wird von relativen Zeitabschnitten definiert.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Grund der Alarmmeldung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Welche Ursache hat der Alarm. Geben Sie einen benutzerdefinierten Grund ein oder selektieren Sie einen aus der Liste.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Priorität</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Zeigt die Standardpriorität des Alarms. Das ist die Summe aus &#160;<span class="FM_UIRef">Dringlichkeit</span><span style="font-weight : normal; ">&#160;und </span><span class="FM_UIRef">Einfluss</span><span style="font-weight : normal; ">.</span></p>
+   <p dir="ltr" class="FM_CellBody">Prioritätsebenen sind wie folgt: </p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>1 - 20: sehr gering</p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>21 - 40: gering</p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>41 - 60: mittel</p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>61 - 80: hoch</p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>81 - 100: sehr hoch</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Dringlichkeit</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definiert die Dringlichkeit des Alarms, maximal zulässiger Wert ist 50.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Auswirkungen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definiert die Auswirkung des Alarms, maximal zulässiger Wert ist 50.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Fälligkeitsdatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wann muss der Alarm behandelt werden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kommentar</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Zusätzliche Informationen zum Alarm.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Aktionen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definieren, was getan werden muss, wenn der Alarm ausgelöst wird. Weitere Informationen finden Sie in <a href="#XREF_51308_Add_actions_to"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Aktionen zu Alarmerstellungsregeln hinzufügen”</span></a>.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_51308_Add_actions_to"></a>Aktionen zu Alarmerstellungsregeln hinzufügen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Problemerstellungsregeln</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Handlungen zu einer neuen Erstellungsregel hinzufügen: Klicken Sie auf <span class="FM_UIRef">Regel einfügen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_Body" style="text-indent : 15.591pt; margin-bottom : 7.000pt;">Handlungen zu einer bestehenden Erstellungsregel hinzufügen: Klicken Sie auf das Aktionssymbol <img alt="masterActions_200.png" id="image364" src="../../assets/masterActions_200.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Handlung einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Definieren, wann die Handlung ausgeführt wird. Wenn der Alarm erstellt wurde oder wenn der Alarm sein Fälligkeitsdatum überschritten hat.</p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; Selektieren Sie eine Handlung: Den Alarm zuweisen oder einen Prozess beginnen, wenn der Alarm ausgelöst oder geschlossen wird oder den Alarm zuweisen, wenn er überfällig ist.</p>
+  <p dir="ltr" class="FM_ListNumber1">6. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">7. &#160; Klicken Sie zum Aktivieren das Aktionssymbol <img alt="masterActions_201.png" id="image365" src="../../assets/masterActions_201.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Aktivieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_14773_Add_a_web_service"></a>Fü<span class="FM_change_bar">gen Sie eine Webservice-Benachrichtigung ein, um den Alarm in einer externen Anwendung zu bearbeiten</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Durch Hinzufügen einer Webservicebenachrichtigung an einer Alarmerstellungsregel können Sie Alarme zum weiteren Verfolgen und Bearbeiten an ein externes System weiterleiten. Ein Beispiel für ein solches externes System ist Jira (Atlassian). Das macht erforderlich, dass ein oder mehrere Webservice-Endpunkte in Connexo Admin erstellt wurden &gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservices</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webserviceendpunkte</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;Wir beziehen uns auf die Gebrauchsanweisung von Connexo Admin für weitere detaillierte Informationen über Webservices.</span></p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Sie können nur eine Webservicebenachrichtigung pro Alarmerstellungsregel hinzufügen.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar" style="font-weight : normal; ">Öffnen Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Verwaltung</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Alarmmanagement</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Alarmerstellungsregeln.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Um Aktionen zu einer neuen Erstellungsregel zu fügen, klicken Sie auf </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Regel hinzufügen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_Body" style="text-indent : 15.591pt; margin-bottom : 7.000pt;"><span class="FM_change_bar" style="font-weight : normal; ">Um Aktionen zu einer bestehenden Erstellungsregel zu fügen, klicken Sie auf das Aktionssymbol <img alt="masterActions_202.png" id="image366" src="../../assets/masterActions_202.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Bearbeiten</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie auf </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Aktion hinzufügen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Prüfen, dass </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Bei Erstellungszeit</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;selektiert ist in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Wann ausführen</span><span class="FM_change_bar" style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" style="text-indent : 14.173pt;"><span class="FM_change_bar" style="font-weight : normal; ">Webservicebenachrichtigungen können nur dann ausgelöst werden, wenn der Alarm erstellt wird. Es ist nicht möglich Webservicebenachrichtigungen an bestehenden Alarmen zu verwenden, die überfällig sind.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Selektieren Sie in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Aktion</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservicebenachrichtigung</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" style="text-indent : 14.173pt;"><span class="FM_change_bar" style="font-weight : normal; ">Das Feld </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservicebenachrichtigung</span><span class="FM_change_bar" style="font-weight : normal; "> wird eingefügt.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">6. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Selektieren Sie in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservicebenachrichtigung</span><span class="FM_change_bar" style="font-weight : normal; "> den benötigten Webserviceendpunkt.</span></p>
+  <p dir="ltr" style="text-indent : 14.173pt;"><span class="FM_change_bar" style="font-weight : normal; ">Dieses Drop-Down zeigt alle Webserviceendpunkte, die in Connexo verfügbar sind. Das wurde in Connexo Admin erstellt &gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservices</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webserviceendpunkte</span><span class="FM_change_bar" style="font-weight : normal; ">. Wenden Sie sich an Ihren Connexo Administrator, wenn Sie zusätzliche Optionen in dieser Liste benötigen und entnehmen Sie weitere Informationen über Webservices der Gebrauchsanweisung von Connexo .</span></p>
+  <p dir="ltr" class="FM_ListNumber1">7. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Selektieren Sie das Kästchen </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Alarm schließen</span><span class="FM_change_bar" style="font-weight : normal; ">, wenn der Connexo-Alarm nach Weiterleitung an das externe System für weitere Behandlung geschlossen werden soll.</span></p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Wenn </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Alarm schließen</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;selektiert wurde, erhält der Alarm den Status </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Weitergeleitet</span><span class="FM_change_bar" style="font-weight : normal; ">, nachdem er von der Webservicebenachrichtigung an den externen Service weitergeleitet wurde. Der Alarm wird tatsächlich nicht in Connexo behoben. Bei Bedarf kann das externe System eine Anmerkung zu einem Alarm veröffentlichen, sodass Sie seinen Status in diesem anderen System verfolgen können. Wenden Sie sich an Ihr Connexo Lieferteam für weitere Informationen zu den verfügbaren Optionen.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">8. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie auf </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Hinzufügen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" style="text-indent : 14.173pt;"><span class="FM_change_bar" style="font-weight : normal; ">Die Option </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Webservicebenachrichtigung</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;ist im Feld </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Aktion</span><span class="FM_change_bar" style="font-weight : normal; ">nicht mehr verfügbar.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">9. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Verifizieren Sie, dass alle anderen Parameter für Ihre Alarmerstellungsregel korrekt sind und klicken Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Hinzufügen</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;(neue Regel) oder </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Speichern</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;(bestehende Regel), wenn Sie Ihre Arbeit spei</span><span style="font-weight : normal; ">chern möchten.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Alarmerstellungsregeln (de)aktivieren</p>
+  <p dir="ltr" class="FM_Body">Alarmerstellungsregeln zu deaktivieren ermöglicht Ihnen vorübergehend inaktive Regeln ohne Bedarf diese dauerhaft zu löschen.</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmerstellungsregeln</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_203.png" id="image367" src="../../assets/masterActions_203.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Deaktivieren/aktivieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Alarmerstellungsregeln bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmerstellungsregeln</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_204.png" id="image368" src="../../assets/masterActions_204.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Parameter der Alarmerstellungsregel ändern.</p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Alarmerstellungsregeln löschen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmmanagement</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Alarmerstellungsregeln</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_205.png" id="image369" src="../../assets/masterActions_205.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie als Bestätigung auf {1}<span style="font-weight : bold; ">Löschen</span><span style="font-weight : normal; ">{2}.</span></p>
+  <p dir="ltr" class="FM_Body">&nbsp;</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Übergänge in Gruppe verwalten</title>
+
+ <link rel="stylesheet" href="12_Gertelebenszyklusmanagement-0sc.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "13.0_12";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/12_Gertelebenszyklusmanagement-0sc/12_Gertelebenszyklusmanagement-0sc-bergang_Gerte-2bb5k.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/12_Gertelebenszyklusmanagement-0sc/12_Gertelebenszyklusmanagement-0sc-Messgertaktivierungen_berwachen-wvc12f.htm">
+ <meta name="topic-breadcrumbs" content="12 Gerätelebenszyklusmanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic">Übergänge in Gruppe verwalten</p>
+  <p dir="ltr" class="FM_H4Topic">Wie Geräte Übergänge in Gruppe machen</p>
+  <p dir="ltr" class="FM_Body">In <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;können mehrere Geräte den Übergang gleichzeitig machen, das wird über Importdienste realisiert. Mit diesen Importdiensten können Sie CSV-Dateien mit allen relevanten Informationen zu einem bestimmten Dateispeicherort laden, wo diese Datei von <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> aufgegriffen und verarbeitet wird.</p>
+  <p dir="ltr" class="FM_Body">Importdienste sind konfiguriert in <span data-name="SystemAdmin_App" data-val="Admin" data-showval="TRUE" data-format="SystemAdmin_App">Admin</span>. Bei der Schaffung neuer Importdienste bietet Connexo verschiedene Standarddateiimporter, die den Import verschiedener Datentypen für verschiedene Handlungen zulassen. Während der Konfiguration müssen Sie den Speicherort angeben, wo die importierten Dateien gespeichert werden. Neben dem Importverzeichnis geben Sie auch das Verzeichnis für die Fortschrittsdateien und Dateien erfolgreicher und misslungener Importe an. Diese Informationen sind auch in &#160;<span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;sichtbar, wenn Sie die Importservicedetails ansehen, die sich hier befinden: <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Datenimport</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Importdienste</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Vergangenheit der Importdienste anzeigen</p>
+  <p dir="ltr" class="FM_Body">Weitere Informationen finden Sie in <a><span class="FM_blue_crossreference">“View import service history”</span></a>.</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte aus der Versanddatei registrieren (Import Geräte)</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um Versandinformationen bei Geräten hinzufügen zu können, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String. Muss eindeutig sein.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Gerätetyp</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Gerätekonfiguration</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Hersteller</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Modellnummer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer. Format, wie in Importdiensten definiert.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Modellversion</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer. Format, wie in Importdiensten definiert.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Lieferdatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Seriennummer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer. Format, wie in Importdiensten definiert.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Jahr der Zertifizierung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">JJJJ</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Charge</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer. Format, wie in Importdiensten definiert.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 6.000pt;"><span class="FM_Bold">Beispiel</span><span style="font-weight : normal; ">:</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Geräte MRID;Gerätetyp;Gerätekonfiguration; Hersteller; Modellnummer; Modellversion;Versanddatum;Seriennummer; Zertifikationsjahr; Charge<br />ShipmentDevice10_test_1;Actaris SL7000;Default;Elster;15;V1;30/07/2015 12:52;;;</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_Body">Das Namensfeld wird als Name in Connexo importiert, er wird automatisch erzeugt, wenn das Gerät in Connexo erstellt wurde. </p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den Versandinformationen im Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Versandinformationen werden nun hinzugefügt zu &#160;<span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>.</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_59778_Install_active"></a>Aktive/inaktive Geräte unter Verwendung des Dateiimports installieren</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um &#160;Geräte zu installieren, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Montagedatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geographische Länge</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geographische Breite</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Höhe</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ländercode</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ländername</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Verwaltungsbereich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ort</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ort</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Straßentyp</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Straßenname</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Hausnummer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Art der Einrichtung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name der Einrichtung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer der Einrichtung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Adressdetails</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Postleitzahl</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Lokale</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Mastergerät-Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein (hängt von den Lebenszyklusübergangseinstellungen ab)</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Verwendungsstelle Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein (hängt von den Lebenszyklusübergangseinstellungen ab)</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Dienstkategorie</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Installieren inaktiv (Boolean)</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Boolean; wahr oder falsch</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Validierungs-Startdatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Multiplikator</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte-MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body">Wenn das in der Datei angegebene Mastergerät sich von dem in in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;unterscheidet, dann umgeht <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;dieses Gerät mithilfe der einen in der Datei angegebenen. Wenn das Mastergerät in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> nicht bekannt ist, wird diese Zeile der Datei übersprungen.</p>
+  <p dir="ltr" class="FM_Body">Das “Startvalidierungsdatum” wird für die Autoaktion “Validierung aktivieren” benötigt. Wenn dieses Datum nicht angegeben ist, wird das Installationsdatum verwendet.</p>
+  <p dir="ltr" class="FM_Body">*Welche Standortparameter obligatorisch sind, wird beim Einrichten Ihres Systems definiert. Wenden Sie sich für weitere Informationen an Ihren Systemadministrator. Die Felder, die Sie hier sehen können sind alle verfügbaren Optionen.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 6.000pt;"><span class="FM_Bold">Beispiel</span><span style="font-weight : normal; ">:</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifizierer;Installationsdatum;Master Gerät MRID;Verwendungsstelle MRID;Servicekategoroe;Installation inaktiv;Startvalidierungsdatum<br />test_installation_active_inactive90;05/08/2015 17:51;;;;</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den Installationsinformationen im Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Installationsinformationen werden nun hinzugefügt zu &#160;<span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>.</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte unter Verwendung des Dateiimports löschen</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um &#160;Geräte zu löschen, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte-MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">Beispiel:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifizierer;<br />SPE000000001;<br />SPE000000007;<br />SPE000000011;<br />SPE000000025;</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den Geräten, die gelöscht werden müssen, in das Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Die angegebenen Geräte werden nun aus &#160;<span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;gelöscht.</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte mit Dateiimport aktivieren/deaktivieren</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um &#160;Geräte zu aktivieren/deaktivieren, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei müsse die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Übergangsdatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Aktivieren (Boolean)</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Boolean; wahr oder falsch</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte-MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body">Beispiel:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifizierer;Übergangsdatum;Aktivieren (Boolean);<br />device_for_activation_deactivation__0;05/08/2015 19:17;false<br />device_for_activation_deactivation__1;05/08/2015 19:17;false<br />device_for_activation_deactivation__2;05/08/2015 19:17;false<br />device_for_activation_deactivation__3;05/08/2015 19:17;false</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den Aktivierungs-/Deaktivierungsinformationen im Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Die definierten Geräte sind nun aktiviert/deaktiviert in &#160;<span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>.</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte unter Verwendung des Dateiimports in Betrieb setzen</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um &#160;Geräte in Betrieb zu nehmen, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum der Inbetriebnahme</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Mastergeräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte-MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body">Wenn das in der Datei angegebene Mastergerät sich von dem in in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;unterscheidet, dann umgeht <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;dieses Gerät mithilfe der einen in der Datei angegebenen. Wenn das Mastergerät in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> nicht bekannt ist, wird diese Zeile der Datei übersprungen.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">Beispiel:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifizierer;Installationsdatum;Mastergeräteidentifizierer<br />DeviceForCommissioning0;05/08/2016 20:29<br />DeviceForCommissioning1;05/08/2016 20:29<br />DeviceForCommissioning2;05/08/2016 20:29<br />DeviceForCommissioning3;05/08/2016 20:29</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den in Betrieb zu nehmenden Geräten im Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Die definierten Geräte werden nun in Betrieb genommen.</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte unter Verwendung des Dateiimports außer Betrieb nehmen</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Um &#160;Geräte außer Betrieb zu nehmen, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum der Außerbetriebsetzung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie in Importdiensten definiert. Standardformat ist “TT/MM/JJJJ HH:mm”</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_Body">Geräteidentifizierer kann die Geräte-MRID oder der Name sein. Der Importer prüft zuerst die MRID und wenn er diese nicht abrufen kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">Beispiel:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifizierer;Außerbetriebnahmedatum<br />DeviceForDecommissionin0;05/05/2017 21:23<br />DeviceForDecommissionin1;05/05/2017 21:23<br />DeviceForDecommissionin2;05/05/2017 21:23<br />DeviceForDecommissionin3;05/05/2017 21:23</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den außer Betrieb zu nehmenden Geräten im Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich beendet wurde, wird die Original-CSV-Datei in den Erfolgsordner verschoben. Die definierten Geräte werden nun außer Betrieb genommen.</p>
+  </div>
+</body>
+</html>

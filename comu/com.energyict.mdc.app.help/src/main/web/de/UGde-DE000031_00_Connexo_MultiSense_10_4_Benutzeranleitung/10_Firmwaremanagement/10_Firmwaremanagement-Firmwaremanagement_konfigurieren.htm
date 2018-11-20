@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Firmwaremanagement konfigurieren</title>
+
+ <link rel="stylesheet" href="10_Firmwaremanagement.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "11.0_3";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/10_Firmwaremanagement/10_Firmwaremanagement-Firmware_verstehen.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/10_Firmwaremanagement/10_Firmwaremanagement-Firmware-Optionen_verwalten.htm">
+ <meta name="topic-breadcrumbs" content="10 Firmwaremanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Firmwaremanagement konfigurieren</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Firmwareversionen verwalten</p>
+  <p dir="ltr" class="FM_H4Topic">Firmwareversionen verstehen</p>
+  <p dir="ltr" class="FM_Body">Eine Firmwareversion kann einen der folgenden vier Status haben: <span class="FM_UIRef">Test</span><span style="font-weight : normal; ">, </span><span class="FM_UIRef">Definitiv</span><span style="font-weight : normal; ">, </span><span class="FM_UIRef">Ghost</span><span style="font-weight : normal; ">&#160;oder </span><span class="FM_UIRef">Veraltet</span><span style="font-weight : normal; ">. Eine Version kann den Status </span><span class="FM_UIRef">Test</span><span style="font-weight : normal; ">&#160;haben, wenn Sie die neue Firmware bei einer geringen Menge an Geräten testen müssen, um zu prüfen, ob alles fehlerlos läuft. Wenn die Testversion erfolgreich getestet wurde, können Sie sie in </span><span class="FM_UIRef">Definitiv</span><span style="font-weight : normal; ">&#160;erhöhen. Dann können Sie diese Version bei einer größeren Anzahl an Geräten installieren.</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_UIRef">Ghost</span><span style="font-weight : normal; ">&#160;Versionen werden von Connexo kreiert, wenn bei einem Gerät eine Firmwareversion installiert wurde, die noch nicht in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;besteht. Diese Firmware-Version kann zu </span><span class="FM_UIRef">Test</span><span style="font-weight : normal; ">&#160;oder </span><span class="FM_UIRef">Definitiv</span><span style="font-weight : normal; "> erhöht werden, wenn Sie die entsprechende Firmware-Datei hochladen.</span></p>
+  <p dir="ltr" class="FM_Body">Wenn eine Version nicht mehr benötigt wird oder es einen Fehler in der Firmware-Version gibt, können Sie dieser Version den Status &#160;<span class="FM_UIRef">Veraltet</span><span style="font-weight : normal; ">&#160;geben. Diese Version kann nicht mehr bei Geräten geladen werden. Eine veraltete Firmwareversion wird in der Übersichtstabelle angezeigt, aber die Firmware-Datei dieser Version wird gelöscht.</span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Ghost oder veraltete Firmwareversionen können nicht installiert werden.</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Firmwareversionen-Statusdiagramm. Zeigt, wie die verschiedenen Firmware-Versionen miteinander zusammenhängen. Das * zeigt an, dass Firmwaredateien mit diesen Handlungen hochgeladen werden müssen.</caption>
+   <tr class="tr103">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Firmware_status.png" id="image227" src="../../assets/Firmware_status.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic">Firmware-Versionen anzeigen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätemanagement </span><span style="font-weight : normal; ">&gt; </span><span class="FM_UIRef">Gerätetypen </span><span style="font-weight : normal; ">&gt; und selektieren Sie einen Gerätetyp &gt; </span><span class="FM_UIRef">Firmware</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Firmwareversionen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Die Tabelle zeigt alle Firmwareversionen, die zum Gerätetypen gefügt wurden und zum Hochladen verfügbar sind. Für jede Version wird der Firmwaretyp und der Status der Firmware angezeigt.</p>
+  <p dir="ltr" class="FM_H4Topic">Firmware-Versionen filtern</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätemanagement </span><span style="font-weight : normal; ">&gt; </span><span class="FM_UIRef">Gerätetypen </span><span style="font-weight : normal; ">&gt; und selektieren Sie einen Gerätetyp &gt; </span><span class="FM_UIRef">Firmware</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Firmwareversionen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Sie können Firmwareversionen unter Verwendung verschiedener Parameter filtern. Wenn das Kommunikationsprotokoll nur einen der Firmwaretypen gestattet, wird der Typenfilter nicht angezeigt.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Geben Sie die gewünschten Filter an.</p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Anwenden</span><span style="font-weight : normal; ">. Die angewendeten Filter werden im oberen Teil der Seite angezeigt.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Heben Sie die Auswahl von Items im Drop Down Menü auf, um einzelne Filter zu löschen oder klicken Sie auf <span class="FM_UIRef">Alle löschen</span><span style="font-weight : normal; ">&#160;, um alle Filter zu löschen. Vergessen Sie nicht auf </span><span class="FM_UIRef">Anwenden</span><span style="font-weight : normal; "> zu klicken, um die Änderungen in Ihrem Filter auszuführen.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_12984_Add_firmware"></a>Firmware-Version hinzufügen</p>
+  <p dir="ltr" class="FM_Body">Sie können eine neue Kommunikations-Firmwareversion oder Messgeräte-Firmwareversion an einem Gerätetypen hinzufügen<span class="FM_change_bar" style="font-weight : normal; ">, um Geräte, die eine veraltete Firmwareversion haben, vor Ort zu aktualisieren. Sie können auch die neue Firmware-Version als Testversion kennzeichnen, um sie in einem Messlabor zu verwenden und nicht zum Aktualisieren von Geräten vor Ort.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar" style="font-weight : normal; ">Öffnen Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Verwaltung</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Gerätemanagement</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Gerätetypen</span><span class="FM_change_bar" style="font-weight : normal; ">&gt; selektieren Sie einen Gerätetypen &gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmware</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmwareversionen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie auf </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Firmwareversion hinzufügen.</span><span class="FM_change_bar" style="font-weight : normal; "> Füllen Sie die folgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Para<span class="FM_change_bar">me</span>ter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Firmware-Datei</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Hochladen der Datei mit der Firmwareversion.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Ve</span><span class="FM_UIRef">rsion</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-weight : normal; ">Die Versionsangabe der Firmware sollte für das Gerät einzigartig sein.</span></p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Abbildungsidentifikator</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-weight : normal; ">Je nach Protokoll muss ein Abbildungsidentifikator angegeben werden. Diesen Abbildungsidentifikator gibt es auch am Messgerät. Nur wenn beide Abbildungsidentifikatoren übereinstimmen, wird die Firmwareversion zur Installation verfügbar.</span></p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Firmware-Typ</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wenn das Kommunikationsprotokoll nur einen der Firmwaretypen gestattet, wird nur der Firmwaretyp angezeigt.</p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span>Messgerätfirmware: enthält alle Messwerte</p>
+   <ul type="disc" dir="ltr">
+    <li>
+    <p dir="ltr" class="FM_ListBullet1">Kommunikations-Firmware: enthält alle Funktionen, die benötigt werden, um die Kommunikation zwischen dem Gerät und dem Messwert-Datenerfassungssystem.</p>
+</li>
+   </ul></td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Firmware-Status</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span><span class="FM_UIRef">Definitiv</span><span style="font-weight : normal; ">: Verwenden Sie diesen Status, wenn die Firmwareversion getestet wurde und bereit ist, bei vielen Geräten hochgeladen zu werden.</span></p>
+   <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o <span style="padding-left: 2pt;" class="FMAutoNumber_1"></span></span><span class="FM_UIRef">Test</span><span style="font-weight : normal; ">: Verwenden Sie diesen Status, wenn Sie neue Firmwareversionen testen. Das verhindert, dass Sie eine Firmwareversion hochladen, die noch immer Fehler enthält.</span></p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span class="FM_change_bar" style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Firmwareversionen bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätemanagement </span><span style="font-weight : normal; ">&gt; </span><span class="FM_UIRef">Gerätetypen </span><span style="font-weight : normal; ">&gt; und selektieren Sie einen Gerätetyp &gt; </span><span class="FM_UIRef">Firmware</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Firmwareversionen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_124.png" id="image228" src="../../assets/masterActions_124.png" style="max-width: 100% ;height: auto" />&#160;neben der Firmwareversion und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Wenn Sie eine Firmwareversion bearbeiten, können Sie eine neue Firmwaredatei hochladen, die neue Firmwaredatei ersetzt dann die bestehende.</p>
+  <p dir="ltr" class="FM_BodyProcedure">Wenn der aktuelle Status der Firmwareversion <span class="FM_UIRef">Ghost</span><span style="font-weight : normal; ">&#160;ist, können Sie den Status der Version in Test oder Definitiv ändern, aber nicht den Namen der Version. Wenn der Status Test oder Definitiv ist, können Sie den Namen der Version, aber nicht den Status ändern. Veraltete Versionen können nicht mehr bearbeitet werden.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Firmwareversion als Definitiv einstellen</p>
+  <p dir="ltr" class="FM_Body">Eine Firmware-Version mit dem Status <span class="FM_UIRef">Definitiv</span><span style="font-weight : normal; ">&#160;kann verwendet werden, um Geräte vor Ort zu aktualisieren.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätemanagement </span><span style="font-weight : normal; ">&gt; </span><span class="FM_UIRef">Gerätetypen </span><span style="font-weight : normal; ">&gt; und selektieren Sie einen Gerätetyp &gt; </span><span class="FM_UIRef">Firmware</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Firmwareversionen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_125.png" id="image229" src="../../assets/masterActions_125.png" style="max-width: 100% ;height: auto" />&#160;neben einer Testfirmware und selektieren Sie <span class="FM_UIRef">Als Definitiv einstellen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Veraltete Firmware-Versionen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätemanagement </span><span style="font-weight : normal; ">&gt; </span><span class="FM_UIRef">Gerätetypen </span><span style="font-weight : normal; ">&gt; und selektieren Sie einen Gerätetyp &gt; </span><span class="FM_UIRef">Firmware</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Firmwareversionen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_126.png" id="image230" src="../../assets/masterActions_126.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Veraltet</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Wenn die Firmwareversion veraltet ist, wird sie noch immer in der Tabelle angezeigt, kann aber nicht mehr auf Geräte geladen werden.</p>
+  </div>
+</body>
+</html>

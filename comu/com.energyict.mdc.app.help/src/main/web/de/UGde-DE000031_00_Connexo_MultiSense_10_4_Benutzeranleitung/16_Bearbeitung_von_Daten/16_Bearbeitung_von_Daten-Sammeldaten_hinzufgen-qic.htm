@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Sammeldaten hinzufügen</title>
+
+ <link rel="stylesheet" href="16_Bearbeitung_von_Daten.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "17.0_7";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/16_Bearbeitung_von_Daten/16_Bearbeitung_von_Daten-Daten_hinzufgen-bwb.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/16_Bearbeitung_von_Daten/16_Bearbeitung_von_Daten-Daten_lschen-bjb.htm">
+ <meta name="topic-breadcrumbs" content="16 Bearbeitung von Daten" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic">Sammeldaten hinzufügen</p>
+  <p dir="ltr" class="FM_H4Topic">Ablesungen importieren</p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; ">Mit diesem Importer können Sie nur die täglichen Ablesungen importieren.</span></p>
+  <p dir="ltr" class="FM_Body">Um Geräteablesungen importieren zu können, benötigen Sie eine CSV-Datei. Die erste Zeile dieser Datei muss die Überschrift sein und die Felder sind mit &quot;,&quot; oder &quot;;&quot; getrennt. Die folgenden Informationen müssen in dieser Datei enthalten sein:</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datenformat</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geräteidentifizierer</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ablesedatum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum Wie im Importservice definiert. Standardformat ist “TT/MM/JJJJ hh:mm”</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ablesetyp </p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nummer. Sollte den Konfigurationseinstellungen (Überschuss, Anzahl der Ziffern, Anzahl der Kommastellen) entsprechen.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body">Der Geräteidentifizierer kann die MRID oder der Name des Geräts sein. Der Importer prüft zuerst die MRID und wenn diese nicht abgerufen werden kann, sucht er nach Geräten mit passenden Namen.</p>
+  <p dir="ltr" class="FM_Body">Es ist möglich , verschiedene Ablesungen vom selben Gerät hinzuzufügen verschiedene Reihen mit demselben Namen zu erstellen, aber mit verschiedenen Werten. Alle Werte sollten den Konfigurationseinstellungen entsprechen, und sowohl der Überschuss als auch die Anzahl Ziffern und Kommastellen sollten definiert sein.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">Beispiel:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 13.000pt;">Geräteidentifikation; Ablesedatum; Ablesetyp MRID;Ablesewert;;;;<br />SPE010000010080;25/06/2015 &#160;12:00:00;0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0;1,335,010,534.12;;;;<br />SPE010000010080;25/06/2015 &#160;12:00:00;0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0;497,899,785;;;;<br />SPE010000010081;25/06/2015 &#160;12:00:00;0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0;1,335,010,542;0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0;1,335,010,542;0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0;497,899,785</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Speichern Sie die CSV-Datei mit den Ablesungen in das Importverzeichnis.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Wenn der Import erfolgreich abgeschlossen ist, wird die Original CSV in das Erfolgsverzeichnis verschoben. Die definierten Werte werden nun zu den Geräten in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> eingefügt.</p>
+  <p dir="ltr" class="FM_H4Topic">Kanalablesungen zu Geräten ohne Ablesungen fügen</p>
+  <p dir="ltr" class="FM_Body">In <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;können Sie manuell Ablesungen zu einem Gerät fügen, &#160;welches nie abgelesen wurde. Dafür müssen Sie die nachfolgenden Handlungen ausführen. Diese Handlung ist auch für Register verfügbar, aber hier müssen Sie jeweils einen Wert einfügen.</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Selektieren Sie ein Gerät mit <span class="FM_UIRef">Suche</span><span style="font-weight : normal; ">, siehe </span><a><span style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kanäle</span><span style="font-weight : normal; "> im Menü an der linken Seite.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Selektieren Sie einen Kanal.</p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Selektieren Sie im Filter im oberen Teil der Seite <span class="FM_UIRef">Heute</span><span style="font-weight : normal; ">&#160;als Messzeit. Klicken Sie auf </span><span class="FM_UIRef">Anwenden</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_BodyProcedure">Es erscheint eine Informationsnachricht, die angibt, dass keine Ablesungen verfügbar sind.</p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; Klicken Sie auf <span class="FM_UIRef">Ablesung hinzufügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">6. &#160; Klicken Sie auf den kalkulierten Wert in der Tabelle und geben Sie den Wert ein oder Kopieren/Einfügen Sie mehrere Werte von einer anderen Quelle.</p>
+  <p dir="ltr" class="FM_ListNumber1">7. &#160; Klicken Sie <span class="FM_UIRef">Änderungen speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Ablesungen von der Referenz kopieren</p>
+  <p dir="ltr" class="FM_Body">In <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;haben Sie die Möglichkeit die Ablesungen eines anderen Geräts mit dem selben oder einem anderen Behandlungstypen zu kopieren.</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Selektieren Sie ein Gerät mit <span class="FM_UIRef">Suche</span><span style="font-weight : normal; ">, siehe </span><a><span style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kanäle</span><span style="font-weight : normal; "> im Menü an der linken Seite.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf die <span class="FM_UIRef">Sammelaktions</span><span style="font-weight : normal; ">-Taste und selektieren Sie </span><span class="FM_UIRef">Kopieren der Referenz</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Ergänzen Sie die folgenden Felder:</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Gerät überprüfen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie das Gerät, um die Daten zu kopieren.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Messtyp überprüfen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie den Ablesetypen der Daten zum kopieren.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anfangsdatum/-zeit</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie die Datum/Zeit für das Intervall der zu kopierenden Daten.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Fehlerverdächtige Werte zulassen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wenn geprüft, werden auch fehlerverdächtige Daten kopiert.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Vollständiger Zeitraum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wenn geprüft, werden keine Daten kopiert, wenn es fehlende Werte in den erfassten Daten des Kontrollgeräts in der ausgewählten Zeitspanne gibt.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Kommentar zur Bewertung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie den Kommentar, der zur Ablesung gefügt wird. Standardmäßig ist “Originalkommentar behalten” ausgewählt. Sie können das löschen, indem Sie die Taste neben dem Drop-Down-menü anklicken.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; Klicken Sie auf <span class="FM_UIRef">Kopieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">6. &#160; Klicken Sie <span class="FM_UIRef">Änderungen speichern</span><span style="font-weight : normal; ">.</span></p>
+  </div>
+</body>
+</html>

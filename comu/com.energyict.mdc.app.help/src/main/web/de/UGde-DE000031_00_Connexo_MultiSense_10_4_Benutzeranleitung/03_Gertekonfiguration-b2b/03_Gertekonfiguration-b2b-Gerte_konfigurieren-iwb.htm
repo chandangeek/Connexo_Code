@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Geräte konfigurieren</title>
+
+ <link rel="stylesheet" href="03_Gertekonfiguration-b2b.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.0_7";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/03_Gertekonfiguration-b2b/03_Gertekonfiguration-b2b-Logbuchtypen_konfigurieren.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/03_Gertekonfiguration-b2b/03_Gertekonfiguration-b2b-Gertetypen_konfigurieren-sbc.htm">
+ <meta name="topic-breadcrumbs" content="03 Gerätekonfiguration" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section"><a name="XREF_25002_2_3_Configure"></a>Geräte konfigurieren</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Gerätekonfigurationen verstehen</p>
+  <p dir="ltr" class="FM_H4Topic">Geräte verstehen</p>
+  <p dir="ltr" class="FM_Body">Um Messgerätedaten erfassen zu können, benötigen Sie Messgeräte. Diese Geräte befinden sich vor Ort. Verschiedene Arten von Geräten von verschiedenen Herstellern sind verfügbar. Alle haben eigene Möglichkeiten und Eigenschaften. Das ultimative Ziel ist es die Daten vom Messgerät zu erfassen und diese Daten für andere Zwecke wie Rechnungslegung und Energiemanagement zu verwenden.</p>
+  <p dir="ltr" class="FM_Body">Damit diese Daten erfasst werden können, benötigen Sie ein Messgerät-Datenerfassungssystem. <span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>&#160;verbindet und kommuniziert mit diesen Geräten. Wie diese Kommunikation funktioniert, wird in <a><span class="FM_blue_crossreference">“Understand communication”</span></a>&#160;erklärt. Geräte in <span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>&#160;werden anhand von Gerätetypen und Gerätekonfigurationen konfiguriert. Dann werden die Geräte hinzugefügt (manuell oder importiert) und der korrekte Gerätetyp und die Konfiguration zugewiesen. Letztendlich müssen nur gerätespezifische Parameter wie Passwort und Verbindungsdetails definiert werden.</p>
+  <p dir="ltr" class="FM_H4Topic">Gerätetypen und Konfigurationen in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span></p>
+  <p dir="ltr" class="FM_Body">Zur Erfassung von Daten von einem tatsächlichen Gerät, müssen Sie ein Gerät in <span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>&#160;erstellen. Ein Gerät verwendet einen &#160;<span class="FM_Bold">Gerätetypen</span><span style="font-weight : normal; ">&#160;mit einer bestimmten Konfiguration. Dieser Gerätetyp definiert die materiellen Fähigkeiten des Geräts, welche Daten gelesen werden können und welches Kommunikationsprotokoll verwendet wird. Beim Konfigurieren eines neuen Gerätetyps müssen Sie definieren, ob es ein Standard oder ein Datenlogger-Nebengerät ist. Diese Auswahl definiert die Parameter in weiteren Schritten.</span></p>
+  <p dir="ltr" class="FM_Body">Ein Gerätetyp zeichnet zu einem einzigen materiellen Gerätemodell auf, aber Geräte dieses Modells können verschiedene Fähigkeiten haben. Das wird über Gerätekonfigurationen erreicht.</p>
+  <p dir="ltr" class="FM_Body">Ein Gerätetyp kann <span class="FM_Bold">mehrere Gerätekonfigurationen</span><span style="font-weight : bold; ">&#160;</span><span style="font-weight : normal; ">haben. Gerätekonfigurationen werden verwendet, um die Funktionalität des Gerätetyps benutzerspezifisch anzupassen und die Funktionalität des Gerätetypen weiter zu konfigurieren. Die Gerätekonfiguration bestimmt die aktuellen Registerspezifikationen gemeinsam mit der Anzahl der aktiven Kanäle. Sie definiert auch, welche Sicherheitseinstellungen (Authentifikation und Verschlüsselung) verwendet werden und wie eine Verbindung eingestellt wird (GPRS, GSM etc.). </span></p>
+  <p dir="ltr" class="FM_Body">Durch Verwendung der Gerätekonfigurationen ist eine genauere Darstellung des materiellen Geräts und seiner aktivierten Funktionalitäten möglich. Konfigurationen können wiederverwendet werden und den Prozess der Erstellung einer großen Anzahl gleichartiger Geräte erleichtern.</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Beziehung zwischen materiellem Gerät und Gerätetyp</caption>
+   <tr class="tr47">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Devices.png" id="image54" src="../../assets/Devices.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic">Gerätemultiplikatoren verstehen</p>
+  <p dir="ltr" class="FM_Body">Der Bedarf nach einem Gerätemultiplikator bezieht sich auf die Verwendung von CT/VT (Stromumformer; Spannungsumformer) oder Impulszählung.</p>
+  <p dir="ltr" class="FM_Body">Das erste wird in Schwerlastanlagen verwendet, wo der Strom oder die Spannung des gemessenen Systems zu hoch ist für ein Messgerät, um es direkt anzuschließen. Darum wird ein zweiter Kreislauf mit angemessenem Strom/Spannung installiert, in den das Messgerät integriert wird. Alles, was vom Gerät gemessen wird, wird dann mit demselben Faktor multipliziert, das den Strom/die Spannung vom Hauptkreislauf zum zweiten Kreislauf reduziert. In einigen Fällen kann sich der Wert des Gerätemultiplikators ändern.</p>
+  <p dir="ltr" class="FM_Body">Die zweite Situation wird für Geräte verwendet, die keinen aktuellen Verbrauch messen, sondern beispielsweise anstatt dessen Impulse zählen und jeder Impuls muss dann in die gewünschte Verbrauchseinheit umgewandelt werden. Beispielsweise der typischen Haushaltszähler mit dem drehenden Rad, der immer dann einen Impuls erzeugt, wenn das Rad einen vollständigen Kreis beschrieben hat. Die Geschwindigkeit des Rads wird durch die verbrauchte Energiemenge bestimmt, was bedeutet, dass jeder Impuls sich auf dieselbe Energiemenge bezieht und kann darum in kWh umgerechnet werden. Die Geschwindigkeit des Rads wird vom Entwurf des Zählers bestimmt und bleibt für die Lebensdauer dieses Geräts dieselbe.</p>
+  <p dir="ltr" class="FM_Body">Das CIM-Modell (eine internationale Norm, die in der Versorgungsbranche entwickelt und verwendet wurde) spricht von Gerätemultiplikatoren und unterscheidet die aktuelle Messung von der multiplizierten Messung, indem ein anderer Ablesetyp bei der Messung der Elektrizität verwendet wird. Das Warenfeld eines Ablesetyps (Ziffer 6) ist dafür verantwortlich. In CIM-Sprache wird die aktuelle Messung der sekundäre Messwert genannt (da es am zweiten Kreislauf gemessen wurde) und dem wirklichen Verbrauch, d.h. das Ergebnis der Anwendung der Gerätemultiplikatoren wird der primär gemessene Wert genannt.</p>
+  <p dir="ltr" class="FM_Body">Die Verwendung eines Multiplikators ist optional und kann an einem Gerät verwendet werden. Nicht alle Daten des Geräts erfordern jedoch einen Multiplikator, beispielsweise Volt messen, Textregister, Statusregister usw. Darum ist es möglich anzugeben, ob auf einer Konfigurationsebene ein Multiplikator verwendet wird oder nicht. Der Wert des Multiplikators wird auf Geräteebene eingestellt, da das normalerweise unterschiedlich für jedes Gerät ist.</p>
+  </div>
+</body>
+</html>
