@@ -211,11 +211,6 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                                 throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                             }
 
-                            //we check again for general signing tag, in case it is wrapped by another encryption tag
-                            if (decryptedResponse[0] == DLMSCOSEMGlobals.GENERAL_SIGNING) {
-                                decryptedResponse = unwrapGeneralSigning(decryptedResponse);
-                            }
-
                         }
                     } catch (DLMSConnectionException e) {
                         //Received an invalid frame counter (not greater than the previous frame counter)
