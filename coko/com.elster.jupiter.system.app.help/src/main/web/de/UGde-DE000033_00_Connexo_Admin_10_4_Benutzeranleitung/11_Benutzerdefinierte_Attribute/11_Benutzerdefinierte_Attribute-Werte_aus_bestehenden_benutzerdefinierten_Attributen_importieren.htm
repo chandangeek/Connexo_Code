@@ -1,0 +1,550 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Werte aus bestehenden benutzerdefinierten Attributen importieren</title>
+
+ <link rel="stylesheet" href="11_Benutzerdefinierte_Attribute.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "12.0_4";
+</script>
+ <meta name="brsprev" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/11_Benutzerdefinierte_Attribute/11_Benutzerdefinierte_Attribute-Stze_benutzerdefinierter_Attribute_verwalten-vxd.htm">
+ <meta name="brsnext" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/12_Datenbereinigung/12_Datenbereinigung_-.htm">
+ <meta name="topic-breadcrumbs" content="11 Benutzerdefinierte Attribute" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic"><span class="FM_change_bar" style="font-weight : normal; "><a name="XREF_31571_Import_values_of"></a>Werte aus bestehenden benutzerdefinierten Attributen importieren</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Sie kÃ¶nnen Werte fÃ¼r bestehende benutzerdefinierte Attribute fÃ¼r mehrere GerÃ¤te in einer externen Datei angeben und dann diese Datei in &#160;Connexo importieren. Zu diesem Zweck ist der </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">benutzerdefinierte Attributimporter fÃ¼r GerÃ¤te</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;verfÃ¼gbar, um die entsprechenden Importdienste zu importieren. Diese Methode ist viel schneller als Bearbeitung der benutzerdefinierten Attribute bei jedem GerÃ¤t einzeln.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">Datei mit benutzerdefinierten AttributsÃ¤tzen importieren</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Sie kÃ¶nnen eine externe Datei unter Verwendung der </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_change_bar" style="font-family : Lato; color   : #71adc7; ">â€œUpload files for importâ€</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">&#160;Funktion einfach in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span> hochladen. Die maximale DateigrÃ¶ÃŸe ist 100 Mb.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">Funktionen des benutzerdefinierten Attributimporters fÃ¼r GerÃ¤te</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Mehrere benutzerdefinierte AttributsÃ¤tze in eine Datei angeben und Werte und Versionen mehrerer benutzerdefinierter AttributsÃ¤tze in mehreren GerÃ¤ten, GerÃ¤teregistern und GerÃ¤tekanÃ¤le gleichzeitig aktualisieren.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Die folgenden Handlungen kÃ¶nnen ausgefÃ¼hrt werden:</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Werte eines versionslosen Attributsatzes aktualisieren.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Werte eines versionsbezogenen Attributsatzes aktualisieren.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Erstellen einer neuen Version eines versionsbezogenen Attributsatzes.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Start- und Endzeit eines versionsbezogenen Attributsatzes aktualisieren.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Fehler werden korrekt bearbeitet und es werden deutliche Nachrichten in das Importserviceprotokoll geschrieben. Siehe </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_change_bar" style="font-family : Lato; color   : #71adc7; ">â€œView import service historyâ€</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">&#160;(Connexo Admin) und </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_change_bar" style="font-family : Lato; color   : #71adc7; ">â€œView import service historyâ€</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"> (<span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>).</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Der Importer unterstÃ¼tzt die folgenden Datentypen:</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Nummer.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">String.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Boolean.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">Menge.</span></p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_ListBullet2" style="text-indent : 0.000pt;"><span class="FM_change_bar" style="font-weight : normal; ">Das Format des Mengenfelds ist â€˜value:multiplier:unitâ€™. Beispielsweise 23,84:3:V = 23,84V).</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-weight : normal; ">E</span><span style="font-weight : normal; ">num.</span></p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_66293_Resolve_conflicts"></a>Konflikte unter Verwendung des benutzerdefinierten Attributimporters fÃ¼r GerÃ¤te lÃ¶sen</p>
+  <p dir="ltr" class="FM_Body">Beim Aktualisieren oder HinzufÃ¼gen neuer Versionen, werden eventuelle Konflikte automatisch beseitigt.</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table11 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Fall</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Automatische Beseitigung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Die neue Version Ã¼berlappt teilweise eine bestehende Version, d.h. das Anfangsdatum der neuen Version liegt innerhalb einer bestehenden Version.</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Das Enddatum der bestehenden Version wird aktualisiert und entspricht dem Anfangsdatum der neuen Version.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Die neue Version Ã¼berlappt teilweise eine bestehende Version, d.h. das Enddatum der neuen Version liegt innerhalb einer bestehenden Version.</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Das Anfangsdatum der bestehenden Version wird aktualisiert und entspricht dem Enddatum der neuen Version.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Es gibt eine LÃ¼cke zwischen der neuen und der bestehenden Version, wo die neue Version hinter der bestehenden kommt.</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Das Anfangsdatum der neuen Version ist aktualisiert.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Es gibt eine LÃ¼cke zwischen der neuen und der bestehenden Version, wo die neue Version vor der bestehenden kommt.</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Das Enddatum der neuen Version ist aktualisiert.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Die neue Version Ã¼berlappt eine bestehende Version vollstÃ¤ndig.</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Die bestehende Version wurde gelÃ¶scht.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic">Erwartetes Dateiformat fÃ¼r den benutzerdefinierten Attributimporter des GerÃ¤ts</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Die Reihenfolge der Felder, die sich auf die benutzerdefinierten Attribute beziehen, ist nicht definiert. Sie kÃ¶nnte willkÃ¼rlich sein.</p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Werte in Spalten mit dem Boolean-Datentyp, die leer bleiben, werden als <span class="FM_UIRef">falsch</span><span style="font-weight : normal; "> importiert.</span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Die Importdatei muss die definierten Ãœberschriften enthalten.</p>
+ <div width="100%" align="left">
+   <table border-spacing="0" dir="ltr" class="table56 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+    <caption dir="ltr" class="FM_CTableTitle" style=" width: 449.69pt;">Table: Liste der SpaltenÃ¼berschriften mit einigen Beispielen fÃ¼r benutzerdefinierte Attribute.</caption>
+    <tr class="t1st">
+    <td>
+    <p dir="ltr" class="FM_CellHeading">Ãœberschrift</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellHeading">Feld</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellHeading">Anmerkungen</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Name</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">GerÃ¤tename</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">String</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Pflichtfeld</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann nicht aktualisiert werden</p>
+</td>
+</tr>
+    <tr class="t1Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Ablesetyp</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Ablesetyp</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">String</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nicht erforderlich</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann nicht aktualisiert werden</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CIM-Code eines Kanals/Registers</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">AutoBeseitigung</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Konflikte werden automatisch beseitigt</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Boolean</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nicht erforderlich</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann nicht aktualisiert werden</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Standardwert = wahr.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Siehe <a href="#XREF_66293_Resolve_conflicts"><span class="FM_blue_crossreference">â€œ</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Konflikte unter Verwendung des benutzerdefinierten Attributimporters fÃ¼r GerÃ¤te lÃ¶senâ€</span></a>.</p>
+</td>
+</tr>
+    <tr class="t1Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.versionId</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.versionId</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">String</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nicht erforderlich</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann nicht aktualisiert werden</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nur verwendet, wenn die aktuelle Version aktualisiert wird.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Wenn die Version enthalten ist, aber der Importer kein Zeitintervall fÃ¼r diese VersionID finden kann, wird die gesamte Zeile ignoriert.</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.startTime</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.startTime</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">String. Zeitformat hÃ¤ngt von den Importereinstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nicht erforderlich.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Verwenden Sie <span class="FM_UIRef">NaN</span><span style="font-weight : normal; ">&#160;um unendlich zu markieren.</span></p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Wenn die VersionID angegeben, aber die Anfangszeit leer ist, bleibt die Anfangszeit unverÃ¤ndert.</p>
+</td>
+</tr>
+    <tr class="t1Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.endTime</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.endTime</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">String. Zeitformat hÃ¤ngt von den Importereinstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Nicht erforderlich.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Verwenden Sie <span class="FM_UIRef">NaN</span><span style="font-weight : normal; ">&#160;um unendlich zu markieren.</span></p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Wenn die VersionID angegeben, aber die Endzeit leer ist, bleibt die Anfangszeit unverÃ¤ndert.</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testNumber</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.ATTRIBUTE1</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Der Datentyp hÃ¤ngt von den CAS-Einstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Erforderlicher Status hÃ¤ngt von den CAS-Einstellungen wÃ¤hrend der neuen Versionserstellung ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+</td>
+</tr>
+    <tr class="t1Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testString</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.ATTRIBUTE2</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Der Datentyp hÃ¤ngt von den CAS-Einstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Erforderlicher Status hÃ¤ngt von den CAS-Einstellungen wÃ¤hrend der neuen Versionserstellung ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testEnumNumber</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.ATTRIBUTE3</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Der Datentyp hÃ¤ngt von den CAS-Einstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Erforderlicher Status hÃ¤ngt von den CAS-Einstellungen wÃ¤hrend der neuen Versionserstellung ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+</td>
+</tr>
+    <tr class="t1Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testEnumString</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.ATTRIBUTE4</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Der Datentyp hÃ¤ngt von den CAS-Einstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Erforderlicher Status hÃ¤ngt von den CAS-Einstellungen wÃ¤hrend der neuen Versionserstellung ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+</td>
+</tr>
+    <tr class="t2Row">
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testBollean</span></p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CASname.ATTRIBUTE5</p>
+</td>
+    <td>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Der Datentyp hÃ¤ngt von den CAS-Einstellungen ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Erforderlicher Status hÃ¤ngt von den CAS-Einstellungen wÃ¤hrend der neuen Versionserstellung ab.</p>
+    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Kann aktualisiert werden.</p>
+</td>
+</tr>
+   </table>
+ </div></li>
+  </ul>
+  <p dir="ltr" class="FM_H4Topic">Beispiele fÃ¼r Importdateien</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Typ des benutzerdefinierten Attributsatzes: Versionslos.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">MaÃŸnahme: Werte aktualisieren.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Beispiel:</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table60 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testNumber</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testString</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">GerÃ¤t001</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert1</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert2</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Typ des benutzerdefinierten Attributsatzes: Versionsgebunden.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">MaÃŸnahme: Werte aktualisieren.</p>
+  <p dir="ltr" class="FM_Body">Beispiel:</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table63 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.versionId</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testNumber</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testString</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">GerÃ¤t001</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">01/01/2017 00:00</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert1</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert2</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Typ des benutzerdefinierten Attributsatzes: Versionsgebunden.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">MaÃŸnahme: Version ohne Endzeit einfÃ¼gen.</p>
+  <p dir="ltr" class="FM_Body">Beispiel:</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table66 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.versionId</p>
+   <p dir="ltr" class="FM_CellHeading">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading"><span style="font-family:'Times New Roman'; font-size:7.0pt">&nbsp;&nbsp;&nbsp;</span></p>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.startTime</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.endTime</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testNumber</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testString</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">GerÃ¤t001</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">01/01/2017 00:00<span style="font-family:'Times New Roman'; font-size:7.0pt">&nbsp;&nbsp;&nbsp;</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">NaN</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert1</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wert2</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Typ des benutzerdefinierten Attributsatzes: Versionsgebunden.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">MaÃŸnahme: Version ohne Endzeit einfÃ¼gen.</p>
+  <p dir="ltr" class="FM_Body">Beispiel:<span style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; "></span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table66 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.versionId</p>
+   <p dir="ltr" class="FM_CellHeading">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.startTime</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.endTime</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading"><span class="FM_UIRef">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testNumber</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.testString</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">GerÃ¤t001</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">01/01/2017 00:00</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; ">{3</span></p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">Typ des benutzerdefinierten Attributsatzes: Versionsgebunden.</p>
+  <p dir="ltr" class="FM_Body" style="margin-bottom : 0.000pt;">MaÃŸnahme: Intervall der bestehenden Version aktualisieren, ohne die Werte zu Ã¤ndern.</p>
+  <p dir="ltr" class="FM_Body">Beispiel:<span style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; "></span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table63 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.versionId</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.startTime</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">com.energyict.mdc.device.config.cps.DeviceTypeOneDomainExtension.endTime</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">GerÃ¤t001</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">01/01/2017 00:00<span style="font-family:'Times New Roman'; font-size:7.0pt">&nbsp;&nbsp;&nbsp;</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">01/02/2017 00:00</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">NaN</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; ">{3</span></p>
+ </div>
+</body>
+</html>
