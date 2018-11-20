@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"12 Datenbereinigung","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/12_Datenbereinigung/12_Datenbereinigung_-.htm"},{"type":"item","name":"Datenbereinigung konfigurieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/12_Datenbereinigung/12_Datenbereinigung_-Datenbereinigung_konfigurieren.htm"},{"type":"item","name":"Datenbereinigung kontrollieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/12_Datenbereinigung/12_Datenbereinigung_-Datenbereinigung_kontrollieren.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

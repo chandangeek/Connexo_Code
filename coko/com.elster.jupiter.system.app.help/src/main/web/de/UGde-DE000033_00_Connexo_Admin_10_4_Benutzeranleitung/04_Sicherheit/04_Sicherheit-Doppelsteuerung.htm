@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Doppelsteuerung</title>
+
+ <link rel="stylesheet" href="04_Sicherheit.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "5.0_5";
+</script>
+ <meta name="brsprev" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/04_Sicherheit/04_Sicherheit-Zertifikate_verwalten.htm">
+ <meta name="brsnext" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/04_Sicherheit/04_Sicherheit-Doppelsteuerung_in_Connexo_Admin_konfigurieren.htm">
+ <meta name="topic-breadcrumbs" content="04 Sicherheit" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Doppelsteuerung</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Doppelsteuerung verstehen</p>
+  <p dir="ltr" class="FM_H4Topic">Doppelsteuerung in Connexo</p>
+  <p dir="ltr" class="FM_Body">In Connexo können Sie die meisten Objekte unter Verwendung von Parametern konfigurieren. Im Allgemeinen können Sie einer Person anvertrauen, die Änderungen vorzunehmen. Obwohl in bestimmten Fällen die Änderung eines Parameters einen großen Einfluss auf Connexo, sowie das Dienstprogramm/die Umgebung hat, die mit Connexo verwaltet wird.</p>
+  <p dir="ltr" class="FM_Body">Um dieses Risiko zu minimieren, ist Connexo mit dem Doppelsteuerungsmechanismus ausgestattet, der auf dem Vier-Augen-Prinzip basiert. Das bedeutet, dass bestimmte Änderungen von mindestens zwei Personen bestätigt werden müssen. Die zwei Personen sind die eine Person, die die Änderung vorgenommen hat und dann eine zweite (oder dritte) Person, die der Änderung zustimmt und sie genehmigt. Die Änderung ist nur effektiv, wenn der Genehmigende zustimmt</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table8" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Wie Doppelsteuerung in Connexo funktioniert. Messgerätoperatoren können Änderungen in der Anwendung vornehmen, aber wenn Doppelsteuerung verfügbar ist, müssen alle Genehmigenden, die dem Doppelsteuerungsadministrator zugewiesen sind, die Änderung genehmigen, bevor diese gültig wird (Situation A).</caption>
+   <tr class="tr33">
+   <td class="td10">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Dual_control_principle_WB.png" id="image34" src="../../assets/Dual_control_principle_WB.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic">Beispiel</p>
+  <p dir="ltr" class="FM_Body">Ein Smart Energiemessgerät hat oft einen physikalischen Unterbrecher, den man in einigen Fällen fernsteuern kann, wenn die Gerätekommunikation verwendet wird. So führt beispielsweise einen Unterbrechungsbefehl, der von Connexo an ein Gerät geschickt wird, zu einem Statuswechsel des Trennschalters. Infolge dessen kann kein Strom mehr verbraucht werden. Der Wechsel des Trennschalters eines Energiemessegeräts ist notwendig, um Situationen wie Einzug/Auszug zu unterstützen. Wenn ein Nutzer seine Stromrechnung nicht bezahlt, können Sie den Zähler aus der Ferne unterbrechen und Energiediebstahl verhindern.</p>
+  <p dir="ltr" class="FM_Body">Das bedeutet jedoch ein hohes Risiko. Wenn Sie ein Messgerät aus der Ferne unterbrechen können, ist es auch möglich eine Sammeloperation auszuführen und die gesamte Messlandschaft eines Dienstprogramms zu unterbrechen. Das kann zu einer großen Stromänderung im Netzwerk führen, was zu Ungleichgewicht des Netzes führt und infolge sind Verbraucher nicht mehr in der Lage Strom zu erhalten.</p>
+  <p dir="ltr" class="FM_Body">Um zu verhindern, dass dieser Fall auftritt, bietet Connexo die Möglichkeit die Menge der Unterbrechungsanordnungen, die sie pro Tag aus der Ferne schicken können, zu beschränken. Das verhindert, dass ein Nutzer von allen Geräten gleichzeitig getrennt wird.</p>
+  <p dir="ltr" class="FM_Body">Wenn Sie dieser Personen gestattet, diese Parameter zu ändern und die Änderung ist sofort effektiv, haben Sie noch immer dasselbe Risiko. Denn diese eine Person ist noch immer das schwache Glied. Wenn sie die Obergrenze auf 1 Million begrenzt, alle Trennkommandos ausführt und die Parameter in den alten Zustand umkehrt, haben wir noch immer dasselbe Problem.</p>
+  <p dir="ltr" class="FM_Body">Mit dem Doppelsteuerungsmechanismus können Sie angeben, dass nur drei Personen die Änderung der Maximalen Anzahl an Gerätekommandos akzeptieren können und dass alle drei dies akzeptieren müssen, bevor es effektiv wird. So wird das Nutzprogramm davor geschützt, dass eine Person es beschädigt.</p>
+  </div>
+</body>
+</html>

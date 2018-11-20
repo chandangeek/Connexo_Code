@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Anwendermanagement verstehen</title>
+
+ <link rel="stylesheet" href="03_Anwendermanagement.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.0_2";
+</script>
+ <meta name="brsprev" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/03_Anwendermanagement/03_Anwendermanagement-.htm">
+ <meta name="brsnext" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/03_Anwendermanagement/03_Anwendermanagement-Benutzer.htm">
+ <meta name="topic-breadcrumbs" content="03 Anwendermanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Anwendermanagement verstehen</p>
+
+  <p dir="ltr" class="FM_Body">Anwendermanagement ist ein kritischer Teil von <span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>. Es ermöglicht Ihnen ein sicheres System zu erhalten, indem die Anwendungen definiert werden, auf die Anwender mittels ihrer Rechte innerhalb dieser Anwendungen zugreifen können. Das Anwendermanagementsystem basiert auf Anwendern, Anwenderrollen und Rechten.</p>
+
+  <p dir="ltr" class="FM_H4Topic">Benutzer</p>
+
+  <p dir="ltr" class="FM_Body">Jede Person, die die <span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>&#160;Anwendung verwendet, muss als Anwender definiert werden. Jeder hat sein eigenes einzigartiges Profil. Anwendern können Rollen zugewiesen werden, wenn sie erstellt werden, aber sie können auch anschließend noch verändert werden. Anwender können nur durch Synchronisierung mit einem aktiven Verzeichnis erstellt werden. Wenn Ihnen keines zur Verfügung steht, können Sie immer einen lokalen aktiven Verzeichnisserver mittels WSO2-Identitätsserver einrichten.</p>
+
+  <p dir="ltr" class="FM_Body">Über LDAP-Integration ist einmaliges Anmelden möglich. Das bedeutet, dass Sie sich nur einmal anmelden müssen, um Zugang zu allen Anwendungen zu bekommen. Externe Anwender können ebenfalls definiert werden und Zugang zu verschiedenen Anwendungen erhalten.</p>
+
+  <p dir="ltr" class="FM_H4Topic">Anwenderrollen</p>
+
+  <p dir="ltr" class="FM_Body">Anwenderrollen bestimmen, welche Anwender Zugang zu welcher Anwendung haben und was sie in dieser Anwendung tun können und was nicht. Anwenderrollen werden verwendet, um Rechte zu gruppieren und verschiedenen Anwendern zuweisen zu können. Jeder Anwender, dem eine bestimmte Anwenderrolle zugewiesen wurde, hat alle Rechte dieser Rolle. Wenn einem Anwender mehreren Rollen zugewiesen wurden, hat der Anwender alle Rechte jeder Rolle.</p>
+
+  <p dir="ltr" class="FM_H4Topic">Arbeitsgruppen</p>
+
+  <p dir="ltr" class="FM_Body">Gruppiert Anwender auf der Grundlage der Aufgaben, die sie ausführen. Arbeitsgruppen ermöglichen Ihnen Arbeit zwischen Personen zu verteilen, die dieselben Aufgaben erbringen. Wenn ein Objekt einer Arbeitsgruppe zugewiesen wurde, können Sie Objekte je nach Verfügbarkeit der Anwender dieser Arbeitsgruppe einfach zuweisen und aberkennen. Arbeitsgruppen sind in Connexo für die Funktionsalarme, Probleme und Aufgaben verfügbar.</p>
+
+  <p dir="ltr" class="FM_H4Topic">Rechte</p>
+
+  <p dir="ltr" class="FM_Body">Um die Rechte innerhalb von Connexo zu verstehen, muss erst die allgemeine Struktur besprochen werden. Connexo besteht aus verschiedenen Anwendungen wie <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE" data-format="SystemAdmin_App">Connexo Admin</span>, <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>, <span data-name="Reporter_App" data-val="Fakten" data-showval="TRUE" data-format="Reporter_App">Fakten</span>, usw. Jede Anwendung hat verschiedene Ressourcen. Eine Ressource ist eine Funktion oder eine Kombination von Funktionen innerhalb der Anwendung, z.B. bestimmt die Ressource “Kommunikationsinfrastruktur” alle Funktionen zur Verwaltung der Kommunikationsinfrastruktur wie Kommunikationsserver und Ports. Pro Ressource können Sie Rechte definieren.</p>
+
+  <p dir="ltr" class="FM_Body">Rechte bestimmen, welche Rechte ein Anwender hat, um bestimmte Handlungen bei einer bestimmten Ressource auszuführen. Das kann beispielsweise Ansehen, Planen, Kommunikation und Feinabstimmung der Validierung eines Geräts sein. Da Anwendern mehrere Rollen zugewiesen werden können, sind alle mit diesen Rollen verbundenen Rechte gruppiert. Das bedeutet, dass es nicht notwendig ist, jedes einzelne Recht zu jeder einzelnen Rolle hinzuzufügen.</p>
+
+  <p dir="ltr" class="FM_Body">Rechte können weiterhin in Ebenen verteilt werden. Ebenen ermöglichen die Gruppierung von Anwenderrollen und die Zuweisung zu einem bestimmten Recht. Ebenen werden nur für die Definition von Rechten von einigen Ressourcen wie Gerätesicherheit und Gerätekommandos verwendet. Sie können beispielsweise alle Anwenderrollen, die mit Stromzähler arbeiten, Rechte der Ebene 1 zuweisen und allen Anwenderrollen, die mit Gaszählern arbeiten Ebene 2. In MultiSense können Sie dann die Rechte und die Ebenen mit den Geräten verbinden.</p>
+
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table8" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Rechte in Connexo </caption>
+   <tr class="tr20">
+   <td class="td10">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Connexo-privileges.png" id="image6" src="../../assets/Connexo-privileges.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  </div>
+</body>
+</html>
