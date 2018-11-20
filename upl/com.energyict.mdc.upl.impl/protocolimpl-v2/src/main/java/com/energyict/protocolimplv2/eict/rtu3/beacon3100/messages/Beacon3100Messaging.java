@@ -2266,8 +2266,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        getNtpServerAddress().writeNTPServerName(address);
+        final String address = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ntpAddress).getValue();
+        final Boolean useLegacyTimeServerIC = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.useLegacyTimeServerIC).getValue());
+
+        if (useLegacyTimeServerIC) {
+            getNtpServerAddress().writeNTPServerName(address);
+        } else {
+            getCosemObjectFactory().getNTPSetup(NTPSetup.getDefaultObisCode()).writeNTPAttribute(NTPSetupAttributes.SERVER_ADDRESS, OctetString.fromString(address));
+        }
     }
 
     private void setNTPActivated(OfflineDeviceMessage pendingMessage) throws IOException {
