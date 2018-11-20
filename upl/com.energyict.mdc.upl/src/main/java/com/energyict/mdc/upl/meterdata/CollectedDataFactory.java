@@ -50,7 +50,7 @@ public interface CollectedDataFactory {
 
     CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
 
-    CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents);
+    CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileName, String fileExtension, byte[] contents);
 
     CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate);
 
@@ -75,7 +75,7 @@ public interface CollectedDataFactory {
 
     CollectedDeviceInfo createCollectedDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
-    CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents);
+    CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileName, String fileExtension, byte[] contents);
 
     CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object connectionPropertyValue, String connectionTaskPropertyName);
 

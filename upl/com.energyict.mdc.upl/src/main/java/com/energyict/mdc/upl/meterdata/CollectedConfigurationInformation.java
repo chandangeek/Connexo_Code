@@ -28,6 +28,13 @@ public interface CollectedConfigurationInformation extends CollectedData {
     public String getFileExtension();
 
     /**
+     * Gets the name of the file that will be stored in CXO
+     *
+     * @return The file extension
+     */
+    public String getFileName();
+
+    /**
      * Gets the raw bytes that constitute the configuration information.
      *
      * @return The raw bytes
