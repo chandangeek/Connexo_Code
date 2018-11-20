@@ -86,7 +86,6 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -421,7 +420,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.configUserFileAttributeName:
-                return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+                return ProtocolTools.getHexStringFromBytes(this.deviceMessageFileExtractor.binaryContents((DeviceMessageFile) messageAttribute), "");
             case DeviceMessageConstants.broadcastDevicesGroupAttributeName:
                 DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
                 return serializer.serializeDeviceInfo(messageAttribute);
@@ -709,7 +708,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.IMPORT_CONFIGURATION)) {
                         importFirmwareSystemConfiguration(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EXPORT_CONFIGURATION)) {
-                        collectedMessage = exportFirmwareSystemConfiguration(pendingMessage);
+                        collectedMessage = exportFirmwareSystemConfiguration(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
@@ -2434,13 +2433,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void importFirmwareSystemConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
-        OctetString theNewConfiguration = OctetString.fromString(getDeviceMessageAttributeValue(pendingMessage, configUserFileAttributeName));
-        getFirmwareConfigurationIC().invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods.IMPORT_SYSTEM_CONFIGURATION, theNewConfiguration);
+        byte[] fileAsOctetString = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, configUserFileAttributeName), "");
+        OctetString importConfiguration = new OctetString(fileAsOctetString, 0);
+        getFirmwareConfigurationIC().invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods.IMPORT_SYSTEM_CONFIGURATION, importConfiguration);
     }
 
-    private CollectedMessage exportFirmwareSystemConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
+    private CollectedMessage exportFirmwareSystemConfiguration(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         byte[] exportedConfig = getFirmwareConfigurationIC().invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods.EXPORT_SYSTEM_CONFIGURATION, new Integer8(0));
-        return this.getCollectedDataFactory().createCollectedMessageWithFile(new DeviceIdentifierBySerialNumber(getProtocol().getSerialNumber()), new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId(), pendingMessage.getDeviceIdentifier()), "txt", exportedConfig);
+        collectedMessage = this.getCollectedDataFactory().createCollectedMessageWithFile(new DeviceIdentifierBySerialNumber(getProtocol().getSerialNumber()), new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId(), pendingMessage.getDeviceIdentifier()), "Beacon_Configuration", "txt", exportedConfig);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        collectedMessage.setDeviceProtocolInformation("Export successful. The exported content will be saved as a file under DeviceType file management");
+        return collectedMessage;
     }
 
     private FirmwareConfigurationIC getFirmwareConfigurationIC() throws NotInObjectListException {

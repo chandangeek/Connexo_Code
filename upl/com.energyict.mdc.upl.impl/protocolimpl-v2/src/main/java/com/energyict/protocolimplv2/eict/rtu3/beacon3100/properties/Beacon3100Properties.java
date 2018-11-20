@@ -15,6 +15,8 @@ import java.math.BigDecimal;
 import java.time.Duration;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
+import static com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport.DEFAULT_GBT_WINDOW_SIZE;
+import static com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport.USE_GBT_DEFAULT_VALUE;
 
 /**
  * Copyrights EnergyICT
@@ -46,6 +48,12 @@ public class Beacon3100Properties extends DlmsProperties {
     public ConformanceBlock getConformanceBlock() {
         ConformanceBlock conformanceBlock = super.getConformanceBlock();
         conformanceBlock.setGeneralProtection(isGeneralProtection());
+        if (useGBT()) {
+            conformanceBlock.setGeneralBlockTransfer(true);
+            conformanceBlock.setBlockTransferWithGetOrRead(false);
+            conformanceBlock.setBlockTransferWithSetOrWrite(false);
+            conformanceBlock.setBlockTransferWithAction(false);
+        }
         return conformanceBlock;
     }
 
@@ -213,5 +221,13 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     public boolean incrementFrameCounterForReplyToHLS() {
         return getProperties().getTypedProperty(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false);
+    }
+
+    public boolean useGBT() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.USE_GBT, USE_GBT_DEFAULT_VALUE);
+    }
+
+    public int getGBTWindowSizePropertySpec() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 }

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+
 /**
  * Copyrights EnergyICT
  *
@@ -30,6 +33,8 @@ import java.util.function.Supplier;
  */
 public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
+    public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(5);
+    public static final boolean USE_GBT_DEFAULT_VALUE = true;
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String DLMS_METER_KEK = "DlmsMeterKEK";
     public static final String PSK_ENCRYPTION_KEY = "PSKEncryptionKey";
@@ -51,9 +56,11 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";
     public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
     public static final String IPV6_ADDRESS_AND_PREFIX_LENGTH = "IPv6AddressAndPrefixLength";
+    private PropertySpecService propertySpecService;
 
     public Beacon3100ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -89,6 +96,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(broadcastAuthenticationKeyPropertySpec());
         propertySpecs.add(broadcastEncryptionKeyPropertySpec());
         propertySpecs.add(ipv6AddressAndPrefixLength());
+        propertySpecs.add(useGeneralBlockTransferPropertySpec());
+        propertySpecs.add(generalBlockTransferWindowSizePropertySpec());
 
         propertySpecs.remove(ntaSimulationToolPropertySpec());
         propertySpecs.remove(manufacturerPropertySpec());
@@ -149,7 +158,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      *
      * @return	The corresponding PropertySpec.
      */
-    private final PropertySpec increaseFrameCounterOnHLSReply() {
+    private PropertySpec increaseFrameCounterOnHLSReply() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).setDefaultValue(false).finish();
     }
 
@@ -238,7 +247,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return this.keyAccessorTypeReferenceSpec(PSK_ENCRYPTION_KEY, PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY);
     }
 
-    public PropertySpec deviceSystemTitlePropertySpec() {
+    private PropertySpec deviceSystemTitlePropertySpec() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, false, PropertyTranslationKeys.V2_EICT_DLMS_DEVICE_SYSTEM_TITLE, this.getPropertySpecService()::stringSpec).finish();
     }
 
@@ -248,6 +257,14 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec broadcastEncryptionKeyPropertySpec() {
         return this.keyAccessorTypeReferenceSpec(BROADCAST_ENCRYPTION_KEY, PropertyTranslationKeys.V2_BROADCAST_ENCRYPTION_KEY);
+    }
+
+    private PropertySpec useGeneralBlockTransferPropertySpec() {
+        return this.booleanSpec(USE_GBT, USE_GBT_DEFAULT_VALUE, PropertyTranslationKeys.V2_DLMS_USE_GBT);
+    }
+
+    private PropertySpec generalBlockTransferWindowSizePropertySpec() {
+        return this.bigDecimalSpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE, PropertyTranslationKeys.V2_DLMS_GBT_WINDOW_SIZE);
     }
 
     private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {
@@ -278,6 +295,20 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
                 .referenceSpec(KeyAccessorType.class.getName())
                 .named(name, translationKey)
                 .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
+    }
+
+    private PropertySpec booleanSpec(String name, boolean defaultValue, TranslationKey translationKey) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(defaultValue)
                 .finish();
     }
 }
