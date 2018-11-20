@@ -21,12 +21,14 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 public class DeviceUserFileConfigurationInformation extends CollectedDeviceData implements CollectedConfigurationInformation {
 
     private DeviceIdentifier deviceIdentifier;
+    private String fileName;
     private String fileExtension;
     private byte[] contents;
 
-    public DeviceUserFileConfigurationInformation (DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents) {
+    public DeviceUserFileConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileName, String fileExtension, byte[] contents) {
         super();
         this.deviceIdentifier = deviceIdentifier;
+        this.fileName = fileName;
         this.fileExtension = fileExtension;
         this.contents = contents;
     }
@@ -49,6 +51,11 @@ public class DeviceUserFileConfigurationInformation extends CollectedDeviceData 
     @Override
     public String getFileExtension () {
         return this.fileExtension;
+    }
+
+    @Override
+    public String getFileName() {
+        return this.fileName;
     }
 
     @Override

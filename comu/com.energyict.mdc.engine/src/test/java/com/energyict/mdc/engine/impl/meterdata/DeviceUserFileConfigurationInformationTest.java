@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 public class DeviceUserFileConfigurationInformationTest {
 
     private static final long DEVICE_ID = 97;
+    private static final String FILE_NAME = "configuration";
     private static final String FILE_EXTENSION = "txt";
     private static final byte[] CONTENTS = "Example of collected device configuration".getBytes();
 
@@ -41,7 +42,7 @@ public class DeviceUserFileConfigurationInformationTest {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
 
         // Business method
-        new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
 
         // Simply asserting that no exceptions are thrown
     }
@@ -49,7 +50,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Test
     public void testIsNeverConfiguredOnComTasks() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
 
         // Business method
@@ -62,7 +63,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Test
     public void testToDeviceCommand() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
 
         // Business method
         DeviceCommand command = deviceIpAddress.toDeviceCommand(new MeterDataStoreCommandImpl(null, serviceProvider), serviceProvider);
@@ -74,7 +75,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Test
     public void testGetDeviceIdentifier() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
 
         // Business method
         DeviceIdentifier needsChecking = deviceIpAddress.getDeviceIdentifier();
@@ -86,7 +87,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Test
     public void testGetFileExtension() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
 
         // Business method
         String needsChecking = deviceIpAddress.getFileExtension();
@@ -98,7 +99,7 @@ public class DeviceUserFileConfigurationInformationTest {
     @Test
     public void testGetContents() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
 
         // Business method
         byte[] needsChecking = deviceIpAddress.getContents();

@@ -140,8 +140,8 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents) {
-        DeviceProtocolMessageWithCollectedFile collectedMessage = new DeviceProtocolMessageWithCollectedFile(deviceIdentifier, messageIdentifier, fileExtension, contents);
+    public CollectedMessage createCollectedMessageWithFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileName, String fileExtension, byte[] contents) {
+        DeviceProtocolMessageWithCollectedFile collectedMessage = new DeviceProtocolMessageWithCollectedFile(deviceIdentifier, messageIdentifier, fileName, fileExtension, contents);
         collectedMessage.setSentDate(clock.instant());
         return collectedMessage;
     }
@@ -189,8 +189,8 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents) {
-        return new DeviceUserFileConfigurationInformation(deviceIdentifier, fileExtension, contents);
+    public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileName, String fileExtension, byte[] contents) {
+        return new DeviceUserFileConfigurationInformation(deviceIdentifier, fileName, fileExtension, contents);
     }
 
     @Override

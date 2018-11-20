@@ -15,6 +15,7 @@ import java.time.Instant;
 
 public class DeviceProtocolMessageWithCollectedFile extends CollectedDeviceData implements CollectedMessage, CollectedConfigurationInformation {
     private final MessageIdentifier deviceMessageIdentifier;
+    private final String fileName;
     private final String fileExtension;
     private final byte[] contents;
     private final DeviceIdentifier deviceIdentifier;
@@ -24,9 +25,10 @@ public class DeviceProtocolMessageWithCollectedFile extends CollectedDeviceData 
     private Instant sentDate;
     private DataCollectionConfiguration configuration;
 
-    public DeviceProtocolMessageWithCollectedFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileExtension, byte[] contents) {
+    public DeviceProtocolMessageWithCollectedFile(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String fileName, String fileExtension, byte[] contents) {
         this.deviceIdentifier = deviceIdentifier;
         this.deviceMessageIdentifier = messageIdentifier;
+        this.fileName = fileName;
         this.fileExtension = fileExtension;
         this.contents = contents;
     }
@@ -68,6 +70,11 @@ public class DeviceProtocolMessageWithCollectedFile extends CollectedDeviceData 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    @Override
+    public String getFileName() {
+        return fileName;
     }
 
     @Override
