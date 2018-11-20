@@ -31,18 +31,20 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigura
 
     private DeviceIdentifier deviceIdentifier;
     private String fileExtension;
+    private String fileName;
     private byte[] contents;
 
     public StoreConfigurationUserFile(CollectedConfigurationInformation configurationInformation, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.deviceIdentifier = configurationInformation.getDeviceIdentifier();
+        this.fileName = configurationInformation.getFileName();
         this.fileExtension = configurationInformation.getFileExtension();
         this.contents = configurationInformation.getContents();
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.storeConfigurationFile(this.deviceIdentifier, DateTimeFormatter.ISO_DATE_TIME, this.fileExtension, this.contents);
+        comServerDAO.storeConfigurationFile(this.deviceIdentifier, DateTimeFormatter.ISO_DATE_TIME, this.fileName, this.fileExtension, this.contents);
     }
 
     @Override
@@ -56,6 +58,7 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigura
             builder.addProperty("deviceIdentifier").append(this.deviceIdentifier);
         }
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
+            builder.addProperty("file name").append(this.fileName);
             builder.addProperty("file extension").append(this.fileExtension);
         }
     }
