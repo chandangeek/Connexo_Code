@@ -65,10 +65,24 @@ public class A1860StoredValues implements StoredValues {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
         int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1)).getNumber().intValue();
+
+        Date eventTime = null;
+
+        if (extendedChannelIndex.getEventTimeIndex() > 0) {
+            final IntervalValue eventTimeMillis = (IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(extendedChannelIndex.getEventTimeIndex() - 1);
+
+            if (eventTimeMillis.getNumber() != null) {
+                final Calendar calendar = Calendar.getInstance(this.protocol.getTimeZone());
+                calendar.setTimeInMillis(eventTimeMillis.getNumber().longValue());
+
+                eventTime = calendar.getTime();
+            }
+        }
+
         HistoricalRegister cosemValue = new HistoricalRegister();
 
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(extendedChannelIndex.getCaptureObjects().get(channelIndex)));
-        return new HistoricalValue(cosemValue, getBillingPointTimeDate(getReversedBillingPoint(billingPoint)), new Date(), 0);
+        return new HistoricalValue(cosemValue, getBillingPointTimeDate(getReversedBillingPoint(billingPoint)), eventTime, 0);
     }
 
     private Unit getUnit(CapturedObject capturedObject) throws IOException {
