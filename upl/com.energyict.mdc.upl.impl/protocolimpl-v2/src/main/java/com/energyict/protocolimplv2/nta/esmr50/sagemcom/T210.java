@@ -29,6 +29,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
 
@@ -47,11 +48,13 @@ public class T210 extends AbstractDlmsProtocol implements SerialNumberSupport {
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
     ESMR50Cache esmr50Cache;
+    ESMR50RegisterFactory registerFactory;
 
 
     public T210(PropertySpecService propertySpecService, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
+        this.registerFactory = new ESMR50RegisterFactory(this, collectedDataFactory, issueFactory);
     }
 
     @Override
@@ -265,7 +268,7 @@ public class T210 extends AbstractDlmsProtocol implements SerialNumberSupport {
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return null;
+        return this.registerFactory.readRegisters(registers);
     }
 
 }
