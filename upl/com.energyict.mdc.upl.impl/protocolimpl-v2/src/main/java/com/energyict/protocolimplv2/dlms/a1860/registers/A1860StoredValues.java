@@ -64,12 +64,15 @@ public class A1860StoredValues implements StoredValues {
         if (!isValidBillingPoint(obisCode)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
-        int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1)).getNumber().intValue();
+
+        List<IntervalValue> intervalValueList = getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues();
+
+        int value = intervalValueList.get(channelIndex - 1).getNumber().intValue();
 
         Date eventTime = null;
 
         if (extendedChannelIndex.getEventTimeIndex() > 0) {
-            final IntervalValue eventTimeMillis = (IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(extendedChannelIndex.getEventTimeIndex() - 1);
+            final IntervalValue eventTimeMillis = intervalValueList.get(extendedChannelIndex.getEventTimeIndex() - 1);
 
             if (eventTimeMillis.getNumber() != null) {
                 final Calendar calendar = Calendar.getInstance(this.protocol.getTimeZone());
