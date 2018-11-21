@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
@@ -37,7 +36,6 @@ public class AppResource {
     private JsonService jsonService;
     @Inject
     private HttpAuthenticationService authenticationService;
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -92,6 +90,8 @@ public class AppResource {
     private AppInfo appInfo(App app) {
         AppInfo appInfo = new AppInfo();
         appInfo.name = app.getName();
+        appInfo.systemIdentifier = WhiteBoardImpl.WHITE_BOARD_PROPERTIES.get(WhiteBoardProperties.SYSTEM_IDENTIFIER);
+        appInfo.systemIdentifierColor = WhiteBoardImpl.WHITE_BOARD_PROPERTIES.get(WhiteBoardProperties.SYSTEM_IDENTIFIER_COLOR);
         appInfo.icon = app.getIcon();
         appInfo.url = getUrl(app);
         appInfo.externalUrl = app.getExternalUrl();
@@ -111,5 +111,4 @@ public class AppResource {
         }
         return null;
     }
-
 }

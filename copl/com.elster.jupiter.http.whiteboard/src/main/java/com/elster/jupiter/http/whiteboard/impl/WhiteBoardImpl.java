@@ -39,8 +39,11 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Application;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,7 +59,10 @@ import java.util.stream.Stream;
         property = {"alias=/apps", "name=HTW"},
         immediate = true)
 public final class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
+
     static String COMPONENTNAME = "HTW";
+
+    public static final Map<WhiteBoardProperties, String> WHITE_BOARD_PROPERTIES = new HashMap<>();
 
     private volatile HttpService httpService;
     private volatile UserService userService;
@@ -66,6 +72,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile QueryService queryService;
     private volatile HttpAuthenticationService httpAuthenticationService;
     private volatile Thesaurus thesaurus;
+    private volatile BundleContext bundleContext;
 
     private final Object registrationLock = new Object();
 
@@ -81,14 +88,14 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     }
 
     @Inject
-    WhiteBoardImpl(TransactionService transactionService, QueryService queryService, HttpAuthenticationService httpAuthenticationService) {
+    WhiteBoardImpl(BundleContext bundleContext, TransactionService transactionService, QueryService queryService,
+                   HttpAuthenticationService httpAuthenticationService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
         setHttpAuthenticationService(httpAuthenticationService);
-        activate(null, null);
+        activate(bundleContext, null);
     }
-
 
     @Reference
     public void setUserService(UserService userService) {
@@ -174,12 +181,15 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Activate
     public void activate(BundleContext context, Map<String, Object> props) {
+        this.bundleContext = context;
+
+        loadProperties(bundleContext);
+
         boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
         if (!generateEvents) {
             eventAdminHolder.set(null);
         }
     }
-
 
     String getAlias(String name) {
         return "/apps" + (name.startsWith("/") ? name : "/" + name);
@@ -211,11 +221,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 this.bind(userService).to(UserService.class);
                 this.bind(queryService).to(QueryService.class);
                 this.bind(httpAuthenticationService).to(HttpAuthenticationService.class);
+                this.bind(bundleContext).to(BundleContext.class);
                 this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
             }
         };
     }
-
 
     @Override
     public String getComponentName() {
@@ -236,6 +246,9 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 .collect(Collectors.toList());
     }
 
+    private void loadProperties(BundleContext context) {
+        EnumSet.allOf(WhiteBoardProperties.class)
+                .forEach(key -> WHITE_BOARD_PROPERTIES.put(key, Optional.ofNullable(context.getProperty(key.getKey()))
+                        .orElse(key.getDefaultValue())));
+    }
 }
-
-
