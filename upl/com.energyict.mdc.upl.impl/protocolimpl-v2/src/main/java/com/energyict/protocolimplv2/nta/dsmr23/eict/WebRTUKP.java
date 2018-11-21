@@ -54,7 +54,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;

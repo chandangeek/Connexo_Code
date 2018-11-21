@@ -29,6 +29,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
+import com.energyict.protocolimplv2.nta.esmr50.common.events.Esmr50LogBookFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
 
@@ -47,7 +48,7 @@ public class T210 extends AbstractDlmsProtocol implements SerialNumberSupport {
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
     ESMR50Cache esmr50Cache;
-
+    private Esmr50LogBookFactory esmr50LogBookFactory;
 
     public T210(PropertySpecService propertySpecService, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -233,10 +234,26 @@ public class T210 extends AbstractDlmsProtocol implements SerialNumberSupport {
         return null;
     }
 
+//    @Override
+//    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+//        for(LogBookReader reader : logBooks){
+//            int i = 0;
+//            getLogger().info("Reading " + reader.getLogBookObisCode() );
+//        }
+//        return Collections.emptyList();
+//    }
     @Override
-    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return null;
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
+        return getEsmr50LogBookFactory().getLogBookData(logBookReaders);
     }
+
+    private Esmr50LogBookFactory getEsmr50LogBookFactory() {
+        if (esmr50LogBookFactory == null) {
+            esmr50LogBookFactory = new Esmr50LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return esmr50LogBookFactory;
+    }
+
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
