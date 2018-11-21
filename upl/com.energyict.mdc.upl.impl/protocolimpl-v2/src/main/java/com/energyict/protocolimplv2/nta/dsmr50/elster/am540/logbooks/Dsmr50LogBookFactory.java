@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -11,6 +12,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
@@ -81,6 +83,7 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
                 } catch (NotInObjectListException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
+
                 if (profileGeneric != null) {
                     Calendar fromDate = getCalendar();
                     fromDate.setTime(logBookReader.getLastLogBook());
@@ -104,7 +107,8 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
         return result;
     }
 
-    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
+    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws
+            ProtocolException {
         List<MeterEvent> meterEvents;
         try {
             if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
@@ -122,7 +126,7 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
             } else {
                 return new ArrayList<>();
             }
-        } catch (NotInObjectListException e){
+        } catch (NotInObjectListException e) {
             return new ArrayList<>();
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
@@ -130,7 +134,8 @@ public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
 
     private boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
-            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
+            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader
+                    .getMeterSerialNumber()))) {
                 return true;
             }
         }

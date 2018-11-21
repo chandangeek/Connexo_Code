@@ -258,6 +258,14 @@ public class DLMSMeterConfig {
         return config.getPowerFailureLog(IOL, manuf);
     }
 
+    public UniversalObject getCommunicationSessionLogObject() throws NotInObjectListException {
+        return config.getCommunicationSessionLog(IOL, manuf);
+    }
+
+    public UniversalObject getVoltageQualityLogObject() throws NotInObjectListException {
+        return config.getVoltageQualityLog(IOL, manuf);
+    }
+
     public UniversalObject getFraudDetectionLogObject() throws NotInObjectListException {
         return config.getFraudDetectionLog(IOL, manuf);
     }

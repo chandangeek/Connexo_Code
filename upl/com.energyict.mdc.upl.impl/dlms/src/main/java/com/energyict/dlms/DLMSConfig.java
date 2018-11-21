@@ -111,6 +111,14 @@ public final class DLMSConfig {
 		new DLMSConfig("WKP",7,1,0,99,97,0,255)
 	};
 
+	private static final DLMSConfig[] communicationSessionLog = {
+			new DLMSConfig("WKP",7,0,0,99,98,4,255)
+	};
+
+	private static final DLMSConfig[] voltageQualityLog = {
+			new DLMSConfig("WKP",7,0,0,99,98,5,255)
+	};
+
 	private static final DLMSConfig[] fraudDetectionLog = {
 		new DLMSConfig("WKP",7,0,0,99,98,1,255)
 	};
@@ -746,6 +754,36 @@ public final class DLMSConfig {
 		}
         throw new NotInObjectListException("DLMSConfig, getPowerFailureObject, not found in objectlist (IOL");
     }
+
+    protected UniversalObject getCommunicationSessionLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+		checkEmptyObjectList(objectList, "DLMSConfig, getCommunicationSessionLog, objectlist empty!");
+		for(int t = 0; t < communicationSessionLog.length; t++){
+			if((manuf != null) && (communicationSessionLog[t].getManuf().compareTo(manuf) != 0)) {
+				continue;
+			}
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(communicationSessionLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new NotInObjectListException("DLMSConfig, getCommunicationSessionLog, not found in objectlist (IOL");
+	}
+
+	public UniversalObject getVoltageQualityLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException {
+		checkEmptyObjectList(objectList, "DLMSConfig, getVoltageQualityLog, objectlist empty!");
+		for(int t = 0; t < voltageQualityLog.length; t++){
+			if((manuf != null) && (voltageQualityLog[t].getManuf().compareTo(manuf) != 0)) {
+				continue;
+			}
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(voltageQualityLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new NotInObjectListException("DLMSConfig, getVoltageQualityLog, not found in objectlist (IOL");
+	}
 
 	protected UniversalObject getFraudDetectionLog(UniversalObject[] objectList, String manuf) throws NotInObjectListException{
         checkEmptyObjectList(objectList, "DLMSConfig, getFraudDetectionLogObject, objectlist empty!");
