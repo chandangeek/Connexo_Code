@@ -10,7 +10,8 @@ Ext.define('Uni.controller.AppController', {
 
     requires: [
         'Ext.state.Manager',
-        'Ext.state.LocalStorageProvider'
+        'Ext.state.LocalStorageProvider',
+        'Uni.store.Apps'
     ],
 
     refs: [
@@ -118,12 +119,43 @@ Ext.define('Uni.controller.AppController', {
         var me = this,
             logo = me.getLogo();
 
-        if (logo.rendered) {
-            logo.setText(me.applicationTitle);
-        } else {
-            logo.text = me.applicationTitle;
+        var applicationName = Uni.util.Application.getAppName();
+        console.log("SET LOGO!!!");
+        console.log("me.applicationTitle=",me.applicationTitle);
+        console.log("APPLICATION NAME = ",applicationName);
+
+        if(applicationName == 'MdmApp')
+        {
+            console.log("SET NAME FOR INSIGHT");
+            applicationName = 'Insight'
         }
 
+        var icon ="";
+        var envTxt = "";
+        console.log("applicationName=",applicationName);
+        var applicationRecord = Uni.store.Apps.getApp(applicationName);
+        console.log("applicationRecord =",applicationRecord);
+
+        var color = null;//applicationRecord.get('systemIdentifierColor');
+        var env = null;//applicationRecord.get('systemIdentifier');
+        if (applicationRecord){
+            color = applicationRecord.get('systemIdentifierColor');
+            env = applicationRecord.get('systemIdentifier');
+        }
+
+        console.log("color=",color);
+        console.log("env=",env);
+
+        if (color && env ){
+            icon = '<span class="icon-circle-small" style="display:inline-block; color:'+color+'; font-size:20px;"></span>';
+            envTxt = '<span style="color:'+color+';">' + env + '</span>';
+        }
+
+        if (logo.rendered) {
+            logo.setText(me.applicationTitle+icon+envTxt);
+        } else {
+            logo.text = me.applicationTitle+icon+envTxt;
+        }
         me.callParent(arguments);
     },
 

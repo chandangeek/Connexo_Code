@@ -32,6 +32,12 @@ Ext.define('Uni.store.Apps', {
         return !!record;
     },
 
+    getApp: function(appName){
+            var record = this.findRecord('name', appName);
+            return record;
+    },
+
+
     getAppUrl: function(appName){
         var url = null,
         record = this.findRecord('name', appName);

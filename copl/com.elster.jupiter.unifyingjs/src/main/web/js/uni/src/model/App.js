@@ -39,6 +39,14 @@ Ext.define('Uni.model.App', {
                 var url = record.get('url');
                 return (url.indexOf('http') === 0);
             }
+        },
+        {
+            name: 'systemIdentifier',
+            type: 'String'
+        },
+        {
+            name: 'systemIdentifierColor',
+            type: 'String'
         }
     ]
 });
