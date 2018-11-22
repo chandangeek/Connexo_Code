@@ -24,6 +24,7 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
     private final static String FIRMWARE_VERSION_V1 = "NTA-Sim_V_1.0.0";
     private final static String FIRMWARE_VERSION_V2 = "NTA-Sim_V_2.0.0";
+    private final static String IMAGE_IDENTIFIER = "NTA-Sim_V_2.0.0";
     private final static String LANDIS_GYR_ZMD_DEVICETYPE = "Landis+Gyr ZMD";
 
     private Set<ProtocolSupportedFirmwareOptions> supportedOptions = EnumSet.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE,
@@ -50,11 +51,11 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
     private void setUpDeviceTypeForFirmwareManagement(DeviceType deviceType){
         if (!isExcluded(deviceType)) {
             FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER).create());
+                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
             setFirmwareBytes(v1, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm"));
 
             FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.GHOST, FirmwareType.METER).create());
+                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.GHOST, FirmwareType.METER, IMAGE_IDENTIFIER).create());
             setFirmwareBytes(v2, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm"));
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
