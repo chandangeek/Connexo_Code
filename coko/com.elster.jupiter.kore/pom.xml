@@ -104,7 +104,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export</artifactId>
-                <version>4.2.3${revision}</version>
+                <version>4.3.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
