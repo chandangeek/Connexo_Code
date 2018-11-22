@@ -62,6 +62,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
     private final EventConfiguration eventConfiguration = new DefaultEventConfiguration();
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(EventServiceImpl.class.getName());
 
     public EventServiceImpl() {
     }
@@ -177,6 +178,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
         }
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);
+        LOGGER.info("Publish Event: " + topic  + " (should publish: " + eventType.shouldPublish() + ")");
         publisher.publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
         if (eventType.shouldPublish()) {
             localEvent.publish((int) delay);
