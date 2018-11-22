@@ -42,6 +42,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsagePointGroup> table = dataModel.addTable(name(), UsagePointGroup.class);
             table.map(USAGE_POINT_GROUP_IMPLEMENTERS);
+            table.setJournalTableName("MTG_UP_GROUP_JRNL").since(version(10, 4, 3));
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             Column mRIDColumn_10_2 = table.column("MRID").varChar(NAME_LENGTH).upTo(version(10, 3)).add();
@@ -181,6 +182,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceGroup> table = dataModel.addTable(name(), EndDeviceGroup.class);
             table.map(END_DEVICE_GROUP_IMPLEMENTERS);
+            table.setJournalTableName("MTG_ED_GROUP_JRNL").since(version(10, 4, 3));
             Column idColumn = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             Column mridColumn = table.column("MRID").varChar(NAME_LENGTH + 4).map("mRID").add();
