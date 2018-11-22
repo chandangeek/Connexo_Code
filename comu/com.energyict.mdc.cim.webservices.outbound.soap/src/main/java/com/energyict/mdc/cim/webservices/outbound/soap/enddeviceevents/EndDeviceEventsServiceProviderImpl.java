@@ -35,6 +35,8 @@ import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -203,13 +205,31 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         endDeviceEvent.setReason(record.getDescription());
         endDeviceEvent.setUserID(record.getUserID());
         endDeviceEvent.setSeverity(record.getSeverity());
-        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
-        endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
-        endDeviceEventDetail.setValue(record.getDeviceEventType());
-        endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
+        record.getProperties().entrySet().stream().forEach(property -> {
+                    EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+                    endDeviceEventDetail.setName(property.getKey());
+                    endDeviceEventDetail.setValue(property.getValue());
+                    endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
+                }
+        );
+        Optional<EndDeviceEventDetail> optionalOfEndDeviceEventDetail = setDeviceEventTypeDetail(record);
+        if (optionalOfEndDeviceEventDetail.isPresent()) {
+            endDeviceEvent.getEndDeviceEventDetails().add(optionalOfEndDeviceEventDetail.get());
+        }
         EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
         eventType.setRef(record.getEventTypeCode());
         endDeviceEvent.setEndDeviceEventType(eventType);
+    }
+
+    private Optional<EndDeviceEventDetail> setDeviceEventTypeDetail(EndDeviceEventRecord record) {
+        String deviceEventType = record.getDeviceEventType();
+        if (Objects.nonNull(deviceEventType) && !deviceEventType.isEmpty()) {
+            EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+            endDeviceEventDetail.setName(DEVICE_PROTOCOL_CODE_LABEL);
+            endDeviceEventDetail.setValue(deviceEventType);
+            return Optional.of(endDeviceEventDetail);
+        }
+        return Optional.empty();
     }
 
     private Asset createAsset(EndDevice endDevice) {
