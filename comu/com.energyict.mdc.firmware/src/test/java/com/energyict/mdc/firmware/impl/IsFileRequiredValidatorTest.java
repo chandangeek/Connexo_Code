@@ -30,6 +30,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     private static final byte[] FIRMWARE_FILE = new byte[]{1, 2, 3, 4};
     private static final String VERSION = "Version";
     private static final String NEW_VERSION = "NewVersion";
+    private static final String Image_Identifier = "ImageIdentifier";
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -48,7 +49,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @Transactional
     public void validateFirmwareVersionWithValidFirmwareFileTest() {
         inMemoryPersistence.getFirmwareService()
-                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
+                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER, Image_Identifier)
                 .initFirmwareFile(FIRMWARE_FILE)
                 .create();
     }
@@ -58,7 +59,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     public void validateFirmwareVersionWithoutFirmwareFileTest() {
         inMemoryPersistence.getFirmwareService()
-                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
+                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER, Image_Identifier)
                 .create();  // Thus without the expected firmware size specified
     }
 
@@ -67,7 +68,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FILE_IS_EMPTY + "}")
     public void validateFirmwareVersionWithEmptyFirmwareSizeTest() {
         inMemoryPersistence.getFirmwareService()
-                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
+                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER, Image_Identifier)
                 .setExpectedFirmwareSize(0) // With invalid expected firmware size
                 .create();
     }
@@ -76,7 +77,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @Transactional
     public void validateFirmwareVersionUpdateWithoutTouchingFirmwareFileTest() {
         FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService()
-                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
+                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER, Image_Identifier)
                 .initFirmwareFile(FIRMWARE_FILE)
                 .create();
 
@@ -90,7 +91,7 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FILE_IS_EMPTY + "}")
     public void validateFirmwareVersionUpdatedWithEmptyFirmwareSizeTest() {
         FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService()
-                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
+                .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER, Image_Identifier)
                 .setExpectedFirmwareSize(FIRMWARE_FILE.length)
                 .create();  // This call should succeed without violations
 

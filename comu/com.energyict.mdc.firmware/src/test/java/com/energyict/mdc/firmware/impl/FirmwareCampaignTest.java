@@ -125,7 +125,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testUpdateWithNullGroup() {
         DeviceType deviceType = this.createDeviceType();
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER, "1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, null);
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -188,7 +188,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testSuccessfulCreation() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER, "1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -219,7 +219,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testOngoingStatus() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER, "1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -238,7 +238,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testUpdateStatistics() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER, "1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -259,7 +259,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testCancelStatistics() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER,"1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -281,7 +281,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testSimpleRemoval() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER,"1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -300,7 +300,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testRemovalOngoingCampaign() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER,"1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -321,7 +321,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testRemoveCanceledCampaign() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER,"1").create();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
@@ -387,7 +387,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
         when(deviceGroup.getMembers(any(Instant.class))).thenReturn(Collections.emptyList());
         DeviceType deviceType = this.createDeviceType();
-        FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER,"1").create();
         firmwareCampaign.init(deviceType, deviceGroup);
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
