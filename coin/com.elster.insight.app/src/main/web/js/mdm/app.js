@@ -79,7 +79,18 @@ Ext.onReady(function () {
     });
     
     loader.onReady(function () {
-        
+
+        var onDependenciesLoad = function () {
+            console.log("LOAD APPS FOR INSIGHT IS PERFORMED!!!");
+            console.log("START INSIGHT APPLICATION!!!!!!");
+            Ext.application({
+                name: 'MdmApp',
+                extend: 'MdmApp.Application',
+                autoCreateViewport: true
+            });
+        };
+
+
         Ext.Ajax.defaultHeaders = {
                 'X-CONNEXO-APPLICATION-NAME': 'INS', // a function that return the main application
                 'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
@@ -91,11 +102,15 @@ Ext.onReady(function () {
         });
         // </debug>
 
+        console.log('Start INSIGHT APPLICATON')
+        /*
         Ext.application({
             name: 'MdmApp',
             extend: 'MdmApp.Application',
             autoCreateViewport: true
-        });
+        });*/
+
+        Uni.store.Apps.load(onDependenciesLoad);
     });
 });
 
