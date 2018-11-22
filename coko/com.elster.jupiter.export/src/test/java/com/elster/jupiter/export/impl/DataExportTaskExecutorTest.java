@@ -230,7 +230,7 @@ public class DataExportTaskExecutorTest {
         when(task.getDataFormatterFactory()).thenReturn(dataFormatterFactory);
         when(task.getDataSelectorFactory()).thenReturn(dataSelectorFactory);
         when(task.getDataExportProperties(any())).thenReturn(Collections.singletonList(dataExportProperty));
-        when(task.getCompositeDestination(any())).thenReturn(destination);
+        when(task.getCompositeDestination()).thenReturn(destination);
         when(task.hasDefaultSelector()).thenReturn(true);
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");

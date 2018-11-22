@@ -12,6 +12,7 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -33,16 +34,20 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
 
     static final String IMPLEMENTOR_NAME = "EventSelectorConfig";
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+//    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+//    private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    //CONM-492
+    private Long endDeviceGroup;
+    private MeteringGroupsService meteringGroupsService;
 
     @Valid
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
     private List<EndDeviceEventTypeFilter> eventTypeFilters = new ArrayList<>();
 
     @Inject
-    public EventSelectorConfigImpl(DataModel dataModel) {
+    public EventSelectorConfigImpl(DataModel dataModel, MeteringGroupsService meteringGroupService) {
         super(dataModel);
+        meteringGroupsService = meteringGroupService;
     }
 
     static EventSelectorConfigImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod) {
@@ -58,8 +63,13 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
 
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
-        return endDeviceGroup.get();
+        return findEndDeviceGroupById();
     }
+
+//    @Override
+//    public long getEndDeviceGroupId(){
+//        return endDeviceGroup;
+//    }
 
     @Override
     public List<EndDeviceEventTypeFilter> getEventTypeFilters() {
@@ -116,7 +126,7 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
 
         @Override
         public EventSelectorConfig.Updater setEndDeviceGroup(EndDeviceGroup group) {
-            endDeviceGroup.set(group);
+            endDeviceGroup = group.getId();
             return this;
         }
 
@@ -139,6 +149,14 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
         @Override
         public EventSelectorConfig complete() {
             return EventSelectorConfigImpl.this;
+        }
+    }
+
+    private EndDeviceGroup findEndDeviceGroupById() {
+        if (this.endDeviceGroup != null) {
+            return this.meteringGroupsService.findEndDeviceGroup(this.endDeviceGroup).orElse(null);
+        } else {
+            return null;
         }
     }
 }

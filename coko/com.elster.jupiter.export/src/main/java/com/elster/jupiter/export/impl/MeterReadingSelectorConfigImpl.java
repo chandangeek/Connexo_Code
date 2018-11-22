@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
@@ -17,12 +16,10 @@ import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
 
 import com.google.common.collect.Range;
@@ -41,13 +38,15 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
     static final String IMPLEMENTOR_NAME = "MeterReadingSelectorConfig";
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Long endDeviceGroup;
+    private MeteringGroupsService meteringGroupsService;
 
     @Inject
-    MeterReadingSelectorConfigImpl(DataModel dataModel) {
+    MeterReadingSelectorConfigImpl(DataModel dataModel, MeteringGroupsService meteringGroupService) {
         super(dataModel);
+        meteringGroupsService = meteringGroupService;
     }
+
 
     static MeterReadingSelectorConfigImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod) {
         MeterReadingSelectorConfigImpl config = dataModel.getInstance(MeterReadingSelectorConfigImpl.class);
@@ -58,18 +57,25 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
     @Override
     public DataExportStrategy getStrategy() {
         return new DataExportStrategyImpl(
-                isExportUpdate(), isExportContinuousData(), isExportOnlyIfComplete(), getValidatedDataOption(), getUpdatePeriod().orElse(null), getUpdateWindow().orElse(null)
+                isExportUpdate(), isExportContinuousData(), isExportOnlyIfComplete(), getValidatedDataOption(), getUpdatePeriod()
+                .orElse(null), getUpdateWindow().orElse(null)
         );
     }
 
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
-        return endDeviceGroup.get();
+          return findEndDeviceGroupById();    //lori - aici nu gaseste groupId-ul
+    }
+
+    @Override
+    public long getEndDeviceGroupId(){
+        return endDeviceGroup;
     }
 
     @Override
     public History<DataSelectorConfig> getHistory() {
-        List<JournalEntry<MeterReadingSelectorConfigImpl>> journal = getDataModel().mapper(MeterReadingSelectorConfigImpl.class).getJournal(getId());
+        List<JournalEntry<MeterReadingSelectorConfigImpl>> journal = getDataModel().mapper(MeterReadingSelectorConfigImpl.class)
+                .getJournal(getId());
         return new History<>(journal, this);
     }
 
@@ -92,7 +98,8 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
     }
 
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
-        Set<ReadingType> readingTypeSet = occurrence.getRetryTime().isPresent() ? getReadingTypes(occurrence.getRetryTime().get()) : getReadingTypes();
+        Set<ReadingType> readingTypeSet = occurrence.getRetryTime()
+                .isPresent() ? getReadingTypes(occurrence.getRetryTime().get()) : getReadingTypes();
         return readingTypeSet.stream()
                 .map(r -> getExportItems().stream()
                         .map(IReadingTypeDataExportItem.class::cast)
@@ -147,7 +154,7 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
         @Override
         public MeterReadingSelectorConfig.Updater setEndDeviceGroup(EndDeviceGroup group) {
-            endDeviceGroup.set(group);
+            endDeviceGroup = group.getId();
             return this;
         }
 
@@ -180,4 +187,13 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
             return MeterReadingSelectorConfigImpl.this;
         }
     }
+
+    private EndDeviceGroup findEndDeviceGroupById() {
+        if (this.endDeviceGroup != null) {
+            return this.meteringGroupsService.findEndDeviceGroup(this.endDeviceGroup).orElse(null);
+        } else {
+            return null;
+        }
+    }
+
 }
