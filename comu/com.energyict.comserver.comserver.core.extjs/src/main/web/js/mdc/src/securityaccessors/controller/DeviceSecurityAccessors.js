@@ -571,7 +571,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             }
         });
         me.deviceKeyRecord.endEdit();
-
+        me.deviceKeyRecord.getProxy().setUrl(me.deviceId);
         me.deviceKeyRecord.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.key.saved', 'MDC', 'Key saved'));
