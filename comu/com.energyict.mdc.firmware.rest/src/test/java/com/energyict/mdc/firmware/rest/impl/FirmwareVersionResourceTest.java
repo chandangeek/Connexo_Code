@@ -75,8 +75,8 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
                 return null;
             }
         }).when(firmwareVersionBuilder).validate();
-        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
-        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any(), any())).thenReturn(firmwareVersionBuilder);
+        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any(), anyString())).thenReturn(firmwareVersionBuilder);
+        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any(), anyString())).thenReturn(firmwareVersionBuilder);
         when(firmwareService.filterForFirmwareVersion(any(DeviceType.class))).thenAnswer(new Answer<FirmwareVersionFilter>() {
             @Override
             public FirmwareVersionFilter answer(InvocationOnMock invocationOnMock) throws Throwable {
