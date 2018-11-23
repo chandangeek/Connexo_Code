@@ -81,8 +81,6 @@ Ext.onReady(function () {
     loader.onReady(function () {
 
         var onDependenciesLoad = function () {
-            console.log("LOAD APPS FOR INSIGHT IS PERFORMED!!!");
-            console.log("START INSIGHT APPLICATION!!!!!!");
             Ext.application({
                 name: 'MdmApp',
                 extend: 'MdmApp.Application',
@@ -101,15 +99,6 @@ Ext.onReady(function () {
             enabled: true
         });
         // </debug>
-
-        console.log('Start INSIGHT APPLICATON')
-        /*
-        Ext.application({
-            name: 'MdmApp',
-            extend: 'MdmApp.Application',
-            autoCreateViewport: true
-        });*/
-
         Uni.store.Apps.load(onDependenciesLoad);
     });
 });
