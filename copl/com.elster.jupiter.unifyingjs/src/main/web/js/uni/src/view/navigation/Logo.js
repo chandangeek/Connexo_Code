@@ -16,6 +16,8 @@ Ext.define('Uni.view.navigation.Logo', {
     scale: 'medium',
     href: '#',
     hrefTarget: '_self',
+    maxWidth: 800,
+    textAlign: 'left',
 
     initComponent: function () {
         this.callParent(arguments);

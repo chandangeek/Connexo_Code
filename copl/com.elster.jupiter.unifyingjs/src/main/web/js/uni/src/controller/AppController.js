@@ -120,31 +120,22 @@ Ext.define('Uni.controller.AppController', {
             logo = me.getLogo();
 
         var applicationName = Uni.util.Application.getAppName();
-        console.log("SET LOGO!!!");
-        console.log("me.applicationTitle=",me.applicationTitle);
-        console.log("APPLICATION NAME = ",applicationName);
 
         if(applicationName == 'MdmApp')
         {
-            console.log("SET NAME FOR INSIGHT");
             applicationName = 'Insight'
         }
 
         var icon ="";
         var envTxt = "";
-        console.log("applicationName=",applicationName);
         var applicationRecord = Uni.store.Apps.getApp(applicationName);
-        console.log("applicationRecord =",applicationRecord);
 
-        var color = null;//applicationRecord.get('systemIdentifierColor');
-        var env = null;//applicationRecord.get('systemIdentifier');
+        var color = null;
+        var env = null;
         if (applicationRecord){
             color = applicationRecord.get('systemIdentifierColor');
             env = applicationRecord.get('systemIdentifier');
         }
-
-        console.log("color=",color);
-        console.log("env=",env);
 
         if (color && env ){
             icon = '<span class="icon-circle-small" style="display:inline-block; color:'+color+'; font-size:20px;"></span>';
