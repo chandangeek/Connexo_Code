@@ -16,9 +16,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
 
 import javax.inject.Inject;
@@ -66,10 +63,10 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
         return findEndDeviceGroupById();
     }
 
-//    @Override
-//    public long getEndDeviceGroupId(){
-//        return endDeviceGroup;
-//    }
+    @Override
+    public long getEndDeviceGroupId() {
+        return endDeviceGroup;
+    }
 
     @Override
     public List<EndDeviceEventTypeFilter> getEventTypeFilters() {
