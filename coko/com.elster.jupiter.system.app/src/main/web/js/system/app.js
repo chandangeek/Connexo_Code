@@ -81,9 +81,6 @@ Ext.onReady(function () {
     loader.onReady(function () {
 
         var onDependenciesLoad = function () {
-            console.log("LOAD APPS FOR INSIGHT IS PERFORMED!!!");
-
-            console.log("START ADMIN APPLICATION!!!!!!");
             Ext.application({
                 name: 'SystemApp',
                 extend: 'SystemApp.Application',
@@ -106,13 +103,6 @@ Ext.onReady(function () {
             enabled: true
         });
         // </debug>
-
-        console.log("START ADMIN!!!!");
-        /*Ext.application({
-            name: 'SystemApp',
-            extend: 'SystemApp.Application',
-            autoCreateViewport: true
-        });*/
         Uni.store.Apps.load(onDependenciesLoad);
     });
 });
