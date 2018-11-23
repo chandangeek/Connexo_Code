@@ -10,7 +10,6 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
-
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -24,9 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class StandardDataSelectorInfoFactory {
@@ -84,7 +81,7 @@ public class StandardDataSelectorInfoFactory {
         StandardDataSelectorInfo info = new StandardDataSelectorInfo();
         info.id = selector.getId();
         info.exportComplete = MissingDataOption.NOT_APPLICABLE;
-        info.deviceGroup = new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
+        info.deviceGroup = getEndDeviceGroup(selector);
         info.exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         info.exportContinuousData = selector.getStrategy().isExportContinuousData();
         info.eventTypeCodes = selector.getEventTypeFilters()
@@ -99,29 +96,39 @@ public class StandardDataSelectorInfoFactory {
         if (selector.getEndDeviceGroup() != null) {
             return new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
         } else {
+            return getEndDeviceGroup(selector.getEndDeviceGroupId());
+        }
+    }
 
-            long endDeviceGroupId = selector.getEndDeviceGroupId();
-            String endDeviceGroupName = "";
+    private IdWithNameInfo getEndDeviceGroup(EventSelectorConfig selector) {
+        if (selector.getEndDeviceGroup() != null) {
+            return new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
+        } else {
+            return getEndDeviceGroup(selector.getEndDeviceGroupId());
+        }
+    }
 
-            SqlBuilder sqlBuilder = new SqlBuilder(
-                    "SELECT * FROM (SELECT * FROM MTG_ED_GROUP_JRNL WHERE ID=");
-            sqlBuilder.addLong(endDeviceGroupId);
-            sqlBuilder.append(" ORDER BY MODTIME DESC) WHERE ROWNUM = 1");
+    private IdWithNameInfo getEndDeviceGroup(long endDeviceGroupId) {
+        String endDeviceGroupName = "";
 
-            try (Connection connection = this.ormService.getDataModel("MTG").get().getConnection(true)) {
-                try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
-                    try (ResultSet resultSet = statement.executeQuery()) {
-                        while (resultSet.next()) {
-                            endDeviceGroupName = resultSet.getString(2);
-                        }
+        SqlBuilder sqlBuilder = new SqlBuilder(
+                "SELECT * FROM (SELECT * FROM MTG_ED_GROUP_JRNL WHERE ID=");
+        sqlBuilder.addLong(endDeviceGroupId);
+        sqlBuilder.append(" ORDER BY MODTIME DESC) WHERE ROWNUM = 1");
+
+        try (Connection connection = this.ormService.getDataModel("MTG").get().getConnection(true)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        endDeviceGroupName = resultSet.getString(2);
                     }
                 }
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
             }
-
-            return new IdWithNameInfo(endDeviceGroupId, endDeviceGroupName);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
+
+        return new IdWithNameInfo(endDeviceGroupId, endDeviceGroupName);
     }
 }
 
