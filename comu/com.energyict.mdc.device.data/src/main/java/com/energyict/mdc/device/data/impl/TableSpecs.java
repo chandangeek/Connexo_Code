@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -449,7 +450,7 @@ public enum TableSpecs {
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            Column stopDate = table.column("STOPDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComSessionImpl.Fields.STOP_DATE.fieldName()).add();
             table.column("TOTALMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TOTAL_TIME.fieldName()).add();
             table.column("CONNECTMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.CONNECT_MILLIS.fieldName()).add();
             table.column("TALKMILLIS").number().conversion(NUMBER2LONG).map(ComSessionImpl.Fields.TALK_MILLIS.fieldName()).add();
@@ -482,6 +483,7 @@ public enum TableSpecs {
                     map(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMSESSION").on(id).add();
+            table.autoPartitionOn(stopDate, LifeCycleClass.LOGGING);
         }
     },
     ADD_LAST_SESSION_TO_CONNECTION_TASK {
@@ -507,7 +509,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
-            table.column("STOPDATE").number().notNull().conversion(NUMBER2INSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
+            Column stopDate = table.column("STOPDATE").number().notNull().conversion(NUMBER2INSTANT).map(ComTaskExecutionSessionImpl.Fields.STOP_DATE.fieldName()).add();
             Column successIndicator = table.column("SUCCESSINDICATOR")
                     .number()
                     .conversion(NUMBER2ENUM)
@@ -554,6 +556,7 @@ public enum TableSpecs {
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
             table.index("DDC_CTES_CS_SUCCESS").on(successIndicator, session).compress(1).add();
+            table.autoPartitionOn(stopDate, LifeCycleClass.LOGGING);
         }
     },
     ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {
@@ -582,7 +585,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("DISCRIMINATOR", "varchar2(1 char)");
             Column comtaskexecsession = table.column("COMTASKEXECSESSION").number().notNull().add();
-            table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
+            Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
             table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
@@ -598,6 +601,7 @@ public enum TableSpecs {
                     reverseMap("comTaskExecutionJournalEntries").
                     add();
             table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).add();
+            table.autoPartitionOn(timestamp, LifeCycleClass.LOGGING);
         }
     },
     DDC_COMSESSIONJOURNALENTRY {
@@ -609,7 +613,7 @@ public enum TableSpecs {
             Column comsession = table.column("COMSESSION").number().notNull().add();
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).notNull().map("message").add();
-            table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
+            Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").
@@ -621,6 +625,7 @@ public enum TableSpecs {
                     reverseMap("journalEntries").
                     add();
             table.primaryKey("PK_DDC_COMSESSIONJOURNALENTRY").on(id).add();
+            table.autoPartitionOn(timestamp, LifeCycleClass.LOGGING);
         }
     },
 
