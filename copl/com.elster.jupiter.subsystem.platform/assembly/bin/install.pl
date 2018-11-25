@@ -200,7 +200,7 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
-                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1];}
+                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1]; $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
@@ -455,7 +455,7 @@ sub install_connexo {
 
 sub update_properties_file_with_encrypted_password {
     add_or_update_encryption_key_file();
-    open my $file, '<', $KEYFILE_FULLPATH  or die "Could not open file as specified path $!";
+    open my $file, '<', $KEYFILE_FULLPATH or die "Could not open file at specified path $!";
     my $count=0;
     $count++ while <$file>;
     close $file;
@@ -1037,7 +1037,7 @@ sub replace_row_in_file {
 
 	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
 	foreach my $line (@lines) {
-	if ($line =~ m/$src/) { print OUT $dst; print OUT "\n"; next;}
+	if ($line =~ m/$src/) { print OUT "\n"; print OUT $dst; print OUT "\n"; next;}
 	print OUT $line;
 	}
 	close OUT;
@@ -1529,25 +1529,55 @@ sub show_help {
 sub renew_db_password {
 print "Please enter the Connexo database password: ";
     chomp($dbPassword=<STDIN>);
+    $dbPassword=~ s/^\s+|\s+$//g;
+    if($dbPassword eq ""){
+    die "Please provide a non-empty database password";
+    }
+print "Please enter the encryption key file path (if empty will use the one defined in the config file): ";
+    chomp($ENCRYPTION_KEYFILE_PATH=<STDIN>);
+    if($ENCRYPTION_KEYFILE_PATH) {
+        $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;
+        $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
+    } else {
+               open(my $FH,"< $config_file") or die "Could not open $config_file: $!";
+               my $kf ='com.elster.jupiter.datasource.keyfile';
+                   while(<$FH>) {
+
+                       my $line = $_ if ($_ =~ m/$kf/);
+                        if ( $line ne "") {
+                            my @val=split('=',$line);
+                            if ( $val[1] ne "" ) {
+                                $KEYFILE_FULLPATH=$val[1];
+                                $KEYFILE_FULLPATH=~ s|\\|/|g;
+                                $KEYFILE_FULLPATH=~ s/^\s+|\s+$//g;
+                                last;
+                                }
+                            }
+                    }
+                close($FH);
+    }
 update_properties_file_with_encrypted_password();
 
-    print "Stopping Connexo services\n";
-    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        system("sc stop Connexo$SERVICE_VERSION");
-        my $STATE_STRING="-1";
-		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
-			sleep 3;
-            $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
-            $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
-            $STATE_STRING =~ s/.*: //g;
-            $STATE_STRING = $STATE_STRING*1;
-		}
-    } else {
-        system("/sbin/service Connexo$SERVICE_VERSION stop");
-    }
+  if ("$CONNEXO_SERVICE" eq "yes") {
+      print "Stopping Connexo services\n";
+      if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+          system("sc stop Connexo$SERVICE_VERSION");
+          my $STATE_STRING="-1";
+  		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+  			sleep 3;
+              $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
+              $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
+              $STATE_STRING =~ s/.*: //g;
+              $STATE_STRING = $STATE_STRING*1;
+  		}
+      } else {
+          system("/sbin/service Connexo$SERVICE_VERSION stop");
+      }
 
-    print "Starting Connexo...";
-    start_connexo();
+      print "Starting Connexo...";
+      start_connexo();
+  }
+
 }
 
 # Main
@@ -1559,12 +1589,11 @@ check_create_users();
 read_args();
 if ($help) {
     show_help();
-} elsif ($install) {
-	read_config();
-	if($renewdatabasepassword){
+}elsif($renewdatabasepassword){
         renew_db_password();
-        }
-    elsif ("$UPGRADE" eq "yes") {
+}elsif ($install) {
+	read_config();
+    if ("$UPGRADE" eq "yes") {
         perform_upgrade();
     } else {
         checking_ports();
