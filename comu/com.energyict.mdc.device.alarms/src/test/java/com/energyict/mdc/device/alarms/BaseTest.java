@@ -19,6 +19,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
@@ -173,6 +174,7 @@ public abstract class BaseTest {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
         }
     }
 
