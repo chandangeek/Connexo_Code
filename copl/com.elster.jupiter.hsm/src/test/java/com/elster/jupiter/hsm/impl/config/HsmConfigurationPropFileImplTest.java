@@ -12,6 +12,8 @@ import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 import org.hamcrest.core.IsInstanceOf;
 
 import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Properties;
@@ -41,9 +43,9 @@ public class HsmConfigurationPropFileImplTest {
     private HsmConfigurationPropFileImpl hsmConfigurationPropFile;
 
     @Before
-    public void setUp() {
+    public void setUp() throws URISyntaxException  {
         URL resource = this.getClass().getClassLoader().getResource(CONFIG_FILE);
-        this.testFilePath = resource.getFile();
+        this.testFilePath = new URI(resource.getFile()).getPath();
     }
 
     @Test
@@ -94,6 +96,7 @@ public class HsmConfigurationPropFileImplTest {
 
     @Test
     public void testNotConfiguredLabel() throws HsmBaseException {
+        System.out.println("loaded:" + this.testFilePath);
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
         expectedException.expect(HsmBaseException.class);
         String label = "NOT_CONFIGURED_LABEL";
