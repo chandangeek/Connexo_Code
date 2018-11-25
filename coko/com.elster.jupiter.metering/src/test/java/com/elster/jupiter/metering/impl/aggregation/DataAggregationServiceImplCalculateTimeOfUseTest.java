@@ -431,7 +431,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     }
 
     private Range<Instant> year2016() {
-        return Range.atLeast(Instant.ofEpochMilli(1451606400000L));
+        // from January 1, 2016 12:00:00 AM to February 10, 2016 23:59:59 AM (GMT)
+        return Range.openClosed(Instant.ofEpochMilli(1451606400000L), Instant.ofEpochMilli(1455148799000L));
     }
 
     private Year getStartYear(Range<Instant> period, ZoneId zoneId) {
