@@ -25,6 +25,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -226,6 +227,7 @@ public class InMemoryIntegrationPersistence {
     private Injector injector;
     private CronExpressionParser cronExpressionParser;
     private SecurityManagementService securityManagementService;
+    private HsmEnergyService hsmEnergyService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -239,6 +241,7 @@ public class InMemoryIntegrationPersistence {
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
         when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
         connectionTypeService = mock(ConnectionTypeService.class);
+        hsmEnergyService = mock(HsmEnergyService.class);
         when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(ModemNoParamsConnectionTypeImpl.class.getName())).thenReturn(new ModemNoParamsConnectionTypeImpl());
@@ -705,6 +708,7 @@ public class InMemoryIntegrationPersistence {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+            bind(HsmEnergyService.class).toInstance(hsmEnergyService);
         }
     }
 

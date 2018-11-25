@@ -406,10 +406,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
                         inboundConnectionTaskBuilder.add();
-                    } else if (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId())) {
+                    } else if (!(partialConnectionTask instanceof PartialConnectionInitiationTask)  && (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId()))) {
                         ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
                         scheduledConnectionTaskBuilder.add();
+                    }
+                    else if (partialConnectionTask instanceof PartialConnectionInitiationTask) {
+                        ConnectionInitiationTaskBuilder partialConnectionTaskBuilder = this.getConnectionInitiationTaskBuilder((PartialConnectionInitiationTask) partialConnectionTask);
+                        deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, partialConnectionTaskBuilder);
+                        partialConnectionTaskBuilder.add();
                     }
                 }
             });
@@ -425,6 +430,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask scheduledConnectionTask, ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder) {
         //it's wrong that the properties name are hardcoded but to add the properties from OutboundIpConnectionProperties.Fields this bundle will have a dependency on com.energyict.mdc.protocols.
         //also iterating over properties is also not a valid solution because if the property value is null, it isn't present in the list.....
+        if (Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
+            scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        }
+    }
+
+    private void deactivateConnectionTaskIfPropsAreMissing(PartialConnectionTask scheduledConnectionTask, ConnectionInitiationTaskBuilder scheduledConnectionTaskBuilder) {
         if (Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
@@ -797,7 +808,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getSerialNumber();
-        } else if (meter.isPresent() && !meter.get().getSerialNumber().isEmpty()) {
+        } else if (meter != null && meter.isPresent() && meter.get().getSerialNumber() != null && !meter.get().getSerialNumber().isEmpty()) {
             return meter.get().getSerialNumber();
         }
         return this.serialNumber;
