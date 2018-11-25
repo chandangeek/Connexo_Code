@@ -47,16 +47,16 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
     public void uniqueVersionTest() {
         String version = "Version1";
-        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
-        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
+        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER, version).create();
+        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER, version).create();
     }
 
     @Test
     @Transactional
     public void uniqueVersionCheckButDifferentTypeTest() {
         String version = "Version1";
-        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
-        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION).create();
+        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER, version).create();
+        inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, version).create();
 
         FirmwareService firmwareService = inMemoryPersistence.getFirmwareService();
         List<FirmwareVersion> firmwareVersions = inMemoryPersistence.getFirmwareService().findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType)).find();
@@ -80,11 +80,6 @@ public class FirmwareVersionImplTest extends PersistenceTest{
         meterVersion = inMemoryPersistence.getFirmwareService().getFirmwareVersionById(meterVersion.getId()).get();
         assertThat(meterVersion.getImageIdentifier()).isEqualTo("10.4.1");
 
-        meterVersion.setImageIdentifier(null);
-        meterVersion.update();
-
-        meterVersion = inMemoryPersistence.getFirmwareService().getFirmwareVersionById(meterVersion.getId()).get();
-        assertThat(meterVersion.getImageIdentifier()).isNull();
     }
 
 }
