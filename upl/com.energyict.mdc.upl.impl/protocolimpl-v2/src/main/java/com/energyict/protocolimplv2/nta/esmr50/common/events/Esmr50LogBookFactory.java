@@ -1,29 +1,39 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.events;
 
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.AbstractEvent;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.VoltageQualityEventLog;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
-    private static final ObisCode STANDARD_EVENT_LOG =  ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
+    private static final ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode POWER_FAILURE_LOG = ObisCode.fromString("1.0.99.97.0.255");
     private static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static final ObisCode VOLTAGE_QUALITY_LOG = ObisCode.fromString("0.0.99.98.5.255");
     private static final ObisCode COMMS_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
 
-    private static final ObisCode MBUS_EVENT_LOG =  ObisCode.fromString("0.x.99.98.3.255");
+    private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.x.99.98.3.255");
+    private static final ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");
 
     public Esmr50LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -37,10 +47,12 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         supportedLogBooks.add(FRAUD_DETECTION_LOG);
         supportedLogBooks.add(COMMS_EVENT_LOG);
         supportedLogBooks.add(VOLTAGE_QUALITY_LOG);
+        supportedLogBooks.add(MBUS_EVENT_LOG);
+        supportedLogBooks.add(MBUS_CONTROL_LOG);
     }
 
-    @Override
-    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws
+
+    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode, LogBookReader logBookReader) throws
             ProtocolException {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
@@ -51,15 +63,66 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
             meterEvents = new ESMR50FraudDetectionLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(getMeterConfig().getCommunicationSessionLogObject().getObisCode())) {
             meterEvents = new ESMR50CommunicationSessionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getVoltageQualityLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(getMeterConfig().getVoltageQualityLogObject().getObisCode())) {
             meterEvents = new VoltageQualityEventLog(dataContainer).getMeterEvents();
-//        } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
-//            meterEvents = new MbusEventLog(dataContainer).getMeterEvents();
-//        } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
-//            meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
-        } else {
+        } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
+            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            meterEvents = new ESMR50MbusControlLog(dataContainer, channel).getMeterEvents();
+        } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
+            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            meterEvents = new ESMR50MbusEventLog(dataContainer, channel).getMeterEvents();
+        } else{
             return new ArrayList<>();
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
+
+
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        List<CollectedLogBook> result = new ArrayList<>();
+        for (LogBookReader logBookReader : logBooks) {
+            CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            if (isSupported(logBookReader)) {
+                ProfileGeneric profileGeneric = null;
+                try {
+                    profileGeneric = protocol.getDlmsSession()
+                            .getCosemObjectFactory()
+                            .getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader
+                                    .getMeterSerialNumber()));
+                } catch (NotInObjectListException e) {
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader
+                            .getLogBookObisCode()
+                            .toString(), e.getMessage()));
+                }
+
+                if (profileGeneric != null) {
+                    Calendar fromDate = getCalendar();
+                    fromDate.setTime(logBookReader.getLastLogBook());
+                    try {
+                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode(), logBookReader));
+                    } catch (NotInObjectListException e) {
+                        collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader
+                                .getLogBookObisCode()
+                                .toString(), e.getMessage()));
+                    } catch (IOException e) {
+                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties()
+                                .getRetries() + 1)) {
+                            collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader
+                                    .getLogBookObisCode()
+                                    .toString()));
+                        }
+                    }
+                }
+            } else {
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader
+                        .getLogBookObisCode()
+                        .toString()));
+            }
+            result.add(collectedLogBook);
+        }
+        return result;
+    }
+
 }
