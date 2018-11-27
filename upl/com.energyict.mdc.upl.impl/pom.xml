@@ -13,7 +13,7 @@
 
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-	<version>1.1.4${revision}</version>
+	<version>1.1.5${revision}</version>
     <name>protocols</name>
 
 	<dependencies>
@@ -33,7 +33,7 @@
 		<eiserver.version>${project.version}</eiserver.version>
 		<comserver.version>${project.version}</comserver.version>
 		<protocols.version>${project.version}</protocols.version>
-		<universal-protocol.version>4.0.0${revision}</universal-protocol.version>
+		<universal-protocol.version>4.0.1${revision}</universal-protocol.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
