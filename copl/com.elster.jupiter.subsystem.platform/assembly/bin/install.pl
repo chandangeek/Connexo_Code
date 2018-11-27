@@ -30,6 +30,7 @@ my $install=1;
 my $cmd_line=0;
 my $help=0;
 my $renewdatabasepassword=0;
+my $updatetomcatappsheader=0;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
 my $config_cmd="config.cmd";
@@ -175,6 +176,10 @@ sub read_args {
         }
         if ($ARGV[$i] eq "--renewdatabasepassword") {
             $renewdatabasepassword=1;
+            $parameter_file=1;
+        }
+        if ($ARGV[$i] eq "--updatetomcatappsheader") {
+            updatetomcatappsheader=1;
             $parameter_file=1;
         }
         if ($ARGV[$i] eq "--version") {
@@ -664,6 +669,11 @@ sub install_facts {
             print "    $CONNEXO_DIR/partners/facts/facts.filter.jar -> $FACTS_DIR/WEB-INF/lib/facts.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
         }
+        #set system identifier in the header
+        if ("$SYSTEM_IDENTIFIER" ne "") {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+        }
+
 		print "Connexo Facts successfully installed\n";
 
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
@@ -742,8 +752,9 @@ sub install_flow {
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
+        #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
-		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style='color:$SYSTEM_IDENTIFIER_COLOR;'> - $SYSTEM_IDENTIFIER</span>");
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
 		}
 
 		print "Copying extra jar files\n";
@@ -1540,6 +1551,26 @@ sub show_help {
     print "        --uninstall    : remove installation; ; using the values in bin/config.cmd\n";
     print "        --uninstallcmd : remove installation with console input\n";
     print "        --renewdatabasepassword  : renew Connexo database password with console input\n";
+    print "        --updatetomcatappsheader  : update Connexo system identifier in the header of tomcat applications\n";
+}
+
+sub update_tomcat_apps_header {
+    if ("$INSTALL_FLOW" eq "yes") {
+        #set system identifier in the header
+		if ("$SYSTEM_IDENTIFIER" ne "") {
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+		} else {
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js","Connexo Flow.*</span>", "Connexo Flow</span>");
+		}
+    }
+    if ("$INSTALL_FACTS" eq "yes") {
+        #set system identifier in the header
+        if ("$SYSTEM_IDENTIFIER" ne "") {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+        } else {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts.*</span>", "Connexo Facts</span>");
+        }
+    }
 }
 
 sub renew_db_password {
@@ -1607,6 +1638,8 @@ if ($help) {
     show_help();
 }elsif($renewdatabasepassword){
         renew_db_password();
+}elsif($updatetomcatappsheader){
+        update_tomcat_apps_header();
 }elsif ($install) {
 	read_config();
     if ("$UPGRADE" eq "yes") {
