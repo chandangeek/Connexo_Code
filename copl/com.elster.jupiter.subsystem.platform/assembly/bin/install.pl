@@ -179,7 +179,7 @@ sub read_args {
             $parameter_file=1;
         }
         if ($ARGV[$i] eq "--updatetomcatappsheader") {
-            updatetomcatappsheader=1;
+            $updatetomcatappsheader=1;
             $parameter_file=1;
         }
         if ($ARGV[$i] eq "--version") {
@@ -1556,6 +1556,7 @@ sub show_help {
 
 sub update_tomcat_apps_header {
     if ("$INSTALL_FLOW" eq "yes") {
+    	my $FLOW_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/flow";
         #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
 		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
@@ -1564,6 +1565,8 @@ sub update_tomcat_apps_header {
 		}
     }
     if ("$INSTALL_FACTS" eq "yes") {
+        my $FACTS_BASE="$TOMCAT_BASE/$TOMCAT_DIR/webapps";
+    	my $FACTS_DIR="$FACTS_BASE/facts";
         #set system identifier in the header
         if ("$SYSTEM_IDENTIFIER" ne "") {
             replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
