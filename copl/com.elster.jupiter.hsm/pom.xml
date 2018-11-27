@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.4${revision}</version>
+        <version>1.4.5${revision}</version>
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>hsm</artifactId>
-    <version>1.1.0${revision}</version>
+    <version>1.1.1${revision}</version>
     <name>[HSM] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
