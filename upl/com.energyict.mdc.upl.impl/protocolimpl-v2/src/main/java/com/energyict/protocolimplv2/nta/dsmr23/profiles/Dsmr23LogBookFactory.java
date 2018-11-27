@@ -40,14 +40,14 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     private static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
     private static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.0.99.98.3.255");
     private static final ObisCode MBUS_CONTROL_LOG =    ObisCode.fromString("0.1.24.5.0.255");
-    private AbstractDlmsProtocol protocol;
+    protected AbstractDlmsProtocol protocol;
 
     /**
      * List of obiscodes of the supported log books
      */
     protected List<ObisCode> supportedLogBooks;
-    private final CollectedDataFactory collectedDataFactory;
-    private final IssueFactory issueFactory;
+    protected final CollectedDataFactory collectedDataFactory;
+    protected final IssueFactory issueFactory;
 
     public Dsmr23LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
@@ -136,7 +136,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
-    private boolean isSupported(LogBookReader logBookReader) {
+    protected boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
             if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
                 return true;
@@ -149,7 +149,9 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return this.protocol.getDlmsSession().getMeterConfig();
     }
 
-    private Calendar getCalendar() {
+    protected Calendar getCalendar() {
         return ProtocolUtils.getCalendar(protocol.getTimeZone());
     }
+
+
 }
