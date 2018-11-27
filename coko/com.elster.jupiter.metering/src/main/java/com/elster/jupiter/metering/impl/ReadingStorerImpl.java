@@ -549,17 +549,13 @@ class ReadingStorerImpl implements ReadingStorer {
                         // if the event reading doesn't contain reading qualities info, fetch reading qualities from the channel for this reading
                         Optional<Channel> channel = channelsContainer.getChannel(readingInfo.getReadingType());
                         if (channel.isPresent()) {
-                            Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamps =
-                                    channel.get()
+                            readingQualities = channel.get()
                                             .findReadingQualities()
                                             .actual()
                                             .atTimestamp(reading.getTimeStamp())
                                             .stream()
                                             .distinct()
-                                            .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
-                            if (readingQualitiesByTimestamps.get(reading.getTimeStamp()) != null) {
-                                readingQualities = readingQualitiesByTimestamps.get(reading.getTimeStamp());
-                            }
+                                            .collect(Collectors.toList());
                         }
                     }
                     readingInfo.setReadingQualities(readingQualities);
