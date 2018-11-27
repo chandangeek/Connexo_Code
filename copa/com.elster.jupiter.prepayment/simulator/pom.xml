@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.4${revision}</version>
+        <version>1.4.5${revision}</version>
         <relativePath>../../../comu/com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>prepayment.simulator</artifactId>
-    <version>1.5.4${revision}</version>
+    <version>1.5.5${revision}</version>
     <packaging>jar</packaging>
     <name>[MDC] prepayment.simulator</name>
     <description>
