@@ -87,7 +87,14 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         }
         meterReadingsPortServices.forEach(soapService -> {
             try {
-                soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
+                if (requestVerb.equals(HeaderType.Verb.CREATED)) {
+                    soapService.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
+                } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
+                    soapService.changedMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
+                } else {
+                    LOGGER.log(Level.SEVERE, "Unknown request type to send meter readings.");
+                    return;
+                }
             } catch (FaultMessage faultMessage) {
                 LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
             }
