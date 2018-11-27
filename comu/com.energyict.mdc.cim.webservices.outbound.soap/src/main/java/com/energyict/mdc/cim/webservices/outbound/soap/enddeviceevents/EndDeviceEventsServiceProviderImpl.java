@@ -205,23 +205,20 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         endDeviceEvent.setReason(record.getDescription());
         endDeviceEvent.setUserID(record.getUserID());
         endDeviceEvent.setSeverity(record.getSeverity());
-        record.getProperties().entrySet().stream().forEach(property -> {
+        record.getProperties().forEach((key, value) -> {
                     EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
-                    endDeviceEventDetail.setName(property.getKey());
-                    endDeviceEventDetail.setValue(property.getValue());
+                    endDeviceEventDetail.setName(key);
+                    endDeviceEventDetail.setValue(value);
                     endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail);
                 }
         );
-        Optional<EndDeviceEventDetail> optionalOfEndDeviceEventDetail = setDeviceEventTypeDetail(record);
-        if (optionalOfEndDeviceEventDetail.isPresent()) {
-            endDeviceEvent.getEndDeviceEventDetails().add(optionalOfEndDeviceEventDetail.get());
-        }
+        createDeviceEventTypeDetail(record).ifPresent(endDeviceEvent.getEndDeviceEventDetails()::add);
         EndDeviceEvent.EndDeviceEventType eventType = new EndDeviceEvent.EndDeviceEventType();
         eventType.setRef(record.getEventTypeCode());
         endDeviceEvent.setEndDeviceEventType(eventType);
     }
 
-    private Optional<EndDeviceEventDetail> setDeviceEventTypeDetail(EndDeviceEventRecord record) {
+    private Optional<EndDeviceEventDetail> createDeviceEventTypeDetail(EndDeviceEventRecord record) {
         String deviceEventType = record.getDeviceEventType();
         if (Objects.nonNull(deviceEventType) && !deviceEventType.isEmpty()) {
             EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
