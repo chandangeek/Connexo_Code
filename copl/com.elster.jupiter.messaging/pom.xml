@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.4${revision}</version>
+        <version>1.4.5${revision}</version>
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>messaging</artifactId>
-    <version>2.2.4${revision}</version>
+    <version>2.2.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.messaging</name>
 
