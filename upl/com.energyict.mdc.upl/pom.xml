@@ -7,7 +7,7 @@
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.upl</artifactId>
-    <version>4.0.0${revision}</version>
+    <version>4.0.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>
