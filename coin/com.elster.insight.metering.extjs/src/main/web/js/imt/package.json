@@ -4,8 +4,8 @@
     "creator": "Elster Jupiter Project",
     "summary": "Metering EXTJS package",
     "detailedDescription": "Screens for CRUD operations on metering objects",
-    "version": "1.3.5",
-    "compatVersion": "1.3.5",
+    "version": "1.3.6",
+    "compatVersion": "1.3.6",
     "format": "1",
     "local": true,
     "requires": [
