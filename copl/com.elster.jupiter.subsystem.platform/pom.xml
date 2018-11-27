@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>platform</artifactId>
-    <version>1.4.4${revision}</version>
+    <version>1.4.5${revision}</version>
     <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.platform</name>
 
@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform</artifactId>
-                <version>1.4.4${revision}</version>
+                <version>1.4.5${revision}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -343,7 +343,7 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>third-party</artifactId>
-            <version>1.4.4${revision}</version>
+            <version>1.4.5${revision}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
