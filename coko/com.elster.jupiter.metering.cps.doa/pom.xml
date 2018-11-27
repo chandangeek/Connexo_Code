@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.4.4${revision}</version>
+        <version>1.4.5${revision}</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>metering.cps.doa</artifactId>
-    <version>1.2.5${revision}</version>
+    <version>1.2.6${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering.cps.doa</name>
 
