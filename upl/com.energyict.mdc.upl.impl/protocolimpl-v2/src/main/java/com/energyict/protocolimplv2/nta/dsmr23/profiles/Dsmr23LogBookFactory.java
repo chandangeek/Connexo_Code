@@ -38,7 +38,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     private static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
     private static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
-    private static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.0.99.98.3.255");
+    private static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.x.99.98.3.255");
     private static final ObisCode MBUS_CONTROL_LOG =    ObisCode.fromString("0.1.24.5.0.255");
     protected AbstractDlmsProtocol protocol;
 
@@ -73,9 +73,12 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     private void addMbusLogBooksIfSupported() {
         supportedLogBooks.add(MBUS_EVENT_LOG);
-
         for (DeviceMapping mbusMeter : ((MeterTopology) protocol.getMeterTopology()).getMbusMeterMap()) {
+            //for mbus control log
             ObisCode correctedObisCode = ProtocolTools.setObisCodeField(MBUS_CONTROL_LOG, 1, (byte) mbusMeter.getPhysicalAddress());
+            supportedLogBooks.add(correctedObisCode);
+            //for mbus event log
+            correctedObisCode = ProtocolTools.setObisCodeField(MBUS_EVENT_LOG, 1, (byte) mbusMeter.getPhysicalAddress());
             supportedLogBooks.add(correctedObisCode);
         }
     }
@@ -99,7 +102,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     DataContainer dataContainer;
                     try {
                         dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer,  logBookReader));
                     } catch (NotInObjectListException e) {
                         collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                     } catch (IOException e) {
@@ -116,7 +119,8 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return result;
     }
 
-    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
+    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws ProtocolException {
+        ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
             meterEvents = new EventsLog(dataContainer).getMeterEvents();
@@ -126,10 +130,11 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
             meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
-            meterEvents = new MbusLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
+        }else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
             meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
+        }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
+            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            meterEvents = new MbusLog(dataContainer, channel).getMeterEvents();
         } else {
             return new ArrayList<>();
         }

@@ -40,18 +40,30 @@ public class MbusLog extends AbstractEvent {
     private static final int EVENT_CLOCK_ADJUSTED_MBUS4 = 134;
     private static final int EVENT_TEMPORARY_ERROR_MBUS4 = 135;
 
-    public MbusLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
+    public MbusLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
+        this.mBusChannel = 0;
     }
 
-
-    public MbusLog(DataContainer dc) {
+    protected int mBusChannel;
+    public MbusLog(DataContainer dc, int mBusChannel) {
         super(dc);
+        this.mBusChannel = mBusChannel;
     }
-    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
 
+    protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
+        //select only event ids that correspond to mbus channel
+        //channel 1: 100 .. 109
+        //channel 2: 110 .. 119
+        //channel 3: 120 .. 129
+        //channel 4: 130 .. 139
+        int clonedEventId = eventId;
+        //if outside range, consider it an unknown event
+        if (eventId != 255 && eventId < (90 + mBusChannel * 10) && eventId > (99 + mBusChannel * 10)) {
+            clonedEventId = 0;
+        }
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
-            switch (eventId) {
+            switch (clonedEventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
                     meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Mbus event log profile cleared"));
                 }
@@ -157,7 +169,8 @@ public class MbusLog extends AbstractEvent {
                 break;
 
                 default: {
-                    meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
+                    //ignore any other events
+                    //meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
                 }
                 break;
             }
