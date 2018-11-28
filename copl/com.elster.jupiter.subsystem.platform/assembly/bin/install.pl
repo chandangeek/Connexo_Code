@@ -1560,7 +1560,7 @@ sub update_tomcat_apps_header {
     	my $FLOW_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/flow";
         #set system identifier in the header
 		if ("$SYSTEM_IDENTIFIER" ne "") {
-		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow.*", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span></span>");
 		} else {
 		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js","Connexo Flow.*</span>", "Connexo Flow</span>");
 		}
@@ -1570,7 +1570,7 @@ sub update_tomcat_apps_header {
     	my $FACTS_DIR="$FACTS_BASE/facts";
         #set system identifier in the header
         if ("$SYSTEM_IDENTIFIER" ne "") {
-            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts.*", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span></span>");
         } else {
             replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts.*</span>", "Connexo Facts</span>");
         }
