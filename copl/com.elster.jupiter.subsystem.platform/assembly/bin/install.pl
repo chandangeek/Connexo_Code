@@ -1555,6 +1555,7 @@ sub show_help {
 }
 
 sub update_tomcat_apps_header {
+    read_config();
     if ("$INSTALL_FLOW" eq "yes") {
     	my $FLOW_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/flow";
         #set system identifier in the header
