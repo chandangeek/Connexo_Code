@@ -1,19 +1,18 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300.properties;
 
 import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
-import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -26,18 +25,43 @@ public class HS3300Properties extends IDISProperties {
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
+    private CertificateWrapperExtractor certificateWrapperExtractor;
+    private Integer securitySuite = null;
 
-    public HS3300Properties(PropertySpecService propertySpecService, NlsService nlsService) {
+    public HS3300Properties(PropertySpecService propertySpecService, NlsService nlsService, CertificateWrapperExtractor certificateWrapperExtractor) {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
+            securityProvider = new HS3300SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), getSecuritySuite(), certificateWrapperExtractor);
         }
         return securityProvider;
+    }
+
+    @Override
+    public int getSecuritySuite() {
+        if (securitySuite == null) {
+            securitySuite = doGetSecuritySuite();
+        }
+        return securitySuite;
+    }
+
+    public void setSecuritySuite(int securitySuite) {
+        this.securitySuite = securitySuite;
+        ((HS3300SecurityProvider) getSecurityProvider()).setSecuritySuite(securitySuite);
+    }
+
+    private int doGetSecuritySuite() {
+        if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
+            AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
+            return advancedSecurityPropertySet.getSecuritySuite();
+        } else {
+            return 0;
+        }
     }
 
     @Override
