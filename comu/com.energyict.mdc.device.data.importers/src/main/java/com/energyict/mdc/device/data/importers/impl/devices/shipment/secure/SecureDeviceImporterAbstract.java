@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,7 +135,8 @@ public abstract class SecureDeviceImporterAbstract {
             log(logger, e.getMessageSeed(), e.getMessageParameters());
             throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));
         } catch (HsmBaseException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
