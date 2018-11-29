@@ -81,6 +81,8 @@ Ext.define('Uni.controller.AppController', {
      */
     packages: [],
     // </debug>
+    env: '',
+    color: '',
 
     init: function (app) {
 
@@ -88,8 +90,10 @@ Ext.define('Uni.controller.AppController', {
         me.initCrossroads();
         Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
 
+        me.initEnvString();
+
         me.getController('Uni.controller.Navigation');
-        me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
+        me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle + " - " + me.env);
         me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
         me.getApplication().fireEvent('onnavigationtogglehelp', me.onlineHelpEnabled);
 
@@ -119,6 +123,22 @@ Ext.define('Uni.controller.AppController', {
         var me = this,
             logo = me.getLogo();
 
+        var envTxt = "";
+        if (me.color && me.env ){
+            envTxt = '<span style="color:'+me.color+';">' + " - " + me.env + '</span>';
+        }
+
+        if (logo.rendered) {
+            logo.setText(me.applicationTitle+envTxt);
+        } else {
+            logo.text = me.applicationTitle+envTxt;
+        }
+        me.callParent(arguments);
+    },
+
+    initEnvString: function(){
+        var me = this;
+
         var applicationName = Uni.util.Application.getAppName();
 
         if(applicationName == 'MdmApp')
@@ -130,24 +150,12 @@ Ext.define('Uni.controller.AppController', {
         var envTxt = "";
         var applicationRecord = Uni.store.Apps.getApp(applicationName);
 
-        var color = null;
-        var env = null;
+        me.color = null;
+        me.env = null;
         if (applicationRecord){
-            color = applicationRecord.get('systemIdentifierColor');
-            env = applicationRecord.get('systemIdentifier');
+            me.color = applicationRecord.get('systemIdentifierColor');
+            me.env = applicationRecord.get('systemIdentifier');
         }
-
-        if (color && env ){
-            icon = '<span class="icon-circle-small" style="display:inline-block; color:'+color+'; font-size:20px;"></span>';
-            envTxt = '<span style="color:'+color+';">' + env + '</span>';
-        }
-
-        if (logo.rendered) {
-            logo.setText(me.applicationTitle+icon+envTxt);
-        } else {
-            logo.text = me.applicationTitle+icon+envTxt;
-        }
-        me.callParent(arguments);
     },
 
     showContent: function (widget, config) {
