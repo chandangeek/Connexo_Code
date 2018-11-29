@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.device.cps.examples</artifactId>
-    <version>2.2.1${revision}</version>
+    <version>2.2.2${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.cps.examples</name>
     <description>
