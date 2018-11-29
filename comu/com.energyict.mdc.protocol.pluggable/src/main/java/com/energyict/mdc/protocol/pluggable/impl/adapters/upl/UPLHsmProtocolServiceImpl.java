@@ -62,6 +62,15 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
+    public byte[] generateDigestMechanism6(boolean isServerToClient, IrreversibleKey hlsSecret, byte[] systemTitleClient, byte[] systemTitleServer, byte[] challengeServerToClient, byte[] challengeClientToServer) throws HsmException {
+        try {
+            return actual.generateDigestMechanism6(isServerToClient, adaptUplKeyToHsmKey(hlsSecret), systemTitleClient, systemTitleServer, challengeServerToClient, challengeClientToServer);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    @Override
     public byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, IrreversibleKey gak, IrreversibleKey guek, int securitySuite) throws HsmException {
         try {
             return actual.authenticateApdu(apdu, initializationVector, adaptUplKeyToHsmKey(gak), adaptUplKeyToHsmKey(guek), securitySuite);
