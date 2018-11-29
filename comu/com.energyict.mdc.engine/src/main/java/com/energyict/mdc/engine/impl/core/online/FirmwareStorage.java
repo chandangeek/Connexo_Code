@@ -58,11 +58,7 @@ class FirmwareStorage {
     }
 
     private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
-        if(firmwareType.equals(FirmwareType.CA_CONFIG_IMAGE)) {
-            return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType, version).create();
-        } else {
-            return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType).create();
-        }
+       return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType, version).create();
     }
 
     private ActivatedFirmwareVersion createOrUpdateActiveVersion(Device device, FirmwareVersion collectedFirmwareVersion) {

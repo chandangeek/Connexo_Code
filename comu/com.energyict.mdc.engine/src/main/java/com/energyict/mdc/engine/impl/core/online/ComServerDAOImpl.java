@@ -17,63 +17,24 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterService;
-import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.G3NodeState;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.engine.impl.core.ComJobFactory;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
+import com.energyict.mdc.engine.impl.commands.offline.*;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -86,41 +47,22 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDeviceContext;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
-import com.energyict.mdc.upl.offline.OfflineLogBook;
-import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.offline.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import java.io.ByteArrayInputStream;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -542,13 +484,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeConfigurationFile(DeviceIdentifier identifier, final DateTimeFormatter timeStampFormat, final String fileExtension, final byte[] contents) {
+    public void storeConfigurationFile(DeviceIdentifier identifier, final DateTimeFormatter timeStampFormat, final String fileName, final String fileExtension, final byte[] contents) {
         Device device = this.findDevice(identifier);
-        this.doStoreConfigurationFile(device, timeStampFormat, fileExtension, contents);
+        this.doStoreConfigurationFile(device, timeStampFormat, fileName, fileExtension, contents);
     }
 
-    private void doStoreConfigurationFile(Device device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
-        throw new RuntimeException("Storing of UserFiles is currently not supported ...");
+    private void doStoreConfigurationFile(Device device, DateTimeFormatter timeStampFormat, String fileName, String fileExtension, byte[] contents) {
+        LocalDateTime localDateTime = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
+        device.getDeviceConfiguration().getDeviceType().addDeviceMessageFile(new ByteArrayInputStream(contents), fileName + "_" + localDateTime.format(timeStampFormat) + "." + fileExtension);
     }
 
     @Override

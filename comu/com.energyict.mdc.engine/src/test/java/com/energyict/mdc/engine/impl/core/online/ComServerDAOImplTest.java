@@ -361,7 +361,7 @@ public class ComServerDAOImplTest {
         CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
 
-        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class), any(String.class));
     }
 
     @Test
@@ -381,14 +381,14 @@ public class ComServerDAOImplTest {
         when(this.firmwareService.getFirmwareVersionByVersionAndType(newActiveMeterFirmwareVersion, FirmwareType.METER, deviceType)).thenReturn(Optional.empty());
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
-        when(this.firmwareService.newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER)).thenReturn(firmwareVersionBuilder);
+        when(this.firmwareService.newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, newActiveMeterFirmwareVersion)).thenReturn(firmwareVersionBuilder);
 
         // business logic
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
 
         // asserts
-        verify(this.firmwareService).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
-        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
+        verify(this.firmwareService).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, newActiveMeterFirmwareVersion);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, newActiveMeterFirmwareVersion);
     }
 
     @Test
@@ -413,14 +413,14 @@ public class ComServerDAOImplTest {
         when(this.firmwareService.getFirmwareVersionByVersionAndType(newActiveMeterFirmwareVersion, FirmwareType.COMMUNICATION, deviceType)).thenReturn(Optional.of(communicationVersionWithSameName));
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
-        when(this.firmwareService.newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER)).thenReturn(firmwareVersionBuilder);
+        when(this.firmwareService.newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, newActiveMeterFirmwareVersion)).thenReturn(firmwareVersionBuilder);
 
         // business logic
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
 
         // asserts
-        verify(this.firmwareService).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
-        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
+        verify(this.firmwareService).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, newActiveMeterFirmwareVersion);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, newActiveMeterFirmwareVersion);
     }
 
     @Test
@@ -435,19 +435,23 @@ public class ComServerDAOImplTest {
         FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+
+
+
+
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveCommunicationFirmwareVersion, FirmwareType.COMMUNICATION, deviceType)).thenReturn(Optional.empty());
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
-        when(this.firmwareService.newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION)).thenReturn(firmwareVersionBuilder);
+        when(this.firmwareService.newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, myActiveCommunicationFirmwareVersion)).thenReturn(firmwareVersionBuilder);
 
         // business logic
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
 
         // asserts
-        verify(this.firmwareService).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
-        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
+        verify(this.firmwareService).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, myActiveCommunicationFirmwareVersion);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, myActiveCommunicationFirmwareVersion);
     }
 
     @Test
@@ -472,14 +476,14 @@ public class ComServerDAOImplTest {
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveCommunicationFirmwareVersion, FirmwareType.METER, deviceType)).thenReturn(Optional.of(meterVersionWithSameName));
         ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
         when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
-        when(this.firmwareService.newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION)).thenReturn(firmwareVersionBuilder);
+        when(this.firmwareService.newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION,myActiveCommunicationFirmwareVersion)).thenReturn(firmwareVersionBuilder);
 
         // business logic
         this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
 
         // asserts
-        verify(this.firmwareService).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
-        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
+        verify(this.firmwareService).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION, myActiveCommunicationFirmwareVersion);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER, myActiveCommunicationFirmwareVersion);
     }
 
     @Test
@@ -505,7 +509,7 @@ public class ComServerDAOImplTest {
 
         // asserts
         verify(activatedFirmwareVersion).setLastChecked(any(Instant.class));
-        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class), any(String.class));
     }
 
     @Test
@@ -531,7 +535,7 @@ public class ComServerDAOImplTest {
 
         // asserts
         verify(activatedFirmwareVersion).setLastChecked(any(Instant.class));
-        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class), any(String.class));
     }
 
     @Test

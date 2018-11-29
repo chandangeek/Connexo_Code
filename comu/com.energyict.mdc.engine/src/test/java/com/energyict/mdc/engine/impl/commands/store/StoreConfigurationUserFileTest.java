@@ -20,9 +20,7 @@ import java.time.format.DateTimeFormatter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link StoreConfigurationUserFile} component.
@@ -34,6 +32,7 @@ import static org.mockito.Mockito.verify;
 public class StoreConfigurationUserFileTest {
 
     private static final long DEVICE_ID = 97;
+    private static final String FILE_NAME = "configuration";
     private static final String FILE_EXTENSION = "txt";
     private static final byte[] CONTENTS = "Example of collected device configuration".getBytes();
 
@@ -45,7 +44,7 @@ public class StoreConfigurationUserFileTest {
     @Test
     public void testExecute() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -54,20 +53,20 @@ public class StoreConfigurationUserFileTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).storeConfigurationFile(any(DeviceIdentifier.class), any(DateTimeFormatter.class), anyString(), any(byte[].class));
+        verify(comServerDAO).storeConfigurationFile(any(DeviceIdentifier.class), any(DateTimeFormatter.class), anyString(), anyString(), any(byte[].class));
         verify(comServerDAO, never()).findOfflineDevice(deviceIdentifier);
     }
 
     @Test
     public void testToString() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
-        DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
+        DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_NAME, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97; file extension: txt}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97; file name: " + FILE_NAME + "; file extension: " + FILE_EXTENSION + "}");
     }
 }

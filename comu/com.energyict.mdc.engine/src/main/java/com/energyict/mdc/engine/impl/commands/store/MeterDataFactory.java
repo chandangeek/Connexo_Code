@@ -50,12 +50,16 @@ public final class MeterDataFactory {
             return ReadingImpl.of(
                     readingTypeMRID,
                     collectedRegister.getCollectedQuantity() != null ? collectedRegister.getCollectedQuantity().getAmount() : BigDecimal.ZERO,
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() :
+                            (collectedRegister.getToTime() != null ? collectedRegister.getToTime().toInstant() :
+                                    collectedRegister.getReadTime().toInstant())));
         } else {
             return ReadingImpl.of(
                     readingTypeMRID,
                     collectedRegister.getText(),
-                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
+                    (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() :
+                            (collectedRegister.getToTime() != null ? collectedRegister.getToTime().toInstant() :
+                            collectedRegister.getReadTime().toInstant())));
         }
     }
 
