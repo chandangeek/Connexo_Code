@@ -34,6 +34,7 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Operator;
@@ -132,7 +133,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     ImmutableMap.of(
                             version(10, 2), V10_2SimpleUpgrader.class,
                             version(10, 2, 1), UpgraderV10_2_1.class,
-                            UpgraderV10_3.VERSION, UpgraderV10_3.class
+                            UpgraderV10_3.VERSION, UpgraderV10_3.class,
+                            version(10, 4, 3), V10_4_3SimpleUpgrader.class
                     ));
 
         } catch (Exception e) {
