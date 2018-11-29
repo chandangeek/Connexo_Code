@@ -315,7 +315,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     SyncNTPServer(31034, "Synchronize NTP server") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.emptyList();
+            return Collections.singletonList(
+                    this.booleanSpec(service, DeviceMessageConstants.useLegacyNTPServerAddressIC, DeviceMessageConstants.useLegacyNTPServerAddressICDefaultTranslation)
+            );
         }
     },
     ConfigureAutomaticDemandReset(31035, "Configure automatic demand reset") {
