@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>users</artifactId>
-    <version>3.4.2${revision}</version>
+    <version>3.4.3${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.users</name>
 
