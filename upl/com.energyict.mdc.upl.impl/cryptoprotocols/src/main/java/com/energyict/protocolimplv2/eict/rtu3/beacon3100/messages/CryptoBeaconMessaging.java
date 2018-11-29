@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -61,8 +62,8 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
     private CommonCryptoMessaging commonCryptoMessaging;
     private CryptoMasterDataSync masterDataSync;
 
-    public CryptoBeaconMessaging(CryptoBeacon3100 beacon3100, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, HsmProtocolService hsmProtocolService) {
-        super(beacon3100, collectedDataFactory, issueFactory, objectMapperService, propertySpecService, nlsService, converter, deviceMasterDataExtractor, deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor);
+    public CryptoBeaconMessaging(CryptoBeacon3100 beacon3100, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, HsmProtocolService hsmProtocolService) {
+        super(beacon3100, collectedDataFactory, issueFactory, objectMapperService, propertySpecService, nlsService, converter, deviceMasterDataExtractor, deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceMessageFileExtractor);
         this.hsmProtocolService = hsmProtocolService;
         this.executor = new CommonCryptoMessageExecutor(beacon3100, collectedDataFactory, issueFactory);
         this.cryptoMasterDataSerializer = new CryptoMasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, beacon3100.getDlmsSessionProperties(), nlsService, hsmProtocolService);

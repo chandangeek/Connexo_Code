@@ -1,18 +1,10 @@
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.AuthenticationTypes;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.AssociationSN;
@@ -21,11 +13,10 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
-import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.*;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -291,7 +282,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
+    protected GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
         if (!(this.securityContext.getSecurityProvider() instanceof GeneralCipheringSecurityProvider)) {
             throw CodingException.protocolImplementationError("General ciphering is not yet supported in the protocol you are using");
         }

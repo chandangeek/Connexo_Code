@@ -1,26 +1,20 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.upl.InboundDAO;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.LogBook;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.LittleEndianInputStream;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -35,13 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -133,7 +121,7 @@ public class ProtocolHandler {
     }
 
     private void processConfigurationInformation(ProfileBuilder profileBuilder) {
-        this.configurationInformation = this.collectedDataFactory.createCollectedConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
+        this.configurationInformation = this.collectedDataFactory.createCollectedConfigurationInformation(this.getDeviceIdentifier(), "EIWebConfig", "xml", profileBuilder.getConfigFile());
     }
 
     public void handle(HttpServletRequest request, Logger logger) {

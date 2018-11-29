@@ -294,7 +294,10 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     SetNTPAddress(31033, "Set NTP address") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.ntpAddress, DeviceMessageConstants.ntpAddressDefaultTranslation).finish());
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.ntpAddress, DeviceMessageConstants.ntpAddressDefaultTranslation).finish(),
+                    this.booleanSpec(service, DeviceMessageConstants.useLegacyTimeServerIC, DeviceMessageConstants.useLegacyTimeServerICDefaultTranslation)
+            );
         }
     },
     Clear_Faults_Flags(31036, "Clear faults flags") {
@@ -929,6 +932,18 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             return Collections.singletonList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.ntpAuthKeyId, DeviceMessageConstants.ntpAuthKeyIdDefaultTranslation)
             );
+        }
+    },
+    IMPORT_CONFIGURATION(31095, "Import configuration") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(this.deviceMessageFileSpec(service, DeviceMessageConstants.configUserFileAttributeName, DeviceMessageConstants.configUserFileAttributeDefaultTranslation));
+        }
+    },
+    EXPORT_CONFIGURATION(31096, "Export configuration") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
         }
     };
 

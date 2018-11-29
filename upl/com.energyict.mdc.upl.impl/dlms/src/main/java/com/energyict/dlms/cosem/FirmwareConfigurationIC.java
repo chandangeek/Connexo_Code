@@ -41,8 +41,8 @@ public class FirmwareConfigurationIC extends AbstractCosemObject {
         write(attribute, data);
     }
 
-    public void invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods firmwareConfigurationMethod, AbstractDataType data) throws IOException {
-        methodInvoke(firmwareConfigurationMethod, data);
+    public byte[] invokeFirmwareConfigurationMethod(FirmwareConfigurationMethods firmwareConfigurationMethod, AbstractDataType data) throws IOException {
+        return methodInvoke(firmwareConfigurationMethod, data);
     }
 
 }

@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -35,8 +36,8 @@ public class CryptoBeacon3100 extends Beacon3100 {
 
     private final HsmProtocolService hsmProtocolService;
 
-    public CryptoBeacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, HsmProtocolService hsmProtocolService) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor);
+    public CryptoBeacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, HsmProtocolService hsmProtocolService) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, extractor, deviceGroupExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor, deviceExtractor, deviceMessageFileExtractor);
         this.hsmProtocolService = hsmProtocolService;
     }
 
@@ -68,7 +69,7 @@ public class CryptoBeacon3100 extends Beacon3100 {
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new CryptoBeaconMessaging(this, getCollectedDataFactory(), getIssueFactory(), getObjectMapperService(), getPropertySpecService(), getNlsService(), getConverter(), getExtractor(), getDeviceGroupExtractor(), getDeviceExtractor(), getCertificateWrapperExtractor(), getKeyAccessorTypeExtractor(), getHsmProtocolService());
+            beacon3100Messaging = new CryptoBeaconMessaging(this, getCollectedDataFactory(), getIssueFactory(), getObjectMapperService(), getPropertySpecService(), getNlsService(), getConverter(), getExtractor(), getDeviceGroupExtractor(), getDeviceExtractor(), getCertificateWrapperExtractor(), getKeyAccessorTypeExtractor(), getDeviceMessageFileExtractor(), getHsmProtocolService());
         }
         return beacon3100Messaging;
     }

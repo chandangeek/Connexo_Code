@@ -659,7 +659,7 @@ public class SecurityContext {
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(generalCipheringAPDU, ptr));
 
         //Decrypt the frame using the key type that we received from the meter, it can be different from the configured key type in EIServer
-        return dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader);
+        return optionallyUnwrapSignedAPDU(dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader));
     }
 
     protected int dataTransportGeneralDecryptionForAgreedKey(byte[] generalCipheringAPDU, int ptr) throws UnsupportedException {
@@ -926,7 +926,7 @@ public class SecurityContext {
     }
 
     public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws ProtocolException, ConnectionException, DLMSConnectionException {
-        return dataTransportDecryption(cipherFrame, generalCipheringKeyType, new byte[0]);
+        return optionallyUnwrapSignedAPDU(dataTransportDecryption(cipherFrame, generalCipheringKeyType, new byte[0]));
     }
 
     /**
@@ -962,7 +962,7 @@ public class SecurityContext {
                 //An unsecured global-ciphering or dedicated-ciphering APDU. Unwrap it by stripping of the header.
                 cipherFrame = ProtocolTools.getSubArray(cipherFrame, 7);
             }
-            return optionallyUnwrapSignedAPDU(cipherFrame);
+            return cipherFrame;
         } else if (authenticatedResponse && !encryptedResponse) {
 
             AesGcm aesGcm = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
@@ -989,7 +989,7 @@ public class SecurityContext {
             aesGcm.setTag(new BitVector(aTag));
 
             if (aesGcm.decrypt()) {
-                return optionallyUnwrapSignedAPDU(apdu);
+                return apdu;
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
@@ -1002,7 +1002,7 @@ public class SecurityContext {
             aesGcm.setCipherText(new BitVector(cipheredAPDU));
 
             if (aesGcm.decrypt()) {
-                return optionallyUnwrapSignedAPDU(aesGcm.getPlainText().getValue());
+                return aesGcm.getPlainText().getValue();
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
@@ -1031,7 +1031,7 @@ public class SecurityContext {
             ag128.setCipherText(new BitVector(cipheredAPDU));
 
             if (ag128.decrypt()) {
-                return optionallyUnwrapSignedAPDU(ag128.getPlainText().getValue());
+                return ag128.getPlainText().getValue();
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
