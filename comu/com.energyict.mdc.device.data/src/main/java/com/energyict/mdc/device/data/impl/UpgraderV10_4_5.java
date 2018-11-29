@@ -2,11 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
-
-import org.apache.log4j.spi.LoggerFactory;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -20,22 +17,23 @@ import java.util.logging.Logger;
 /**
  * Created by Jozsef Szekrenyes on 11/22/2018.
  */
-public class UpgraderV10_4_4 implements Upgrader {
+public class UpgraderV10_4_5 implements Upgrader {
 
-    private static final Logger logger = Logger.getLogger(UpgraderV10_4_4.class.getName());
+    private static final Logger logger = Logger.getLogger(UpgraderV10_4_5.class.getName());
     private static final long PARTITIONSIZE = 86400L * 1000L * 30L;
+    private static final int NB_MONTHS = 12;
 
     private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_4_4(DataModel dataModel) {
+    public UpgraderV10_4_5(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModel.useConnectionRequiringTransaction(this::createPartitionedTable);
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 4));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 5));
     }
 
     private void createPartitionedTable(Connection connection) {
@@ -75,7 +73,7 @@ public class UpgraderV10_4_4 implements Upgrader {
         StringBuilder sb = getAlterTablePart(table, partitionColumn);
         long end = (System.currentTimeMillis() / PARTITIONSIZE) * PARTITIONSIZE;
         String separator = "(";
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < NB_MONTHS; i++) {
             end += PARTITIONSIZE;
             String name = "P" + Instant.ofEpochMilli(end).toString().replaceAll("-", "").substring(0, 8);
             sb.append(separator);

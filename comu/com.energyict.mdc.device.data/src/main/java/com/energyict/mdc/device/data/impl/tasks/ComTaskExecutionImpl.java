@@ -1674,7 +1674,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             nextExecutionSpecs.set(comSchedule.getNextExecutionSpecs());
             this.comTaskExecution.comSchedule.set(comSchedule);
             this.comTaskExecution.behavior = new ScheduledBehavior();
-            if (this.comTaskExecution.getNextExecutionTimestamp() == null) {
+            if (this.comTaskExecution.getNextExecutionTimestamp() == null || isScheduledASAP()) {
                 this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             }
             return this;
@@ -1693,6 +1693,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.comTaskExecution.behavior = new ManualBehavior();
             this.comTaskExecution.nextExecutionSpecs = ValueReference.absent();
             return this;
+        }
+
+        private boolean isScheduledASAP() {
+            return connectionTaskIsScheduled() && ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy());
         }
     }
 }
