@@ -41,6 +41,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is not linked at {1}"),
     DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}''. Please select another linking date"),
     DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED(1010, Keys.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, "The slave ''{0}'' was already linked to a datalogger ''{1}'' at the given timestamp ''{2}''"),
+    VETO_DEVICEGROUP_DELETION(1011, Keys.DEVICE_GROUP_STILL_IN_USE, "Device group {0} is still in use by a register device KPI.", Level.SEVERE),
 
 
     ;
@@ -117,6 +118,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FREQUENCY_MUST_BE_VALID = "registered.devices.kpi.frequency.valid";
         public static final String FIELD_REQUIRED = "registered.devices.kpi.field.required";
         public static final String TARGET_MUST_BE_VALID = "registered.devices.kpi.valid.target";
+        public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
     }
 
 }

@@ -81,6 +81,7 @@ public interface RegisteredDevicesKpiService {
      */
     List<RegisteredDevicesKpiScore> getScores(Device gateway, Range<Instant> interval, RegisteredDevicesKpiFrequency frequency);
 
+    List<RegisteredDevicesKpi> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 
     interface RegisteredDevicesKpiBuilder {
 

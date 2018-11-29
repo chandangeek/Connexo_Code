@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
@@ -105,6 +106,17 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<RegisteredDevicesKpi> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit) {
+        return dataModel.stream(RegisteredDevicesKpi.class)
+                .filter(Where.where(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP
+                        .fieldName()).isEqualTo(endDeviceGroup))
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
 
     private Map<Instant, Integer> getInstantsMap(Range<Instant> interval, ScheduleExpression expression, ZonedDateTime startTime) {
         Map<Instant, Integer> numberPerInstant = new HashMap<>();
