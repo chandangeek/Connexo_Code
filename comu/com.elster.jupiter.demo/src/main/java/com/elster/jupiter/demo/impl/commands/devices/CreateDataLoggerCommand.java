@@ -157,7 +157,7 @@ public class CreateDataLoggerCommand {
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
-        addConnectionTasksToDevice(device);
+        //addConnectionTasksToDevice(device);
         device = deviceBuilderProvider.get().withName(name).get();
         addSecurityPropertiesToDevice(device);
         device = deviceBuilderProvider.get().withName(name).get();
