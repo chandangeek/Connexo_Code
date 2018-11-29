@@ -9,7 +9,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>pki</artifactId>
-    <version>3.2.0${revision}</version>
+    <version>3.2.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.pki</name>
 
