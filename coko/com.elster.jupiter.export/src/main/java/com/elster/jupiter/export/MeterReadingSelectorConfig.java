@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
 
     EndDeviceGroup getEndDeviceGroup();
+    default long getEndDeviceGroupId(){
+         return getEndDeviceGroup().getId();
+     }
 
     @Override
     Updater startUpdate();

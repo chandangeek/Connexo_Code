@@ -48,6 +48,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
@@ -337,6 +338,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     bind(FtpClientService.class).toInstance(ftpClientService);
                     bind(TimeService.class).toInstance(timeService);
                     bind(MessageService.class).toInstance(messageService);
+                    bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
@@ -355,7 +357,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 3), UpgraderV10_3.class,
-                            version(10, 4), V10_4SimpleUpgrader.class
+                            version(10, 4), V10_4SimpleUpgrader.class,
+                            version(10, 4, 3), V10_4_3SimpleUpgrader.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
