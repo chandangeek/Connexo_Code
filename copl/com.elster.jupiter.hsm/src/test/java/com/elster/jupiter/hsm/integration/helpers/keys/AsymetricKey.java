@@ -6,9 +6,9 @@ public class AsymetricKey {
     private final byte[] publicKey;
     private final byte[] privateKey;
 
-    public AsymetricKey(String publicKey, String hexPrivateKey, Encoder decoder){
+    public AsymetricKey(String publicKey, String privateKey, Encoder decoder){
         this.publicKey = decoder.decode(publicKey);
-        this.privateKey = decoder.decode(hexPrivateKey);
+        this.privateKey = decoder.decode(privateKey);
     }
 
     public byte[] getPublicKey(){
