@@ -71,6 +71,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doReturn;
@@ -244,6 +245,7 @@ public class StandardDataSelectorTest {
         when(readingTypeInDataSelector.at(any())).thenReturn(readingTypeInDataSelectorJrnl);
         when(readingTypeInDataSelectorJrnl.find(anyMap())).thenReturn(Arrays.asList(readingTypeJournal));
         when(readingTypeSelector.getReadingType()).thenReturn(readingType1);
+        when(meteringGroupsService.findEndDeviceGroup(anyLong())).thenReturn(Optional.of(group));
     }
 
     @After
