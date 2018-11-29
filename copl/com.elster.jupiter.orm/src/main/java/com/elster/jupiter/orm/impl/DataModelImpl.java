@@ -309,10 +309,10 @@ public class DataModelImpl implements DataModel {
         try (Connection connection = getConnection(false)) {
             if (connection.isWrapperFor(OracleConnection.class)) {
                 if (isPartitioningEnabled(connection)) {
-                    LOGGER.info("Oracle EE with partitioning detected");
+                    LOGGER.fine("Oracle EE with partitioning detected");
                     return SqlDialect.ORACLE_EE;
                 } else {
-                    LOGGER.info("Oracle SE without partitioning detected");
+                    LOGGER.fine("Oracle SE without partitioning detected");
                     return SqlDialect.ORACLE_SE;
                 }
             }
