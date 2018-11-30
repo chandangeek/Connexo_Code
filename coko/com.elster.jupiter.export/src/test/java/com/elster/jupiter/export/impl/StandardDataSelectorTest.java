@@ -72,6 +72,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -97,8 +98,6 @@ public class StandardDataSelectorTest {
     @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
-    private TaskService taskService;
-    @Mock
     private IDataExportService dataExportService;
     @Mock
     private TaskOccurrence occurrence;
@@ -115,7 +114,7 @@ public class StandardDataSelectorTest {
     @Mock
     private IReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
     @Mock
-    private ReadingType readingType1, readingType2;
+    private ReadingType readingType1;
     @Mock
     private DataFormatterFactory dataFormatterFactory;
     @Mock
@@ -132,8 +131,6 @@ public class StandardDataSelectorTest {
     private ReadingRecord reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
-    @Mock
-    private ReadingContainer readingContainer;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -157,9 +154,7 @@ public class StandardDataSelectorTest {
     @Mock
     private DataMapper<ReadingTypeInDataSelector> readingTypeInDataSelector;
     @Mock
-    Finder.JournalFinder<ReadingTypeInDataSelector> readingTypeInDataSelectorJrnl;
-    @Mock
-    TaskOccurrence taskOccurrence;
+    private Finder.JournalFinder<ReadingTypeInDataSelector> readingTypeInDataSelectorJrnl;
 
     @Before
     public void setUp() {
@@ -211,17 +206,18 @@ public class StandardDataSelectorTest {
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
-        when(meter2.getUsagePoint(any())).thenReturn(Optional.<UsagePoint>empty());
+        when(meter2.getUsagePoint(any())).thenReturn(Optional.empty());
         when(existingItem.getLastExportedDate()).thenReturn(Optional.of(lastExported.toInstant()));
-        when(newItem.getLastExportedDate()).thenReturn(Optional.<Instant>empty());
+        when(newItem.getLastExportedDate()).thenReturn(Optional.empty());
         when(newItem.getReadingContainer()).thenReturn(meter1);
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
-        when(meter1.getUsagePoint(any())).thenReturn(Optional.<UsagePoint>empty());
+        when(meter1.getUsagePoint(any())).thenReturn(Optional.empty());
         when(newItem.getReadingType()).thenReturn(readingType1);
         when(obsoleteItem.getReadingType()).thenReturn(readingType1);
         when(obsoleteItem.getReadingContainer()).thenReturn(meter3);
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
-        when(meter3.getUsagePoint(any())).thenReturn(Optional.<UsagePoint>empty());
+        when(meter3.getUsagePoint(any())).thenReturn(Optional.empty());
+        when(meteringGroupsService.findEndDeviceGroup(group.getId())).thenReturn(Optional.of(group));
         when(group.getMembers(exportPeriod)).thenReturn(Arrays.asList(endDeviceMembership1, endDeviceMembership2));
         when(endDeviceMembership1.getMember()).thenReturn(meter1);
         when(endDeviceMembership2.getMember()).thenReturn(meter2);
@@ -230,8 +226,8 @@ public class StandardDataSelectorTest {
         when(dataFormatterFactory.createDataFormatter(propertyMap)).thenReturn(dataFormatter);
         when(dataFormatterFactory.getPropertySpec("name")).thenReturn(Optional.of(propertySpec));
         when(strategy.isExportContinuousData()).thenReturn(false);
-        doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
-        doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
+        doReturn(Collections.singletonList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
+        doReturn(Collections.singletonList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
         when(dataFormatter.processData(any())).thenReturn(formattedData);
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
@@ -242,7 +238,7 @@ public class StandardDataSelectorTest {
         ReadingTypeInDataSelector readingTypeSelector = mock(ReadingTypeInDataSelector.class);
         JournalEntry<ReadingTypeInDataSelector> readingTypeJournal = new JournalEntry<>(Instant.ofEpochMilli(1455245L), readingTypeSelector);
         when(readingTypeInDataSelector.at(any())).thenReturn(readingTypeInDataSelectorJrnl);
-        when(readingTypeInDataSelectorJrnl.find(anyMap())).thenReturn(Arrays.asList(readingTypeJournal));
+        when(readingTypeInDataSelectorJrnl.find(anyMapOf(String.class, Object.class))).thenReturn(Collections.singletonList(readingTypeJournal));
         when(readingTypeSelector.getReadingType()).thenReturn(readingType1);
     }
 

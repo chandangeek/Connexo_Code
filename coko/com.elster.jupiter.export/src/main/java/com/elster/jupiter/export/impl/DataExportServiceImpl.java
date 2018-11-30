@@ -413,8 +413,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 3), UpgraderV10_3.class,
-                            V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
-                            version(10, 4, 3), V10_4_3SimpleUpgrader.class
+                            version(10, 4), V10_4SimpleUpgrader.class,
+                            version(10, 4, 3), V10_4_3SimpleUpgrader.class,
                             UpgraderV10_6.VERSION, UpgraderV10_6.class
                     ));
         } catch (RuntimeException e) {
