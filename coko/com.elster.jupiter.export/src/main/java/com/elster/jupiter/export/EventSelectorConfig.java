@@ -15,6 +15,10 @@ public interface EventSelectorConfig extends DataSelectorConfig {
 
     EndDeviceGroup getEndDeviceGroup();
 
+    default long getEndDeviceGroupId() {
+        return getEndDeviceGroup().getId();
+    }
+
     EventDataExportStrategy getStrategy();
 
     List<EndDeviceEventTypeFilter> getEventTypeFilters();

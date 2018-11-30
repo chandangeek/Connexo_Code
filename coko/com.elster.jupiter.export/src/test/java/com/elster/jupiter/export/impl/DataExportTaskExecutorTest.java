@@ -234,7 +234,6 @@ public class DataExportTaskExecutorTest {
         when(task.getDataFormatterFactory()).thenReturn(dataFormatterFactory);
         when(task.getDataSelectorFactory()).thenReturn(dataSelectorFactory);
         when(task.getDataExportProperties(any())).thenReturn(Collections.singletonList(dataExportProperty));
-        when(task.getCompositeDestination(any())).thenReturn(destination);
         when(task.getCompositeDestination()).thenReturn(destination);
         when(destination.hasDataDestinations()).thenReturn(false);
         when(destination.hasFileDestinations()).thenReturn(true);

@@ -73,7 +73,8 @@ enum TableSpecs {
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
             Column updateWindow = table.column("UPDATE_WINDOW").number().add();
             Column endDeviceGroupId_10_2 = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
-            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).previously(endDeviceGroupId_10_2).add();
+            Column endDeviceGroup_10_4 = table.column("ENDDEVICEGROUP").number().map("endDeviceGroup").conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).upTo(version(10,4,3)).previously(endDeviceGroupId_10_2).add();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().map("endDeviceGroup").conversion(ColumnConversion.NUMBER2LONG).since(version(10, 4,3)).previously(endDeviceGroup_10_4).add();
             Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column purposeColumn = table.column("METROLOGY_PURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column exportUpdate_10_2 =

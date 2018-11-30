@@ -173,7 +173,7 @@ public class DataExportServiceImplTest {
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        MeterReadingSelectorConfigImpl selectorConfigImpl = new MeterReadingSelectorConfigImpl(dataModel);
+        MeterReadingSelectorConfigImpl selectorConfigImpl = new MeterReadingSelectorConfigImpl(dataModel, meteringGroupsService);
         when(dataModel.getInstance(MeterReadingSelectorConfigImpl.class)).thenReturn(selectorConfigImpl);
         DataSelectorFactory dataSelectorFactory = mock(DataSelectorFactory.class);
         when(dataSelectorFactory.getName()).thenReturn("Standard Data Selector");
