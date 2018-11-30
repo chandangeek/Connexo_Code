@@ -213,6 +213,7 @@ public class DataExportTaskResource {
     @Path("/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
     public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         String applicationName = getApplicationNameFromCode(appCode);
         DataExportOccurrenceFinder occurrencesFinder = dataExportService.getDataExportOccurrenceFinder();
@@ -243,6 +244,7 @@ public class DataExportTaskResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @Transactional
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         return dataExportTaskInfoFactory.asInfo(findTaskOrThrowException(id, appCode));
     }
@@ -574,6 +576,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
     public PagedInfoList getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                   @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         ExportTask task = findTaskOrThrowException(id, appCode);
@@ -696,6 +699,7 @@ public class DataExportTaskResource {
     @Path("/history/{occurrenceId}/logs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
     public PagedInfoList getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
         LogEntryFinder finder = findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder();
         queryParameters.getStart().ifPresent(finder::setStart);
@@ -712,6 +716,7 @@ public class DataExportTaskResource {
     @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    @Transactional
     public DataExportTaskHistoryInfo getDataExportOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
         return dataExportTaskHistoryInfoFactory.asInfo(findDataExportOccurrenceOrThrowException(occurrenceId));
     }

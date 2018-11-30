@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -59,6 +60,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
     private volatile TimeService timeService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile OrmService ormService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -133,6 +135,11 @@ public class DataExportApplication extends Application implements MessageSeedPro
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -162,6 +169,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 Arrays.stream(DestinationType.values())
                         .map(DestinationType::getFactoryClass)
                         .forEach(factoryClass -> bind(factoryClass).to(factoryClass));
+                bind(ormService).to(OrmService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
