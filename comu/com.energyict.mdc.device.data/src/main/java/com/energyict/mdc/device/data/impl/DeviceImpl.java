@@ -257,6 +257,8 @@ import static java.util.stream.Collectors.toList;
 @ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
 
+    public static final String IP_V6_ADDRESS = "IPv6Address";
+    private static final String HOST_PROPERTY_SPEC_NAME = "host";
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
     private final DataModel dataModel;
@@ -334,6 +336,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient SyncDeviceWithKoreForInfo koreHelper;
     // 'Synchronize with Kore' actions once this device is saved;
     private transient List<SyncDeviceWithKoreMeter> syncsWithKore = new ArrayList<>();
+
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeviceImpl.class.getName());
 
     @Inject
     public DeviceImpl(
@@ -928,6 +932,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);
+                updateConnectionMethodProperty(deviceProtocolProperty, "");
                 this.notifyUpdate(deviceProtocolProperty);
                 dataModel.touch(this);
                 break;
@@ -1840,6 +1845,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.notifyUpdate(deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
+            updateConnectionMethodProperty(deviceProtocolProperty, propertyValue);
         }
     }
 
@@ -1847,6 +1853,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (propertyChanged(property.getPropertyValue(), value)) {
             property.setValue(value);
             property.update();
+            updateConnectionMethodProperty(property, value);
+        }
+    }
+
+    private void updateConnectionMethodProperty(DeviceProtocolProperty property, String value)
+    {
+        //update the host property of the outbound connections with the ipv6address value
+        try {
+            if (property.getName().equals(IP_V6_ADDRESS)) {
+                for(ScheduledConnectionTask outboundTask : this.getScheduledConnectionTasks()) {
+                    LOGGER.info("Save ipv6: '" +  value + "' on outbound connection: '" + outboundTask.getName() + "'");
+                    outboundTask.setProperty(HOST_PROPERTY_SPEC_NAME, value);
+                    outboundTask.saveAllProperties();
+                }
+            }
+        } catch(Exception e){
+            LOGGER.warning("Could not save ipv6 to host property on outbound connection: " +  e.getMessage());
         }
     }
 
