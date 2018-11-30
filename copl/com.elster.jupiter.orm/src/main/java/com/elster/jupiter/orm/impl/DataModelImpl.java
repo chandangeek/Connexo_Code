@@ -308,14 +308,28 @@ public class DataModelImpl implements DataModel {
     public SqlDialect getSqlDialect() {
         try (Connection connection = getConnection(false)) {
             if (connection.isWrapperFor(OracleConnection.class)) {
-                String product = connection.getMetaData().getDatabaseProductVersion();
-                if (product.contains("Partitioning")) {
+                if (isPartitioningEnabled(connection)) {
+                    LOGGER.fine("Oracle EE with partitioning detected");
                     return SqlDialect.ORACLE_EE;
                 } else {
+                    LOGGER.fine("Oracle SE without partitioning detected");
                     return SqlDialect.ORACLE_SE;
                 }
             }
             return SqlDialect.H2;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private boolean isPartitioningEnabled(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery("select * FROM dba_feature_usage_statistics WHERE name='Partitioning (user)' and currently_used='TRUE'")) {
+                if (resultSet.next()) {
+                    return true;
+                }
+                return false;
+            }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
