@@ -133,8 +133,7 @@ public class SecureDeviceShipmentImporterTest {
         verify(deviceSecretImporter, times(160)).importSecret(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
         List<String> logMessages = testHandler.getLogMessages();
 
-        // changed because of CONM-576:
-        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Now importing device '00376280'");
         assertThat(logMessages).contains("Device '00376280' imported successfully");
         assertThat(logMessages).contains("Now importing device '00376281'");
@@ -164,7 +163,7 @@ public class SecureDeviceShipmentImporterTest {
         }
 
         List<String> logMessages = testHandler.getLogMessages();
-        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
@@ -185,7 +184,7 @@ public class SecureDeviceShipmentImporterTest {
         }
 
         List<String> logMessages = testHandler.getLogMessages();
-        assertThat(logMessages).doesNotContain(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer couldn't be found");
     }
 
