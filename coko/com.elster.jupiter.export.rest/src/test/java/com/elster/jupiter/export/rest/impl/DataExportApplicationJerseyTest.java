@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -24,7 +25,7 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public abstract class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected DataExportService dataExportService;
@@ -46,6 +47,8 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected Clock clock;
     @Mock
     protected EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    protected OrmService ormService;
 
     @Override
     protected Application getApplication() {
@@ -63,6 +66,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setClock(clock);
         application.setEndPointConfigurationService(endPointConfigurationService);
+        application.setOrmService(ormService);
         return application;
     }
 }
