@@ -8,13 +8,13 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.0${revision}</version>
+        <version>1.5.1${revision}</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
 
     <artifactId>system.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.5.0${revision}</version>
+    <version>1.5.1${revision}</version>
     <name>[Jupiter] com.elster.jupiter.system.app</name>
     <description>
         Contains ExtJS code for the system administration app
