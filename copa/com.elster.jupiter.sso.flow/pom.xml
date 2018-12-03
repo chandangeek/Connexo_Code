@@ -7,7 +7,7 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>flow.filter</artifactId>
-    <version>1.5.0${revision}</version>
+    <version>1.5.1${revision}</version>
     <name>[Partners] Flow SSO servlet filter</name>
 
     <parent>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>connexo.filter</artifactId>
-            <version>1.4.0${revision}</version>
+            <version>1.4.1${revision}</version>
         </dependency>
         <dependency>
             <groupId>org.kie</groupId>
