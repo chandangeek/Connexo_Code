@@ -616,6 +616,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 1), UpgraderV10_4_1.class)
                         .put(version(10, 4, 2), UpgraderV10_4_2.class)
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
+                        .put(version(10, 4, 5), UpgraderV10_4_5.class)
                         .build());
         this.registerRealServices(bundleContext);
     }
