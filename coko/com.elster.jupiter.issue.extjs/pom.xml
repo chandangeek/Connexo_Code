@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.0${revision}</version>
+        <version>1.5.1${revision}</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
 
     <artifactId>issue.extjs</artifactId>
-    <version>1.5.0${revision}</version>
+    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.extjs</name>
 
