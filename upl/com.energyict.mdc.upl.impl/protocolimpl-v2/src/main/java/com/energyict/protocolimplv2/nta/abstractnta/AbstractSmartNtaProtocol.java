@@ -154,12 +154,12 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return Collections.EMPTY_LIST;// TODO add generic implementation?
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return Collections.EMPTY_LIST;// TODO add generic implementation?
+        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
     /**
@@ -171,7 +171,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return "$Date: 2017-02-28 22:03:14 +0200 (Tue, 28 Feb 2017) $";
     }
 
-    public DeviceRegisterSupport getRegisterFactory() {
+    protected DeviceRegisterSupport getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new Dsmr23RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
@@ -231,7 +231,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return getMeterTopology().getPhysicalAddress(serialNumber);
     }
 
-    public LoadProfileBuilder getLoadProfileBuilder() {
+    protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }

@@ -19,20 +19,20 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.events.Esmr50LogBookFactory;
+import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -267,6 +267,22 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return esmr50LogBookFactory;
     }
 
+    @Override
+    protected LoadProfileBuilder getLoadProfileBuilder(){
+        if(this.loadProfileBuilder == null){
+            loadProfileBuilder = new ESMR50LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return this.loadProfileBuilder;
+    }
+
+    @Override
+    public DeviceRegisterSupport getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new ESMR50RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return registerFactory;
+    }
+
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -291,11 +307,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
-    }
-
-    @Override
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return this.registerFactory.readRegisters(registers);
     }
 }
 
