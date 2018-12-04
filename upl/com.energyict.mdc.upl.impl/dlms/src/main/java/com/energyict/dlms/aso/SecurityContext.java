@@ -242,7 +242,7 @@ public class SecurityContext {
         byte[] associatedData = ProtocolTools.concatByteArrays(
                 new byte[]{getRequestSecurityControlByte()},
                 getSecurityProvider().getAuthenticationKey(),
-                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
+                isGeneralCiphering() ? createGeneralCipheringHeader() : new byte[0]
         );
 
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
@@ -274,7 +274,7 @@ public class SecurityContext {
         byte[] associatedData = ProtocolTools.concatByteArrays(
                 new byte[]{getRequestSecurityControlByte()},
                 getSecurityProvider().getAuthenticationKey(),
-                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
+                isGeneralCiphering() ? createGeneralCipheringHeader() : new byte[0],
                 plainText
         );
 
@@ -298,7 +298,7 @@ public class SecurityContext {
      *                                false: return our (client) session key (used to encrypt frames to send to the server)
      */
     protected byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType, boolean serverSessionKey) {
-        if (this.cipheringType == CipheringType.GENERAL_CIPHERING.getType()) {
+        if (isGeneralCiphering()) {
             switch (generalCipheringKeyType) {
                 case IDENTIFIED_KEY:
                     return getSecurityProvider().getGlobalKey();
@@ -568,6 +568,13 @@ public class SecurityContext {
                 dateTime,
                 otherInfo
         );
+    }
+
+    /**
+     * If GeneralCiphering is in use create the GeneralCiphering specific header, otherwise return empty byte array
+     */
+    public byte[] createGeneralCipheringHeaderIfNeeded() {
+        return isGeneralCiphering() ? createGeneralCipheringHeader() : new byte[0];
     }
 
     /**
@@ -973,7 +980,7 @@ public class SecurityContext {
             byte[] associatedData = ProtocolTools.concatByteArrays(
                     new byte[]{(byte) responseSecurityControlByte},
                     getSecurityProvider().getAuthenticationKey(),
-                    (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0],
+                    isGeneralCiphering() ? generalCipheringHeader : new byte[0],
                     apdu
             );
 
@@ -1015,7 +1022,7 @@ public class SecurityContext {
             byte[] associatedData = ProtocolTools.concatByteArrays(
                     new byte[]{(byte) responseSecurityControlByte},
                     getSecurityProvider().getAuthenticationKey(),
-                    (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0]
+                    isGeneralCiphering() ? generalCipheringHeader : new byte[0]
             );
 
             ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
@@ -1339,6 +1346,16 @@ public class SecurityContext {
      */
     public boolean isDedicatedCiphering() {
         return this.cipheringType == CipheringType.DEDICATED.getType() || this.cipheringType == CipheringType.GENERAL_DEDICATED.getType();
+    }
+
+    /**
+     * Checks whether Global ciphering is used<br/>
+     * This could be either global or general-global ciphering.
+     *
+     * @return true if it is, false otherwise
+     */
+    public boolean isGeneralCiphering() {
+        return this.cipheringType == CipheringType.GENERAL_CIPHERING.getType();
     }
 
     /**

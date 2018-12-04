@@ -20,9 +20,6 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static com.energyict.dlms.aso.SecurityContext.FRAMECOUNTER_BYTE_LENGTH;
-import static com.energyict.dlms.aso.SecurityContext.FRAME_COUNTER_SIZE;
-
 /**
  * Extension of the 'normal' {@link ApplicationServiceObjectV2}, replacing every manual security operation with an HSM call.
  * <p/>
@@ -95,19 +92,20 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 case HLS5_GMAC: {
                     IrreversibleKey ak = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getAuthenticationKey());
                     IrreversibleKey ek = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getGlobalKey());
-                    //                    return Services.hsmService().generateDigestGMAC(challenge, initialVector, ak, ek, getSecurityContext().getSecuritySuite());
-                    //TODO: use generateDigestGMAC when HSM will have the posibility to specify the security suite and remove everything bellow
+                    return Services.hsmService().generateDigestGMAC(challenge, initialVector, ak, ek, getSecurityContext().getSecuritySuite());
 
-                    byte[] clientDigest = Services.hsmService().authenticateApdu(challenge, initialVector, ak, ek, getSecurityContext().getSecuritySuite());
+                    //The bellow code was used on ASM versions < 8.2a
+
+                    /*byte[] clientDigest = Services.hsmService().authenticateApdu(challenge,  initialVector, ak, ek, getSecurityContext().getSecuritySuite());
 
                     byte[] fc = ProtocolUtils.getSubArray2(initialVector, this.securityContext.getResponseSystemTitle().length, FRAME_COUNTER_SIZE);
 
-                    /*
+                    *//*
                      * 1 for SecurityControlByte, 4 for frameCounter,
                      * 12 for the AuthenticationTag (normally this is
                      * 16byte, but the securitySpec said it had to be 12)
                      * -> this is a total of 17
-                     */
+                     *//*
                     int offset = 0;
                     byte[] securedApdu = new byte[1 + FRAMECOUNTER_BYTE_LENGTH + clientDigest.length];
                     securedApdu[offset++] = getSecurityContext().getHLS5SecurityControlByte();
@@ -115,7 +113,7 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                     offset += FRAMECOUNTER_BYTE_LENGTH;
                     System.arraycopy(ProtocolUtils.getSubArray2(clientDigest, 0, clientDigest.length), 0, securedApdu, offset,
                             clientDigest.length);
-                    return securedApdu;
+                    return securedApdu;*/
 
                 }
                 case HLS6_SHA256: {

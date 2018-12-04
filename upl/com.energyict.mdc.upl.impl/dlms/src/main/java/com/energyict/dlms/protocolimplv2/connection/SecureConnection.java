@@ -267,7 +267,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                             : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
                     securedRequest = encryptGeneralGloOrDedCiphering(securedRequest);
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
-                } else if (useGeneralCiperhing()) {
+                } else if (aso.getSecurityContext().isGeneralCiphering()) {
                     //General ciphering tag
                     securedRequest = encryptGeneralCiphering(securedRequest);
                     securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, securedRequest);
@@ -295,10 +295,6 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
     private boolean useGeneralGloOrGeneralDedCiphering() {
         int cipheringType = this.aso.getSecurityContext().getCipheringType();
         return cipheringType == CipheringType.GENERAL_GLOBAL.getType() || cipheringType == CipheringType.GENERAL_DEDICATED.getType();
-    }
-
-    private boolean useGeneralCiperhing() {
-        return this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_CIPHERING.getType();
     }
 
     private boolean isRequestSigned() {
