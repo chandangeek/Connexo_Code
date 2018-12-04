@@ -7,6 +7,7 @@ import com.energyict.dlms.DLMSAttribute;
  * Date: 15-jul-2011
  * Time: 8:34:09
  */
+@Deprecated
 public class ComposedMbusSerialNumber {
 
     private final DLMSAttribute manufacturerId;

@@ -297,7 +297,7 @@ public class MBusClient extends AbstractCosemObject {
     /**
      * @return the used BlueBook Version
      */
-    private int getUsedVersion() {
+    protected int getUsedVersion() {
         return this.version;
     }
 }

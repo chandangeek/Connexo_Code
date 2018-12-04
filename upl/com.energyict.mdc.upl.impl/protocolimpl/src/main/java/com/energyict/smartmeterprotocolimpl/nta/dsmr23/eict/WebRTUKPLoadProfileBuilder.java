@@ -30,6 +30,7 @@ import java.util.List;
  * Date: 30/11/12
  * Time: 12:08
  */
+@Deprecated
 public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
 
     public static final ObisCode MBUS_OBISCODE = ObisCode.fromString("0.x.24.2.1.255");

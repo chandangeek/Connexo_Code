@@ -8,6 +8,7 @@ import com.energyict.dlms.cosem.methods.DLMSClassMethods;
  * Date: 31-aug-2011
  * Time: 14:50:30
  */
+@Deprecated
 public enum DSMR4_MbusClientMethods implements DLMSClassMethods {
 
     SLAVE_INSTALL(1, 0x78),

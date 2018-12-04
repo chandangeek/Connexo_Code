@@ -8,6 +8,7 @@ import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
  * The FrameCounter is part of this InitializationVector, therefor they have defined that the frameCounter must be
  * incremented for each message with exactly one!
  */
+@Deprecated
 public class DSMR40RespondingFrameCounterHandler implements RespondingFrameCounterHandler{
 
     private long responseFrameCounter = -1;

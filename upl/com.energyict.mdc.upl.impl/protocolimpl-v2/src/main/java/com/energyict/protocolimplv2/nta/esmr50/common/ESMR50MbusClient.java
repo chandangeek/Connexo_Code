@@ -1,17 +1,18 @@
-package com.energyict.smartmeterprotocolimpl.nta.esmr50.common;
+package com.energyict.protocolimplv2.nta.esmr50.common;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.DSMR4_MbusClient;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.attributes.ESMR50MbusClientAttributes;
-import com.energyict.smartmeterprotocolimpl.nta.esmr50.common.methods.ESMR50MbusClientMethods;
+import com.energyict.protocolimplv2.nta.dsmr40.common.customdlms.cosem.DSMR4_MbusClient;
+import com.energyict.protocolimplv2.nta.esmr50.common.attributes.ESMR50MbusClientAttributes;
+import com.energyict.protocolimplv2.nta.esmr50.common.methods.ESMR50MbusClientMethods;
+
 
 import java.io.IOException;
 
-@Deprecated
+
 public class ESMR50MbusClient extends DSMR4_MbusClient {
 
     private int version;
@@ -53,10 +54,6 @@ public class ESMR50MbusClient extends DSMR4_MbusClient {
      */
     public void setVersion(int version) throws IOException {
         setVersion(new Unsigned8(version));
-    }
-
-    protected int getUsedVersion(){
-        return 0; // todo Replaced getUsedVersion, access type modified in Connexo
     }
 
 }

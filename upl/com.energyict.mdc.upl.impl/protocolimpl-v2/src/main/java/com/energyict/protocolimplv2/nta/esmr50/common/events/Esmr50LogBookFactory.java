@@ -1,28 +1,19 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.events;
 
-import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.AbstractEvent;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.VoltageQualityEventLog;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
@@ -67,10 +58,10 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         } else if (logBookObisCode.equals(getMeterConfig().getVoltageQualityLogObject().getObisCode())) {
             meterEvents = new VoltageQualityEventLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
-            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             meterEvents = new ESMR50MbusControlLog(dataContainer, channel).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
-            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             meterEvents = new ESMR50MbusEventLog(dataContainer, channel).getMeterEvents();
         } else{
             return new ArrayList<>();

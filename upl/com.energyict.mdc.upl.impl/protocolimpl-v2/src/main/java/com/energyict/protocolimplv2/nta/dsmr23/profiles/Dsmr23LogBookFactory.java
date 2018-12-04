@@ -2,8 +2,10 @@ package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -19,18 +21,17 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.common.topology.DeviceMapping;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.DisconnectControlLog;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.EventsLog;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.FraudDetectionLog;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.MbusControlLog;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.MbusLog;
-import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
+import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.*;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
@@ -138,8 +139,48 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         } else {
             return new ArrayList<>();
         }
+
+        DlmsSessionProperties props = this.getProtocol().getDlmsSessionProperties();
+        if(props instanceof Dsmr23Properties){
+            Dsmr23Properties properties = (Dsmr23Properties) props;
+            if(properties.getFrameCounterLimit() != 0 && properties.replayAttackPreventionEnabled()){
+                checkFrameCounterEvents(meterEvents, protocol.getLogger());
+            }
+        }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
+
+    protected void checkFrameCounterEvents(List<MeterEvent> eventList, Logger logger) {
+        SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
+
+        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, eventList, logger);
+
+        if (securityContext.getResponseFrameCounter() != 0) {
+            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, eventList, logger);
+        } else {
+            logger.info("Response frame counter not initialized.");
+        }
+
+    }
+
+    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList, Logger logger) {
+        try {
+            long frameCounterLimit = ((Dsmr23Properties)this.getProtocol().getDlmsSessionProperties()).getFrameCounterLimit();
+
+            if (frameCounterLimit==0){
+                logger.info("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);
+            } else if (frameCounter>frameCounterLimit) {
+                logger.info(name+": " + frameCounter + " is above the threshold ("+frameCounterLimit+") - will create an event");
+                MeterEvent frameCounterEvent = new MeterEvent(new Date(), 0, eventId, name+" above threshold: " + frameCounter);
+                eventList.add(frameCounterEvent);
+            } else {
+                logger.info(name + " below configured threshold: "+frameCounter+" < "+frameCounterLimit);
+            }
+        }catch (Exception e) {
+            logger.log(Level.WARNING, "Error getting  "+name+e.getMessage(), e);
+        }
+    }
+
 
     protected boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
@@ -158,5 +199,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return ProtocolUtils.getCalendar(protocol.getTimeZone());
     }
 
-
+    public AbstractDlmsProtocol getProtocol() {
+        return protocol;
+    }
 }

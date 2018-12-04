@@ -42,6 +42,7 @@ import java.util.List;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
+@Deprecated
 public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     public static final int ObisCodeBFieldIndex = 1;

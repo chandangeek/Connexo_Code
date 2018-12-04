@@ -339,6 +339,14 @@ public class DlmsProperties implements DlmsSessionProperties {
         }
     }
 
+    protected boolean parseBooleanProperty(String key, boolean defaultValue) {
+        try {
+            return properties.getTypedProperty(key, defaultValue).booleanValue();
+        } catch (Throwable e) {
+            return defaultValue;
+        }
+    }
+
     @Override
     public boolean useGeneralBlockTransfer() {
         return properties.<Boolean>getTypedProperty(USE_GBT, DEFAULT_ENABLE_GBT);

@@ -12,12 +12,9 @@ import java.util.Map;
 
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 @XmlRootElement
-public class ESMR50Cache extends DLMSCache implements FrameCounterCache {
+public class ESMR50Cache extends DLMSCache {
 
-    /**
-     * {@link Map} containing the frame counters for the mirror.
-     */
-    protected Map<Integer, Long> frameCountersMirror = new HashMap<>();
+    private long frameCounter = 1;
 
     public ESMR50Cache(UniversalObject[] objectList, int confProgChange) {
         super(objectList, confProgChange);
@@ -27,19 +24,14 @@ public class ESMR50Cache extends DLMSCache implements FrameCounterCache {
         super();
     }
 
-    @Override
-    public void setTXFrameCounter(int clientId, long frameCounter) {
-        frameCountersMirror.put(clientId, frameCounter);
+    public long getFrameCounter() {
+        return frameCounter;
     }
 
-    @Override
-    public long getTXFrameCounter(int clientId) {
-        if(frameCountersMirror.containsKey(clientId)){
-            return frameCountersMirror.get(clientId);
+    public void setFrameCounter(long frameCounter) {
+        if (this.frameCounter != frameCounter) {
+            this.frameCounter = frameCounter;
+            setChanged(true);
         }
-        return -1;
-    }
-
-    public void setFrameCounter(long l) {
     }
 }

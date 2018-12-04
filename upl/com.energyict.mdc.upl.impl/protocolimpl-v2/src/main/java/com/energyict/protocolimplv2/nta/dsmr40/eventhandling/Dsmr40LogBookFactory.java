@@ -1,10 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.eventhandling;
 
+import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-
-import com.energyict.dlms.DataContainer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
@@ -45,7 +44,7 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
         } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
             meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
-            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             meterEvents = new MbusEventLog(dataContainer, channel).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
             meterEvents = new MbusControlLog(dataContainer).getMeterEvents();

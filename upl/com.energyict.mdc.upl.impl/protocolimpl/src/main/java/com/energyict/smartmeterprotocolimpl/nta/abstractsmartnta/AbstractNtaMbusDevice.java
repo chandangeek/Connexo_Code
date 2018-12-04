@@ -53,6 +53,7 @@ import java.util.logging.Logger;
  * Date: 15-jul-2011
  * Time: 10:31:14
  */
+@Deprecated
 public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
 
     private final AbstractSmartNtaProtocol meterProtocol;

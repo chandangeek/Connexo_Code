@@ -1,18 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -35,20 +25,14 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
+import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.mdc.upl.DeviceProtocol}
  * <p>
  * <pre>
  * Copyrights EnergyICT
@@ -240,7 +224,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @return a list of Registers
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
-    private List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
+    protected List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
         List<CapturedRegisterObject> channelRegisters = new ArrayList<>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
@@ -307,6 +291,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                         this.registerUnitMap.put(register, unitAttribute);
                     } else if (uo.getDLMSClassId() == DLMSClassId.DEMAND_REGISTER) {
                         DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
+                    } else if (uo.getDLMSClassId() == DLMSClassId.LTE_MONITORING) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, register.getAttribute(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
+                    }else if (uo.getDLMSClassId() == DLMSClassId.GSM_DIAGNOSTICS) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, register.getAttribute(), uo.getClassID());
+                        dlmsAttributes.add(unitAttribute);
+                        this.registerUnitMap.put(register, unitAttribute);
+                    }else if (uo.getDLMSClassId() == DLMSClassId.DATA) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, register.getAttribute(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
                     }
@@ -521,6 +517,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     protected Map<LoadProfileReader, Integer> getStatusMasksMap() {
         return statusMasksMap;
+    }
+
+    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
+        return channelMaskMap;
     }
 
     protected AbstractDlmsProtocol getMeterProtocol() {

@@ -10,6 +10,7 @@ import com.energyict.obis.ObisCode;
  * Date: 31-aug-2011
  * Time: 14:45:52
  */
+@Deprecated
 public enum DSMR4_MbusClientAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

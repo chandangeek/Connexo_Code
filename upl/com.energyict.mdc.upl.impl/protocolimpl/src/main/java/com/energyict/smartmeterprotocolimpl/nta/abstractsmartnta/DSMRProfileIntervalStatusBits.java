@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
-
+@Deprecated
 public class DSMRProfileIntervalStatusBits implements ProfileIntervalStatusBits {
 
     static final int CRITICAL_ERROR = 0x01;

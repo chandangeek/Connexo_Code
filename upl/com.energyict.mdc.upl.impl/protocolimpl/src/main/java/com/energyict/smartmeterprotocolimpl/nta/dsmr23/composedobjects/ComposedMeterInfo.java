@@ -13,6 +13,7 @@ import java.io.IOException;
  * Date: 14-jul-2011
  * Time: 11:39:32
  */
+@Deprecated
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
