@@ -51,9 +51,10 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         supportedLogBooks.add(MBUS_CONTROL_LOG);
     }
 
-
-    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode, LogBookReader logBookReader) throws
+    @Override
+    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws
             ProtocolException {
+        ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
             meterEvents = new ESMR50StandardEventLog(dataContainer).getMeterEvents();
@@ -76,53 +77,4 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
-
-
-    @Override
-    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        List<CollectedLogBook> result = new ArrayList<>();
-        for (LogBookReader logBookReader : logBooks) {
-            CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            if (isSupported(logBookReader)) {
-                ProfileGeneric profileGeneric = null;
-                try {
-                    profileGeneric = protocol.getDlmsSession()
-                            .getCosemObjectFactory()
-                            .getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader
-                                    .getMeterSerialNumber()));
-                } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader
-                            .getLogBookObisCode()
-                            .toString(), e.getMessage()));
-                }
-
-                if (profileGeneric != null) {
-                    Calendar fromDate = getCalendar();
-                    fromDate.setTime(logBookReader.getLastLogBook());
-                    try {
-                        DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                        collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode(), logBookReader));
-                    } catch (NotInObjectListException e) {
-                        collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader
-                                .getLogBookObisCode()
-                                .toString(), e.getMessage()));
-                    } catch (IOException e) {
-                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties()
-                                .getRetries() + 1)) {
-                            collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader
-                                    .getLogBookObisCode()
-                                    .toString()));
-                        }
-                    }
-                }
-            } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader
-                        .getLogBookObisCode()
-                        .toString()));
-            }
-            result.add(collectedLogBook);
-        }
-        return result;
-    }
-
 }

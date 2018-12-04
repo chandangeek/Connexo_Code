@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -32,7 +33,8 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
     }
 
     @Override
-    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
+    protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws ProtocolException {
+        ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
             meterEvents = new StandardEventLog(dataContainer).getMeterEvents();
@@ -43,7 +45,8 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
         } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
             meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
-            meterEvents = new MbusEventLog(dataContainer).getMeterEvents();
+            int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            meterEvents = new MbusEventLog(dataContainer, channel).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
             meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getVoltageQualityLogObject().getObisCode())) {

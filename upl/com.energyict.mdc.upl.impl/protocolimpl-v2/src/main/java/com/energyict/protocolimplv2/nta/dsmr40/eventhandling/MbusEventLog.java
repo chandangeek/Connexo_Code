@@ -25,8 +25,8 @@ public class MbusEventLog extends MbusLog {
     public MbusEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }
-    public MbusEventLog(DataContainer dc) {
-        super(dc);
+    public MbusEventLog(DataContainer dc, int mBusChannel) {
+        super(dc, mBusChannel);
     }
 
     /**
@@ -34,7 +34,16 @@ public class MbusEventLog extends MbusLog {
      */
     @Override
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
-        switch(eventId){
+        //select only event ids that correspond to mbus channel
+        //channel 1: 100 .. 109
+        //channel 2: 110 .. 119
+        //channel 3: 120 .. 129
+        //channel 4: 130 .. 139
+        int clonedEventId = eventId;
+        //if outside range, consider it an unknown event
+        if (eventId != 255 && eventId < (90 + mBusChannel * 10) && eventId > (99 + mBusChannel * 10))
+            clonedEventId = 0;
+        switch(clonedEventId){
             case EVENT_NEW_MBUS_DISCOVERED_1 : {meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "A new M-Bus Device has been detected on channel 1"));}break;
             case EVENT_PERMANENT_ERROR_MBUS_1 : {meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.MEASUREMENT_SYSTEM_ERROR, eventId, "Permanent error on Mbus channel 1"));}break;
             case EVENT_NEW_MBUS_DISCOVERED_2 : {meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "A new M-Bus Device has been detected on channel 2"));}break;

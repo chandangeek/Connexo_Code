@@ -45,10 +45,8 @@ public class ESMR50MbusEventLog extends MbusEventLog {
         super(dc, deviationType);
     }
 
-    private int mBusChannel;
     public ESMR50MbusEventLog(DataContainer dc, int mBusChannel) {
-        super(dc);
-        this.mBusChannel = mBusChannel;
+        super(dc,mBusChannel);
     }
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
@@ -136,8 +134,7 @@ public class ESMR50MbusEventLog extends MbusEventLog {
             case EVENT_NEW_MBUS_DISCOVERED:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "New M-Bus device discovered"));
                 break;
-            default:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
+            default: super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         }
     }
 }
