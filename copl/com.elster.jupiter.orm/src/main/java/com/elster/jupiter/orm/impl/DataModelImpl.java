@@ -324,9 +324,9 @@ public class DataModelImpl implements DataModel {
 
     private boolean isPartitioningEnabled(Connection connection) {
         try (Statement statement = connection.createStatement()) {
-            try (ResultSet resultSet = statement.executeQuery("select * FROM dba_feature_usage_statistics WHERE name='Partitioning (user)' and currently_used='TRUE'")) {
+            try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
                 if (resultSet.next()) {
-                    return true;
+                    return resultSet.getBoolean("value");
                 }
                 return false;
             }
