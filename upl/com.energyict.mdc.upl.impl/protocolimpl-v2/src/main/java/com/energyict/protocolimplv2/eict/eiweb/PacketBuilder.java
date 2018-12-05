@@ -8,18 +8,13 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -220,7 +215,7 @@ public class PacketBuilder {
         if (id == 0 && serialNumber != null) {
             this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         } else {
-            this.deviceIdentifier = new DeviceIdentifierById(id);
+            this.deviceIdentifier = new DeviceIdentifierLikeSerialNumber(String.valueOf(id));
         }
     }
 
