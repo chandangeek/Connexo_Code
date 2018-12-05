@@ -37,14 +37,14 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.parent</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.parent</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
