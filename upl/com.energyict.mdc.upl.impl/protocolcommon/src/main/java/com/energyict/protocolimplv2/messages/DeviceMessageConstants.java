@@ -367,6 +367,8 @@ public final class DeviceMessageConstants {
     public static final String ntpAddressDefaultTranslation = "NTP address";
     public static final String useLegacyTimeServerIC = "ConfigurationChangeDeviceMessage.useLegacyTimeServerIC";
     public static final String useLegacyTimeServerICDefaultTranslation = "Use legacy (0-128:96.196.0.255) Time Server IC";
+    public static final String useLegacyNTPServerAddressIC = "ConfigurationChangeDeviceMessage.useLegacyNTPServerAddressIC";
+    public static final String useLegacyNTPServerAddressICDefaultTranslation = "Use legacy (0.0.128.0.10.255) NTP Server Address IC";
     public static final String ntpSetActivated = "ConfigurationChangeDeviceMessage.ntpSetActivated";
     public static final String ntpSetActivatedDefaultTranslation = "Activate NTP time synchronization";
     public static final String ntpSetAuthMethod = "ConfigurationChangeDeviceMessage.ntpSetAuthMethod";

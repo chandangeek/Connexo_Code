@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.hs3300.properties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
@@ -22,7 +22,10 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS;
 
 public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
 
@@ -152,7 +155,8 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.ipV6Address(),
                 this.shortAddressPan(),
                 this.increaseFrameCounterOnHLSReply(),
-                this.masterKeyPropertySpec()
+                this.masterKeyPropertySpec(),
+                this.clientPrivateSigningKeyPropertySpec()
         );
     }
 
@@ -429,5 +433,20 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      */
     protected final CipheringType getDefaultCipheringType() {
         return DEFAULT_CIPHERING_TYPE;
+    }
+
+    /**
+     * The private key of the client (the ComServer) used for digital signature (ECDSA)
+     */
+    private PropertySpec clientPrivateSigningKeyPropertySpec() {
+        return this.keyAccessorTypeReferenceSpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_SIGNING_KEY);
+    }
+
+    private PropertySpec keyAccessorTypeReferenceSpec(String name, PropertyTranslationKeys translationKey) {
+        return getPropertySpecService()
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
     }
 }

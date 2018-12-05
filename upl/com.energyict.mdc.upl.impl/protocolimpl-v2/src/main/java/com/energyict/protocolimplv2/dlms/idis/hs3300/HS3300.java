@@ -12,17 +12,30 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -30,11 +43,18 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.KeyAccessorType;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exception.*;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DataEncryptionException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -42,6 +62,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.messages.HS3300Messaging;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300Properties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
@@ -50,7 +71,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport {
+public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport, AdvancedDeviceProtocolSecurityCapabilities {
 
     private static final int MANAGEMENT_CLIENT = 1;
     private static final int PUBLIC_CLIENT     = 16;
@@ -65,20 +86,23 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport 
     private final NlsService nlsService;
     private final Converter converter;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private CertificateWrapperExtractor certificateWrapperExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     private HS3300Messaging deviceMessaging;
     private HS3300Cache deviceCache;
 
     public HS3300(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
-                 TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
-                 DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+                  TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
+                  DeviceMessageFileExtractor messageFileExtractor, CertificateWrapperExtractor certificateWrapperExtractor,
+                  KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
-        this.calendarExtractor        = calendarExtractor;
-        this.nlsService               = nlsService;
-        this.converter                = converter;
-        this.messageFileExtractor     = messageFileExtractor;
-        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+        this.calendarExtractor           = calendarExtractor;
+        this.nlsService                  = nlsService;
+        this.converter                   = converter;
+        this.messageFileExtractor        = messageFileExtractor;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
+        this.keyAccessorTypeExtractor    = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -206,7 +230,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport 
     @Override
     public HS3300Properties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new HS3300Properties(this.getPropertySpecService(), nlsService);
+            dlmsProperties = new HS3300Properties(this.getPropertySpecService(), nlsService, certificateWrapperExtractor);
         }
         return (HS3300Properties) dlmsProperties;
     }
@@ -351,7 +375,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport 
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        final HS3300Properties publicClientProperties = new HS3300Properties(this.getPropertySpecService(), this.nlsService);
+        final HS3300Properties publicClientProperties = new HS3300Properties(this.getPropertySpecService(), nlsService, certificateWrapperExtractor);
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT), 0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
@@ -493,7 +517,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport 
     private void readFrameCounter(ComChannel comChannel) {
         TypedProperties clone = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        HS3300Properties publicClientProperties = new HS3300Properties(this.getPropertySpecService(), nlsService);
+        HS3300Properties publicClientProperties = new HS3300Properties(this.getPropertySpecService(), nlsService, certificateWrapperExtractor);
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT), 0, 0, 0, 0, 0, clone)); // SecurityLevel 0:0
 
@@ -545,5 +569,28 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
         return new HS3300ConfigurationSupport(this.getPropertySpecService());
+    }
+
+    @Override
+    protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(this.getPropertySpecService());
+        }
+        return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
+    }
+
+    @Override
+    public List<SecuritySuite> getSecuritySuites() {
+        return getSecuritySupport().getSecuritySuites();
+    }
+
+    @Override
+    public List<RequestSecurityLevel> getRequestSecurityLevels() {
+        return getSecuritySupport().getRequestSecurityLevels();
+    }
+
+    @Override
+    public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+        return getSecuritySupport().getResponseSecurityLevels();
     }
 }
