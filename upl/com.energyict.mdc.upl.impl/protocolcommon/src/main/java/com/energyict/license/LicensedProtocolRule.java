@@ -343,10 +343,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
     HONEYWELL_HS3300(295, "com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300"),
     SAGEMCOM_T210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
-    ESMR50_T210(297, "com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
-    ESMR50_AS330T(298, "com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.AS330T", FamilyRule.DSMR_NTA),
-    ESMR50_XS210(299, "com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
-    ESMR50_AS3300T(300, "com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.AS3300T", FamilyRule.DSMR_NTA),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
