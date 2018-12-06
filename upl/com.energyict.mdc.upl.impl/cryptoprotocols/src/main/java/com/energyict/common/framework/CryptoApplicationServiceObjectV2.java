@@ -15,6 +15,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.HsmException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -47,10 +48,12 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
             throw CommunicationException.protocolConnectFailed(connectionException);
         }
 
-        //Need to check the digest in case of HLS3/4/5
-        if (this.securityContext.getAuthenticationLevel() > 2) {
+        if (this.securityContext.getAuthenticationLevel() == AuthenticationTypes.HLS7_ECDSA.getLevel()) {
+            handleHLS7();
+        } else if (this.securityContext.getAuthenticationLevel() >= AuthenticationTypes.HLS3_MD5.getLevel()
+                && this.securityContext.getAuthenticationLevel() <= AuthenticationTypes.HLS6_SHA256.getLevel()) { //Need to check the digest in case of HLS3/4/5/6
 
-            byte[] clientDigest = calculateDigest(this.acse.getRespondingAuthenticationValue(), this.securityContext.getInitializationVector());
+            byte[] clientDigest = calculateDigest(this.acse.getRespondingAuthenticationValue(), this.securityContext.getInitializationVector(), false);
             byte[] response = replyToHLSAuthentication(clientDigest);
 
             byte[] iv = null;
@@ -59,7 +62,7 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 iv = ProtocolUtils.concatByteArrays(this.securityContext.getResponseSystemTitle(), fc);
             }
 
-            byte[] calculatedServerDigest = calculateDigest(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), iv);
+            byte[] calculatedServerDigest = calculateDigest(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), iv, true);
             if (!Arrays.equals(calculatedServerDigest, response)) {
                 silentDisconnect();
                 IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
@@ -73,7 +76,7 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
     /**
      * Calculate the digest of the given challenge, based on the configured security properties and the Authentication Access Level.
      */
-    private byte[] calculateDigest(byte[] challenge, byte[] initialVector) {
+    private byte[] calculateDigest(byte[] challenge, byte[] initialVector, boolean isServerToClient) {
         try {
             switch (this.securityContext.getAuthenticationType()) {
                 case LOWEST_LEVEL:
@@ -100,12 +103,6 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
 
                     byte[] fc = ProtocolUtils.getSubArray2(initialVector, this.securityContext.getResponseSystemTitle().length, FRAME_COUNTER_SIZE);
 
-                    *//*
-                     * 1 for SecurityControlByte, 4 for frameCounter,
-                     * 12 for the AuthenticationTag (normally this is
-                     * 16byte, but the securitySpec said it had to be 12)
-                     * -> this is a total of 17
-                     *//*
                     int offset = 0;
                     byte[] securedApdu = new byte[1 + FRAMECOUNTER_BYTE_LENGTH + clientDigest.length];
                     securedApdu[offset++] = getSecurityContext().getHLS5SecurityControlByte();
@@ -117,10 +114,8 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
 
                 }
                 case HLS6_SHA256: {
-                    throw DeviceConfigurationException.unsupportedPropertyValueWithReason("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()), "Level 6 (SHA256) is not yet supported by the HSM.");
-                }
-                case HLS7_ECDSA: {
-                    throw DeviceConfigurationException.unsupportedPropertyValueWithReason("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()), "Level 7 (ECDSA) is not yet supported by the HSM.");
+                    IrreversibleKey hlsSecret = IrreversibleKeyImpl.fromByteArray(this.securityContext.getSecurityProvider().getHLSSecret());
+                    return Services.hsmService().generateDigestMechanism6(isServerToClient, hlsSecret, this.securityContext.getSystemTitle(), this.securityContext.getResponseSystemTitle(), this.acse.getRespondingAuthenticationValue(), this.acse.getCallingAuthenticationValue());
                 }
                 default: {
                     // should never get here
@@ -129,6 +124,23 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
             }
         } catch (HsmException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        } catch (UnsupportedException e) {
+            throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()) + ". " + e.getMessage());
         }
     }
+
+    private void handleHLS7() throws UnsupportedException {
+        byte[] dataToSign = ProtocolTools.concatByteArrays(
+                this.securityContext.getSystemTitle(),
+                this.securityContext.getResponseSystemTitle(),
+                this.acse.getRespondingAuthenticationValue(),
+                this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
+        );
+
+        String clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKeyLabel();
+        byte[] clientDigest = Services.hsmService().cosemGenerateSignature(getSecurityContext().getSecuritySuite(), clientPrivateSigningKey, dataToSign);
+        byte[] serverDigest = replyToHLSAuthentication(clientDigest);
+        analyzeDecryptedResponse(serverDigest);
+    }
+
 }

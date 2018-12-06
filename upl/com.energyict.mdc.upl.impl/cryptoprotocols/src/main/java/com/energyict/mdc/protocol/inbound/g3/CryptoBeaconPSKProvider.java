@@ -35,7 +35,7 @@ public class CryptoBeaconPSKProvider extends BeaconPSKProvider {
     @Override
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
         this.context = context;
-        return new CryptoBeacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getKeyAccessorTypeExtractor(), context.getDeviceExtractor(), context.getHsmProtocolService());
+        return new CryptoBeacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getKeyAccessorTypeExtractor(), context.getDeviceExtractor(), context.getMessageFileExtractor(), context.getHsmProtocolService());
     }
 
     @Override

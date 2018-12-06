@@ -324,7 +324,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     QUAD4(282, "com.elster.us.protocolimpl.landisgyr.quad4.Quad4"),
 
     //Evn, Salzburg crypto protocols
-//    CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+    CRYPTO_AM540(283, "com.energyict.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
     CRYPTO_BEACON3100(284, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
 
     T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
@@ -337,13 +337,16 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
 //    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
     AM132 (289, "com.energyict.protocolimplv2.dlms.idis.am132.AM132"),
-
-//    CRYPTO_AM132(290, "com.evn.protocolimplv2.dlms.idis.am132.CryptoAM132"),
+    CRYPTO_AM132(290, "com.energyict.protocolimplv2.dlms.idis.am132.CryptoAM132"),
     MINI_MAX(291, "com.elster.us.protocolimplv2.mercury.minimax.MiniMax"),
     A1860(293, "com.energyict.protocolimplv2.dlms.a1860.A1860"),
     CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
     HONEYWELL_HS3300(295, "com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300"),
     SAGEMCOM_T210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
+    ESMR50_T210(297, "com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
+    ESMR50_AS330T(298, "com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.AS330T", FamilyRule.DSMR_NTA),
+    ESMR50_XS210(299, "com.energyict.smartmeterprotocolimpl.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
+    ESMR50_AS3300T(300, "com.energyict.smartmeterprotocolimpl.nta.esmr50.elster.AS3300T", FamilyRule.DSMR_NTA),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -378,7 +381,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
     KAIFA_SMETS(20013, "com.energyict.smartmeterprotocolimpl.kaifa.Kaifa"),
     US_SEL(20014, "com.elster.us.protocolimplv2.sel.SEL");
-
 
     private int code;
     private String className;
