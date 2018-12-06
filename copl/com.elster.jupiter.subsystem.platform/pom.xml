@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>1.5.5${revision}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
