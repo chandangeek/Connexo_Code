@@ -56,6 +56,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
@@ -721,7 +722,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
-        keys.addAll(Arrays.asList((DevicePropertyTranslationKeys.values())));
+        keys.addAll(Arrays.asList(DevicePropertyTranslationKeys.values()));
         keys.addAll(Arrays.asList(SubscriberTranslationKeys.values()));
         keys.addAll(Arrays.asList(Privileges.values()));
         keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
@@ -730,6 +731,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
         keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
+        keys.addAll(Arrays.asList(CustomPropertyTranslationKeys.values()));
         return keys;
     }
 

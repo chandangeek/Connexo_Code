@@ -205,7 +205,11 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_DEVICE(2178, "CertificateUsedByDevice", "Certificate {0} is still used by a device.", Level.WARNING),
     CERTIFICATE_REVOKED_SUCCESSFULLY(2179, "CertificateRevokedSuccessfully", "Certificate {0} has been revoked.", Level.INFO),
     EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}"),
-    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task.");
+    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task."),
+    CAN_NOT_BE_EMPTY(2182, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
+    UNKNOWN_PROPERTY(2183, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
+
+    ;
 
     private final int number;
     private final String key;
@@ -403,5 +407,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE = "command.should.have.a.key.accessor.reference.attribute";
         public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
         public static final String COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE = "command.should.have.a.key.type.attribute";
+        public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String UNKNOWN_PROPERTY = "UnknownProperty";
     }
 }
