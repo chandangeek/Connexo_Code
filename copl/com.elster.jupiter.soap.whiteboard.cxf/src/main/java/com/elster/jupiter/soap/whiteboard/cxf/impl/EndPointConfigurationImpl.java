@@ -89,7 +89,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private static final String OUTBOUND_WEBSERVICE_DISCRIMINATOR = "1";
 
     static final Map<String, Class<? extends EndPointConfiguration>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends EndPointConfiguration>>of(
+            ImmutableMap.of(
                     INBOUND_WEBSERVICE_DISCRIMINATOR, InboundEndPointConfigurationImpl.class,
                     OUTBOUND_WEBSERVICE_DISCRIMINATOR, OutboundEndPointConfigurationImpl.class);
 
@@ -335,18 +335,14 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
             newProperties.add(newProperty);
         }
         entryDiff.addAll(newProperties);
-        for (EndPointProperty property : entryDiff.getRemovals()) {
-            properties.remove(property);
-        }
+        properties.removeAll(entryDiff.getRemovals());
         for (EndPointProperty property : entryDiff.getRemaining()) {
             property.setValue(propertyMap.get(property.getName()));
             Optional<EndPointProperty> any = properties.stream().filter(aProperty -> aProperty.getName().equals(property.getName())).findAny();
             any.ifPresent(properties::remove);
             properties.add(property);
         }
-        for (EndPointProperty property : entryDiff.getAdditions()) {
-            properties.add(property);
-        }
+        properties.addAll(entryDiff.getAdditions());
     }
 
     @Override

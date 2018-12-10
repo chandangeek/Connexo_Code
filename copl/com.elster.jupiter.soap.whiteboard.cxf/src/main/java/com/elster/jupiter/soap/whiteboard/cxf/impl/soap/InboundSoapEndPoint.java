@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
@@ -15,6 +16,7 @@ import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 
 import javax.inject.Inject;
@@ -68,6 +70,8 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
                         .add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.IN));
             }
             svrFactory.getFeatures().add(accessLogFeatureProvider.get().init(endPointConfiguration));
+            FaultListener faultListener = (exception, description, message) -> logFault(endPointConfiguration, exception);
+            svrFactory.getProperties(true).put(FaultListener.class.getName(), faultListener);
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             if (endPointConfiguration.isTracing()) {
@@ -82,6 +86,11 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
         } catch (Exception ex) {
             endPointConfiguration.log("Failed to publish the endpoint", ex);
         }
+    }
+
+    private static boolean logFault(EndPointConfiguration endPointConfiguration, Exception exception) {
+        endPointConfiguration.log(exception.getLocalizedMessage(), exception);
+        return true;
     }
 
     @Override

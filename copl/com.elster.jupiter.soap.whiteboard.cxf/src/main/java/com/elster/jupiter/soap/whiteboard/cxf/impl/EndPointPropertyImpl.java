@@ -61,13 +61,7 @@ public class EndPointPropertyImpl implements EndPointProperty {
 
     @Override
     public void setValue(Object value) {
-        Object obj = getPropertySpec().getValueFactory().fromStringValue(value.toString());
-        this.stringValue = toStringValue(obj);
-    }
-
-    @SuppressWarnings("unchecked")
-    private String toStringValue(Object object) {
-        return getPropertySpec().getValueFactory().toStringValue(object);
+        this.stringValue = getPropertySpec().getValueFactory().toStringValue(value);
     }
 
     @Override

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -13,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -35,6 +35,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
 import com.google.common.util.concurrent.SimpleTimeLimiter;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
@@ -64,7 +65,7 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 4/29/16.
  */
 @Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesServiceImpl.class}, immediate = true)
-public class WebServicesServiceImpl implements WebServicesService , BundleWaiter.Startable{
+public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.Startable {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
     private volatile ServiceRegistration<WebServicesService> registration;
@@ -170,9 +171,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Override
     public void removeAllEndPoints() {
-        endpoints.entrySet().stream().forEach(entry -> {
-            EndPointConfiguration endPointConfiguration = entry.getKey();
-            ManagedEndpoint managedEndpoint = entry.getValue();
+        endpoints.forEach((endPointConfiguration, managedEndpoint) -> {
             String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                     .getName();
             logger.info(msg);
@@ -304,15 +303,18 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
         }
-        if(!logDirectory.endsWith(File.separator)){
-            logDirectory=logDirectory + File.separator;
+        if (!logDirectory.endsWith(File.separator)) {
+            logDirectory = logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                V10_4SimpleUpgrader.V10_4_UPGRADER);
+                ImmutableMap.of(
+                        V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
+                        UpgraderV10_6.VERSION, UpgraderV10_6.class
+                ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
         BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
@@ -359,10 +361,19 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     @Override
     public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
         final EndPointFactory endPointFactory = webServices.get(webServiceName);
-        if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
-            InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
-            if (provider.get() instanceof EndPointProp) {
-                return ((EndPointProp) provider.get()).getPropertySpecs();
+        if (endPointFactory != null) {
+            EndPointProvider provider = endPointFactory.getEndPointProvider();
+            if (provider instanceof EndPointProp) {
+                return ((EndPointProp) provider).getPropertySpecs();
+            }
+            Object endPoint = null;
+            if (provider instanceof InboundSoapEndPointProvider) {
+                endPoint = ((InboundSoapEndPointProvider) provider).get();
+            } else if (provider instanceof OutboundSoapEndPointProvider) {
+                endPoint = ((OutboundSoapEndPointProvider) provider).get();
+            }
+            if (endPoint instanceof EndPointProp) {
+                return ((EndPointProp) endPoint).getPropertySpecs();
             }
         }
         return new ArrayList<>();

@@ -6,6 +6,8 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -19,9 +21,11 @@ import java.util.Map;
  * by {ManagedEndpoint}. The AppServers will create the actual endpoint based on configuration as found in an EndPointConfiguration.
  */
 @ProviderType
-public interface EndPointConfiguration extends HasDynamicProperties {
+public interface EndPointConfiguration extends HasId, HasName, HasDynamicProperties {
+    @Override
     long getId();
 
+    @Override
     String getName();
 
     String getUrl();

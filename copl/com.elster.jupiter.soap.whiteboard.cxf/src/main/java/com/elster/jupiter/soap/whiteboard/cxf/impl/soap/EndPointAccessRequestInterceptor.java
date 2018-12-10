@@ -24,6 +24,6 @@ public class EndPointAccessRequestInterceptor extends AbstractEndPointIntercepto
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        logInTransaction(LogLevel.INFO, "Request received");
+        logInTransaction(LogLevel.INFO, isForInboundService() ? "Request received." : "Request sent.");
     }
 }

@@ -40,16 +40,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            if (!this.eventService.getEventType(eventType.topic()).isPresent()) {
-                this.eventService.buildEventTypeWithTopic(eventType.topic())
-                        .name(eventType.name())
-                        .component(WebServicesService.COMPONENT_NAME)
-                        .category("Crud")
-                        .scope("System").create();
-                //                            .shouldPublish();
-            }
-        }
+        Arrays.stream(EventType.values()).forEach(eventType -> eventType.installIfNotPresent(eventService));
     }
 
     @Override

@@ -34,6 +34,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -162,6 +163,7 @@ public class WebServicesServiceImplIT {
     @Test
     public void findEndPoints() {
         assertThat(endPointConfigurationService.findEndPointConfigurations().find()).isEmpty();
+        assertThat(endPointConfigurationService.streamEndPointConfigurations().findAny()).isEmpty();
     }
 
     @Test
@@ -170,6 +172,9 @@ public class WebServicesServiceImplIT {
             EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                     .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
             assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().findAny()).isPresent();
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.INFO)).findAny()).isEmpty();
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.SEVERE)).findAny()).isPresent();
         }
     }
 
@@ -179,6 +184,9 @@ public class WebServicesServiceImplIT {
             EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
                     .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.INFO).create();
             assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().findAny()).isPresent();
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.SEVERE)).findAny()).isEmpty();
+            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.INFO)).findAny()).isPresent();
         }
     }
 

@@ -24,6 +24,6 @@ public class EndPointAccessResponseInterceptor extends AbstractEndPointIntercept
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        logInTransaction(LogLevel.INFO, "Request completed successfully");
+        logInTransaction(LogLevel.INFO, "Request completed successfully.");
     }
 }

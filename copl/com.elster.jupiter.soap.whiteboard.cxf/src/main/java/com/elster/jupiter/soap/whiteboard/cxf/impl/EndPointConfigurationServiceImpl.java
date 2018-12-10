@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -194,6 +195,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Override
+    public QueryStream<EndPointConfiguration> streamEndPointConfigurations() {
+        return dataModel.stream(EndPointConfiguration.class);
+    }
+
+    @Override
     @TransactionRequired
     public void activate(EndPointConfiguration endPointConfiguration) {
         ((EndPointConfigurationImpl) endPointConfiguration).setActive(true);
@@ -213,6 +219,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
 
     @Override
     public void delete(EndPointConfiguration endPointConfiguration) {
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_VALIDATE_DELETE.topic(), endPointConfiguration);
         ((EndPointConfigurationImpl) endPointConfiguration).delete();
         eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
@@ -345,6 +352,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         @Override
         public OutboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication id) {
             instance.setAuthenticationMethod(id);
+            return this;
+        }
+
+        @Override
+        public OutboundEndPointConfigBuilder withProperties(Map<String, Object> properties) {
+            instance.setProperties(properties);
             return this;
         }
     }
