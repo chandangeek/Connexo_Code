@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -54,8 +55,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
-    private static final long FRAME_COUNTER_NEXT_INCREMENT = 1;
-    private long cachedFrameCounter = -1;
 
     private final NlsService nlsService;
     ESMR50Cache esmr50Cache;
@@ -70,38 +69,59 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 10.10.2018";
+        return "Enexis first protocol integration version 10.12.2018";
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         getLogger().info("Sagemcom T210 protocol init V2");
         this.offlineDevice = offlineDevice;
-        String deviceSerialNumber = offlineDevice.getSerialNumber();
-        getDlmsSessionProperties().setSerialNumber(deviceSerialNumber);
-        getLogger().info("Initialize communication with device identified by serial number: " + deviceSerialNumber);
-        readFrameCounter(comChannel);
-        DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
-        setDlmsSession(dlmsSession);
+        getDlmsSessionProperties().setSerialNumber(getDlmsSessionProperties().getDeviceId());
+        getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
+        if(testCachedFrameCounter(comChannel)){
+            DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+            dlmsSession.getAso().getSecurityContext().setFrameCounter(getDeviceCache().getFrameCounter());
+            setDlmsSession(dlmsSession);
+        } else {
+            readFrameCounter(comChannel);
+            DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+            dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
+            setDlmsSession(dlmsSession);
+        }
+        getLogger().info("Initialization phase has ended.");
+
     }
 
-    private boolean testCachedFrameCounter(DlmsSession dlmsSession, int cachedFrameCounter){
-        getLogger().info("Testing frame counter: " + cachedFrameCounter );
-        dlmsSession.getDlmsV2Connection().connectMAC();
-        dlmsSession.createAssociation();
-        if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-            dlmsSession.disconnect();
-//            getLogger().info("This FrameCounter was validated: " + testDlmsSession.getAso().getSecurityContext().getFrameCounter());
-//            setTXFrameCounter(dlmsSession.getAso().getSecurityContext().getFrameCounter());
-            return true;
+    private boolean testCachedFrameCounter(ComChannel comChannel){
+        boolean validCachedFrameCounter = false;
+        DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+        long cachedFramecounter = getDeviceCache().getFrameCounter();
+        getLogger().info("Testing cached frame counter: " + cachedFramecounter );
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
+        dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
+        try {
+            dlmsSession.getDlmsV2Connection().connectMAC();
+            dlmsSession.createAssociation();
+            if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                dlmsSession.disconnect();
+                long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
+                getLogger().info("This FrameCounter was validated: " + frameCounter);
+                getDeviceCache().setFrameCounter(frameCounter);
+                validCachedFrameCounter = true;
+            }
+        } catch (CommunicationException ex) {
+            getLogger().info("Association using cached frame counter has failed.");
         }
-        return true;
+        return validCachedFrameCounter;
     }
 
     protected void readFrameCounter(ComChannel comChannel) {
+
         if (getDlmsSessionProperties().usesPublicClient()) {
             return;
         }
+
+        getLogger().info("Starting public DLMS session to read the frame counter.");
 
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT_MAC_ADDRESS));
@@ -111,7 +131,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        getLogger().info("Connecting to public client:" + PUBLIC_CLIENT_MAC_ADDRESS);
+        getLogger().info("Connecting to public client: " + PUBLIC_CLIENT_MAC_ADDRESS);
         connectWithRetries(publicDlmsSession);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
@@ -126,36 +146,18 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         }
         getLogger().info("Disconnecting public client");
         publicDlmsSession.disconnect();
-
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+        long incrementedFramecounter = frameCounter + 1;
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(incrementedFramecounter);
+//        getDlmsSession().getAso().getSecurityContext().setFrameCounter(incrementedFramecounter);
+//        getDeviceCache().setFrameCounter(incrementedFramecounter);
     }
 
     private ObisCode getFrameCounterForClient(int clientMacAddress) {
         return FRAME_COUNTER_OBISCODE;
     }
 
-    /**
-     * Actually create an association to the public client, it is not pre-established
-     */
-    protected void connectToPublicClient(DlmsSession publicDlmsSession) {
-        connectWithRetries(publicDlmsSession);
-    }
-
-    private ESMR50Properties getNewInstanceOfProperties() {
-        return new ESMR50Properties(this.getPropertySpecService());
-    }
-
-    private void sleep() {
-        try {
-            getLogger().finest("... sleeping 5 seconds to allow the meter to settle ...");
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
-    public DLMSCache getDeviceCache() {
+    public ESMR50Cache getDeviceCache() {
         if(esmr50Cache == null){
             esmr50Cache = new ESMR50Cache();
         }
@@ -182,6 +184,16 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         } else {
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
             getLogger().info("Cache exist, will not be read.");
+        }
+    }
+
+    @Override
+    public void terminate(){
+        if(getDlmsSession() != null && getDlmsSession().getAso().getSecurityContext() != null){
+            long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
+            getDeviceCache().setFrameCounter(frameCounter);
+            getLogger().info("Caching frameCounter=" + frameCounter);
+
         }
     }
 
