@@ -16,6 +16,8 @@ Ext.define('Dxp.model.Destination', {
         'recipients',
         'subject',
         'type',
+        {name: 'createEndPoint', defaultValue: null},
+        {name: 'changeEndPoint', defaultValue: null},
         {
             name: 'method',
             persist: false,
@@ -31,6 +33,8 @@ Ext.define('Dxp.model.Destination', {
                         return Uni.I18n.translate('destination.ftps','DES','FTPS');
                     case 'SFTP':
                         return Uni.I18n.translate('destination.sftp','DES','SFTP');
+                    case 'WEBSERVICE':
+                        return Uni.I18n.translate('destination.webservice','DES','Web service');
                     default:
                         return 'unknown';
                 }
@@ -49,6 +53,9 @@ Ext.define('Dxp.model.Destination', {
                     case 'FTPS':
                     case 'SFTP':
                         return data.server;
+                    case 'WEBSERVICE':
+                        return (data.createEndPoint ? data.createEndPoint.name : '')
+                             + (data.changeEndPoint ? ' ,'+data.changeEndPoint.name : '');
                     default:
                         return 'unknown';
                 }
@@ -114,6 +121,10 @@ Ext.define('Dxp.model.Destination', {
                             + ': ' + data.fileExtension + '<br>'
                             + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
+                    case 'WEBSERVICE':
+                        return Uni.I18n.translate('dataExportdestinations.webService', 'DES', 'Web service') + '<br>'
+                            + Uni.I18n.translate('general.CreatedEndpoint', 'DES', 'Created data') + ': ' + data.createEndPoint.name + '<br>'
+                            + (data.changeEndPoint ? Uni.I18n.translate('general.UpdatedEndpoint', 'DES', 'Updated data') + ': ' + data.changeEndPoint.name : "");
                     default:
                         return 'unknown';
                 }

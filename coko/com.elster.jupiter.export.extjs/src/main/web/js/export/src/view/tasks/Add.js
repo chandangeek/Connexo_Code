@@ -800,7 +800,7 @@ Ext.define('Dxp.view.tasks.Add', {
 
                     {
                         xtype: 'fieldcontainer',
-                        itemId: 'destinationsFieldcontainer',
+                        itemId: 'destinations',
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
                         layout: 'hbox',

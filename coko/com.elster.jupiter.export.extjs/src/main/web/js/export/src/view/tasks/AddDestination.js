@@ -66,6 +66,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 {displayValue: Uni.I18n.translate('destination.ftp','DES','FTP'), value: 'FTP'},
                                 {displayValue: Uni.I18n.translate('destination.ftps','DES','FTPS'), value: 'FTPS'},
                                 {displayValue: Uni.I18n.translate('destination.sftp','DES','SFTP'), value: 'SFTP'},
+                                {displayValue: Uni.I18n.translate('destination.webservice','DES','Web service'), value: 'WEBSERVICE'},
                             ]
                         }),
                         name: 'method',
@@ -175,7 +176,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         maxLength: 80,
                         msgTarget: 'under'
                     },
-
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.fileLocation', 'DES', 'File location'),
@@ -272,13 +272,60 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-attachment-extension',
                         width: me.fieldWidth,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.attachmentExtension', 'DES', 'Attachment extension'),
+                        fieldLabel: Uni.I18n.translate('dataExport.attachmentExtension','DES', 'Attachment extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
                         msgTarget: 'under'
                     },
-
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('dataExport.createdEndpointsContainer','DES','Web service endpoint for new data'),
+                        itemId: 'web-service-created-endpoint-container',
+                        required: true,
+                        msgTarget: 'under',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'web-service-endpoint-created-data-combo',
+                                name: 'webServiceEndPointCreatedDataCombo',
+                                width: 235,
+                                queryMode: 'local',
+                                store: 'Dxp.store.WebServiceCreatedEndPoint',
+                                editable: false,
+                                disabled: false,
+                                emptyText:  Uni.I18n.translate('dataExport.createdEndpoints','DES','Select a web service endpoint...'),
+                                afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'+Uni.I18n.translate('dataExport.createdEndpointsMsg','DES','First select a data selector.')+'</i></div>',
+                                displayField: 'name',
+                                valueField: 'name'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('dataExport.updatedEndpointsContainer','DES','Web service endpoint for updated data'),
+                        itemId: 'web-service-updated-endpoint-container',
+                        required: false,
+                        msgTarget: 'under',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'web-service-endpoint-updated-data-combo',
+                                name: 'webServiceEndPointUpdatedDataCombo',
+                                width: 235,
+                                queryMode: 'local',
+                                store: 'Dxp.store.WebServiceUpdatedEndPoint',
+                                editable: false,
+                                disabled: false,
+                                emptyText:  Uni.I18n.translate('dataExport.updatedEndpoints','DES','Select a web service endpoint...'),
+                                afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'+Uni.I18n.translate('dataExport.updatedEndpointsMsg','DES','First select a data selector.')+'</i></div>',
+                                displayField: 'name',
+                                valueField: 'name'
+                            }
+                        ]
+                    },
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',
@@ -340,6 +387,10 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 me.isFieldValid('#destination-file-name', true, "");
                 me.isFieldValid('#destination-file-extension', true, "");
                 me.isFieldValid('#destination-file-location', true, "");
+                break;
+            case 'WEBSERVICE':
+                me.isFieldValid('#web-service-created-endpoint-container', true, "");
+                me.isFieldValid('#web-service-updated-endpoint-container', true, "");
                 break;
             default:
                 break;
@@ -424,6 +475,36 @@ Ext.define('Dxp.view.tasks.AddDestination', {
 
     isUserNameValid: function() {
         return this.isFieldNonEmpty('#user-field');
+    },
+
+    isComboBoxIsValid: function(fieldId, containerId, errorMsg) {
+        var me = this;
+        createdEndpointCombo = me.down(fieldId);
+        var noDataSelectorChosen = !createdEndpointCombo.getValue() || createdEndpointCombo.getValue().length === 0;
+        if (noDataSelectorChosen){
+            me.down(containerId).setActiveError(errorMsg);
+            me.down('#form-errors').show();
+        }
+        else
+        {
+           me.down(containerId).unsetActiveError();
+           me.down('#form-errors').hide();
+        }
+        me.down(containerId).doComponentLayout();
+
+        return !noDataSelectorChosen;
+    },
+
+    isFileWebServiceCreatedValid: function() {
+        return this.isComboBoxIsValid('#web-service-endpoint-created-data-combo',
+                                      '#web-service-created-endpoint-container',
+                                      Uni.I18n.translate('dataExport.requiredField', 'DES', 'This field is required'));
+    },
+
+    isFileWebServiceUpdatedValid: function() {
+        return this.isComboBoxIsValid('#web-service-endpoint-updated-data-combo',
+                                      '#web-service-updated-endpoint-container',
+                                      Uni.I18n.translate('dataExport.requiredField', 'DES', 'This field is required'));
     },
 
     isFieldNonEmpty: function(fieldId) {
@@ -522,6 +603,9 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 var valid5 = me.isFileLocationValid();
                 var valid6 = me.isPortValid();
                 return valid1 && valid2 && valid3 && valid4 && valid5 && valid6;
+            case 'WEBSERVICE':
+                var valid1 = me.isFileWebServiceCreatedValid();
+                return valid1;
             default:
                 return true;
         }
