@@ -296,6 +296,14 @@ public class Ranges {
         return range.hasUpperBound() ? Optional.of(range.upperEndpoint()) : Optional.empty();
     }
 
+    public static <C extends Comparable<? super C>, R> Optional<R> center(Range<C> range,
+                                                                       Function<? super C, ? extends Number> numberMapper,
+                                                                       Function<? super Double, R> reverseMapper) {
+        return range.hasUpperBound() && range.hasLowerBound() && !range.isEmpty() ?
+                Optional.of(reverseMapper.apply(numberMapper.apply(range.upperEndpoint()).doubleValue() / 2 + numberMapper.apply(range.lowerEndpoint()).doubleValue() / 2)):
+                Optional.empty();
+    }
+
     public static BoundType flip(BoundType boundType) {
         switch (boundType) {
             case OPEN:
