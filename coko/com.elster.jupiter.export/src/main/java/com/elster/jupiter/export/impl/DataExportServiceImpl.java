@@ -415,7 +415,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             version(10, 3), UpgraderV10_3.class,
                             version(10, 4), V10_4SimpleUpgrader.class,
                             version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                            UpgraderV10_6.VERSION, UpgraderV10_6.class
+                            UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();

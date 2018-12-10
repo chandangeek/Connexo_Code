@@ -253,8 +253,8 @@ enum TableSpecs {
 
             table.addAuditColumns();
 
-            Column createEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.name()).number().since(Version.version(10, 6)).add();
-            Column changeEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.name()).number().since(Version.version(10, 6)).add();
+            Column createEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.name()).number().since(Version.version(10, 5, 1)).add();
+            Column changeEndPointColumn = table.column(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.name()).number().since(Version.version(10, 5, 1)).add();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();
             table.foreignKey("DES_DEST_TASK")
@@ -268,13 +268,13 @@ enum TableSpecs {
                     .on(createEndPointColumn)
                     .references(EndPointConfiguration.class)
                     .map(WebServiceDestinationImpl.Fields.CREATE_ENDPOINT.javaFieldName())
-                    .since(Version.version(10, 6))
+                    .since(Version.version(10, 5, 1))
                     .add();
             table.foreignKey("DES_FK_DEST_CHANGE_WSEP")
                     .on(changeEndPointColumn)
                     .references(EndPointConfiguration.class)
                     .map(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName())
-                    .since(Version.version(10, 6))
+                    .since(Version.version(10, 5, 1))
                     .add();
         }
     },
