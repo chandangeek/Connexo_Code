@@ -59,6 +59,7 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import com.google.common.collect.Range;
+import org.glassfish.hk2.api.ServiceLocator;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -107,12 +108,14 @@ public class DataExportTaskResource {
     private final DataExportTaskInfoFactory dataExportTaskInfoFactory;
     private final DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory;
     private final Clock clock;
+    private final ServiceLocator serviceLocator;
 
     @Inject
     public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
                                   MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus,
                                   PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
-                                  DataSourceInfoFactory dataSourceInfoFactory, DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory, Clock clock) {
+                                  DataSourceInfoFactory dataSourceInfoFactory, DataExportTaskInfoFactory dataExportTaskInfoFactory,
+                                  DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory, Clock clock, ServiceLocator serviceLocator) {
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
@@ -125,6 +128,7 @@ public class DataExportTaskResource {
         this.dataExportTaskInfoFactory = dataExportTaskInfoFactory;
         this.dataExportTaskHistoryInfoFactory = dataExportTaskHistoryInfoFactory;
         this.clock = clock;
+        this.serviceLocator = serviceLocator;
     }
 
     @GET
@@ -339,10 +343,10 @@ public class DataExportTaskResource {
                     if (info.standardDataSelector.validatedDataOption == null) {
                         throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "data-selector-validated-data");
                     }
-                    if (info.standardDataSelector.exportComplete != null && info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
+                    if (info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
-                    if (info.standardDataSelector.validatedDataOption != null && info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
+                    if (info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
                     DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
@@ -402,7 +406,7 @@ public class DataExportTaskResource {
         });
 
         ExportTask dataExportTask = builder.create();
-        info.destinations.forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
+        info.destinations.forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, dataExportTask, destinationInfo));
         return Response.status(Response.Status.CREATED)
                 .entity(dataExportTaskInfoFactory.asInfo(dataExportTask))
                 .build();
@@ -771,14 +775,14 @@ public class DataExportTaskResource {
         // create the new ones
         info.destinations.stream()
                 .filter(isNewDestination())
-                .forEach(destinationInfo -> destinationInfo.type.create(task, destinationInfo));
+                .forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, task, destinationInfo));
         // update the ones that stay
         info.destinations.stream()
                 .filter(isNewDestination().negate())
                 .forEach(destinationInfo -> task.getDestinations().stream()
                         .filter(destination -> destination.getId() == destinationInfo.id)
                         .findAny()
-                        .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
+                        .ifPresent(destination -> destinationInfo.type.update(serviceLocator, destination, destinationInfo)));
     }
 
     private List<DataExportTaskHistoryInfo> getHistoryFromTasks(JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder, List<Long> exportTaskIds) {

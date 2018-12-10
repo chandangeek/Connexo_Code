@@ -8,6 +8,8 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FtpDestination;
 
+import org.glassfish.hk2.api.ServiceLocator;
+
 public class FtpDestinationInfoFactory extends AbstractFtpDestinationInfoFactory {
 
     @Override
@@ -21,12 +23,12 @@ public class FtpDestinationInfoFactory extends AbstractFtpDestinationInfoFactory
     }
 
     @Override
-    public void create(ExportTask task, DestinationInfo info) {
+    public void create(ServiceLocator serviceLocator, ExportTask task, DestinationInfo info) {
         task.addFtpDestination(info.server, info.port, info.user, info.password, info.fileLocation, info.fileName, info.fileExtension);
     }
 
     @Override
-    public Class<? extends DataExportDestination> getDestinationClass() {
+    public Class<? extends DataExportDestination> getDestinationClass(ServiceLocator serviceLocator) {
         return FtpDestination.class;
     }
 }

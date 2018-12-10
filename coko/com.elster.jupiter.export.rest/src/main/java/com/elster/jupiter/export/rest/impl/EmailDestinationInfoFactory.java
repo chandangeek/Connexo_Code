@@ -8,14 +8,16 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 
+import org.glassfish.hk2.api.ServiceLocator;
+
 public class EmailDestinationInfoFactory implements DestinationInfoFactory {
     @Override
-    public void create(ExportTask task, DestinationInfo info) {
+    public void create(ServiceLocator serviceLocator, ExportTask task, DestinationInfo info) {
         task.addEmailDestination(info.recipients, info.subject, info.fileName, info.fileExtension);
     }
 
     @Override
-    public DestinationInfo toInfo(DataExportDestination destination) {
+    public DestinationInfo toInfo(ServiceLocator serviceLocator, DataExportDestination destination) {
         if (!(destination instanceof EmailDestination)) {
             throw new IllegalArgumentException();
         }
@@ -31,12 +33,12 @@ public class EmailDestinationInfoFactory implements DestinationInfoFactory {
     }
 
     @Override
-    public Class<? extends DataExportDestination> getDestinationClass() {
+    public Class<? extends DataExportDestination> getDestinationClass(ServiceLocator serviceLocator) {
         return EmailDestination.class;
     }
 
     @Override
-    public void update(DataExportDestination destination, DestinationInfo info) {
+    public void update(ServiceLocator serviceLocator, DataExportDestination destination, DestinationInfo info) {
         if (!(destination instanceof EmailDestination)) {
             throw new IllegalArgumentException();
         }

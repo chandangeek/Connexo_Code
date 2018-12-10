@@ -46,6 +46,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
@@ -315,6 +316,68 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
     @Test
+    public void testCreateTaskWithWebServiceDestination() {
+        EndPointConfiguration create = mockEndPointConfiguration(1, "Endpoint");
+        EndPointConfiguration change = mockEndPointConfiguration(2, "Changed");
+
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        info.nextRun = Instant.ofEpochMilli(250L);
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
+        info.standardDataSelector.validatedDataOption = ValidatedDataOption.EXCLUDE_ITEM;
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_READINGS;
+        info.dataSelector.name = "Device readings data selector";
+
+        DestinationInfo webServiceDestinationInfo = new DestinationInfo();
+        webServiceDestinationInfo.type = DestinationType.WEBSERVICE;
+        webServiceDestinationInfo.createEndPoint = new IdWithNameInfo(create);
+        webServiceDestinationInfo.changeEndPoint = new IdWithNameInfo(change);
+        info.destinations.add(webServiceDestinationInfo);
+
+        DestinationInfo sftpDestinationInfo = new DestinationInfo();
+        sftpDestinationInfo.type = DestinationType.SFTP;
+        sftpDestinationInfo.fileLocation = "";
+        sftpDestinationInfo.fileName = "sftpfile";
+        sftpDestinationInfo.fileExtension = "sftptxt";
+        sftpDestinationInfo.server = "sftpserver";
+        sftpDestinationInfo.password = "sftppassword";
+        sftpDestinationInfo.user = "sftpuser";
+        sftpDestinationInfo.port = 21;
+        info.destinations.add(sftpDestinationInfo);
+
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        // Business method
+        Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(json);
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        ArgumentCaptor<String> applicationNameCaptor = ArgumentCaptor.forClass(String.class);
+        verify(builder).setApplication(applicationNameCaptor.capture());
+        assertThat(applicationNameCaptor.getValue()).isEqualTo("MultiSense");
+
+        verify(builder).selectingMeterReadings();
+
+        verify(exportTask).addWebServiceDestination(create, change);
+        verify(exportTask).addSftpDestination("sftpserver", 21, "sftpuser", "sftppassword", "", "sftpfile", "sftptxt");
+    }
+
+    private EndPointConfiguration mockEndPointConfiguration(long id, String name) {
+        EndPointConfiguration endPointConfiguration = mock(EndPointConfiguration.class);
+        when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(endPointConfiguration));
+        when(endPointConfiguration.getId()).thenReturn(id);
+        when(endPointConfiguration.getName()).thenReturn(name);
+        return endPointConfiguration;
+    }
+
+    @Test
     public void updateTask() {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = TASK_ID;
@@ -347,7 +410,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     public void updateTaskDestination() {
         EmailDestination obsolete = mock(EmailDestination.class);
         EmailDestination toUpdate = mock(EmailDestination.class);
-        when(exportTask.getDestinations()).thenReturn(Arrays.asList(obsolete, toUpdate));
+        doReturn(Arrays.asList(obsolete, toUpdate)).when(exportTask).getDestinations();
         when(obsolete.getId()).thenReturn(7772L);
         when(toUpdate.getId()).thenReturn(7773L);
         when(exportTask.addFileDestination("", "file", "txt")).thenReturn(newDestination);

@@ -7,6 +7,8 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.FtpDataExportDestination;
 
+import org.glassfish.hk2.api.ServiceLocator;
+
 public abstract class AbstractFtpDestinationInfoFactory implements DestinationInfoFactory {
 
     abstract DestinationType getDestinationType();
@@ -14,7 +16,7 @@ public abstract class AbstractFtpDestinationInfoFactory implements DestinationIn
     abstract boolean isCorrectDestination(DataExportDestination destination);
 
     @Override
-    public DestinationInfo toInfo(DataExportDestination destination) {
+    public DestinationInfo toInfo(ServiceLocator serviceLocator, DataExportDestination destination) {
         if (!isCorrectDestination(destination)) {
             throw new IllegalArgumentException();
         }
@@ -33,7 +35,7 @@ public abstract class AbstractFtpDestinationInfoFactory implements DestinationIn
     }
 
     @Override
-    public void update(DataExportDestination destination, DestinationInfo info) {
+    public void update(ServiceLocator serviceLocator, DataExportDestination destination, DestinationInfo info) {
         if (!isCorrectDestination(destination)) {
             throw new IllegalArgumentException();
         }

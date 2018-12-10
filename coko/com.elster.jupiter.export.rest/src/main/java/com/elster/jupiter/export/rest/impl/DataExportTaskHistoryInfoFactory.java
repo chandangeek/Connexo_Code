@@ -29,6 +29,7 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import com.google.common.collect.Range;
+import org.glassfish.hk2.api.ServiceLocator;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -36,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 import static com.elster.jupiter.export.rest.impl.TranslationKeys.NONRECURRING;
@@ -43,24 +45,25 @@ import static com.elster.jupiter.export.rest.impl.TranslationKeys.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.TranslationKeys.SCHEDULED;
 
 public class DataExportTaskHistoryInfoFactory {
-
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final DataExportTaskInfoFactory dataExportTaskInfoFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
     private final StandardDataSelectorInfoFactory standardDataSelectorInfoFactory;
+    private final ServiceLocator serviceLocator;
 
     @Inject
     public DataExportTaskHistoryInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService,
                                             DataExportTaskInfoFactory dataExportTaskInfoFactory, ReadingTypeInfoFactory readingTypeInfoFactory,
-                                            StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
+                                            StandardDataSelectorInfoFactory standardDataSelectorInfoFactory, ServiceLocator serviceLocator) {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.dataExportTaskInfoFactory = dataExportTaskInfoFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.standardDataSelectorInfoFactory = standardDataSelectorInfoFactory;
+        this.serviceLocator = serviceLocator;
     }
 
     public DataExportTaskHistoryInfo asInfo(DataExportOccurrence dataExportOccurrence) {
@@ -124,12 +127,12 @@ public class DataExportTaskHistoryInfoFactory {
         );
         // set destination from history
         version.getDestinations(versionAt).stream()
-                .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
-                .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(destination)));
+                .sorted(Comparator.comparing(DataExportDestination::getCreateTime))
+                .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(serviceLocator, destination)));
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(versionAt);
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             info.task.schedule = null;
-        } else if (foundSchedule.isPresent()) {
+        } else {
             ScheduleExpression scheduleExpression = foundSchedule.get();
             if (scheduleExpression instanceof TemporalExpression) {
                 info.task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
@@ -195,7 +198,7 @@ public class DataExportTaskHistoryInfoFactory {
 
     private DestinationType typeOf(DataExportDestination destination) {
         return Arrays.stream(DestinationType.values())
-                .filter(type -> type.getDestinationClass().isInstance(destination))
+                .filter(type -> type.getDestinationClass(serviceLocator).isInstance(destination))
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
     }
