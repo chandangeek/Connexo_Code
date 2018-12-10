@@ -80,7 +80,7 @@ Ext.define('Wss.view.Add', {
                         ]
                     },
                     {
-                        xtype: 'property-form',
+                        xtype: 'grouped-property-form',
                         itemId: 'property-form',
                         width: '100%',
                         defaults: {
