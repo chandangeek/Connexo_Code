@@ -13,13 +13,13 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_6 implements Upgrader {
-    public static final Version VERSION = Version.version(10, 6);
+public class UpgraderV10_5_1 implements Upgrader {
+    public static final Version VERSION = Version.version(10, 5, 1);
     private final DataModel dataModel;
     private final EventService eventService;
 
     @Inject
-    public UpgraderV10_6(DataModel dataModel, EventService eventService) {
+    public UpgraderV10_5_1(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
     }

@@ -313,7 +313,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 Installer.class,
                 ImmutableMap.of(
                         V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
-                        UpgraderV10_6.VERSION, UpgraderV10_6.class
+                        UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
