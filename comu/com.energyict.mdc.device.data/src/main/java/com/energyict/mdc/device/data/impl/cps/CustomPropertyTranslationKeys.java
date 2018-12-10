@@ -47,7 +47,7 @@ public enum CustomPropertyTranslationKeys implements TranslationKey {
     STATUS_DEMOLISHED("property.status.demolished", "Demolished"),
     STATUS_INACTIVE("property.status.inactive", "Inactive"),
     STATUS_PRE_ACTIVE("property.status.pre.active", "Pre-active"),
-    STATUS_TEST("property.status.active", "Test"),
+    STATUS_TEST("property.status.test", "Test"),
 
     ;
 
