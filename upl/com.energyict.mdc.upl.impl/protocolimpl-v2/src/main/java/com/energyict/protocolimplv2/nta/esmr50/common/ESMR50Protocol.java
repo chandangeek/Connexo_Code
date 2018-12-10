@@ -251,22 +251,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;
+        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    //    @Override
-//    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-//        for(LogBookReader reader : logBooks){
-//            int i = 0;
-//            getLogger().info("Reading " + reader.getLogBookObisCode() );
-//        }
-//        return Collections.emptyList();
-//    }
+
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
         return getEsmr50LogBookFactory().getLogBookData(logBookReaders);
@@ -294,7 +287,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         }
         return registerFactory;
     }
-
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {

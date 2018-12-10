@@ -158,16 +158,14 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-//        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
 
             for (LoadProfileReader lpr : loadProfiles) {
-
                 ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
                 CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-                    CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
+                CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
                 try {
                     if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                     getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile [" + lpObisCode + "] data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -226,12 +224,13 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 } else {
                     this.getMeterProtocol().getLogger().log(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
                 }
-            } catch (IOException e) {
-                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
-                    Issue problem = this.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
-                    collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                } catch (IOException e) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
+                        Issue problem = this.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                    }
                 }
-            }
+                collectedLoadProfileList.add(collectedLoadProfile);
             }
 
         return collectedLoadProfileList;
