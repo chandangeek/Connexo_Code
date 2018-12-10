@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ExportData {
 
     StructureMarker getStructureMarker();

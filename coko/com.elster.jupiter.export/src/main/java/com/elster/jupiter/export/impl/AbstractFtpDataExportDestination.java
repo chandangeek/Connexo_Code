@@ -1,12 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDataExportDestination;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.ftpclient.FtpClientService;
@@ -34,7 +32,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
-public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination {
+public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination, FormattedFileDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";
 
@@ -79,12 +77,14 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
                 Files.copy(source, target);
                 setFileRights(target);
                 try (TransactionContext context = getTransactionService().getContext()) {
-                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString());
+                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus,
+                            AbstractFtpDataExportDestination.this.getServerInfo() +
+                                    target.toAbsolutePath().toString());
                     context.commit();
                 }
             } catch (Exception e) {
                 throw new DestinationFailedException(
-                        thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString(), e.getMessage());
+                        thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e, AbstractFtpDataExportDestination.this.getServerInfo() + target.toAbsolutePath().toString(), e.getMessage());
             }
         }
 
@@ -129,7 +129,8 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     }
 
     @Inject
-    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
+    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService,
+                                     FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.dataVaultService = dataVaultService;
         this.ftpClientService = ftpClientService;

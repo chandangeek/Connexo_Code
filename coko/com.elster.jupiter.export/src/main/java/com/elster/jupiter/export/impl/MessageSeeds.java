@@ -52,7 +52,24 @@ public enum MessageSeeds implements MessageSeed {
     DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE),
     SOME_USAGEPOINTS_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1036, "dataexport.usagepoint.mismatch", "Some usage points of usage point group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
     VETO_USAGEPOINTGROUP_DELETION(1037, "usagePointGroupXstillInUseByTask", "Usage point group {0} is still in use by an export task"),
-    USAGE_POINT_MISSING_WINDOW(1038, "dataexport.usagepoint.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for usage point {2}", Level.INFO),;
+    USAGE_POINT_MISSING_WINDOW(1038, "dataexport.usagepoint.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for usage point {2}", Level.INFO),
+
+    NO_WEBSERVICE_FOUND(1039, "webservice.export.not.found", "No data export web service is found for endpoint ''{0}''."),
+    NO_CPS_FOUND(1040, "service.call.cps.not.found", "No active custom attribute set is found with id ''{0}''."),
+    NO_CPS_VALUES_FOUND(1041, "service.call.cps.values.not.found", "No properties are kept for web service call {0}."),
+    WEB_SERVICE_EXPORT_FAILURE(1042, "webservice.export.failure", "Failure while exporting data via web service: {0}"),
+    // TODO: specify which web service failed?
+    WEB_SERVICE_EXPORT_NOT_CONFIRMED(1043, "webservice.export.not.confirmed", "Data export via web service isn''t confirmed: {0}"),
+    WEB_SERVICE_EXPORT_NO_CONFIRMATION(1044, "webservice.export.no.confirmation", "No data export confirmation has been received in the configured timeout."),
+    WEB_SERVICE_EXPORT_UNEXPECTED_STATE(1045, "webservice.export.unexpected.state", "Unexpected state of web service call {0}: {1}."),
+    WEB_SERVICE_EXPORT_WAITING_FAILURE(1046, "webservice.export.waiting.failure", "Failure while waiting for data export confirmation: {0}"),
+    WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE(1047, "webservice.export.no.error.message", "Received error code, but no error has been provided."),
+
+    NULL_FORMATTER_WITH_FILE_DESTINATIONS(1048, Keys.NULL_FORMATTER_WITH_FILE_DESTINATIONS, "Null formatter is supported only by web service destination."),
+    NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA(1049, Keys.NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA,
+            "Web service endpoint for updated data should be specified on web service destinations if updated data is exported."),
+    ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
+    BAD_ENDPOINTS_FOR_DATA_SELECTOR(1051, Keys.BAD_ENDPOINTS_FOR_DATA_SELECTOR, "Endpoints specified on web service destinations mismatch the data selector.");
 
     private final int number;
     private final String key;
@@ -119,6 +136,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
         public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
         public static final String FTP_FAILURE = "ftp.io.writing.failure";
+        public static final String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
+        public static final String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
+        public static final String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
     }
 }
 

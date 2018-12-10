@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.export.impl;
@@ -7,7 +7,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,7 +35,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 @Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
-class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
+class LocalFileDestinationImpl extends AbstractDataExportDestination implements FileDestination, FormattedFileDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";
 
@@ -131,13 +130,14 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
     private String fileLocation;
 
     @Inject
-    FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, TransactionService transactionService) {
+    LocalFileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService, AppService appService,
+                             FileSystem fileSystem, TransactionService transactionService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.appService = appService;
     }
 
-    static FileDestinationImpl from(IExportTask task, DataModel dataModel, String fileLocation, String fileName, String fileExtension) {
-        return dataModel.getInstance(FileDestinationImpl.class).init(task, fileLocation, fileName, fileExtension);
+    static LocalFileDestinationImpl from(IExportTask task, DataModel dataModel, String fileLocation, String fileName, String fileExtension) {
+        return dataModel.getInstance(LocalFileDestinationImpl.class).init(task, fileLocation, fileName, fileExtension);
     }
 
     @Override
@@ -175,7 +175,7 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         this.fileExtension = fileExtension;
     }
 
-    FileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
+    LocalFileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
         initTask(task);
         this.fileName = fileName;
         this.fileExtension = fileExtension;

@@ -6,13 +6,11 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
-import com.elster.jupiter.mail.OutboundMailMessage;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -26,11 +24,10 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
+class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination, FormattedFileDestination {
 
     private class Sender {
 
@@ -118,7 +115,8 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     private String attachmentExtension;
 
     @Inject
-    EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService, TransactionService transactionService) {
+    EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService, AppService appService,
+                         FileSystem fileSystem, MailService mailService, TransactionService transactionService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.mailService = mailService;
     }

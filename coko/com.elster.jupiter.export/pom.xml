@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>export</artifactId>
-    <version>4.3.1${revision}</version>
+    <version>5.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.export</name>
 
@@ -112,6 +112,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -186,17 +198,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>soap.whiteboard.cxf</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -207,11 +209,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

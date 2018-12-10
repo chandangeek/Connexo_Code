@@ -5,7 +5,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
@@ -20,7 +19,7 @@ import java.time.Clock;
 class FtpDestinationImpl extends AbstractFtpDataExportDestination implements FtpDestination {
 
     @Inject
-    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
+    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, IDataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
     }
 

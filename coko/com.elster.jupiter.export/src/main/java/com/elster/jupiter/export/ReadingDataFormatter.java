@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public interface ReadingDataFormatter extends DataFormatter {
 
     void startItem(ReadingTypeDataExportItem item);

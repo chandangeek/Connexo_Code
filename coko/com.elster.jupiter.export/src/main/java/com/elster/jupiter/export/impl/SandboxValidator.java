@@ -5,7 +5,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.FileDestination;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

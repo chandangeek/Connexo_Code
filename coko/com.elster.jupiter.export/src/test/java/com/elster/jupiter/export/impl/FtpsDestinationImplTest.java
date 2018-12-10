@@ -6,7 +6,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.ftpclient.IOConsumer;
@@ -15,15 +14,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,6 +29,12 @@ import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -61,7 +61,7 @@ public class FtpsDestinationImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private DataExportService dataExportService;
+    private IDataExportService dataExportService;
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -73,7 +73,6 @@ public class FtpsDestinationImplTest {
 
     @Before
     public void setUp() throws IOException {
-
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
             NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
             when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
@@ -105,11 +104,6 @@ public class FtpsDestinationImplTest {
         when(dataVaultService.encrypt(any())).thenAnswer(invocation -> new String((byte[]) invocation.getArguments()[0]));
     }
 
-    @After
-    public void tearDown() {
-
-    }
-
     @Test
     public void testSend() {
         FtpsDestinationImpl ftpsDestination = new FtpsDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
@@ -120,7 +114,6 @@ public class FtpsDestinationImplTest {
         Path file = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
         assertThat(Files.exists(file)).isTrue();
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
-
     }
 
     private String getContent(Path file) {

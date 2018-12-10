@@ -21,6 +21,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.SftpDestination;
+import com.elster.jupiter.export.WebServiceDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -28,6 +29,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -53,8 +55,10 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@WebServiceDestinationsComplyWithDataSelector(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
+@FormatterCompliesWithDestinations(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
+@ChangeEndPointIsSetForExportOfUpdatedData(groups = {Save.Update.class}) // export task is always created without destinations; then destinations are added => export task is updated
 final class ExportTaskImpl implements IExportTask {
-
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -477,7 +481,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
-        FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
+        LocalFileDestinationImpl fileDestination = dataModel.getInstance(LocalFileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
         Save.CREATE.validate(dataModel, fileDestination);
         destinations.add(fileDestination);
         doSave();
@@ -519,18 +523,26 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
+    public WebServiceDestination addWebServiceDestination(EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint) {
+        WebServiceDestinationImpl webServiceDestination = WebServiceDestinationImpl.from(this, dataModel, createEndPoint, changeEndPoint);
+        destinations.add(webServiceDestination);
+        doSave();
+        return webServiceDestination;
+    }
+
+    @Override
     public void removeDestination(DataExportDestination destination) {
         destinations.remove(destination);
         doSave();
     }
 
     @Override
-    public List<DataExportDestination> getDestinations() {
+    public List<IDataExportDestination> getDestinations() {
         return Collections.unmodifiableList(destinations);
     }
 
     @Override
-    public List<DataExportDestination> getDestinations(Instant at) {
+    public List<IDataExportDestination> getDestinations(Instant at) {
         List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
         return props.stream()
                 .map(JournalEntry::get)
@@ -550,17 +562,17 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Destination getCompositeDestination() {
+    public CompositeDataExportDestination getCompositeDestination() {
         return new CompositeDataExportDestination(destinations);
     }
 
     @Override
-    public Destination getCompositeDestination(Instant at) {
+    public CompositeDataExportDestination getCompositeDestination(Instant at) {
         List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
-        List<IDataExportDestination> historyDestination = props.stream()
+        List<IDataExportDestination> destinationsAtTimestamp = props.stream()
                 .map(JournalEntry::get)
                 .collect(Collectors.toList());
-        return new CompositeDataExportDestination(historyDestination);
+        return new CompositeDataExportDestination(destinationsAtTimestamp);
     }
 
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {

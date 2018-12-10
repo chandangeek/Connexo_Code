@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.stream.Stream;
 
+@ProviderType
 public interface ExportTaskFinder {
 
     ExportTaskFinder setStart(int start);

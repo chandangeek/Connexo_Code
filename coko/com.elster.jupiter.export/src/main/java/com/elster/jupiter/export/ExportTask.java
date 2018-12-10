@@ -7,6 +7,7 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -98,11 +99,13 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     SftpDestination addSftpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension);
 
+    WebServiceDestination addWebServiceDestination(EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint);
+
     void removeDestination(DataExportDestination destination);
 
-    List<DataExportDestination> getDestinations();
+    List<? extends DataExportDestination> getDestinations();
 
-    List<DataExportDestination> getDestinations(Instant at);
+    List<? extends DataExportDestination> getDestinations(Instant at);
 
     String getApplication();
 
