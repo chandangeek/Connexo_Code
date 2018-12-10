@@ -275,7 +275,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new NTASecurityProvider(properties, securityPropertySet.getAuthenticationDeviceAccessLevel());
+            int securityAuthLevel = 0;
+            if(getSecurityPropertySet() != null){
+                securityAuthLevel = getSecurityPropertySet().getAuthenticationDeviceAccessLevel();
+            }
+            securityProvider = new NTASecurityProvider(properties, securityAuthLevel);
         }
         return securityProvider;
     }
