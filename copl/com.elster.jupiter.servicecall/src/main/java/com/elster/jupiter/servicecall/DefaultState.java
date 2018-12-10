@@ -16,12 +16,15 @@ import java.util.stream.Stream;
  * that are part of the default {@link ServiceCallLifeCycle}.
  */
 public enum DefaultState implements TranslationKey {
+    // open
     CREATED("sclc.default.created", "Created"),
     PENDING("sclc.default.pending", "Pending"),
     SCHEDULED("sclc.default.scheduled", "Scheduled"),
     ONGOING("sclc.default.ongoing", "Ongoing"),
     PAUSED("sclc.default.paused", "Paused"),
     WAITING("sclc.default.waiting", "Waiting"),
+
+    // closed
     PARTIAL_SUCCESS("sclc.default.partialSuccess", "Partial success"),
     SUCCESSFUL("sclc.default.successful", "Successful"),
     FAILED("sclc.default.failed", "Failed"),
@@ -65,6 +68,7 @@ public enum DefaultState implements TranslationKey {
     public boolean matches(State state) {
         return getKey().equals(state.getName());
     }
+
     public static Optional<DefaultState> from(String key) {
         return Stream
                 .of(DefaultState.values())
@@ -81,4 +85,7 @@ public enum DefaultState implements TranslationKey {
         return thesaurus.getFormat(this).format();
     }
 
+    public boolean isOpen() {
+        return ordinal() < PARTIAL_SUCCESS.ordinal();
+    }
 }

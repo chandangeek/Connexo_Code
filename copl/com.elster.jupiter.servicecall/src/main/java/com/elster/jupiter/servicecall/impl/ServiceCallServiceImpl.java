@@ -77,11 +77,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@LiteralSql
 @Component(name = "com.elster.jupiter.servicecall",
         service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
-@LiteralSql
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String SERVICE_CALLS_DESTINATION_NAME = "SerivceCalls";
@@ -310,6 +310,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Optional<ServiceCall> getServiceCall(long id) {
         return dataModel.mapper(ServiceCall.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ServiceCall> lockServiceCall(long id) {
+        return Optional.ofNullable(dataModel.mapper(ServiceCall.class).lock(id));
     }
 
     @Override
