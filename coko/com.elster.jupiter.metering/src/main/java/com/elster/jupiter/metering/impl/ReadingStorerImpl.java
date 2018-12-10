@@ -217,15 +217,13 @@ class ReadingStorerImpl implements ReadingStorer {
     public void execute(QualityCodeSystem system) {
         doDeltas();
         doMultiplications();
-        consolidatedValues.entrySet()
-                .forEach(entry -> {
-                    ChannelContract channel = entry.getKey().getFirst();
-                    Instant timestamp = entry.getKey().getLast();
-                    Object[] values = entry.getValue();
-                    channel.validateValues(readings.get(entry.getKey()), values);
-                    overflowBackflowDetection(system, channel, timestamp, values);
-                    storer.add(channel.getTimeSeries(), timestamp, values);
-                });
+        consolidatedValues.forEach((key, values) -> {
+            ChannelContract channel = key.getFirst();
+            Instant timestamp = key.getLast();
+            channel.validateValues(readings.get(key), values);
+            overflowBackflowDetection(system, channel, timestamp, values);
+            storer.add(channel.getTimeSeries(), timestamp, values);
+        });
         storer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
