@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>metering</artifactId>
-    <version>6.4.1${revision}</version>
+    <version>6.5.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering</name>
 
