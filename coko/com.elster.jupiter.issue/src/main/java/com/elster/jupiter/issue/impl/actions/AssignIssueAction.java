@@ -138,6 +138,17 @@ public class AssignIssueAction extends AbstractIssueAction {
         return super.isApplicableForUser(user) && user.getPrivileges().stream().anyMatch(p -> Privileges.Constants.ASSIGN_ISSUE.equals(p.getName()));
     }
 
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(ASSIGNEE);
+        if (value != null) {
+            return String.format("%s/%s",
+                    (((Assignee) value).workgroup).map(WorkGroup::getName).orElse(getThesaurus().getFormat(TranslationKeys.UNASSIGNED).format()),
+                    (((Assignee) value).user).map(User::getName).orElse(getThesaurus().getFormat(TranslationKeys.UNASSIGNED).format()));
+        }
+        return "";
+    }
+
     private class AssigneeValueFactory implements ValueFactory<Assignee>, AssignPropertyFactory {
         @Override
         public Assignee fromStringValue(String stringValue) {
