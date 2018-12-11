@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -60,7 +59,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -179,8 +177,8 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         when(this.effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(this.configuration);
-        when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
-        when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
+        when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(fromJan1ToFeb10());
+        when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(fromJan1ToFeb10()));
         when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(this.usagePoint.getServiceCategory()).thenReturn(this.serviceCategory);
         when(this.serviceCategory.getCustomPropertySets()).thenReturn(Collections.emptyList());
@@ -195,7 +193,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test(expected = MetrologyContractDoesNotApplyToUsagePointException.class)
     public void noMetrologyConfigurationsAppliedToUsagePoint() {
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        Range<Instant> aggregationPeriod = fromJan1ToFeb10();
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         // Business method
@@ -218,7 +216,7 @@ public class DataAggregationServiceImplCalculateTest {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(otherConfiguration);
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        Range<Instant> aggregationPeriod = fromJan1ToFeb10();
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Business method
@@ -246,7 +244,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test
     public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        Range<Instant> aggregationPeriod = fromJan1ToFeb10();
         UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
@@ -374,7 +372,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test
     public void monthlyNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        Range<Instant> aggregationPeriod = fromJan1ToFeb10();
         // Setup configuration requirements
         UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
@@ -503,7 +501,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test
     public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        Range<Instant> aggregationPeriod = fromJan1ToFeb10();
         UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
@@ -649,8 +647,9 @@ public class DataAggregationServiceImplCalculateTest {
         return Instant.ofEpochMilli(1454284800000L);
     }
 
-    private Range<Instant> year2016() {
-        return Range.atLeast(Instant.ofEpochMilli(1451606400000L));
+    private Range<Instant> fromJan1ToFeb10() {
+        // from January 1, 2016 12:00:00 AM to February 10, 2016 23:59:59 AM (GMT)
+        return Range.openClosed(Instant.ofEpochMilli(1451606400000L), Instant.ofEpochMilli(1455148799000L));
     }
 
     private ReadingType mock15minReadingType(String mRID) {

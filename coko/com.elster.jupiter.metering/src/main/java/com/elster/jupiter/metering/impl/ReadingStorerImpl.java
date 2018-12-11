@@ -463,15 +463,13 @@ class ReadingStorerImpl implements ReadingStorer {
     public void execute(QualityCodeSystem system) {
         doDeltas();
         doMultiplications();
-        consolidatedValues.entrySet()
-                .forEach(entry -> {
-                    ChannelContract channel = entry.getKey().getFirst();
-                    Instant timestamp = entry.getKey().getLast();
-                    Object[] values = entry.getValue();
-                    channel.validateValues(readings.get(entry.getKey()), values);
-                    overflowBackflowDetection(system, channel, timestamp, values);
-                    storer.add(channel.getTimeSeries(), timestamp, values);
-                });
+        consolidatedValues.forEach((key, values) -> {
+            ChannelContract channel = key.getFirst();
+            Instant timestamp = key.getLast();
+            channel.validateValues(readings.get(key), values);
+            overflowBackflowDetection(system, channel, timestamp, values);
+            storer.add(channel.getTimeSeries(), timestamp, values);
+        });
         storer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
@@ -533,14 +531,14 @@ class ReadingStorerImpl implements ReadingStorer {
     public List<ReadingInfo> getReadings() {
         List<ReadingInfo> readingInfos = new ArrayList<>();
         for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
-            ChannelContract ÑhannelContract = entry.getKey().getFirst();
-            if (ÑhannelContract != null) {
-                ChannelsContainer channelsContainer = ÑhannelContract.getChannelsContainer();
+            ChannelContract ñhannelContract = entry.getKey().getFirst();
+            if (ñhannelContract != null) {
+                ChannelsContainer channelsContainer = ñhannelContract.getChannelsContainer();
                 if (channelsContainer != null) {
                     ReadingInfo readingInfo = new ReadingInfo();
                     channelsContainer.getMeter().ifPresent(meter -> readingInfo.setMeter(meter));
                     channelsContainer.getUsagePoint().ifPresent(usagePoint -> readingInfo.setUsagePoint(usagePoint));
-                    getScope().keySet().stream().filter(key -> key.getChannel().getId() == ÑhannelContract.getId())
+                    getScope().keySet().stream().filter(key -> key.getChannel().getId() == ñhannelContract.getId())
                             .findFirst().ifPresent(channel -> readingInfo.setReadingType(channel.getReadingType()));
                     BaseReading reading = entry.getValue();
                     readingInfo.setReading(reading);
