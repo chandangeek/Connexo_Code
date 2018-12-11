@@ -296,7 +296,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.ntpAddress, DeviceMessageConstants.ntpAddressDefaultTranslation).finish(),
-                    this.booleanSpec(service, DeviceMessageConstants.useLegacyTimeServerIC, DeviceMessageConstants.useLegacyTimeServerICDefaultTranslation)
+                    this.booleanSpec(service, DeviceMessageConstants.useLegacyTimeServerIC, DeviceMessageConstants.useLegacyTimeServerICDefaultTranslation, false)
             );
         }
     },
@@ -316,7 +316,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
-                    this.booleanSpec(service, DeviceMessageConstants.useLegacyNTPServerAddressIC, DeviceMessageConstants.useLegacyNTPServerAddressICDefaultTranslation)
+                    this.booleanSpec(service, DeviceMessageConstants.useLegacyNTPServerAddressIC, DeviceMessageConstants.useLegacyNTPServerAddressICDefaultTranslation, false)
             );
         }
     },
