@@ -8,7 +8,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.data.Device;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -39,7 +38,7 @@ public abstract class AbstractDeviceTypePersistenceSupport<T extends PersistentD
 
     @Override
     public String application() {
-        return MdcAppService.APPLICATION_NAME;
+        return "MultiSense";
     }
 
     @Override
