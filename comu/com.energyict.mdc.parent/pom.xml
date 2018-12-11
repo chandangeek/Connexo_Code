@@ -15,7 +15,7 @@
     <groupId>com.energyict</groupId>
     <artifactId>mdc.parent</artifactId>
     <name>[MDC] mdc.parent</name>
-    <version>1.5.0${revision}</version>
+    <version>1.5.1${revision}</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>pom</packaging>
 
@@ -39,7 +39,7 @@
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <json.version>20090211</json.version>
-        <protocols.version>1.1.5${revision}</protocols.version>
+        <protocols.version>1.1.6${revision}</protocols.version>
         <javadoc.excluded.package.names>
             com.energyict.mdc.device.alarms.security:com.energyict.mdc.device.command.security:com.energyict.mdc.device.config.security:com.energyict.mdc.device.data.security:${line.separator}
             com.energyict.mdc.engine.config.security:com.energyict.mdc.firmware.security:com.energyict.mdc.masterdata.security:com.energyict.mdc.multisense.api.security:com.energyict.mdc.scheduling.security:${line.separator}
@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>kore</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -79,391 +79,391 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.api.rest</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.app</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.app.help</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.bpm</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.bpm.extjs</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.cim.webservices.inbound.soap</artifactId>
-                <version>1.1.3${revision}</version>
+                <version>1.1.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
-                <version>5.1.0${revision}</version>
+                <version>5.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>comserver.core.extjs</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>comserver.core.rest</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dashboard</artifactId>
-                <version>2.4.0${revision}</version>
+                <version>2.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dashboard.extjs</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dashboard.rest</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.alarms</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.alarms.extjs</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.alarms.rest</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>1.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.config</artifactId>
-                <version>5.2.3${revision}</version>
+                <version>5.2.4${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.config.rest</artifactId>
-                <version>5.1.0${revision}</version>
+                <version>5.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.cps.examples</artifactId>
-                <version>2.2.2${revision}</version>
+                <version>2.2.3${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data</artifactId>
-                <version>7.3.0${revision}</version>
+                <version>7.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.importers</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.rest</artifactId>
-                <version>5.1.0${revision}</version>
+                <version>5.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.validation</artifactId>
-                <version>4.2.0${revision}</version>
+                <version>4.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.validation.extjs</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.validation.rest</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>2.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.rest</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.extjs</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.topology</artifactId>
-                <version>3.1.1${revision}</version>
+                <version>3.1.2${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.topology.rest</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>1.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dynamic</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>3.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine.config</artifactId>
-                <version>4.2.0${revision}</version>
+                <version>4.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.favorites</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware</artifactId>
-                <version>4.1.4${revision}</version>
+                <version>4.1.5${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware.extjs</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware.rest</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.gogo</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.io</artifactId>
-                <version>4.1.0${revision}</version>
+                <version>4.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datacollection</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datacollection.extjs</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datacollection.rest</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation.extjs</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation.rest</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>1.4.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issues</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.masterdata</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.masterdata.rest</artifactId>
-                <version>4.2.0${revision}</version>
+                <version>4.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.metering</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>2.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable.rest</artifactId>
-                <version>4.2.0${revision}</version>
+                <version>4.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.processes.keyrenewal.rest</artifactId>
-                <version>2.1.4${revision}</version>
+                <version>2.1.5${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>2.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols.api</artifactId>
-                <version>5.1.0${revision}</version>
+                <version>5.1.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>4.2.0${revision}</version>
+                <version>4.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.scheduling</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.scheduling.rest</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>2.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.servicecall.examples</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.tasks</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>3.2.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.tasks.rest</artifactId>
-                <version>1.5.0${revision}</version>
+                <version>1.5.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.upl</artifactId>
-                <version>4.0.1${revision}</version>
+                <version>4.0.2${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.usagepoint.data.rest</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.demo.customtask</artifactId>
-                <version>1.0.3${revision}</version>
+                <version>1.0.2${revision}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -506,7 +506,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine.monitor</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.1${revision}</version>
                 <scope>provided</scope>
             </dependency>
 
