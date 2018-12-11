@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -75,6 +74,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
@@ -224,6 +224,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -1356,15 +1357,29 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<Device> getHistory(Instant when) {
-        if (when.isAfter(this.modTime)) {
-            return Optional.of(this);
+        if (when.isAfter(modTime)) {
+            return Optional.of(this); // current device, for sure
         }
-        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+        if (when.isBefore(createTime)) {
+            return Optional.empty(); // there was no device
+        }
+//        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+//                .at(when)
+//                .find(ImmutableMap.of("id", this.getId()));
+//        return journalEntries.stream()
+//                .findFirst()
+//                .map(JournalEntry::get);
+        return Optional.of(getFirstJournalEntryAfter(when)); // crutch for the case of gaps in journal table
+    }
+
+    private Device getFirstJournalEntryAfter(Instant when) {
+        return dataModel.mapper(Device.class)
                 .at(when)
-                .find(ImmutableMap.of("id", this.getId()));
-        return journalEntries.stream()
-                .map(JournalEntry::get)
-                .findFirst();
+                .find(Arrays.asList(Operator.EQUAL.compare("ID", getId()), Operator.GREATERTHAN.compare("JOURNALTIME", when.toEpochMilli())))
+                .stream()
+                .min(Comparator.comparing(JournalEntry::getJournalTime))
+                .map(JournalEntry::get) // closest journal entry after "when"
+                .orElse(this); // journal entries not found => current device
     }
 
     @Override
@@ -2069,9 +2084,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval The interval over which meter readings are requested
-     * @param meter The meter for which readings are requested
-     * @param mdcChannel The meter's channel for which readings are requested
+     * @param interval                    The interval over which meter readings are requested
+     * @param meter                       The meter for which readings are requested
+     * @param mdcChannel                  The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -2239,9 +2254,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -2607,7 +2622,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter The Meter
+     * @param meter    The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -3433,5 +3448,4 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             return new Integer(a).compareTo(b);
         }
     }
-
 }
