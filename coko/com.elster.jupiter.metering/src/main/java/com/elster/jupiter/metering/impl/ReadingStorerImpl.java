@@ -20,13 +20,13 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingInfo;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.ObserverContainer;
 import com.elster.jupiter.util.collections.Subscription;
@@ -531,29 +531,29 @@ class ReadingStorerImpl implements ReadingStorer {
     public List<ReadingInfo> getReadings() {
         List<ReadingInfo> readingInfos = new ArrayList<>();
         for (Map.Entry<Pair<ChannelContract, Instant>, BaseReading> entry : readings.entrySet()) {
-            ChannelContract ñhannelContract = entry.getKey().getFirst();
-            if (ñhannelContract != null) {
-                ChannelsContainer channelsContainer = ñhannelContract.getChannelsContainer();
+            ChannelContract channelContract = entry.getKey().getFirst();
+            if (channelContract != null) {
+                ChannelsContainer channelsContainer = channelContract.getChannelsContainer();
                 if (channelsContainer != null) {
                     ReadingInfo readingInfo = new ReadingInfo();
-                    channelsContainer.getMeter().ifPresent(meter -> readingInfo.setMeter(meter));
-                    channelsContainer.getUsagePoint().ifPresent(usagePoint -> readingInfo.setUsagePoint(usagePoint));
-                    getScope().keySet().stream().filter(key -> key.getChannel().getId() == ñhannelContract.getId())
+                    channelsContainer.getMeter().ifPresent(readingInfo::setMeter);
+                    channelsContainer.getUsagePoint().ifPresent(readingInfo::setUsagePoint);
+                    getScope().keySet().stream().filter(key -> key.getChannel().getId() == channelContract.getId())
                             .findFirst().ifPresent(channel -> readingInfo.setReadingType(channel.getReadingType()));
                     BaseReading reading = entry.getValue();
                     readingInfo.setReading(reading);
-                    List<ReadingQualityRecord> readingQualities = (List<ReadingQualityRecord>) reading.getReadingQualities();
+                    List<? extends ReadingQuality> readingQualities = reading.getReadingQualities();
                     if (readingQualities.isEmpty()) {
                         // if the event reading doesn't contain reading qualities info, fetch reading qualities from the channel for this reading
                         Optional<Channel> channel = channelsContainer.getChannel(readingInfo.getReadingType());
                         if (channel.isPresent()) {
                             readingQualities = channel.get()
-                                            .findReadingQualities()
-                                            .actual()
-                                            .atTimestamp(reading.getTimeStamp())
-                                            .stream()
-                                            .distinct()
-                                            .collect(Collectors.toList());
+                                    .findReadingQualities()
+                                    .actual()
+                                    .atTimestamp(reading.getTimeStamp())
+                                    .stream()
+                                    .distinct()
+                                    .collect(Collectors.toList());
                         }
                     }
                     readingInfo.setReadingQualities(readingQualities);
