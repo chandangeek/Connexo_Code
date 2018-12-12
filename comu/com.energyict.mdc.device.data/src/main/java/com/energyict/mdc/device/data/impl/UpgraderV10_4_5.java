@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -42,6 +43,8 @@ public class UpgraderV10_4_5 implements Upgrader {
                     "DDC_COMTASKEXECJOURNALENTRY," +
                     "DDC_COMSESSIONJOURNALENTRY" +
             ")");
+
+            return;
         }
         List<String> alterSql = Arrays.asList(
                 getModifyIntervalPartitionDdl("DDC_COMTASKEXECJOURNALENTRY", "timestamp"),
@@ -54,8 +57,8 @@ public class UpgraderV10_4_5 implements Upgrader {
                 logger.info("Executing: " + sqlStatement);
                 statement.executeUpdate();
             } catch (SQLException e) {
-                logger.warning("Couldn't perform upgrade for \n" + sqlStatement + "\n" +
-                        "Check if Oracle is Enterprise Edition, is at least at v. 12.2 and has partitioning enabled!\n" + e);
+                logger.warning("Couldn't perform upgrade for \n" + sqlStatement);
+                throw new UnderlyingSQLFailedException(e);
             }
         });
     }
