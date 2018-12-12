@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<script type="text/javascript"><!--
+$(document).ready(function(){
+	$.getJSON('/api/ora/tables' , function(response) {		
+		var selectField = $('#table_name').get(0);
+		response.forEach( function (element) {
+			selectField.options[selectField.length]= new Option(element, element);
+		});
+		load_table();
+	});
+});
+
+function load_table() {
+	var div = $('#code').get(0);
+	var selectField = $('#table_name').get(0);
+	var link = '<iframe width=100% height=800 src="/api/ora/tables/';
+	link += selectField.options[selectField.selectedIndex].value + '.txt"></iframe>'
+	div.innerHTML = link;
+}
+
+//--> </script>	
+<form action="javascript:void(0)" id="graph_form">
+<select name="table_name" id="table_name" onchange="load_table()"></select>
+</form>
+<div id="code"></div>

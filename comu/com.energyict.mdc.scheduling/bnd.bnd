@@ -1,0 +1,10 @@
+-classpath: target/classes
+-dsannotations: *
+
+Private-Package:  \
+	com.energyict.mdc.scheduling.model.impl
+Export-Package:  \
+	com.energyict.mdc.scheduling,\
+	com.energyict.mdc.scheduling.events,\
+	com.energyict.mdc.scheduling.model,\
+	com.energyict.mdc.scheduling.security

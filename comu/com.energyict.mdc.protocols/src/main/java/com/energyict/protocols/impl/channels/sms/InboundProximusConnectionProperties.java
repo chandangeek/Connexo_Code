@@ -1,0 +1,113 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocols.impl.channels.sms;
+
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+
+import javax.validation.constraints.Size;
+
+/**
+ * Provides an implementation for the {@link PersistentDomainExtension} interface
+ * for the {@link InboundProximusSmsConnectionType}.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-11-04 (17:26)
+ */
+public class InboundProximusConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
+
+    @SuppressWarnings("unused")
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String phoneNumber;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String callHomeId;
+
+    @Override
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        this.connectionProvider.set(connectionProvider);
+        this.phoneNumber = (String) propertyValues.getProperty(Fields.PHONE_NUMBER.propertySpecName());
+        this.callHomeId = (String) propertyValues.getProperty(Fields.CALL_HOME_ID.propertySpecName());
+    }
+
+    @Override
+    public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        propertySetValues.setProperty(Fields.PHONE_NUMBER.propertySpecName(), this.phoneNumber);
+        propertySetValues.setProperty(Fields.CALL_HOME_ID.propertySpecName(), this.callHomeId);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
+    public enum Fields {
+        CONNECTION_PROVIDER {
+            @Override
+            public String javaName() {
+                return "connectionProvider";
+            }
+
+            @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
+            public String databaseName() {
+                return "CONNECTIONPROVIDER";
+            }
+
+            @Override
+            public void addTo(Table table) {
+                // Connection type is the domain extension and that is added by the CustomPropertySetService
+            }
+        },
+        PHONE_NUMBER {
+            @Override
+            public String propertySpecName() {
+                return InboundProximusSmsConnectionType.DEVICE_PHONE_NUMBER_PROPERTY_NAME;
+            }
+
+            @Override
+            public String databaseName() {
+                return "PHONENUMBER";
+            }
+        },
+        CALL_HOME_ID {
+            @Override
+            public String propertySpecName() {
+                return LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
+            }
+
+            @Override
+            public String databaseName() {
+                return "CALLHOMEID";
+            }
+        };
+
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
+
+        public abstract String databaseName();
+
+        public void addTo(Table table) {
+            table
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
+        }
+    }
+}

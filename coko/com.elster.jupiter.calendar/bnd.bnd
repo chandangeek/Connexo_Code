@@ -1,0 +1,11 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.calendar.impl,\
+  com.elster.jupiter.calendar.impl.gogo,\
+  com.elster.jupiter.calendar.impl.importers,\
+  com.elster.jupiter.calendar.impl.xmlbinding,\
+  com.elster.jupiter.calendar.impl.xmlbinding.*
+Export-Package: com.elster.jupiter.calendar,\
+  com.elster.jupiter.calendar.security
+Import-Package: com.sun.xml.internal.bind, *
+

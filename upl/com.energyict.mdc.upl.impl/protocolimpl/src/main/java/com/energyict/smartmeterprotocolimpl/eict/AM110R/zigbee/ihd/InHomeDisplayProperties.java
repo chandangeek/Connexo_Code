@@ -1,0 +1,96 @@
+package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd;
+
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.protocolimpl.base.ProtocolProperty;
+import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
+import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+/**
+ * Provides property information for the InHomeDisplay
+ */
+public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
+
+    private static final String ZIGBEE_MAC = "ZigbeeMAC";
+    private static final String ZIGBEE_PCLK = "ZigbeePCLK";
+
+    private static final int DEFAULT_IHD_CLIENT_MAC_ADDRESS = 64;
+
+    /**
+     * Uses the same logical device address as the HUB!!
+     */
+    private static final String DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS = "1";
+
+    private SecurityProvider securityProvider;
+
+    public InHomeDisplayProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
+    public DLMSReference getReference() {
+        return DLMSReference.LN;
+    }
+
+    @Override
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
+        Stream.of(
+                this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE),
+                this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION),
+                this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY),
+                this.integerSpec(PK_DELAY_AFTER_ERROR, false, PropertyTranslationKeys.EICT_DELAY_AFTER_ERROR),
+                this.integerSpec(INFORMATION_FIELD_SIZE, false, PropertyTranslationKeys.EICT_INFORMATION_FIELD_SIZE),
+                this.integerSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.EICT_MAX_REC_PDU_SIZE),
+                this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.EICT_RETRIES),
+                this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
+                this.stringSpec(ZIGBEE_MAC, false, PropertyTranslationKeys.EICT_ZIGBEE_MAC),
+                this.stringSpec(ZIGBEE_PCLK, false, PropertyTranslationKeys.EICT_ZIGBEE_PCLK),
+                this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
+                this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
+                this.booleanSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST))
+            .forEach(propertySpecs::add);
+        return propertySpecs;
+    }
+
+    @Override
+    public int getClientMacAddress() {
+        return getIntProperty(CLIENT_MAC_ADDRESS, DEFAULT_IHD_CLIENT_MAC_ADDRESS);
+    }
+
+    @ProtocolProperty
+    @Override
+    public String getServerMacAddress() {
+        return getStringValue(SERVER_MAC_ADDRESS, DEFAULT_IHD_LOGICAL_DEVICE_ADDRESS);
+    }
+
+    public String getZigbeePclk() {
+        return getStringValue(ZIGBEE_PCLK, "");
+    }
+
+    public String getZigbeeMac() {
+        return getStringValue(ZIGBEE_MAC, "");
+    }
+
+    public void setSecurityProvider(final AM110RSecurityProvider ukHubSecurityProvider) {
+        this.securityProvider = ukHubSecurityProvider;
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (this.securityProvider == null) {
+            this.securityProvider = new AM110RSecurityProvider(getProtocolProperties());
+        }
+        return this.securityProvider;
+    }
+
+}

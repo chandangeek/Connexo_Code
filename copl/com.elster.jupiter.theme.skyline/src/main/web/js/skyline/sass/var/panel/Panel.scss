@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/** @class Ext.panel.Panel */
+
+$panel-base-color: $base-color;
+$panel-border-radius: 0 !default;
+$panel-padding: 16px !default;
+
+$panel-body-background-color: $color-white !default;
+$panel-body-color: #000 !default;
+$panel-body-border-width: 0 !default;
+$panel-body-border-style: none !default;
+
+$panel-header-color: $color-blue;
+$panel-header-padding: 0 0 16px 0 !default;
+$panel-header-background-color: $panel-body-background-color !default;
+$panel-header-border-width: 0 !default;
+$panel-header-border-style: none !default;
+$panel-header-font-family: $font-family !default;
+
+$panel-header-sub-color: $color-grey !default;
+
+// Large UI
+$panel-large-header-font-family: $header-font-family !default;
+$panel-large-header-font-size: 24px !default;
+$panel-large-header-line-height: 35px !default;
+$panel-large-header-font-weight: bold !default;
+$panel-large-header-text-padding: 0 !default;
+$panel-large-header-padding: 0 0 16px 0 !default;
+$panel-large-header-sub-font-size: 30px !default;
+
+// Medium UI
+$panel-medium-header-font-family: $header-font-family !default;
+$panel-medium-header-font-size: 24px !default;
+$panel-medium-header-line-height: 35px !default;
+$panel-medium-header-font-weight: light !default;
+$panel-medium-header-padding: 0 0 16px 0 !default;
+$panel-medium-header-sub-font-size: 20px !default;
+
+// Small UI
+$panel-small-header-font-family: $header-font-family !default;
+$panel-small-header-font-size: 21px !default;
+$panel-small-header-font-weight: normal !default;
+$panel-small-header-padding: 0 0 16px 0 !default;
+$panel-small-header-sub-font-size: 18px !default;
+
+// Frame UI
+$panel-frame-border-color: $color-grey-7 !default;
+$panel-frame-border-width: 1px !default;
+$panel-frame-border-radius: 10px !default;
+$panel-frame-padding: $panel-padding !default;
+
+$panel-frame-header-border-color: $base-color !default;
+$panel-frame-header-border-width: 1px !default;
+//$panel-frame-header-inner-border-color,
+//$panel-frame-header-inner-border-width,
+$panel-frame-header-padding: 4px 4px 4px 16px !default;
+$panel-frame-header-color: $color-white !default;
+
+$panel-frame-body-border-width: 1px !default;
+$panel-frame-background-color: $panel-body-background-color !default;
+
+$panel-frame-pressed-menu: $color-blue !default;
+
+// Filter UI
+$panel-filter-padding: 16px !default;
+$panel-filter-border-radius: 0 !default;
+$panel-filter-body-color: $color-grey !default;
+$panel-filter-body-background-color: $color-grey-10 !default;
+
+$panel-filter-border-color: none !default;
+$panel-filter-border-width: 0 !default;
+
+$panel-filter-header-padding: 0 0 16px 0 !default;
+$panel-filter-header-color: $panel-filter-body-color !default;
+$panel-filter-header-background-color: $color-grey-10 !default;
+$panel-filter-header-font-family: $header-font-family !default;
+$panel-filter-header-font-size: 30px !default;
+$panel-filter-header-font-weight: normal !default;
+$panel-filter-background-color: $color-grey-10 !default;
+
+// Form error-msg
+
+$panel-form-error-msg-padding: 5px !default;
+$panel-form-error-msg-border-radius: 10px !default;
+$panel-form-error-msg-border-width: 1px !default;
+$panel-form-error-msg-icon: url('images/form/ico_warning.png') !default;
+
+$panel-border-color: $color-grey-7 !default;
+
+@import "StepPanel";
+@import "TilePanel";
+@import "TilePanel2";
+@import "VisualiserPanel";

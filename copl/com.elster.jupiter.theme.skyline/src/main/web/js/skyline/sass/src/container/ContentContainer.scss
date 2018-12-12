@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}container-contentcontainer {
+  background-color: $contentcontainer-default-background-color;
+
+  .west {
+    background-color: $contentcontainer-default-background-color;
+
+    .x-panel-header-default {
+      background-color: transparent;
+    }
+
+    .x-panel-header-text-container-default {
+      color: $contentcontainer-default-header-text-container-default-background-color;
+      font-size: 16px;
+    }
+
+    .x-toolbar-footer {
+      background-color: transparent;
+      padding: 0;
+    }
+  }
+
+  .center {
+    background-color: transparent;
+    padding: $contentcontainer-padding-center;
+  }
+}
+
+
+
+
+
+
+
+

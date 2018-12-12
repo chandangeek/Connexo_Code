@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "RadioButton";
+@import "Trigger";
+@import "PropertyDisplayField";
+@import "Combobox";
+
+
+.#{$prefix}form-field{
+  border-radius: $form-field-border-radius;
+  height: $form-field-height;
+  background-color: #ffffff;
+
+}
+
+.#{$prefix}form-field::-ms-clear {
+  display: none;
+}
+
+.#{$prefix}form-invalid-under {
+    background: none;
+    color: $form-error-msg-color;
+    font: $form-error-under-font;
+    padding: $form-error-msg-padding;
+    white-space: nowrap;
+}
+
+.#{$prefix}form-invalid-field {
+	border-color: #eb5642 !important;
+}
+
+.#{$prefix}form-display-field{
+  height: auto;
+  min-height: $form-field-height;
+
+  .application {
+    color: $color-grey-2;
+  }
+}

@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+$datepicker-item-today-border-color: $color-green-1 !default;
+$datepicker-item-today-border-style: solid !default;
+$datepicker-background-color: $color-white !default;
+$datepicker-border-color: $color-green-1 !default;
+$datepicker-header-background-color: $color-green-1 !default;
+$datepicker-column-header-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$datepicker-column-header-font-size: 13px !default;
+$datepicker-item-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$datepicker-item-font-size: 13px !default;
+$datepicker-monthpicker-item-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$datepicker-monthpicker-item-font-size: 13px !default;
+$datepicker-header-font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$datepicker-header-font-size: 13px !default;
+$datepicker-header-text-color: $color-white !default;
+$datepicker-today-button-background-color: transparent !default;
+$datepicker-date-hover-background-color: transparent !default;
+$datepicker-selected-date-font-weight: normal !default;
+$datepicker-item-selected-border-color: $color-green-1 !default;
+$datepicker-item-selected-background-color: $color-green-1 !default;
+$datepicker-border-radius: 10px 10px 10px 10px !default;
+$datepicker-border-color: $color-green-1 !default;
+$datepicker-header-border-radius: 10px 10px 0 0 !default;
+$datepicker-footer-border-radius: 0 0 10px 10px !default;
+
+$datepicker-nextmonth-image: url('images/picker/calendarRight.png') !default;
+$datepicker-previousmonth-image: url('images/picker/calendarLeft.png') !default;
+$datepicker-selectmonth-image: url('images/picker/arrowDown.png') !default;

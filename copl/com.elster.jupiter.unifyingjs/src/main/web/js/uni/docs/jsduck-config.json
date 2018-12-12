@@ -1,0 +1,19 @@
+{
+    "--": "../src",
+    "--title": "Unifying JS documentation",
+    "--guides": "guides/guides.json",
+    "--videos": "videos/videos.json",
+    "--examples": "examples/examples.json",
+    "--warnings": [
+        "-nodoc",
+        "+nodoc(,public)",
+        "-link",
+        "-type_name"
+    ],
+    "--ignore-html": [
+        "locale",
+        "debug"
+    ],
+    "--images": "images",
+    "--builtin-classes": true
+}

@@ -1,0 +1,11 @@
+{
+    "data": [
+        { "name": "whatever1", "data1": 1 },
+        { "name": "whatever2", "data1": 2 },
+        { "name": "whatever3", "data1": 5 },
+        { "name": "whatever4", "data1": 3 },
+        { "name": "whatever5", "data1": 7 },
+        { "name": "whatever6", "data1": 8 },
+        { "name": "whatever7", "data1": 9 }
+    ]
+}

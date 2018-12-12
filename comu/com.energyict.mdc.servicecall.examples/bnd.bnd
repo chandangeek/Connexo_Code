@@ -1,0 +1,3 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: !com.energyict.mdc.servicecall.examples

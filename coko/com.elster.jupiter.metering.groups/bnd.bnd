@@ -1,0 +1,5 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.metering.groups.impl,\
+    com.elster.jupiter.metering.groups.impl.search
+Export-Package: com.elster.jupiter.metering.groups, com.elster.jupiter.metering.groups.spi

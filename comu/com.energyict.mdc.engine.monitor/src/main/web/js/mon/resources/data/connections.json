@@ -1,0 +1,12 @@
+{
+    "info": [
+        {
+            "busyConnections": 73,
+            "threads":
+                [
+                    { "name": "notInUse", "data": 45 },
+                    { "name": "inUse", "data": 65 }
+                ]
+        }
+    ]
+}

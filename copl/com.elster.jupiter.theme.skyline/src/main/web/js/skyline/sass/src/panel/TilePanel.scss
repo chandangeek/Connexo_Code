@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@include extjs-panel-ui(
+$ui: 'tile',
+$ui-padding: $panel-tile-padding,
+$ui-border-radius: $panel-tile-border-radius,
+$ui-border-color: $panel-tile-border-color,
+$ui-border-width: $panel-tile-border-width,
+$ui-header-padding: $panel-tile-header-padding,
+$ui-header-color: $panel-tile-header-color,
+$ui-header-font-family: $panel-tile-header-font-family,
+$ui-header-font-size: $panel-tile-header-font-size,
+$ui-header-line-height: $panel-tile-header-font-size,
+$ui-header-font-weight: $panel-tile-header-font-weight,
+$ui-body-color: $panel-tile-body-color
+);
+
+//todo: Checkit if it matches guidlines
+.#{$prefix}panel-tile {
+    margin: {
+       // top: 16px;
+        right: 20px;
+        bottom: 20px;
+    }
+    .#{$prefix}panel-header {
+        padding: {
+            top: 5px;
+            right: 5px;
+            bottom: 5px;
+            left: 5px;
+        }
+        .#{$prefix}toolbar{
+            padding: 0 0 0 0;
+        }
+    }
+}
+
+.#{$prefix}panel-tile .#{$prefix}form-field{
+    border-radius: $form-field-border-radius;
+    height: 20px;
+    background-color: #ffffff;
+
+}
+
+.#{$prefix}panel-tile .#{$prefix}form-display-field{
+    height: auto;
+    min-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+//
+//.#{$prefix}panel-tile.first {
+//    margin: {
+//
+//    }
+//}
+//
+//.#{$prefix}panel-tile.middle {
+//    margin: {
+//        right: 24px;
+//        left: 24px;
+//    }
+//}
+//
+//.#{$prefix}panel-tile.last {
+//    margin: {
+//        left: 24px;
+//    }
+//}

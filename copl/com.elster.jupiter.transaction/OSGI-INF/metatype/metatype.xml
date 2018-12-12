@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+  <OCD description="Transaction Logging" name="Transaction Logging" id="com.elster.jupiter.transaction.logging">       
+    <AD name="Sql logging"  id="sqllog" required="true" type="Boolean" default="false" description="If true log all sql statements"/>
+    <AD name="Sql events"  id="sqlevent" required="true" type="Boolean" default="false" description="If true generate event admin events for all sql statements"/>
+    <AD name="Transaction logging"  id="txlog" required="true" type="Boolean" default="false" description="If true log all transactions"/>
+    <AD name="Transaction events"  id="txevent" required="true" type="Boolean" default="false" description="If true generate event admin events for all transactions"/>           
+  </OCD>  
+  <Designate pid="com.elster.jupiter.transaction.logging">
+   	<Object ocdref="com.elster.jupiter.transaction.logging"/>
+  </Designate>
+</metatype:MetaData>

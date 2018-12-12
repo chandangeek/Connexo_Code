@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+$toolbar-font-size: $font-size !default;
+$toolbar-background-color: transparent !default;
+$toolbar-background-gradient: 'none' !default;
+$toolbar-horizontal-spacing: 0px !default;
+$toolbar-vertical-spacing: 8px !default;
+
+$toolbar-footer-horizontal-spacing: 0 !default;
+$toolbar-footer-vertical-spacing: $toolbar-vertical-spacing !default;
+$toolbar-footer-background-color: transparent !default;
+$toolbar-footer-border-width: 0 !default;
+$toolbar-footer-margin: 0 !default;
+
+$toolbar-border-color: $base-color !default;
+$toolbar-border-width: 1px !default;
+$toolbar-border-style: solid !default;
+$toolbar-spacer-width: 6px !default;
+
+$toolbar-separator-highlight-color: #fff !default;
+$toolbar-separator-horizontal-margin: 0 $toolbar-horizontal-spacing 0 0 !default;
+$toolbar-separator-horizontal-height: 14px !default;
+$toolbar-separator-horizontal-border-style: solid !default;
+$toolbar-separator-horizontal-border-width: 0 1px !default;
+$toolbar-separator-vertical-margin: 0 5px $toolbar-vertical-spacing !default;
+$toolbar-separator-vertical-border-style: solid none !default;
+$toolbar-separator-vertical-border-width: 1px 0 !default;
+
+$toolbar-text-font-family: $font-family !default;
+$toolbar-text-font-size: 13px !default;
+$toolbar-text-font-weight: normal !default;
+$toolbar-text-margin-bugfix: 0 6px 0 0 !default;
+$toolbar-text-color: mix(desaturate(lighten($base-color, 37), 5), #000, 30) !default;
+$toolbar-text-padding: 8px !default;
+$toolbar-text-line-height: 16px !default;
+
+//$toolbar-scroller-width: 14px !default;
+//$toolbar-scroller-height: 22px !default;
+//$toolbar-scroller-border-color: #8db2e3 !default;
+//$toolbar-scroller-border-width: 0 0 1px !default;
+//$toolbar-scroller-cursor: pointer !default;
+//$toolbar-scroller-cursor-disabled: default !default;
+//$toolbar-scroller-opacity-disabled: 1 !default;

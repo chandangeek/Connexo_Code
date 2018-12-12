@@ -1,0 +1,34 @@
+{
+    "privileges": [
+        {
+            "name": "Level 1",
+            "roles": [
+                "Administrator",
+                "Operator",
+                "Poweruser"
+            ]
+        },
+        {
+            "name": "Level 2",
+            "roles": [
+                "Administrator"
+            ]
+        },
+        {
+            "name": "Level 3",
+            "roles": [
+                "Administrator",
+                "Operator",
+                "Poweruser",
+                "User"
+            ]
+        },
+        {
+            "name": "Level 4",
+            "roles": [
+                "Administrator",
+                "Poweruser"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin link() {
+    $ui: 'link'
+}
+
+@include link();
+
+.#{$prefix}component-link {
+    color: #686868;
+
+    a {
+        color: #686868;
+
+        &:hover {
+            color: #75a6bb;
+        }
+    }
+}

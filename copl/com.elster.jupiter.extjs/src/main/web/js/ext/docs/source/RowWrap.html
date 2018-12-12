@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Ext-grid-feature-RowWrap'>/**
+</span> * @private
+ */
+Ext.define('Ext.grid.feature.RowWrap', {
+    extend: 'Ext.grid.feature.Feature',
+    alias: 'feature.rowwrap',
+    
+<span id='Ext-grid-feature-RowWrap-property-rowWrapTd'>    rowWrapTd: 'td.' + Ext.baseCSSPrefix + 'grid-rowwrap',
+</span>    
+<span id='Ext-grid-feature-RowWrap-property-hasFeatureEvent'>    // turn off feature events.
+</span>    hasFeatureEvent: false,
+    
+<span id='Ext-grid-feature-RowWrap-property-tableTpl'>    tableTpl: {
+</span>        before: function(values, out) {
+            if (values.view.bufferedRenderer) {
+                values.view.bufferedRenderer.variableRowHeight = true;
+            }
+        },
+        priority: 200
+    },
+
+<span id='Ext-grid-feature-RowWrap-property-wrapTpl'>    wrapTpl: [
+</span>        '&lt;tr data-boundView=&quot;{view.id}&quot; data-recordId=&quot;{record.internalId}&quot; data-recordIndex=&quot;{recordIndex}&quot; class=&quot;{[values.itemClasses.join(&quot; &quot;)]} ', Ext.baseCSSPrefix, 'grid-wrap-row&quot; {ariaRowAttr}&gt;',
+            '&lt;td class=&quot;', Ext.baseCSSPrefix, 'grid-rowwrap ', Ext.baseCSSPrefix, 'grid-td&quot; colspan=&quot;{columns.length}&quot; {ariaCellAttr}&gt;',
+                '&lt;table class=&quot;', Ext.baseCSSPrefix, '{view.id}-table ', Ext.baseCSSPrefix, 'grid-table&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; style=&quot;width:100%&quot; {ariaCellInnerTableAttr}&gt;',
+                    '{[values.view.renderRowWrapColumnSizer(out)]}',
+                    '{%',
+                        'values.itemClasses.length = 0;',
+                        'this.nextTpl.applyOut(values, out, parent)',
+                    '%}',
+                '&lt;/table&gt;',
+            '&lt;/td&gt;',
+        '&lt;/tr&gt;', {
+            priority: 200
+        }
+    ],
+
+<span id='Ext-grid-feature-RowWrap-method-getTargetSelector'>    getTargetSelector: function () {
+</span>        return this.itemSelector;
+    },
+
+<span id='Ext-grid-feature-RowWrap-method-init'>    init: function(grid) {
+</span>        var me = this,
+            view = me.view;
+
+        view.addTableTpl(me.tableTpl);
+        view.addRowTpl(Ext.XTemplate.getTpl(me, 'wrapTpl'));
+        view.renderRowWrapColumnSizer = me.view.renderColumnSizer;
+        view.renderColumnSizer = Ext.emptyFn;
+
+        // Let the view know that it should use the itemSelector ancestor to retrieve the node
+        // rather than the datarow selector.
+        view.isRowWrapped = true;
+
+        // When looking up the target selector, wrapped rows should always use the itemSelector.
+        view.getTargetSelector = me.getTargetSelector;
+    }});
+</pre>
+</body>
+</html>

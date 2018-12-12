@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<meta charset="utf-8">
+<style>
+</style>
+<body>
+<H1>CIM MeterReading Files</H1>
+<ul id="cimfiles"/>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+ d3.json('/api/goodies/events/cimfiles', function(data) {
+    	d3.select('#cimfiles').selectAll('li').data(data).enter().append('li').append('a')
+    		.attr('href', function(d) { return '/api/goodies/events/cimfiles/' + d; })
+    		.text(function (d) { return d;});
+    });
+  
+</script>
+
+</body>

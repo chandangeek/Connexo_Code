@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Introduction</title>
+
+    <link rel="stylesheet" href="Security.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "8.0_2";
+    </script>
+    <meta name="brsprev" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Security/Security.htm">
+    <meta name="brsnext" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Security/Manage_security_accessors.htm">
+    <meta name="topic-breadcrumbs" content="Security"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section">Introduction</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic">Understand security in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span></p>
+    <p dir="ltr" class="FM_Body">In order to communicate, a trust chain is needed to validate a certificate's user. The trust chain of a certificate chain is an ordered list of certificates,
+        containing an end-user subscriber certificate and intermediate certificates. This enables the receiver to verify that the sender and all intermediates certificates are trustworthy. If the
+        trust chain is not complete, communication will be denied.</p>
+    <p dir="ltr" class="FM_Body">Keys are used to encrypt and decrypt content. Depending on the type of security different key types are available.</p>
+    <p dir="ltr" class="FM_Body">Certificates and trust stores are managed in <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE"
+                                                                                    data-format="SystemAdmin_App">Connexo Admin</span>. See chapter 7 Security in the <span data-name="SystemAdmin_App"
+                                                                                                                                                                            data-val="Connexo Admin"
+                                                                                                                                                                            data-showval="TRUE"
+                                                                                                                                                                            data-format="SystemAdmin_App">Connexo Admin</span>&#160;user
+        guide for more information. In <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>, trust stores and certificates are
+        linked to device types. These items can then be further specified on protocol related features such as the connection method on the device configuration. On the device itself you can specify
+        the key values. The figure below shows an overview of security in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>.
+        Below you can find more detailed information.</p>
+    <p dir="ltr" class="FM_Body">For s<span class="FM_change_bar">etting up the security configuration In Connexo where Connexo serves as client while the devic</span>e is seen as the server, the
+        security configuration is set up as following:.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Device security in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE"
+                                                                                                                             data-format="MDC_App">Connexo MultiSense</span>. O<span
+                    class="FM_change_bar">n the device type you add the security accessors that will be used by the different device configurations. On the device configuration you link the accessor with the relevant protocol related feature. On the devices with these device configurations you can define the values of the keys and select the specific certificates. The security accessors are created beforehand in Connexo MultiSense &gt; Administration &gt;&#160;Security &gt; Securit</span>y
+                accessors.
+            </caption>
+            <tr class="tr81">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Device_security.png" id="image167" src="../../assets/Device_security.png" style="max-width: 100% ;height: auto"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

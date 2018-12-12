@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.insight.issue.datavalidation.impl.*
+Export-Package: com.elster.insight.issue.datavalidation

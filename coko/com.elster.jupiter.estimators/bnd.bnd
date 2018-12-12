@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: com.elster.jupiter.estimators
+Private-Package: com.elster.jupiter.estimators.impl

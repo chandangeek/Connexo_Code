@@ -1,0 +1,11 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.device.topology.impl,\
+	com.energyict.mdc.device.topology.impl.multielement,\
+	com.energyict.mdc.device.topology.impl.utils,\
+	com.energyict.mdc.device.topology.impl.kpi
+Export-Package:  \
+	com.energyict.mdc.device.topology,\
+	com.energyict.mdc.device.topology.multielement,\
+	com.energyict.mdc.device.topology.kpi

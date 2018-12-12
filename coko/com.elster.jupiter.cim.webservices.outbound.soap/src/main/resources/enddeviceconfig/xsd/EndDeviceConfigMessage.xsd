@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+  -->
+<xs:schema xmlns:tns="http://iec.ch/TC57/2011/EndDeviceConfigMessage"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:msg="http://iec.ch/TC57/2011/schema/message"
+           xmlns:obj="http://iec.ch/TC57/2011/EndDeviceConfig#"
+           targetNamespace="http://iec.ch/TC57/2011/EndDeviceConfigMessage"
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
+    <!-- Base Message Definitions -->
+    <xs:import namespace="http://iec.ch/TC57/2011/schema/message"
+               schemaLocation="Message.xsd"/>
+    <!-- CIM Information Object Definition -->
+    <xs:import namespace="http://iec.ch/TC57/2011/EndDeviceConfig#"
+               schemaLocation="EndDeviceConfig.xsd"/>
+    <!-- PayloadType Definition -->
+    <xs:complexType name="EndDeviceConfigPayloadType">
+        <xs:sequence>
+            <xs:element ref="obj:EndDeviceConfig"/>
+            <xs:element name="OperationSet" type="msg:OperationSet" minOccurs="0"/>
+            <xs:element name="Compressed" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>For compressed and/or binary, uuencoded
+                        payloads
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Format" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Hint as to format of payload, e.g. XML, RDF, SVF, BINARY,
+                        PDF, ...
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Message Types -->
+    <!-- RequestMessageType -->
+    <xs:complexType name="EndDeviceConfigRequestMessageType">
+        <xs:sequence>
+            <xs:element name="Header" type="msg:HeaderType"/>
+            <xs:element name="Request" type="msg:RequestType" minOccurs="0"/>
+            <xs:element name="Payload" type="tns:EndDeviceConfigPayloadType"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- ResponseMessageType -->
+    <xs:complexType name="EndDeviceConfigResponseMessageType">
+        <xs:sequence>
+            <xs:element name="Header" type="msg:HeaderType"/>
+            <xs:element name="Reply" type="msg:ReplyType"/>
+            <xs:element name="Payload" type="tns:EndDeviceConfigPayloadType"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- EventMessageType -->
+    <xs:complexType name="EndDeviceConfigEventMessageType">
+        <xs:sequence>
+            <xs:element name="Header" type="msg:HeaderType"/>
+            <xs:choice>
+                <xs:element name="Payload" type="tns:EndDeviceConfigPayloadType"/>
+                <xs:element name="Reply" type="msg:ReplyType"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- FaultMessageType -->
+    <xs:complexType name="EndDeviceConfigFaultMessageType">
+        <xs:sequence>
+            <xs:element name="Reply" type="msg:ReplyType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="CreateEndDeviceConfig"
+                type="tns:EndDeviceConfigRequestMessageType"/>
+    <xs:element name="ChangeEndDeviceConfig"
+                type="tns:EndDeviceConfigRequestMessageType"/>
+    <xs:element name="CancelEndDeviceConfig"
+                type="tns:EndDeviceConfigRequestMessageType"/>
+    <xs:element name="CloseEndDeviceConfig"
+                type="tns:EndDeviceConfigRequestMessageType"/>
+    <xs:element name="DeleteEndDeviceConfig"
+                type="tns:EndDeviceConfigRequestMessageType"/>
+    <xs:element name="CreatedEndDeviceConfig"
+                type="tns:EndDeviceConfigEventMessageType"/>
+    <xs:element name="ChangedEndDeviceConfig"
+                type="tns:EndDeviceConfigEventMessageType"/>
+    <xs:element name="CanceledEndDeviceConfig"
+                type="tns:EndDeviceConfigEventMessageType"/>
+    <xs:element name="ClosedEndDeviceConfig"
+                type="tns:EndDeviceConfigEventMessageType"/>
+    <xs:element name="DeletedEndDeviceConfig"
+                type="tns:EndDeviceConfigEventMessageType"/>
+    <xs:element name="EndDeviceConfigResponseMessage"
+                type="tns:EndDeviceConfigResponseMessageType"/>
+    <xs:element name="EndDeviceConfigFaultMessage"
+                type="tns:EndDeviceConfigFaultMessageType"/>
+</xs:schema>

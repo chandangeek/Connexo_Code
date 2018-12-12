@@ -1,0 +1,2 @@
+id;serviceKind;lifeCycle;installationTime;serviceLocationString;name;outageregion;readroute;grounded;phaseCode;nominalVoltage;estimatedLoadValue;ratedCurrent;ratedPower;loadLimiterType;allowUpdate
+;ELECTRICITY_FAIL;;;serviceLocation;name;outageregion;readroute;TRUE;abcn;26.34:3:V;not-a-number:3:W;13181:6:A;45292:9:W;aa;TRUE

@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}form-radio {
+    height: 15px !important;
+    width: 15px !important;
+    background-position: (0 - $form-checkbox-size) 0 !important;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.#{$prefix}form-cb-checked .#{$prefix}form-radio {
+  background-position: (0 - $form-checkbox-size) (0 - $form-checkbox-size) !important;
+}
+
+.#{$prefix}item-disabled {
+  &.#{$prefix}form-cb-checked .#{$prefix}form-radio {
+    background-position: 0 (0 - $form-checkbox-size) !important;
+  }
+  .#{$prefix}form-radio {
+    opacity: 1;
+    background-position: 0 0 !important;
+    &:hover {
+      cursor: default;
+    }
+  }
+}

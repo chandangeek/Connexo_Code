@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Monitor connections</title>
+
+    <link rel="stylesheet" href="Device_Communication.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "7.0_15";
+    </script>
+    <meta name="brsprev" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Communication/Registered_devices_KPIs.htm">
+    <meta name="brsnext" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Communication/Filter_connections.htm">
+    <meta name="topic-breadcrumbs" content="Device Communication"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_61448_Monitor_connections"></a>Monitor connections</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_41054_View_connections"></a>Connection overview</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace </span>&gt; <span class="FM_UIRef">Data communication</span>&#160;&gt; <span class="FM_UIRef">Connections overview</span>.
+    </p>
+    <p dir="ltr" class="FM_BodyProcedure">The connections overview page is divided in four parts showing different types of connection related data. In the upper right conner the time stamp is
+        displayed as well as the option the refresh the view (E). You have the option to filter the results on a certain device group (A), see <a href="#XREF_55857_View_connection"><span
+                class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">View connection overview per device group”</span></a>&#160;for more
+        information.</p>
+    <p dir="ltr" class="FM_BodyProcedure" style="text-align  : left;">More information on the displayed data is given in the table below.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TDefenition" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <tr class="tr1">
+                <td class="td69">
+                    <p dir="ltr" class="FM_CellHeading">Section</p>
+                </td>
+                <td class="td70">
+                    <p dir="ltr" class="FM_CellHeading">Options</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="tr65">
+                <td class="td69" rowspan="3">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Summary</span></p>
+                </td>
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Active connections (<span
+                            class="FM_Bold">B</span>)</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">Summary of all connections, showing amount of successful connections, successful connections but with at least one failed communication task,
+                        ongoing connections and failed connections. Also shows the KPI when you select a device group.</p>
+                </td>
+            </tr>
+            <tr class="tr12">
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Active communication servers (<span
+                            class="FM_Bold">C</span>)</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">Shows which communication servers are down and causing communication problems. Server status is shown when hovering over the server.</p>
+                </td>
+            </tr>
+            <tr class="tr18">
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Quick links (<span class="FM_Bold">D</span>)
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">Links to view all connections and the communication overview and different reports.</p>
+                </td>
+            </tr>
+            <tr class="tr32">
+                <td class="td69">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;">Connections over time (F)</p>
+                </td>
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Device groups</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">A graphical representation of the successful, ongoing and failed connections relative to the defined target (KPI).</p>
+                    <p dir="ltr" class="FM_CellBody">Connections can be omitted or added to the graph by clicking the labels above the graph.</p>
+                </td>
+            </tr>
+            <tr class="tr12">
+                <td class="td69" rowspan="2">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Overview (G)</span></p>
+                </td>
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable" style="text-align  : left;"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Per status</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">Detailed overview of the current status of all connections. Fore more information on the different statuses see the figure below.</p>
+                </td>
+            </tr>
+            <tr class="tr18">
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Per last result</p>
+                </td>
+                <td class="td71">
+                    <p dir="ltr" class="FM_CellBody">Detailed overview of the last status of all connections.</p>
+                </td>
+            </tr>
+            <tr class="tr72">
+                <td class="td69" rowspan="3">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Breakdown (H)</span></p>
+                </td>
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Per communication pool</p>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">&nbsp;</p>
+                </td>
+                <td class="td71" rowspan="3">
+                    <p dir="ltr" class="FM_CellBody">Breakdown of the number of failed, successful and pending connections per communication port pool, device type and connection method. This allows
+                        identification of problems related to a specific component.</p>
+                    <p dir="ltr" class="FM_CellBody">Hovering over the bar shows the amount of pending, successful and failed connections.</p>
+                </td>
+            </tr>
+            <tr class="tr73">
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Per device type</p>
+                </td>
+            </tr>
+            <tr class="tr74">
+                <td class="td70">
+                    <p dir="ltr" class="FM_ListBulletTable" style="text-align  : left;"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Per connection
+                        type</p>
+                </td>
+            </tr>
+            <tr class="tr22">
+                <td class="td69" rowspan="3">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Heatmap (I)</span></p>
+                </td>
+                <td class="td70" rowspan="3">
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Communication port pool</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Connection type</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>Device type</p>
+                </td>
+                <td class="td71" rowspan="3">
+                    <p dir="ltr" class="FM_CellBody">Allows you to see the correlation between a component and the latest result.</p>
+                    <p dir="ltr" class="FM_CellBody">Horizontal values represent the latest results while the vertical values are the different types of the component.</p>
+                    <p dir="ltr" class="FM_CellBody">Results are shown as a heatmap. Extra information is displayed when hovering over the different areas of the heatmap.</p>
+                </td>
+            </tr>
+            <tr class="tr75"></tr>
+            <tr class="tr75"></tr>
+        </table>
+    </div>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="caption" style=" width: 351.50pt;" align="bottom">Figure: Connections overview For more information, see description above.</caption>
+            <tr class="tr76">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="ConnectionsOverview_10.2.png" id="image144" src="../../assets/ConnectionsOverview_10.2.png" style="max-width: 100% ;height: auto"/>&nbsp;
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: <a name="XREF_44840_Overview_of_the"></a>Overview of the different statuses a task can have.
+            </caption>
+            <tr class="tr77">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Task_state_diagram.png" id="image145" src="../../assets/Task_state_diagram.png" style="max-width: 100% ;height: auto"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_55857_View_connection"></a>View connection overview per device group</p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+
+    <p dir="ltr" class="FM_Body">Device groups can be defined as described in <a href="../Device_Configuration/Manage_device_groups.htm#XREF_14274_Manage_device"><span class="FM_blue_crossreference">“Manage device groups”</span></a>.
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace </span>&gt; <span class="FM_UIRef">Data communication</span>&#160;&gt; <span class="FM_UIRef">Connections overview</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select a device group from the filter on top of the page.</p>
+    <p dir="ltr" class="FM_BodyProcedure">All connections for this device group are shown together with a graphical representation of all connections over time and the configured connection KPI.</p>
+</div>
+</body>
+</html>

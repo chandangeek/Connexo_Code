@@ -1,0 +1,136 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}navigation-menu {
+  @include border-radius(8px);
+  background: $color-grey-10;
+  margin-bottom: 16px;
+  padding: 10px 12px !important;
+
+  .#{$prefix}panel-header {
+    font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+    padding-left: 4px;
+    font-size: 24px;
+    color: $color-blue;
+    background: none;
+  }
+
+  .#{$prefix}menu-body:before {
+    border-left: 2px dotted #A0A0A0;
+    bottom: $menu-navigation-dots-bottom;
+    content: "";
+    left: $menu-navigation-dots-left;
+    position: absolute;
+    top: $menu-navigation-dots-top;
+  }
+
+  .#{$prefix}menu-body {
+    background: none;
+  }
+
+  .#{$prefix}menu-item {
+    padding: $menu-navigation-item-padding;
+    height: $menu-navigation-item-height;
+    background-color: transparent;
+
+    &.not-a-clickable {
+      cursor: default;
+
+      a,
+      .#{$prefix}menu-item-text {
+        cursor: default;
+      }
+    }
+  }
+
+  .#{$prefix}menu-item:first-child {
+    padding-top: 0 !important;
+    .#{$prefix}menu-item-text {
+      border-top: none !important;
+    }
+  }
+
+  .#{$prefix}menu-item:last-child {
+    padding-bottom: 0 !important;
+  }
+
+  .#{$prefix}menu-item + .#{$prefix}menu-item .#{$prefix}menu-item-link {
+    border-top: none !important;
+  }
+
+  .#{$prefix}menu-item .#{$prefix}menu-item-text {
+    border-top: $menu-navigation-separator-style;
+    display: block;
+    height: $menu-navigation-item-height;
+    line-height: $menu-navigation-item-height;
+    overflow: hidden;
+  }
+
+  .#{$prefix}menu-item .#{$prefix}menu-item-link {
+    padding: 0 !important;
+  }
+
+  .navigation-item-number {
+    border: $menu-navigation-number-border transparent;
+    border-radius: 50%;
+    display: block;
+    float: left;
+    height: $menu-navigation-number-size;
+    line-height: 31px;
+    margin: $menu-navigation-number-margin;
+    text-align: center;
+    width: $menu-navigation-number-size;
+    letter-spacing: 1px;
+  }
+
+  .step-completed .navigation-item-number {
+    border-color: $menu-navigation-item-completed-number-border-color;
+    background-color: $menu-navigation-item-completed-number-background-color;
+    color: $menu-navigation-item-completed-number-color;
+    font-weight: $menu-navigation-item-completed-number-font-weight;
+  }
+
+  .step-completed .#{$prefix}menu-item-text {
+    color: $menu-navigation-item-completed-text-color !important;
+    font-weight: $menu-navigation-item-completed-text-weight;
+  }
+
+  .step-active .navigation-item-number {
+    background-color: $menu-navigation-item-active-number-background-color;
+    border-color: $menu-navigation-item-active-number-border-color;
+    color: $menu-navigation-item-active-number-color;
+    font-weight: $menu-navigation-item-active-number-font-weight;
+  }
+
+  .step-active .#{$prefix}menu-item-text {
+    color: $menu-navigation-item-active-text-color !important;
+    font-weight: $menu-navigation-item-active-text-weight
+  }
+
+  .step-non-completed .navigation-item-number {
+    background-color: $menu-navigation-item-non-completed-number-background-color;
+    border-color: $menu-navigation-item-non-completed-number-border-color;
+    color: $menu-navigation-item-non-completed-number-color;
+    font-weight: $menu-navigation-item-non-completed-number-font-weight;
+  }
+
+  .step-non-completed .#{$prefix}menu-item-text {
+    color: $menu-navigation-item-non-completed-text-color !important;
+    font-weight: $menu-navigation-item-non-completed-text-weight;
+  }
+
+
+  .step-error .navigation-item-number {
+    background-color: $menu-navigation-item-error-number-background-color;
+    border-color: $menu-navigation-item-error-number-border-color;
+    color: $menu-navigation-item-error-number-color;
+    font-weight: $menu-navigation-item-error-number-font-weight;
+  }
+
+  .step-error .#{$prefix}menu-item-text {
+    color: $menu-navigation-item-error-text-color !important;
+    font-weight: $menu-navigation-item-error-text-weight;
+  }
+
+}

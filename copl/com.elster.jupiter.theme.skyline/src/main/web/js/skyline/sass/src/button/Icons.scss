@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin uni-button-icons-size($ui) {
+    .#{$prefix}btn {
+        &.#{$prefix}btn-#{$ui}-small {
+            .#{$prefix}btn-icon-el {
+                font-size: 16px;
+                margin: auto;
+            }
+        }
+
+        &.#{$prefix}btn-#{$ui}-medium {
+            .#{$prefix}btn-icon-el {
+                font-size: 22px;
+            }
+        }
+
+        &.#{$prefix}btn-#{$ui}-large {
+            .#{$prefix}btn-icon-el {
+                font-size: 31px;
+            }
+        }
+    }
+}
+
+@include uni-button-icons-size($ui: 'default');
+@include uni-button-icons-size($ui: 'action');
+@include uni-button-icons-size($ui: 'remove');
+@include uni-button-icons-size($ui: 'link');
+@include uni-button-icons-size($ui: 'colexp');
+
+.#{$prefix}btn {
+    .#{$prefix}btn-icon-el {
+        color: $button-default-color;
+    }
+
+    &:hover {
+        .#{$prefix}btn-icon-el {
+            color: $button-default-color-over;
+        }
+    }
+
+    &.#{$prefix}btn-link-small,
+    &.#{$prefix}btn-link-medium,
+    &.#{$prefix}btn-link-large {
+        .#{$prefix}btn-icon-el {
+            color: $button-link-color;
+        }
+
+        &:hover {
+            .#{$prefix}btn-icon-el {
+                color: $button-link-color-over;
+            }
+        }
+    }
+
+    &.#{$prefix}btn-colexp-small,
+    &.#{$prefix}btn-colexp-medium,
+    &.#{$prefix}btn-colexp-large {
+        .#{$prefix}btn-icon-el {
+            color: $button-colexp-color;
+        }
+
+        &:hover {
+            .#{$prefix}btn-icon-el {
+                color: $button-colexp-color-over;
+            }
+        }
+    }
+
+}

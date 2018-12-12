@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/**
+ * @class Ext.form.field.Checkbox
+ */
+
+// private
+$form-checkbox-image: 'form/checkbox' !default;
+
+/**
+ * @var {number}
+ * The size of the checkbox
+ */
+$form-checkbox-size: 13px !default;
+
+/**
+ * @var {number}
+ * The space between the boxLabel and the checkbox.
+ */
+$form-checkbox-label-spacing: 4px !default;

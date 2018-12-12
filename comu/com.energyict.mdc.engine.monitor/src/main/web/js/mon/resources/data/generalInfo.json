@@ -1,0 +1,11 @@
+{
+    "success": true,
+    "data": [
+        {
+            "changeDetectionFrequency": "5 minutes",
+            "changeDetectionNextRun": "2013-10-24 12:30:15",
+            "pollingFrequency": "60 seconds",
+            "pollingNextRun": "2013-10-24 12:28:15"
+        }
+    ]
+}

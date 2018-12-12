@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "TransparentButton";
+
+@mixin uni-icon($glyph) {
+    .uni-icon-#{$glyph} {
+        background-image: url('images/container/menu/#{$glyph}.png');
+    }
+}
+
+@mixin uni-icon-pressed($glyph) {
+    .uni-icon-#{$glyph} {
+        background-image: url('images/container/menu/#{$glyph}Selected.png') !important;
+    }
+}
+
+@mixin uni-button-menuitem() {
+    *[class*='#{$prefix}btn-menuitem-'] {
+        @include transparent-button();
+        margin-right: -1px !important;
+
+        &:hover {
+            background-color: $color-blue-2;
+        }
+
+        .#{$prefix}btn-button {
+            margin: {
+                top: 8px;
+                bottom: 8px;
+            }
+
+            .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
+                font-size: 14px;
+            }
+
+            .#{$prefix}btn-inner {
+                padding-top: 32px;
+            }
+
+            *[class*='uni-icon-'] {
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+
+            @include uni-icon('home');
+            @include uni-icon('workspace');
+            @include uni-icon('devices');
+            @include uni-icon('settings');
+            @include uni-icon('usagepoints');
+
+            // TODO Use a default fallback icon when there is none.
+            .uni-icon-none {
+                background-image: url('images/container/menu/settings.png');
+            }
+        }
+    }
+
+    .#{$prefix}pressed {
+        @include uni-icon-pressed('home');
+        @include uni-icon-pressed('workspace');
+        @include uni-icon-pressed('devices');
+        @include uni-icon-pressed('settings');
+        @include uni-icon-pressed('usagepoints');
+
+        // TODO Use a default fallback icon when there is none.
+        .uni-icon-none {
+            background-image: url('images/container/menu/settingsSelected.png') !important;
+        }
+    }
+}
+
+@if $include-button-default-large-ui {
+    @include extjs-button-large-ui(
+    $ui: 'menuitem',
+    $background-color: $color-blue,
+    $background-color-over: $color-white,
+    $background-color-focus: $color-blue,
+    $background-color-pressed: $color-blue,
+    $glyph-color: $color-white,
+    $color: $color-blue,
+    $color-over: $color-white,
+    $color-focus: $color-blue,
+    $color-pressed: $color-blue
+    );
+
+    @include uni-button-menuitem();
+}
+
+
+

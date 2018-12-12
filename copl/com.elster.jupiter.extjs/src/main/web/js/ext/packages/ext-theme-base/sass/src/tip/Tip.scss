@@ -1,0 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}tip {
+    position: absolute;
+    overflow: visible; /*pointer needs to be able to stick out*/
+}
+
+.#{$prefix}tip-body {
+    overflow: hidden;
+    position: relative;
+}
+
+.#{$prefix}tip-anchor {
+    position: absolute;
+    overflow: hidden;
+    border-style: solid;
+}
+

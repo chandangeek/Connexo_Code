@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}trigger-cell {
+  width: 26px !important;
+  border-radius: 3px;
+}
+
+.#{$prefix}trigger-cell,
+div.#{$prefix}form-spinner-up,
+div.#{$prefix}form-spinner-down {
+  background-color: #ffffff;
+  opacity: 0.9;
+}
+
+div.#{$prefix}form-spinner-up,
+div.#{$prefix}form-spinner-down {
+  height: 10px;
+  margin: 0 2px 0 8px !important;
+  width: 16px !important;
+}
+
+div.#{$prefix}form-spinner-up {
+  background: url("images/form/trigger-up.png") no-repeat scroll center center $button-default-background-color !important;
+  @include border-radius(3px 3px 0 0);
+}
+
+div.#{$prefix}form-spinner-down {
+  background: url("images/form/trigger.png") no-repeat scroll center center $button-default-background-color;
+  @include border-radius(0 0 3px 3px);
+}
+
+.#{$prefix}form-trigger {
+  height: $form-field-trigger-height;
+  margin: 2px 2px 2px 8px;
+  width: 16px;
+  background: url("images/form/trigger.png") no-repeat scroll center center $button-default-background-color !important;
+}
+
+.#{$prefix}form-trigger-wrap, .#{$prefix}form-trigger {
+  border-radius: 3px;
+}
+
+.#{$prefix}form-date-trigger {
+  background-color: #FFFFFF !important;
+  border-radius: 0;
+  width: 22px !important;
+  margin: 2px !important;
+
+  &:before {
+    font-family: 'icomoon';
+    content: "\ea60";  // = icon-calendar2
+    font-size: 21px;
+    color: $button-default-background-color;
+    position: absolute;
+    right: 1px;
+  }
+}
+
+/*.#{$prefix}form-trigger-over,
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger,
+.#{$prefix}form-trigger-click
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger-click {
+  background-position: 0 0 center !important;
+}*/
+
+.#{$prefix}form-trigger-over,
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger-over {
+  opacity: 0.8 !important;
+}
+
+.#{$prefix}form-trigger-click,
+.#{$prefix}form-trigger-wrap-focus
+.#{$prefix}form-trigger-click {
+  opacity: 1 !important;
+}
+
+.x-item-disabled .x-form-trigger-wrap {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
+  opacity: 0.3;
+}
+
+.x-item-disabled .x-form-trigger {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+  cursor: default;
+}
+
+.x-form-trigger-wrap .x-form-text {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+}

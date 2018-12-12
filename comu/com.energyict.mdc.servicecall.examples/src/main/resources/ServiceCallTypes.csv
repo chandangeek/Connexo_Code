@@ -1,0 +1,11 @@
+Type;Version;Status;Log level;Life cycle;Custom attribute sets;
+DisconnectRequest;1.0;deprecated;info;default;DR;
+DisconnectRequest;2.0;active;warning;default;DR;
+DisconnectGroupRequest;1.0;active;warning;default;;
+BillingDataRequest;1.0;active;info;default;;
+CIMEndDeviceConfig;3.0;active;config;default;;
+PushMeterReadings;1.1;active;finer;default;;
+CIMUsagePointConfig;1.2;active;info;default
+CIMGetCustomerConfig;2.1;active;fine;simple;;
+PushEvents;1.5;active;warning;simple;;
+GetMeterReadings;1.7;active;finest;default;BC;

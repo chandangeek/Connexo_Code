@@ -1,0 +1,158 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "font-awesome";
+
+.x-bar {
+  $height: 15px;
+  position: relative;
+  display: block;
+
+  .threshold {
+    position: absolute;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    margin-left: -3px;
+    top: -6px;
+    border-color: #007bff transparent transparent transparent;
+  }
+
+  .x-bar-label {
+    position: absolute;
+    right: 100%;
+    text-align: right;
+    line-height: $height;
+    margin-right: 8px;
+    width: 100%;
+  }
+
+  .x-bar-container, .x-bar-fill, .x-bar-track {
+    height: $height;
+    display: block;
+    position: relative;
+  }
+  .x-bar-container {
+    background: transparent;
+    .x-bar-fill {
+      background: #CBCBCB;
+    }
+    .x-bar-track {
+      background: #686868;
+    }
+  }
+}
+
+.x-bar {
+  .x-bar-container {
+    .x-bar-track-stacked {
+      float: left;
+    }
+  }
+}
+
+.breakdown {
+  .failed, .x-bar-track-stacked.failed {
+    background-color: #EB5642;
+  }
+  .success, .x-bar-track-stacked.success {
+    background-color: #70BB52;
+  }
+  .ongoing, .x-bar-track-stacked.ongoing {
+    background-color: #71ADC6;
+  }
+
+  .legend ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      float: left;
+      margin-right: 16px;
+
+      .color {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+      }
+    }
+  }
+
+  .x-panel-tile {
+    padding: 20px;
+
+    .x-toolbar-footer {
+      padding: 15px 0 0 0;
+    }
+  }
+}
+
+.x-panel-tile {
+  table {
+    border-spacing: 0;
+
+    tr {
+      padding: 0;
+      td {
+        padding: 3px 0;
+      }
+    }
+  }
+  h3 {
+    margin-bottom: 10px;
+  }
+}
+
+.x-panel .below .x-panel-body {
+  color: #EB5642;
+}
+.x-bar.bar-success .x-bar-container .x-bar-track {
+  background-color: #70BB52;
+}
+.x-bar.bar-ongoing .x-bar-container .x-bar-track {
+  background-color: #71ADC6;
+}
+.x-bar.bar-failed .x-bar-container .x-bar-track {
+  background-color: #EB5642;
+}
+
+.summary {
+  td.label {
+    min-width: 250px;
+    z-index: 1;
+    position: relative;
+  }
+  tr {
+    height: 25px;
+  }
+
+  .bar-success .x-bar-track {
+    background-color: #70BB52;
+  }
+  .bar-ongoing .x-bar-track {
+    background-color: #71ADC6;
+  }
+  .bar-failed .x-bar-track {
+    background-color: #EB5642;
+  }
+
+  min-width: 300px;
+}
+
+.fa-lg {
+  line-height: 1;
+}
+
+.quick-links {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 5px;
+
+    li {
+      line-height: 25px;
+    }
+  }
+}
+

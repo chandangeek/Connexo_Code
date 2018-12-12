@@ -1,0 +1,1 @@
+create or replace type Flags_Array as table of number

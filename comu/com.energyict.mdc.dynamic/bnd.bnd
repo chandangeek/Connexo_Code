@@ -1,0 +1,10 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.dynamic.impl,\
+	com.energyict.mdc.dynamic.relation.impl,\
+	com.energyict.mdc.dynamic.relation.impl.legacy
+Export-Package:  \
+	com.energyict.mdc.dynamic,\
+	com.energyict.mdc.dynamic.relation,\
+	com.energyict.mdc.dynamic.relation.exceptions

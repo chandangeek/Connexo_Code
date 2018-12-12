@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+$panel-step-dots-height: 8px !default;
+$panel-step-dots-width: 4px !default;
+$panel-step-dots-background-image: url("images/panel/step_dots.png");
+$panel-step-dots-left: floor(($button-step-size - $panel-step-dots-width) / 2);
+
+$panel-step-padding: 3px 0 0 floor($button-step-size / 2);
+$panel-step-label-font: 14px Lato light #686868;

@@ -1,0 +1,2 @@
+DGCOM
+23/05/2006 Error codes command 83h. Error mask bytes contain less ones then error code bytes!

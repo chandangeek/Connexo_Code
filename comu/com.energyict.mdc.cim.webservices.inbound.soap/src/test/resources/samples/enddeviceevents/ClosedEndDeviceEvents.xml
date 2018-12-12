@@ -1,0 +1,30 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:end="http://iec.ch/TC57/2011/EndDeviceEventsMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:end1="http://iec.ch/TC57/2011/EndDeviceEvents#">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <end:ClosedEndDeviceEvents>
+            <end:Header>
+                <mes:Verb>closed</mes:Verb>
+                <mes:Noun>EndDeviceEvents</mes:Noun>
+            </end:Header>
+            <!--Optional:-->
+            <end:Payload>
+                <end1:EndDeviceEvents>
+                    <!--Zero or more repetitions:-->
+                    <end1:EndDeviceEvent>
+                        <end1:createdDateTime>2017-12-23T00:00:00+00:00</end1:createdDateTime>
+                        <end1:severity>Alarm</end1:severity>
+                        <end1:Assets>
+                            <!--Optional:-->
+                            <end1:mRID>26186114-dfd4-4409-a300-f01dde8f316a</end1:mRID>
+                        </end1:Assets>
+                        <!--Optional:-->
+                        <end1:EndDeviceEventType ref="3.2.22.150"/>
+                    </end1:EndDeviceEvent>
+                </end1:EndDeviceEvents>
+            </end:Payload>
+        </end:ClosedEndDeviceEvents>
+    </soapenv:Body>
+</soapenv:Envelope>

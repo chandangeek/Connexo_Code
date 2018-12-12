@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/** @class Ext.ProgressBar */
+//
+
+$progress-background-color: $neutral-light-color !default;
+$progress-bar-background-color: mix(#fff, $base-light-color, 25%) !default;
+$progress-border-width: 0 !default;
+$progress-text-color-front: #666 !default;
+$progress-text-color-back: #666 !default;

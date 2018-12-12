@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}
+
+@if $include-button-default-medium-ui {
+  @include extjs-button-medium-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}
+
+@if $include-button-default-large-ui {
+  @include extjs-button-large-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-small-ui {
+  @include extjs-button-toolbar-small-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-medium-ui {
+  @include extjs-button-toolbar-medium-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-large-ui {
+  @include extjs-button-toolbar-large-ui(
+    $ui: 'remove',
+    $background-color: $button-remove-background-color,
+    $color: $button-remove-color,
+    $background-color-over: $button-remove-background-color-over,
+    $background-color-pressed: $button-remove-background-color-pressed,
+    $background-color-disabled: $button-remove-background-color-disabled,
+    $background-color-focus: $button-remove-background-color-focus,
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
+  );
+}

@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}grid-header-ct {
+    border-color: $grid-header-border-color;
+    border-width: $grid-header-border-width;
+    border-style: $grid-header-border-style;
+    border-left: 1px solid #d2d2d2 !important;
+    border-top: 1px solid #d2d2d2 !important;
+    border-right: 1px solid #d2d2d2 !important;
+    @include border-radius($grid-header-border-radius $grid-header-border-radius 0 0);
+}

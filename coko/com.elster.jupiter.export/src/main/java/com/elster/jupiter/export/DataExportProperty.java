@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.jupiter.export;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
+public interface DataExportProperty extends HasName {
+
+    ExportTask getTask();
+
+    String getDisplayName();
+
+    Object getValue();
+
+    boolean useDefault();
+
+    void setValue(Object value);
+
+    void save();
+
+    boolean instanceOfSpec(PropertySpec spec);
+}

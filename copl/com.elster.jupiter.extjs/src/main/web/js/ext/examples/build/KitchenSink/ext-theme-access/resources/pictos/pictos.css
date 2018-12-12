@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+@font-face {
+  font-family: 'Pictos';
+  src: url('pictos.eot');
+  src: url('pictos.eot?#iefix') format('embedded-opentype'),
+  		url('pictos.woff') format('woff'),
+  		url('pictos.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

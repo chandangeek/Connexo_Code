@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+@if $include-button-default-medium-ui {
+  @include extjs-button-medium-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+@if $include-button-default-large-ui {
+  @include extjs-button-large-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+@if $include-button-default-toolbar-small-ui {
+  @include extjs-button-toolbar-small-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+@if $include-button-default-toolbar-medium-ui {
+  @include extjs-button-toolbar-medium-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+@if $include-button-default-toolbar-large-ui {
+  @include extjs-button-toolbar-large-ui(
+    $ui: 'tag',
+    $background-color: $button-tag-background-color,
+    $color: $button-tag-color,
+    $background-color-pressed: $button-tag-background-color-pressed,
+    $background-color-over: $button-tag-background-color-over,
+    $border-color-pressed: $button-link-background-color,
+    $border-color-focus: $button-link-border-color-focus
+  );
+}
+
+.#{$prefix}btn-tag-right {
+  background-image: $button-tag-close-icon-default;
+  background-position: right center;
+  background-repeat: no-repeat;
+  height: $button-tag-close-icon-size;
+  position: absolute !important;
+  top: $button-tag-close-icon-top;
+  right: $button-tag-close-icon-right;
+  width: $button-tag-close-icon-size;
+}
+
+.#{$prefix}btn-tag-right:hover {
+  background-image: $button-tag-close-icon-over;
+}
+
+.#{$prefix}btn-tag-text {
+  text-align: left;
+  padding: $btn-tag-text-padding !important;
+}
+
+.#{$prefix}btn-tag-text-noicon {
+  text-align: left;
+  padding: $btn-tag-text-noicon-padding !important;
+}
+
+
+
+
+

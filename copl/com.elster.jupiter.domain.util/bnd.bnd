@@ -1,0 +1,7 @@
+-classpath: target/classes 
+-dsannotations: *
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.domain.util.impl,\
+    com.elster.jupiter.nls.impl
+Export-Package: com.elster.jupiter.domain.util,\
+    com.elster.jupiter.nls

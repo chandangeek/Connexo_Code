@@ -1,0 +1,551 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Out-of-the-box validators</title>
+
+    <link rel="stylesheet" href="Data_validation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "6.0_5";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_validation/Manage_validation_rule_set_versions_and_associated_validation_rules.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_validation/Manage_validation_rule_sets_on_a_metrology_configuration.htm">
+    <meta name="topic-breadcrumbs" content="Data validation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_60735_Out_of_the_box"></a>Out-of-the-box validators</p>
+    <p dir="ltr" class="FM_H4Topic" style="margin-top  : 19.000pt; margin-bottom : 4.000pt; font-size  : 11.0pt; color   : #686868;"><span class="FM_change_bar"
+                                                                                                                                           style="font-family : 'Lato Light'; font-weight : normal; ">The standard out-of-the-box validators are marked by </span><span
+            class="FM_change_bar">STD</span><span class="FM_change_bar" style="font-family : 'Lato Light'; font-weight : normal; ">&#160;between square brackets at the end of the validator’s name. For instance </span><span
+            class="FM_change_bar">Meter advance [STD]</span><span class="FM_change_bar" style="font-family : 'Lato Light'; font-weight : normal; ">. Custom validators are described in the specific project documentation.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">Check missing values</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Check for missing data. These gaps may be caused by failed communication or a device problem preventing the device from registering or sending its data. This data can be provided at a later stage using estimation, editing or a later data collection.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">As opposed to the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Consecutive zeros</span><span
+            class="FM_change_bar">&#160;validator, this validator checks for instances where no data is registered at all.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">This validator only works for interval data (load profiles). It hasn’t got any additional parameters.</span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Description</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Data that will be validated.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_H4Topic">Consecutive zeros</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Create suspect and informative flags when consecutive zero values are found within a configured period. </span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Because certain loads - such as solar panels - are never exactly zero a threshold can be configured to count values that aren’t zero but that are less than the threshold parameter as zero.</span>
+    </p>
+    <p dir="ltr" class="FM_Body">This validator works for delta reading types on channels<span class="FM_change_bar">. </span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The data that will be validated.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Minimum period</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Two hours is the default value. The minimum period can be overwritten by the reading type.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Maximum period</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">One day is the default value. the maximum period can be overwritten by the reading type.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Minimum threshold</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Certain loads are never exactly zero, e.g. solar panels. In these cases, a threshold is needed below which all values are considered to be zero. </span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Zero is the default value. It can be overwritten by the reading type.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Check retroactively</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If selected, the validator will start looking for a consecutive period of zeros starting from the moment when the last check occurred minus the configured maximum period. So, the block of consecutive zeros at the end of the previously validated period can be added to the consecutive zeros at the beginning of the newly validated data. Consequently, the validation status of the data before the last checked moment can change from valid into suspect. On the other hand, suspect data can’t change into valid data.</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">Detecting large periods of consecutive zeros can also be done using the average consumption validation check.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_73671_Main_check"></a>Main/check comparison</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Compare delta values on the validated output channel on a usage point to those on another output channel with the same reading type but on a different purpose. If compared values with an identical time and date aren’t equal or if the difference exceeds the configured parameter, then a suspect is created.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">This rule compares the values of a MAIN meter with a CHECK meter. The absolute difference is compared with a limit that can be a percentage or an absolute value. The values are flagged as suspect if they are out of tolerance or if the value of the check meter is also flagged. </span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">If the absolute difference is below a defined minimum threshold, then the comparison won’t be done to avoid imprecisions which are typically registered when dealing with very low loads.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">If there is no reference data available in the CHECK meter, then the rule can be configured to pass. </span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The rule can be configured to use only validated data..</span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The data that will be validated.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The flag that is used in case validation fails.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Check purpose</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">List of available purposes in Connexo. Data from an output with a matching reading type on the selected purpose is used to compare it to the
+                        validated values. </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Maximum absolute difference</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">If the difference between the two compared values is bigger than the configured maximum absolute difference, then the value will be marked as
+                        suspect. Can be overwritten by the reading type.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Pass if no reference data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">If no data is available on the reference channel and this checkbox is selected, then no further checks are done. The interval is marked as valid
+                        and the rule moves to the next interval. If this checkbox isn’t selected, then the validation is stopped where the last reference data was found for the channel.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Use validated data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">When selected, only validated data is used. </p>
+                    <p dir="ltr" class="FM_CellBody">If data is available on the reference channel but it isn’t validated and this checkbox is selected, then the validation is stopped where the last
+                        validated reference data was found for the channel. If this checkobx isn’t selected, then the validation continues.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Minimum threshold</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Configure a minimum threshold to make the validator move to the next interval if the difference is minimal. Can be overwritten by the reading type.</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_H4Topic">Meter advance</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Check the sum of the interval data between two cumulative register readings (discreet values that match the interval data) and compare it to the register advance, i.e. the difference between two register readings while applying a threshold range. This threshold can be a percentage or an absolute value. If the absolute difference is outside the threshold range, then the whole interval data period is flagged as suspect.</span>
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The data that will be validated.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reference reading type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the register to which the channel will be compared.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Maximum absolute difference</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">If the absolute difference between registers delta and sum of delta interval value is larger than the configured maximum absolute difference, then
+                        the period between the two register readings is marked as suspect. Can be overwritten by the reading type.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reference period</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If a reference period is defined, the validator can skip the data from the reference period if no cumulative register readings have been found for a period that is longer than the reference period. For instance, if no readings were found for more than one week, the rule can skip one week of data. When a new reading becomes available, the rule will only flag as suspect the part of the data that hadn’t been validated yet.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Minimum threshold</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">If the difference between the two registers is less than the minimum threshold, then the data for the validated period is marked as valid. This
+                        parameter is meant to avoid suspect flags when the difference is minimal.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey"><span class="FM_change_bar">If a new meter (meter activation) is made, then the data from before the first available register reading will be skipped since the register reading from the previous meter can’t be used.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">Reading qualities</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Add suspect and informative flags on data based on reading qualities. This rule detects reading qualities at the interval level and matches them with a list of predefined reading qualities that should be flagged.</span>
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The data that will be validated.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading qualities</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">When interval data with corresponding reading qualities is received, this data will be marked as suspect or informative.</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey"><span class="FM_change_bar">This rule won’t create reading quality flags. The reading quality flags on interval or register records need to be imported from a data source or set by the protocol driver that is used to collect the data from the device. Refer to the protocol driver or interface specification to understand which reading qualities are supported.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_69563_Reference"></a>Reference comparison</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">This rule is identical to </span><a href="#XREF_73671_Main_check"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Main/check comparison”</span><span class="FM_change_bar"></span></a><span
+            class="FM_change_bar">&#160;but it compares a reading type with another reference channel. The validator compares delta values on the validated output channel on a usage point to another output channel from a different usage point with a similar reading type - allowed flexibility in the multiplier. If the compared values with identical time and date aren’t equal or if the difference exceeds the configured parameter, then a suspect is created. If the minimum threshold is configured, then the check for the interval is skipped and the validation moves to the next interva</span>l.
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Parameter</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Description</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The data that will be validated.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Maximum absolute difference</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The maximum absolute value can be defined as a natural number or as a percentage. The percentage value can’t be bigger than 100.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Pass if no reference data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If no data is available on the reference channel and this checkbox is selected, then no further checks are done. The interval is marked as valid and the rule moves to the next interval. If this checkbox isn’t selected, then the validation is stopped where the last reference data was found for the channel.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Use validated data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">When selected, only validated data is used.</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If data is available on the reference channel but it isn’t validated and this checkbox is selected, then the validation is stopped where the last validated reference data was found for the channel. If this checkobx isn’t selected, then the validation continues. </span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Minimum threshold</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Configure a minimum threshold to make the validator move to the next interval if the difference is minimal. Can be overwritten by the reading type.</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey"><span class="FM_change_bar">This rule should allow a certain flexibility between the source and the reference because the reading types may not always perfectly match.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">Register increase</p>
+    <p dir="ltr" class="FM_Body" style="margin-top  : 3.000pt; font-family : 'Times New Roman'; font-weight : normal; color   : #000000;"><span class="FM_change_bar">Check consumption over time. If the value of a register is lower or equal than the previous register value, then this value is marked as suspicious.</span><span
+            class="FM_change_bar"></span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The data that will be validated.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Fail equal data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">If selected validation fails if the consumption is equal to the previous consumption. If it isn’t selected, then the value is valid.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body" style="margin-top  : 3.000pt; font-family : 'Times New Roman'; font-weight : normal; color   : #000000;"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_H4Topic">Threshold violation</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Check each interval value against a minimum and a maximum value. Values outside these boundaries are marked as suspicious.</span><span
+            class="FM_change_bar" style="font-family : 'Times New Roman'; font-weight : normal; color   : #000000; "></span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The data that will be validated.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Data quality level</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The flag that is used in case validation fails.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Minimum</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Any value below this threshold is marked as suspect or information. Can be overwritten by the reading type.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Maximum</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Any value above this threshold is marked as suspect or information. Can be overwritten by the reading type.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-family : 'Times New Roman'; font-weight : normal; color   : #000000; "></span></p>
+</div>
+</body>
+</html>

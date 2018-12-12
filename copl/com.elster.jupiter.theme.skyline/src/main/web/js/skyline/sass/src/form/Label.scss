@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+//$item-margin: 4px;
+
+.#{$prefix}form-item-label {
+    font-size: 13px;
+    font-family: $font-family;
+    font-weight: bold;
+//    margin-left: $item-margin;
+}
+
+.#{$prefix}form-item-label-right {
+    padding-right: 14px;
+    text-align: right;
+    margin-right: 15px !important;
+}
+
+.#{$prefix}form-item-body {
+//    margin-right: $item-margin;
+}
+
+.uni-form-item-label-required {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAJCAYAAADkZNYtAAAAOUlEQVR4XmMgBTBhU/B/nu1/gorvTK/8j4/PiM9UxqTDjBiK8VkN00SqyZhuhikA0TA34wEw0ykEAF2UH7azK5DQAAAAAElFTkSuQmCC');
+    background-repeat: no-repeat;
+    background-position: right;
+}

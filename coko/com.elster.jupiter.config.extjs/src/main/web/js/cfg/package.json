@@ -1,0 +1,15 @@
+{
+  "name": "com.elster.jupiter.config.extjs",
+  "type": "code",
+  "creator": "Elster Jupiter Project",
+  "summary": "Short summary",
+  "detailedDescription": "Long description of package",
+  "version": "1.5.1",
+  "compatVersion": "1.5.1",
+    "format": "1",
+    "local": true,
+    "requires": [
+      "com.elster.jupiter.unifyingjs",
+      "com.elster.jupiter.appserver.extjs"
+    ]
+}

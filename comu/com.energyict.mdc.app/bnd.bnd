@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.app.impl
+Export-Package: com.energyict.mdc.app
+-include: -../development.bnd

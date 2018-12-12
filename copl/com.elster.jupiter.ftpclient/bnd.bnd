@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: com.elster.jupiter.ftpclient
+Private-Package: com.elster.jupiter.ftpclient.impl
+

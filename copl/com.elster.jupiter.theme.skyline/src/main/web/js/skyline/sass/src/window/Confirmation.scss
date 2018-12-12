@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin confirmationWindow($cnfWindowMainColor) {
+  .#{$prefix}toolbar {
+    // TODO Enable this again when the buttons are not center aligned anymore.
+    //        margin-left: 42px;
+  }
+
+  .#{$prefix}dlg-icon{
+    font-size: 22px;
+    color: $cnfWindowMainColor;
+  }
+
+  *[class*='#{$prefix}window-'] {
+    .#{$prefix}header-text {
+      font-weight: bold;
+      font-size: 16px;
+      color: $cnfWindowMainColor;
+    }
+
+    .#{$prefix}form-display-field {
+      margin-top: 16px;
+      color: $color-grey;
+    }
+
+    *[class*='#{$prefix}message-box-'] {
+      background-position: 12px 4px;
+    }
+  }
+}
+
+.uni-confirmation-window {
+  @include confirmationWindow($color-red);
+}
+
+.uni-confirmation-window-green {
+  @include confirmationWindow($color-green-1);
+}
+
+.uni-confirmation-window-orange {
+  @include confirmationWindow($color-orange);
+}
+
+@mixin confirmationWindowBody($cnfWindowBodyColor) {
+  color: $cnfWindowBodyColor;
+  padding: 0 0 15px 65px;
+}
+
+.confirmation-window .x-panel-body {
+  @include confirmationWindowBody($color-red);
+}
+
+.confirmation-window-green .x-panel-body {
+  @include confirmationWindowBody($color-green-1);
+}
+
+.confirmation-window-orange .x-panel-body {
+  @include confirmationWindowBody($color-orange);
+}

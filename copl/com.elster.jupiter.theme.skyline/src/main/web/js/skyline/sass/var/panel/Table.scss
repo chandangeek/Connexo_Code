@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/**
+ * @class Ext.panel.Table
+ */
+$grid-row-cell-color: $color-grey !default;
+$grid-row-cell-font-size: $font-size !default;
+$grid-row-cell-line-height: $grid-row-cell-font-size !default;
+$grid-row-cell-font-weight: normal !default;
+$grid-row-cell-font-family: $font-family !default;
+
+$grid-row-cell-background-color: $color-white !default;
+$grid-row-cell-border-color: $color-grey-7 !default;
+$grid-row-cell-border-style: none !default;
+$grid-row-cell-border-width: 0 !default;
+
+$grid-cell-special-background-color: $grid-row-cell-background-color !default;
+$grid-cell-special-background-gradient: 'none' !default;
+//$grid-cell-special-border-width: $grid-row-cell-border-width !default;
+//$grid-cell-special-border-color: $grid-row-cell-border-color !default;
+//$grid-cell-special-border-style: $grid-row-cell-border-style !default;
+//$grid-cell-special-selected-border-color: $grid-row-cell-border-color !default;
+//$grid-cell-special-over-background-color: $grid-row-cell-over-background-color !default;
+
+$grid-row-cell-selected-border-style: solid !default;
+$grid-row-cell-selected-color: $color-white !default;
+$grid-row-cell-selected-background-color: $color-green-1 !default;
+$grid-row-cell-selected-border-color: $grid-row-cell-border-color !default;
+
+$grid-row-cell-alt-background-color: $color-white-2 !default;
+$grid-row-cell-over-border-style: solid !default;
+$grid-row-cell-over-color: $color-grey !default;
+$grid-row-cell-over-background-color: #c9dbe3 !default;
+$grid-row-cell-over-border-color: $grid-row-cell-border-color !default;
+
+$grid-row-cell-focus-border-color: #808080 !default;
+$grid-row-cell-focus-border-style: dotted !default;
+//$grid-row-cell-focus-color: $grid-row-cell-color !default;
+$grid-row-cell-focus-background-color: $grid-row-cell-background-color !default;
+
+$grid-no-row-lines-show-focus-border: false !default;
+
+//$grid-cell-selected-color: $grid-row-cell-selected-color !default;
+$grid-cell-selected-background-color: $grid-row-cell-selected-background-color !default;
+$grid-cell-inner-padding: 8px 16px !default;
+$grid-cell-inner-text-overflow: ellipsis !default;
+
+$grid-body-border-color: $color-grey-7 !default;
+$grid-body-border-width: 1px !default;
+$grid-body-border-style: solid !default;
+//$grid-body-background-color: $panel-body-background-color !default;
+
+$grid-empty-padding: 16px !default;
+$grid-empty-color: $color-grey !default;
+//$grid-empty-background-color: $panel-body-background-color !default;
+$grid-empty-font-size: $grid-row-cell-font-size !default;
+$grid-empty-font-weight: normal !default;
+$grid-empty-font-family: $font-family !default;
+
+$grid-resize-marker-background-color: #0f0f0f !default;
+
+//$scrollbar-size: 16px;
+//$scrollbar-margin: 4px;
+//$scrollbar-background-color: $color-grey-2;
+//$scrollbar-thumb-background-color: $color-white;
+//$scrollbar-arrow-size: 5px;

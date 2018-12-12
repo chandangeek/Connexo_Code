@@ -1,0 +1,144 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}panel-menu-side {
+    @include border-radius(8px);
+    background: #ebebeb;
+    margin-bottom: 16px;
+    overflow: hidden;
+
+    padding: 0 {
+        top: 10px;
+        right: 12px;
+        bottom: 0;
+        left: 12px;
+    }
+
+    .#{$prefix}panel-header {
+        font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+        padding-left: 4px;
+        font-size: 24px;
+        color: #1e7d9e;
+
+        .#{$prefix}menu-header-object-type {
+            font-size: 14px;
+            font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+            padding-left: 0px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 210px;
+        }
+
+        .#{$prefix}menu-header-object-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 210px;
+        }
+    }
+
+    .#{$prefix}menu-item + .#{$prefix}menu-item .#{$prefix}menu-item-link {
+        border-top: none !important;
+    }
+
+    .#{$prefix}menu-item:last-child {
+        padding-bottom: 0 !important;
+    }
+
+    .#{$prefix}menu-item:first-child {
+        padding-top: 0 !important;
+    }
+
+    .#{$prefix}menu-body {
+        background: none;
+
+        .#{$prefix}menu-item {
+            padding: 0 !important;
+
+            margin: {
+                right: 5px;
+                bottom: 12px;
+            }
+
+            .#{$prefix}menu-item-link {
+                font-weight: bold;
+                border: none;
+
+                padding: 0 {
+                    top: 4px;
+                    bottom: 4px;
+                }
+
+                margin: 0 {
+                    right: 4px;
+                }
+            }
+
+            .#{$prefix}menu-item-text {
+                font-weight: bold;
+                font-size: 14px;
+                color: #686868;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 210px;
+            }
+        }
+
+        .item-active {
+            border-right: 4px solid #70bb51;
+            cursor: default;
+
+            .#{$prefix}menu-item-text {
+                font-weight: bold !important;
+                color: #70bb51;
+            }
+        }
+
+        .#{$prefix}menu-item-active {
+            background: #686868;
+
+            .#{$prefix}menu-item-text {
+                color: #ffffff;
+            }
+        }
+    }
+
+    .#{$prefix}panel-menu-side-sub {
+        margin-bottom: 8px;
+        left: 0;
+
+        &-collapsed {
+            margin-bottom: 20px !important;
+        }
+
+        .#{$prefix}panel-header {
+            font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+            border-bottom: 1px solid #d4d4d4 !important;
+            padding-bottom: 4px;
+            font-weight: bold;
+            padding-left: 0;
+            font-size: 14px;
+            color: #686868;
+            cursor: pointer;
+        }
+
+        .#{$prefix}menu-item {
+            margin: {
+                right: 0;
+                bottom: 0;
+            }
+
+            .#{$prefix}menu-item-link {
+                margin-right: 0;
+            }
+
+            .#{$prefix}menu-item-text {
+                font-weight: normal;
+            }
+        }
+    }
+}

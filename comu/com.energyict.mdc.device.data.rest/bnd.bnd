@@ -1,0 +1,12 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.device.data.rest.impl,\
+	com.energyict.mdc.device.data.kpi.rest.impl,\
+	com.energyict.mdc.device.data.crlrequest.rest.impl,\
+	com.energyict.mdc.device.command.rest.impl
+Export-Package:  \
+	com.energyict.mdc.device.data.kpi.rest,\
+	com.energyict.mdc.device.data.crlrequest.rest,\
+	com.energyict.mdc.device.data.rest,\
+	com.energyict.mdc.device.command.rest

@@ -1,0 +1,183 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.jupiter.demo.impl.templates;
+
+import com.elster.jupiter.demo.impl.builders.ImportScheduleBuilder;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBuilder> {
+
+    DEVICE_INSTALLATION_IMPORTER("Installation", "DeviceInstallationImporterFactory", "devicelifecycle", "installation") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
+    },
+    DEVICE_READINGS_IMPORTER("Import readings", "DeviceReadingsImporterFactory", "readings") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    },
+    CONNECTION_ATTRIBUTES_IMPORTER("Import connection attributes", "ConnectionAttributesImportFactory", "connectionattributes") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    },
+    SECURITY_ATTRIBUTES_IMPORTER("Import security attributes", "SecurityAttributesImportFactory", "securityattributes") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    },
+    DEVICE_ACTIVATION_DEACTIVATION_IMPORTER("Activation Deactivation", "DeviceActivationDeactivationImportFactory", "devicelifecycle", "activation deactivation") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
+    },
+    DEVICE_COMMISSIONING_IMPORTER("Commissioning", "DeviceCommissioningImportFactory", "devicelifecycle", "commissioning") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
+    },
+    DEVICE_DECOMMISSIONG_IMPORTER("Decommissioning", "DeviceDecommissioningImportFactory", "devicelifecycle", "decommissioning") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
+    },
+    DEVICE_REMOVE_IMPORTER("Remove", "DeviceRemoveImportFactory", "devicelifecycle", "remove"),
+    DEVICE_SHIPMENT_IMPORTER("Shipment", "DeviceShipmentImporterFactory", "devicelifecycle", "shipment") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
+    },
+    CALENDAR_IMPORTER("Calendar", "CalendarImporterFactory", "Calendar") {
+        @Override
+        protected Map<String, Object> getImporterProperties() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        protected String pathMatcher() {
+            return "*.xml";
+        }
+    },
+    USAGE_POINT_IMPORTER("Usage point", "UsagePointFileImporterFactory", "usagepoint") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("MeteringFileImporterFactory.delimiter", ";");
+            properties.put("MeteringFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("MeteringFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            properties.put("MeteringFileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    },
+    SYNTHETIC_LOAD_PROFILES_IMPORTER("Synthetic load profiles", "SyntheticLoadProfileImporterFactory", "syntheticloadprofiles") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("SyntheticLoadProfileImporterFactory.delimiter", ";");
+            properties.put("SyntheticLoadProfileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("SyntheticLoadProfileImporterFactory.timeZone", defaultTimeZoneNotation());
+            properties.put("SyntheticLoadProfileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    };
+
+    public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
+
+    private static final String DEFAULT_PROCESSING_DIRECTORY = "progress";
+    private static final String DEFAULT_SUCCESS_DIRECTORY = "success";
+    private static final String DEFAULT_FAILURE_DIRECTORY = "failure";
+    private static final String DEFAULT_PATH_MATCHER = "*.csv";
+    private static final PeriodicalScheduleExpression DEFAULT_SCHEDULED_EXPRESSION = PeriodicalScheduleExpression.every(1).minutes().at(0).build();
+
+    private String importerName;
+    private String factoryName;
+    private Path importBasePath;
+
+    FileImporterTpl(String importerName, String factoryName, String importBasePath, String... basePathNodes) {
+        this.importerName = importerName;
+        this.factoryName = factoryName;
+        this.importBasePath = Paths.get(importBasePath, basePathNodes);
+    }
+
+    protected Map<String, Object> getImporterProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("DeviceDataFileImporterFactory.delimiter", ";");
+        return properties;
+    }
+
+    @Override
+    public Class<ImportScheduleBuilder> getBuilderClass() {
+        return ImportScheduleBuilder.class;
+    }
+
+    @Override
+    public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
+        builder.withName(importerName)
+                .withFileImporterFactoryName(factoryName)
+                .withPathMatcher(this.pathMatcher())
+                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
+                .withImportDirectory(importBasePath.toString())
+                .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
+                .withSuccessDirectory(importBasePath.resolve(DEFAULT_SUCCESS_DIRECTORY).toString())
+                .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
+                .withActiveInUI(true)
+                .withProperties(getImporterProperties());
+        return builder;
+    }
+
+    protected String pathMatcher() {
+        return DEFAULT_PATH_MATCHER;
+    }
+
+    private static String defaultTimeZoneNotation() {
+        return TimeZone.getDefault().getID(); //CXO-7969
+    }
+
+    private static HasIdAndName defaultNumberFormat() {
+        return new HasIdAndName() {
+            @Override
+            public Object getId() {
+                return "FORMAT3";
+            }
+
+            @Override
+            public String getName() {
+                return "123456789.012";
+            }
+        };
+    }
+
+}

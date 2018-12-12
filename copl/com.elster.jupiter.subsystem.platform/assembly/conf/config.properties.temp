@@ -1,0 +1,159 @@
+##
+#
+# Connexo config properties.
+#
+##
+
+# To override the packages the framework exports by default from the
+# class path, set this variable.
+#org.osgi.framework.system.packages=
+
+# To append packages to the default set of exported system packages,
+# set this value.
+org.osgi.framework.system.packages.extra=sun.net.http,sun.net.www.protocol.http,sun.net.www.http,javax.activation;version=1.1.1,\
+	javax.jws;version=2.1.5,javax.xml.ws;version=2.2.0,com.sun.xml.internal.bind,\
+	com.sun.xml.internal.ws.api.message,com.sun.xml.stream.buffer,com.sun.xml.ws.api.message,\
+	javax.annotation;version=1.2,javax.annotation.security;version=1.2,javax.annotation.sql;version=1.2,\
+	javax.xml.stream;javax.xml.stream.events;javax.xml.stream.util;version=1.0.0,\
+	sun.security.util,sun.security.x509,sun.security.provider,sun.misc,sun.awt.image.codec,com.sun.net.ssl,\
+    com.sun.jimi.core,com.sun.net.ssl.internal.ssl,sun.util.calendar,\
+    com.sun.javadoc,com.sun.tools.javadoc,javax.ejb,javax.persistence,javax.xml,\
+    com.sun.xml.internal.ws,com.sun.proxy
+
+
+# The following property makes specified packages from the class path
+# available to all bundles. You should avoid using this property.
+#org.osgi.framework.bootdelegation=sun.*,com.sun.*
+org.osgi.framework.bootdelegation=com.sun.xml.internal.ws.*
+
+# Felix tries to guess when to implicitly boot delegate in certain
+# situations to ease integration without outside code. This feature
+# is enabled by default, uncomment the following line to disable it.
+#felix.bootdelegation.implicit=false
+
+felix.log.level=1
+
+# Property to set the appserver and comserver name that will start up.
+# Please set to appropriate value if the hostname of the machine cannot be used
+#com.elster.jupiter.server.name=
+
+# Properties to set if you want to send mail from connexo
+#mail.smtp.host=
+#mail.smtp.port=
+#mail.user=
+#mail.password=
+#mail.from=
+
+# Customizing Connexo HATEOAS URLs
+#com.elster.jupiter.url.rewrite.host=
+#com.elster.jupiter.url.rewrite.port=
+#com.elster.jupiter.url.rewrite.scheme=
+
+
+# HE Application URLs
+com.energyict.mdc.url=
+com.elster.jupiter.energyaxis.url=
+
+#com.elster.jupiter.bpm.user=username
+#com.elster.jupiter.bpm.password=password
+com.elster.jupiter.timeout=1800
+com.elster.jupiter.token.refresh.maxcount=100
+com.elster.jupiter.token.expirationtime=300
+
+#com.elster.jupiter.yellowfin.user=username
+#com.elster.jupiter.yellowfin.password=password
+
+
+#   The location template depicts the order in which location elements are parsed during imports
+#   The mandatory fields refer to mandatory location entities in the system
+#   #cc - country code (optional)  -- i.e. BE
+#	#cn - country name -- i.e. Belgium
+#	#aa - administrative area  -- i.e. West Flanders
+#	#loc - locality -- i.e. Brugge
+#	#sloc - sublocality -- i.e. if the name of a commune is the same as the name of the village; will usually contain the same name as #loc
+#	#styp - street type -- i.e. Street, Boulevard, Alley, Entry, etc.
+#   #sname - street name
+#   #snum - street number (alphanumeric) -- i.e. 123A
+#   #etyp - establishment/household type -- i.e. Block of apartments
+#   #enum - establishment/household number (alphanumeric) -- i.e. 123A
+#   #enam - establishment/household name -- i.e. Building Europa
+#   #addtl - address detail, additional information pertinent to be saved with a certain location -- i.e. corner with Main Blv. next to the bakery
+#	#zip - zip code or postal code -- i.e. 123456A
+#	#locale - locale depicting the language in which the address is written -- i.e. en_US
+
+# Please edit the following as per inetrnal requirements
+# Please note that com.elster.jupiter.location.template will need to contain all the previously enumerated fields, the ordering being flexible
+com.elster.jupiter.location.template =#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale
+com.elster.jupiter.location.template.mandatoryfields =#adma,#loc,#styp,#snam,#snum
+
+# Use the following property to set the start of the gas year.
+# Needs to respect the following grep pattern: JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC@\d\d[A|P]M
+# First is the abbreviation of the month in which the gas year starts
+# followed by two digits for the hour and then AM or PM.
+# There is no support for gas year starting in the middle of the month.
+# Examples: gas day in Belgium starts Oct 1st 05:00 and needs the following setting: OCT@05AM
+com.elster.jupiter.gasday.start=OCT@05AM
+
+# Property to specify the directory in which the webservice trace files will be put on the connexo server(s)
+com.elster.jupiter.webservices.log.directory=logs
+
+# Sets the separator character that will be used by the NlsService to parse CSV files containing translations
+com.elster.jupiter.nls.csv.separator=;
+
+# Sets the languages to which new NlsKeys will automatically be translated when created
+# Leaving this property empty will not automatically translate NlsKeys
+com.elster.jupiter.nls.install=
+
+# Sets the directory that contains the CSV language files
+com.elster.jupiter.nls.config.directory=./language-packs
+
+# When manually updating this file, uncomment and change the following lines
+# The install script will append these properties automatically
+# com.elster.jupiter.system.identifier=
+# com.elster.jupiter.system.identifier.color=#FFFFFF
+# com.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@yourHost:yourPort:yourSID
+# com.elster.jupiter.datasource.jdbcuser=dbUsername
+# com.elster.jupiter.datasource.jdbcpassword=dbPassword
+# com.elster.jupiter.datasource.keyfile=file
+# com.elster.jupiter.datasource.pool.maxlimit=50
+# com.elster.jupiter.datasource.pool.maxstatements=50
+# com.elster.jupiter.datasource.pool.oracle.ons.nodes=
+# org.osgi.service.http.port=8080
+# com.elster.jupiter.bpm.url=http://localhost:8081/flow
+# com.elster.jupiter.yellowfin.url=http://localhost:8081/facts
+# com.elster.jupiter.yellowfin.externalurl=https://hostname/facts
+# upgrade=true
+
+
+#Geolocation
+
+#Enable Geolocation layer; values[true, false]
+#com.elster.jupiter.geolocation.isGeolocationEnabled=false
+
+#URL of tile layer containing app id, tokens etc(as provider requires)
+#Example with Mapbox ['https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaG9uZXltYXN0ZXIiLCJhIjoiY2piNmo0bm5zOHUwNTJ3cnpuYno1bmE2eiJ9.btH4z4_v-TWmEajkMSvw8Q']
+#If no tileLayer is set, at the moment, Google is set by default;
+#com.elster.jupiter.geolocation.tileLayer=
+
+#Some map providers require type of map. Example for Google Maps ['roardmap']
+#com.elster.jupiter.geolocation.type=
+
+#Zoom level; values[ex. 18]
+#com.elster.jupiter.geolocation.maxZoom=18
+
+#PKI related properties
+
+#com.elster.jupiter.pki.host=
+#com.elster.jupiter.pki.port=
+#com.elster.jupiter.ca.truststore=
+#com.elster.jupiter.ca.certificate=
+#com.elster.jupiter.ca.clientcertificate=
+
+#com.elster.jupiter.ca.name=
+#com.elster.jupiter.ca.certprofilename=
+#com.elster.jupiter.ca.eeprofilename=
+
+#com.energyict.mdc.device.data.pki.certrenewal.bpmprocess=
+#com.energyict.mdc.device.data.pki.certrenewal.expirationdays=
+#com.energyict.mdc.device.data.pki.keyrenewal.bpmprocess=
+#com.energyict.mdc.device.data.pki.keyrenewal.expirationdays=
