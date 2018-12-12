@@ -109,7 +109,8 @@ com.elster.jupiter.nls.config.directory=./language-packs
 
 # When manually updating this file, uncomment and change the following lines
 # The install script will append these properties automatically
-# com.elster.jupiter.system.identification=Production
+# com.elster.jupiter.system.identifier=
+# com.elster.jupiter.system.identifier.color=#FFFFFF
 # com.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@yourHost:yourPort:yourSID
 # com.elster.jupiter.datasource.jdbcuser=dbUsername
 # com.elster.jupiter.datasource.jdbcpassword=dbPassword
