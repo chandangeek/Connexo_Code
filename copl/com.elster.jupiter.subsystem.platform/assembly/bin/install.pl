@@ -30,6 +30,7 @@ my $install=1;
 my $cmd_line=0;
 my $help=0;
 my $renewdatabasepassword=0;
+my $updatetomcatappsheader=0;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
 my $config_cmd="config.cmd";
@@ -47,6 +48,8 @@ my $UPGRADE_OLD_SERVICE_VERSION="";
 my $ENCRYPTION_KEYFILE_PATH;
 my $KEY_FILE="keyfile.crypt";
 my $KEYFILE_FULLPATH;
+my $SYSTEM_IDENTIFIER="";
+my $SYSTEM_IDENTIFIER_COLOR="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
@@ -175,6 +178,10 @@ sub read_args {
             $renewdatabasepassword=1;
             $parameter_file=1;
         }
+        if ($ARGV[$i] eq "--updatetomcatappsheader") {
+            $updatetomcatappsheader=1;
+            $parameter_file=1;
+        }
         if ($ARGV[$i] eq "--version") {
             print "\n    Installation script version $INSTALL_VERSION\n";
             exit (0);
@@ -201,6 +208,8 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
                 if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1]; $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;}
+                if ( "$val[0]" eq "SYSTEM_IDENTIFIER" )             {$SYSTEM_IDENTIFIER=$val[1];}
+                if ( "$val[0]" eq "SYSTEM_IDENTIFIER_COLOR" )       {$SYSTEM_IDENTIFIER_COLOR=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
@@ -230,6 +239,10 @@ sub read_config {
         print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
         chomp($JAVA_HOME=<STDIN>);
         check_java8();
+        print "Please enter the system identifier: ";
+        chomp($SYSTEM_IDENTIFIER=<STDIN>);
+        print "Please enter the system identifier color: ";
+        chomp($SYSTEM_IDENTIFIER_COLOR=<STDIN>);
         print "Please enter the hostname (leave empty to use the system variable): ";
         chomp($HOST_NAME=<STDIN>);
         while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
@@ -414,6 +427,8 @@ sub install_connexo {
 	if ("$INSTALL_CONNEXO" eq "yes") {
 	    if("$UPGRADE" ne "yes") {
             copy("$CONNEXO_DIR/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
+            add_to_file_if($config_file,"com.elster.jupiter.system.identifier=$SYSTEM_IDENTIFIER");
+            add_to_file_if($config_file,"com.elster.jupiter.system.identifier.color=$SYSTEM_IDENTIFIER_COLOR");
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
@@ -654,6 +669,11 @@ sub install_facts {
             print "    $CONNEXO_DIR/partners/facts/facts.filter.jar -> $FACTS_DIR/WEB-INF/lib/facts.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
         }
+        #set system identifier in the header
+        if ("$SYSTEM_IDENTIFIER" ne "") {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+        }
+
 		print "Connexo Facts successfully installed\n";
 
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
@@ -731,6 +751,11 @@ sub install_flow {
 		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{password\}',"$CONNEXO_ADMIN_PASSWORD");
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
+
+        #set system identifier in the header
+		if ("$SYSTEM_IDENTIFIER" ne "") {
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
+		}
 
 		print "Copying extra jar files\n";
 		if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
@@ -1388,6 +1413,8 @@ sub perform_upgrade {
             rename("$config_file","$config_file"."_obsolete");
             copy("$UPGRADE_PATH/temp/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
 
+            add_to_file_if($config_file,"com.elster.jupiter.system.identifier=$SYSTEM_IDENTIFIER");
+            add_to_file_if($config_file,"com.elster.jupiter.system.identifier.color=$SYSTEM_IDENTIFIER_COLOR");
             add_to_file_if($config_file,"org.osgi.service.http.port=$CONNEXO_HTTP_PORT");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
@@ -1524,6 +1551,30 @@ sub show_help {
     print "        --uninstall    : remove installation; ; using the values in bin/config.cmd\n";
     print "        --uninstallcmd : remove installation with console input\n";
     print "        --renewdatabasepassword  : renew Connexo database password with console input\n";
+    print "        --updatetomcatappsheader  : update Connexo system identifier in the header of tomcat applications\n";
+}
+
+sub update_tomcat_apps_header {
+    read_config();
+    if ("$INSTALL_FLOW" eq "yes") {
+    	my $FLOW_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/flow";
+        #set system identifier in the header
+		if ("$SYSTEM_IDENTIFIER" ne "") {
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js", "Connexo Flow.*</span>", "Connexo Flow<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span></span>");
+		} else {
+		    replace_in_file("$FLOW_DIR/org.kie.workbench.KIEWebapp/org.kie.workbench.KIEWebapp.connexo.js","Connexo Flow.*</span>", "Connexo Flow</span>");
+		}
+    }
+    if ("$INSTALL_FACTS" eq "yes") {
+        my $FACTS_BASE="$TOMCAT_BASE/$TOMCAT_DIR/webapps";
+    	my $FACTS_DIR="$FACTS_BASE/facts";
+        #set system identifier in the header
+        if ("$SYSTEM_IDENTIFIER" ne "") {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts.*", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span></span>");
+        } else {
+            replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts.*</span>", "Connexo Facts</span>");
+        }
+    }
 }
 
 sub renew_db_password {
@@ -1591,6 +1642,8 @@ if ($help) {
     show_help();
 }elsif($renewdatabasepassword){
         renew_db_password();
+}elsif($updatetomcatappsheader){
+        update_tomcat_apps_header();
 }elsif ($install) {
 	read_config();
     if ("$UPGRADE" eq "yes") {
