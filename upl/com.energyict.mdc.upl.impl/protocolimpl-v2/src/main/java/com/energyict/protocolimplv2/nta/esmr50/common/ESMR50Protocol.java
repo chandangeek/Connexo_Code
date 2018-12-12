@@ -312,6 +312,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
     }
+
+   //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
+    /**
+     * E-meter has address 0. Subclasses can override to add MBus address functionality.
+     */
+    @Override
+    public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
+        return 0;
+    }
 }
 
 

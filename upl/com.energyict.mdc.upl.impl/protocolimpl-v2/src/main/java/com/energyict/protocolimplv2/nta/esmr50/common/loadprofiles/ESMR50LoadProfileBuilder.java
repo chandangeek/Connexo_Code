@@ -160,7 +160,6 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
-        ProfileData profileData;
 
             for (LoadProfileReader lpr : loadProfiles) {
                 ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
@@ -170,8 +169,6 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                     getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile [" + lpObisCode + "] data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
                     profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
-                    profileData = new ProfileData(lpr.getLoadProfileId());
-                    profileData.setChannelInfos(getChannelInfoMap().get(lpr));
                     Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
                     fromCalendar.setTime(lpr.getStartReadingTime());
                     Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
@@ -196,7 +193,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                                 new ESMR5ProfileIntervalStatusBits(getIgnoreDstStatusCode())); //TODO: check what to do whith this DST status
                     }
 
-                    TimeZone timeZone = null;
+                    TimeZone timeZone = getMeterProtocol().getTimeZone();
                     if (mustUseSlaveTimeZone(lpr.getProfileObisCode())) {
                         // Enexis:
                         //          It has been approved that the E-meter already converts the UTC time to the local time for ESMR 5.0 meters.
@@ -204,23 +201,14 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                         //          So take them as it is.
                         // But:
                         //      - timestamps already contain an unwanted deviation, so will use MBus RMR timeZone to adjust
-                        //TODO check this timezone usage
-//                    try {
-//                        timeZone = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(lpr.getMeterSerialNumber()).get(0).getTimeZone();
-//                        this.getMeterProtocol().getLogger().info(" > parsing load profile time stamps using RMR time zone: " + timeZone.getDisplayName());
-//                    } catch (Exception ex){
-//                        this.getMeterProtocol().getLogger().warning(ex.getMessage());
-//                    }
                     }
                     List<IntervalData> parsedIntervals = intervals.parseIntervals(lpc.getProfileInterval(), timeZone);
                     this.getMeterProtocol().getLogger().info(" > load profile intervals parsed: " + parsedIntervals.size());
-                    if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
-                        profileData.setChannelInfos(lpr.getChannelInfos());
-                    }
-                    profileData.setIntervalDatas(parsedIntervals);
-                    List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
+//                    if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
+//                        profileData.setChannelInfos(lpr.getChannelInfos()); TODO LTE_MONITORING_LOAD_PROFILE must be tested to see if it reads the channels correctly
+//                    }
 
-                    collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, getChannelInfoMap().get(lpr));
+                    collectedLoadProfile.setCollectedIntervalData(parsedIntervals, getChannelInfoMap().get(lpr));
                 } else {
                     this.getMeterProtocol().getLogger().log(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
                 }
