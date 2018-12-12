@@ -1,0 +1,33 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+// Field style
+$form-field-border-color: #A0A0A0 !default;
+$form-field-color: #686868 !default;
+$form-field-font-family: $font-family !default;
+$form-field-invalid-border-color: #eb5642 !default;
+$form-field-trigger-background: rgba(0, 0, 0, 0) !default;
+$form-field-border-radius: 3px !default;
+$form-field-height: 28px;
+$form-field-width: 26px;
+
+$form-field-trigger-height: 22px;
+$form-field-trigger-margin: 2px;
+
+// Error msg style
+$form-error-msg-color: #eb5642 !default;
+$form-error-msg-padding: 10px 0px 10px 0px !default;
+$form-error-msg-border-color: $form-error-msg-color !default;
+$form-error-msg-font-color: $form-error-msg-color !default;
+$form-error-under-font: 13px/16px $font-family !default;
+
+// Label style
+$form-label-font-color: $form-field-color !default;
+$form-label-font-family: $form-field-font-family !default;
+$form-label-font-size: 13px !default;
+
+
+
+
+

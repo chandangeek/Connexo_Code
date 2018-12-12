@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}btn-sort-item-asc {
+  background-image: $sort-item-button-asc;
+  margin: $sort-item-button-icon-margin;
+  width: 60px;
+}
+
+.#{$prefix}btn-sort-item-desc {
+  background-image: $sort-item-button-desc;
+  margin: $sort-item-button-icon-margin;
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+
+@if $include-button-default-medium-ui {
+  @include extjs-button-medium-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+
+@if $include-button-default-large-ui {
+  @include extjs-button-large-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-small-ui {
+  @include extjs-button-toolbar-small-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-medium-ui {
+  @include extjs-button-toolbar-medium-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+
+@if $include-button-default-toolbar-large-ui {
+  @include extjs-button-toolbar-large-ui(
+    $ui: 'sort',
+    $background-color: $sort-item-button-background-color,
+    $color: $sort-item-button-color,
+    $background-color-pressed: $sort-item-button-background-color-pressed,
+    $background-color-over: $sort-item-button-background-color-over
+  );
+}
+

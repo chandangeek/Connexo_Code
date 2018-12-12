@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.io.impl
+Export-Package: com.energyict.mdc.io, com.energyict.mdc.io.naming

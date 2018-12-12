@@ -1,0 +1,61 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<body><h1>com.elster.jupiter.metering</h1>
+
+<p>This bundle manages meter data.
+    It registers a dataModel with the MTR acronym.
+    It closely follows the object model defined in the CIM Metering standard
+    (IEC 61968-9: Application integration at electric utilities. System interfaces for distribution management. Part 9:
+    Interfaces for meter reading and control)
+</p>
+
+<h2>Release History</h2>
+
+<h3>Version 1.1.0</h3>
+<ul><li>Added lockMeter(String amrId) to AmrSystem</li></ul>
+<h3>Version 1.0.1</h3>
+
+<p>initial version</p>
+
+<h2>Exported Packages</h2>
+<table>
+    <tr>
+        <th>package</th>
+        <th>version</th>
+        <th>description</th>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.metering</td>
+        <td>1.1.0</td>
+        <td>Public Api</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.metering.events</td>
+        <td>1.0.0</td>
+        <td>EndDeviceEvents</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.metering.readings</td>
+        <td>1.0.0</td>
+        <td>Meter Reading interfaces</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.metering.readings.beans</td>
+        <td>1.0.0</td>
+        <td>Meter Reading classes</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.metering.security</td>
+        <td>1.0.0</td>
+        <td>Privileges</td>
+    </tr>
+</table>
+<h2>Provided Services</h2>
+<ul>
+    <li>com.elster.jupiter.parties.MeteringService</li>
+</ul>
+</body>
+</html>

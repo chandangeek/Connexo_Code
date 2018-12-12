@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD description="Java util logging" name="Logging" id="com.elster.jupiter.logging">
+        <AD name="Log format string" id="com.elster.jupiter.logging.format" required="true" type="String" default="%5$s"
+            description="Format string for log records."/>
+        <AD name="Root loglevel" id="com.elster.jupiter.logging.root.loglevel" required="true" type="String"
+            default="WARNING"
+            description="Log level for the root logger">
+            <Option label="FINEST" value="FINEST"/>
+            <Option label="FINER" value="FINER"/>
+            <Option label="FINE" value="FINE"/>
+            <Option label="CONFIG" value="CONFIG"/>
+            <Option label="INFO" value="INFO"/>
+            <Option label="WARNING" value="WARNING"/>
+            <Option label="SEVERE" value="SEVERE"/>
+        </AD>
+    </OCD>
+    <Designate pid="com.elster.jupiter.logging">
+        <Object ocdref="com.elster.jupiter.logging"/>
+    </Designate>
+</metatype:MetaData>

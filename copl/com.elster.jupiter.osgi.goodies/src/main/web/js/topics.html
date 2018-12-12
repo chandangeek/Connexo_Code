@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<meta charset="utf-8">
+<style>
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+	d3.json('/api/goodies/events/topics', function(data) {
+    	d3.select('#topic').selectAll('option').data(data).enter().append('option').attr('value', function (d) { return d}).text(function (d) { return d;});
+    });
+</script>
+<form action="javascript:void(0)" id="graph_form">
+<select name="topic" id="topic" onchange="topicChanged"></select>
+</form>
+</body>

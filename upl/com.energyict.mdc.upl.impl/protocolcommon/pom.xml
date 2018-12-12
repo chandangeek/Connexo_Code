@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>protocolcommon</artifactId>
+    <name>protocolcommon</name>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>protocols</artifactId>
+        <version>1.1.5${revision}</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocol-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>xmodem</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>
+            <artifactId>wavenis-driver</artifactId>
+            <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdw</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdwimpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.energyict.dataconcentrator.external</groupId>
+                    <artifactId>eiserver-combined</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+The two profiles define two different repositories.
+The default one will deploy the protocolcommon jar to the local nexus repo.
+By using the command "mvn deploy -Delster.deploy=true", the protocolcommon jar will be deployed to the nexus-elster repo.
+    -->
+    <profiles>
+        <profile>
+            <id>deployment-elster</id>
+
+            <activation>
+                <property>
+                    <name>elster.deploy</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <distributionManagement>
+
+                <repository>
+                    <id>elster-releases</id>
+                    <name>Elster releases repository</name>
+                    <url>http://source.eict.vpdc/nexus-elster/content/repositories/releases/</url>
+                </repository>
+
+                <snapshotRepository>
+                    <id>elster-snapshots</id>
+                    <name>Elster snapshots repository</name>
+                    <url>http://source.eict.vpdc/nexus-elster/content/repositories/snapshots/</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </snapshotRepository>
+
+            </distributionManagement>
+
+        </profile>
+
+        <profile>
+            <id>deployment-eict</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <distributionManagement>
+
+                <repository>
+                    <id>eict-releases</id>
+                    <name>EnergyICT releases repository</name>
+                    <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+                </repository>
+
+                <snapshotRepository>
+                    <id>eict-snapshots</id>
+                    <name>EnergyICT snapshots repository</name>
+                    <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+                    <uniqueVersion>false</uniqueVersion>
+                </snapshotRepository>
+
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+</project>

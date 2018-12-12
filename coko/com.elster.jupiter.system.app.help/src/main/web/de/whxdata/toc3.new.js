@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"02 Lizenzmanagement","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/02_Lizenzmanagement/02_Lizenzmanagement-.htm"},{"type":"item","name":"Lizenzen konfigurieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/02_Lizenzmanagement/02_Lizenzmanagement-Lizenzen_konfigurieren.htm"},{"type":"item","name":"Lizenzen konfigurieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/02_Lizenzmanagement/02_Lizenzmanagement-Lizenzen_konfigurieren1.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

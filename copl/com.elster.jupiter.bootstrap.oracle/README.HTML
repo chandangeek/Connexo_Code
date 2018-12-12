@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<body><h1>com.elster.jupiter.bootstrap.oracle</h1>
+<p>This bundle immplements the bootstrap api for creating an Oracle datasource.
+    It also redirect log messages from java.util.logging to the Osgi Log Service.
+    It does not export any api package.
+    Bundle properties: </>
+<table>
+    <tr>
+        <td>com.elster.jupiter.datasource.jdbcurl</td>
+        <td>mandatory</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.datasource.jdbcuser</td>
+        <td>mandatory</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.datasource.jdbcpassword</td>
+        <td>mandatory</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.datasource.pool.maxlimit</td>
+        <td>optional, default 50</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.datasource.pool.maxstatements</td>
+        <td>optional, default 50</td>
+    </tr>
+    <tr>
+        <td>com.elster.jupiter.datasource.pool.oracle.ons.nodes</td>
+        <td>ons nodes information. The "nodes=" will be automatically added.</td>
+    </tr>
+</table>
+<h2>Release History</h2>
+<h3>Version 1.0.0</h3>
+<p>initial version</p>
+<h3>Version 1.2.0</h3>
+<p>Now uses Oracle Universal Connection Pool (UCP) and the Replay driver</p>
+<h2>Provided Services</h2>
+<ul>
+    <li>com.elster.jupiter.bootstrap.BootstrapService</li>
+</ul>
+</body>
+</html>

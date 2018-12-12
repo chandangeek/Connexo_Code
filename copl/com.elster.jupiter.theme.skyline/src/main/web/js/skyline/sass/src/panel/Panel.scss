@@ -1,0 +1,225 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@include extjs-panel-ui(
+$ui: 'large',
+$ui-padding: $panel-padding,
+$ui-header-font-family: $panel-large-header-font-family,
+$ui-header-font-size: $panel-large-header-font-size,
+$ui-header-line-height: $panel-large-header-line-height,
+$ui-header-font-weight: $panel-large-header-font-weight,
+$ui-header-padding: $panel-large-header-padding
+);
+
+@include extjs-panel-ui(
+$ui: 'medium',
+$ui-padding: $panel-padding,
+$ui-header-font-family: $panel-medium-header-font-family,
+$ui-header-font-size: $panel-medium-header-font-size,
+$ui-header-line-height: $panel-medium-header-font-size,
+$ui-header-font-weight: $panel-medium-header-font-weight,
+$ui-header-padding: $panel-medium-header-padding
+);
+
+@include extjs-panel-ui(
+$ui: 'small',
+$ui-padding: $panel-padding,
+$ui-header-font-family: $panel-small-header-font-family,
+$ui-header-font-size: $panel-small-header-font-size,
+$ui-header-line-height: $panel-small-header-font-size,
+$ui-header-font-weight: $panel-small-header-font-weight,
+$ui-header-padding: $panel-small-header-padding
+);
+
+@include extjs-panel-ui(
+$ui: 'filter',
+$ui-padding: $panel-filter-padding,
+$ui-border-radius: $panel-filter-border-radius,
+$ui-border-color: $panel-filter-border-color,
+$ui-border-width: $panel-filter-border-width,
+$ui-header-padding: $panel-filter-header-padding,
+$ui-header-color: $panel-filter-header-color,
+$ui-header-font-family: $panel-filter-header-font-family,
+$ui-header-font-size: $panel-filter-header-font-size,
+$ui-header-line-height: $panel-filter-header-font-size,
+$ui-header-font-weight: $panel-filter-header-font-weight,
+$ui-header-background-color: $panel-filter-background-color,
+$ui-body-color: $panel-filter-body-color,
+$ui-body-background-color: $panel-filter-background-color
+);
+
+// General
+
+*[class*='#{$prefix}panel-header-body-'] {
+    overflow: visible;
+
+    .#{$prefix}box-inner {
+        overflow: visible;
+
+        .#{$prefix}panel-header-text-container-tile {
+            line-height: 32px;
+        }
+
+        .#{$prefix}panel-header-text-container-large {
+            line-height: 35px;
+        }
+
+        .#{$prefix}panel-header-text-container-medium {
+            line-height: 36px;
+        }
+    }
+}
+
+.#{$prefix}panel-header-tile-horizontal,
+.#{$prefix}panel-header-large-horizontal,
+.#{$prefix}panel-header-medium-horizontal {
+  padding-bottom: 8px !important;
+}
+
+// Large
+
+.#{$prefix}panel-large {
+    padding: 8px 0 0 0;
+}
+
+// Medium
+
+.#{$prefix}panel-medium {
+  padding: 8px 16px 16px 16px;
+}
+
+// Small
+
+.#{$prefix}panel-small-collapsed {
+    height: 60px !important;
+}
+
+.#{$prefix}panel-header-small-docked-top {
+    padding: 0 0 16px 0;
+}
+
+.#{$prefix}panel-header-small-collapsed-top {
+    padding: 16px 0 16px 0;
+}
+
+.#{$prefix}panel-header-small-docked-bottom {
+    padding: 16px 0 0 0;
+}
+
+.#{$prefix}panel-header-small-collapsed-bottom {
+    padding: 16px 0 16px 0;
+}
+
+// Framed
+
+.#{$prefix}panel-default-framed {
+    overflow: visible;
+
+    & > .#{$prefix}panel-header {
+        border-color: $panel-frame-header-border-color;
+        background: $panel-frame-header-border-color;
+        .#{$prefix}panel-header-text-container {
+            color: $panel-frame-header-color;
+        }
+
+        .#{$prefix}btn-default-small {
+            background-color: transparent;
+        }
+
+        .#{$prefix}btn-default-small-menu-active,
+        .#{$prefix}btn-default-small-focus,
+        .#{$prefix}btn-default-small-over {
+            background-color: $panel-frame-pressed-menu;
+        }
+    }
+    & > .#{$prefix}panel-header-top {
+        padding: $panel-frame-header-padding;
+    }
+}
+
+.#{$prefix}panel-header {
+    .#{$prefix}panel-header-sub-text {
+        float: none;
+        color: $panel-header-sub-color;
+        clear: both;
+        display: block;
+    }
+    .#{$prefix}panel-header-sub-text-medium {
+        font-size: $panel-medium-header-sub-font-size;
+        line-height: $panel-medium-header-sub-font-size;
+    }
+    .#{$prefix}panel-header-sub-text-large {
+        font-size: $panel-large-header-sub-font-size;
+        line-height: $panel-medium-header-sub-font-size;
+    }
+}
+
+.#{$prefix}panel-filter {
+    background-color: $panel-filter-background-color;
+    @include border-radius(10px);
+
+    .#{$prefix}panel-body {
+        background: transparent;
+    }
+}
+
+.#{$prefix}panel-filter-toolbar {
+    padding: 8px 0;
+    .#{$prefix}header-text-container {
+        width: 16px * 4;
+        color: $panel-filter-header-color;
+        font-weight: bold;
+    }
+    .#{$prefix}box-item {
+        margin-right: 8px;
+    }
+    .#{$prefix}panel-body {
+        background: transparent;
+    }
+    .#{$prefix}form-item-label {
+        background: transparent;
+        top: 4px !important
+    }
+}
+
+// Error message
+
+@include extjs-panel-ui(
+$ui: 'form-error-framed',
+$ui-padding: $panel-form-error-msg-padding,
+$ui-border-color: $form-error-msg-color,
+$ui-body-color: $form-error-msg-color,
+$ui-border-width: $panel-form-error-msg-border-width,
+$ui-border-radius: $panel-form-error-msg-border-radius
+);
+
+@include extjs-panel-ui(
+$ui: 'form-error',
+$ui-padding: $panel-form-error-msg-padding,
+$ui-border-color: $form-error-msg-color,
+$ui-body-color: $form-error-msg-color
+);
+
+.#{$prefix}uni-form-error-msg-icon {
+    background-image: $panel-form-error-msg-icon;
+}
+
+*[class*='#{$prefix}panel-'].no-side-padding {
+    padding: {
+        right: 0;
+        left: 0;
+    }
+}
+
+@import "StepPanel";
+@import "TilePanel";
+@import "TilePanel2";
+@import "Detail";
+@import "NoItemsFound";
+@import "Tool";
+@import "VisualiserPanel";
+
+.error-border .#{$prefix}panel-body {
+  border-color: $color-red !important;
+}

@@ -1,0 +1,7 @@
+-classpath: target/classes
+-dsannotations: * 
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.security.thread.impl
+Export-Package: com.elster.jupiter.security.thread
+Import-Package: oracle.jdbc;version=0,\
+	*

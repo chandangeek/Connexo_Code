@@ -1,0 +1,11 @@
+{
+  "name": "uni-theme-skyline",
+  "format": "1",
+  "version": "1.4.0",
+  "creator": "Elster Jupiter Project",
+  "summary": "Theme for the Jupiter project called Skyline",
+  "detailedDescription": "Long description of package",
+  "type": "theme",
+  "extend": "ext-theme-neptune",
+  "local": true
+}

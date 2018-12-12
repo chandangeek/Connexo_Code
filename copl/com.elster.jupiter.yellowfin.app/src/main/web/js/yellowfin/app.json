@@ -1,0 +1,8 @@
+{
+  "name": "com.elster.jupiter.yellowfin.app",
+  "requires": [
+    "com.elster.jupiter.loaderjs",
+    "com.elster.jupiter.unifyingjs"
+  ],
+  "id": "29c462c9-436e-4d93-8f74-038373138820"
+}

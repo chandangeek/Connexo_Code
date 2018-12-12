@@ -1,0 +1,11 @@
+-classpath: target/classes
+-dsannotations: *
+
+Private-Package: \
+    com.elster.jupiter.rest.api.util.v1.properties.impl
+
+Export-Package: \
+    com.elster.jupiter.rest.api.util,\
+    com.elster.jupiter.rest.api.util.v1,\
+    com.elster.jupiter.rest.api.util.v1.hypermedia.*,\
+    com.elster.jupiter.rest.api.util.v1.properties

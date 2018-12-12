@@ -1,0 +1,409 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure issues</title>
+
+ <link rel="stylesheet" href="000017_UMNL_Manage_issues.css" type="text/css" />
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "17.1";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Understand_issues.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Fix_issues.htm">
+    <meta name="topic-breadcrumbs" content="Issue management"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section">Configure issues </p>
+
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="TOC_Configure_issue_creation"></a><a name="XREF_77620_Configure_issue"></a>Configure issue creation rules</p>
+    <p dir="ltr" class="FM_H4Topic">Understand issue creation rules</p>
+    <p dir="ltr" class="FM_Body">
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        &#160;offers the possibility the configure issue creation rules. This option limits the time you spend managing issues because you create rules to define which events will automatically
+        trigger an issue. You can also define when the issue needs to be solved as well as what needs to be done with the issue such as assigning it to a specific user.
+    </p>
+    <p dir="ltr" class="FM_Body">Different parameters are required to complete the configuration of a creation rule. First you will have to indicate the type of issue, this can be for example a data
+        collection issue. Next you need to select a rule template to define the parameters of the rule. </p>
+    <p dir="ltr" class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An example of
+        such a template is the template to create an issue when a slope is detected. All parameters will be shown, but then you will have to complete the reading type, the trend period and the
+        threshold.</p>
+    <p dir="ltr" class="FM_Body" style="color   : #a0a0a0;"><span style="font-family : Lato; font-weight : bold; color   : #686868; ">&nbsp;</span></p>
+    <p dir="ltr" class="FM_H4Topic">Available rule templates</p>
+    <p dir="ltr" class="FM_Body">In
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        &#160;different rule templates are available by default, below you can find a description of these rule templates and when to use them:
+    </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Rule template</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Data collection issues</span></p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Events from meters of concentrators</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">This rule template is designed to create an issue when multiple events that are related occur.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Create issue when specific event occurs</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Is a rule template designed to create issues for simple events such as a lost connection or a communication failure.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Data validation issues</span></p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Create issue when suspects cannot be estimated</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">An issue is created when the data cannot be estimated by the estimation rules used by the configured estimation task.</p>
+</td>
+</tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_96938_Configure_issue"></a>Add data collection issue creation rules</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>&#160;&gt; <span class="FM_UIRef">Issue creation rules</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add rule</span>. Complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">A unique name</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Issue type</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select <span class="FM_UIRef">Data collection</span></p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Rule template</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the template containing all parameters to configure the rule.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Auto resolution</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Close issues automatically when the connection or communication problem is solved.</p>
+                    <p dir="ltr" class="FM_CellBody">Note that this option is only available for specific rule templates.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Issue reason</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">What is the cause of the issue. Type a custom reason or select one of the predefined reasons.</p>
+                    <p dir="ltr" class="FM_CellBody">This reason is used to group issues on the Issue overview page see <a href="Understand_issues.htm#XREF_95199_View_issues"><span
+                            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">View issues overview”</span></a>.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Priority</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The priority of an issue is the sum of the urgency and the impact of the issue. Priority levels are as followed: </p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>1 - 20: very low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>21 - 40: low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>41 - 60: medium</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>61 - 80: high</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>81 - 100: very high</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Urgency</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define the urgency of the issue, maximum allowed value is 50.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Impact</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define the impact of the issue, maximum allowed value is 50.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Due date</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">When does the issue need to be solved.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Comment</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Add additional information to the issue.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Actions</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define what needs to be done when the issue is created. See <a href="#XREF_57770_Add_actions_to"><span class="FM_blue_crossreference">“</span><span
+                            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add actions to issue creation rules”</span></a>&#160;how to configure these actions.</p>
+</td>
+</tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">Depending on the selected rule template, additional fields will have to be completed such as thresholds and reading types.</p>
+    <p dir="ltr" class="FM_H4Topic">Add data validation issue creation rules</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>&#160;&gt; <span class="FM_UIRef">Issue creation rules</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add rule</span>. Complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">A unique name</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Issue type</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select <span class="FM_UIRef">Data validation</span>.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Rule template</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the template containing all parameters to configure the rule</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device configurations</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the data that will create issues by linking device configurations to the issue creation rule. Click <span class="FM_UIRef">Add device configurations</span>.
+                        Select all device configurations or make a custom selection.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Issue reason</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The reason of creation, MultiSense will show this in the issue details.</p>
+                    <p dir="ltr" class="FM_CellBody">This reason is used to group issues on the Issue overview page see <a href="Understand_issues.htm#XREF_95199_View_issues"><span
+                            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">View issues overview”</span></a>.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Priority</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The priority of an issue is the sum of the urgency and the impact of the issue. Priority levels are as followed: </p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>1 - 20: very low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>21 - 40: low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>41 - 60: medium</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>61 - 80: high</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>81 - 100: very high</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Urgency</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define the urgency of the issue, maximum allowed value is 50.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Impact</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define the impact of the issue, maximum allowed value is 50.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Due date</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">When does the issue need to be solved.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Comment</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Add additional information to the issue.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Actions</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define what needs to be done when the issue is created. See <a href="#XREF_57770_Add_actions_to"><span class="FM_blue_crossreference">“</span><span
+                            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add actions to issue creation rules”</span></a>&#160;how to configure these actions.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_57770_Add_actions_to"></a>Add actions to issue creation rules</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management </span>&gt;<span class="FM_UIRef"> Issue creation rules.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; To add actions to a new creation rule: click <span class="FM_UIRef">Add rule</span>.</p>
+    <p dir="ltr" class="FM_Body" style="text-indent : 15.591pt; margin-bottom : 7.000pt;">To add actions to an existing creation rule: click the actions icon <img alt="masterActions.png" id="image307"
+                                                                                                                                                                   src="../../assets/masterActions.png"
+                                                                                                                                                                   style="width:100%; max-width:21px"/>&#160;and
+        select <span class="FM_UIRef">Edit</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add action</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Define when to perform the action: when the issue was created or when the issue has passed its due date.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Select action: assign to a user or workgroup upon creation or assign or close the issue when it is overdue.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Edit issue creation rules</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>&#160;&gt; <span class="FM_UIRef">Issue creation rules</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the actions icon <img alt="masterActions.png" id="image308" src="../../assets/masterActions.png"
+                                                                                                     style="width:100%; max-width:21px"/>&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Change the issue creation rule parameters.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Remove issue creation rules</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>&#160;&gt; <span class="FM_UIRef">Issue creation rules</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the actions icon <img alt="masterActions.png" id="image309" src="../../assets/masterActions.png"
+                                                                                                     style="width:100%; max-width:21px"/>&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
+</div>
+</body>
+</html>

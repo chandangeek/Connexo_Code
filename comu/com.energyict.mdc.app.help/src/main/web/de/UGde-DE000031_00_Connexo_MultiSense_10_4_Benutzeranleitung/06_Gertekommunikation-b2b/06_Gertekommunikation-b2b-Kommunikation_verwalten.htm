@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Kommunikation verwalten</title>
+
+ <link rel="stylesheet" href="06_Gertekommunikation-b2b.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "7.0_10";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/06_Gertekommunikation-b2b/06_Gertekommunikation-b2b-Kommunikationsaufgaben_bei_Gerten_konfigurieren-96d.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/06_Gertekommunikation-b2b/06_Gertekommunikation-b2b-Verbindungen.htm">
+ <meta name="topic-breadcrumbs" content="06 Gerätekommunikation" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Kommunikation verwalten</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_85767_How_connections"></a>Wie Verbindungen und Kommunikation in Connexo funktionieren</p>
+  <p dir="ltr" class="FM_Body">Wie Verbindungen ausgelöst und Kommunikation eingerichtet wird, wird hauptsächlich durch die Verbindungsstrategie der Verbindungsmethode, dem Verbindungsplan und dem Verbindungsfenster des Geräts bestimmt. </p>
+  <p dir="ltr" class="FM_Body">Die Verbindungsstrategie definiert die Zeit, wann eine Verbindung ausgelöst werden kann. Wenn das die Verbindungen minimiert, wird die Verbindung nur ausgelöst, wenn die Verbindung geplant ist. Wenn die Strategie schnellstmöglich ist, wird eine Verbindung ausgelöst, wenn eine Verbindung benötigt wird. Verbindungen sind nur möglich, wenn das Gerät aktiv ist und das Verbindungsfenster diesen Zeitraum definiert. Sie können Verbindungen auf Anfrage auslösen.</p>
+  <p dir="ltr" class="FM_Body">Es ist auch möglich Kommunikationsaufgaben auf Anfrage zu starten. Es gibt zwei Möglichkeiten: <span class="FM_UIRef">Start</span><span style="font-weight : normal; ">&#160;und </span><span class="FM_UIRef">Jetzt starten</span><span style="font-weight : normal; ">. Wenn die Verbindungsstrategie schnellstmöglich ist, ist nur </span><span class="FM_UIRef">Jetzt starten</span><span style="font-weight : normal; ">&#160;möglich. Wenn Sie sich entscheiden, eine Kommunikation jetzt zu starten, wird die Aufgabe an das Ende der Warteschleife aller Kommunikationsaufgaben geschoben, die für diese Verbindung geplant sind. Diese Verbindung wird sofort ausgelöst, wenn das Gerät aktiv ist.</span></p>
+  <p dir="ltr" class="FM_Body">Wenn Sie &#160;<span class="FM_UIRef">Start</span><span style="font-weight : normal; ">&#160;selektieren, möchten Sie die Aufgabe ausführen, bevor sie geplant ist. Die Kommunikationsaufgabe wird dann an das Ende der Warteschleife mit allen Kommunikationsaufgaben, die für diese Verbindung geplant sind, geschoben. Die Verbindung wird nur ausgelöst, wenn sie geplant ist, die Aufgaben werden in der Reihenfolge ausgeführt, in der sie in der Warteschleife stehen. </span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Wie Kommunikationsaufgaben auf Anfrage gestartet werden, wenn die Aufgabe eine Verbindungsmethode mit Verbindungsstrategie “Verbindungen minimieren” nutzt.</caption>
+   <tr class="tr66">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="ConnectOnRequest_minimizeConnections.png" id="image136" src="../../assets/ConnectOnRequest_minimizeConnections.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Wie Kommunikationsaufgaben auf Anfrage gestartet werden, wenn die Aufgabe eine Verbindungsmethode mit Verbindungsstrategie “schnellstmöglich” nutzt.</caption>
+   <tr class="tr66">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="10_1_ConnectOnRequest_ASAP.png" id="image137" src="../../assets/10_1_ConnectOnRequest_ASAP.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  </div>
+</body>
+</html>

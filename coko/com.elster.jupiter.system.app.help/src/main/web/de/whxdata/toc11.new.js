@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"10 Ablesetypen","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/10_Ablesetypen/10_Ablesetypen-.htm"},{"type":"item","name":"Ablesetypen verstehen","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/10_Ablesetypen/10_Ablesetypen-Ablesetypen_verstehen.htm"},{"type":"item","name":"Ablesetypen verwalten","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/10_Ablesetypen/10_Ablesetypen-Ablesetypen_verwalten.htm"},{"type":"item","name":"Ablesetypen verwalten","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/10_Ablesetypen/10_Ablesetypen-Ablesetypen_verwalten1.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

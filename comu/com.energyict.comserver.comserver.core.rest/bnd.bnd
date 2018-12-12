@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: com.energyict.mdc.rest
+Private-Package:  \
+	com.energyict.mdc.rest.impl,\
+	com.energyict.mdc.rest.impl.comserver

@@ -1,0 +1,1 @@
+gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"00 Titelseite\"><item name=\"00 Titelseite\" url=\"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/00_Titelseite/00_Titelseite.htm\" /></data>";

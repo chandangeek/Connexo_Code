@@ -1,0 +1,124 @@
+{
+"rows": [
+{
+"topic": "com/elster/jupiter/metering/servicelocation/UPDATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "SERVICELOCATION_UPDATED",
+"publish": false
+},
+{
+"topic": "com/elster/jupiter/metering/usagepoint/DELETED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "USAGEPOINT_DELETED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/servicelocation/CREATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "SERVICELOCATION_CREATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/meter/DELETED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "METER_DELETED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/channel/CREATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "CHANNEL_CREATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/servicelocation/DELETED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "SERVICELOCATION_DELETED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/channel/DELETED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "CHANNEL_DELETED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/usagepoint/CREATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "USAGEPOINT_CREATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/CREATED",
+"component": "PRT",
+"scope": "System",
+"category": "Crud",
+"name": "PARTY_CREATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/DELETED",
+"component": "PRT",
+"scope": "System",
+"category": "Crud",
+"name": "PARTY_DELETED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/channel/UPDATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "CHANNEL_UPDATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/usagepoint/UPDATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "USAGEPOINT_UPDATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/meter/UPDATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "METER_UPDATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/meter/CREATED",
+"component": "MTR",
+"scope": "System",
+"category": "Crud",
+"name": "METER_CREATED",
+"publish": true
+},
+{
+"topic": "com/elster/jupiter/metering/UPDATED",
+"component": "PRT",
+"scope": "System",
+"category": "Crud",
+"name": "PARTY_UPDATED",
+"publish": true
+}
+]
+}

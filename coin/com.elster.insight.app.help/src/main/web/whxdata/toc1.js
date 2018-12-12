@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Getting started with Connexo Insight\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Getting_started/000107_UMNL_Getting_started.htm\"><item name=\"About Connexo Insight\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Getting_started/About_Connexo_Insight.htm\" /><book name=\"Basic functions\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Getting_started/Basic_functions.htm\" src=\"toc2.js\" /><book name=\"Explore Connexo Insight\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Getting_started/Explore_Connexo_Insight.htm\" src=\"toc3.js\" /><book name=\"The dashboard\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Getting_started/The_dashboard.htm\" src=\"toc4.js\" /></data>";

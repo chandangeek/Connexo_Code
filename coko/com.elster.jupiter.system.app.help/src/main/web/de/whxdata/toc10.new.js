@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"09 Relative Zeitabschnitte","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/09_Relative_Zeitabschnitte/09_Relative_Zeitabschnitte-.htm"},{"type":"item","name":"Relative Zeitabschnitte verstehen","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/09_Relative_Zeitabschnitte/09_Relative_Zeitabschnitte-Relative_Zeitabschnitte_verstehen.htm"},{"type":"item","name":"Relative Zeitabschnitte verwalten","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/09_Relative_Zeitabschnitte/09_Relative_Zeitabschnitte-Relative_Zeitabschnitte_verwalten.htm"},{"type":"item","name":"Relative Zeitabschnitte konfigurieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/09_Relative_Zeitabschnitte/09_Relative_Zeitabschnitte-Relative_Zeitabschnitte_konfigurieren.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

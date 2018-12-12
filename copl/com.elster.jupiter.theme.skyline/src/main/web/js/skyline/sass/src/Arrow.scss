@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin arrow($size, $class) {
+  .arrow-#{$class} {
+    width: $size;
+    height: $size;
+    font-size: 0;
+    line-height: 0;
+    display: block;
+    @content;
+  }
+}
+
+@mixin arrow-up(
+$color,
+$size
+) {
+  $class: 'up';
+  @include arrow($size, $class){
+    @content;
+    border-left: $size solid transparent;
+    border-right: $size solid transparent;
+    border-bottom: $size solid $color;
+  }
+}
+
+@mixin arrow-down(
+$color,
+$size
+) {
+  $class: 'down';
+  @include arrow($size, $class) {
+    @content;
+    border-left: $size solid transparent;
+    border-right: $size solid transparent;
+    border-top: $size solid $color;
+  }
+}
+
+@mixin arrow-left(
+$color,
+$size
+) {
+  $class: 'left';
+  @include arrow($size, $class) {
+    @content;
+    border-top: $size solid transparent;
+    border-bottom: $size solid transparent;
+    border-right: $size solid $color;
+  }
+}
+
+@mixin arrow-right(
+$color,
+$size
+) {
+  $class: 'right';
+  @include arrow($size, $class) {
+    @content;
+    border-bottom: $size solid transparent;
+    border-top: $size solid transparent;
+    border-left: $size solid $color;
+  }
+}

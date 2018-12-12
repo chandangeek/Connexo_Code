@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  fill: none;
+  stroke: #bbb;
+}
+
+</style>
+<body>
+<div id="chart_placeholder"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://redotheweb.com/DependencyWheel/js/d3.dependencyWheel.js"></script>
+<script>
+
+var chart = d3.chart.dependencyWheel();
+chart.width(800);
+d3.json('/api/goodies/bundles/jupiter.json', function(data) {
+    d3.select('#chart_placeholder')
+        .datum(data)
+        .call(chart);
+  });
+  
+</script>
+</body>

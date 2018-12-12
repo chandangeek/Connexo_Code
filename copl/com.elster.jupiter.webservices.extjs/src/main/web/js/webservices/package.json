@@ -1,0 +1,14 @@
+{
+  "name": "com.elster.jupiter.webservices.extjs",
+  "type": "code",
+  "creator": "Elster Jupiter Project",
+  "summary": "Short summary",
+  "detailedDescription": "Long description of package",
+  "version": "1.2.7",
+  "compatVersion": "1.2.7",
+  "format": "1",
+  "local": true,
+  "requires": [
+    "com.elster.jupiter.unifyingjs"
+  ]
+}

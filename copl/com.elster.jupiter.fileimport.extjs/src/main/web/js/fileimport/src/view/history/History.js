@@ -1,0 +1,109 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+Ext.define('Fim.view.history.History', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.fim-import-service-history',
+    requires: [
+        'Fim.view.history.HistoryPreview',
+        'Fim.view.history.ImportServicesHistoryTopFilter',
+        'Fim.view.history.HistoryGrid',
+        'Fim.view.history.Menu',
+        'Fim.view.history.HistoryPreviewForm',
+        'Fim.view.history.SortMenu'
+    ],
+
+    router: null,
+    importServiceId: null,
+    showImportService: false,
+    fromWorkSpace: false,
+
+    initComponent: function () {
+        var me = this;
+
+        if (!me.showImportService) {
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'fim-history-menu',
+                            itemId: 'history-view-menu',
+                            importServiceId: me.importServiceId,
+                            showImportService: me.showImportService,
+                            fromWorkSpace: me.fromWorkSpace,
+                            router: me.router
+                        }
+                    ]
+                }
+            ];
+        }
+
+        me.content = {
+            xtype: 'panel',
+            itemid : 'fim-history-form',
+            ui: 'large',
+            title: me.showImportService
+                ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history')
+                : Uni.I18n.translate('general.history', 'FIM', 'History'),
+            items: [
+                {
+                    xtype: 'filter-toolbar',
+                    title: Uni.I18n.translate('importService.filter.sort', 'FIM', 'Sort'),
+                    name: 'sortitemspanel',
+                    itemId: 'fim-history-sort-toolbar',
+                    emptyText: Uni.I18n.translate('general.none','FIM','None'),
+                    tools: [
+                        {
+                            xtype: 'button',
+                            action: 'addSort',
+                            itemId: 'add-sort-btn',
+                            text: Uni.I18n.translate('general.history.addSort', 'FIM', 'Add sort'),
+                            menu: {
+                                xtype: 'fim-history-sort-menu',
+                                itemId: 'menu-history-sort',
+                                name: 'addsortitemmenu'
+                            }
+                        }
+                    ]
+                },
+                {
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'fim-history-grid',
+                        itemId: 'fim-history-grid',
+                        router: me.router,
+                        showImportService: me.showImportService,
+                        fromWorkSpace: me.fromWorkSpace
+                    },
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'fim-history-empty-grid',
+                        title: Uni.I18n.translate('importService.history.empty.title', 'FIM', 'No import service history found'),
+                        reasons: [
+                            Uni.I18n.translate('importService.history.empty.list.item1', 'FIM', 'There is no history available for this import service.'),
+                            Uni.I18n.translate('importService.history.empty.list.item2', 'FIM', 'No history lines comply with the filter.')
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'fim-history-preview',
+                        itemId: 'pnl-history-preview',
+                        router: me.router
+                    }
+                }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'fim-view-history-importservices-topfilter',
+                    itemId: 'fim-view-history-topfilter',
+                    includeServiceCombo: me.showImportService
+                }
+            ]
+        };
+        me.callParent(arguments);
+    }
+});
+

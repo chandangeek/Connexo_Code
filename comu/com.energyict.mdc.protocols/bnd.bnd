@@ -1,0 +1,14 @@
+-classpath: target/classes
+-dsannotations: *
+
+Export-Package: com.energyict.protocols.naming
+Import-Package: !test.wsdl.import2.types,\
+    !org.apache.bsf,\
+    !org.apache.commons.httpclient.*,\
+    !org.mortbay.*,\
+    !org.apache.commons.net.pop3,\
+    !org.apache.commons.net.smtp,\
+    !org.exolab.castor.xml,\
+    !junit.textui,\
+    !junit.framework,\
+    *

@@ -1,0 +1,134 @@
+{
+    "categories": [
+        {
+            "DeviceMessageCategory": "Contactor",
+            "DeviceMessageEnablements": [
+                {
+                    "name": "Contactor open",
+                    "active": "true",
+                    "privileges": [
+                        "level1",
+                        "level2",
+                        "level3"
+                    ]
+                },
+                {
+                    "name": "Contactor close",
+                    "active": "true",
+                    "privileges": [
+                        "level1",
+                        "level2"
+                    ]
+                },
+                {
+                    "name": "Contactor arm",
+                    "active": "false",
+                    "privileges": []
+                }
+            ]
+        },
+        {
+            "DeviceMessageCategory": "Aprobator",
+            "DeviceMessageEnablements": [
+                {
+                    "name": "Aprobator first",
+                    "active": "true",
+                    "privileges": [
+                        "level1",
+                        "level2",
+                        "level3",
+                        "level4"
+                    ]
+                },
+                {
+                    "name": "Aprobator second",
+                    "active": "true",
+                    "privileges": [
+                        "level1",
+                        "level3"
+                    ]
+                },
+                {
+                    "name": "Aprobator third",
+                    "active": "true",
+                    "privileges": [
+                        "level2"
+                    ]
+                }
+            ]
+        },
+        {
+            "DeviceMessageCategory": "Security",
+            "DeviceMessageEnablements": [
+                {
+                    "name": "Activate encryption",
+                    "active": "true",
+                    "privileges": [
+                        "level1",
+                        "level2",
+                        "level3"
+                    ]
+                },
+                {
+                    "name": "Change encryption key",
+                    "active": "false",
+                    "privileges": [
+                        "level4"
+                    ]
+                }
+            ]
+        },
+        {
+            "DeviceMessageCategory": "Test",
+            "DeviceMessageEnablements": [
+                {
+                    "name": "Test 1",
+                    "active": "false",
+                    "privileges": [
+                        "level1",
+                        "level2",
+                        "level3"
+                    ]
+                },
+                {
+                    "name": "Test 2",
+                    "active": "false",
+                    "privileges": [
+                        "level4"
+                    ]
+                },
+                {
+                    "name": "Test 3",
+                    "active": "false",
+                    "privileges": [
+                        "level2",
+                        "level4"
+                    ]
+                },
+                {
+                    "name": "Test 4",
+                    "active": "false",
+                    "privileges": [
+                        "level1"
+                    ]
+                },
+                {
+                    "name": "Test 5",
+                    "active": "false",
+                    "privileges": [
+                        "level1",
+                        "level3"
+                    ]
+                }
+            ]
+        },
+        {
+            "DeviceMessageCategory": "TRE",
+            "DeviceMessageEnablements": []
+        },
+        {
+            "DeviceMessageCategory": "QWE",
+            "DeviceMessageEnablements": []
+        }
+    ]
+}

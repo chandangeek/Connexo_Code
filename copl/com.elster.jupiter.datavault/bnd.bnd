@@ -1,0 +1,7 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package:  \
+	com.elster.jupiter.datavault.gogo,\
+	com.elster.jupiter.datavault.impl
+Export-Package:  \
+	com.elster.jupiter.datavault

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Link multi-element devices and slaves</title>
+
+    <link rel="stylesheet" href="000017_UMNL_MultiElement.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "5.1.0_2";
+    </script>
+    <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Multi-element_slaves.htm">
+    <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Monitor_data_loggers1.htm">
+    <meta name="topic-breadcrumbs" content="Multi-element device > Multi-element slaves"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Link multi-element devices and slaves</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_91835_Link_data_logger"></a>Link multi-element slave to multi-element device</p>
+    <p dir="ltr" class="FM_Body">When you link a multi-element device to a slave then you will always create a new device that inherits all attributes from its master device. There is no other way to
+        create new multi-element slave devices in
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        .
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Select a multi-element device using <span class="FM_UIRef">Search</span>, see <a
+            href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span
+            class="FM_blue_crossreference">”</span></a>.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">multi-element slaves</span>&#160;in the menu on the left. Or click <span
+            class="FM_UIRef">Manage multi-element slaves</span>&#160;in the data logger slave widget on the device its landing page, see <a
+            href="../000017_UMNL_Getting_started/Widgets.htm#XREF_79643_Other_widgets_on"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Other widgets on the object landing page</span><span
+            class="FM_blue_crossreference">”</span></a> for more information.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Link multi-element slave</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; In step 1 you have to select the device type and configuration of the slave. A name is automatically generated, but you can change this if needed.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Next</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; In step 2 map the channels of the slave to those of the multi-element device by selecting one of the channels in the menu. In this menu you can find
+        all channels of the multi-element meter which have the same interval as the slave channel you are viewing.</p>
+    <p dir="ltr" class="FM_BodyProcedure">You need to map the channels before you can proceed to the next step. You can only use each channel once.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Click <span class="FM_UIRef">Next</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; In step 3 map the registers of the slave to those of the multi-element device by selecting one of the registers in the menu. </p>
+    <p dir="ltr" class="FM_BodyProcedure">You need to map the registers before you can proceed to the next step. You can only use each register once.</p>
+    <p dir="ltr" class="FM_ListNumber1">9. &#160; In step 4 select the linking date is automatically set. This equals the first meter activation date of the master.</p>
+    <p dir="ltr" class="FM_ListNumber1">10. &#160; Click <span class="FM_UIRef">Next</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">11. &#160; In step 5 click <span class="FM_UIRef">Confirm</span> if you want to link the slave with the multi-element device.</p>
+    <p dir="ltr" class="FM_ListNumber1">12. &#160; Step 6 shows the result of the action. Click <span class="FM_UIRef">Finish</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Unlink multi-element slave</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Select a data logger device using <span class="FM_UIRef">Search</span>, see <a
+            href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Advanced search</span><span
+            class="FM_blue_crossreference">”</span></a>.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Multi-element slaves</span> in the menu on the left.</p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">3. &#160; Click the actions icon <img alt="masterActions.png" id="image110" src="../../assets/masterActions.png"
+                                                                                                     style="width:100%; max-width:21px"/> next to slave device you want to unlink.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Specify the unlinking date and click <span class="FM_UIRef">Unlink</span>.</p>
+</div>
+</body>
+</html>

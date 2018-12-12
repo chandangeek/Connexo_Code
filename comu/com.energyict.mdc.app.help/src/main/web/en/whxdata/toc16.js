@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Multi-element device\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/000017_UMNL_MultiElement.htm\"><item name=\"Understand multi-element devices\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Understand_multi-element_devices.htm\" /><item name=\"Manage multi-element devices\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Manage_multi-element_devices.htm\" /><book name=\"Multi-element slaves\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Multi-element_slaves.htm\" src=\"toc17.js\" /><book name=\"Monitor data loggers\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_MultiElement/Monitor_data_loggers1.htm\" src=\"toc18.js\" /></data>";

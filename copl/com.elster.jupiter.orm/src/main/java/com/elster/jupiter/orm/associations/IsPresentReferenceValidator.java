@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.jupiter.orm.associations;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+/**
+ * Provides an implementation for the {@link IsPresent} contraint
+ * when applied to Reference fields
+ */
+public class IsPresentReferenceValidator implements ConstraintValidator<IsPresent, Reference> {
+
+    @Override
+    public void initialize(IsPresent constraintAnnotation) {
+        // No need to initialize from the annotation element
+    }
+
+    @Override
+    public boolean isValid(Reference value, ConstraintValidatorContext context) {
+        return value.isPresent();
+    }
+
+}

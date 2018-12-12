@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin scrollbar(
+  $size: 16px,
+  $margin: 4px,
+  $background-color: $color-grey-2,
+  $thumb-background-color: $color-white,
+  $arrow-size: 5px
+) {
+  $scrollbar-arrow-margin-size: ($size - $margin) - $arrow-size;
+
+  @include arrow-up($thumb-background-color, $arrow-size);
+  @include arrow-down($thumb-background-color, $arrow-size);
+
+  .arrow-up {
+    margin: $scrollbar-arrow-margin-size / 2;
+    margin-top: $scrollbar-arrow-margin-size;
+  }
+  .arrow-down {
+    margin: $scrollbar-arrow-margin-size / 2;
+    margin-bottom: $scrollbar-arrow-margin-size;
+  }
+
+  /* Tiny Scrollbar */
+  .viewport {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .overview {
+    list-style: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .scrollbar {
+    background: transparent;
+    position: absolute;
+    padding: $size + $margin $margin;
+    right: 0;
+    top: 0px;
+    width: $size + 2 * $margin;
+    height: 100%;
+  }
+
+  .scrollbar .up, .scrollbar .down {
+    background: $background-color;
+    width: $size;
+    height: $size;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: $margin;
+    cursor: pointer;
+  }
+
+  .scrollbar .up {
+    @include border-radius($margin $margin 0 0);
+  }
+
+  .scrollbar .down {
+    top: 100%;
+    margin-top: - ($size + $margin);
+    @include border-radius(0 0 $margin $margin);
+  }
+
+  .track {
+    background: $background-color;
+    height: 100%;
+    width: $size;
+    position: relative;
+    padding: 0;
+    margin: 0;
+  }
+
+  .thumb {
+    background: $thumb-background-color;
+    height: 20px;
+    width: $size - $margin;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: $margin / 2;
+    @include border-radius($margin / 2);
+  }
+
+  .disable {
+    display: none;
+  }
+
+  .noSelect {
+    user-select: none;
+    -o-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+  }
+}

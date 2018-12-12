@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Understand validation</title>
+
+ <link rel="stylesheet" href="000017_UMNL_Validate_data.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017"/>
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "14.0_1";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/000017_UMNL_Validate_data.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/Configure_validation.htm">
+ <meta name="topic-breadcrumbs" content="Data validation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+ <p dir="ltr" class="FM_H2Section">Understand validation</p>
+ <p dir="ltr" class="FM_H4Topic">Why validate</p>
+ <p dir="ltr" class="FM_Body">The data collected from the metering devices should be 100% reliable. If this is not the case, gaps or incorrect values could lead to the generation of erroneous reports
+  and invoices to end-customers. To prevent this, it is important to validate the generated data and check whether it is free of discrepancies and errors.</p>
+ <p dir="ltr" class="FM_H4Topic">How to validate</p>
+ <p dir="ltr" class="FM_Body">In
+  <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+  &#160;data is validated by using <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/validation rules.htm');" id="GLPOPUPUndeResp1011">
+   <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+   FilePopupInit('GLPOPUPUndeResp1011');</script>
+   validation rules</a>. These validation rules consist out of a validator, validator specific parameters and reading types. The <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/validator.htm');"
+                                                                                                                                    id="GLPOPUPUndeResp1012">
+   <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+   FilePopupInit('GLPOPUPUndeResp1012');</script>
+   validator</a> is a template that sets the rules to check if the collected data is correct. In some cases extra parameters need to be specified such as thresholds.
+ </p>
+ <p dir="ltr" class="FM_Body">The <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');" id="GLPOPUPUndeResp1013">
+  <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+  FilePopupInit('GLPOPUPUndeResp1013');</script>
+  reading type</a> provides the link between the validation rule and the data sources that needs to be validated. Consequently it also provides the link with different devices configurations.
+ </p>
+ <p dir="ltr" class="FM_Body">Validation rules that are typically used together are grouped in a <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/validation rule set.htm');"
+                                                                                                    id="GLPOPUPUndeResp1014">
+  <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+  FilePopupInit('GLPOPUPUndeResp1014');</script>
+  validation rule set</a>. You can manage these validation rule sets over time. When validation rules change as a consequence of new market rules, you can create a new version of the validation rule
+  set which will be activated when the market rules come into place.
+ </p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: How validation works in Connexo</caption>
+   <tr class="tr0">
+    <td class="td6">
+     <p dir="ltr" class="FM_CGraphicCell"><img alt="validation_2.png" id="image245" src="../../assets/validation_2.png" style="width:100%; max-width:558px"/>&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+</div>
+</body>
+</html>

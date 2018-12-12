@@ -1,0 +1,95 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "NavigationMenu";
+@import "TileMenu";
+@import "Side";
+
+.#{$prefix}menu {
+    .#{$prefix}menu-body {
+        border-radius: $menu-border-radius;
+    }
+
+    .#{$prefix}menu-item {
+        .#{$prefix}menu-item-link {
+            padding: 4px 8px;
+        }
+        .#{$prefix}menu-item-text {
+            color: $menu-text-color;
+        }
+    }
+
+    .#{$prefix}menu-item + .#{$prefix}menu-item .#{$prefix}menu-item-link {
+        border-top: $menu-separator-background-color $menu-separator-background-style;
+    }
+
+    .#{$prefix}menu-item:last-child {
+        padding-bottom: 4px;
+    }
+
+    .#{$prefix}menu-item:first-child {
+        padding-top: 4px;
+    }
+
+    .#{$prefix}menu-scroll-top {
+        height: 16px;
+        background-image: url('images/menu/scroll-top-white.png');
+    }
+
+    .#{$prefix}menu-scroll-bottom {
+        height: 16px;
+        background-image: url('images/menu/scroll-bottom-white.png');
+    }
+
+}
+
+.#{$prefix}panel-side-menu {
+    background: $color-grey-10;
+    @include border-radius(16px);
+    padding: 8px 16px;
+    margin-bottom: 16px;
+
+    .#{$prefix}panel-header {
+        padding: 8px 0;
+        text-transform: uppercase;
+        color: $color-grey;
+        font-size: 14px;
+        border-bottom: 1px solid $color-grey-8 !important;
+    }
+
+    .#{$prefix}menu-body {
+        background: none;
+        @include border-radius(0px);
+        padding: 8px 0;
+
+        .#{$prefix}menu-item {
+            padding: 2px 0;
+            text-transform: uppercase;
+            .#{$prefix}menu-item-link {
+                padding: 0;
+                border: 0;
+                margin: 0;
+            }
+        ;
+            .#{$prefix}menu-item-text {
+                color: $color-grey;
+                font-size: 14px;
+            }
+        }
+        .current {
+            border-right: 4px solid $color-green;
+            cursor: default;
+            .#{$prefix}menu-item-text {
+                color: $color-green;
+                font-weight: bold;
+            }
+        }
+        .#{$prefix}menu-item-active {
+            background: $color-grey-8;
+            #{$prefix}menu-item-text {
+                color: white;
+            }
+        }
+    }
+}

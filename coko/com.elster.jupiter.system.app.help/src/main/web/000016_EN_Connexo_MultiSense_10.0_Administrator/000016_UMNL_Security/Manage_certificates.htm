@@ -1,0 +1,277 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Manage certificates</title>
+
+    <link rel="stylesheet" href="000016_UMNL_Security.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "4.1.0_3";
+    </script>
+    <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Manage_trust_stores.htm">
+    <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Dual_control.htm">
+    <meta name="topic-breadcrumbs" content="Security > Certificate management"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Manage certificates</p>
+    <p dir="ltr" class="FM_H4Topic">Introduction</p>
+    <p dir="ltr" class="FM_Body">Using the trust store you can manage all general certificates that are used by different objects. The object specific certificates are managed in a different location
+        in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+        .
+    </p>
+    <p dir="ltr" class="FM_Body">You can add certificates or create an CSR (Certificate Signing Request) to later add the certificate.</p>
+    <p dir="ltr" class="FM_H4Topic">Understand CSR in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+    </p>
+    <p dir="ltr" class="FM_Body">When you do not have a certificate already available you can create a CSR in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+        . This request usually contains the public key for which the certificate should be issued, identifying information (such as domain name) and integrity protection (e.g., a digital signature).
+    </p>
+    <p dir="ltr" class="FM_Body">In Connexo you have to specify the key attributes and CSR attributes in the same step. For certificate generation the offline method is used. This means that once you
+        completed the parameters, you need to download the CSR and then send it the CA (Certificate Agency).</p>
+    <p dir="ltr" class="FM_Body">The CA will generate the certificate which you can download and then import into
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+        . Generating a CSR will get the certificate status <span class="FM_UIRef">Requested</span>. Once you import the certificate the status will change to <span class="FM_UIRef">Available</span>.
+    </p>
+    <p dir="ltr" class="FM_H4Topic">Add CSR</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Certificate management</span>&#160;&gt; <span
+            class="FM_UIRef">Certificates.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions button, select <span class="FM_UIRef">Add CSR</span> and complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Alias</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define the alias of the CSR. Must be unique.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td colspan="2">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Key attributes</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Key encryption method</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the method to encrypt the key.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td colspan="2">
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">CSR attributes</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Certificate type</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Shows all certificate types that are available in the system. Select one of these types.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Subject</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">This is automatically filled in once the other parameters are specified.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Common name (CN)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name for which you are requesting the SSL Certificate.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Organisational unit (OU)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The department of the organisation.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Organisation (O)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The name of the company.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Locality (L)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Provide full name.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">State or province (S)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Provide full name.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Country (C)</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Country two digit code.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The CSR has been created and the label of the certificate changes to requested.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click the actions icon and select <span class="FM_UIRef">Download CSR</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Send CSR to CA to retrieve certificate.</p>
+    <p dir="ltr" class="FM_H4Topic">Import certificate</p>
+    <p dir="ltr" class="FM_Body">When you receive a certificate from the CA after you sent a CSR, you can import this certificate to the CSR instance you created in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+        .
+    </p>
+    <p dir="ltr" class="FM_Body">You can also import certificates to existing certificate instances. When there is already a certificate available, this will be overwritten by the newly imported
+        certificate.</p>
+    <p dir="ltr" class="FM_Body">The certificate file format needs to be DER-encoded to be able to import it into Connexo.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Certificate management</span>&#160;&gt; <span
+            class="FM_UIRef">Certificates.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon next to the certificate instance and select <span class="FM_UIRef">Import certificate</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Select file</span> and select the certificate to upload.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Import</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Add certificate</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Certificate management</span>&#160;&gt; <span
+            class="FM_UIRef">Certificates.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions button, select <span class="FM_UIRef">Add certificate </span>and complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Alias</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Provide a unique alias for the certificate.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Certificate file</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Click <span class="FM_UIRef">Select file</span> and search and select the certificate file.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Download certificate</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Certificate management</span>&#160;&gt; <span
+            class="FM_UIRef">Certificates.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon next to the certificate instance and select <span class="FM_UIRef">Download certificate</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Remove certificate</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Certificate management</span>&#160;&gt; <span
+            class="FM_UIRef">Certificates.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon next to the certificate instance and select <span class="FM_UIRef">Remove</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">You cannot remove certificates that are still in use by an object in Connexo.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Confirm by clicking <span class="FM_UIRef">Remove</span>.</p>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+</div>
+</body>
+</html>

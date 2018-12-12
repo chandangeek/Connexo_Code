@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Include-Resource: README.HTML
+Private-Package: com.energyict.mdc.device.lifecycle.config.bpmhandler
+Export-Package: !com.energyict.mdc.device.lifecycle.config.bpmhandler

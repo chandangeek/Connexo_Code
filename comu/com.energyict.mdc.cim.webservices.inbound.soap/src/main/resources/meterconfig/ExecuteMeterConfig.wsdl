@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<wsdl:definitions
+        name="ExecuteMeterConfig"
+        targetNamespace="http://iec.ch/TC57/2011/ExecuteMeterConfig"
+        xmlns:tns="http://iec.ch/TC57/2011/ExecuteMeterConfig"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:infoMessage="http://iec.ch/TC57/2011/MeterConfigMessage">
+    <wsdl:types>
+        <xs:schema targetNamespace="http://iec.ch/TC57/2011/ExecuteMeterConfig"
+                   elementFormDefault="qualified">
+            <xs:import
+                    namespace="http://iec.ch/TC57/2011/MeterConfigMessage"
+                    schemaLocation="xsd/MeterConfigMessage.xsd"/>
+        </xs:schema>
+    </wsdl:types>
+    <!-- Message Definitions -->
+    <wsdl:message name="CreateMeterConfigRequestMessage">
+        <wsdl:part name="CreateMeterConfigRequestMessage"
+                   element="infoMessage:CreateMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ChangeMeterConfigRequestMessage">
+        <wsdl:part name="ChangeMeterConfigRequestMessage"
+                   element="infoMessage:ChangeMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="CloseMeterConfigRequestMessage">
+        <wsdl:part name="CloseMeterConfigRequestMessage"
+                   element="infoMessage:CloseMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="CancelMeterConfigRequestMessage">
+        <wsdl:part name="CancelMeterConfigRequestMessage"
+                   element="infoMessage:CancelMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="DeleteMeterConfigRequestMessage">
+        <wsdl:part name="DeleteMeterConfigRequestMessage"
+                   element="infoMessage:DeleteMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ResponseMessage">
+        <wsdl:part name="ResponseMessage"
+                   element="infoMessage:MeterConfigResponseMessage"/>
+    </wsdl:message>
+    <wsdl:message name="FaultMessage">
+        <wsdl:part name="FaultMessage"
+                   element="infoMessage:MeterConfigFaultMessage"/>
+    </wsdl:message>
+    <!-- Port Definitions -->
+    <wsdl:portType name="MeterConfig_Port">
+        <wsdl:operation name="CreateMeterConfig">
+            <wsdl:input name="CreateMeterConfigRequest"
+                        message="tns:CreateMeterConfigRequestMessage"/>
+            <wsdl:output name="CreateMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CreateMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ChangeMeterConfig">
+            <wsdl:input name="ChangeMeterConfigRequest"
+                        message="tns:ChangeMeterConfigRequestMessage"/>
+            <wsdl:output name="ChangeMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="ChangeMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="CancelMeterConfig">
+            <wsdl:input name="CancelMeterConfigRequest"
+                        message="tns:CancelMeterConfigRequestMessage"/>
+            <wsdl:output name="CancelMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CancelMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="CloseMeterConfig">
+            <wsdl:input name="CloseMeterConfigRequest"
+                        message="tns:CloseMeterConfigRequestMessage"/>
+            <wsdl:output name="CloseMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CloseMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="DeleteMeterConfig">
+            <wsdl:input name="DeleteMeterConfigRequest"
+                        message="tns:DeleteMeterConfigRequestMessage"/>
+            <wsdl:output name="DeleteMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="DeleteMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="MeterConfig_Binding"
+                  type="tns:MeterConfig_Port">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="CreateMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/CreateMeterConfig" style="document"/>
+            <wsdl:input name="CreateMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CreateMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CreateMeterConfigFault">
+                <soap:fault name="CreateMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ChangeMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/ChangeMeterConfig" style="document"/>
+            <wsdl:input name="ChangeMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="ChangeMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="ChangeMeterConfigFault">
+                <soap:fault name="ChangeMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CancelMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/CancelMeterConfig" style="document"/>
+            <wsdl:input name="CancelMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CancelMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CancelMeterConfigFault">
+                <soap:fault name="CancelMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CloseMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/CloseMeterConfig" style="document"/>
+            <wsdl:input name="CloseMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CloseMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CloseMeterConfigFault">
+                <soap:fault name="CloseMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="DeleteMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/DeleteMeterConfig" style="document"/>
+            <wsdl:input name="DeleteMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="DeleteMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="DeleteMeterConfigFault">
+                <soap:fault name="DeleteMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ExecuteMeterConfig">
+        <wsdl:port name="MeterConfig_Port"
+                   binding="tns:MeterConfig_Binding">
+            <soap:address location="http://iec.ch/TC57/2011/ExecuteMeterConfig"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

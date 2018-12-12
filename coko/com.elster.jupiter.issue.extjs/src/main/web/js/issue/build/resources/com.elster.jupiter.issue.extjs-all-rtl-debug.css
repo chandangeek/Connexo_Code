@@ -1,0 +1,1196 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@charset "UTF-8";
+/* including package com.elster.jupiter.issue.extjs */
+@font-face {
+  font-family: 'fontello';
+  src: url("../../isu/resources/fonts/fontello/font/fontello.eot?93065969");
+  src: url("../../isu/resources/fonts/fontello/font/fontello.eot?93065969#iefix") format("embedded-opentype"), url("../../isu/resources/fonts/fontello/font/fontello.woff?93065969") format("woff"), url("../../isu/resources/fonts/fontello/font/fontello.ttf?93065969") format("truetype"), url("../../isu/resources/fonts/fontello/font/fontello.svg?93065969#fontello") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* line 9, ../../sass/etc/all.scss */
+[class^="isu-icon-"]:before, [class*=" isu-icon-"]:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1em;
+  margin-left: .2em;
+}
+
+/* line 25, ../../sass/etc/all.scss */
+.isu-icon-search:before {
+  content: '\e854';
+}
+
+/* '' */
+/* line 26, ../../sass/etc/all.scss */
+.isu-icon-clock-1:before {
+  content: '\e872';
+}
+
+/* '' */
+/* line 27, ../../sass/etc/all.scss */
+.isu-icon-mail-alt:before {
+  content: '\e853';
+}
+
+/* '' */
+/* line 28, ../../sass/etc/all.scss */
+.isu-icon-user-1:before {
+  content: '\e830';
+}
+
+/* '' */
+/* line 29, ../../sass/etc/all.scss */
+.isu-icon-users-1:before {
+  content: '\e831';
+}
+
+/* '' */
+/* line 30, ../../sass/etc/all.scss */
+.isu-icon-picture:before {
+  content: '\e855';
+}
+
+/* '' */
+/* line 31, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled-1:before {
+  content: '\e846';
+}
+
+/* '' */
+/* line 32, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled2:before {
+  content: '\e802';
+}
+
+/* '' */
+/* line 33, ../../sass/etc/all.scss */
+.isu-icon-help:before {
+  content: '\e824';
+}
+
+/* '' */
+/* line 34, ../../sass/etc/all.scss */
+.isu-icon-help-circled:before {
+  content: '\e825';
+}
+
+/* '' */
+/* line 35, ../../sass/etc/all.scss */
+.isu-icon-info-circled:before {
+  content: '\e858';
+}
+
+/* '' */
+/* line 36, ../../sass/etc/all.scss */
+.isu-icon-info:before {
+  content: '\e857';
+}
+
+/* '' */
+/* line 37, ../../sass/etc/all.scss */
+.isu-icon-home:before {
+  content: '\e856';
+}
+
+/* '' */
+/* line 38, ../../sass/etc/all.scss */
+.isu-icon-lock:before {
+  content: '\e859';
+}
+
+/* '' */
+/* line 39, ../../sass/etc/all.scss */
+.isu-icon-lock-open:before {
+  content: '\e85a';
+}
+
+/* '' */
+/* line 40, ../../sass/etc/all.scss */
+.isu-icon-lock-open-alt:before {
+  content: '\e85b';
+}
+
+/* '' */
+/* line 41, ../../sass/etc/all.scss */
+.isu-icon-pin:before {
+  content: '\e85c';
+}
+
+/* '' */
+/* line 42, ../../sass/etc/all.scss */
+.isu-icon-attention:before {
+  content: '\e820';
+}
+
+/* '' */
+/* line 43, ../../sass/etc/all.scss */
+.isu-icon-cog-2:before {
+  content: '\e85d';
+}
+
+/* '' */
+/* line 44, ../../sass/etc/all.scss */
+.isu-icon-cog-alt:before {
+  content: '\e85e';
+}
+
+/* '' */
+/* line 45, ../../sass/etc/all.scss */
+.isu-icon-down-dir:before {
+  content: '\e836';
+}
+
+/* '' */
+/* line 46, ../../sass/etc/all.scss */
+.isu-icon-up-dir:before {
+  content: '\e837';
+}
+
+/* '' */
+/* line 47, ../../sass/etc/all.scss */
+.isu-icon-left-dir:before {
+  content: '\e838';
+}
+
+/* '' */
+/* line 48, ../../sass/etc/all.scss */
+.isu-icon-right-dir:before {
+  content: '\e839';
+}
+
+/* '' */
+/* line 49, ../../sass/etc/all.scss */
+.isu-icon-down-open:before {
+  content: '\e83a';
+}
+
+/* '' */
+/* line 50, ../../sass/etc/all.scss */
+.isu-icon-left-open:before {
+  content: '\e83b';
+}
+
+/* '' */
+/* line 51, ../../sass/etc/all.scss */
+.isu-icon-right-open:before {
+  content: '\e83c';
+}
+
+/* '' */
+/* line 52, ../../sass/etc/all.scss */
+.isu-icon-up-open:before {
+  content: '\e83d';
+}
+
+/* '' */
+/* line 53, ../../sass/etc/all.scss */
+.isu-icon-angle-left:before {
+  content: '\e83e';
+}
+
+/* '' */
+/* line 54, ../../sass/etc/all.scss */
+.isu-icon-angle-right:before {
+  content: '\e83f';
+}
+
+/* '' */
+/* line 55, ../../sass/etc/all.scss */
+.isu-icon-angle-up:before {
+  content: '\e840';
+}
+
+/* '' */
+/* line 56, ../../sass/etc/all.scss */
+.isu-icon-angle-down:before {
+  content: '\e841';
+}
+
+/* '' */
+/* line 57, ../../sass/etc/all.scss */
+.isu-icon-angle-circled-left:before {
+  content: '\e842';
+}
+
+/* '' */
+/* line 58, ../../sass/etc/all.scss */
+.isu-icon-angle-circled-right:before {
+  content: '\e843';
+}
+
+/* '' */
+/* line 59, ../../sass/etc/all.scss */
+.isu-icon-angle-circled-up:before {
+  content: '\e844';
+}
+
+/* '' */
+/* line 60, ../../sass/etc/all.scss */
+.isu-icon-angle-circled-down:before {
+  content: '\e845';
+}
+
+/* '' */
+/* line 61, ../../sass/etc/all.scss */
+.isu-icon-down:before {
+  content: '\e832';
+}
+
+/* '' */
+/* line 62, ../../sass/etc/all.scss */
+.isu-icon-left:before {
+  content: '\e833';
+}
+
+/* '' */
+/* line 63, ../../sass/etc/all.scss */
+.isu-icon-right:before {
+  content: '\e834';
+}
+
+/* '' */
+/* line 64, ../../sass/etc/all.scss */
+.isu-icon-up:before {
+  content: '\e835';
+}
+
+/* '' */
+/* line 65, ../../sass/etc/all.scss */
+.isu-icon-down-big:before {
+  content: '\e803';
+}
+
+/* '' */
+/* line 66, ../../sass/etc/all.scss */
+.isu-icon-left-big:before {
+  content: '\e804';
+}
+
+/* '' */
+/* line 67, ../../sass/etc/all.scss */
+.isu-icon-right-big:before {
+  content: '\e805';
+}
+
+/* '' */
+/* line 68, ../../sass/etc/all.scss */
+.isu-icon-up-big:before {
+  content: '\e806';
+}
+
+/* '' */
+/* line 69, ../../sass/etc/all.scss */
+.isu-icon-sort-alt-up:before {
+  content: '\e809';
+}
+
+/* '' */
+/* line 70, ../../sass/etc/all.scss */
+.isu-icon-sort-alt-down:before {
+  content: '\e80a';
+}
+
+/* '' */
+/* line 71, ../../sass/etc/all.scss */
+.isu-icon-sort-name-up:before {
+  content: '\e80b';
+}
+
+/* '' */
+/* line 72, ../../sass/etc/all.scss */
+.isu-icon-sort-name-down:before {
+  content: '\e80c';
+}
+
+/* '' */
+/* line 73, ../../sass/etc/all.scss */
+.isu-icon-sort-number-up:before {
+  content: '\e80d';
+}
+
+/* '' */
+/* line 74, ../../sass/etc/all.scss */
+.isu-icon-sort-number-down:before {
+  content: '\e80e';
+}
+
+/* '' */
+/* line 75, ../../sass/etc/all.scss */
+.isu-icon-gauge-1:before {
+  content: '\e80f';
+}
+
+/* '' */
+/* line 76, ../../sass/etc/all.scss */
+.isu-icon-user:before {
+  content: '\e800';
+}
+
+/* '' */
+/* line 77, ../../sass/etc/all.scss */
+.isu-icon-users:before {
+  content: '\e801';
+}
+
+/* '' */
+/* line 78, ../../sass/etc/all.scss */
+.isu-icon-check:before {
+  content: '\e826';
+}
+
+/* '' */
+/* line 79, ../../sass/etc/all.scss */
+.isu-icon-cancel-1:before {
+  content: '\e847';
+}
+
+/* '' */
+/* line 80, ../../sass/etc/all.scss */
+.isu-icon-cancel-squared:before {
+  content: '\e82f';
+}
+
+/* '' */
+/* line 81, ../../sass/etc/all.scss */
+.isu-icon-clock:before {
+  content: '\e822';
+}
+
+/* '' */
+/* line 82, ../../sass/etc/all.scss */
+.isu-icon-gauge-2:before {
+  content: '\e810';
+}
+
+/* '' */
+/* line 83, ../../sass/etc/all.scss */
+.isu-icon-mail:before {
+  content: '\e852';
+}
+
+/* '' */
+/* line 84, ../../sass/etc/all.scss */
+.isu-icon-cancel-outline:before {
+  content: '\e828';
+}
+
+/* '' */
+/* line 85, ../../sass/etc/all.scss */
+.isu-icon-cancel:before {
+  content: '\e829';
+}
+
+/* '' */
+/* line 86, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled-outline:before {
+  content: '\e82a';
+}
+
+/* '' */
+/* line 87, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled:before {
+  content: '\e82b';
+}
+
+/* '' */
+/* line 88, ../../sass/etc/all.scss */
+.isu-icon-warning-empty:before {
+  content: '\e821';
+}
+
+/* '' */
+/* line 89, ../../sass/etc/all.scss */
+.isu-icon-cog-outline:before {
+  content: '\e807';
+}
+
+/* '' */
+/* line 90, ../../sass/etc/all.scss */
+.isu-icon-chart-outline:before {
+  content: '\e811';
+}
+
+/* '' */
+/* line 91, ../../sass/etc/all.scss */
+.isu-icon-chart:before {
+  content: '\e812';
+}
+
+/* '' */
+/* line 92, ../../sass/etc/all.scss */
+.isu-icon-chart-alt-outline:before {
+  content: '\e813';
+}
+
+/* '' */
+/* line 93, ../../sass/etc/all.scss */
+.isu-icon-chart-alt:before {
+  content: '\e814';
+}
+
+/* '' */
+/* line 94, ../../sass/etc/all.scss */
+.isu-icon-chart-bar-outline:before {
+  content: '\e815';
+}
+
+/* '' */
+/* line 95, ../../sass/etc/all.scss */
+.isu-icon-chart-bar:before {
+  content: '\e816';
+}
+
+/* '' */
+/* line 96, ../../sass/etc/all.scss */
+.isu-icon-ok:before {
+  content: '\e82d';
+}
+
+/* '' */
+/* line 97, ../../sass/etc/all.scss */
+.isu-icon-ok-circle:before {
+  content: '\e82c';
+}
+
+/* '' */
+/* line 98, ../../sass/etc/all.scss */
+.isu-icon-equalizer:before {
+  content: '\e817';
+}
+
+/* '' */
+/* line 99, ../../sass/etc/all.scss */
+.isu-icon-chart-bar-1:before {
+  content: '\e818';
+}
+
+/* '' */
+/* line 100, ../../sass/etc/all.scss */
+.isu-icon-search-1:before {
+  content: '\e860';
+}
+
+/* '' */
+/* line 101, ../../sass/etc/all.scss */
+.isu-icon-mail-1:before {
+  content: '\e85f';
+}
+
+/* '' */
+/* line 102, ../../sass/etc/all.scss */
+.isu-icon-ok-1:before {
+  content: '\e82e';
+}
+
+/* '' */
+/* line 103, ../../sass/etc/all.scss */
+.isu-icon-signal:before {
+  content: '\e819';
+}
+
+/* '' */
+/* line 104, ../../sass/etc/all.scss */
+.isu-icon-chart-1:before {
+  content: '\e81a';
+}
+
+/* '' */
+/* line 105, ../../sass/etc/all.scss */
+.isu-icon-chart-bar-2:before {
+  content: '\e81b';
+}
+
+/* '' */
+/* line 106, ../../sass/etc/all.scss */
+.isu-icon-user-2:before {
+  content: '\e849';
+}
+
+/* '' */
+/* line 107, ../../sass/etc/all.scss */
+.isu-icon-user-male:before {
+  content: '\e84a';
+}
+
+/* '' */
+/* line 108, ../../sass/etc/all.scss */
+.isu-icon-user-female:before {
+  content: '\e84b';
+}
+
+/* '' */
+/* line 109, ../../sass/etc/all.scss */
+.isu-icon-users-2:before {
+  content: '\e848';
+}
+
+/* '' */
+/* line 110, ../../sass/etc/all.scss */
+.isu-icon-export:before {
+  content: '\e861';
+}
+
+/* '' */
+/* line 111, ../../sass/etc/all.scss */
+.isu-icon-cog-3:before {
+  content: '\e862';
+}
+
+/* '' */
+/* line 112, ../../sass/etc/all.scss */
+.isu-icon-chart-bar-3:before {
+  content: '\e81c';
+}
+
+/* '' */
+/* line 113, ../../sass/etc/all.scss */
+.isu-icon-post:before {
+  content: '\e863';
+}
+
+/* '' */
+/* line 114, ../../sass/etc/all.scss */
+.isu-icon-search-2:before {
+  content: '\e865';
+}
+
+/* '' */
+/* line 115, ../../sass/etc/all.scss */
+.isu-icon-search-circled:before {
+  content: '\e864';
+}
+
+/* '' */
+/* line 116, ../../sass/etc/all.scss */
+.isu-icon-user-3:before {
+  content: '\e84c';
+}
+
+/* '' */
+/* line 117, ../../sass/etc/all.scss */
+.isu-icon-group:before {
+  content: '\e84d';
+}
+
+/* '' */
+/* line 118, ../../sass/etc/all.scss */
+.isu-icon-cancel-2:before {
+  content: '\e850';
+}
+
+/* '' */
+/* line 119, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled-2:before {
+  content: '\e84f';
+}
+
+/* '' */
+/* line 120, ../../sass/etc/all.scss */
+.isu-icon-cancel-circled2-1:before {
+  content: '\e84e';
+}
+
+/* '' */
+/* line 121, ../../sass/etc/all.scss */
+.isu-icon-help-1:before {
+  content: '\e866';
+}
+
+/* '' */
+/* line 122, ../../sass/etc/all.scss */
+.isu-icon-cog:before {
+  content: '\e81d';
+}
+
+/* '' */
+/* line 123, ../../sass/etc/all.scss */
+.isu-icon-cog-circled:before {
+  content: '\e851';
+}
+
+/* '' */
+/* line 124, ../../sass/etc/all.scss */
+.isu-icon-down-hand:before {
+  content: '\e86a';
+}
+
+/* '' */
+/* line 125, ../../sass/etc/all.scss */
+.isu-icon-left-hand:before {
+  content: '\e86b';
+}
+
+/* '' */
+/* line 126, ../../sass/etc/all.scss */
+.isu-icon-right-hand:before {
+  content: '\e86c';
+}
+
+/* '' */
+/* line 127, ../../sass/etc/all.scss */
+.isu-icon-up-hand:before {
+  content: '\e86d';
+}
+
+/* '' */
+/* line 128, ../../sass/etc/all.scss */
+.isu-icon-cw:before {
+  content: '\e869';
+}
+
+/* '' */
+/* line 129, ../../sass/etc/all.scss */
+.isu-icon-cw-circled:before {
+  content: '\e868';
+}
+
+/* '' */
+/* line 130, ../../sass/etc/all.scss */
+.isu-icon-arrows-cw:before {
+  content: '\e867';
+}
+
+/* '' */
+/* line 131, ../../sass/etc/all.scss */
+.isu-icon-filter:before {
+  content: '\e823';
+}
+
+/* '' */
+/* line 132, ../../sass/etc/all.scss */
+.isu-icon-gauge:before {
+  content: '\e808';
+}
+
+/* '' */
+/* line 133, ../../sass/etc/all.scss */
+.isu-icon-search-3:before {
+  content: '\e86e';
+}
+
+/* '' */
+/* line 134, ../../sass/etc/all.scss */
+.isu-icon-mail-2:before {
+  content: '\e86f';
+}
+
+/* '' */
+/* line 135, ../../sass/etc/all.scss */
+.isu-icon-photo:before {
+  content: '\e870';
+}
+
+/* '' */
+/* line 136, ../../sass/etc/all.scss */
+.isu-icon-cog-1:before {
+  content: '\e81e';
+}
+
+/* '' */
+/* line 137, ../../sass/etc/all.scss */
+.isu-icon-params:before {
+  content: '\e81f';
+}
+
+/* '' */
+/* line 138, ../../sass/etc/all.scss */
+.isu-icon-lock-1:before {
+  content: '\e873';
+}
+
+/* '' */
+/* line 139, ../../sass/etc/all.scss */
+.isu-icon-lock-open-1:before {
+  content: '\e874';
+}
+
+/* '' */
+/* line 140, ../../sass/etc/all.scss */
+.isu-icon-attention-1:before {
+  content: '\e871';
+}
+
+/* '' */
+/* line 141, ../../sass/etc/all.scss */
+.isu-icon-ok-outline:before {
+  content: '\e827';
+}
+
+/* '' */
+/* line 143, ../../sass/etc/all.scss */
+.isu-icon-white:before {
+  color: #fff;
+}
+
+/* line 147, ../../sass/etc/all.scss */
+.isu-action-icon {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBElEQVQ4jaXTvU4CURAF4K9ZRYI8hiYkWlgoRn0FC7TUwoRCjbL4WhQigcZoDRXvZLGz5GZZTNCTTDI/Z+buPXeWzRjiPWzwC2+FJh7QiniU1Ep/Pzh7dc1jPGKKZyyS+gJPmAVnHD0r3KMffgfXyJJ6FrlOxH3cpQPacfJBkmuhG9ZK8ofBbVev8Yqb8M/xGblB+GdRu8VL2jjEF5bYUQg0w27CaUSuEZxl9OQwqXzJZZxcRY6LSm5CoWiKqy0GjMsrjDDf4grz6MnTaamIXYXSpYhTnEZtTUTqnzHDSVi6E7XPmC7SMXrWF6mHo4jXFqmJD/9Y5XLIn3+mOrzhOyzfRPoBNLA3bjmGIeAAAAAASUVORK5CYII=");
+}
+
+/* line 151, ../../sass/etc/all.scss */
+span[class^=isu-assignee-] {
+  display: inline-block;
+  height: 16px;
+  vertical-align: middle;
+  width: 16px;
+}
+
+/* line 158, ../../sass/etc/all.scss */
+.isu-icon-USER:before {
+  content: '\e800';
+}
+
+/* line 162, ../../sass/etc/all.scss */
+.isu-icon-GROUP:before {
+  content: '\e801';
+}
+
+/* line 166, ../../sass/etc/all.scss */
+.isu-icon-ROLE:before {
+  content: '\e810';
+}
+
+/* line 170, ../../sass/etc/all.scss */
+.isu-icon-UnexistingType {
+  display: inline-block;
+  width: 18px;
+}
+
+/* line 175, ../../sass/etc/all.scss */
+.isu-button-close {
+  padding: 0 20px 0 0;
+  position: relative;
+}
+
+/* line 180, ../../sass/etc/all.scss */
+.isu-button-close:before {
+  position: absolute;
+  right: -3px;
+  top: 2px;
+}
+
+/* line 186, ../../sass/etc/all.scss */
+.isu-error-panel {
+  border: 1px solid #CF4C35;
+  border-radius: 10px;
+  color: #CF4C35;
+  padding: 10px;
+  display: inline-block;
+}
+
+/* line 194, ../../sass/etc/all.scss */
+.isu-item-data-table {
+  border: none;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* line 200, ../../sass/etc/all.scss */
+.isu-item-data-table td {
+  padding: 0 5px 15px 0;
+  vertical-align: top;
+}
+
+/* line 205, ../../sass/etc/all.scss */
+.isu-item-data-table tr td:nth-child(2n+1) {
+  text-align: right;
+  width: 200px;
+}
+
+/* line 210, ../../sass/etc/all.scss */
+.isu-item-data-table tr td:nth-child(2n) {
+  padding-left: 15px;
+}
+
+/* line 214, ../../sass/etc/all.scss */
+.isu-item-details-bottom {
+  text-align: right;
+}
+
+/* line 218, ../../sass/etc/all.scss */
+.isu-grid-action-btn {
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABBElEQVQ4jaXTvU4CURAF4K9ZRYI8hiYkWlgoRn0FC7TUwoRCjbL4WhQigcZoDRXvZLGz5GZZTNCTTDI/Z+buPXeWzRjiPWzwC2+FJh7QiniU1Ep/Pzh7dc1jPGKKZyyS+gJPmAVnHD0r3KMffgfXyJJ6FrlOxH3cpQPacfJBkmuhG9ZK8ofBbVev8Yqb8M/xGblB+GdRu8VL2jjEF5bYUQg0w27CaUSuEZxl9OQwqXzJZZxcRY6LSm5CoWiKqy0GjMsrjDDf4grz6MnTaamIXYXSpYhTnEZtTUTqnzHDSVi6E7XPmC7SMXrWF6mHo4jXFqmJD/9Y5XLIn3+mOrzhOyzfRPoBNLA3bjmGIeAAAAAASUVORK5CYII=") no-repeat scroll 2px 2px rgba(0, 0, 0, 0);
+  border-color: #fff;
+  margin: -9px 0 0 1px;
+}
+
+/* line 224, ../../sass/etc/all.scss */
+.isu-wizard-header {
+  background-color: transparent;
+}
+
+/* line 228, ../../sass/etc/all.scss */
+.isu-wizard-header .x-panel-header-text-container-default {
+  color: #007DC3;
+  font: 32px/36px VAGRoundedStdThin, Arial, Helvetica, Sans-Serif;
+}
+
+/* line 233, ../../sass/etc/all.scss */
+.isu-nav {
+  list-style: none outside none;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 239, ../../sass/etc/all.scss */
+.isu-nav-item-link {
+  color: #000;
+  display: block;
+  padding: 5px 5px 5px 11px;
+  text-decoration: none;
+}
+
+/* line 246, ../../sass/etc/all.scss */
+.isu-nav-item-link:before {
+  content: "-";
+  margin: 0 3px 0 0;
+}
+
+/* line 251, ../../sass/etc/all.scss */
+.isu-nav-item-link:hover {
+  background-color: #00CCFF;
+}
+
+/* line 256, ../../sass/etc/all.scss */
+.isu-nav-item.current .isu-nav-item-link,
+.isu-nav-item.current .isu-nav-item-link:hover {
+  background-color: #BFF2FF;
+}
+
+/* line 260, ../../sass/etc/all.scss */
+.isu-header-filter {
+  font-size: 18px;
+}
+
+/* line 264, ../../sass/etc/all.scss */
+.isu-assign-rules-item-data-table {
+  border: none;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* line 270, ../../sass/etc/all.scss */
+.isu-assign-rules-item-data-table td {
+  padding: 0 5px 10px 0;
+  vertical-align: top;
+}
+
+/* line 275, ../../sass/etc/all.scss */
+.isu-assign-rules-item-data-table tr td + td {
+  width: 90%;
+}
+
+/* line 279, ../../sass/etc/all.scss */
+.isu-item-action-icon:before {
+  color: #fff;
+  font-size: 14px;
+  margin-left: 1px;
+  margin-top: 1px;
+}
+
+/* line 286, ../../sass/etc/all.scss */
+.isu-action-button-inactive {
+  background: none;
+  border: none;
+}
+
+/* line 291, ../../sass/etc/all.scss */
+.isu-action-button-inactive .x-btn-split-right {
+  background-image: none;
+}
+
+/* line 295, ../../sass/etc/all.scss */
+.x-isu-action-button-active {
+  background: none;
+}
+
+/* line 299, ../../sass/etc/all.scss */
+.isu-subheader {
+  color: #aaa;
+}
+
+/* line 303, ../../sass/etc/all.scss */
+.isu-comments-list {
+  padding-left: 25px;
+}
+
+/* line 307, ../../sass/etc/all.scss */
+.isu-comments-list .isu-comments-item + .isu-comments-item {
+  border-top: 1px solid;
+}
+
+/* line 311, ../../sass/etc/all.scss */
+.isu-comments-item .isu-icon-USER {
+  margin-left: -24px;
+  margin-right: 5px;
+}
+
+/* line 316, ../../sass/etc/all.scss */
+.isu-combo-color-list ul li:nth-child(2n) {
+  background-color: #FAFAFA;
+  border-top: 1px solid #EDEDED;
+  border-bottom: 1px solid #EDEDED;
+}
+
+/* line 323, ../../sass/etc/all.scss */
+.isu-combo-color-list ul li:nth-child(2n):hover,
+.isu-combo-color-list ul .x-boundlist-item-over:nth-child(2n) {
+  background-color: #D6E8F6;
+  border-color: #D6E8F6;
+}
+
+/* line 328, ../../sass/etc/all.scss */
+.isu-combo-tooltip {
+  position: absolute;
+  padding: 3px 5px;
+  background-color: #fff;
+  border: 1px solid #C0C0C0;
+  color: gray;
+  z-index: 1;
+}
+
+/* line 337, ../../sass/etc/all.scss */
+.isu-apply-filter {
+  cursor: pointer;
+}
+
+/* line 341, ../../sass/etc/all.scss */
+.isu-creation-rule-description {
+  color: grey;
+  font-style: italic;
+}
+
+/* line 346, ../../sass/etc/all.scss */
+.isu-combo-limit-notification {
+  color: gray;
+  font-size: 11px;
+}
+
+/* line 351, ../../sass/etc/all.scss */
+.isu-creation-rule-template-description {
+  position: absolute;
+  color: #007DC3;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* line 358, ../../sass/etc/all.scss */
+.isu-toolbar-label {
+  font-weight: bold;
+}
+
+/* Message Window */
+/* Window */
+/* line 366, ../../sass/etc/all.scss */
+.isu-msg-panel > .x-window-body,
+.isu-msg-window > .x-window-body {
+  background-color: transparent;
+}
+
+/* line 370, ../../sass/etc/all.scss */
+.isu-msg-window {
+  background-color: transparent;
+  border: 0;
+}
+
+/* Panel */
+/* line 376, ../../sass/etc/all.scss */
+.isu-msg-panel > .x-panel-body {
+  background-color: transparent;
+  border: 0;
+  padding: 5px;
+}
+
+/* line 382, ../../sass/etc/all.scss */
+.isu-msg-panel {
+  background-color: transparent;
+}
+
+/* Error*/
+/*.isu-msg-error {*/
+/*background-color: rgba(255, 0, 0, 0.16);*/
+/*border: 1px solid #FF0000;*/
+/*border-radius: 5px;*/
+/*}*/
+/*.isu-msg-error-icon {*/
+/*font-size: 28px;*/
+/*color: #f00;*/
+/*}*/
+/* Attention*/
+/*.isu-msg-attention {*/
+/*background-color: rgba(255, 128, 0, 0.4);*/
+/*border: 1px solid #FF8800;*/
+/*border-radius: 5px;*/
+/*}*/
+/*.isu-msg-attention-icon {*/
+/*font-size: 28px;*/
+/*color: #f00;*/
+/*}*/
+/* Question*/
+/*.isu-msg-question {*/
+/*background-color: rgba(255, 255, 0, 0.4);*/
+/*border: 1px solid #FF0000;*/
+/*border-radius: 5px;*/
+/*}*/
+/*.isu-msg-question-icon {*/
+/*font-size: 28px;*/
+/*color: #EABA00;*/
+/*}*/
+/* Success*/
+/*.isu-msg-success {*/
+/*background-color: rgba(0, 255, 0, 0.4);*/
+/*border: 1px solid #00ff00;*/
+/*border-radius: 5px;*/
+/*}*/
+/*.isu-msg-success-icon {*/
+/*font-size: 28px;*/
+/*color: #747474;*/
+/*}*/
+/* Notify*/
+/*.isu-msg-notify {*/
+/*background-color: rgba(128, 128, 128, 0.4);*/
+/*border: 1px solid #000;*/
+/*border-radius: 5px;*/
+/*}*/
+/*.isu-msg-nitify-icon {*/
+/*font-size: 28px;*/
+/*color: #f00;*/
+/*}*/
+/* line 446, ../../sass/etc/all.scss */
+#preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+/* line 453, ../../sass/etc/all.scss */
+.isu-assign-text span:first-child {
+  color: #000;
+}
+
+/* line 456, ../../sass/etc/all.scss */
+.isu-bulk-wizard-no-border {
+  border: none !important;
+}
+
+/* line 460, ../../sass/etc/all.scss */
+.isu-bulk-navigation {
+  margin: 0px 10px;
+}
+
+/* line 463, ../../sass/etc/all.scss */
+.isu-bulk-message-panel {
+  width: 50%;
+}
+
+/* line 467, ../../sass/etc/all.scss */
+.isu-bulk-navigation .active-bulk-list-action {
+  background-color: #007DC3;
+}
+
+/* line 471, ../../sass/etc/all.scss */
+.isu-bulk-navigation .x-panel-body {
+  background: #E1E1E1;
+}
+
+/* line 475, ../../sass/etc/all.scss */
+.isu-bulk-navigation-btns {
+  background-color: #E1E1E1;
+  padding: 5px;
+  text-decoration: underline;
+}
+
+/* line 481, ../../sass/etc/all.scss */
+.disabled-bulk-navigation-btns {
+  color: #000;
+  text-decoration: none;
+}
+
+/* line 486, ../../sass/etc/all.scss */
+.isu-bulk-assign-confirmation-request-panel {
+  background-color: #FFFFCC;
+  border: 4px solid #FFFF66;
+  border-radius: 25px;
+  padding: 20px;
+  width: 50%;
+}
+
+/* line 495, ../../sass/etc/all.scss */
+.isu-bulk-close-success-panel {
+  background-color: #9CBA7F;
+  border: 4px solid #3B5323;
+  border-radius: 25px;
+  padding: 20px;
+  width: 50%;
+}
+
+/* line 503, ../../sass/etc/all.scss */
+.isu-bulk-close-failed-panel {
+  background-color: #ff9999;
+  border: 4px solid #280000;
+  border-radius: 25px;
+  padding: 20px;
+  width: 50%;
+}
+
+/* line 511, ../../sass/etc/all.scss */
+.x-panel .bulk-step {
+  margin: 0px 0px 15px 15px;
+}
+
+/* line 515, ../../sass/etc/all.scss */
+.isu-issues-list-selected-no-highlighted .x-grid-cell {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* line 520, ../../sass/etc/all.scss */
+.isu-delete-message .x-message-box-warning {
+  margin: 40px 0px 0px 0px !important;
+}
+
+/* line 524, ../../sass/etc/all.scss */
+.chkbox {
+  height: 13px;
+  width: 13px;
+  background: black url("../../ext/resources/themes/images/default/form/checkbox.gif") no-repeat -13px 0;
+  float: left;
+  margin: 5px 5px 0 0;
+}
+
+/* line 532, ../../sass/etc/all.scss */
+.x-boundlist-selected .chkbox {
+  background-position: -13px -13px;
+}
+
+/* line 536, ../../sass/etc/all.scss */
+.sel-all {
+  padding: 3px;
+  background-color: lemonchiffon;
+  padding-left: 10px;
+  cursor: pointer;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+/* line 545, ../../sass/etc/all.scss */
+.isu-device-link {
+  color: #0e44f4;
+  text-decoration: underline;
+}

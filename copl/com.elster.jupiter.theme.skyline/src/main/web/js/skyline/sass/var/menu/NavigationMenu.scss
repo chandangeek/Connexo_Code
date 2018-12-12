@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+$menu-navigation-border-radius: 10px;
+$menu-navigation-background-color: #ebebeb;
+$menu-navigation-padding-top: 4px;
+$menu-navigation-padding-bottom: 4px;
+$menu-navigation-item-side-padding: 8px;
+$menu-navigation-item-padding: 0 $menu-navigation-item-side-padding;
+$menu-navigation-item-height: 48px;
+
+$menu-navigation-item-background-over: #ebebeb;
+$menu-navigation-item-item-active: #ebebeb;
+
+// separator
+$menu-navigation-separator-width: 1px;
+$menu-navigation-separator-weight: solid;
+$menu-navigation-separator-color: $color-grey-3;
+$menu-navigation-separator-style:
+  $menu-navigation-separator-width
+  $menu-navigation-separator-weight
+  $menu-navigation-separator-color;
+
+
+// round number
+$menu-navigation-number-size: 32px;
+$menu-navigation-number-top-margin: 9px;
+$menu-navigation-number-right-margin: 16px;
+$menu-navigation-number-bottom-margin: 0;
+$menu-navigation-number-left-margin: 0;
+$menu-navigation-number-margin:
+  $menu-navigation-number-top-margin
+  $menu-navigation-number-right-margin
+  $menu-navigation-number-bottom-margin
+  $menu-navigation-number-left-margin;
+
+$menu-navigation-number-border-width: 1px ;
+$menu-navigation-number-border-weight: solid;
+$menu-navigation-number-border:
+  $menu-navigation-number-border-width
+  $menu-navigation-number-border-weight;
+
+// items states
+$menu-navigation-item-completed-number-border-color: #A0A0A0;
+$menu-navigation-item-completed-number-color: #A0A0A0;
+$menu-navigation-item-completed-number-background-color: #ebebeb;
+$menu-navigation-item-completed-number-font-weight: bold;
+$menu-navigation-item-completed-text-color: #A0A0A0;
+$menu-navigation-item-completed-text-weight: bold;
+
+$menu-navigation-item-active-number-border-color: #70BB51;
+$menu-navigation-item-active-number-color: #FFFFFF;
+$menu-navigation-item-active-number-background-color: #70BB51;
+$menu-navigation-item-active-number-font-weight: bold;
+$menu-navigation-item-active-text-color: #70BB51;
+$menu-navigation-item-active-text-weight: bold;
+
+$menu-navigation-item-error-number-border-color: #EB5642;
+$menu-navigation-item-error-number-color: #FFFFFF;
+$menu-navigation-item-error-number-background-color: #EB5642;
+$menu-navigation-item-error-number-font-weight: bold;
+$menu-navigation-item-error-text-color: #EB5642;
+$menu-navigation-item-error-text-weight: bold;
+
+$menu-navigation-item-non-completed-number-border-color: #686868;
+$menu-navigation-item-non-completed-number-color: #FFFFFF;
+$menu-navigation-item-non-completed-number-background-color: #686868;
+$menu-navigation-item-non-completed-number-font-weight: bold;
+$menu-navigation-item-non-completed-text-color: #686868;
+$menu-navigation-item-non-completed-text-weight: bold;
+
+//dots
+$menu-navigation-dots-bottom: $menu-navigation-padding-bottom + ceil($menu-navigation-item-height / 2);
+$menu-navigation-dots-top: $menu-navigation-padding-top + ceil($menu-navigation-item-height / 2);
+$menu-navigation-dots-left: 23px;
+
+
+
+
+
+
+
+
+
+
+

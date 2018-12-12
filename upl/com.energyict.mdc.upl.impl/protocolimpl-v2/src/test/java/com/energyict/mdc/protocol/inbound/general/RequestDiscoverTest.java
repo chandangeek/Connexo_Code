@@ -1,0 +1,267 @@
+package com.energyict.mdc.protocol.inbound.general;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.mdc.MockDeviceLogBook;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.mdc.upl.TypedProperties;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.util.List;
+
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
+ * <p/>
+ * Copyrights EnergyICT
+ * Date: 28/06/12
+ * Time: 11:34
+ * Author: khe
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class RequestDiscoverTest {
+
+    @Mock
+    protected ComChannel comChannel;
+    @Mock
+    protected DeviceMasterDataExtractor.LogBookSpec logBookSpec;
+    @Mock
+    protected CollectedDataFactory collectedDataFactory;
+    @Mock
+    protected IssueFactory issueFactory;
+    @Mock
+    private CollectedRegisterList collectedRegisterList;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private InboundDiscoveryContext context;
+
+    protected int count;
+
+    protected byte[] inboundFrame;
+
+    @Before
+    public void initialize() {
+        context = mock(InboundDiscoveryContext.class);
+        when(context.getCollectedDataFactory()).thenReturn(collectedDataFactory);
+        when(context.getIssueFactory()).thenReturn(issueFactory);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(new MockDeviceLogBook());
+        when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
+    }
+
+    @Test
+    public void testRegisters() throws IOException {
+        CollectedRegister defaultCollectedRegister = mock(CollectedRegister.class);
+        CollectedRegister maxDemandCollectedRegister = mock(CollectedRegister.class);
+        when(collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).thenReturn(defaultCollectedRegister);
+        when(collectedDataFactory.createMaximumDemandCollectedRegister(any(RegisterIdentifier.class))).thenReturn(maxDemandCollectedRegister);
+        inboundFrame = "<REGISTER>serialId=204006174,1.1.1.8.6.255=1234 kW 080510121516, 1.1.3.8.0.255=4321 kvarh,readTime=080501214600</REGISTER>".getBytes();
+        mockComChannel();
+
+        RequestDiscover requestDiscover = getProtocolInstance();
+        requestDiscover.initComChannel(comChannel);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
+
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
+        assertThat(requestDiscover.getCollectedData()).isNotNull();
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
+        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("204006174");
+        verify(maxDemandCollectedRegister).setCollectedData(argThat(new ArgumentMatcher<Quantity>() {
+            @Override
+            public boolean matches(Object o) {
+                if (!(o instanceof Quantity)) {
+                    return false;
+                }
+                Quantity quantity = (Quantity) o;
+                return quantity.getUnit().equals(Unit.get("kW")) && quantity.getAmount().intValue() == 1234;
+            }
+        }), any(String.class));
+        verify(defaultCollectedRegister).setCollectedData(argThat(new ArgumentMatcher<Quantity>() {
+            @Override
+            public boolean matches(Object o) {
+                if (!(o instanceof Quantity)) {
+                    return false;
+                }
+                Quantity quantity = (Quantity) o;
+                return quantity.getUnit().equals(Unit.get("kvarh")) && quantity.getAmount().intValue() == 4321;
+            }
+        }), any(String.class));
+    }
+
+    @Test
+    public void testRequest() throws IOException {
+        inboundFrame = "<REQUEST>serialId=1234567890,type=as220,ipAddress=10.0.0.255</REQUEST>".getBytes();
+        mockComChannel();
+
+        RequestDiscover requestDiscover = getProtocolInstance();
+        requestDiscover.initComChannel(comChannel);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
+
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
+        assertThat(requestDiscover.getCollectedData()).isNullOrEmpty();
+        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("1234567890");
+    }
+
+    @Test
+    public void testDeploy() throws IOException {
+        CollectedTopology collectedTopology = mock(CollectedTopology.class);
+        when(collectedDataFactory.createCollectedTopology(any(DeviceIdentifier.class))).thenReturn(collectedTopology);
+        inboundFrame = "<DEPLOY>serialId=1234567890,type=as220, ipAddress=10.0.0.255</DEPLOY>".getBytes();
+        mockComChannel();
+
+        RequestDiscover requestDiscover = getProtocolInstance();
+        requestDiscover.initComChannel(comChannel);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
+
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
+        assertThat(requestDiscover.getCollectedData()).isNotNull();
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
+        assertThat(requestDiscover.getCollectedData().get(0)).isNotNull();
+        assertThat(requestDiscover.getCollectedData().get(0)).isEqualTo(collectedTopology);
+        verify(collectedTopology).setFailureInformation(argThat(new ArgumentMatcher<ResultType>() {
+            @Override
+            public boolean matches(Object o) {
+                return o.equals(ResultType.InCompatible);
+            }
+        }), any(Issue.class));
+        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("1234567890");
+    }
+
+    @Test
+    public void testEventPO() throws IOException {
+        CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
+
+        inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
+        mockComChannel();
+
+        RequestDiscover requestDiscover = getProtocolInstance();
+        requestDiscover.initComChannel(comChannel);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
+
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
+        assertThat(requestDiscover.getCollectedData()).isNotNull();
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
+        assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("1234567890");
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
+        CollectedData collectedData = requestDiscover.getCollectedData().get(0);
+        assertThat(collectedData).isEqualTo(collectedLogBook);
+        verify(collectedLogBook).setCollectedMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
+            @Override
+            public boolean matches(Object o) {
+                List<MeterProtocolEvent> meterProtocolEvents = (List<MeterProtocolEvent>) o;
+                if (meterProtocolEvents.size() != 1) {
+                    return false;
+                }
+                MeterProtocolEvent meterProtocolEvent = meterProtocolEvents.get(0);
+                return "Last gas power outage".equalsIgnoreCase(meterProtocolEvent.getMessage())
+                        && meterProtocolEvent.getTime().getTime() == 1259629910000L;
+            }
+        }));
+    }
+
+    @Test
+    public void testEvents() throws IOException {
+        CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
+
+        inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
+        mockComChannel();
+
+        RequestDiscover requestDiscover = getProtocolInstance();
+        requestDiscover.initComChannel(comChannel);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = requestDiscover.doDiscovery();
+
+        assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
+        assertThat(requestDiscover.getCollectedData()).isNotNull();
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
+        CollectedData collectedData = requestDiscover.getCollectedData().get(0);
+        assertThat(collectedData).isEqualTo(collectedLogBook);
+
+        verify(collectedLogBook).setCollectedMeterEvents(argThat(new ArgumentMatcher<List<MeterProtocolEvent>>() {
+            @Override
+            public boolean matches(Object o) {
+                List<MeterProtocolEvent> meterProtocolEvents = (List<MeterProtocolEvent>) o;
+                if (meterProtocolEvents.size() != 2) {
+                    return false;
+                }
+                MeterProtocolEvent meterProtocolEvent1 = meterProtocolEvents.get(0);
+                MeterProtocolEvent meterProtocolEvent2 = meterProtocolEvents.get(1);
+                return meterProtocolEvent1.getMessage().contains("8")
+                        && meterProtocolEvent2.getMessage().contains("6995")
+                        && meterProtocolEvent1.getProtocolCode() == 123
+                        && meterProtocolEvent2.getProtocolCode() == 20
+                        && meterProtocolEvent1.getEiCode() == 0
+                        && meterProtocolEvent2.getEiCode() == 0
+                        && meterProtocolEvent1.getTime().getTime() == 1210757040000L
+                        && meterProtocolEvent2.getTime().getTime() == 1210757105000L;
+            }
+        }));
+    }
+
+    private RequestDiscover getProtocolInstance() {
+        TypedProperties properties = TypedProperties.empty();
+        properties.setProperty(AbstractDiscover.TIMEOUT_KEY, Duration.ofSeconds(1));
+        properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
+        RequestDiscover requestDiscover = new RequestDiscover(propertySpecService, collectedDataFactory, issueFactory);
+        requestDiscover.initializeDiscoveryContext(context);
+        requestDiscover.setUPLProperties(properties);
+        return requestDiscover;
+    }
+
+    /**
+     * Method that mocks the comChannel to return the bytes of field 'inboundFrame' and to return the available length.
+     * This stubs an incoming frame on the inputstream of the comChannel.
+     */
+    private void mockComChannel() {
+        count = 0;
+        when(comChannel.read()).thenReturn(nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte(), nextByte());
+        Integer[] values = new Integer[inboundFrame.length];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = 1;
+        }
+        values[inboundFrame.length - 1] = 0;
+
+        when(comChannel.available()).thenReturn(1, values);
+    }
+
+    private Integer nextByte() {
+        try {
+            return (inboundFrame[count++] & 0xFF);
+        } catch (IndexOutOfBoundsException e) {
+            return 0;
+        }
+    }
+
+}

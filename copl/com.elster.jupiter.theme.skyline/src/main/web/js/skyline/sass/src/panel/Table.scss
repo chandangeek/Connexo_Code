@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "../Scrollbar";
+
+.#{$prefix}grid {
+  .#{$prefix}toolbar {
+    border: none;
+  }
+  .#{$prefix}docked-bottom {
+    margin-bottom: - $panel-padding;
+  }
+  padding-bottom: 2 * $panel-padding;
+
+  &.#{$prefix}grid-header-hidden {
+    .#{$prefix}grid-body {
+      @include border-radius($grid-header-border-radius);
+      border-top-width: $grid-body-border-width !important;
+    }
+    .#{$prefix}grid-header-ct {
+      border-width: 0px !important;
+    }
+  }
+}
+
+.#{$prefix}grid-body {
+  border-color: $grid-body-border-color !important;
+  border-width: $grid-body-border-width !important;
+  border-style: $grid-body-border-style !important;
+  border-top-width: 0 !important;
+
+  &.#{$prefix}panel-body-wrong-data {
+    border-color: $color-red !important;
+  }
+
+  // this removes horisontal scrollbar, which appears probably because of ext-neptune border management override
+//  .#{$prefix}grid-view {
+//    margin: -$grid-body-border-width !important;
+//    margin-top: 0 !important;
+//  }
+
+//  // this is add margin at the grid bottom when no bottom toolbar is applied
+//  &.#{$prefix}noborder-rbl {
+//      margin-bottom: 16px;
+//  }
+
+  @include border-radius(0 0 $grid-header-border-radius $grid-header-border-radius);
+
+  .#{$prefix}grid-row {
+
+    a {
+      color: $button-link-color;
+      text-decoration: underline;
+      //          $button-link-color-focus: $color-blue-2;
+      //          $button-link-color-pressed: $color-blue-1;
+      //          $button-link-color-disabled: $color-grey-5;
+    }
+    a:hover {
+//      color: $button-link-color-over;
+      text-decoration: underline;
+    }
+    a:active {
+      text-decoration: none;
+    }
+
+    .#{$prefix}form-display-field-body {
+      height: auto;
+      .#{$prefix}form-display-field {
+        margin: 0;
+      }
+    }
+  }
+  .#{$prefix}grid-row-selected {
+    a {
+      color: $grid-row-cell-selected-color;
+    }
+    .#{$prefix}form-display-field {
+      color: $grid-row-cell-selected-color;
+    }
+
+    .#{$prefix}grid-row-summary .#{$prefix}grid-td {
+      color: $color-grey;
+    }
+  }
+//  @include scrollbar(
+//          $scrollbar-size,
+//          $scrollbar-margin,
+//          $scrollbar-background-color,
+//          $scrollbar-thumb-background-color,
+//          $scrollbar-arrow-size
+//  );
+}

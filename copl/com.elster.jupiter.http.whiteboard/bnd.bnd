@@ -1,0 +1,5 @@
+-classpath: target/classes 
+Private-Package: com.elster.jupiter.http.whiteboard.impl
+Export-Package: com.elster.jupiter.http.whiteboard
+-dsannotations: *
+Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml

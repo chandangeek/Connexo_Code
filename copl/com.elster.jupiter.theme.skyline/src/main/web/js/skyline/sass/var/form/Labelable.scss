@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+
+$form-label-font-color: #686868 !default;
+$form-label-font-weight: normal !default;
+$form-label-font-size: 13px !default;
+$form-label-font-family: $font-family !default;
+$form-label-line-height: round($form-label-font-size * 1.15) !default;
+$form-label-font: $form-label-font-weight #{$form-label-font-size}/#{$form-label-line-height} $form-label-font-family !default;
+
+$form-toolbar-label-color: #686868 !default;
+$form-toolbar-label-font-weight: normal !default;
+$form-toolbar-label-font-size: 13px !default;
+$form-toolbar-label-font-family: $font-family !default;
+$form-toolbar-label-line-height: round($form-toolbar-label-font-size * 1.15) !default;
+$form-toolbar-label-font: $form-toolbar-label-font-weight #{$form-toolbar-label-font-size}/#{$form-toolbar-label-line-height} $form-toolbar-label-font-family !default;
+
+/**
+ * @var {number}
+ * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
+ */
+$form-item-margin-bottom: 8px !default;
+
+
+

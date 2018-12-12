@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.bpm.extjs
+Export-Package: !com.energyict.mdc.bpm.extjs
+-include: -../development.bnd

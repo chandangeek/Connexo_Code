@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Skyline Theme
+Bundle-SymbolicName: com.elster.jupiter.theme.skyline
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: com.elster.jupiter.theme.skyline.Activator
+Import-Package: com.elster.jupiter.http.whiteboard,
+ org.osgi.framework;version="1.7.0"

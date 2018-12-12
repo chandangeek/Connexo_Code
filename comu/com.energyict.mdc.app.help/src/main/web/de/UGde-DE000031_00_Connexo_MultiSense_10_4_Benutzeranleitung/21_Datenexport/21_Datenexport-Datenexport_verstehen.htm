@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Datenexport verstehen</title>
+
+ <link rel="stylesheet" href="21_Datenexport.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "22.0_2";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/21_Datenexport/21_Datenexport-.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/21_Datenexport/21_Datenexport-Datenexport_konfigurieren.htm">
+ <meta name="topic-breadcrumbs" content="21 Datenexport" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section"><span style="font-weight : normal; "><a name="XREF_31788_11_1_Data_import"></a>Datenexport verstehen</span></p>
+  <p dir="ltr" class="FM_H4Topic">Datenexport in Connexo</p>
+  <p dir="ltr" class="FM_Body"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;ist die Messdatenerfassungsanwendung von Connexo. Wenn MultiSense Daten von Messgeräten erfasst hat, prüfen Sie bitte, ob die Daten gültig sind und schätzen Sie die Daten, wenn notwendig, können Sie diese Daten exportieren. Sie haben auch die Möglichkeit unbearbeitete Daten zu exportieren. Es könnte notwendig sein, dass Sie Daten an andere Parteien und Systeme &#160;für weitere Verarbeitung exportieren, beispielsweise zur Verwendung der Daten zur Rechnungslegung.</p>
+  <p dir="ltr" class="FM_Body">In MultiSense gibt es verschiedene Standardexporteure, mit denen Sie verschiedene Formate exportieren können. Es gibt jedoch eine Möglichkeit zusätzliche nutzerdefinierte Exporteure hinzuzufügen. &#160;Damit können Sie alle benötigten Daten exportieren.</p>
+  <p dir="ltr" class="FM_H4Topic">Wie Datenexport konfiguriert wird</p>
+  <p dir="ltr" class="FM_Body">Es gibt fünf wichtige Funktionen beim Konfigurieren von Datenexportaufgaben: den <span class="FM_Bold">Datenselektor</span><span style="font-weight : normal; ">, den </span><span class="FM_Bold">Formatierer</span><span style="font-weight : normal; ">, das </span><span class="FM_UIRef">Ziel</span><span style="font-weight : normal; ">, die </span><span class="FM_UIRef">Planung </span><span style="font-weight : normal; ">und die</span><span class="FM_UIRef"> Überwachung</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_Body">Mit dem &#160;<span class="FM_Bold">Datenselektor</span><span style="font-weight : normal; ">&#160;können Sie definieren, welche Daten <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;unter Verwendung von Datentypen, wie Ablesetypen, Ereignistypen usw. exportiert werden. Standardmäßig sind bei Installation von Connexo verschiedene Datenselektoren verfügbar. Diese werden mit dem Tag [STD] gekennzeichnet. Datenselektoren ohne diesen Tag sind benutzerdefiniert. Für weitere Informationen zu diesen Selektoren kontaktieren Sie bitte Ihren Systemadministrator.</span></p>
+  <p dir="ltr" class="FM_Body">Je nach selektiertem Datenselektor, können optionale Möglichkeiten verfügbar werden, beispielsweise:</p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Selektieren Sie, ob Sie gültige Daten oder ununterbrochene Daten möchten,</p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1">Selektieren Sie eine Gerätegruppe, wenn Sie nur Daten von einer beschränkten Gruppe von Geräten möchten,</p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1" style="margin-bottom : 5.000pt;">Selektieren Sie den Exportzeitraum (auf der Grundlage relativer Perioden, können Sie relative Zeitabschnitte selbst erstellen oder diese verwenden, die standardmäßig verfügbar sind).</p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_Body">Der <span class="FM_Bold">Formatierer</span><span style="font-weight : normal; ">&#160;speichert alle Informationen, die exportiert werden müssen, in einem speziellen Format. Mit dem </span><span class="FM_Bold">Ziel</span><span style="font-weight : normal; ">&#160;können Sie angeben, wohin die Datei exportiert wird. Eine Datei kann mehrere Male in denselben Zielordner oder an verschiedene Bestimmungen exportiert werden. Beispiele für Ziele sind E-Mail, ftp, usw.</span></p>
+  <p dir="ltr" class="FM_Body">Letztendlich können Sie in MultiSense wählen, Exportaufgaben manuell zu starten oder einen <span class="FM_Bold">Plan</span><span style="font-weight : normal; ">&#160;hinzuzufügen, damit die Aufgaben zu festen Zeitpunkten ausgeführt werden. Sie können alle Aufgaben </span><span class="FM_Bold">überwachen</span><span style="font-weight : normal; ">&#160;und ihre Vergangenheit und Protokollierung verfolgen. Das hilft Ihnen Fehler zu identifizieren und zu beseitigen, wenn Datenexportaufgaben fehlschlagen.</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Wie Datenexport in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> funktioniert</caption>
+   <tr class="tr66">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Data_export_v2.png" id="image384" src="../../assets/Data_export_v2.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  </div>
+</body>
+</html>

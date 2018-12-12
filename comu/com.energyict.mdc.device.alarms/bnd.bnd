@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.energyict.mdc.device.alarms.impl.*
+Export-Package: com.energyict.mdc.device.alarms, com.energyict.mdc.device.alarms.entity, com.energyict.mdc.device.alarms.security, com.energyict.mdc.device.alarms.event

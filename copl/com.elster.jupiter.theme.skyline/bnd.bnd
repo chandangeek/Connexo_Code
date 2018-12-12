@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Bundle-Activator: com.elster.jupiter.theme.skyline.Activator
+Private-Package: com.elster.jupiter.theme.skyline
+Export-Package: !com.elster.jupiter.theme.skyline
+-include: -../development.bnd

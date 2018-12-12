@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "../button/TransparentButton";
+
+.#{$prefix}container-navigationmenu {
+    background: -webkit-linear-gradient(top, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to bottom, $navigationmenu-default-bg-gradient-start-color, $navigationmenu-default-bg-gradient-end-color); /* Standard syntax */
+
+    // Animation
+    $transition-length: 400ms;
+    transition: width $transition-length;
+    -moz-transition: width $transition-length; /* Firefox 4 */
+    -webkit-transition: width $transition-length; /* Safari and Chrome */
+    -o-transition: width $transition-length; /* Opera */
+
+    .#{$prefix}panel-body-default {
+        background-color: transparent;
+    }
+
+    .#{$prefix}pressed {
+        background-color: $color-white;
+
+        &:hover {
+            background-color: $color-white;
+        }
+
+        .#{$prefix}btn-button {
+            .#{$prefix}btn-inner, .#{$prefix}btn-glyph {
+                color: #2f77ac;
+            }
+        }
+    }
+
+    *[class*='#{$prefix}btn-toggle-'] {
+        @include transparent-button();
+        margin-right: 0 !important;
+
+        $toggle-size: 40px;
+        border-radius: $toggle-size / 2;
+
+        &:hover {
+            background-color: $color-blue-2;
+        }
+
+        .#{$prefix}btn-button {
+            height: $toggle-size;
+            width: $toggle-size;
+
+            .#{$prefix}btn-icon-el {
+                width: $toggle-size;
+            }
+
+            background-image: url('images/container/menu/navCollapse.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+    }
+
+    *[class*='#{$prefix}btn-toggle-'].#{$prefix}pressed {
+        .#{$prefix}btn-button {
+            background-image: url('images/container/menu/navExpand.png');
+        }
+    }
+
+    &.collapsed {
+        *[class*='#{$prefix}btn-menuitem-'] {
+            .#{$prefix}btn-button {
+                .#{$prefix}btn-inner {
+                    color: transparent;
+                    padding-top: 16px;
+                }
+
+                *[class*='uni-icon-'] {
+                    margin-left: -3px;
+                }
+            }
+        }
+    }
+}
+
+.#{$prefix}container-navigationwrapper {
+
+}

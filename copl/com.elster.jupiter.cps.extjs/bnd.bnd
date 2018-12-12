@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.cps.extjs
+Export-Package: !com.elster.jupiter.cps.extjs
+-include: -../development.bnd

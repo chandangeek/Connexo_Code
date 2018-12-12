@@ -1,0 +1,5 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.transaction.impl
+Export-Package: com.elster.jupiter.transaction
+Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml;README.HTML

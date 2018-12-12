@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "fonts/Icomoon";
+@import "fonts/Icons";
+
+// Adapted from: http://fonts.googleapis.com/css?family=Lato|Open+Sans+Condensed:300,700
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Lato Regular'),
+    local('Lato-Regular'),
+    url('fonts/Lato.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Open Sans Condensed';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Open Sans Cond Light'),
+    local('OpenSans-CondensedLight'),
+    url('fonts/Open_Sans_CondensedLight.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Open Sans Condensed';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Open Sans Condensed Bold'),
+    local('OpenSans-CondensedBold'),
+    url('fonts/Open_Sans_CondensedBold.woff') format('woff');
+}

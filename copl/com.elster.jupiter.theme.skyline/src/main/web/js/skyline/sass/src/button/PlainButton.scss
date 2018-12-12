@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+@if $include-button-default-medium-ui {
+  @include extjs-button-medium-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+@if $include-button-default-large-ui {
+  @include extjs-button-large-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+@if $include-button-default-toolbar-small-ui {
+  @include extjs-button-toolbar-small-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+@if $include-button-default-toolbar-medium-ui {
+  @include extjs-button-toolbar-medium-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+@if $include-button-default-toolbar-large-ui {
+  @include extjs-button-toolbar-large-ui(
+  $ui: 'plain',
+  $border-width: $button-plain-border-width,
+  $padding: $button-plain-padding,
+  $text-padding: $button-plain-text-padding,
+  $background-color: $button-plain-background-color,
+  $background-color-over: $button-plain-background-color-over,
+  $background-color-focus: $button-plain-background-color-focus,
+  $background-color-pressed: $button-plain-background-color-pressed,
+  $background-color-disabled: $button-plain-background-color-disabled,
+  $icon-size: $button-plain-icon-size,
+  $include-ui-menu-arrows: $button-plain-include-ui-menu-arrows,
+  $opacity-disabled: $button-plain-opacity-disabled,
+  $inner-opacity-disabled: $button-plain-inner-opacity-disabled
+  );
+}
+
+.#{$prefix}btn-plain-small,
+.#{$prefix}btn-plain-medium,
+.#{$prefix}btn-plain-large,
+.#{$prefix}btn-plain-toolbar-small,
+.#{$prefix}btn-plain-toolbar-medium,
+.#{$prefix}btn-plain-toolbar-large {
+  padding: 0;
+  .#{$prefix}btn-icon-el {
+    color: $color-grey !important;
+  }
+}

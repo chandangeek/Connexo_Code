@@ -1,0 +1,11 @@
+{
+    "success": true,
+    "info": [
+        {
+            "numberOfEvents": "8496",
+            "totalMemory": "501",
+            "usedMemory": "280",
+            "unit": "GB"
+        }
+    ]
+}

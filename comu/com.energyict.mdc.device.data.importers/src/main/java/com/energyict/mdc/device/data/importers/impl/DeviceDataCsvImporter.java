@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.data.importers.impl;
+
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportLineException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Processes the csv file contents. Is responsible for parsing the csv file content and processing its data.
+ */
+public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileImporter {
+
+    public static class Builder<T extends FileImportRecord> {
+
+        private final DeviceDataCsvImporter<T> importer;
+
+        private Builder() {
+            this.importer = new DeviceDataCsvImporter<>();
+        }
+
+        public Builder<T> withProcessor(FileImportProcessor<T> processor) {
+            this.importer.processor = processor;
+            return this;
+        }
+
+        public Builder<T> withLogger(FileImportLogger<FileImportRecord> logger) {
+            this.importer.logger = logger;
+            return this;
+        }
+
+        public Builder<T> withDelimiter(char delimiter) {
+            this.importer.csvDelimiter = delimiter;
+            return this;
+        }
+
+        public DeviceDataCsvImporter<T> build() {
+            return this.importer;
+        }
+    }
+
+    public static final char COMMENT_MARKER = '#';
+
+    private char csvDelimiter;
+
+    private FileImportParser<T> parser;
+    private FileImportProcessor<T> processor;
+    private FileImportLogger<FileImportRecord> logger;
+
+    public static <T extends FileImportRecord> Builder<T> withParser(FileImportParser<T> parser) {
+        Builder<T> builder = new Builder<>();
+        builder.importer.parser = parser;
+        return builder;
+    }
+
+    private DeviceDataCsvImporter() {
+    }
+
+    /**
+     * Is responsible for doing the actual import. It processes the contents of the entire csv file.
+     *
+     * @param fileImportOccurrence Represents the entire file data that is to be processed.
+     */
+    @Override
+    public void process(FileImportOccurrence fileImportOccurrence) {
+        logger.init(fileImportOccurrence);
+        try (CSVParser csvParser = getCSVParser(fileImportOccurrence)) {
+            parser.init(csvParser);
+            for (CSVRecord csvRecord : csvParser) {
+                processRecord(csvRecord);
+            }
+            processor.complete(logger);
+            logger.importFinished();
+        } catch (Exception e) {
+            logger.importFailed(e);
+        }
+    }
+
+    // Parser exceptions should always fail whole importing process
+    private void processRecord(CSVRecord csvRecord) throws FileImportParserException, ProcessorException {
+        try {
+            T data = parser.parse(csvRecord);
+            try {
+                processor.process(data, logger);
+                logger.importLineFinished(data);
+            } catch (ProcessorException exception) {
+                logger.importLineFailed(data, exception);
+                if (exception.shouldStopImport()) {
+                    throw exception;
+                }
+            } catch (Exception exception) {
+                logger.importLineFailed(data, exception);
+            }
+        }catch (FileImportLineException lineException){
+            logger.importLineFailed(lineException.getLineNumber(), lineException);
+        }
+    }
+
+    private CSVParser getCSVParser(FileImportOccurrence fileImportOccurrence) throws IOException {
+        CSVFormat csvFormat = CSVFormat.DEFAULT
+                .withHeader()
+                .withAllowMissingColumnNames(true)
+                .withIgnoreSurroundingSpaces(true)
+                .withDelimiter(csvDelimiter)
+                .withCommentMarker(COMMENT_MARKER);
+        return new CSVParser(new InputStreamReader(fileImportOccurrence.getContents()), csvFormat);
+    }
+}

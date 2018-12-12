@@ -1,0 +1,8 @@
+-classpath: target/classes
+-dsannotations: *
+
+Private-Package:  \
+	com.energyict.mdc.engine.config.impl
+Export-Package:  \
+	com.energyict.mdc.engine.config,\
+	com.energyict.mdc.engine.config.security

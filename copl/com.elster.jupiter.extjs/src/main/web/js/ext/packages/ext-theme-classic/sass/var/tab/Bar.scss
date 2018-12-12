@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/** @class Ext.tab.Bar */
+//
+
+$tabbar-padding: 1px 0 0 !default;
+$tabbar-plain-padding: 0 !default;
+$tabbar-base-color: adjust-color($panel-base-color, $hue: 0deg, $saturation: -3.156%, $lightness: -5.294%) !default;
+
+$tabbar-scroller-opacity-disabled: .5 !default;
+$tabbar-scroller-symmetrical-icons: false !default;

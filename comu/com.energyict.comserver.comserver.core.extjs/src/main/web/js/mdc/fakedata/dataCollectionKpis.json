@@ -1,0 +1,31 @@
+{
+    "total":2,
+    "kpis": [
+        {
+            "id": 1,
+            "deviceGroup": {
+                "id": 3,
+                "name": "end device group"
+            },
+            "frequency": {
+                "seconds": 900
+            },
+            "connectionTarget": null,
+            "communicationTarget": 15,
+            "latestCalculationDate": 1418654563753
+        },
+        {
+            "id": 2,
+            "deviceGroup": {
+                "id": 3,
+                "name": "another device group"
+            },
+            "frequency": {
+                "seconds": 900
+            },
+            "connectionTarget": null,
+            "communicationTarget": 15,
+            "latestCalculationDate": 1418654563753
+        }
+    ]
+}

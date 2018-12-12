@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.tasks.rest.*
+Export-Package: com.elster.jupiter.tasks.rest

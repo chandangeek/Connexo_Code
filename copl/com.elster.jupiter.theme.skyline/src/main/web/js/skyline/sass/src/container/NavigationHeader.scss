@@ -1,0 +1,177 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "../button/TransparentButton";
+
+@mixin highlight-header-background {
+    background-color: $color-blue-2;
+}
+
+@mixin hidden-arrow-button {
+    .x-btn-arrow {
+        background-image: none;
+    }
+
+    .x-btn-arrow-right {
+        padding-right: inherit;
+    }
+
+    .x-btn-arrow-bottom {
+        padding-bottom: inherit;
+    }
+}
+
+.uni-icon-user {
+    background-image: url('images/container/user.png');
+    width: 20px;
+    height: 20px;
+}
+
+.uni-icon-search {
+    background-image: url('images/container/search.png');
+    width: 22px;
+    height: 23px;
+}
+
+.uni-icon-help {
+    background-image: url('images/container/help.png');
+    width: 24px;
+    height: 24px;
+}
+
+.uni-icon-appcenter {
+    background-image: url('images/container/applicationCenter.png');
+    width: 20px;
+    height: 18px;
+}
+
+.#{$prefix}container-navigationheader {
+    background-color: $header-default-background-color;
+    color: $header-default-color;
+
+    padding: {
+        right: 10px;
+    }
+
+    background: -webkit-linear-gradient(left, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, $header-default-bg-gradient-start-color, $header-default-bg-gradient-end-color); /* Standard syntax */
+
+    .uni-nav-appcenter,
+    .nav-toggler,
+    .notifications-anchor,
+    .search-button,
+    .nav-help,
+    .user-menu {
+        @include transparent-button;
+
+        &:hover {
+            @include highlight-header-background;
+        }
+
+        .#{$prefix}btn-icon-el {
+            margin: {
+                top: 12px;
+                right: auto;
+                left: auto;
+            }
+        }
+
+        .#{$prefix}btn-arrow {
+            .#{$prefix}btn-icon-el {
+                margin-right: 0;
+            }
+        }
+    }
+
+    .uni-nav-appcenter {
+        padding: 0 1px;
+
+        .#{$prefix}btn-arrow {
+            .#{$prefix}btn-icon-el {
+                margin-right: auto;
+            }
+        }
+    }
+
+    .x-menu-active {
+        @include highlight-header-background;
+    }
+
+    .nav-toggler {
+        @include hidden-arrow-button;
+
+        .x-btn-button .x-btn-glyph {
+            opacity: 0.5;
+        }
+
+        &:hover .x-btn-button .x-btn-glyph {
+            opacity: 1.0;
+        }
+    }
+
+    .x-pressed .x-btn-button .x-btn-glyph {
+        opacity: 1.0;
+    }
+
+    .nav-toggler .x-pressed {
+        .x-btn-button {
+            .x-btn-glyph {
+                opacity: 1.0;
+            }
+        }
+    }
+
+    .uni-nav-appcenter, .notifications-anchor {
+        @include hidden-arrow-button;
+    }
+
+    .uni-nav-appcenter {
+        border-right: 1px solid #597d9d;
+        margin-right: 0 !important;
+
+        &.x-menu-active {
+            background-color: $header-default-bg-gradient-start-color;
+        }
+    }
+
+    .search-field {
+        $field-width: 240px;
+        width: $field-width;
+
+        .x-form-item-body {
+            float: right;
+
+            input {
+                $field-radius: 10px;
+                border-radius: $field-radius;
+                -moz-border-radius: $field-radius;
+                -webkit-border-radius: $field-radius;
+                $transition: all 1s ease;
+                transition: $transition;
+                -moz-transition: $transition;
+                -webkit-transition: $transition;
+                -o-transition: $transition;
+                -ms-transition: $transition;
+                width: $field-width * 0.50;
+                height: 24px;
+
+                &:focus, &:hover {
+                    width: $field-width;
+                }
+            }
+        }
+    }
+
+    .user-menu {
+        padding-left: 0;
+        padding-right: 8px;
+    }
+
+    .search-button {
+        padding-left: 8px;
+        margin-left: 4px;
+    }
+}

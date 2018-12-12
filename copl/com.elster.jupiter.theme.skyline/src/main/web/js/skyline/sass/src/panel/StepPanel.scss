@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}image-step-dots {
+    height: $panel-step-dots-height !important;
+    width: $panel-step-dots-width !important;
+    background-image: $panel-step-dots-background-image;
+}
+
+.#{$prefix}panel-step-dots {
+  left: $panel-step-dots-left !important;
+}
+
+.#{$prefix}label-step {
+  height: $button-step-size;
+  padding: $panel-step-padding;
+}
+

@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.search.impl,com.elster.jupiter.search.location.impl
+Export-Package: com.elster.jupiter.search,com.elster.jupiter.search.location

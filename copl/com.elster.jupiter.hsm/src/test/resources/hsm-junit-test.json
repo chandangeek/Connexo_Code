@@ -1,0 +1,59 @@
+{
+  "creationInfo": "UUID: 9054cf7d-e8c0-461f-9714-10a8f6de2c01 , exported on host: DEITVS034/10.32.139.0, filename: hsm-runtime-configuration.json",
+  "version": 105,
+  "rawHsms": [
+    {
+      "id": 1,
+      "name": "HSM1",
+      "type": "ASM7.6a",
+      "description": "",
+      "host": "10.0.0.84",
+      "port": 9000,
+      "moduleId": 0,
+      "secure": false,
+      "state": {
+        "stateValue": 1
+      },
+      "protocol": "KS"
+    },
+    {
+      "id": 2,
+      "name": "HSM2",
+      "type": "ASM7.6a",
+      "description": "",
+      "host": "10.0.0.85",
+      "port": 9000,
+      "moduleId": 0,
+      "secure": false,
+      "protocol": "KS"
+    }
+  ],
+  "rawLabels": [
+    {
+      "id": 1,
+      "name": "LABEL1",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 1,
+          "keyAddress": "DB KEY AUTH  000",
+          "enabled": true
+        }
+      ]
+    }
+  ],
+  "rawFunctionTimeouts": [
+    {
+      "functionName": "default_function_timeout",
+      "timeoutMillis": 500
+    }
+  ],
+  "rawRoutingEngineRules": [
+    {
+      "id": 1,
+      "hsmId":1,
+      "functionName": "f1",
+      "ruleExpression":"rex1"
+    }
+  ]
+}

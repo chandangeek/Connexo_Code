@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: * 
+Include-Resource: README.HTML
+Export-Package: com.elster.jupiter.bootstrap
+Private-Package: com.elster.jupiter.bootstrap.validation.impl

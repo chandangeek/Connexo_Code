@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: * 
+
+
+Export-Package: com.elster.jupiter.users.rest
+Private-Package: com.elster.jupiter.users.rest.impl,com.elster.jupiter.users.rest.actions

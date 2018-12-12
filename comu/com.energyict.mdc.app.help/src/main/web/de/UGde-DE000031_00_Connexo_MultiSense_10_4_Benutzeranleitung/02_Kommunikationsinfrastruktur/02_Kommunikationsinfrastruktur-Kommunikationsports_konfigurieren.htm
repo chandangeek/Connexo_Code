@@ -1,0 +1,209 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Kommunikationsports konfigurieren</title>
+
+ <link rel="stylesheet" href="02_Kommunikationsinfrastruktur.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "3.0_5";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/02_Kommunikationsinfrastruktur/02_Kommunikationsinfrastruktur-Kommunikationsserver_konfigurieren.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/02_Kommunikationsinfrastruktur/02_Kommunikationsinfrastruktur-Kommunikations-Portpool_konfigurieren.htm">
+ <meta name="topic-breadcrumbs" content="02 Kommunikationsinfrastruktur" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_48111_Configure"></a>Kommunikationsports konfigurieren</p>
+  <p dir="ltr" class="FM_H4Topic">Eingangs-Kommunikationsport(s) hinzufügen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : bold; ">&#160;</span><span style="font-weight : normal; ">&gt;klicken Sie auf einen </span><span class="FM_UIRef" style="font-weight : normal; ">Kommunikationsservernamen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsports</span><span class="FM_UIRef" style="font-weight : normal; ">&#160;</span><span style="font-weight : normal; ">im Menü auf der linken Seite oder klicken Sie auf den Link der Kommunikationsport, der auf der Übersichtsseite bereitgestellt wird. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsport hinzufügen</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Eingang</span><span style="font-weight : normal; ">. Füllen Sie die folgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Einmaliger Name in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span> für die Port.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Typ</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Seriell, Servlet, TCP, UDP.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Gleichzeitige Verbindungen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl der Threads, die gleichzeitig an dieser Port laufen können. Diese Option ist nicht für physikalische Ports wie Modems verfügbar.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Eingangs-Kommunikations-Portpool</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie einen Kommunikations-Portpool aus der Liste der konfigurierten Eingangs-Kommunikations-Portpools.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">5. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_6.png" id="image34" src="../../assets/masterActions_6.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Aktivieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Abhängig vom Typ müssen zusätzliche Felder ausgefüllt werden.</p>
+  <p dir="ltr" class="FM_BodyGrey">Kommunikationsports ohne zugewiesenem Kommunikations-Portpool können hinzugefügt, jedoch nicht aktiviert werden. </p>
+  <p dir="ltr" class="FM_H4Topic">Ausgangs-Kommunikationsport(s) hinzufügen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">&#160;&gt; klicken Sie auf einen </span><span class="FM_UIRef" style="font-weight : normal; ">Kommunikations-Servernamen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsports</span><span class="FM_UIRef" style="font-weight : normal; ">&#160;</span><span style="font-weight : normal; ">im Menü an der linken Seite oder klicken Sie auf den Link des Kommunikationsports, der auf der Übersichtsseite angegeben wird.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsport hinzufügen</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Ausgang</span><span style="font-weight : normal; ">. Füllen Sie die folgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung<span style="font-weight : normal; ">&#160;</span></p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ein einmaliger Name.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Typ</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Seriell, TCP, UDP.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Gleichzeitige Verbindungen</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anzahl der Threads, die gleichzeitig an dieser Port laufen können. Diese Option ist nicht für physikalische Ports wie Modems verfügbar.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ausgangs-Kommunikations-Portpool</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Klicken Sie auf <span class="FM_UIRef">Kommunikations-Portpools hinzufügen</span><span style="font-weight : normal; ">&#160;um einen oder mehrere Portpools zu selektieren.</span></p>
+   <p dir="ltr" class="FM_CellBody">Klicken Sie auf <span class="FM_UIRef">Kommunikations-Portpools verwalten</span><span style="font-weight : normal; ">&#160;um einen neuen Ausgangs-Portpool zu erstellen.</span></p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">5. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_7.png" id="image35" src="../../assets/masterActions_7.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Aktivieren</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Abhängig vom Kommunikationstyp müssen verschiedene zusätzliche Felder ausgefüllt werden. </p>
+  <p dir="ltr" class="FM_BodyGrey">Kommunikationsports ohne zugewiesenen Kommunikations-Portpool können hinzugefügt, jedoch nicht aktiviert werden.</p>
+  <p dir="ltr" class="FM_H4Topic">Kommunikationsports bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">&#160;&gt; klicken Sie auf einen </span><span class="FM_UIRef" style="font-weight : normal; ">Kommunikationsserver-Namen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsports</span><span class="FM_UIRef" style="font-weight : normal; ">&#160;</span><span style="font-weight : normal; ">im Menü an der linken Seite oder klicken Sie auf den Link des Kommunikationsports, der auf der Übersichtsseite angegeben wird.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">3. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_8.png" id="image36" src="../../assets/masterActions_8.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Ändern Sie die Parameter des Kommunikationsports. </p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; Klicken Sie auf <span class="FM_UIRef">Speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Kommunikationsports löschen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">&#160;&gt; klicken Sie auf einen </span><span class="FM_UIRef" style="font-weight : normal; ">Kommunikationsserver-Namen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsports</span><span class="FM_UIRef" style="font-weight : normal; ">&#160;</span><span style="font-weight : normal; ">im Menü an der linken Seite oder klicken Sie auf den Link des Kommunikationsports, der auf der Übersichtsseite angegeben wird.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_9.png" id="image37" src="../../assets/masterActions_9.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Kommunikationsports an Kommunikations-Portpools verwalten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikations-Portpools</span><span style="font-weight : normal; ">&#160;&gt; klicken Sie auf einen </span><span class="FM_Bold">}</span><span class="FM_Bold" style="font-weight : normal; ">Kommunikations-Portpool-Namen. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsport</span><span style="font-weight : normal; ">&#160;im Menü auf der linken Seite oder klicken Sie auf den Link des Kommunikationsports auf der Übersichtsseite. </span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">3. &#160; Kommunikationsports mithilfe des Aktionssymbols löschen<img alt="masterActions_10.png" id="image38" src="../../assets/masterActions_10.png" style="max-width: 100% ;height: auto" />.</p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Kommunikationsport hinzufügen</span><span style="font-weight : normal; ">. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; Selektieren Sie ein oder mehrere Kommunikationsports.</p>
+  <p dir="ltr" class="FM_ListNumber1">6. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  </div>
+</body>
+</html>

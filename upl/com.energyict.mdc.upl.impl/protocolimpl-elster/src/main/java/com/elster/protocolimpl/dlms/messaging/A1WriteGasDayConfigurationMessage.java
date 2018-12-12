@@ -1,0 +1,100 @@
+package com.elster.protocolimpl.dlms.messaging;
+
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+
+import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
+import com.elster.protocolimpl.dlms.objects.ObjectPool;
+import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
+import com.energyict.protocolimpl.utils.MessagingTools;
+
+import java.io.IOException;
+
+/**
+ * Created by heuckeg on 02.06.2014.
+ *
+ */
+public class A1WriteGasDayConfigurationMessage extends AbstractDlmsMessage
+{
+    private static final String function = "FlagGasDayConfig";
+    public static final String MESSAGE_TAG = "GasDayConfiguration";
+    public static final String MESSAGE_DESCRIPTION = "Set gas day configuration flag on/off";
+    public static final String ATTR_GDCF_ACTION = "GDC_FLAG";
+
+    public A1WriteGasDayConfigurationMessage(DlmsMessageExecutor messageExecutor)
+    {
+        super(messageExecutor);
+    }
+
+    @Override
+    public boolean canExecuteThisMessage(MessageEntry messageEntry)
+    {
+        return isMessageTag(MESSAGE_TAG, messageEntry.getContent());
+    }
+
+    @Override
+    public void executeMessage(MessageEntry messageEntry) throws IOException
+    {
+        try
+        {
+            getLogger().severe("Received [" + MESSAGE_TAG + "] message");
+            String data = MessagingTools.getContentOfAttribute(messageEntry, ATTR_GDCF_ACTION);
+            boolean mode = validateData(data);
+            write(mode);
+        }
+        catch (IOException e)
+        {
+            String msg = "Unable to set gas day configuration flag. " + e.getClass().getName();
+            if (e.getMessage() != null)
+            {
+                msg += " (" + e.getMessage() + ")";
+            }
+            throw new IOException(msg, e);
+        }
+    }
+
+
+    private boolean validateData(String data) throws IOException
+    {
+        if ((data != null) && (!data.isEmpty()))
+        {
+            if ("0".equals(data))
+            {
+                return false;
+            }
+            if ("1".equals(data))
+            {
+                return true;
+            }
+        }
+        throw new IOException("Wrong parameter:" + data);
+    }
+
+    protected void write(boolean mode) throws IOException
+    {
+        CosemApplicationLayer layer = getExecutor().getDlms().getCosemApplicationLayer();
+        ObjectPool pool = getExecutor().getDlms().getObjectPool();
+        int a1Version = getExecutor().getDlms().getSoftwareVersion();
+
+        IReadWriteObject rwObject = pool.findByFunction(a1Version, function);
+        if (rwObject == null)
+        {
+            throw new IOException("This A1 doesn't support function '" + function + "'");
+        }
+
+        Object[] data = mode ? new Object[]{1} : new Object[]{0};
+        rwObject.write(layer, data);
+    }
+
+    public static MessageSpec getMessageSpec(boolean advanced)
+    {
+        MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
+        tagSpec.add(new MessageAttributeSpec(ATTR_GDCF_ACTION, true));
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+}

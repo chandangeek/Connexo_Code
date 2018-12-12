@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure communication infrastructure</title>
+
+ <link rel="stylesheet" href="000017_UMNL_CommunicationManagement.css" type="text/css" />
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "2.1";
+</script>
+    <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_CommunicationManagement/000017_UMNL_CommunicationManagement.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_CommunicationManagement/Configure_communication_protocols.htm">
+    <meta name="topic-breadcrumbs" content="Communication infrastructure"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section"><a name="XREF_14736_2_5_Configure"></a>Configure communication infrastructure</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="TOC_Understand_communication"></a><a name="XREF_70591_Understand"></a>Understand communication</p>
+    <p dir="ltr" class="FM_Body">How do devices communicate with the data collection system? In
+        <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>
+        &#160;communication from and to a device goes trough a communication port pool. Communication from a device to
+        <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>
+        &#160;uses an inbound <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/communication port pool.htm');" id="GLPOPUPConfResp1011">
+            <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPConfResp1011');</script>
+            communication port pool</a> while communication to a device uses an outbound port pool. A communication port pool consists out of different <a
+                href="javascript:BSSCPopup('../../Glo$$aryPopup$/communication port.htm');" id="GLPOPUPConfResp1012">
+            <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPConfResp1012');</script>
+            communication port</a>s. These ports can belong to different <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/communication server.htm');" id="GLPOPUPConfResp1013">
+            <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPConfResp1013');</script>
+            communication server</a>s to allow load balancing and redundancy.
+    </p>
+    <p dir="ltr" class="FM_Body">To be able to communicate,
+        <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>
+        &#160;supports multiple communication servers. Each communication server controls different communication ports. A communication port can be a physical modem or a logical connection. A
+        communication server can collect data, write data to and perform actions on devices. This is done using communication tasks you configure. These are then assigned to a communication port pool
+        to be executed. To be able to perform communication tasks a connection is needed. The connection will allow communication between Connexo and the device while the communication task defines
+        what happens during this connection.
+    </p>
+    <p dir="ltr" class="FM_Body">You can have multiple communication servers. This allows to divide the <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/communication task.htm');"
+                                                                                                           id="GLPOPUPConfResp1014">
+        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPConfResp1014');</script>
+        communication task</a>s. Because communication port pools consist out of communication ports belonging to different servers this guarantees that another port of the same pool can take over if
+        an outage occurs. If an outage of the communication server occurs than another server, that is part of the same port pool, will take over.
+    </p>
+    <p dir="ltr" class="FM_Body">&#160;</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Communication between Connexo and physical devices</caption>
+            <tr class="tr0">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Communication.png" id="image29" src="../../assets/Communication.png" style="width:100%; max-width:547px"/>&nbsp;</p>
+</td>
+</tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@mixin step-button-sizes {
+  width: $button-step-width !important;
+  height: $button-step-height !important;
+  padding: 2px !important;
+  font-weight: bold;
+  .x-btn-inner {
+    padding: 1px 0 !important;
+  }
+}
+
+.#{$prefix}btn-step-active-small {
+  @include step-button-sizes;
+}
+
+.#{$prefix}btn-step-completed-small {
+  @include step-button-sizes
+}
+
+.#{$prefix}btn-step-non-completed-small {
+  @include step-button-sizes
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-active',
+    $background-color: $button-step-active-background-step-color,
+    $color: $button-step-active-color,
+    $background-color-pressed: $button-step-active-background-step-color-pressed,
+    $background-color-over: $button-step-active-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-error',
+    $background-color: $button-step-error-background-step-color,
+    $color: $button-step-error-color,
+    $background-color-pressed: $button-step-error-background-step-color-pressed,
+    $background-color-over: $button-step-error-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-completed',
+    $background-color: $button-step-completed-background-step-color,
+    $color: $button-step-completed-color,
+    $background-color-pressed: $button-step-completed-background-step-color-pressed,
+    $background-color-over: $button-step-completed-background-step-color-over,
+    $border-radius: $button-step-border-radius,
+    $border-color: $button-step-completed-border-color,
+    $border-width: $button-step-border-width
+
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-non-completed',
+    $background-color: $button-step-non-completed-background-step-color,
+    $color: $button-step-non-completed-color,
+    $background-color-pressed: $button-step-non-completed-background-step-color-pressed,
+    $background-color-over: $button-step-non-completed-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-active',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-active-color,
+    $color-over: $button-step-label-active-color-over,
+    $color-pressed: $button-step-label-active-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-completed',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-completed-color,
+    $color-over: $button-step-label-completed-color-over,
+    $color-pressed: $button-step-label-completed-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
+  );
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-label-non-completed',
+    $background-color: $button-step-label-background-color,
+    $background-color-over: $button-step-label-background-color,
+    $background-color-focus: $button-step-label-background-color,
+    $background-color-pressed: $button-step-label-background-color,
+    $color:  $button-step-label-non-completed-color,
+    $color-over: $button-step-label-non-completed-color-over,
+    $color-pressed: $button-step-label-non-completed-color-pressed,
+    $include-ui-menu-arrows: false,
+    $include-ui-split-arrows: false
+  );
+}

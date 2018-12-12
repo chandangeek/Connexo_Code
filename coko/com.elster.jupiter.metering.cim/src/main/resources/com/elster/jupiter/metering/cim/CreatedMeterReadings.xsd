@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<xs:schema attributeFormDefault="unqualified"
+           elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://iec.ch/TC57/2011/schema/message"
+           targetNamespace="http://iec.ch/TC57/2011/schema/message"
+        >
+    <xs:include schemaLocation="Message.xsd"/>
+    <xs:element name="CreatedMeterReadings">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="MessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ChangedMeterReadings">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="MessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ClosedMeterReadings">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="MessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="CanceledMeterReadings">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="MessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="DeletedMeterReadings">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="MessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="MeterReadingsResponseMessage">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="ResponseMessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="MeterReadingsFaultMessage">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="FaultMessageType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+
+</xs:schema>

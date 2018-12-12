@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Estimate data on request</title>
+
+    <link rel="stylesheet" href="000107_UMNL_Data_estimation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "6.2.0_2";
+    </script>
+    <meta name="brsprev" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_estimation/Execute_estimation.htm">
+    <meta name="brsnext" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_estimation/Reset_estimated_readings_after_underlying_data_modification.htm">
+    <meta name="topic-breadcrumbs" content="Data estimation > Execute estimation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Estimate data on request</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can estimate usage point data manually if there is an immediate need for making the data more reliable.</span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_93113_Run_estimation_on"></a>Run estimation on data of a particular usage point</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can run data estimation on one particular usage point. This will trigger the estimation rule set that is associated with the metrology configuration purpose that is linked with the concerned usage point.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open the needed usage point using </span><span class="FM_change_bar"
+                                                                                                                                  style="font-family : Lato; font-weight : bold; ">Search</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the needed purpose in the in the left navigation menu under </span><span class="FM_change_bar"
+                                                                                                                                                             style="font-family : Lato; font-weight : bold; ">Data</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Select </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Estimate now</span><span
+            class="FM_change_bar"> from the actions button.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Choose if you want Connexo to automatically revalidate the estimated data.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Estimate</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You are able to monitor the estimation’s progress and when finished a message is shown.</span></p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body">Estimation is done immediately. If the estimation process takes more than 60 seconds, then estimation will continue in the background and you can proceed with other
+        tasks. Note that no logging is created. So, if estimation fails, it won’t be possible to check why it failed. If you run estimation from the estimation task, then logging is created. See <a
+                href="#XREF_33746_Run_estimation_on"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Run estimation on data for all usage points associated with a particular metrology configuration and purpose”</span></a>.
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar" style="font-size  : 11.0pt; "><a name="XREF_33746_Run_estimation_on"></a></span>Run estimation on data for all usage points associated
+        with a particular metrology configuration and purpose</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can run an estimation task manually to perform data estimation for all of the usage points linked with the metrology configuration purpose with which the concerned estimation task is associated.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data estimation</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Estimation tasks</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the needed estimation task.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the actions icon <img alt="000107_UMNL_Data_estimation00033.png" id="image116"
+                                                                                                          src="../../assets/000107_UMNL_Data_estimation00033.png"
+                                                                                                          style="max-width: 100% ;height: auto"/>&#160;at the end of its line and select </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Run</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">In the confirmation popup, click </span><span class="FM_change_bar"
+                                                                                                                            style="font-family : Lato; font-weight : bold; ">Run</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The estimation task will be queued to run at the earliest possible time.</span></p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body">Estimation is queued to be executed at the earliest possible time. In this case, logging will be created. So, if estimation fails, it will be possible to check why it
+        failed. If you run estimation from a usage point, then no logging is created. See <a href="#XREF_93113_Run_estimation_on"><span class="FM_blue_crossreference">“</span><span
+                class="FM_CR_URL"></span><span class="FM_blue_crossreference">Run estimation on data of a particular usage point”</span></a>.</p>
+</div>
+</body>
+</html>

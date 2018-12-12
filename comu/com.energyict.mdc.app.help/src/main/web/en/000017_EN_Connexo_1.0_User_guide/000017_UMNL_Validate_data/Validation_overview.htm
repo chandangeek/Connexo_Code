@@ -1,0 +1,195 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Validation overview</title>
+
+ <link rel="stylesheet" href="000017_UMNL_Validate_data.css" type="text/css" />
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "14.4.0_7";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/View_suspect_data.htm">
+    <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/000017_UMNL_Estimate_data.htm">
+    <meta name="topic-breadcrumbs" content="Data validation > Monitor data validation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Validation overview</p>
+    <p dir="ltr" class="FM_H4Topic">Understand data validation KPIs</p>
+    <p dir="ltr" class="FM_Body">To be able to see all suspects on all devices of a specific device group
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        &#160;uses data validation KPIs. These KPIs calculate the amount of suspects of a device group periodically as defined during configuration.
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_20347_View_data"></a>View data validation KPIs</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Data validation KPIs</span>.
+    </p>
+    <p dir="ltr" class="FM_BodyProcedure">The table shows all configured data validation KPI together with the device group they apply to and how often they are calculated. You can also see when the
+        KPI was last calculated.</p>
+    <p dir="ltr" class="FM_H4Topic">Add data validation KPI</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Data validation KPIs</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click Add data validation KPI. Complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device group</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the device group to calculate the data validation KPI of. You can only create one data validation KPI per device group.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Calculation frequency</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select how often the KPI should be recalculated.</p>
+</td>
+</tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Remove data validation KPI</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Data validation KPIs</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the remove icon <img alt="delete.png" id="image276" src="../../assets/delete.png" style="width:100%; max-width:21px"/>
+        next to the KPI you wish to remove.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span> to confirm.</p>
+    <p dir="ltr" class="FM_H4Topic">View validation results in validation overview</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validations</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Use the filter to see specific results, see <a href="#XREF_33874_Filter_results_in"><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Filter results in validation overview”</span></a>&#160;for more information.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The table shows all devices that comply with the filter criteria. For every device you can see its name, serial number, device type and configuration, the
+        total amount of suspects on this device and whether all data has been validated.</p>
+    <p dir="ltr" class="FM_BodyProcedure">Beware that the results on the overview are only renewed after the time you specified during the configuration of the data validation KPI.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click the device name link to go to the device and edit the suspect values as described here <a
+            href="../000017_UMNL_Get_data_valid/Edit_data.htm#XREF_23070_4_1_Edit_data"><span class="FM_blue_crossreference">“Edit data”</span></a>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_33874_Filter_results_in"></a>Filter results in validation overview</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validations</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Use the filter pane on top of the page to filter the validation results. The following filters are available:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Filter criteria</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device group</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select a device group of which you want to see the suspects. The device groups you see here match the data validation KPIs configured in
+                        Administration (<a href="#XREF_20347_View_data"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">View data validation KPIs”</span></a>).
+                        You can select multiple device groups.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Period</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Specify a period for which you want to see the validation results.</p>
+</td>
+</tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Amount of suspect</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Use this filter to only see device with the specified amount of suspects.</p>
+</td>
+</tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Validator</p>
+</td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Use this filter to only see devices that contain suspects that violated validation rules using the validators specified in the filter.</p>
+</td>
+</tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Apply</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Clear all</span> to remove all specified filters.</p>
+</div>
+</body>
+</html>

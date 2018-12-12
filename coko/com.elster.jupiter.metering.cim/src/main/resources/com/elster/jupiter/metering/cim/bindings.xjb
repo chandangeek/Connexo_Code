@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<jxb:bindings version="2.1" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema" schemaLocation="CreatedMeterReadings.xsd"
+              node="/xs:schema">
+
+    <jxb:globalBindings>
+        <jxb:javaType name="java.util.Date" xmlType="xs:dateTime"></jxb:javaType>
+    </jxb:globalBindings>
+
+    <jxb:bindings schemaLocation="Message.xsd" node="./xs:complexType[@name='NameType']">
+        <jxb:class name="HeaderNameType" />
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="Message.xsd" node="./xs:complexType[@name='NameTypeAuthority']">
+        <jxb:class name="HeaderNameTypeAuthority" />
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="Message.xsd" node="./xs:complexType[@name='Name']">
+        <jxb:class name="HeaderName" />
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="MeterReadings.xsd" node="./xs:complexType[@name='MeterReadings']">
+
+    </jxb:bindings>
+
+
+</jxb:bindings>

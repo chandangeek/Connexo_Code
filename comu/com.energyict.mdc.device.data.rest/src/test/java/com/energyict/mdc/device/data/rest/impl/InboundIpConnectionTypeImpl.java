@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.energyict.mdc.dynamic.PropertySpecService;
+
+import javax.inject.Inject;
+
+public class InboundIpConnectionTypeImpl extends IpConnectionType {
+
+    @Inject
+    public InboundIpConnectionTypeImpl(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
+    @Override
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
+    }
+
+}

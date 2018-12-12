@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: !com.energyict
+Private-Package: com.energyict.license.*, com.energyict.protocols.mdc.services.impl.*

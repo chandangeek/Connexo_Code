@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="calendars">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="eventset" type="eventset" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="calendar" type="xml-calendar"  minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="eventset">
+        <xs:sequence>
+            <xs:element ref="name"/>
+            <xs:element ref="events"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="events">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="event"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="xml-calendar">
+        <xs:sequence>
+            <xs:element ref="name"/>
+            <xs:element ref="category"/>
+            <xs:element ref="mRID" minOccurs="0"/>
+            <xs:element ref="description" minOccurs="0"/>
+            <xs:element ref="start-year"/>
+            <xs:element name="eventset" type="xs:string"/>
+            <xs:element ref="day-types"/>
+            <xs:element ref="periods"/>
+            <xs:element ref="exceptions"/>
+            <xs:any minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="content-version" type="xs:NMTOKEN"/>
+    <xs:element name="category" type="xs:string"/>
+    <xs:element name="mRID" type="xs:NCName"/>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="start-year" type="xs:integer"/>
+    <xs:element name="day-types">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" name="day-type" type="xml-day-type"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="xml-day-type">
+            <xs:sequence>
+                <xs:element ref="id"/>
+                <xs:element ref="name"/>
+                <xs:element ref="ranges"/>
+                <xs:any minOccurs="0"/>
+            </xs:sequence>
+    </xs:complexType>
+    <xs:element name="ranges">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="range-time"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="range-time">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="from"/>
+                <xs:element name="event" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="from">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="hour"/>
+                <xs:element ref="minute"/>
+                <xs:element ref="second"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="hour" type="xs:integer"/>
+    <xs:element name="minute" type="xs:integer"/>
+    <xs:element name="second" type="xs:integer"/>
+    <xs:element name="periods">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="period"/>
+                <xs:element ref="transitions"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="period">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="id"/>
+                <xs:element ref="name"/>
+                <xs:element ref="week-template"/>
+                <xs:any minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="week-template">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="monday" type="weekday"/>
+                <xs:element name="tuesday" type="weekday"/>
+                <xs:element name="wednesday" type="weekday"/>
+                <xs:element name="thursday" type="weekday"/>
+                <xs:element name="friday" type="weekday"/>
+                <xs:element name="saturday" type="weekday"/>
+                <xs:element name="sunday" type="weekday"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="weekday">
+        <xs:attribute name="day-type" use="required" type="xs:integer"/>
+    </xs:complexType>
+    <xs:element name="transitions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="transition"/>
+            </xs:sequence>
+            <xs:attribute name="recurring" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="transition">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="to-period"/>
+                <xs:element ref="year" minOccurs="0"/>
+                <xs:element ref="month"/>
+                <xs:element ref="day"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="to-period" type="xs:integer"/>
+    <xs:element name="exceptions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="exception"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="exception">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="occurrences"/>
+            </xs:sequence>
+            <xs:attribute name="day-type" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="occurrences">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="recurring-occurrence" type="recurring-occurrence" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="fixed-occurrence" type="fixed-occurrence" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="recurring-occurrence">
+        <xs:sequence>
+            <xs:element ref="month"/>
+            <xs:element ref="day"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="event">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="code"/>
+                <xs:any minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="code" type="xs:integer"/>
+    <xs:element name="id" type="xs:integer"/>
+    <xs:element name="month" type="xs:integer"/>
+    <xs:element name="day" type="xs:integer"/>
+    <xs:complexType name="fixed-occurrence">
+        <xs:sequence>
+            <xs:sequence minOccurs="0">
+                <xs:element ref="day"/>
+                <xs:element ref="month"/>
+                <xs:element ref="year"/>
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="year" type="xs:integer"/>
+</xs:schema>

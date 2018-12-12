@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+a.ports:link    {color:#0073cf; text-decoration:none}
+a.ports:visited {color:#002244; text-decoration:none}
+a.ports:hover   {color:#949d9e; text-decoration:underline}
+a.ports:active  {color:#FF5800; text-decoration:underline}
+.server-details
+{
+    background-color: #0073cf; /* Elster ocean blue */
+    color: white;
+    opacity: 1;
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+.logviewer
+{
+    border-color: #EFEFEF;
+    border-width: 1px;
+    border-style: solid;
+    white-space: nowrap;
+}
+.logmessage
+{
+    color: #949d9e; /* Elster steel grey */
+}
+.logmessage:hover
+{
+    color: #0073cf; /* Elster ocean blue */
+}
+.logmessage-error
+{
+    color: #FF5800;
+}
+.logrecord-date
+{
+    background-color: #949d9e; /* Elster steel grey */
+    color: white;
+}
+.bytes-read-write
+{
+    font-family: "Courier New", Courier, monospace;
+}

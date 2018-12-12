@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.license.impl
+Export-Package: com.elster.jupiter.license,com.elster.jupiter.license.security
