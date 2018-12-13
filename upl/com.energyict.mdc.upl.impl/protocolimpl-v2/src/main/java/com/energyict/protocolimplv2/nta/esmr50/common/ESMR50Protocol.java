@@ -251,22 +251,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;
+        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    //    @Override
-//    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-//        for(LogBookReader reader : logBooks){
-//            int i = 0;
-//            getLogger().info("Reading " + reader.getLogBookObisCode() );
-//        }
-//        return Collections.emptyList();
-//    }
+
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
         return getEsmr50LogBookFactory().getLogBookData(logBookReaders);
@@ -295,7 +288,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return registerFactory;
     }
 
-
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return new ArrayList<>();
@@ -319,6 +311,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
+    }
+
+   //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
+    /**
+     * E-meter has address 0. Subclasses can override to add MBus address functionality.
+     */
+    @Override
+    public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
+        return 0;
     }
 }
 
