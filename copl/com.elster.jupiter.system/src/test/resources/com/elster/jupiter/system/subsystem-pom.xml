@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<project>
+    <properties>
+        <version.a>1.2.5</version.a>
+        <version.b>5.2.1</version.b>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>groupId</groupId>
+                <artifactId>artifactId</artifactId>
+                <version>pom</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>artifactIdWithVersion</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>artifactIdWithVersionProp</artifactId>
+                <version>${version.a}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>groupId</groupId>
+            <artifactId>artifactId</artifactId>
+            <version>pom</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>artifactId</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>artifactIdWithVersion</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>artifactIdWithVersionProp</artifactId>
+        </dependency>
+    </dependencies>
+</project>

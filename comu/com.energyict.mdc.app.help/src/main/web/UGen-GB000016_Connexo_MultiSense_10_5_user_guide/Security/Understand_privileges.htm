@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Understand privileges</title>
+
+    <link rel="stylesheet" href="Security.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "8.0_4";
+    </script>
+    <meta name="brsprev" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Security/Manage_security_accessors.htm">
+    <meta name="brsnext" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Security/View_security_accessors_in_Connexo.htm">
+    <meta name="topic-breadcrumbs" content="Security"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><span class="FM_change_bar"><a name="XREF_51214_Understand"></a>Understand privileges</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">In <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE" data-format="SystemAdmin_App">Connexo Admin</span>&#160;the system administrator adds privileges to different user roles. These define what a user is allowed to do within the different parts of the applications. These privileges are further divided in levels. With these levels you can group user roles. For example, level one can be used for people working with electricity meters while level two is used for people working with gas meters.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">In <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>&#160;you can link these privileges to the security settings on the device type. This will define what different users can do on a device. The following scenarios are possible:</span>
+    </p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar"> No privileges:</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">A user that has no privileges will not see the different security attributes.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">All action buttons are disabled.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Only view privileges:</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">The names of the different security attributes are shown. Values are encrypted and shown as ********, if the value is not empty.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">All action buttons are disabled.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Only edit privileges:</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">The names of the different security attributes are shown. Values are encrypted and shown as ********, if the value is not empty.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">All action buttons are enabled and it is possible to edit values.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">View and edit privileges:</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">The names of the different security attributes are shown. Values are encrypted and shown as ********, if the value is not empty.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">All action buttons are enabled and it is possible to edit values and show or hide the value.</span></p>
+</div>
+</body>
+</html>

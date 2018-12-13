@@ -1,0 +1,9 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.masterdata.impl,\
+	com.energyict.mdc.masterdata.impl.finders
+Export-Package:  \
+	com.energyict.mdc.masterdata,\
+	com.energyict.mdc.masterdata.exceptions,\
+	com.energyict.mdc.masterdata.security

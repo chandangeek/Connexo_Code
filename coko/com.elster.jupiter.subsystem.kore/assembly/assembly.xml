@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>release</id>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <dependencySets>
+        <dependencySet>
+            <includes>
+            <!-- External dependencies. -->
+                <include>com.elster.jupiter.subsystem:platform:zip</include>
+            </includes>
+            <scope>provided</scope>
+
+            <unpack>true</unpack>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>bundles</outputDirectory>
+            <includes>
+                <include>com.elster.jupiter:*</include>
+				<include>com.elster.jupiter.subsystem:kore</include>
+            </includes>
+            <excludes>
+                <exclude>com.elster.jupiter:drools-integration:pom</exclude>
+            </excludes>
+            <scope>provided</scope>
+            <unpack>false</unpack>
+            <outputFileNameMapping>
+                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
+            </outputFileNameMapping>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
+            <useProjectArtifact>true</useProjectArtifact>
+        </dependencySet>
+
+    </dependencySets>
+</assembly>

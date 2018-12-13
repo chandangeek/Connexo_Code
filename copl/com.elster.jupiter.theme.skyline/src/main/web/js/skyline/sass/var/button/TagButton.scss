@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+// colors
+$button-tag-background-color: $color-grey-9 !default;
+$button-tag-color: $color-grey !default;
+$button-tag-background-color-pressed: $color-grey-8 !default;
+$button-tag-background-color-over: $color-grey-10 !default;
+
+//Icons
+$button-tag-close-icon-default: url("images/button/ico_tagClose.png") !default;
+$button-tag-close-icon-over: url("images/button/ico_tagClose_hover.png") !default;
+
+$button-tag-close-icon-size: 16px !default;
+$button-tag-close-icon-top: 1px !default;
+$button-tag-close-icon-right: 10px !default;
+
+$btn-tag-icon-hpadding: 10px !default;
+
+// Paddings
+$btn-tag-text-left-padding: $button-small-icon-size + $btn-tag-icon-hpadding !default;
+$btn-tag-text-right-padding: $button-tag-close-icon-size + $btn-tag-icon-hpadding * 2 !default;
+$btn-tag-text-padding: 0 $btn-tag-text-right-padding 0 $btn-tag-text-left-padding !default;
+$btn-tag-text-noicon-padding: 0 $btn-tag-text-right-padding 0 10px !default;

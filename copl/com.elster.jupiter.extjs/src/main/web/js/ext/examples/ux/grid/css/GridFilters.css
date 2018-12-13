@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
+ * GridFilters Styles
+ */
+
+.ux-filtered-column {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.ux-gridfilter-text-icon {
+    background-image: url(../images/find.png) !important;
+}

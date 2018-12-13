@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.prepayment.export.redknee.impl
+Export-Package: com.elster.jupiter.prepayment.export.redknee
+

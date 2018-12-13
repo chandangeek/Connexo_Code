@@ -1,0 +1,8 @@
+This file contains some examples based on gogo commands that should work taking into account our runtime environment (adjacent json file).
+Of course these commands need to be changed based on each individual environment (paths)!
+
+#############################
+Print HSM bundle configuration
+#############################
+hsmConfigPrint
+

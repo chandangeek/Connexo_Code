@@ -1,0 +1,7 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.pluggable.rest.impl,\
+	com.energyict.mdc.pluggable.rest.impl.properties
+Export-Package:  \
+	com.energyict.mdc.pluggable.rest

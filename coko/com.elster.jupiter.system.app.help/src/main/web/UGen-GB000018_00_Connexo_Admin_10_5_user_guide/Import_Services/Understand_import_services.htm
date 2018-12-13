@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Understand import services</title>
+
+    <link rel="stylesheet" href="Import_Services.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "7.0_2";
+    </script>
+    <meta name="brsprev" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Import_Services/Import_Services.htm">
+    <meta name="brsnext" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Import_Services/Monitor_import_services.htm">
+    <meta name="topic-breadcrumbs" content="Import Services"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section"><a name="XREF_45529_4_2_Import_services"></a>Understand import services</p>
+    <p dir="ltr" class="FM_H4Topic">Understand import services</p>
+    <p dir="ltr" class="FM_Body">Import services are configured in <span data-name="SystemAdmin_App" data-val="Admin" data-showval="TRUE" data-format="SystemAdmin_App">Admin</span>&#160;and used in
+        the other Connexo applications. When creating new import services Connexo offers different default file importers that allow the import of different types of data to perform different actions.
+        During configuration you need to specify the location of the files that need to be imported. Next to the import folder you will also specify the folder for in progress files and files of
+        successful and failed imports. All this information is also visible in the applications using the import services when you look at the import service details.</p>
+    <p dir="ltr" class="FM_Body">The import service will take the file that needs to be imported and move it to the In progress folder and subsequently put it on the queue. The actual import is
+        handled by a message service. This means that for import to be successful import service as well as message service need to be configured and added to the application server.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_22183_Default_file"></a>Default file importers</p>
+    <p dir="ltr" class="FM_Body">Connexo offers different standard importers that are available by default upon installation of Connexo. These standard importers are marked by the tag [STD]. These
+        importers are described in the <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;and <span data-name="MDM_App" data-val="Insight"
+                                                                                                                                                                  data-showval="TRUE"
+                                                                                                                                                                  data-format="MDM_App">Insight</span>&#160;user
+        guides together with the description and an example of CSV files needed for import. The table below shows where to find more information on these importers.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Importers</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Where to find information</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Calendar importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="SystemAdmin_App" data-val="Admin" data-showval="TRUE" data-format="SystemAdmin_App">Admin</span>&#160;user guide: <a
+                            href="../Calendars/Create_time_of_use_calendar.htm#XREF_33997_Import_time_of_use"><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Import time of use calendar</span><span
+                            class="FM_blue_crossreference">”</span></a>.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">CSR importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Admin user guide: See </span><a href="../Security/Manage_certificates.htm#XREF_85628_Use_the_CSR"><span
+                            class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_change_bar">Use the CSR importer</span><span
+                            class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">. </span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Device connection attributes importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 3 Device
+                        configuration &gt; Configure devices &gt; Device attributes.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Device security attributes importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 3 Device
+                        configuration &gt; Configure devices &gt; Device attributes.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices activation / deactivation importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices commissioning importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices decommissioning importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices installation importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices remove importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices shipment importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 10 Device life
+                        cycle management &gt;&#160;Transition devices &gt; Manage transitions in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices readings importer [STD]</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;user guide: Chapter 14 Edit data
+                        &gt;&#160;Add data &gt; Add data in bulk.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body">Imports without the [STD] label are custom imports. For more information on these importers please contact your system administrator.</p>
+</div>
+</body>
+</html>

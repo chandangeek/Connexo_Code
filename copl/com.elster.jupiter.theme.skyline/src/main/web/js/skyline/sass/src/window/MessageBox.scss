@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}message-box {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        font-weight: $window-header-font-weight;
+        line-height: 32px;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+$include-ie: false;
+
+// Default.
+@include extjs-window-ui(
+$ui: 'default',
+$ui-padding: 0 24px 16px 16px,
+$ui-border-color: transparent,
+$ui-border-width: 1px,
+$ui-border-radius: 3px,
+$ui-header-color: #70bb51,
+$ui-header-background-color: transparent,
+$ui-header-padding: 0 8px 0 0,
+$ui-header-text-padding: 6px 0 0 0,
+$ui-body-background-color: transparent,
+$ui-body-color: #686868,
+$ui-background-color: #ffffff
+);
+
+// Notification.
+@include extjs-window-ui(
+$ui: 'notification',
+$ui-padding: 16px,
+$ui-border-color: $color-white,
+$ui-border-width: 1px,
+$ui-header-color: $color-grey,
+$ui-header-background-color: transparent,
+$ui-header-padding: 16px 16px -16px 16px,
+$ui-header-text-padding: 8px,
+$ui-body-background-color: transparent,
+$ui-body-color: $color-grey,
+$ui-background-color: transparentize($color-grey-5, 0.5)
+);
+
+// Error.
+@include extjs-window-ui(
+$ui: 'notification-error',
+$ui-padding: 16px 24px,
+$ui-border-color: $color-red,
+$ui-border-width: 1px,
+$ui-border-radius: 8px,
+$ui-header-color: $color-red,
+$ui-header-background-color: transparent,
+$ui-header-padding: 6px 6px -6px,
+$ui-body-background-color: transparent,
+$ui-body-color: $color-grey,
+$ui-background-color: transparentize(mix($color-red, $color-white, 25%), 0.5)
+);
+
+.#{$prefix}window-notification-error {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        color: $color-red;
+      }
+    }
+  }
+}
+
+// Success.
+@include extjs-window-ui(
+$ui: 'notification-success',
+$ui-padding: 16px 24px,
+$ui-border-color: $color-green,
+$ui-border-width: 1px,
+$ui-border-radius: 8px,
+$ui-header-color: $color-green,
+$ui-header-background-color: transparent,
+$ui-header-padding: 6px 6px -6px,
+$ui-body-background-color: transparent,
+$ui-body-color: $color-grey,
+$ui-background-color: transparentize(mix($color-green, $color-white, 25%), 0.5)
+);
+
+.#{$prefix}window-notification-success {
+  .#{$prefix}window-body {
+    .#{$prefix}header {
+      .#{$prefix}header-text {
+        color: $color-green;
+      }
+    }
+  }
+}
+
+// Error message.
+@include extjs-window-ui(
+$ui: 'message-error',
+$ui-padding: 0 24px 16px 16px,
+$ui-border-color: #eb5642,
+$ui-border-width: 1px,
+$ui-border-radius: 10px,
+$ui-header-color: #eb5642,
+$ui-header-background-color: transparent,
+$ui-header-padding: 0 8px 0 0,
+$ui-header-text-padding: 0,
+$ui-body-background-color: transparent,
+$ui-body-color: #eb5642,
+$ui-background-color: rgba(255, 235, 227, 0.90)
+);
+
+.#{$prefix}window-message-error {
+  .#{$prefix}message-box-error {
+    background-position: 12px 4px;
+  }
+}
+
+.x-dlg-icon {
+  font-size: 34px;
+}
+
+@import 'Acknowledgement';
+@import 'Confirmation';

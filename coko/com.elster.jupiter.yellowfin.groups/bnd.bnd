@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.yellowfin.groups.impl
+Export-Package: com.elster.jupiter.yellowfin.groups

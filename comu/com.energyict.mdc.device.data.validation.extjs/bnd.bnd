@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.device.data.validation.extjs
+Export-Package= !com.energyict.mdc.device.data.validation.extjs
+-include: -../development.bnd

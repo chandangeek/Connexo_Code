@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+// Toolbar button colors
+$button-toolbar-background-color: #a0a0a0 !default;
+$button-toolbar-color: #ffffff !default;
+$button-toolbar-background-color-pressed: #8ec5dc !default;
+$button-toolbar-background-color-over: #5897b3 !default;
+$button-toolbar-background-color-focus: $button-toolbar-background-color !default;
+
+// Toolbar button gradient
+$button-toolbar-background-gradient: 'none' !default;
+$button-toolbar-background-gradient-disabled: $button-default-background-gradient !default;
+$button-toolbar-background-gradient-over: $button-default-background-gradient !default;
+$button-toolbar-background-gradient-pressed: $button-default-background-gradient !default;
+

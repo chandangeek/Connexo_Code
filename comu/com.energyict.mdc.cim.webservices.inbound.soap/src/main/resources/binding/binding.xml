@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<jaxws:bindings
+        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+    <!-- Disable default wrapper style -->
+    <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
+    <jxb:globalBindings typesafeEnumBase="xs:string"/>
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema">
+        <jxb:globalBindings>
+            <jxb:javaType
+                    name="java.time.Instant"
+                    xmlType="xs:dateTime"
+                    parseMethod="com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter.unmarshal"
+                    printMethod="com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter.marshalDateTime"/>
+            <jxb:javaType
+                    name="java.time.Instant"
+                    xmlType="xs:date"
+                    parseMethod="com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter.unmarshal"
+                    printMethod="com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter.marshalDate"/>
+        </jxb:globalBindings>
+    </jaxws:bindings>
+</jaxws:bindings>

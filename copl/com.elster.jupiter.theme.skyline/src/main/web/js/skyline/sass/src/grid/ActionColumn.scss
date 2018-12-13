@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.uni-actioncolumn-gear {
+    width: 0;
+    height: 0;
+
+    padding: {
+        top: 17px;
+        right: 17px;
+    }
+
+    background-repeat: no-repeat;
+    background-image: url('images/grid/masterActions.png');
+
+    margin: {
+        left: 12px;
+    }
+
+    .#{$prefix}grid-row-selected &,
+    .#{$prefix}grid-row-focused &,
+    .#{$prefix}grid-row-over & {
+        background-image: url('images/grid/masterActionsHighlight.png');
+    }
+
+  &.#{$prefix}item-disabled {
+    cursor: default !important;
+  }
+}

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Extjs
+Bundle-SymbolicName: com.elster.jupiter.extjs
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: com.elster.jupiter.extjs.Activator
+Import-Package: com.elster.jupiter.http.whiteboard,
+ org.osgi.framework;version="1.7.0"

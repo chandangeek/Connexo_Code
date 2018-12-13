@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>platform</artifactId>
+        <version>1.5.5${revision}</version>
+        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>loaderjs</artifactId>
+    <version>1.5.1${revision}</version>
+    <packaging>bundle</packaging>
+    <name>[Jupiter] com.elster.jupiter.loaderjs</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sencha-build</id>
+            <properties>
+                <js.dir>js/ldr</js.dir>
+                <package.name>com.elster.jupiter.loaderjs</package.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>sencha-dev</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>add-precompiled-js</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <!-- add precompiled javascript to the jar -->
+                                        <resource>
+                                            <directory>src/main/web/js/ldr/build</directory>
+                                            <targetPath>js/ldr</targetPath>
+                                            <includes>
+                                                <include>*.js</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+</project>

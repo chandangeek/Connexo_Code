@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>platform</artifactId>
+        <version>1.5.5${revision}</version>
+        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>login.app</artifactId>
+    <packaging>bundle</packaging>
+    <version>1.5.1${revision}</version>
+    <name>[Jupiter] com.elster.jupiter.login.app</name>
+    <description>
+        Contains ExtJS code for the login
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>theme.skyline</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sencha-build</id>
+            <properties>
+                <js.dir>js/login</js.dir>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

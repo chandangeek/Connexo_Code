@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}grid-row-editor {
+    position: absolute;
+    overflow: visible;
+    z-index: 1;
+}
+
+.#{$prefix}grid-row-editor-buttons {
+    position: absolute;
+    white-space: nowrap;
+}

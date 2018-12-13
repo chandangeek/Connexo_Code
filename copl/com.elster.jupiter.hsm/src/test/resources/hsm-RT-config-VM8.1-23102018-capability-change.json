@@ -1,0 +1,553 @@
+{
+  "creationInfo": "UUID: e11034d4-c445-40b5-9160-c2ab222c20a0 , exported on host: DEITVS034/158.138.233.150, filename: hsm-RT-config-VM8.1-23102018-capability-change.json",
+  "version": 154,
+  "rawHsms": [
+    {
+      "id": 292,
+      "name": "Salzburg-Sibelga-8.1",
+      "type": "ASM8.1a",
+      "description": "",
+      "host": "158.138.233.184",
+      "port": 9000,
+      "moduleId": 0,
+      "secure": false,
+      "state": {
+        "stateValue": 1
+      },
+      "protocol": "KS"
+    },
+    {
+      "id": 293,
+      "name": "WHI-ASM908",
+      "type": "ASM7.7a",
+      "description": "",
+      "host": "158.138.240.75",
+      "port": 9000,
+      "moduleId": 0,
+      "secure": false,
+      "state": {
+        "stateValue": 1
+      },
+      "protocol": "KS"
+    }
+  ],
+  "rawLabels": [
+    {
+      "id": 2,
+      "name": "vm-cosem-ka-s1-1",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "COSEM_SS1_KAG_01",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "vm-cosem-ka-s1-2",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "COSEM_SS1_KAG_02",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "vm-cosem-sign-s1-1",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "COSEM_SS1_SIG_01",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "vm-cosem-sign-s1-2",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "COSEM_SS1_SIG_02",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "ENXS-KEY-P1",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "DB KEY AUTH  000",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "ENXS-KEY-P2",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "DB-KEY-P2",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "EVN-FMI-PEM01",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "FMI_PEM0000001",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "EVN-FMI-PEM02",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "FMI_PEM0000002",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "GKEK_BASE",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 11,
+      "name": "GKEK_CONFIGURATION",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 12,
+      "name": "GKEK_DEVICE",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 13,
+      "name": "GKEK_ICC",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 14,
+      "name": "GKEK_SECRET",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 15,
+      "name": "GKEK_STORAGE",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 16,
+      "name": "GKEK_TOKEN",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 17,
+      "name": "GKEK_TRANSFER",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 18,
+      "name": "ENXS-KEK DB-Keys AuthEnc/Dec",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 19,
+      "name": "ENXS-KEK-DB-KEY-P2",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 20,
+      "name": "ENXS-KEK-SF",
+      "kek": true,
+      "mappings": []
+    },
+    {
+      "id": 21,
+      "name": "IMP-DC-KEK",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-DC-KEK",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "IMP-SM-KEK",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SM-KEK",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "IMP-SM-WK",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SM-WK",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "IMP-SM-WK-DC",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SMDC",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "IMP-SM-WK-P0",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SMP0",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "P-IMP-SMP1",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SMP1",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "imp-ssh",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "P-IMP-SSH",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Cosem-Cmd-Signing",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "PRV_SIG_ECC_476",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "SIG-SM-CMD",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "PRV_SIG_ECC_PRV",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "energy_ca_certificate_rootca_cert",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "ROOTCA_CERT",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "S-DB",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "S-DB",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "S-SSH",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "S-SSH",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "ENXS-SF-KEK-EICT",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "SF-IMP-KEK-EICT",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "ENXS-SF-KEK-ENEX",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "SF-IMP-KEK-ENEX",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "name": "ENXS-SF-WK-EICT",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "SF-IMP-WK_-EICT",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "name": "ENXS-SF-WK-ENEX",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "SF-IMP-WK_-ENEX",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "name": "dlms tls hes-dc11",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_20",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "dlms tls hes-dc12",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_21",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "dlms tls hes-dc13",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_22",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "dlms tls hes-dc14",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_23",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "dlms tls hes-dc15",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_24",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "name": "dlms tls hes-dc16",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_25",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "dlms tls hes-dc17",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_26",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "name": "dlms tls hes-dc18",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_27",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "name": "dlms tls hes-dc19",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_28",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "name": "dlms tls hes-dc20",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TEST_TLS_P256_29",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "name": "TK-CS-NEW",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TK-CS-NEW",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "name": "TK-P1-NEW",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "TK-P1-NEW",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "name": "fw-archiv-sig-key",
+      "kek": false,
+      "mappings": [
+        {
+          "hsmId": 292,
+          "keyAddress": "T_PRV_FW_SIG_01",
+          "enabled": true
+        }
+      ]
+    }
+  ],
+  "rawFunctionTimeouts": [
+    {
+      "functionName": "default_function_timeout",
+      "timeoutMillis": 500
+    }
+  ],
+  "rawRoutingEngineRules": []
+}

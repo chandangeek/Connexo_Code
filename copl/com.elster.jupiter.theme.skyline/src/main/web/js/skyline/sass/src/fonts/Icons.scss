@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.communication-tasks-status {
+  [class^="icon-"], [class*=" icon-"] {
+    margin: 10px 5px 10px 10px;
+  }
+  .icon-checkmark {
+    color: #41aa4c;
+  }
+  .icon-close {
+    color: #b05044;
+  }
+  .icon-stop2 {
+    color: #a9a9a9;
+  }
+}
+
+.firmware-campaign-status {
+  [class^="icon-"], [class*=" icon-"] {
+    margin: 0 3px 0 0;
+    display: inline-block;
+    height: 13px;
+    vertical-align: top;
+  }
+  .icon-checkmark-circle {
+    color: #41aa4c;
+  }
+  .icon-cancel-circle,
+  .icon-notification {
+    color: #b05044;
+  }
+  .icon-spinner3,
+  .icon-forward2,
+  .icon-blocked {
+    color: #a9a9a9;
+  }
+}
+
+.white-circle-grid-header {
+  background:white;
+  border-radius: 20px;
+  padding: 4px;
+  font-size: 11px;
+}
+
+.white-circle-filter-btn {
+  background:white;
+  border-radius: 20px;
+  padding: 3px;
+  font-size: 9px;
+  margin-left: 4px;
+  position: relative;
+  bottom: 1px;
+}
+
+.stacked-icon-container {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin-right: 10px;
+}
+
+.stacked-icon {
+  font-size: 17px;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.stacked-text {
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 18px;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}

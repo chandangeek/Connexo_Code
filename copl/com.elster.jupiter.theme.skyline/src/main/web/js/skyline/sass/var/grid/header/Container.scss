@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+$grid-header-background-color: $base-color !default;
+$grid-header-background-gradient: 'none' !default;
+$grid-header-border-color: #333 !default;
+$grid-header-border-width: 0px !default;
+$grid-header-border-style: none !default;
+$grid-header-border-radius: 10px !default;
+
+$grid-header-over-background-color: $base-color !default;
+$grid-header-over-background-gradient: 'none' !default;
+$grid-header-open-background-color: transparent !default;
+
+$grid-header-padding: 8px 16px !default;
+$grid-header-trigger-height: 22px !default;
+$grid-header-trigger-width: 16px !default;
+$grid-header-sort-icon-width: 9px !default;
+$grid-header-trigger-cursor: pointer !default;
+$grid-header-trigger-spacing: 1px !default;
+
+$grid-header-trigger-background-position: 0 center !default;
+$grid-header-trigger-background-color: transparent !default;
+$grid-header-trigger-background-color-open: transparent !default;
+
+$grid-header-sort-icon-spacing: 3px !default;
+$grid-header-sort-icon-position: right center !default;

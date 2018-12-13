@@ -1,0 +1,11 @@
+target/
+.classpath
+.project
+.settings/org.eclipse.jdt.core.prefs
+generated/.index
+generated/buildfiles
+generated/
+/bin
+.gitignore
+
+

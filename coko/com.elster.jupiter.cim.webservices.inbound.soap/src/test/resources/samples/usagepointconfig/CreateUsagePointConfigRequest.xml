@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:usag="http://iec.ch/TC57/2011/UsagePointConfigMessage" xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:usag1="http://iec.ch/TC57/2011/UsagePointConfig#" xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <usag:CreateUsagePointConfig>
+            <usag:Header>
+                <mes:Verb>create</mes:Verb>
+                <mes:Noun>UsagePointConfig</mes:Noun>
+                <mes:Timestamp>2017-07-07T15:15:00+03:00</mes:Timestamp>
+                <!--You may enter ANY elements at this point-->
+            </usag:Header>
+            <usag:Payload>
+                <usag1:UsagePointConfig>
+                    <!-- Required -->
+                    <usag1:UsagePoint>
+                        <!-- Ignored since there's no API to create a usage point with a given MRID -->
+                        <usag1:mRID>00000000-0000-0000-0000-0000000000ff</usag1:mRID>
+                        <!-- Optional -->
+                        <usag1:connectionState>physicallyDisconnected</usag1:connectionState>
+                        <!-- Required -->
+                        <usag1:isSdp>true</usag1:isSdp>
+                        <!-- Required -->
+                        <usag1:isVirtual>false</usag1:isVirtual>
+                        <!-- Optional -->
+                        <!-- Ignored if ServiceCategory is not electricity -->
+                        <usag1:phaseCode>s1</usag1:phaseCode>
+                        <!-- Optional -->
+                        <usag1:ConfigurationEvents>
+                            <!-- Optional -->
+                            <!-- No createdDateTime => timestamp of the request is used -->
+                            <!-- No Timestamp => current time is used -->
+                            <usag1:createdDateTime>2017-07-07T11:11:00+03:00</usag1:createdDateTime>
+                        </usag1:ConfigurationEvents>
+                        <!-- Optional -->
+                        <usag1:MetrologyRequirements>
+                            <!-- Required -->
+                            <usag1:Names>
+                                <usag1:name>Residential net metering (consumption)</usag1:name>
+                            </usag1:Names>
+                            <!-- Ignored -->
+                            <usag1:ReadingTypes/>
+                        </usag1:MetrologyRequirements>
+                        <!-- Required -->
+                        <usag1:Names>
+                            <usag1:name>K@#Ø%!</usag1:name>
+                        </usag1:Names>
+                        <!-- Required -->
+                        <usag1:ServiceCategory>
+                            <usag1:kind>electricity</usag1:kind>
+                        </usag1:ServiceCategory>
+                        <!--You may enter ANY elements at this point-->
+                    </usag1:UsagePoint>
+                </usag1:UsagePointConfig>
+            </usag:Payload>
+        </usag:CreateUsagePointConfig>
+    </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,17 @@
+External reference;Type;Version;Origin;Status;Custom attributes;Parent;Object
+ID111111;DisconnectRequest;1.0;CustomerA;success;DR:Customer Move-Out:3:1524753191000;;SUPE01000001
+ID123456;DisconnectGroupRequest;1.0;CustomerA;ongoing;;;;
+ID123456;DisconnectRequest;2.0;CustomerA;pending;DR:Customer Move-Out:1:1524753191000;2;SUPE01000001
+ID123456;DisconnectRequest;2.0;CustomerA;ongoing;DR:Customer Move-Out:4:1524753191000;2;SUPE01000002
+ID123456;DisconnectRequest;2.0;CustomerA;failed;DR:Customer Move-Out:2:1524753191000;2;SUPE01000003
+CUST546;BillingDataRequest;1.0;;scheduled;;;;
+;CIMEndDeviceConfig;3.0;CustomerB;paused;;;SPE01000001
+20160415;PushMeterReadings;1.1;Connexo;ongoing;;;;
+20160415;PushMeterReadings;1.1;Connexo;success;;8;SPE01000111
+20160415;PushMeterReadings;1.1;Connexo;ongoing;;8;SPE01000112
+20160415;PushMeterReadings;1.1;Connexo;pending;;8;SPE01000113
+20160415;PushMeterReadings;1.1;Connexo;pending;;8;SPE01000114
+SYS15984;CIMUsagePointConfig;1.2;CustomerC;partialsuccess;;;SUPE01000004
+SYS98756;CIMGetCustomerConfig;2.1;CustomerC;created;;;;
+NET65478;PushEvents;1.5;Connexo;success;;;SPE01000004
+EXT57896;GetMeterReadings;1.7;CustomerD;pending;BC:Monthly billing, ToU;;SPE01000005

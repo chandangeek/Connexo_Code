@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.servicecall.impl,com.elster.jupiter.servicecall.impl.example,com.elster.jupiter.servicecall.impl.gogo
+Export-Package: com.elster.jupiter.servicecall, com.elster.jupiter.servicecall.security
+

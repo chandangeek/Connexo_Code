@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.energyict.mdc.issue.datacollection.impl.*, com.energyict.mdc.issue.datacollection.event
+Export-Package: com.energyict.mdc.issue.datacollection, com.energyict.mdc.issue.datacollection.entity

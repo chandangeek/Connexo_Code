@@ -1,0 +1,93 @@
+{"total": 2,
+    "data": [
+        {
+            "id": 3001,
+            "name": "test",
+            "authenticationLevelId": 0,
+            "encryptionLevelId": 2,
+            "authenticationLevel": {
+                "id": 0,
+                "name": "No authentication"
+            },
+            "encryptionLevel": {
+                "id": 2,
+                "name": "Message encryption"
+            },
+            "executionLevels": [
+                {
+                    "id": 1,
+                    "name": "Edit device security settings (level1)",
+                    "userRoles": [
+                        {
+                            "id": 1,
+                            "name": "Administrator"
+                        },
+                        {
+                            "id": 2,
+                            "name": "Operator"
+                        },
+                        {
+                            "id": 3,
+                            "name": "PowerUser"
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Edit device security settings (level4)",
+                    "userRoles": [
+                        {
+                            "id": 1,
+                            "name": "Administrator"
+                        }
+                    ]
+                }
+
+            ]
+        },
+        {
+            "id": 3002,
+            "name": "test 2",
+            "authenticationLevelId": 0,
+            "encryptionLevelId": 2,
+            "authenticationLevel": {
+                "id": 0,
+                "name": "No authentication"
+            },
+            "encryptionLevel": {
+                "id": 2,
+                "name": "Message encryption"
+            },
+            "executionLevels": [
+                {
+                    "id": 1,
+                    "name": "Edit device security settings (level1)",
+                    "userRoles": [
+                        {
+                            "id": 1,
+                            "name": "Administrator"
+                        },
+                        {
+                            "id": 2,
+                            "name": "Operator"
+                        },
+                        {
+                            "id": 3,
+                            "name": "PowerUser"
+                        }
+                    ]
+                },
+                {
+                    "id": 1,
+                    "name": "Edit device security settings (level4)",
+                    "userRoles": [
+                        {
+                            "id": 1,
+                            "name": "Administrator"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]}
+

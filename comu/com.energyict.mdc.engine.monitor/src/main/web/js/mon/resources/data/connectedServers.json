@@ -1,0 +1,17 @@
+{
+    "success": true,
+    "servers": [
+        { "name": "Remote server Abc", "active": true, "lastSeen": "20/10/2013 09:00:05" },
+        { "name": "Remote server Def", "active": false, "lastSeen": "01/11/2013 09:00:05" },
+        { "name": "Remote server Ghi", "active": false, "lastSeen": "02/11/2013 10:02:05" },
+        { "name": "Remote server Jkl", "active": true, "lastSeen": "03/11/2013 09:00:05" },
+        { "name": "Remote server Mno", "active": false, "lastSeen": "04/11/2013 09:00:05" },
+        { "name": "Remote server Pqr", "active": true, "lastSeen": "05/11/2013 09:00:05" },
+        { "name": "Remote server Stu", "active": true, "lastSeen": "06/11/2013 09:00:05" },
+        { "name": "Remote server yyE", "active": false, "lastSeen": "07/10/2013 09:00:05" },
+        { "name": "Remote server zzF", "active": true, "lastSeen": "08/11/2013 09:00:05" },
+        { "name": "Remote server kkG", "active": false, "lastSeen": "09/11/2013 09:00:05" },
+        { "name": "Remote server Vwx", "active": true, "lastSeen": "10/11/2013 09:00:05" },
+        { "name": "Remote server Yza", "active": true, "lastSeen": "12/11/2013 09:00:05" }
+    ]
+}

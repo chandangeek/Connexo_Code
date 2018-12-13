@@ -1,0 +1,30 @@
+{
+    "name": "com.energyict.mdc.app",
+
+    "requires": [
+        "com.elster.jupiter.loaderjs",
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.config.extjs",
+        "com.elster.jupiter.issue.extjs",
+        "com.elster.jupiter.time.extjs",
+        "com.energyict.mdc.issue.datacollection.extjs",
+        "com.energyict.mdc.issue.datavalidation.extjs",
+        "com.energyict.mdc.device.alarms.extjs",
+        "com.energyict.comserver.comserver.core.extjs",
+        "com.energyict.mdc.dashboard.extjs",
+        "com.energyict.mdc.device.data.validation.extjs",
+        "com.elster.jupiter.yellowfin.extjs",
+        "com.energyict.mdc.firmware.extjs",
+        "com.energyict.mdc.device.lifecycle.config.extjs",
+        "com.elster.jupiter.export.extjs",
+        "com.elster.jupiter.estimation.extjs",
+        "com.elster.jupiter.fileimport.extjs",
+        "com.elster.jupiter.bpm.extjs",
+        "com.elster.jupiter.systemadmin.extjs",
+        "com.energyict.mdc.bpm.extjs",
+        "com.elster.jupiter.servicecall.extjs",
+        "com.elster.jupiter.appserver.extjs"
+    ],
+
+    "id": "28c552c9-436e-4d93-8f74-038373138820"
+}

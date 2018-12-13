@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@import "Colors";
+@import "Headings";
+
+$color: #000000 !default;
+$font-family: 'Lato', helvetica, arial, verdana, sans-serif !default;
+$header-font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif !default;
+$font-size: 13px !default;
+$label-font-color: #686868 !default;
+
+$base-color: $color-blue-2 !default;
+$base-highlight-color: mix(#fff, $base-color, 15%) !default;
+$base-light-color: mix(#fff, $base-color, 65%) !default;
+$base-dark-color: mix(#000, $base-color, 14%) !default;
+
+$neutral-color: #e1e1e1 !default;
+$neutral-light-color: mix(#fff, $neutral-color, 68%) !default;
+$neutral-dark-color: mix(#000, $neutral-color, 22%) !default;
+
+$error-color: $color-red !default;
+$error-light-color: mix(#fff, $error-color, 20%) !default;
+
+$confirmation-color: $color-green !default;
+$confirmation-light-color: mix(#fff, $confirmation-color, 35%) !default;
+
+$body-background-color: $neutral-light-color !default;
+
+$link-default-background-color: transparent !default;
+$link-default-color: $color-white !default;

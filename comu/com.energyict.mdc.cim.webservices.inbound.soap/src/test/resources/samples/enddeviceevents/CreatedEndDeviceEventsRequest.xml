@@ -1,0 +1,44 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:end="http://iec.ch/TC57/2011/EndDeviceEventsMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:end1="http://iec.ch/TC57/2011/EndDeviceEvents#">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <end:CreatedEndDeviceEvents>
+            <end:Header>
+                <mes:Verb>created</mes:Verb>
+                <mes:Noun>EndDeviceEvents</mes:Noun>
+            </end:Header>
+            <!--Optional:-->
+            <end:Payload>
+                <end1:EndDeviceEvents>
+                    <!--Zero or more repetitions:-->
+                    <end1:EndDeviceEvent>
+                        <!--Optional:-->
+                        <end1:mRID>87486114-dfd4-4409-a300-f01dde8f316a</end1:mRID>
+                        <end1:createdDateTime>2017-12-26T00:00:00+00:00</end1:createdDateTime>
+                        <!--Optional:-->
+                        <end1:issuerID>1</end1:issuerID>
+                        <!--Optional:-->
+                        <end1:issuerTrackingID>1</end1:issuerTrackingID>
+                        <!--Optional:-->
+                        <end1:reason>1</end1:reason>
+                        <!--Optional:-->
+                        <end1:severity>Alarm</end1:severity>
+                        <end1:Assets>
+                            <!--Optional:-->
+                            <end1:mRID>26186114-dfd4-4409-a300-f01dde8f316a</end1:mRID>
+                        </end1:Assets>
+                        <!--Zero or more repetitions:-->
+                        <end1:EndDeviceEventDetails>
+                            <end1:name>data</end1:name>
+                            <!--Optional:-->
+                            <end1:value>1</end1:value>
+                        </end1:EndDeviceEventDetails>
+                        <end1:EndDeviceEventType ref="3.2.22.150"/>
+                    </end1:EndDeviceEvent>
+                </end1:EndDeviceEvents>
+            </end:Payload>
+        </end:CreatedEndDeviceEvents>
+    </soapenv:Body>
+</soapenv:Envelope>

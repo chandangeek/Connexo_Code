@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.uni-window-acknowledgement {
+    background-color: rgba(230, 255, 227, 0.9);
+    border: 1px solid #70bb51;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #70bb51;
+
+    padding: {
+        top: 12px;
+        right: 12px;
+        bottom: 12px;
+        left: 16px;
+    }
+
+    .icon {
+        background-image: url('images/shared/icon-confirm.png');
+        background-repeat: no-repeat;
+        height: 26px;
+        width: 26px;
+    }
+
+    .message {
+        padding: {
+            right: 12px;
+            left: 12px;
+        }
+    }
+
+    .message > .#{$prefix}panel-body {
+        background-color: transparent;
+    }
+
+    .#{$prefix}form-item-label {
+        color: #70bb51;
+    }
+
+    .close {
+        background-image: url('images/shared/icon-close.png');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+}

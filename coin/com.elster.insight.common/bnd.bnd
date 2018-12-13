@@ -1,0 +1,8 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.elster.jupiter.mdm.common.impl
+Export-Package:  \
+	com.elster.jupiter.mdm.common,\
+	com.elster.jupiter.mdm.common.rest,\
+	com.elster.jupiter.mdm.common.services

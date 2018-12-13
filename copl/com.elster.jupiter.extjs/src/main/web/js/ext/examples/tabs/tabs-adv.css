@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.new-tab {
+    background-image:url(images/new_tab.gif) !important;
+}
+
+.tabs {
+    background-image:url(images/tabs.gif ) !important;
+}
+
+.scroll {
+    background-image: url(images/arrow_switch.png) !important;
+}
+
+.list {
+    padding-left: 16px;
+    padding-bottom: 10px;
+}
+
+.list li{
+    list-style: square;
+    padding: 2px;
+}

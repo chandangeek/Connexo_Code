@@ -1,0 +1,7 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.processes.keyrenewal.api.impl,\
+                 com.energyict.mdc.processes.keyrenewal.api.impl.csr,\
+                 com.energyict.mdc.processes.keyrenewal.api.impl.servicecall,\
+                 com.energyict.mdc.processes.keyrenewal.api
+Export-Package:  com.energyict.mdc.processes.keyrenewal

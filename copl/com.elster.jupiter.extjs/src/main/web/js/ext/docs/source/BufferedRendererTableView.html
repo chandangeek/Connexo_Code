@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Ext-grid-plugin-BufferedRendererTableView'>/**
+</span> * @private
+ * A set of overrides required by the presence of the BufferedRenderer plugin.
+ * 
+ * These overrides of Ext.view.Table take into account the affect of a buffered renderer and
+ * divert execution from the default course where necessary.
+ */
+Ext.define('Ext.grid.plugin.BufferedRendererTableView', {
+    override: 'Ext.view.Table',
+
+<span id='Ext-grid-plugin-BufferedRendererTableView-method-onReplace'>    onReplace: function(store, startIndex, oldRecords, newRecords) {
+</span>        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
+
+        // If there's a buffered renderer and the removal range falls inside the current view...
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+            bufferedRenderer.onReplace(store, startIndex, oldRecords, newRecords);
+        } else {
+            me.callParent(arguments);
+        }
+    },
+
+<span id='Ext-grid-plugin-BufferedRendererTableView-method-onAdd'>    // Listener function for the Store's add event
+</span>    onAdd: function(store, records, index) {
+        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
+
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+             bufferedRenderer.onReplace(store, index, [], records);
+        }
+        // No BufferedRenderer present
+        else {
+            me.callParent([store, records, index]);
+        }
+    },
+
+<span id='Ext-grid-plugin-BufferedRendererTableView-method-onRemove'>    onRemove: function(store, records, indices, isMove, removeRange) {
+</span>        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
+
+        // If there's a BufferedRenderer...
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+
+            // If it's a contiguous range, the replace processing can handle it.
+            if (removeRange) {
+                bufferedRenderer.onReplace(store, indices[0], records, []);
+            }
+
+            // Otherwise it's a refresh
+            else {
+                bufferedRenderer.refreshView();
+            }
+        } else {
+            me.callParent([store, records, indices]);
+        }
+    },
+
+<span id='Ext-view-Table-method-onDataRefresh'>    // When there's a buffered renderer present, store refresh events cause TableViews to go to scrollTop:0
+</span>    onDataRefresh: function() {
+        var me = this;
+
+        if (me.bufferedRenderer) {
+            // Clear NodeCache. Do NOT remove nodes from DOM - that would blur the view, and then refresh will not refocus after the refresh.
+            me.all.clear();
+            me.bufferedRenderer.onStoreClear();
+        }
+        me.callParent();
+    }
+});
+</pre>
+</body>
+</html>
