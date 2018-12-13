@@ -18,6 +18,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer64Unsigned;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -130,6 +131,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    public static final int REMOTE_DISCONNECT = 1;
+    public static final int REMOTE_RECONNECT = 2;
 
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
@@ -157,11 +160,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
                 } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
-                    doTimedControlAction(pendingMessage, 1);
+                    doTimedControlAction(pendingMessage, REMOTE_DISCONNECT);
                 } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
                     doConnect();
                 } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
-                    doTimedControlAction(pendingMessage, 2);
+                    doTimedControlAction(pendingMessage, REMOTE_RECONNECT);
                 } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
                     changeControlMode(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
@@ -203,13 +206,15 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                     changeAuthenticationKey(pendingMessage, 2);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
-                    changeHSLSecretUsingServiceKey(pendingMessage);
+                    changeHLSSecretUsingServiceKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
                     changeAuthenticationKeyUsingServiceKey(pendingMessage, 2);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY)) {
                     changeEncryptionKeyUsingServiceKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
                     changePassword(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_LLS_SECRET)) {
+                    changeLLSSecret(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM)) {
                     activateWakeUp();
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP)) {
@@ -233,7 +238,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION)) {
                     clearLoadLimitConfiguration();
                 } else if (pendingMessage.getSpecification().equals(AdvancedTestMessage.XML_CONFIG)) {
-                    xmlConfiguration(pendingMessage);
+                    doXmlConfiguration(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST)) {
                     collectedMessage = partialLoadProfileRequest(pendingMessage);    //This message returns a result
                 } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST)) {
@@ -242,10 +247,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     setTime(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow)) {
                     changeDefaultResetWindow(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus)){
+                    changeAdministrativeStatus(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ALARM_REGISTER_RESET)) {
                     resetAlarmRegister();
+                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ERROR_REGISTER_RESET)) {
+                    resetErrorRegister();
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission_With_Channel)) {
                     mbusCommission(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Reset_MBus_Client)) {
+                    mbusReset(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBusClientRemoteCommission)) {
                     mBusClientRemoteCommissioning(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
@@ -277,7 +288,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         throw new IOException("Received message to write the authentication key, but Cryptoserver usage is not supported in this protocol");
     }
 
-    protected void changeHSLSecretUsingServiceKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void changeHLSSecretUsingServiceKey(OfflineDeviceMessage pendingMessage) throws IOException {
         throw new IOException("Received message to write the password, but Cryptoserver usage is not supported in this protocol");
     }
 
@@ -286,8 +297,18 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(defaultResetWindow));
     }
 
+    private void changeAdministrativeStatus(OfflineDeviceMessage pendingMessage) throws IOException {
+//TODO: COMMUNICATION-2766. where is the functionality from 8.11 implemented in connexo?
+//        int status = messageHandler.getAdministrativeStatus();
+//        getCosemObjectFactory().getData(DSMR40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
+    }
+
     private void resetAlarmRegister() throws IOException {
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+    }
+
+    private void resetErrorRegister() throws IOException {
+        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.97.0.255")).setValueAttr(new Integer64Unsigned(-1L));
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -295,7 +316,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getProtocol().setTime(time);
     }
 
-    private void xmlConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void doXmlConfiguration(OfflineDeviceMessage pendingMessage) throws IOException {
         String xml = getDeviceMessageAttributeValue(pendingMessage, xmlConfigAttributeName);
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xml));
     }
@@ -304,8 +325,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int installChannel = getIntegerAttribute(pendingMessage);
         int primaryAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
         mbusClient.installSlave(primaryAddress);
+    }
+
+    private void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
+        MBusClient mbusClient = getMBusClient(pendingMessage.getDeviceSerialNumber());
+        mbusClient.setIdentificationNumber(new Unsigned32(0));
+        mbusClient.setManufacturerID(new Unsigned16(0));
+        mbusClient.setVersion(0);
+        mbusClient.setDeviceType(0);
     }
 
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -584,7 +613,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void textToP1(OfflineDeviceMessage pendingMessage) throws IOException {
         Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
         dataCode.setValueAttr(OctetString.fromString(getDeviceMessageAttributeValue(pendingMessage, p1InformationAttributeName)));
-
     }
 
     private void changeGPRSSettings(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -625,6 +653,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         PPPSetup.PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
         pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
         if (userName != null) {
+
             pppat.setUserName(userName);
         }
         if (password != null) {
@@ -652,6 +681,19 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
+    private void changeLLSSecret(OfflineDeviceMessage pendingMessage) throws IOException {
+        //TODO: COMMUNICATION-2766. where is the functionality from 8.11 implemented in connexo?
+        if (getProtocol().getDlmsSession().getReference() == ProtocolLink.LN_REFERENCE) {
+            AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+//            aln.writeSecret(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getNEWHLSSecret());
+        } else if (getProtocol().getDlmsSession().getReference() == ProtocolLink.SN_REFERENCE) {
+            AssociationSN asn = getCosemObjectFactory().getAssociationSN();
+            // We just return the byteArray because it is possible that the berEncoded octetString contains
+            // extra check bits ...
+            //asn.changeSecret(newPassword);
+        }
+    }
+
     protected void upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();
@@ -667,12 +709,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String path = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateFileAttributeName);
-
         try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
             ImageTransfer it = getCosemObjectFactory().getImageTransfer();
             it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
             it.imageActivation();
         }
+
     }
 
     protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -825,12 +867,23 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeControlMode(OfflineDeviceMessage pendingMessage) throws IOException {
+        if (!getProtocol().hasBreaker()) {
+            throw new IOException("Cannot write connect mode, breaker is not supported!");
+        }
         int controlMode = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, contactorModeAttributeName));
-        Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
-        connectorMode.writeControlMode(new TypeEnum(controlMode));
+        if ((controlMode >= 0) && (controlMode <= 6)) {
+            Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
+            connectorMode.writeControlMode(new TypeEnum(controlMode));
+        } else {
+            throw new IOException("Mode is not a valid entry, value must be between 0 and 6");
+        }
     }
 
     private void doTimedControlAction(OfflineDeviceMessage pendingMessage, int action) throws IOException {
+        if (!getProtocol().hasBreaker()) {
+            throw new IOException("Cannot execute connect/disconnect message, breaker is not supported!");
+        }
+
         Array executionTimeArray = convertEpochToDateTimeArray(getDeviceMessageAttributeValue(pendingMessage, contactorActivationDateAttributeName));
         SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 
@@ -845,11 +898,17 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void doDisconnect() throws IOException {
+        if (!getProtocol().hasBreaker()) {
+            throw new IOException("Cannot execute connect message, breaker is not supported!");
+        }
         Disconnector disconnector = getCosemObjectFactory().getDisconnector();
         disconnector.remoteDisconnect();
     }
 
     private void doConnect() throws IOException {
+        if (!getProtocol().hasBreaker()) {
+            throw new IOException("Cannot execute disconnect message, breaker is not supported!");
+        }
         Disconnector disconnector = getCosemObjectFactory().getDisconnector();
         disconnector.remoteReconnect();
     }
