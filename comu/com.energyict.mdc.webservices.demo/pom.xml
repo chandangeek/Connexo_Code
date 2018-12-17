@@ -30,52 +30,46 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.webservices</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.wsdl</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
         </dependency>
 
         <!-- test dependencies -->
