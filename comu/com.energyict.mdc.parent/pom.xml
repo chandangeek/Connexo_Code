@@ -462,6 +462,18 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.tou.campaign</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.tou.campaign.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.upl</artifactId>
                 <version>4.0.2${revision}</version>
                 <scope>provided</scope>
@@ -729,6 +741,8 @@
                 <module>../com.energyict.mdc.scheduling.rest</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
+                <module>../com.energyict.mdc.tou.campaign</module>
+                <module>../com.energyict.mdc.tou.campaign.rest</module>
                 <module>../com.energyict.mdc.usagepoint.data.rest</module>
                 <!-- Can we please keep this list organized alphabetically -->
             </modules>
