@@ -13,5 +13,7 @@ public interface ServiceCallLifeCycleBuilder {
 
     ServiceCallLifeCycleBuilder removeTransition(DefaultState from, DefaultState to);
 
+    ServiceCallLifeCycleBuilder addTransition(DefaultState from, DefaultState to);
+
     ServiceCallLifeCycle create();
 }
