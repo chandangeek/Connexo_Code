@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.tou.campaign;
+
+import com.elster.jupiter.orm.associations.Reference;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+
+import aQute.bnd.annotation.ProviderType;
+
+import java.time.Instant;
+import com.elster.jupiter.calendar.Calendar;
+import java.util.List;
+import java.util.Optional;
+
+@ProviderType
+public interface TimeOfUseCampaignService {
+    String COMPONENT_NAME = "TOU";
+
+    List<TimeOfUseCampaign> getAllCampaigns();
+
+    void createToUCampaign(TimeOfUseCampaign timeOfUseCampaign);
+
+    TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup,
+                                           Instant activationStart, Instant activationEnd,
+                                           long calendar, String activationDate, String updateType, long timeValidation);
+
+    Optional<TimeOfUseCampaign> getCampaign(long id);
+
+    Optional<TimeOfUseCampaign> getCampaign(String name);
+
+    Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
+
+    List<DeviceType> getDeviceTypesWithCalendars();
+
+    void retry(String deviceName);
+
+    void cancelDevice(String deviceName);
+
+    void cancelCampaign(String campaign);
+
+    void edit(String name, TimeOfUseCampaign timeOfUseCampaign);
+}
