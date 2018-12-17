@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+  -->
+<jaxws:bindings
+        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+
+    <!-- Disable default wrapper style -->
+    <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
+    <jxb:globalBindings typesafeEnumBase="xs:string"/>
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:types/xs:schema">
+        <jxb:globalBindings>
+            <jxb:javaType
+                    name="java.time.Instant"
+                    xmlType="xs:dateTime"
+                    parseMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.unmarshalDateTime"
+                    printMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.marshalDateTime"/>
+            <jxb:javaType
+                    name="java.time.Instant"
+                    xmlType="xs:date"
+                    parseMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.unmarshalDateTime"
+                    printMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.marshalDate"/>
+            <jxb:javaType
+                    name="java.time.LocalTime"
+                    xmlType="xs:time"
+                    parseMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.unmarshalTime"
+                    printMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.marshalTime"/>
+            <xjc:noValidator/>
+        </jxb:globalBindings>
+    </jaxws:bindings>
+</jaxws:bindings>
