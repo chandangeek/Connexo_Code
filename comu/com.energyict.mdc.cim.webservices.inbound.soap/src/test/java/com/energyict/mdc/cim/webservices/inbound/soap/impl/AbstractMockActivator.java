@@ -7,12 +7,14 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -28,7 +30,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -44,6 +46,7 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -104,6 +107,10 @@ public abstract class AbstractMockActivator {
     @Mock
     protected CustomPropertySetService customPropertySetService;
     @Mock
+    protected HsmEnergyService hsmEnergyService;
+    @Mock
+    protected SecurityManagementService securityManagementService;
+    @Mock
     private ServiceCallType serviceCallType;
     @Mock
     protected WebServicesService webServicesService;
@@ -145,6 +152,8 @@ public abstract class AbstractMockActivator {
         activator.setBatchService(batchService);
         activator.setJsonService(jsonService);
         activator.setCustomPropertySetService(customPropertySetService);
+        activator.setHsmEnergyService(hsmEnergyService);
+        activator.setSecurityManagementService(securityManagementService);
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
         activator.activate(mock(BundleContext.class));

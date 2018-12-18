@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -26,6 +28,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -38,6 +41,8 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -139,6 +144,83 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction).hasSize(1);
         assertThat(responseSimpleEndDeviceFunction.get(0).getMRID()).isEqualTo(DEVICE_CONFIG_ID);
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
+    }
+
+    @Test
+    public void testCreateDeviceWithCpsShouldFailWhenCpsIsNotFound() throws Exception {
+        try {
+            when(customPropertySetService.findActiveCustomPropertySet(NON_VERSIONED_CPS_ID)).thenReturn(Optional.empty());
+            doTestCreateDeviceWithCps();
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET.translate(thesaurus));
+        }
+    }
+
+    @Test
+    public void testCreateDeviceWithCpsShouldFailWhenAttributeIsNotFound() throws Exception {
+        try {
+            mockCustomPropertySetService();
+            doTestCreateDeviceWithCps();
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE.translate(thesaurus));
+        }
+    }
+
+    @Test
+    public void testCreateDeviceWithCpsShouldFailWhenAttributeValueCannotBeConverted() throws Exception {
+        try {
+            mockCustomPropertySetService();
+            mockCustomPropertySetSpecs(false);
+            doTestCreateDeviceWithCps();
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE.translate(thesaurus));
+        }
+    }
+
+    @Test
+    public void testCreateDeviceWithCpsShouldFailWhenValuesCannotBeAssigned() throws Exception {
+        try {
+            mockCustomPropertySetService();
+            mockCustomPropertySetSpecs(true);
+            doThrow(RuntimeException.class).when(customPropertySetService).setValuesFor(eq(customNonVersionedPropertySet), eq(device), any(CustomPropertySetValues.class));
+            doTestCreateDeviceWithCps();
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET.translate(thesaurus));
+        }
+    }
+
+    @Test
+    public void testCreateDeviceWithCpsSuccessfully() throws Exception {
+
+        mockCustomPropertySetService();
+        mockCustomPropertySetSpecs(true);
+        doTestCreateDeviceWithCps();
+    }
+
+    private void doTestCreateDeviceWithCps() throws FaultMessage {
+        // Prepare request
+        MeterConfig meterConfig = new MeterConfig();
+        SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
+        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
+        Meter meter = createDefaultMeter();
+        meter.getMeterCustomAttributeSet().add(createNonVersionedCustomPropertySet());
+        meter.getMeterCustomAttributeSet().add(createVersionedCustomPropertySet());
+        meterConfig.getMeter().add(meter);
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+
+        // Business method
+        MeterConfigResponseMessageType response = getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
+
+        // Assert invocations
+        verify(customPropertySetService).setValuesFor(eq(customNonVersionedPropertySet), eq(device), any(CustomPropertySetValues.class));
+        verify(customPropertySetService).setValuesVersionFor(eq(customVersionedPropertySet), eq(device), any(CustomPropertySetValues.class), any(Range.class));
+
+        // Assert response
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
     @Test

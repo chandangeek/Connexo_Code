@@ -7,10 +7,14 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import com.energyict.mdc.app.MdcAppService;
+
 import javax.inject.Inject;
+
 import java.security.Principal;
 
 public class EndPointHelper {
@@ -22,9 +26,8 @@ public class EndPointHelper {
     private final TransactionService transactionService;
 
     @Inject
-    public EndPointHelper(ThreadPrincipalService threadPrincipalService,
-                          UserService userService,
-                          TransactionService transactionService) {
+    public EndPointHelper(ThreadPrincipalService threadPrincipalService, UserService userService,
+            TransactionService transactionService) {
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.transactionService = transactionService;
@@ -37,8 +40,12 @@ public class EndPointHelper {
         }
         if (!(principal instanceof User)) {
             try (TransactionContext context = transactionService.getContext()) {
-                User user = userService.findUser(DEFAULT_USER_NAME, userService.getRealm())
-                        .orElseGet(() -> userService.createUser(DEFAULT_USER_NAME, DEFAULT_USER_NAME));
+                User user = userService.findUser(DEFAULT_USER_NAME, userService.getRealm()).orElseGet(() -> {
+                    User newUser = userService.createUser(DEFAULT_USER_NAME, DEFAULT_USER_NAME);
+                    Group group = userService.getGroup(MdcAppService.Roles.METER_EXPERT.value()).get();
+                    newUser.join(group);
+                    return newUser;
+                });
                 threadPrincipalService.set(user);
                 context.commit();
             }

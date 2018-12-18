@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -38,6 +39,18 @@ public enum MessageSeeds implements MessageSeed {
     NOT_VALID_STATUS_REASON(1010, "NotValidStatusReason", "''{0}'' is not a valid status reason"),
     UNABLE_TO_CHANGE_DEVICE_STATE(1011, "UnableToChangeDeviceState", "Cannot update the device with ''{0}'' payload state"),
     NOT_VALID_CONFIGURATION_REASON(1012, "NotValidConfigurationReason", "''{0}'' is not a valid configuration event reason"),
+    DUPLICATED_ATTRIBUTE_NAME_IN_CUSTOM_ATTRIBUTE_SET(1013, "DuplicatedAttributeNameInCustomAttributeSet", "Custom attribute set ''{1}'' contains several attributes with name ''{0}''"),
+    CANT_FIND_CUSTOM_ATTRIBUTE_SET(1014, "CantFindCustomAttributeSet", "Can''t find custom attribute set ''{0}''"),
+    CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE(1015, "CantConvertValueOfCustomAttribute", "Can''t convert value ''{0}'' of attribute ''{1}'' for custom attribute set ''{2}''"),
+    CANT_FIND_CUSTOM_ATTRIBUTE(1016, "CantFindCustomAttribute", "Can''t find attribute ''{0}'' for custom attribute set ''{1}''"),
+    CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET(1017, "CantAssignValuesForCustomAttributeSet", "Can''t assign values for custom attribute set ''{0}''"),
+    ASSIGNED_VALUES_FOR_CUSTOM_ATTRIBUTE_SET(1018, "AssignedValuesForCustomAttributeSet", "Assigned values for custom attribute set ''{0}''", Level.INFO),
+    CANNOT_IMPORT_KEY_TO_HSM(1019, "CannotImportKeyToHsm", "Cannot import key to HSM, exception occurred during import for device ''{0}'' and security accessor ''{1}''"),
+    BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED(1020, "BothPublicAndSymmetricKeysShouldBeSpecified", "Both, public key and symmetric key should be specified or none"),
+    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(1021, "NoSuchKeyAccessorTypeOnDeviceType", "Can''t process device ''{0}'': Security accessor ''{1}'' is not available on the device type"),
+    ACTUAL_VALUE_ALREADY_EXISTS(1022, "ActualValueAlreadyExists", "Can''t process device ''{0}'': security accessor ''{1}'' already as an 'active' value"),
+    IMPORTING_SECURITY_KEY_FOR_DEVICE(1023, "ImportingSecurityKeysForDevice", "Importing security key for device ''{0}'' and security accessor ''{1}''"),
+    EXCEPTION_OCCURRED_DURING_KEY_IMPORT(1024, "ExceptionOccurredDuringKeyImport", "Exception occurred during key import for device ''{0}'' and security accessor ''{1}''"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),

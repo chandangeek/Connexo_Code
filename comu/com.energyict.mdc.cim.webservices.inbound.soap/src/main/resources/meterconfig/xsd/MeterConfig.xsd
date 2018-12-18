@@ -6,10 +6,13 @@
            xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:cas="http://connexo.elster.com/2017/schema/customattributes"
+           xmlns:sec="http://connexo.elster.com/2018/schema/securitykeys"
            targetNamespace="http://iec.ch/TC57/2011/MeterConfig#" elementFormDefault="qualified"
            attributeFormDefault="unqualified">
     <xs:import namespace="http://connexo.elster.com/2017/schema/customattributes"
                schemaLocation="CustomAttributes.xsd"/>
+    <xs:import namespace="http://connexo.elster.com/2018/schema/securitykeys"
+               schemaLocation="SecurityKeys.xsd"/>
     <xs:element name="MeterConfig" type="m:MeterConfig"/>
     <xs:complexType name="MeterConfig">
         <xs:sequence>
@@ -401,6 +404,8 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset.status"/>
             <!-- Below elements added for Connexo -->
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="SecurityKey" type="sec:SecurityKey" minOccurs="0"
                         maxOccurs="unbounded"/>
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
