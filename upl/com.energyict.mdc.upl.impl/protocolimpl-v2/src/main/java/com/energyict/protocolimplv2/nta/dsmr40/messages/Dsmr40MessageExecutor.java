@@ -46,7 +46,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
  */
 public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
-    private static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
+    protected static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
     private Dsmr40MbusMessageExecutor mbusMessageExecutor;

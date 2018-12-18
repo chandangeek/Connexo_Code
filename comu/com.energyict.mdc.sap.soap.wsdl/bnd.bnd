@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+
+Private-Package: com.energyict.mdc.sap.soap.wsdl.impl
+Export-Package: com.energyict.mdc.sap.soap.wsdl.webservices.*
